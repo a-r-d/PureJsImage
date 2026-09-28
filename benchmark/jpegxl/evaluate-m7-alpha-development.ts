@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructure } from '../../src/codecs/jpegxl-decode.ts'
 import { encodeJpegXlVarDct8 } from '../../src/codecs/jpegxl-vardct-encode.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
@@ -18,8 +19,11 @@ if (metricCache !== undefined && !/^[a-z0-9-]+$/u.test(metricCache))
 
 sharp.concurrency(1)
 const runId = process.argv[2]
+const publicOwn = process.env.PUREJSIMAGE_M7_ALPHA_PUBLIC === '1'
+if (process.env.PUREJSIMAGE_M7_ALPHA_PUBLIC !== undefined && !publicOwn)
+  throw new Error('Invalid public alpha encoder setting')
 if (!runId || !/^[a-z0-9-]+$/u.test(runId)) throw new Error('Specify a unique run identifier')
-const directory = `.tmp/jpegxl-m7/alpha-${split}-${runId}`
+const directory = `.tmp/jpegxl-m7/${publicOwn ? 'alpha-public' : 'alpha'}-${split}-${runId}`
 await mkdir(directory, { recursive: true })
 const tools = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
 const metrics = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools'
@@ -45,6 +49,7 @@ const mappingHash = hash(await readFile(new URL('./m7-hdr-mapping.ts', import.me
 const cases = m7ExpansionCases(split, 'png')
 const protocol = {
   split,
+  ownEncoderPath: publicOwn ? 'public lossy selector' : 'direct VarDCT backend',
   harnessSha256: hash(await readFile(import.meta.filename)),
   ownDecoderSha256: hash(
     await readFile(new URL('../../src/codecs/jpegxl-decode.ts', import.meta.url)),
@@ -154,16 +159,52 @@ for (const entry of cases) {
           if (engine === 'purejsimage' || engine === 'libjxl') {
             if (engine === 'purejsimage') {
               const sink = new Uint8ArraySink()
-              for (const part of encodeJpegXlVarDct8(
-                pixels,
-                width,
-                height,
-                setting,
-                undefined,
-                4,
-                7,
-              ))
-                await sink.write(part)
+              if (publicOwn) {
+                const encoder = await jpegxlCodec.createEncoder?.(sink, {
+                  width,
+                  height,
+                  pixelFormat: 'rgba8',
+                  colorSemantics: {
+                    family: 'rgb',
+                    primaries: 'srgb',
+                    transfer: { kind: 'srgb' },
+                    matrix: 'identity',
+                    range: 'full',
+                    alpha: 'straight',
+                    provenance: 'assumed-default',
+                    renderingIntent: 'relative',
+                  },
+                  options: {
+                    mode: 'lossy',
+                    distance: setting,
+                    effort: 7,
+                    container: false,
+                  },
+                  limits: defaultImageLimits,
+                })
+                if (!encoder) throw new Error('Missing public JPEG XL encoder')
+                await encoder.write({
+                  x: 0,
+                  y: 0,
+                  width,
+                  height,
+                  stride: width * 4,
+                  format: 'rgba8',
+                  data: pixels,
+                })
+                await encoder.finish()
+              } else {
+                for (const part of encodeJpegXlVarDct8(
+                  pixels,
+                  width,
+                  height,
+                  setting,
+                  undefined,
+                  4,
+                  7,
+                ))
+                  await sink.write(part)
+              }
               encoded = sink.toUint8Array()
               await writeFile(`${path}.jxl`, encoded)
             } else {
@@ -317,6 +358,16 @@ for (const entry of cases) {
             bytes: encoded.length,
             encodedSha256: hash(encoded),
             decodedSha256: hash(decoded),
+            ...(engine === 'purejsimage'
+              ? {
+                  streamEncoding: (
+                    await readJpegXlSourceFrameStructure(
+                      new MemorySource(encoded),
+                      defaultImageLimits,
+                    )
+                  ).encoding,
+                }
+              : {}),
             independentMaximum,
             ownMaximum,
             alphaMaximumError,

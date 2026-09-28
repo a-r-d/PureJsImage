@@ -902,6 +902,89 @@ export async function verifyM7EffortSevenAlpha() {
   return { encoded: Array.from(bytes), decoded: Array.from(decoded), alphaMaximumError }
 }
 
+export async function verifyM7ExactRgbaFallback() {
+  const width = 64,
+    height = 64,
+    pixels = new Uint8Array(width * height * 4),
+    sink = new Uint8ArraySink()
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 4
+      const transparent = x < 8 || y < 8
+      pixels[offset] = transparent ? (x * 19 + y * 7) & 255 : x < 32 ? 230 : 30
+      pixels[offset + 1] = transparent ? (x * 11 + y * 17) & 255 : y < 32 ? 40 : 220
+      pixels[offset + 2] = transparent ? (x * 5 + y * 13) & 255 : x < 32 ? 35 : 235
+      pixels[offset + 3] = transparent ? 0 : 255
+    }
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgba8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'straight',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossy', effort: 7, distance: 3, container: false },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('Missing JPEG XL encoder')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 4,
+    format: 'rgba8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const bytes = sink.toUint8Array()
+  const frames = await readJpegXlSourceFrameStructures(new MemorySource(bytes), defaultImageLimits)
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder) throw new Error('Missing JPEG XL decoder')
+  let visibleMaximumError = 0,
+    alphaMaximumError = 0,
+    invisibleRgbMaximum = 0,
+    rows = 0
+  for await (const block of decoder.decode()) {
+    for (let y = 0; y < block.height; y++)
+      for (let x = 0; x < width; x++) {
+        const source = ((block.y + y) * width + x) * 4
+        const output = y * block.stride + x * 4
+        const alpha = pixels[source + 3] ?? 0
+        alphaMaximumError = Math.max(
+          alphaMaximumError,
+          Math.abs(alpha - (block.data[output + 3] ?? 0)),
+        )
+        for (let channel = 0; channel < 3; channel++) {
+          const value = block.data[output + channel] ?? 0
+          if (alpha === 0) invisibleRgbMaximum = Math.max(invisibleRgbMaximum, value)
+          else
+            visibleMaximumError = Math.max(
+              visibleMaximumError,
+              Math.abs(value - (pixels[source + channel] ?? 0)),
+            )
+        }
+      }
+    rows += block.height
+    block.release?.()
+  }
+  return {
+    bytes: Array.from(bytes),
+    encoding: frames[0]?.encoding,
+    visibleMaximumError,
+    alphaMaximumError,
+    invisibleRgbMaximum,
+    rows,
+  }
+}
+
 export async function verifyM7EffortSevenPq() {
   const width = 17,
     height = 9,

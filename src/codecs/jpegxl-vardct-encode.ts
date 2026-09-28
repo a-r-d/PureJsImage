@@ -638,6 +638,10 @@ function* prepare8(
               : 4
         if (brightPqAc && (means[1] ?? 0) >= 0.5 && blockQuantizationMap[offset] === 4)
           blockQuantizationMap[offset] = 5
+        // Spend extra AC precision on strong SDR edges and thin PQ edges.
+        if (finerSdrAc && gradient > 0.01) blockQuantizationMap[offset] = 6
+        if (brightPqAc && distance >= 2 && distance <= 4 && gradient > 0.01 && activity > 3)
+          blockQuantizationMap[offset] = 6
       }
     }
     yield

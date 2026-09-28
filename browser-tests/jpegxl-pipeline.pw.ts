@@ -10,6 +10,7 @@ import {
   verifyJpegXlScreenshotPatch,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
+  verifyM7ExactRgbaFallback,
   verifyM7EffortSevenPq,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
@@ -328,6 +329,23 @@ test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', a
     const path = '/jpegxl-pipeline.js'
     const module = await import(path)
     return module.verifyM7EffortSevenAlpha()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('M7 compact transparent artwork has exact visible color and alpha in Node and browser', async ({
+  page,
+}) => {
+  const expected = await verifyM7ExactRgbaFallback()
+  expect(expected.encoding).toBe('modular')
+  expect(expected.visibleMaximumError).toBe(0)
+  expect(expected.alphaMaximumError).toBe(0)
+  expect(expected.invisibleRgbMaximum).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7ExactRgbaFallback()
   })
   expect(actual).toEqual(expected)
 })

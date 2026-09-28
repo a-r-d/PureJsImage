@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { describe, expect, it } from 'vitest'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructure } from '../src/codecs/jpegxl-decode.ts'
 import type { PixelColorSemantics } from '../src/color.ts'
 import { createImageLibrary } from '../src/index.ts'
 import { inspectJpegXl, openJpegXlSession } from '../src/jpegxl.ts'
@@ -119,6 +120,64 @@ describe('JPEG XL M7 explicit encoding modes', () => {
         )
         rows++
       }
+      block.release?.()
+    }
+    expect(rows).toBe(frameHeight)
+  })
+
+  it('uses compact exact color for small transparent artwork while normalizing invisible RGB', async () => {
+    const frameWidth = 64,
+      frameHeight = 64
+    const input = new Uint8Array(frameWidth * frameHeight * 4)
+    for (let y = 0; y < frameHeight; y++)
+      for (let x = 0; x < frameWidth; x++) {
+        const offset = (y * frameWidth + x) * 4
+        const transparent = x < 8 || y < 8
+        input[offset] = transparent ? (x * 19 + y * 7) & 255 : x < 32 ? 230 : 30
+        input[offset + 1] = transparent ? (x * 11 + y * 17) & 255 : y < 32 ? 40 : 220
+        input[offset + 2] = transparent ? (x * 5 + y * 13) & 255 : x < 32 ? 35 : 235
+        input[offset + 3] = transparent ? 0 : 255
+      }
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width: frameWidth,
+      height: frameHeight,
+      pixelFormat: 'rgba8',
+      colorSemantics: semantics,
+      options: { mode: 'lossy', effort: 7, distance: 3, container: false },
+    })
+    if (!encoder) throw new Error('Missing encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width: frameWidth,
+      height: frameHeight,
+      stride: frameWidth * 4,
+      format: 'rgba8',
+      data: input,
+    })
+    await encoder.finish()
+    const output = sink.toUint8Array()
+    const frame = await readJpegXlSourceFrameStructure(new MemorySource(output), defaultImageLimits)
+    expect(frame.encoding).toBe('modular')
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(output),
+      defaultImageLimits,
+      { colorOutput: 'preserve' },
+    )
+    if (!decoder) throw new Error('Missing decoder')
+    let rows = 0
+    for await (const block of decoder.decode()) {
+      for (let y = 0; y < block.height; y++)
+        for (let x = 0; x < frameWidth; x++) {
+          const source = ((block.y + y) * frameWidth + x) * 4
+          const decoded = y * block.stride + x * 4
+          const visible = input[source + 3] !== 0
+          for (let channel = 0; channel < 3; channel++)
+            expect(block.data[decoded + channel]).toBe(visible ? input[source + channel] : 0)
+          expect(block.data[decoded + 3]).toBe(input[source + 3])
+        }
+      rows += block.height
       block.release?.()
     }
     expect(rows).toBe(frameHeight)

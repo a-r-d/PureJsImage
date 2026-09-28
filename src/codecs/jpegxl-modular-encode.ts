@@ -4078,6 +4078,48 @@ const encodeLossyCodestream = (
     }
     let selected: EncodedJpegXlCodestream = primary
     if (
+      format === 'rgba8' &&
+      options.effort === 7 &&
+      !options.progressive &&
+      width * height <= 262_144 &&
+      options.sampleBitDepth === 8 &&
+      options.alphaBitDepth === 8 &&
+      options.colorSemantics.primaries === 'srgb' &&
+      options.colorSemantics.transfer.kind === 'srgb'
+    ) {
+      let normalized: Uint8Array | undefined
+      try {
+        for (let offset = 0; offset < pixels.length; offset += 4) {
+          if (
+            pixels[offset + 3] === 0 &&
+            ((pixels[offset] ?? 0) | (pixels[offset + 1] ?? 0) | (pixels[offset + 2] ?? 0)) !== 0
+          ) {
+            normalized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+            normalized.set(pixels)
+            break
+          }
+        }
+        if (normalized)
+          for (let offset = 0; offset < normalized.length; offset += 4)
+            if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
+        const exact = await encodeCodestream(
+          normalized ?? pixels,
+          width,
+          height,
+          format,
+          { ...options, mode: 'lossless' },
+          memory,
+          checkpoint,
+        )
+        // Preserve visible color and exact alpha when Modular also saves bytes.
+        if (exact.byteLength * 20 <= primary.byteLength * 19) return exact
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      } finally {
+        if (normalized) memory.release(normalized)
+      }
+    }
+    if (
       format === 'rgb8' &&
       options.effort === 7 &&
       !options.progressive &&
