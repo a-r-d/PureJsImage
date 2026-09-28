@@ -366,6 +366,16 @@ function* prepare8(
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const finerSdrAc =
+    effort === 7 &&
+    channels === 3 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    distance >= 2 &&
+    distance <= 4 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
   const moderateAlphaDc =
     effort === 7 &&
     channels === 4 &&
@@ -619,7 +629,15 @@ function* prepare8(
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
         const activity = gradient / Math.max(yy, 1e-12)
-        blockQuantizationMap[offset] = moderateAlphaDc || yy < 0.000064 || activity < 0.15 ? 6 : 4
+        blockQuantizationMap[offset] = moderateAlphaDc
+          ? 7
+          : yy < 0.000064 || activity < 0.15
+            ? 6
+            : finerSdrAc
+              ? 5
+              : 4
+        if (brightPqAc && (means[1] ?? 0) >= 0.5 && blockQuantizationMap[offset] === 4)
+          blockQuantizationMap[offset] = 5
       }
     }
     yield

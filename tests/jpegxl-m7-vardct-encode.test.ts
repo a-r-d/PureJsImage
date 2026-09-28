@@ -91,6 +91,73 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     })
   }
 
+  it('keeps bright PQ16 edges and native precision at effort 7', async () => {
+    const width = 17,
+      height = 9
+    const pixels = new Uint8Array(width * height * 6)
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        const value = x < 8 ? 0x3000 : 0xd000
+        for (let channel = 0; channel < 3; channel++) {
+          const offset = (y * width + x) * 6 + channel * 2
+          pixels[offset] = value >>> 8
+          pixels[offset + 1] = value & 255
+        }
+      }
+    const sink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(sink, {
+      width,
+      height,
+      pixelFormat: 'rgb16',
+      colorSemantics: {
+        family: 'rgb',
+        primaries: 'srgb',
+        transfer: { kind: 'pq' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'container-signaled',
+        renderingIntent: 'relative',
+      },
+      options: { mode: 'lossy', distance: 3, effort: 7, sampleBitDepth: 16 },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('Missing JPEG XL encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 6,
+      format: 'rgb16',
+      data: pixels,
+    })
+    await encoder.finish()
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(sink.toUint8Array()),
+      defaultImageLimits,
+    )
+    if (!decoder) throw new Error('Missing JPEG XL decoder')
+    expect(decoder.pixelFormat).toBe('rgbf32')
+    let dark = 0,
+      bright = 0,
+      rows = 0
+    for await (const block of decoder.decode()) {
+      const values = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+      for (let y = 0; y < block.height; y++)
+        for (let x = 0; x < width; x++) {
+          const value = values.getFloat32(y * block.stride + x * 12, false)
+          expect(Number.isFinite(value)).toBe(true)
+          if (x < 8) dark += value
+          else bright += value
+        }
+      rows += block.height
+      block.release?.()
+    }
+    expect(rows).toBe(height)
+    expect(bright / 9).toBeGreaterThan(dark / 8)
+  })
+
   for (const [distance, channels, iterations] of [
     [1, 3, 0],
     [3, 3, 2],

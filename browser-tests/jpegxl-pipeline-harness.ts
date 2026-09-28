@@ -902,6 +902,65 @@ export async function verifyM7EffortSevenAlpha() {
   return { encoded: Array.from(bytes), decoded: Array.from(decoded), alphaMaximumError }
 }
 
+export async function verifyM7EffortSevenPq() {
+  const width = 17,
+    height = 9,
+    pixels = new Uint8Array(width * height * 6),
+    sink = new Uint8ArraySink()
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const value = x < 8 ? 0x3000 : 0xd000
+      for (let channel = 0; channel < 3; channel++) {
+        const offset = (y * width + x) * 6 + channel * 2
+        pixels[offset] = value >>> 8
+        pixels[offset + 1] = value & 255
+      }
+    }
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height,
+    pixelFormat: 'rgb16',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'pq' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'container-signaled',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossy', distance: 3, effort: 7, sampleBitDepth: 16 },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('Missing JPEG XL PQ encoder')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height,
+    stride: width * 6,
+    format: 'rgb16',
+    data: pixels,
+  })
+  await encoder.finish()
+  const bytes = sink.toUint8Array()
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (!decoder || decoder.pixelFormat !== 'rgbf32') throw new Error('Missing JPEG XL PQ decoder')
+  const decoded: number[] = []
+  for await (const block of decoder.decode()) {
+    const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
+    for (let y = 0; y < block.height; y++)
+      for (let x = 0; x < width * 3; x++) {
+        const value = view.getFloat32(y * block.stride + x * 4, false)
+        if (!Number.isFinite(value)) throw new Error('Nonfinite JPEG XL PQ output')
+        decoded.push(value)
+      }
+    block.release?.()
+  }
+  return { encoded: Array.from(bytes), decoded }
+}
+
 export async function verifyM7EffortOneGroups() {
   const width = 513,
     height = 257

@@ -134,9 +134,13 @@ describe('JPEG XL M7 explicit encoding modes', () => {
     expect(bounded).toEqual(baseline)
   })
 
-  it.each([3, 7])(
-    'ignores invisible RGB during lossy effort %i while preserving alpha',
-    async (effort) => {
+  it.each([
+    [3, 1],
+    [7, 1],
+    [7, 3],
+  ] as const)(
+    'ignores invisible RGB during lossy effort %i at distance %i while preserving alpha',
+    async (effort, distance) => {
       const frameWidth = 17,
         frameHeight = 9
       const encoded: Uint8Array[] = []
@@ -159,7 +163,7 @@ describe('JPEG XL M7 explicit encoding modes', () => {
           height: frameHeight,
           pixelFormat: 'rgba8',
           colorSemantics: semantics,
-          options: { mode: 'lossy', distance: 1, effort },
+          options: { mode: 'lossy', distance, effort },
         })
         if (!encoder) throw new Error('Missing encoder')
         await encoder.write({

@@ -10,6 +10,7 @@ import {
   verifyJpegXlScreenshotPatch,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
+  verifyM7EffortSevenPq,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
@@ -327,6 +328,18 @@ test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', a
     const path = '/jpegxl-pipeline.js'
     const module = await import(path)
     return module.verifyM7EffortSevenAlpha()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('M7 effort-7 lossy PQ16 preserves native output in Node and browser', async ({ page }) => {
+  const expected = await verifyM7EffortSevenPq()
+  expect(expected.decoded).toHaveLength(17 * 9 * 3)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7EffortSevenPq()
   })
   expect(actual).toEqual(expected)
 })
