@@ -1,0 +1,447 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29T15:21:19.825Z",
+  "runtime": "v24.16.0",
+  "files": [
+    {
+      "id": "native-float-hdr",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/native-float-hdr.jxl",
+      "sha256": "91f6c95435e0d25332feee1355639bd099616c44a96d1b70d3ebae1532588d47",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "depth-channel",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/depth-channel.jxl",
+      "sha256": "a2adf5a13a248eb52326cbc41804c5178ebcca06cf009c3270699505f0b5cbac",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "gray-icc",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/gray-icc.jxl",
+      "sha256": "e726123f06e6219673ac91d77a8c8411bc071aeddf4edf1d6939816b2a33fdfd",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "animation",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/animation.jxl",
+      "sha256": "dda30b60c606a78f9d7e4918ccd194b18024379d6b12acebde0a959c98eeb8ff",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "original-jpeg",
+      "path": "tests/fixtures/jpegxl/gray-exact/gray-baseline.jpg",
+      "sha256": "77d7ef0a225fdeefd227bb237a3dc1ffd70f73c1010f8d983c0b1cbbd46527e3",
+      "license": "Repository generated fixture, MIT"
+    },
+    {
+      "id": "progressive",
+      "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl",
+      "sha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+      "license": "Repository generated fixture, MIT"
+    },
+    {
+      "id": "jpeg-recompressed",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/jpeg-recompressed.jxl",
+      "sha256": "6afe79b40354bfbb2fc98d121f4852c15aca5100a8394fc199fce2f6b56bde9d",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "vips-animation",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/vips-animation.jxl",
+      "sha256": "a2fe5e06a9fbac3229aaa77b041b28fd880037bcb8486ad9562b752695266fa1",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    }
+  ],
+  "rows": [
+    {
+      "subject": "purejsimage",
+      "feature": "native float and HDR headroom",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "count": 1,
+        "views": [
+          {
+            "white": 1,
+            "width": 8,
+            "height": 4,
+            "hash": "184ef3e5443b942005fe84c97bbff59faa02de6bc1a1de0e4c45d06f48a912d9"
+          },
+          {
+            "white": 2,
+            "width": 8,
+            "height": 4,
+            "hash": "f6f03948ccf022df5a8eb7f016da9ee03e54de331123261b12bc168b9ba65214"
+          },
+          {
+            "white": 4,
+            "width": 8,
+            "height": 4,
+            "hash": "c0581a38a7e6011ce52563af9930702d8b0b6fa00b2b1f542f6869e57298e924"
+          }
+        ],
+        "source": {
+          "id": "native-float-hdr",
+          "path": ".tmp/jpegxl-comparison-v1/specialized/native-float-hdr.jxl",
+          "sha256": "91f6c95435e0d25332feee1355639bd099616c44a96d1b70d3ebae1532588d47",
+          "license": "MIT repository synthetic fixture; generated through public API"
+        },
+        "nativeBitsExact": true
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "extra channel samples and meaning",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "type": 1,
+        "name": "depth",
+        "samples": 32
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "ICC preservation",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "sha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd",
+        "inspection": {
+          "kind": "container",
+          "organization": "jxlc",
+          "containerVersion": 0,
+          "codestreamBytes": 1091,
+          "codestreamSegments": [
+            {
+              "offset": 49,
+              "length": 1091,
+              "index": 0
+            }
+          ],
+          "boxes": [
+            {
+              "type": "JXL ",
+              "offset": 0,
+              "length": 12,
+              "payloadBytes": 4
+            },
+            {
+              "type": "ftyp",
+              "offset": 12,
+              "length": 20,
+              "payloadBytes": 12
+            },
+            {
+              "type": "jxll",
+              "offset": 32,
+              "length": 9,
+              "payloadBytes": 1
+            },
+            {
+              "type": "jxlc",
+              "offset": 41,
+              "length": 1099,
+              "payloadBytes": 1091
+            }
+          ],
+          "metadataBoxes": [],
+          "width": 8,
+          "height": 4,
+          "displayWidth": 8,
+          "displayHeight": 4,
+          "orientation": 1,
+          "bitDepth": 16,
+          "exponentBits": 0,
+          "colorChannels": 1,
+          "extraChannels": 0,
+          "alpha": "none",
+          "alphaChannels": 0,
+          "encodedColor": "icc",
+          "renderingIntent": "relative",
+          "toneMapping": {
+            "intensityTarget": 255,
+            "minNits": 0,
+            "relativeToMaxDisplay": false,
+            "linearBelow": 0
+          },
+          "icc": {
+            "present": true,
+            "decodedBytes": 912
+          },
+          "encoding": "modular",
+          "imageKind": "static",
+          "preview": false,
+          "frameCount": 1,
+          "level": 10,
+          "progressivePasses": 1,
+          "jpegReconstruction": "unavailable",
+          "exactReconstructionEligibility": "unavailable",
+          "expectedPixelFormat": "gray16",
+          "resourceEstimates": {
+            "codestreamBytes": 1091,
+            "metadataBytes": 0,
+            "nativeSampleBytes": 64
+          },
+          "unsupportedFeatures": ["animation", "Level 10 pixel decode", "exact JPEG reconstruction"]
+        }
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "animation encode, decode, composition, timing and frame access",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "frames": [
+          {
+            "index": 0,
+            "width": 2,
+            "height": 2,
+            "duration": 3,
+            "start": "0",
+            "alpha": [1, 1, 1, 1]
+          },
+          {
+            "index": 1,
+            "width": 2,
+            "height": 2,
+            "duration": 5,
+            "start": "3",
+            "alpha": [0, 0, 0, 0]
+          }
+        ],
+        "loops": 2,
+        "statusScope": "Experimental animation; two full replacement frames only, blend-mode corpus not retested"
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "exact JPEG recompression and reconstruction",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "jpegSha256": "77d7ef0a225fdeefd227bb237a3dc1ffd70f73c1010f8d983c0b1cbbd46527e3",
+        "reconstructedSha256": "77d7ef0a225fdeefd227bb237a3dc1ffd70f73c1010f8d983c0b1cbbd46527e3",
+        "bytes": 559
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "region, reduced resolution, preview and selective reads",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "firstUsefulMs": 48.847969000000035,
+        "requestedAtFirst": 20544,
+        "requestedTotal": 67431,
+        "inputBytes": 148917,
+        "reads": [
+          {
+            "offset": 0,
+            "length": 12
+          },
+          {
+            "offset": 0,
+            "length": 4096
+          },
+          {
+            "offset": 10829,
+            "length": 4096
+          },
+          {
+            "offset": 25,
+            "length": 10804
+          },
+          {
+            "offset": 10887,
+            "length": 109
+          },
+          {
+            "offset": 10996,
+            "length": 1427
+          },
+          {
+            "offset": 12423,
+            "length": 3069
+          },
+          {
+            "offset": 21495,
+            "length": 6031
+          },
+          {
+            "offset": 39944,
+            "length": 5838
+          },
+          {
+            "offset": 83711,
+            "length": 31949
+          }
+        ],
+        "stages": [
+          {
+            "kind": "dc",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "final",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          }
+        ],
+        "transport": "in-memory read callback; requested counts include repeated reads; no network transfer claimed",
+        "qualityValidation": "stage geometry and nonempty blocks only; preview visual fidelity not scored"
+      }
+    },
+    {
+      "subject": "oxide",
+      "feature": "animation decode, frame timing and frame access",
+      "status": "incorrect output",
+      "detail": "Error: Semantic mismatch: [3000,5000] vs [0.003,0.005]"
+    },
+    {
+      "subject": "oxide",
+      "feature": "incremental input and first useful preview",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "firstUsefulMs": 32.08724199999995,
+        "delivered": 4096,
+        "inputBytes": 148917,
+        "beforeComplete": true,
+        "width": 513,
+        "height": 385,
+        "sha256": "de95d8c3f8142ec010eb5aba394d8e659c6b6be5e6b1be487479b1b8b69f4eb0",
+        "attempts": [],
+        "transport": "in-memory chunks; no network read callback"
+      }
+    },
+    {
+      "subject": "oxide",
+      "feature": "region reconstruction",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "width": 32,
+        "height": 32,
+        "sha256": "11a5b26a7f469a7835af920105c93ccb6ca7ef920ca2ba1194bdb1b520c83d77",
+        "inputBytes": 148917,
+        "selectiveSourceReads": false,
+        "qualityValidation": "geometry only; no independent cropped pixel assertion yet"
+      }
+    },
+    {
+      "subject": "oxide",
+      "feature": "ICC access",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "sha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd"
+      }
+    },
+    {
+      "subject": "vips",
+      "feature": "native float HDR",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "width": 8,
+        "height": 4,
+        "interpretation": "scrgb",
+        "maximum": 3.5,
+        "sha256": "d32541cfab0d9c1d94c2f829378f0bfe5f44122483f47038f44ad410f7ebb531"
+      }
+    },
+    {
+      "subject": "vips",
+      "feature": "animation decode, frame timing and composition",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "frames": 2,
+        "delay": [3, 5],
+        "pageHeight": 2,
+        "loop": 2
+      }
+    },
+    {
+      "subject": "vips",
+      "feature": "animation frame access",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "page": 1,
+        "samples": 16
+      }
+    },
+    {
+      "subject": "vips",
+      "feature": "ICC access",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "sha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd"
+      }
+    },
+    {
+      "subject": "vips",
+      "feature": "animation encode",
+      "status": "incorrect output",
+      "detail": "Error: Semantic mismatch: [100,100] vs [3,5]"
+    }
+  ],
+  "independent": [
+    {
+      "id": "native-float-hdr",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "depth-channel",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "gray-icc",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "animation",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "jpeg-recompressed",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "vips-animation",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    }
+  ],
+  "scope": "Node specialized public APIs; browser specialized behavior not inferred. Existing official conformance remains separate."
+}

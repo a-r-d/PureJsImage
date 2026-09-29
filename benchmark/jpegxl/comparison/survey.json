@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-09-29",
+  "scope": "Selected public JavaScript JPEG XL APIs and their official browser tools. Not an exhaustive ecosystem survey.",
+  "subjects": [
+    {
+      "id": "purejsimage",
+      "packageVersion": "0.17.0",
+      "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+      "source": "https://github.com/a-r-d/PureJsImage/tree/564a4d2d3e1c318f64821322c67329550df6da6b",
+      "implementation": "first-party TypeScript; measured local build of this revision, not an assertion about the npm 0.17.0 tarball",
+      "apiEvidence": ["dist/browser.d.ts", "dist/codec-entries/jpegxl.d.ts", "dist/jpegxl.d.ts"]
+    },
+    {
+      "id": "jsquash",
+      "package": "@jsquash/jxl",
+      "version": "1.3.0",
+      "npmGitHead": "1b1964194611ece3ec984ab91c04726d1088f05e",
+      "source": "https://github.com/jamsinclair/jSquash/tree/main/packages/jxl",
+      "implementation": "Published Emscripten libjxl WASM; exact embedded upstream libjxl revision not stated by package manifest",
+      "tool": "jSquash codecs derive from Squoosh; ImageData decode/encode API, optional threaded browser encoder with isolation",
+      "apiEvidence": [
+        "node_modules/@jsquash/jxl/README.md",
+        "node_modules/@jsquash/jxl/decode.d.ts",
+        "node_modules/@jsquash/jxl/encode.d.ts",
+        "node_modules/@jsquash/jxl/encode.js"
+      ]
+    },
+    {
+      "id": "oxide",
+      "package": "jxl-oxide-wasm",
+      "version": "0.12.6",
+      "npmGitHead": null,
+      "source": "https://github.com/tirr-c/jxl-oxide/tree/main/crates/jxl-oxide-wasm",
+      "implementation": "Official published Rust/wasm-bindgen binding; not a custom source build; npm manifest does not identify its exact source commit",
+      "tool": "Official demo: https://github.com/tirr-c/jxl-oxide-wasm-demo. Binding exposes incremental feeding, frame rendering, regions, ICC and PNG export. No public raw-sample export or encoder.",
+      "apiEvidence": [
+        "node_modules/jxl-oxide-wasm/README.md",
+        "node_modules/jxl-oxide-wasm/jxl_oxide_wasm.d.ts",
+        "node_modules/jxl-oxide-wasm/jxl_oxide_wasm.js"
+      ]
+    },
+    {
+      "id": "vips",
+      "package": "wasm-vips",
+      "version": "0.0.19",
+      "npmGitHead": "49ac4378f2df80e38f45491abeeac9b86dddbedd",
+      "source": "https://github.com/kleisauke/wasm-vips",
+      "implementation": "Published libvips 8.18.7 / libjxl 0.12.0 / Emscripten 6.0.10 WASM. Request only the supported vips-jxl dynamic plugin.",
+      "tool": "Official interactive playground: https://wasm-vips.kleisauke.nl/. General image processing and typed memory APIs; browser requires cross-origin isolation even with concurrency(1).",
+      "apiEvidence": [
+        "node_modules/wasm-vips/README.md",
+        "node_modules/wasm-vips/lib/vips.d.ts",
+        "node_modules/wasm-vips/lib/versions.json"
+      ]
+    }
+  ],
+  "otherTools": [
+    {
+      "name": "Squoosh",
+      "source": "https://github.com/GoogleChromeLabs/squoosh",
+      "scope": "Browser image compression application and historical source of jSquash codecs; surveyed as a tool, not measured as another independent codec implementation."
+    }
+  ],
+  "limits": [
+    "No universal best/widest/only claim follows from this selection.",
+    "Installed package declarations and glue were inspected alongside official documentation. Missing APIs are wrapper boundaries, not claims about the full native engine.",
+    "Published WASM binaries and npm lockfile integrity are the reproducibility pins when build-source provenance is unavailable."
+  ]
+}
