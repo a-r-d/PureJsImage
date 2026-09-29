@@ -156,7 +156,7 @@ export interface JpegXlWorkbenchPixelSource {
 }
 
 export interface JpegXlWorkbenchEncodeSummary {
-  readonly status: 'Experimental'
+  readonly status: 'Stable'
   readonly sourcePixelFormat: JpegXlWorkbenchPixelSource['pixelFormat']
   readonly decodedPixelFormat: JpegXlWorkbenchPixelSource['pixelFormat']
   readonly exactDecodedSamples: boolean
@@ -512,7 +512,7 @@ const encode = (value: unknown): value is JpegXlWorkbenchEncodeSummary =>
     'sizeDifferenceBytes',
     'outputToInputRatio',
   ]) &&
-  value.status === 'Experimental' &&
+  value.status === 'Stable' &&
   encoderPixelFormat(value.sourcePixelFormat) &&
   value.decodedPixelFormat === value.sourcePixelFormat &&
   typeof value.exactDecodedSamples === 'boolean' &&
