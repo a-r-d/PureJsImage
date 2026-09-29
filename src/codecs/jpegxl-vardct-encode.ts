@@ -71,6 +71,20 @@ export { forwardJpegXlDct8 } from './jpegxl-vardct-forward-transforms.ts'
 
 const strategyCandidates = Uint8Array.of(1, 12, 13)
 
+// The AC writer emits each coefficient through the final nonzero scan position.
+// This natural scan is the starting order before its image-level order adaptation.
+const naturalAcScanRank = new Uint8Array(64)
+{
+  let scan = 1
+  for (let diagonal = 1; diagonal < 15; diagonal++) {
+    for (let step = 0; step <= diagonal; step++) {
+      const x = (diagonal & 1) !== 0 ? diagonal - step : step
+      const y = (diagonal & 1) !== 0 ? step : diagonal - step
+      if (x < 8 && y < 8) naturalAcScanRank[y * 8 + x] = scan++
+    }
+  }
+}
+
 // The mixed-linear matrix is the inverse of the repository decoder's default opsin matrix.
 const fillXybBlock = (
   pixels: Uint8Array,
@@ -274,6 +288,7 @@ export const encodeJpegXlVarDct8 = (
 export interface JpegXlForwardFrameOptions {
   readonly reference?: boolean
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
+  readonly strategyPolicy?: 'rate-distortion'
 }
 
 export const encodeJpegXlVarDct8Async = (
@@ -306,6 +321,7 @@ export const encodeJpegXlVarDct8Async = (
       progressive,
       color,
       limits,
+      frame.strategyPolicy ?? 'conservative',
     )
     await checkpoint()
     let next = steps.next()
@@ -340,6 +356,7 @@ function* prepare8(
   progressive: boolean,
   color: JpegXlForwardColor | undefined,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidInput('JPEG XL dimensions must be positive safe integers')
@@ -688,6 +705,7 @@ function* prepare8(
       ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
       : undefined
   if (blockStrategyMap) {
+    const alternatePolicy = strategyPolicy === 'rate-distortion'
     const errors = allocateJpegXlArray(memory, Float32Array, 3)
     const baselineErrors = allocateJpegXlArray(memory, Float32Array, 3)
     const coefficientErrors = allocateJpegXlArray(memory, Float32Array, 64)
@@ -701,7 +719,9 @@ function* prepare8(
           table = strategyTables(strategy)[channel]
         if (!plane || !table) throw invalidInput('Missing strategy plane')
         transform(strategy, plane)
-        let squared = 0
+        let squared = 0,
+          nonzero = 0,
+          lastNonzero = 0
         coefficientErrors[0] = 0
         for (let position = 1; position < 64; position++) {
           const step = localScale * (table[position] ?? 0)
@@ -717,8 +737,16 @@ function* prepare8(
           coefficientErrors[position] = error
           squared +=
             error * error * ((strategy === 12 || strategy === 13) && position !== 8 ? 0.5 : 1)
-          if (value !== 0) bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+          if (value !== 0) {
+            bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+            if (alternatePolicy) {
+              nonzero++
+              lastNonzero = Math.max(lastNonzero, naturalAcScanRank[position] ?? 0)
+            }
+          }
         }
+        // The alternate estimate includes zero tokens up to the final nonzero.
+        if (alternatePolicy) bits += 0.4 * (lastNonzero - nonzero)
         if (strategy === 1) {
           squared = 0
           const c01 = coefficientErrors[1] ?? 0,
@@ -753,22 +781,42 @@ function* prepare8(
         const index = y * fullBlockWidth + x
         const localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
         errors.fill(Infinity)
-        let bestBits = measureStrategy(0, localScale),
-          best = 0,
-          selectedError = errors[1] ?? 0
+        const baselineBits = measureStrategy(0, localScale)
         baselineErrors.set(errors)
-        for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
-          const strategy = strategyCandidates[candidate] ?? 0
-          const bits = measureStrategy(strategy, localScale)
-          if (
-            bits + 2 < bestBits &&
-            (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
-            (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
-            (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
-          ) {
-            bestBits = bits
-            best = strategy
-            selectedError = errors[1] ?? 0
+        let best = 0,
+          selectedError = baselineErrors[1] ?? 0
+        if (alternatePolicy) {
+          const baselineDistortion =
+            2 * (baselineErrors[1] ?? 0) + (baselineErrors[0] ?? 0) + (baselineErrors[2] ?? 0)
+          const lambda = (baselineDistortion * 2) / Math.max(8, baselineBits)
+          let bestCost = baselineDistortion + lambda * baselineBits
+          for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
+            const strategy = strategyCandidates[candidate] ?? 0
+            const bits = measureStrategy(strategy, localScale)
+            const distortion =
+              2 * (errors[1] ?? Infinity) + (errors[0] ?? Infinity) + (errors[2] ?? Infinity)
+            const cost = distortion + lambda * (bits + 2)
+            if (bits + 2 < baselineBits && cost < bestCost) {
+              bestCost = cost
+              best = strategy
+              selectedError = errors[1] ?? 0
+            }
+          }
+        } else {
+          let bestBits = baselineBits
+          for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
+            const strategy = strategyCandidates[candidate] ?? 0
+            const bits = measureStrategy(strategy, localScale)
+            if (
+              bits + 2 < bestBits &&
+              (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
+              (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
+              (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
+            ) {
+              bestBits = bits
+              best = strategy
+              selectedError = errors[1] ?? 0
+            }
           }
         }
         blockStrategyMap[index] = best

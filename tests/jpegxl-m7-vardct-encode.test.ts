@@ -91,6 +91,80 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     })
   }
 
+  it('selects a smaller public stream for sparse diagonal graphics without losing edge quality', async () => {
+    const width = 512
+    const height = 512
+    const pixels = new Uint8Array(width * height * 3)
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        const edge = (x * 3 + y * 5) % 127 < 2
+        const offset = (y * width + x) * 3
+        pixels[offset] = edge ? 90 : 238 + ((x * 13 + y * 7) % 5)
+        pixels[offset + 1] = edge ? 132 : 244 + ((x + y) % 5)
+        pixels[offset + 2] = edge ? 12 : 229 + ((x * 5 + y) % 5)
+      }
+    const source = pixels.slice()
+    const strict = new Uint8ArraySink()
+    for (const part of encodeJpegXlVarDct8(pixels, width, height, 3, undefined, 3, 7))
+      await strict.write(part)
+    const publicSink = new Uint8ArraySink()
+    const encoder = await jpegxlCodec.createEncoder?.(publicSink, {
+      width,
+      height,
+      pixelFormat: 'rgb8',
+      colorSemantics: {
+        family: 'rgb',
+        primaries: 'srgb',
+        transfer: { kind: 'srgb' },
+        matrix: 'identity',
+        range: 'full',
+        alpha: 'none',
+        provenance: 'assumed-default',
+        renderingIntent: 'relative',
+      },
+      options: { mode: 'lossy', distance: 3, effort: 7, container: false },
+      limits: defaultImageLimits,
+    })
+    if (!encoder) throw new Error('Missing JPEG XL encoder')
+    await encoder.write({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      stride: width * 3,
+      format: 'rgb8',
+      data: pixels,
+    })
+    await encoder.finish()
+    const publicBytes = publicSink.toUint8Array()
+    expect(pixels).toEqual(source)
+    expect(publicBytes.byteLength).toBeLessThan(strict.toUint8Array().byteLength * 0.75)
+    const frames = await readJpegXlSourceFrameStructure(
+      new MemorySource(publicBytes),
+      defaultImageLimits,
+    )
+    expect(frames.encoding).toBe('vardct')
+    const squaredError = async (bytes: Uint8Array): Promise<number> => {
+      const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+      if (!decoder) throw new Error('Missing JPEG XL decoder')
+      let error = 0
+      let samples = 0
+      for await (const block of decoder.decode()) {
+        for (let y = 0; y < block.height; y++)
+          for (let x = 0; x < width * 3; x++) {
+            const delta =
+              (block.data[y * block.stride + x] ?? 0) - (pixels[(block.y + y) * width * 3 + x] ?? 0)
+            error += delta * delta
+            samples++
+          }
+        block.release?.()
+      }
+      expect(samples).toBe(pixels.length)
+      return error / samples
+    }
+    expect(await squaredError(publicBytes)).toBeLessThan(await squaredError(strict.toUint8Array()))
+  })
+
   it('keeps bright PQ16 edges and native precision at effort 7', async () => {
     const width = 17,
       height = 9

@@ -4082,6 +4082,11 @@ const encodeLossyCodestream = (
     const writer = new JpegXlBitWriter(memory)
     writeImageHeader(writer, width, height, format, options, true)
     const imageHeader = writer.finish()
+    const forwardChannels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
+    const forwardColor = {
+      ...options.colorSemantics,
+      storageBytes: format.endsWith('16') ? 2 : 1,
+    } as const
     const parts = await encodeJpegXlVarDct8Async(
       pixels,
       width,
@@ -4089,15 +4094,12 @@ const encodeLossyCodestream = (
       options.distance,
       memory,
       checkpoint,
-      format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3,
+      forwardChannels,
       options.effort,
       imageHeader,
       options.sampleBitDepth,
       options.progressive,
-      {
-        ...options.colorSemantics,
-        storageBytes: format.endsWith('16') ? 2 : 1,
-      },
+      forwardColor,
       limits,
     )
     const header = parts[0]
@@ -4155,6 +4157,49 @@ const encodeLossyCodestream = (
       format === 'rgb8' &&
       options.effort === 7 &&
       !options.progressive &&
+      options.distance >= 1 &&
+      options.distance <= 4 &&
+      width * height >= 262_144 &&
+      width * height <= 12_000_000 &&
+      options.sampleBitDepth === 8 &&
+      options.colorSemantics.primaries === 'srgb' &&
+      options.colorSemantics.transfer.kind === 'srgb'
+    ) {
+      try {
+        await checkpoint()
+        const alternateParts = await encodeJpegXlVarDct8Async(
+          pixels,
+          width,
+          height,
+          options.distance,
+          memory,
+          checkpoint,
+          forwardChannels,
+          options.effort,
+          imageHeader,
+          options.sampleBitDepth,
+          options.progressive,
+          forwardColor,
+          limits,
+          { strategyPolicy: 'rate-distortion' },
+        )
+        const alternateHeader = alternateParts[0]
+        if (!alternateHeader) throw invalidInput('JPEG XL alternate header is missing')
+        const alternate: EncodedJpegXlCodestream = {
+          header: alternateHeader,
+          sections: alternateParts.slice(1),
+          byteLength: alternateParts.reduce((sum, part) => sum + part.byteLength, 0),
+        }
+        // Compare actual streams; the block-level bit estimate misses entropy contexts.
+        if (alternate.byteLength * 100 <= selected.byteLength * 99) selected = alternate
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      }
+    }
+    if (
+      format === 'rgb8' &&
+      options.effort === 7 &&
+      !options.progressive &&
       options.distance >= 2 &&
       options.distance <= 4 &&
       width * height >= 262_144 &&
@@ -4174,7 +4219,7 @@ const encodeLossyCodestream = (
           checkpoint,
           limits,
         )
-        if (screenshot && screenshot.byteLength * 200 <= primary.byteLength * 199)
+        if (screenshot && screenshot.byteLength * 200 <= selected.byteLength * 199)
           selected = screenshot
       } catch (error) {
         if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
@@ -4195,7 +4240,8 @@ const encodeLossyCodestream = (
         checkpoint,
       )
       // The enclosing memory scope retains only the selected codestream.
-      const selected = modular.byteLength * 5 <= primary.byteLength * 4 ? modular : primary
+      const documentSelected =
+        modular.byteLength * 5 <= selected.byteLength * 4 ? modular : selected
       try {
         const patched = await encodeJpegXlDocumentPatchCandidate(
           pixels,
@@ -4205,13 +4251,15 @@ const encodeLossyCodestream = (
           memory,
           checkpoint,
         )
-        return patched && patched.byteLength * 20 <= selected.byteLength * 19 ? patched : selected
+        return patched && patched.byteLength * 20 <= documentSelected.byteLength * 19
+          ? patched
+          : documentSelected
       } catch (error) {
-        if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return selected
+        if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return documentSelected
         throw error
       }
     } catch (error) {
-      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return primary
+      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return selected
       throw error
     }
   })

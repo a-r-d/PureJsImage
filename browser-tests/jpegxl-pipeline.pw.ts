@@ -8,6 +8,7 @@ import {
   verifyLevelTenJpegXl,
   verifyJpegXlLargeDocumentSelection,
   verifyJpegXlScreenshotPatch,
+  verifyJpegXlRateDistortionSelection,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
   verifyM7ExactRgbaFallback,
@@ -15,6 +16,18 @@ import {
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+test('JPEG XL rate-distortion selection agrees in Node and browser', async ({ page }) => {
+  const expected = await verifyJpegXlRateDistortionSelection()
+  expect(expected.selectedBytes).toBeLessThan(expected.conservativeBytes * 0.75)
+  expect(expected.frames).toEqual([['regular', 'vardct']])
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlRateDistortionSelection()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('repeated screenshot JPEG XL patches agree in Node and Chromium', async ({ page }) => {
   const expected = await verifyJpegXlScreenshotPatch()

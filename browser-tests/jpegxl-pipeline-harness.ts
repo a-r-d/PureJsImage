@@ -23,6 +23,57 @@ import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { type ImageSource, MemorySource } from '../src/source.ts'
 
+export const verifyJpegXlRateDistortionSelection = async () => {
+  const width = 512
+  const pixels = new Uint8Array(width * width * 3)
+  for (let y = 0; y < width; y++)
+    for (let x = 0; x < width; x++) {
+      const edge = (x * 3 + y * 5) % 127 < 2
+      const offset = (y * width + x) * 3
+      pixels[offset] = edge ? 90 : 238 + ((x * 13 + y * 7) % 5)
+      pixels[offset + 1] = edge ? 132 : 244 + ((x + y) % 5)
+      pixels[offset + 2] = edge ? 12 : 229 + ((x * 5 + y) % 5)
+    }
+  const conservative = encodeJpegXlVarDct8(pixels, width, width, 3, undefined, 3, 7)
+  const conservativeBytes = conservative.reduce((sum, part) => sum + part.byteLength, 0)
+  const sink = new Uint8ArraySink()
+  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+    width,
+    height: width,
+    pixelFormat: 'rgb8',
+    colorSemantics: {
+      family: 'rgb',
+      primaries: 'srgb',
+      transfer: { kind: 'srgb' },
+      matrix: 'identity',
+      range: 'full',
+      alpha: 'none',
+      provenance: 'assumed-default',
+      renderingIntent: 'relative',
+    },
+    options: { mode: 'lossy', effort: 7, distance: 3, container: false },
+    limits: defaultImageLimits,
+  })
+  if (!encoder) throw new Error('JPEG XL encoder is unavailable')
+  await encoder.write({
+    x: 0,
+    y: 0,
+    width,
+    height: width,
+    stride: width * 3,
+    format: 'rgb8',
+    data: pixels,
+  })
+  await encoder.finish()
+  const bytes = sink.toUint8Array()
+  const frames = await readJpegXlSourceFrameStructures(new MemorySource(bytes), defaultImageLimits)
+  return {
+    conservativeBytes,
+    selectedBytes: bytes.length,
+    frames: frames.map((frame) => [frame.frameType, frame.encoding]),
+  }
+}
+
 export const verifyJpegXlScreenshotPatch = async () => {
   const width = 512,
     pixels = new Uint8Array(width * width * 3)
