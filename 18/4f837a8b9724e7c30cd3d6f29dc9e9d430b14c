@@ -1,0 +1,21 @@
+CHANGELOG.md
+  s_9bf27d14dec589::t_970a632e08ed45 7-9
+benchmark/corpus/manifest.json
+  s_9bf27d14dec589::t_d475ddb66a20db 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "184f837a8b9724e7c30cd3d6f29dc9e9d430b14c",
+  "prompts": {},
+  "sessions": {
+    "s_9bf27d14dec589": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ed9f-b8ab-7d31-8a70-14b84d67369a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
