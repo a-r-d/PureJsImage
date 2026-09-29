@@ -10,8 +10,28 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
+import { verifyJpegXlLocalContrast } from './helpers/jpegxl-local-contrast.ts'
 
 describe('JPEG XL pixel-to-VarDCT conformance path', () => {
+  for (const progressive of [false, true]) {
+    it(`changes local contrast gradually across refinement boundaries, progressive=${progressive}`, async () => {
+      for (const boundary of [2, 4]) {
+        const before = await verifyJpegXlLocalContrast(progressive, boundary - 0.01)
+        const after = await verifyJpegXlLocalContrast(progressive, boundary + 0.01)
+        expect(Math.abs(after.rmse - before.rmse)).toBeLessThan(0.1)
+        expect(Math.abs(after.contrast - before.contrast)).toBeLessThan(0.05)
+      }
+    })
+
+    it(`preserves fine colored texture at effort 7, progressive=${progressive}`, async () => {
+      const result = await verifyJpegXlLocalContrast(progressive)
+      expect(result.samples).toBe(129 * 65 * 3)
+      expect(result.rmse).toBeLessThan(3)
+      expect(result.contrast).toBeGreaterThan(0.8)
+      expect(result.contrast).toBeLessThan(1.1)
+    })
+  }
+
   it('decodes aligned effort-1 sRGB including black and white endpoints', async () => {
     const width = 16
     const height = 16

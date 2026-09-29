@@ -1,0 +1,895 @@
+{
+  "protocol": {
+    "policy": "Small development diagnostic only: four native-scale text/map crops and four photographic derivatives, maximum edge 1024. Effort 7 at distances 1, 2 and 3. Baseline native controls are measured once; candidate loops measure only first-party output. No AVIF, no held-out selection, no original-size or Stable qualification claim. Equal distance is not matched quality. Keep every failure.",
+    "mode": "own",
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "101a3ef68f35a9c8efc9f7884614d211cc9ab854b29fc6839da9d5bb72f8071a",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "06f16984b99a374f6af9f69079ae24ac7608a0609c5a65fc3d9dbd16d75d2211"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "a82f1d500924c3afd2dfbd7b3fb426b3ea055639d3a881cf150fb4cd2d35e840"
+  },
+  "results": [
+    {
+      "id": "im26-5052",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "add92aa16b04f42297d29ce41f3f05527d2f463a16f8b530c3a8f70a1ef94c5f",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 148167,
+      "encodedSha256": "e8f7e1d133c4bf640ebf20566bdbeb852c221ac9fa71430618d8bdc971b6a8bc",
+      "decodedSha256": "17e78f2e3b3c9e699aae76b21d3b7bbf7160cca55eeb50277be1585a373eb5c5",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.2322104638553693,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 92.21767786,
+      "butteraugli": 0.7561635971,
+      "rawMetrics": {
+        "ssimText": "92.21767786\n",
+        "baText": "0.7561635971\n3-norm: 0.186992\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5052",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "add92aa16b04f42297d29ce41f3f05527d2f463a16f8b530c3a8f70a1ef94c5f",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 143072,
+      "encodedSha256": "8c20634c8d29b350e2a875f263d09e43c12f15a7f66b60d71592911903864752",
+      "decodedSha256": "9c25acff953296594b73399d2f63c9826e1373e240344ebf0443a6fbc0888a06",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.2699825912326291,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 91.72812439,
+      "butteraugli": 0.7353957295,
+      "rawMetrics": {
+        "ssimText": "91.72812439\n",
+        "baText": "0.7353957295\n3-norm: 0.191372\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5052",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "add92aa16b04f42297d29ce41f3f05527d2f463a16f8b530c3a8f70a1ef94c5f",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 130467,
+      "encodedSha256": "a7af3af5d7caef7654f068a97086d803bb40c6de6fdb555c9920a72d3e541a75",
+      "decodedSha256": "98d4ecc2a1693f3fd495614012710bb13881fb0d54b494a03f0bff839652b523",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.23783390598811832,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.73630877,
+      "butteraugli": 1.184014082,
+      "rawMetrics": {
+        "ssimText": "90.73630877\n",
+        "baText": "1.1840140820\n3-norm: 0.285279\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5034",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "b2c7a3309805d929e4bbff69f875972112eb3e8fcaca7ec5904a6362316e1b57",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 128973,
+      "encodedSha256": "7b0ec40d1004553800f9701402fe1a8cef27d8d450e1e4612da34282835356f9",
+      "decodedSha256": "bdee02a7ab9b8e76bcfb73e4518726576d48f9103905c07caeab4971bb291eb7",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.22155489328774955,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 92.06521181,
+      "butteraugli": 0.7836332917,
+      "rawMetrics": {
+        "ssimText": "92.06521181\n",
+        "baText": "0.7836332917\n3-norm: 0.186814\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5034",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "b2c7a3309805d929e4bbff69f875972112eb3e8fcaca7ec5904a6362316e1b57",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 124311,
+      "encodedSha256": "e6ef4be3341d8f185f23cfd2928801a845a44c3ff71f3e354d0023abd5d73d03",
+      "decodedSha256": "dab63bc261a5a5d735b392d4de325e55aaae89d2a0c872e08d175ffad5d62a8c",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.2648393568726719,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 91.58974076,
+      "butteraugli": 0.7663365602,
+      "rawMetrics": {
+        "ssimText": "91.58974076\n",
+        "baText": "0.7663365602\n3-norm: 0.189216\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5034",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "b2c7a3309805d929e4bbff69f875972112eb3e8fcaca7ec5904a6362316e1b57",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 113144,
+      "encodedSha256": "491d4a46661158d208059f8da11256001898cdbe2f487037452d496febcbf31c",
+      "decodedSha256": "e8e0a3d3dad182e62acbf4542f215698c39c6aae156a1ca5829ff4f3c95e863b",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.23181243408838487,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.67083007,
+      "butteraugli": 1.0880119801,
+      "rawMetrics": {
+        "ssimText": "90.67083007\n",
+        "baText": "1.0880119801\n3-norm: 0.273075\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5334",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "4cc793f8265259428e29773d7fcaa82090a3ca4e761d9ec51d3a1bdde8a42afb",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 127685,
+      "encodedSha256": "cf00e444c1406231e48f047f552b0cd135997ea3af423fc79b5d996cca1450c7",
+      "decodedSha256": "7c245c29557e540198e6b6a45d0bc0bab693bd0551d9624df860d623d551e9e6",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.2715499396248993,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.73749458,
+      "butteraugli": 1.2357845306,
+      "rawMetrics": {
+        "ssimText": "90.73749458\n",
+        "baText": "1.2357845306\n3-norm: 0.310044\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5334",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "4cc793f8265259428e29773d7fcaa82090a3ca4e761d9ec51d3a1bdde8a42afb",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 124279,
+      "encodedSha256": "bc90b12439e3cee47d3624a1594cd4adf96afc87d8b34e60354377e33eb5cdc2",
+      "decodedSha256": "06e2684bab0bda80cffa680a2cd5dec6dc765c777d8d46e603b15bb4f31170cd",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.3489071632939327,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.32280858,
+      "butteraugli": 1.2499444485,
+      "rawMetrics": {
+        "ssimText": "90.32280858\n",
+        "baText": "1.2499444485\n3-norm: 0.332096\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5334",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "4cc793f8265259428e29773d7fcaa82090a3ca4e761d9ec51d3a1bdde8a42afb",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 110399,
+      "encodedSha256": "2fb9a78727891af23cb6b4feb586df4fc2c51f3d8aeaad8d178e2597dc72781d",
+      "decodedSha256": "e775fece756761a63067b32f85f9cf68fc9437f9aad030d34d588728644062ed",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.3666741861670515,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 87.85701794,
+      "butteraugli": 1.4681823254,
+      "rawMetrics": {
+        "ssimText": "87.85701794\n",
+        "baText": "1.4681823254\n3-norm: 0.449988\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5032",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "a3c11ec965b5830ea69d0df9e2b8b0a845345286af8e9fb7c02afaa24fd0ecef",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 150412,
+      "encodedSha256": "3f4072e6977a3b0e47f49c5a52254e45f2b29a9635b683577644a0f6d6efb11c",
+      "decodedSha256": "d949a4f960041a18c01856cf42d331f0b462e9d53e17af6a209d414126e18f28",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.34781531648960723,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 88.70268624,
+      "butteraugli": 1.5057353973,
+      "rawMetrics": {
+        "ssimText": "88.70268624\n",
+        "baText": "1.5057353973\n3-norm: 0.424281\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5032",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "a3c11ec965b5830ea69d0df9e2b8b0a845345286af8e9fb7c02afaa24fd0ecef",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 143024,
+      "encodedSha256": "564e8bdf6706f6879204825ff752389ebd52ae0f85ae6cd5f07d201067cda8b4",
+      "decodedSha256": "902b08ccb17fc0bbb94c2c0862620f68c139737a05ea3f92208ea7d6516bb242",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.38866246913346697,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 88.5469154,
+      "butteraugli": 1.549202323,
+      "rawMetrics": {
+        "ssimText": "88.54691540\n",
+        "baText": "1.5492023230\n3-norm: 0.426046\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5032",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "a3c11ec965b5830ea69d0df9e2b8b0a845345286af8e9fb7c02afaa24fd0ecef",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 120524,
+      "encodedSha256": "5860b29aef223f4f8dcd64692a11c874595038efb225899021646fc18c32c067",
+      "decodedSha256": "1816c0a0e34fcf4e8d8e7d37cf24bc5289e3d2234de334408d2fc05fea92613d",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.5186595056492197,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 86.36088422,
+      "butteraugli": 1.8824036121,
+      "rawMetrics": {
+        "ssimText": "86.36088422\n",
+        "baText": "1.8824036121\n3-norm: 0.640421\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1030",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "7364b53e7409a3641bbd75e69c4a1a0f75c24b935dc8bb4bdc63d021c5c36103",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 140498,
+      "encodedSha256": "cf19e84853507e56d4c926d5eb01e5b7cd5449e5f73856bdc7f0b77588488b88",
+      "decodedSha256": "6ce8e9ec463481e2b00f3a5a3bd30d22f40bbdb7b17009528ff66427b49ec705",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49372057176498224,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 88.7109436,
+      "butteraugli": 1.2443704605,
+      "rawMetrics": {
+        "ssimText": "88.71094360\n",
+        "baText": "1.2443704605\n3-norm: 0.515140\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1030",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "7364b53e7409a3641bbd75e69c4a1a0f75c24b935dc8bb4bdc63d021c5c36103",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 129515,
+      "encodedSha256": "cc6de399710f3155fb03ec356c2db165c3ad5553ab5fc380d685c73bff8601c9",
+      "decodedSha256": "c3db1180c5859dd771ce1d3fc3ba2ace49da89d8c998e9aabfd2de95f8039ee0",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4951821375941999,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 88.60879428,
+      "butteraugli": 1.2599470615,
+      "rawMetrics": {
+        "ssimText": "88.60879428\n",
+        "baText": "1.2599470615\n3-norm: 0.519953\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1030",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "7364b53e7409a3641bbd75e69c4a1a0f75c24b935dc8bb4bdc63d021c5c36103",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 104319,
+      "encodedSha256": "d6d3e6b41c65ff522980d15c74a09a99faed4a59fb2e6d86b27ff4f58f6e9f6b",
+      "decodedSha256": "0af7cf6629842d58110b653e5eba986e77a250a8ecba93ed460d508994ed26ae",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49572323557183323,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 85.83234489,
+      "butteraugli": 1.6537498236,
+      "rawMetrics": {
+        "ssimText": "85.83234489\n",
+        "baText": "1.6537498236\n3-norm: 0.663621\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1416",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "3c0a0455a54566a1b9dfaa6d52c313b7a72fcb7c7c7d56f57b458f0f9b687c98",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 104378,
+      "encodedSha256": "aaf9460572ab685cd33247eab722b763ac02bc87087c7cfa372e708bd99cb8ed",
+      "decodedSha256": "d2d2b164987ab9e4b011c6fa262444f94ebb6f922f589beb47365b48faf7ca75",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.5101566820335928,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 89.07024397,
+      "butteraugli": 1.1760390997,
+      "rawMetrics": {
+        "ssimText": "89.07024397\n",
+        "baText": "1.1760390997\n3-norm: 0.558482\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1416",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "3c0a0455a54566a1b9dfaa6d52c313b7a72fcb7c7c7d56f57b458f0f9b687c98",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 92480,
+      "encodedSha256": "4158aa85b9274e168eb10df5c3b305479c994b066d2947916c49500498224f56",
+      "decodedSha256": "10d6d7c22a7a6b5c850ca0591cf7301c7466647d1633d425cb909c7cf80b2dfd",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.5094599678302649,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 88.96625517,
+      "butteraugli": 1.1748383045,
+      "rawMetrics": {
+        "ssimText": "88.96625517\n",
+        "baText": "1.1748383045\n3-norm: 0.560191\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-1416",
+      "width": 1024,
+      "height": 768,
+      "inputPixelsSha256": "3c0a0455a54566a1b9dfaa6d52c313b7a72fcb7c7c7d56f57b458f0f9b687c98",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 69154,
+      "encodedSha256": "18cfa7d05f91c52775fd18e68b6558f9689068e4e0e931a8c9cbd0e9765fbbbc",
+      "decodedSha256": "ce9753770a37880bbd24c649daa31854779c9d95b4df1ad3e92b19ef807c3555",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.5027361286445284,
+        "samples": 2359296,
+        "rows": 768
+      },
+      "ssimulacra2": 85.98358618,
+      "butteraugli": 1.8563199043,
+      "rawMetrics": {
+        "ssimText": "85.98358618\n",
+        "baText": "1.8563199043\n3-norm: 0.676503\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 768,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2018",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "49fa98454f78c796baef6bc46a26e091b274a708057ecff1712d01ea634433cc",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 218717,
+      "encodedSha256": "041a523171a2d6f228a785dc3a73e21af24b8edd0a8d503596b859ac43b4ce54",
+      "decodedSha256": "b026a82ec9ecd70e9c3650cd22d70fbaf1313d55d84a49a1a11f7af35257a911",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49634135317466394,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.27382705,
+      "butteraugli": 1.2331850529,
+      "rawMetrics": {
+        "ssimText": "90.27382705\n",
+        "baText": "1.2331850529\n3-norm: 0.527072\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2018",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "49fa98454f78c796baef6bc46a26e091b274a708057ecff1712d01ea634433cc",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 204599,
+      "encodedSha256": "38eaea31c21023d855255b02f12251af7d0e983814e4be1ed18fe41ac13bafeb",
+      "decodedSha256": "f991dbd3b91b43b3bd56e8534bc8c75ca0340158bf1d9d5d72b47f77da22dbc9",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4967402053427968,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.07491644,
+      "butteraugli": 1.211238265,
+      "rawMetrics": {
+        "ssimText": "90.07491644\n",
+        "baText": "1.2112382650\n3-norm: 0.530736\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2018",
+      "width": 1024,
+      "height": 1024,
+      "inputPixelsSha256": "49fa98454f78c796baef6bc46a26e091b274a708057ecff1712d01ea634433cc",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 160352,
+      "encodedSha256": "a4ea6c3e62324f0654fb3843cff45b00fbb74583922d5bb5cb771629eaeb7647",
+      "decodedSha256": "71b00188c034a446277050c122ed38363839be7ad26547a2f51c686040d93bb5",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4961386032052886,
+        "samples": 3145728,
+        "rows": 1024
+      },
+      "ssimulacra2": 87.30515772,
+      "butteraugli": 1.6445329189,
+      "rawMetrics": {
+        "ssimText": "87.30515772\n",
+        "baText": "1.6445329189\n3-norm: 0.706536\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1024,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2400",
+      "width": 766,
+      "height": 1024,
+      "inputPixelsSha256": "70934adf594ba3566eaee427916a11fd19eace60d32bd22709198e238cdb35c3",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 79305,
+      "encodedSha256": "e31cbbead968f288faa2b61bfc492b3902726004b3b3a346de2ffd3305a7ab5f",
+      "decodedSha256": "614ed3454a6521d9982f694380b9d889447ead73e318fcaaf36ad849f6541a35",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.48784103578593385,
+        "samples": 2353152,
+        "rows": 1024
+      },
+      "ssimulacra2": 90.01760156,
+      "butteraugli": 1.49604249,
+      "rawMetrics": {
+        "ssimText": "90.01760156\n",
+        "baText": "1.4960424900\n3-norm: 0.572547\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 766,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2400",
+      "width": 766,
+      "height": 1024,
+      "inputPixelsSha256": "70934adf594ba3566eaee427916a11fd19eace60d32bd22709198e238cdb35c3",
+      "engine": "purejsimage",
+      "distance": 2,
+      "status": "measured",
+      "bytes": 67084,
+      "encodedSha256": "23d06b3bf23e13495e760359e38d488b919e297ad8431d80ed9338033fb17501",
+      "decodedSha256": "4959ccd4c0998b4f8a6178decbd1eb6df9f6a666abd5fe4d7409804c11754af7",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49075706363984417,
+        "samples": 2353152,
+        "rows": 1024
+      },
+      "ssimulacra2": 89.72621486,
+      "butteraugli": 1.4788749218,
+      "rawMetrics": {
+        "ssimText": "89.72621486\n",
+        "baText": "1.4788749218\n3-norm: 0.576305\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 766,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-2400",
+      "width": 766,
+      "height": 1024,
+      "inputPixelsSha256": "70934adf594ba3566eaee427916a11fd19eace60d32bd22709198e238cdb35c3",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 50357,
+      "encodedSha256": "06edd4ab72b873e554c655936ac0923cbd9197f296fcabd8ab21db7d9caca70a",
+      "decodedSha256": "c060285af6b54c69ff44025c5d2fa91af43abc56f3cf66af8160de317ad2c16a",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49454389208639155,
+        "samples": 2353152,
+        "rows": 1024
+      },
+      "ssimulacra2": 87.77000388,
+      "butteraugli": 1.8060867786,
+      "rawMetrics": {
+        "ssimText": "87.77000388\n",
+        "baText": "1.8060867786\n3-norm: 0.714559\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 766,
+          "height": 1024,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    }
+  ]
+}

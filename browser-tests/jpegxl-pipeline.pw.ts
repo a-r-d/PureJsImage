@@ -2,20 +2,55 @@ import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import {
   runJpegXlPipelines,
-  verifyLosslessPaletteRgba,
   verifyFloatJpegXl,
+  verifyJpegXlLargeDocumentSelection,
+  verifyJpegXlLocalContrast,
+  verifyJpegXlRateDistortionSelection,
+  verifyJpegXlScreenshotPatch,
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
-  verifyJpegXlLargeDocumentSelection,
-  verifyJpegXlScreenshotPatch,
-  verifyJpegXlRateDistortionSelection,
+  verifyLosslessPaletteRgba,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
-  verifyM7ExactRgbaFallback,
   verifyM7EffortSevenPq,
+  verifyM7ExactRgbaFallback,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+for (const progressive of [false, true]) {
+  test(`JPEG XL local contrast transition agrees in Node and browser, progressive=${progressive}`, async ({
+    page,
+  }) => {
+    const expected = []
+    for (const distance of [1.99, 2.01, 3.99, 4.01])
+      expected.push(await verifyJpegXlLocalContrast(progressive, distance))
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (progressive) => {
+      const path = '/jpegxl-pipeline.js'
+      const { verifyJpegXlLocalContrast } = await import(path)
+      const results = []
+      for (const distance of [1.99, 2.01, 3.99, 4.01])
+        results.push(await verifyJpegXlLocalContrast(progressive, distance))
+      return results
+    }, progressive)
+    expect(actual).toEqual(expected)
+  })
+
+  test(`JPEG XL local contrast agrees in Node and browser, progressive=${progressive}`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlLocalContrast(progressive)
+    expect(expected.rmse).toBeLessThan(3)
+    expect(expected.contrast).toBeGreaterThan(0.8)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (progressive) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlLocalContrast(progressive)
+    }, progressive)
+    expect(actual).toEqual(expected)
+  })
+}
 
 test('JPEG XL rate-distortion selection agrees in Node and browser', async ({ page }) => {
   const expected = await verifyJpegXlRateDistortionSelection()

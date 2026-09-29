@@ -117,8 +117,8 @@ The M6 cohort is frozen in `m6-functional-cases.json` and `m6-native-sources.jso
 | Milestone | Implementation | Validation | Promotion |
 | --- | --- | --- | --- |
 | M6 | Complete for the documented session and selective-decoding subset | Local cohort, resource, browser and handoff gates passed; remote PR checks are separate | Local subset gate passed |
-| M7 | Complete locally for the documented encoder subset | Approved 2 MP matrices, eight original-size cases, independent decoding, visual review and local handoff checks passed | Lossy remains Experimental; promotion targets remain open |
-| M8 | Complete locally for the documented sequence and native-channel contracts | Native, timing, M3, applicable Level 5, full repository and all three browser gates passed | Lossy remains Experimental; release promotion remains separate |
+| M7 | Complete locally for the documented encoder subset | Approved 2 MP matrices, fixed originals, HDR/alpha, independent decoding and finite visual-defect qualification | Stable documented static lossy scope; see the September 29 decision below |
+| M8 | Complete locally for the documented sequence and native-channel contracts | Native, timing, M3, applicable Level 5, full repository and all three browser gates passed | Lossy animation remains Experimental; release promotion remains separate |
 | M9 | Complete locally for the declared hardening infrastructure | Twelve integration, twelve mutation, twelve resource, Node 22/24 packed import, three browser and evidence-admission gates passed | No capability or release promotion |
 | M10 | Complete locally for the documented bounded Level 10 native subset | Normative map, all 39 official cases, targeted thresholds, djxl acceptance, browser portability and repeated M9 gates passed | Native subset promoted locally; release remains separate |
 
@@ -1067,6 +1067,30 @@ coarse SSIMULACRA2-80 interpolations remain unresolved. The candidate was
 reverted on the development branch. Public quality, original-size, HDR/alpha,
 resource and runtime qualifications retain their prior evidence boundaries.
 Lossy remains Experimental and no Stable scope is claimed.
+
+### September 29 static lossy qualification
+
+The [local-contrast handoff](../../benchmark/jpegxl/production-program/m7-visual-contrast-qualification.md)
+records the explicit Stable decision for the documented static integer lossy
+subset. It closes the registered sunset, screenshot, map and PQ defects with
+source/before/after crops, complete-original scores and independent decoding.
+Default alpha remains exact. Lossless samples, including color under zero
+alpha, and exact JPEG reconstruction retain their existing guarantees.
+
+The approved 240-source 2 MP comparisons retain their original splits and all
+missing/reference-limited bands. Measured size targets pass. The one coarse HDR
+score-70 median miss is resolved by bounded additional measurements: even the
+conservative measured upper bounds pass the original median/p90 limits. A
+small taper removes the demonstrated quality steps around distances 2 and 4;
+it preserves all approved grid settings. Final-source byte checks and affected
+fractional-distance checks establish the evidence-reuse boundary.
+
+The report separates implemented behavior, remaining resource/API limits,
+measured compression/runtime results, comparison coverage and the Stable scope.
+Lossy animation remains Experimental. Larger transforms and unsupported color
+layouts are outside this decision. The earlier checkpoints below and above
+remain historical evidence. This capability decision does not authorize a
+version change or publication.
 
 ## M8 initial static decoding checkpoint, September 11
 

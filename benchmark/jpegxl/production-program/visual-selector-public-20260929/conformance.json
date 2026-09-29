@@ -23,10 +23,7 @@
   "results": [
     {
       "id": "alpha_nonpremultiplied",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 30,
       "inputSha256": "15acbe3edbfd5a75c7609726ae60526ffc812642b5dd6be8475f0b990ce9b1db",
@@ -40,9 +37,7 @@
     },
     {
       "id": "alpha_premultiplied",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 8772,
       "inputSha256": "5028e630dc358bf4031cbf06e8a80f2bfbfa21fd0d088af74d83b473d3dd540a",
@@ -57,10 +52,7 @@
     },
     {
       "id": "alpha_triangles",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 61,
       "inputSha256": "19ac7752a23ad2b22814064cb6b62a581b48be18ed73b5ccc2340888c114d2c9",
@@ -74,9 +66,7 @@
     },
     {
       "id": "animation_icos4d",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 352478,
       "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
@@ -91,9 +81,7 @@
     },
     {
       "id": "animation_icos4d_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 352478,
       "inputSha256": "6df934e61b07779626988daa0c4a9f05f89e6142a030f915e8b8ea52c37b3fe2",
@@ -108,10 +96,7 @@
     },
     {
       "id": "animation_newtons_cradle",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC-BY-SA-3.0",
       "inputBytes": 238305,
       "inputSha256": "35a13d365f5eb88c3249afe073b7d8b0174d74e38f7edaa8805ca8ab46a59ab4",
@@ -126,9 +111,7 @@
     },
     {
       "id": "animation_spline",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 9581,
       "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
@@ -143,9 +126,7 @@
     },
     {
       "id": "animation_spline_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 9581,
       "inputSha256": "87793cac33d05eaa380011e3b0754ff6f228967431a126fd0a0ace2106940c79",
@@ -160,9 +141,7 @@
     },
     {
       "id": "bench_oriented_brg",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 184341,
       "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
@@ -177,9 +156,7 @@
     },
     {
       "id": "bench_oriented_brg_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 184341,
       "inputSha256": "e223fed907c6238622b2b6ec1c80609050c9d2db4d759cf3ca6f0db304cbb82a",
@@ -194,10 +171,7 @@
     },
     {
       "id": "bicycles",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 73501,
       "inputSha256": "8ef03ccccb45bdb5f3d37c9a4c392f745e3e4ad7f4ffc2cbc1e1ba68487a75a6",
@@ -212,9 +186,7 @@
     },
     {
       "id": "bike",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "ITU-T T.24",
       "inputBytes": 388268,
       "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
@@ -229,9 +201,7 @@
     },
     {
       "id": "bike_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "ITU-T T.24",
       "inputBytes": 388268,
       "inputSha256": "639efe13b89868688234ebb9ec36a0ed848ba01bde43681d3d37438d2e0c0370",
@@ -246,9 +216,7 @@
     },
     {
       "id": "blendmodes",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 145,
       "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
@@ -263,9 +231,7 @@
     },
     {
       "id": "blendmodes_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 145,
       "inputSha256": "b22d487440dd591fbadd4e75398506070497283f38525433961b1e809c75c860",
@@ -280,9 +246,7 @@
     },
     {
       "id": "cafe",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "ITU-T T.24",
       "inputBytes": 381505,
       "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
@@ -297,9 +261,7 @@
     },
     {
       "id": "cafe_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "ITU-T T.24",
       "inputBytes": 381505,
       "inputSha256": "cb4603bd089483fc1d63a039a3b758ec510f0090b74ce245b88b1e8feb54f0eb",
@@ -314,9 +276,7 @@
     },
     {
       "id": "cmyk_layers",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 387140,
       "inputSha256": "d732c8836bf1abeadf310d2e07387a32813ed4690d32650c1c25e541b80eed4a",
@@ -331,10 +291,7 @@
     },
     {
       "id": "delta_palette",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 107899,
       "inputSha256": "00e24cc453cdf84897d62b0aafc7a9f7024205bbce1922e99d7ad0003759ae7c",
@@ -349,9 +306,7 @@
     },
     {
       "id": "grayscale",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 1069,
       "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
@@ -366,9 +321,7 @@
     },
     {
       "id": "grayscale_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 1069,
       "inputSha256": "78fbbba852e99946d187dcf0bcbd7fb0e7c22be2f0852523aaae6ed91e7e3c39",
@@ -383,9 +336,7 @@
     },
     {
       "id": "grayscale_jpeg",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 7799,
       "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
@@ -400,9 +351,7 @@
     },
     {
       "id": "grayscale_jpeg_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 7799,
       "inputSha256": "346cc92b55864b0efb9f85cdddd02b586473ff18b03718e5a02fa03cb3e86844",
@@ -417,10 +366,7 @@
     },
     {
       "id": "grayscale_public_university",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC-BY-3.0",
       "inputBytes": 63377,
       "inputSha256": "b1c6fe79167858f86a23e0f32c1c5ee7602dae6f82991c1dd53bcb89a7d78606",
@@ -435,9 +381,7 @@
     },
     {
       "id": "lossless_pfm",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 774294,
       "inputSha256": "61ae52b5851ab2e156aec1d22502e8e1ec0cdf6bc0d6a3956ac6d7d6d2969d5e",
@@ -452,10 +396,7 @@
     },
     {
       "id": "lz77_flower",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 103540,
       "inputSha256": "41046f0de4dd36177aefa9b53fe6c3cd35a8e2c215a8d41ca89a6a9bc7f27541",
@@ -470,9 +411,7 @@
     },
     {
       "id": "noise",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 118125,
       "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
@@ -487,9 +426,7 @@
     },
     {
       "id": "noise_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 118125,
       "inputSha256": "20cddadc3fdbae331a912dba0d14e6326008094d7a16d006961ccdeac2bc9950",
@@ -504,9 +441,7 @@
     },
     {
       "id": "opsin_inverse",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 118148,
       "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
@@ -521,9 +456,7 @@
     },
     {
       "id": "opsin_inverse_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 118148,
       "inputSha256": "5c25ba126e6fb3536a12ca191b92f1c3be86ee74683688ed56c94804db5d2e16",
@@ -538,9 +471,7 @@
     },
     {
       "id": "patches",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC0",
       "inputBytes": 66562,
       "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
@@ -555,9 +486,7 @@
     },
     {
       "id": "patches_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC0",
       "inputBytes": 66562,
       "inputSha256": "3d8d3847ba40844b1d829366065261f34cc4b4acc3d9006342c64127c1052a3e",
@@ -572,10 +501,7 @@
     },
     {
       "id": "patches_lossless",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 34207,
       "inputSha256": "2a47b6766264ac6243a43bbb85684688717591bb3bd9b4c2db56226192418b4e",
@@ -590,9 +516,7 @@
     },
     {
       "id": "progressive",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "Microsoft custom license",
       "inputBytes": 467605,
       "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
@@ -607,9 +531,7 @@
     },
     {
       "id": "progressive_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "Microsoft custom license",
       "inputBytes": 467605,
       "inputSha256": "bb4722ab780dce609a7b007fe7fe235962b351691f60ffb2cde7b4808c8601e1",
@@ -624,10 +546,7 @@
     },
     {
       "id": "spot",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 392254,
       "inputSha256": "69d48f7ace25683db9eb908f112cef112bd1583870abab0fbf166018889893fa",
@@ -642,10 +561,7 @@
     },
     {
       "id": "sunset_logo",
-      "levels": [
-        5,
-        10
-      ],
+      "levels": [5, 10],
       "license": "CC0",
       "inputBytes": 218,
       "inputSha256": "6617480923e1fdef555e165a1e7df9ca648068dd0bdbc41a22c0e4213392d834",
@@ -660,9 +576,7 @@
     },
     {
       "id": "upsampling",
-      "levels": [
-        10
-      ],
+      "levels": [10],
       "license": "CC-BY-SA-3.0",
       "inputBytes": 10567,
       "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",
@@ -676,9 +590,7 @@
     },
     {
       "id": "upsampling_5",
-      "levels": [
-        5
-      ],
+      "levels": [5],
       "license": "CC-BY-SA-3.0",
       "inputBytes": 10567,
       "inputSha256": "d3d97aa5f91401ad6df137b647164e402c7a99d66f8a6f72734562bf844b69d2",

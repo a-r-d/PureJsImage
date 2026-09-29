@@ -1,0 +1,300 @@
+{
+  "policy": "Eight newly selected source families, frozen before source pixels were read. Small RGB8 capped supplement only; no new HDR, alpha or full-resolution generalization claim. Never extrapolate missing brackets. No tuning followed these results.",
+  "summaries": [
+    {
+      "metric": "ssimulacra2",
+      "target": 70,
+      "matched": 5,
+      "missing": 3,
+      "median": 1.040238627812029,
+      "p90": 1.122891761825077,
+      "worst": 1.122891761825077
+    },
+    {
+      "metric": "ssimulacra2",
+      "target": 80,
+      "matched": 5,
+      "missing": 3,
+      "median": 1.0004629437869568,
+      "p90": 1.0639077202142544,
+      "worst": 1.0639077202142544
+    },
+    {
+      "metric": "ssimulacra2",
+      "target": 90,
+      "matched": 8,
+      "missing": 0,
+      "median": 0.9756337403227011,
+      "p90": 1.1959486083251996,
+      "worst": 1.1959486083251996
+    },
+    {
+      "metric": "butteraugli",
+      "target": 1,
+      "matched": 8,
+      "missing": 0,
+      "median": 1.1008861087661739,
+      "p90": 1.27802596035644,
+      "worst": 1.27802596035644
+    },
+    {
+      "metric": "butteraugli",
+      "target": 2,
+      "matched": 8,
+      "missing": 0,
+      "median": 1.1565747064204799,
+      "p90": 1.2505443603685669,
+      "worst": 1.2505443603685669
+    }
+  ],
+  "matches": [
+    {
+      "id": "im26-1003",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.0545773941838072
+    },
+    {
+      "id": "im26-1229",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 0.9782779025417523
+    },
+    {
+      "id": "im26-1467",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.040238627812029
+    },
+    {
+      "id": "im26-2017",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.122891761825077
+    },
+    {
+      "id": "im26-1625",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 0.9784180810048084
+    },
+    {
+      "id": "im26-1003",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.015672292062769
+    },
+    {
+      "id": "im26-1229",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 0.9545929990430553
+    },
+    {
+      "id": "im26-1467",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0004629437869568
+    },
+    {
+      "id": "im26-2017",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0639077202142544
+    },
+    {
+      "id": "im26-1625",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 0.9016268429045908
+    },
+    {
+      "id": "im26-1003",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9912603434936109
+    },
+    {
+      "id": "im26-1229",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9600071371517914
+    },
+    {
+      "id": "im26-1467",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9929784251204314
+    },
+    {
+      "id": "im26-2017",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9293263402235965
+    },
+    {
+      "id": "im26-1625",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.8244445256606302
+    },
+    {
+      "id": "im26-5053",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.0025840846498644
+    },
+    {
+      "id": "im26-5343",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.8439397754308287
+    },
+    {
+      "id": "im26-8317",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.1959486083251996
+    },
+    {
+      "id": "im26-1003",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.1179038369628926
+    },
+    {
+      "id": "im26-1229",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.0838683805694553
+    },
+    {
+      "id": "im26-1467",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.1661038624491116
+    },
+    {
+      "id": "im26-2017",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.053215164084272
+    },
+    {
+      "id": "im26-1625",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.9523657475608935
+    },
+    {
+      "id": "im26-5053",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.9877729669865768
+    },
+    {
+      "id": "im26-5343",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.175184113234064
+    },
+    {
+      "id": "im26-8317",
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.27802596035644
+    },
+    {
+      "id": "im26-1003",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.154244411021783
+    },
+    {
+      "id": "im26-1229",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.1589050018191764
+    },
+    {
+      "id": "im26-1467",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.1352567398946367
+    },
+    {
+      "id": "im26-2017",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.1248814535559775
+    },
+    {
+      "id": "im26-1625",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.195935344720861
+    },
+    {
+      "id": "im26-5053",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0052040939271754
+    },
+    {
+      "id": "im26-5343",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.2505443603685669
+    },
+    {
+      "id": "im26-8317",
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.2451016774870605
+    }
+  ],
+  "missing": [
+    {
+      "id": "im26-5053",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "im26-5343",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "im26-8317",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "im26-5053",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "im26-5343",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "im26-8317",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "firstPartyBracket": true,
+      "referenceBracket": false
+    }
+  ]
+}

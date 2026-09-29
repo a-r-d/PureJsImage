@@ -1,0 +1,32 @@
+{
+  "startedAt": "2026-09-29T04:07:44.362Z",
+  "finishedAt": "2026-09-29T04:07:50.849Z",
+  "policy": {
+    "memoryMaxBytes": 3221225472,
+    "memoryHighBytes": 3019898880,
+    "minimumAvailableBytes": 8589934592,
+    "swapMaxBytes": 0,
+    "maximumTasks": 256,
+    "cpuQuotaPercent": 800,
+    "oomScoreAdjust": 1000,
+    "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+    "runtime": "v24.16.0",
+    "unit": "purejsimage-m7-bounded",
+    "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+  },
+  "availableBytes": 23106150400,
+  "executable": "env",
+  "args": [
+    "PUREJSIMAGE_M7_EXPANSION_SPLIT=holdout",
+    "node",
+    "benchmark/jpegxl/evaluate-m7-hdr-development.ts",
+    "polyhaven-pedestrian_overpass",
+    "1.3",
+    "visual-contrast-native-control",
+    "--native-control"
+  ],
+  "code": 0,
+  "signal": null,
+  "status": "completed",
+  "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: d35a28bed6694f89bc08b7521fbb9580\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 6.457s\nCPU time consumed: 6.814s\nMemory peak: 833.1M (swap: 0B)\n"
+}

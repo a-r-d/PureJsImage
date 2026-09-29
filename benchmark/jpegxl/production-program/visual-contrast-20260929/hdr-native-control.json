@@ -1,0 +1,117 @@
+{
+  "protocol": {
+    "id": "polyhaven-pedestrian_overpass",
+    "distance": 1.3,
+    "width": 2048,
+    "height": 1024,
+    "effort": 7,
+    "nativeControl": true,
+    "ownControl": false,
+    "split": "holdout",
+    "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+    "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+    "referenceSha256": "c1882fd08e5d2caf975a73086cbc4964613e5642c1648d736f6c9b1e9f20e6aa",
+    "mappingProtocolSha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49",
+    "metricCacheHarnessSha256": "4a2b137c68847c498fb131b31f64e2c02c245e99babb451d8281e9509a41142f",
+    "sourceFiles": [
+      {
+        "path": "src/codecs/jpegxl-modular-encode.ts",
+        "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "50f0f8a109c6eedf9bfa3e31f37c2a1dcbb0bcfbe93429cd7fb5fea2c6dee8c0"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-quantization.ts",
+        "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+      },
+      {
+        "path": "src/codecs/jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "path": "src/codecs/icc.ts",
+        "sha256": "91119632fa71506c2c2e1edb0ea2f2d7dce87f507e4d932fc76aff920625b40f"
+      },
+      {
+        "path": "benchmark/jpegxl/m7-hdr-mapping.ts",
+        "sha256": "00ceec0d9f9f7254e1da3942b2cad89c453b1ff873e718fe8fa9719d004622d7"
+      }
+    ],
+    "oracleFiles": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/jxlinfo",
+        "sha256": "d02df1a4e28581ee4ed08dda3f8df09e3cd868d7dbc48db23bae8291a61d7ce0"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "timing": "Serial quality evaluation, not isolated performance evidence"
+  },
+  "failures": 0,
+  "results": [
+    {
+      "engine": "libjxl",
+      "status": "measured",
+      "bytes": 231608,
+      "encodedSha256": "dad64de7ba9aae13c35d491906ab66d655b9de9307c4ade50d85c6169a2af5e5",
+      "maximumIndependentDifference": null,
+      "maximumOwnDifference": null,
+      "nativeLight": {
+        "maximumError": 5.961262162683049,
+        "rmse": 0.020421160466502268,
+        "referenceRms": 0.8366581423114555
+      },
+      "displays": [
+        {
+          "headroom": 1,
+          "ssimulacra2": 84.43723262,
+          "butteraugli": 1.878316164,
+          "ssimulacra2Text": "84.43723262\n",
+          "butteraugliText": "1.8783161640\n3-norm: 0.675316\n",
+          "decodedSha256": "75023f13c016dcc0da252b78c128b32928a15b18c5d9222a58fce206588f6419"
+        },
+        {
+          "headroom": 2,
+          "ssimulacra2": 86.97305387,
+          "butteraugli": 1.8021552563,
+          "ssimulacra2Text": "86.97305387\n",
+          "butteraugliText": "1.8021552563\n3-norm: 0.556475\n",
+          "decodedSha256": "1036a6db187486194c34561681349ff6dfa32b03337d9376ab27c7290900dba9"
+        },
+        {
+          "headroom": 4,
+          "ssimulacra2": 89.29480062,
+          "butteraugli": 1.2574614286,
+          "ssimulacra2Text": "89.29480062\n",
+          "butteraugliText": "1.2574614286\n3-norm: 0.443296\n",
+          "decodedSha256": "e155c7d6dd1dcdcf69894416a1e495417a9a6428e64bb96735b8341468fa5adf"
+        }
+      ]
+    }
+  ],
+  "stablePromotionGatePassed": false
+}

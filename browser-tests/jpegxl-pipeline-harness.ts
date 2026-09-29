@@ -1,3 +1,4 @@
+export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
 import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'

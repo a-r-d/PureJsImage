@@ -8,15 +8,19 @@ const inputPath = process.argv[2],
   outputPath = process.argv[3]
 const effort = Number(process.argv[4] ?? 1)
 const temperature = process.argv[5] ?? 'cold'
+const distance = Number(process.argv[6] ?? 1)
 if (
   !inputPath ||
   !outputPath ||
-  (effort !== 1 && effort !== 3) ||
+  (effort !== 1 && effort !== 3 && effort !== 5 && effort !== 7) ||
+  !Number.isFinite(distance) ||
+  distance < 0.25 ||
+  distance > 25 ||
   (temperature !== 'cold' && temperature !== 'warm') ||
   !globalThis.gc
 )
   throw new Error(
-    'Usage: node --expose-gc measure-m7-forward-runtime.ts input.ppm output.jxl 1|3 cold|warm',
+    'Usage: node --expose-gc measure-m7-forward-runtime.ts input.ppm output.jxl 1|3|5|7 cold|warm [distance]',
   )
 const collect = async (): Promise<void> => {
   for (let iteration = 0; iteration < 3; iteration++) {
@@ -73,7 +77,7 @@ const once = async (path: string) => {
           provenance: 'assumed-default',
           renderingIntent: 'relative',
         },
-        options: { mode: 'lossy', effort, distance: 1, maxWorkingBytes: 256 * 1024 * 1024 },
+        options: { mode: 'lossy', effort, distance, maxWorkingBytes: 256 * 1024 * 1024 },
       },
     )
     if (!encoder) throw new Error('Missing public JPEG XL encoder; build the package first')
@@ -143,6 +147,7 @@ console.log(
   JSON.stringify({
     runtime: process.version,
     effort,
+    distance,
     temperature,
     moduleReadyMilliseconds,
     beforeWarmup,

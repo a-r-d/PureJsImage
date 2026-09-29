@@ -19,6 +19,8 @@ if (metricCache !== undefined && !/^[a-z0-9-]+$/u.test(metricCache))
 
 sharp.concurrency(1)
 const runId = process.argv[2]
+const ownOnly = process.argv[3] === '--own-only'
+if (process.argv[3] !== undefined && !ownOnly) throw new Error('Unknown alpha mode')
 const publicOwn = process.env.PUREJSIMAGE_M7_ALPHA_PUBLIC === '1'
 if (process.env.PUREJSIMAGE_M7_ALPHA_PUBLIC !== undefined && !publicOwn)
   throw new Error('Invalid public alpha encoder setting')
@@ -50,6 +52,7 @@ const cases = m7ExpansionCases(split, 'png')
 const protocol = {
   split,
   ownEncoderPath: publicOwn ? 'public lossy selector' : 'direct VarDCT backend',
+  ownOnly,
   harnessSha256: hash(await readFile(import.meta.filename)),
   ownDecoderSha256: hash(
     await readFile(new URL('../../src/codecs/jpegxl-decode.ts', import.meta.url)),
@@ -146,7 +149,9 @@ for (const entry of cases) {
         throw new Error('Decoded extent changed')
       return output.data
     }
-    for (const engine of ['purejsimage', 'libjxl', 'webp', 'avif'] as const) {
+    for (const engine of ownOnly
+      ? (['purejsimage'] as const)
+      : (['purejsimage', 'libjxl', 'webp', 'avif'] as const)) {
       for (const setting of engine === 'purejsimage' || engine === 'libjxl'
         ? [0.25, 0.5, 1, 2, 3, 5]
         : [40, 55, 70, 80, 90, 97]) {

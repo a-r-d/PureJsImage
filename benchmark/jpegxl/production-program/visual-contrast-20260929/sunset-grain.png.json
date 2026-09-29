@@ -1,0 +1,28 @@
+{
+  "policy": "Source / before / after from left to right. Lossless RGB8 PNG, 1:1 pixels, no rescaling or color conversion. Display at natural size. HDR inputs are separately declared display mappings, not native-light data.",
+  "width": 4000,
+  "height": 3000,
+  "left": 1072,
+  "top": 1222,
+  "cropWidth": 256,
+  "cropHeight": 256,
+  "inputs": [
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+      "fileSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
+      "pixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-public-20260928-visual-final-20260928/im26-1416-purejsimage-3.ppm",
+      "fileSha256": "9392f328edd28de8847d64bac66a3e47cc87ba8964246bf1714fb6e0840e866a",
+      "pixelsSha256": "a4e6ee93d5ce504e21283a5e2f15231e40a28f2ae34312d4943b2431df31b2d6"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/public-original-visual-relative04-color-sunset-20260929/im26-1416-purejsimage-3.ppm",
+      "fileSha256": "2c31821b0f46904a31fa283f1e1ef7536cc08a7cf3e2ed110011400528e3c199",
+      "pixelsSha256": "38f4b8682387b9760161a00a85945f3e924367da303aa832661e6cd9462b8768"
+    }
+  ],
+  "outputSha256": "c3d5f3e051b068fe18a175b3735438bb0b3507511553428d0ac0b74aaa50b290",
+  "harnessSha256": "1b1cf8d216211703751477b1047b55d3b574c7b59d463b0e19311a378b69129e"
+}

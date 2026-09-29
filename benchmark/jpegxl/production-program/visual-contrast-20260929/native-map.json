@@ -1,0 +1,113 @@
+{
+  "protocol": {
+    "policy": "Supplemental native controls on one pinned original, effort 7. These measured endpoints do not replace the fixed original-size or capped matrices. Equal distance does not establish matched quality.",
+    "mode": "native",
+    "distances": [1, 1.6],
+    "supplementalNativeControls": true,
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "d2a0a760665ab4e24c25394c57897b360cd2eaba0df3e0dd94142cd626cdadb9",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "50f0f8a109c6eedf9bfa3e31f37c2a1dcbb0bcfbe93429cd7fb5fea2c6dee8c0"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "51546e08e41997752dde18bad1b53896ee10a85c57a52ada169f0384e293b565"
+  },
+  "results": [
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "libjxl",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 473862,
+      "encodedSha256": "b7535fff0ad047de735c12eb890045a2c73adc059e095a21751eadaa28f520b2",
+      "decodedSha256": "4c5ab9c254a9390de87091802e10f4b5f018e2105a1b6aac39db118940a68dc1",
+      "ssimulacra2": 84.50339339,
+      "butteraugli": 1.164191246,
+      "rawMetrics": {
+        "ssimText": "84.50339339\n",
+        "baText": "1.1641912460\n3-norm: 0.344567\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 0,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "libjxl",
+      "distance": 1.6,
+      "status": "measured",
+      "bytes": 378701,
+      "encodedSha256": "439a17073a5c1b1a34f020695cdcec22e4825d24f64c7e813855aa5e9cdde59b",
+      "decodedSha256": "0f3c147ec1e0704088164868e91b9eb29b13fdfe2da3f395d7d08830d5bad692",
+      "ssimulacra2": 83.21035293,
+      "butteraugli": 1.7216448784,
+      "rawMetrics": {
+        "ssimText": "83.21035293\n",
+        "baText": "1.7216448784\n3-norm: 0.610194\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 0,
+          "upsampling": 1
+        }
+      ]
+    }
+  ]
+}

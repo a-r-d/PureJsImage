@@ -313,7 +313,8 @@
           "benchmark/jpegxl/verify-m8-animation-encode.ts",
           "tests/jpegxl-practical-progressive.test.ts",
           "tests/jpegxl-grayscale-exact.test.ts",
-          "tests/jpegxl-document-patches.test.ts"
+          "tests/jpegxl-document-patches.test.ts",
+          "benchmark/jpegxl/verify-m7-local-contrast.ts"
         ]
       }
     },

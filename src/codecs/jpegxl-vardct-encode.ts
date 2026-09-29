@@ -779,9 +779,42 @@ function* prepare8(
       for (let x = 0; x < fullBlockWidth; x++) {
         fillCorrelated(x, y)
         const index = y * fullBlockWidth + x
-        const localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
+        let localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
         errors.fill(Infinity)
-        const baselineBits = measureStrategy(0, localScale)
+        let baselineBits = measureStrategy(0, localScale)
+        // Refine excessive loss of local contrast before choosing a transform. Mean-normalized
+        // DCT energy equals pixel variance. The floors avoid spending bits on
+        // tiny residuals, including decorrelated X chroma.
+        // One bounded refinement retains the existing quantizer as the fallback.
+        if (effort === 7 && channels === 3 && distance > 1 && distance < 5) {
+          let relativeError = 0
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = planes[channel]
+            if (!plane) throw invalidInput('Missing refinement channel')
+            let sum = 0,
+              squares = 0
+            for (let position = 0; position < 64; position++) {
+              const sample = plane[position] ?? 0
+              sum += sample
+              squares += sample * sample
+            }
+            const variance = Math.max(0, squares / 64 - (sum / 64) ** 2)
+            relativeError = Math.max(
+              relativeError,
+              (errors[channel] ?? 0) / (variance + (channel === 0 ? 0.00000001 : 0.000001)),
+            )
+          }
+          const current = blockQuantizationMap[index] ?? blockQuantization
+          const target = Math.min(8, Math.ceil(current * Math.sqrt(relativeError / 0.04)))
+          // Fade toward the surrounding quality ranges without a large endpoint jump.
+          const strength = Math.min(1, distance - 1, 5 - distance)
+          const refined = current + Math.round(Math.max(0, target - current) * strength)
+          if (refined > current) {
+            blockQuantizationMap[index] = refined
+            localScale = 65536 / globalScale / refined
+            baselineBits = measureStrategy(0, localScale)
+          }
+        }
         baselineErrors.set(errors)
         let best = 0,
           selectedError = baselineErrors[1] ?? 0

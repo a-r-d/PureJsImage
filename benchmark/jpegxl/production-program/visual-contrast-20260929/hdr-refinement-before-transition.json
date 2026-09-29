@@ -1,0 +1,1620 @@
+{
+  "split": "holdout",
+  "baselineRunId": "visual-contrast-final-20260929",
+  "target": 70,
+  "maximumNewPointsPerEngineAndFamily": 4,
+  "intervalWidthMaximum": 3,
+  "policy": "Headroom-1 SSIMULACRA2; bounded measured refinement of every original family. Preserve grid results and all raw controls, nondominated points, nonmonotonicity and unresolved brackets. No extrapolation, codec changes, source exclusions or automatic promotion.",
+  "results": [
+    {
+      "id": "polyhaven-metro_noord",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "search_limit",
+      "intervalWidth": 11.722406840000005,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1171765,
+          "score": 93.90802677,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.25/report.json",
+          "reportSha256": "a9c4df7a0e38222d81e4f60058f6d7d4e341a9c4acf607e4bf2ecf060b224d79"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 819741,
+          "score": 91.88721513,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.5/report.json",
+          "reportSha256": "a074aca3352043e30ab7ae6f24455b95a599e1eefca8692411c06ed08bb2137c"
+        },
+        {
+          "setting": 1,
+          "bytes": 559389,
+          "score": 87.79768422,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-1/report.json",
+          "reportSha256": "fb0df037052320a70354479088d85d3c4ed5659689179c5af8828ef812badefc"
+        },
+        {
+          "setting": 2,
+          "bytes": 539134,
+          "score": 87.5992276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-2/report.json",
+          "reportSha256": "e7f915d49a86d9c86cace5e094027fffcd5decae74f25765adb3a9cdb7e4cf74"
+        },
+        {
+          "setting": 3,
+          "bytes": 422902,
+          "score": 83.63456498,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-3/report.json",
+          "reportSha256": "c5262c5276d726170e645abc02d8036313a1f014d0197d78dade08c5e7fd253f"
+        },
+        {
+          "setting": 5,
+          "bytes": 214383,
+          "score": 64.64233485,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-5/report.json",
+          "reportSha256": "70060ac671be738b6718703599b93b5888160cb07617ea3bcd92993637c0be31"
+        },
+        {
+          "setting": 4.435805,
+          "bytes": 230544,
+          "score": 67.31810897,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.435805/report.json",
+          "reportSha256": "363e343a43ee6340772bce10b98514e44f281be3e11546e73581306ddd484acf"
+        },
+        {
+          "setting": 4.148644,
+          "bytes": 240034,
+          "score": 68.55676276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.148644/report.json",
+          "reportSha256": "66277d9ef3f5701b90d63c9bfe0ecf5c1f00311d417c430b4b63a71b04f9625c"
+        },
+        {
+          "setting": 3.918915,
+          "bytes": 358581,
+          "score": 80.53964774,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-3.918915/report.json",
+          "reportSha256": "ff881cec7f08eb3f6f5b7be184c213f1a0882c91d2f5056ba97421309a9704f5"
+        },
+        {
+          "setting": 4.102698,
+          "bytes": 241487,
+          "score": 68.8172409,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.102698/report.json",
+          "reportSha256": "271c312af81c82b2f1152d9fdd9136bf1b531c524cc366a380a880f00d2decde"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 214383,
+          "score": 64.64233485,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-5/report.json",
+          "reportSha256": "70060ac671be738b6718703599b93b5888160cb07617ea3bcd92993637c0be31"
+        },
+        {
+          "setting": 4.435805,
+          "bytes": 230544,
+          "score": 67.31810897,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.435805/report.json",
+          "reportSha256": "363e343a43ee6340772bce10b98514e44f281be3e11546e73581306ddd484acf"
+        },
+        {
+          "setting": 4.148644,
+          "bytes": 240034,
+          "score": 68.55676276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.148644/report.json",
+          "reportSha256": "66277d9ef3f5701b90d63c9bfe0ecf5c1f00311d417c430b4b63a71b04f9625c"
+        },
+        {
+          "setting": 4.102698,
+          "bytes": 241487,
+          "score": 68.8172409,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-4.102698/report.json",
+          "reportSha256": "271c312af81c82b2f1152d9fdd9136bf1b531c524cc366a380a880f00d2decde"
+        },
+        {
+          "setting": 3.918915,
+          "bytes": 358581,
+          "score": 80.53964774,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-metro_noord/distance-3.918915/report.json",
+          "reportSha256": "ff881cec7f08eb3f6f5b7be184c213f1a0882c91d2f5056ba97421309a9704f5"
+        },
+        {
+          "setting": 3,
+          "bytes": 422902,
+          "score": 83.63456498,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-3/report.json",
+          "reportSha256": "c5262c5276d726170e645abc02d8036313a1f014d0197d78dade08c5e7fd253f"
+        },
+        {
+          "setting": 2,
+          "bytes": 539134,
+          "score": 87.5992276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-2/report.json",
+          "reportSha256": "e7f915d49a86d9c86cace5e094027fffcd5decae74f25765adb3a9cdb7e4cf74"
+        },
+        {
+          "setting": 1,
+          "bytes": 559389,
+          "score": 87.79768422,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-1/report.json",
+          "reportSha256": "fb0df037052320a70354479088d85d3c4ed5659689179c5af8828ef812badefc"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 819741,
+          "score": 91.88721513,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.5/report.json",
+          "reportSha256": "a074aca3352043e30ab7ae6f24455b95a599e1eefca8692411c06ed08bb2137c"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1171765,
+          "score": 93.90802677,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.25/report.json",
+          "reportSha256": "a9c4df7a0e38222d81e4f60058f6d7d4e341a9c4acf607e4bf2ecf060b224d79"
+        }
+      ],
+      "matchedBytes": 251314.28042368675
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 1.6961877400000134,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1275604,
+          "score": 93.62244836,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.25/report.json",
+          "reportSha256": "a9c4df7a0e38222d81e4f60058f6d7d4e341a9c4acf607e4bf2ecf060b224d79"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 811752,
+          "score": 91.00130851,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.5/report.json",
+          "reportSha256": "a074aca3352043e30ab7ae6f24455b95a599e1eefca8692411c06ed08bb2137c"
+        },
+        {
+          "setting": 1,
+          "bytes": 470591,
+          "score": 86.29550243,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-1/report.json",
+          "reportSha256": "fb0df037052320a70354479088d85d3c4ed5659689179c5af8828ef812badefc"
+        },
+        {
+          "setting": 2,
+          "bytes": 275775,
+          "score": 77.73958012,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-2/report.json",
+          "reportSha256": "e7f915d49a86d9c86cace5e094027fffcd5decae74f25765adb3a9cdb7e4cf74"
+        },
+        {
+          "setting": 3,
+          "bytes": 199080,
+          "score": 69.96939957,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-3/report.json",
+          "reportSha256": "c5262c5276d726170e645abc02d8036313a1f014d0197d78dade08c5e7fd253f"
+        },
+        {
+          "setting": 5,
+          "bytes": 131852,
+          "score": 56.5050158,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-5/report.json",
+          "reportSha256": "70060ac671be738b6718703599b93b5888160cb07617ea3bcd92993637c0be31"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 211996,
+          "score": 71.66558731,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-metro_noord/distance-2.8/report.json",
+          "reportSha256": "968bbee901e095b98fa44197d8c5af3a34041959cfa73cb28e97eec925df7fdc"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 131852,
+          "score": 56.5050158,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-5/report.json",
+          "reportSha256": "70060ac671be738b6718703599b93b5888160cb07617ea3bcd92993637c0be31"
+        },
+        {
+          "setting": 3,
+          "bytes": 199080,
+          "score": 69.96939957,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-3/report.json",
+          "reportSha256": "c5262c5276d726170e645abc02d8036313a1f014d0197d78dade08c5e7fd253f"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 211996,
+          "score": 71.66558731,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-metro_noord/distance-2.8/report.json",
+          "reportSha256": "968bbee901e095b98fa44197d8c5af3a34041959cfa73cb28e97eec925df7fdc"
+        },
+        {
+          "setting": 2,
+          "bytes": 275775,
+          "score": 77.73958012,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-2/report.json",
+          "reportSha256": "e7f915d49a86d9c86cace5e094027fffcd5decae74f25765adb3a9cdb7e4cf74"
+        },
+        {
+          "setting": 1,
+          "bytes": 470591,
+          "score": 86.29550243,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-1/report.json",
+          "reportSha256": "fb0df037052320a70354479088d85d3c4ed5659689179c5af8828ef812badefc"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 811752,
+          "score": 91.00130851,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.5/report.json",
+          "reportSha256": "a074aca3352043e30ab7ae6f24455b95a599e1eefca8692411c06ed08bb2137c"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1275604,
+          "score": 93.62244836,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-metro_noord/distance-0.25/report.json",
+          "reportSha256": "a9c4df7a0e38222d81e4f60058f6d7d4e341a9c4acf607e4bf2ecf060b224d79"
+        }
+      ],
+      "matchedBytes": 199305.89488962025
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.2609475528201002,
+      "adequate": false
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "search_limit",
+      "intervalWidth": 10.142833879999998,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1100595,
+          "score": 91.42854568,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.25/report.json",
+          "reportSha256": "477b02dea9ea8781576775af96161088563668b7c9feadec5628a9c0663b914f"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 790240,
+          "score": 88.88864712,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.5/report.json",
+          "reportSha256": "e07a5b476acc4bdc678bc94d53e253c7f8fa04800453e68b4b25546fd5f0676f"
+        },
+        {
+          "setting": 1,
+          "bytes": 550934,
+          "score": 86.43707954,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-1/report.json",
+          "reportSha256": "30d21c992a39280bfc3a3a82a813a13cfa4778d91bc0b56d56750b10ebbc99f7"
+        },
+        {
+          "setting": 2,
+          "bytes": 503000,
+          "score": 85.4355795,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-2/report.json",
+          "reportSha256": "013fb6dc03186aef61899d0e0035cfe6656f09557fe2d55d896365e976fa1ad9"
+        },
+        {
+          "setting": 3,
+          "bytes": 396798,
+          "score": 82.03167561,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-3/report.json",
+          "reportSha256": "12971ed594430b3b82f6b0a5d1abe6cd0bd4eb4a5c894eab394a9cd77b640881"
+        },
+        {
+          "setting": 5,
+          "bytes": 215742,
+          "score": 65.43159824,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-5/report.json",
+          "reportSha256": "b45aa7b5c3908d9c4cb6f4f7f1b12799021f33061b57b143339ee34806ed5bb7"
+        },
+        {
+          "setting": 4.449593,
+          "bytes": 231308,
+          "score": 67.53897442,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.449593/report.json",
+          "reportSha256": "5f29b4c232a87c1e4e7e923c3fbc06a4a7b7461edc6fab0e2ae32bc6c5342a48"
+        },
+        {
+          "setting": 4.159674,
+          "bytes": 240735,
+          "score": 69.08093762,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.159674/report.json",
+          "reportSha256": "632cbd40060f6d71eb917211c9706fa6e54dafc6a033b1697a5b86181b41ed92"
+        },
+        {
+          "setting": 3.927739,
+          "bytes": 337179,
+          "score": 79.52435998,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-3.927739/report.json",
+          "reportSha256": "21456d41665c1ac2e817c7a42852b8ae0e2d88f758d57410e0ef257367a880dc"
+        },
+        {
+          "setting": 4.113287,
+          "bytes": 242270,
+          "score": 69.3815261,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.113287/report.json",
+          "reportSha256": "d533b45202c03b30746e0bed3aeb8202fb4bd26a6e9212ef2f39bbb81aca6166"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 215742,
+          "score": 65.43159824,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-5/report.json",
+          "reportSha256": "b45aa7b5c3908d9c4cb6f4f7f1b12799021f33061b57b143339ee34806ed5bb7"
+        },
+        {
+          "setting": 4.449593,
+          "bytes": 231308,
+          "score": 67.53897442,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.449593/report.json",
+          "reportSha256": "5f29b4c232a87c1e4e7e923c3fbc06a4a7b7461edc6fab0e2ae32bc6c5342a48"
+        },
+        {
+          "setting": 4.159674,
+          "bytes": 240735,
+          "score": 69.08093762,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.159674/report.json",
+          "reportSha256": "632cbd40060f6d71eb917211c9706fa6e54dafc6a033b1697a5b86181b41ed92"
+        },
+        {
+          "setting": 4.113287,
+          "bytes": 242270,
+          "score": 69.3815261,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-4.113287/report.json",
+          "reportSha256": "d533b45202c03b30746e0bed3aeb8202fb4bd26a6e9212ef2f39bbb81aca6166"
+        },
+        {
+          "setting": 3.927739,
+          "bytes": 337179,
+          "score": 79.52435998,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-modern_buildings_night/distance-3.927739/report.json",
+          "reportSha256": "21456d41665c1ac2e817c7a42852b8ae0e2d88f758d57410e0ef257367a880dc"
+        },
+        {
+          "setting": 3,
+          "bytes": 396798,
+          "score": 82.03167561,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-3/report.json",
+          "reportSha256": "12971ed594430b3b82f6b0a5d1abe6cd0bd4eb4a5c894eab394a9cd77b640881"
+        },
+        {
+          "setting": 2,
+          "bytes": 503000,
+          "score": 85.4355795,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-2/report.json",
+          "reportSha256": "013fb6dc03186aef61899d0e0035cfe6656f09557fe2d55d896365e976fa1ad9"
+        },
+        {
+          "setting": 1,
+          "bytes": 550934,
+          "score": 86.43707954,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-1/report.json",
+          "reportSha256": "30d21c992a39280bfc3a3a82a813a13cfa4778d91bc0b56d56750b10ebbc99f7"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 790240,
+          "score": 88.88864712,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.5/report.json",
+          "reportSha256": "e07a5b476acc4bdc678bc94d53e253c7f8fa04800453e68b4b25546fd5f0676f"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1100595,
+          "score": 91.42854568,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.25/report.json",
+          "reportSha256": "477b02dea9ea8781576775af96161088563668b7c9feadec5628a9c0663b914f"
+        }
+      ],
+      "matchedBytes": 247202.8483990488
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 1.2283521500000063,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1040370,
+          "score": 90.31287096,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.25/report.json",
+          "reportSha256": "477b02dea9ea8781576775af96161088563668b7c9feadec5628a9c0663b914f"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 682029,
+          "score": 87.29743778,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.5/report.json",
+          "reportSha256": "e07a5b476acc4bdc678bc94d53e253c7f8fa04800453e68b4b25546fd5f0676f"
+        },
+        {
+          "setting": 1,
+          "bytes": 412945,
+          "score": 82.21347247,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-1/report.json",
+          "reportSha256": "30d21c992a39280bfc3a3a82a813a13cfa4778d91bc0b56d56750b10ebbc99f7"
+        },
+        {
+          "setting": 2,
+          "bytes": 245659,
+          "score": 76.40647754,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-2/report.json",
+          "reportSha256": "013fb6dc03186aef61899d0e0035cfe6656f09557fe2d55d896365e976fa1ad9"
+        },
+        {
+          "setting": 3,
+          "bytes": 176485,
+          "score": 69.58107847,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-3/report.json",
+          "reportSha256": "12971ed594430b3b82f6b0a5d1abe6cd0bd4eb4a5c894eab394a9cd77b640881"
+        },
+        {
+          "setting": 5,
+          "bytes": 115997,
+          "score": 57.2385435,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-5/report.json",
+          "reportSha256": "b45aa7b5c3908d9c4cb6f4f7f1b12799021f33061b57b143339ee34806ed5bb7"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 188726,
+          "score": 70.80943062,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-modern_buildings_night/distance-2.8/report.json",
+          "reportSha256": "0771fbc3f4e4a9b67911eebe81524e9d4a2cc38e128cf1a1b41b9d3ea4c85fc9"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 115997,
+          "score": 57.2385435,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-5/report.json",
+          "reportSha256": "b45aa7b5c3908d9c4cb6f4f7f1b12799021f33061b57b143339ee34806ed5bb7"
+        },
+        {
+          "setting": 3,
+          "bytes": 176485,
+          "score": 69.58107847,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-3/report.json",
+          "reportSha256": "12971ed594430b3b82f6b0a5d1abe6cd0bd4eb4a5c894eab394a9cd77b640881"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 188726,
+          "score": 70.80943062,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-modern_buildings_night/distance-2.8/report.json",
+          "reportSha256": "0771fbc3f4e4a9b67911eebe81524e9d4a2cc38e128cf1a1b41b9d3ea4c85fc9"
+        },
+        {
+          "setting": 2,
+          "bytes": 245659,
+          "score": 76.40647754,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-2/report.json",
+          "reportSha256": "013fb6dc03186aef61899d0e0035cfe6656f09557fe2d55d896365e976fa1ad9"
+        },
+        {
+          "setting": 1,
+          "bytes": 412945,
+          "score": 82.21347247,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-1/report.json",
+          "reportSha256": "30d21c992a39280bfc3a3a82a813a13cfa4778d91bc0b56d56750b10ebbc99f7"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 682029,
+          "score": 87.29743778,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.5/report.json",
+          "reportSha256": "e07a5b476acc4bdc678bc94d53e253c7f8fa04800453e68b4b25546fd5f0676f"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1040370,
+          "score": 90.31287096,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-modern_buildings_night/distance-0.25/report.json",
+          "reportSha256": "477b02dea9ea8781576775af96161088563668b7c9feadec5628a9c0663b914f"
+        }
+      ],
+      "matchedBytes": 180567.80911683783
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.3690305575956467,
+      "adequate": false
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "search_limit",
+      "intervalWidth": 12.454836869999994,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1582071,
+          "score": 94.19342646,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.25/report.json",
+          "reportSha256": "be3b7fea5eccb48f204c644ffd81310ef41388397f40c3475700704edc59a182"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 1181086,
+          "score": 92.45234778,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.5/report.json",
+          "reportSha256": "f1a718f026d5b8d47cac85ee01c061b8c989f6e20593a086f1ac03d544923d44"
+        },
+        {
+          "setting": 1,
+          "bytes": 859776,
+          "score": 88.6286727,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-1/report.json",
+          "reportSha256": "59ad02468deb184766777bbcc4bfd3099ca5ca5c5a06d30fcf75a349ea5fc0f7"
+        },
+        {
+          "setting": 2,
+          "bytes": 825738,
+          "score": 88.46504276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-2/report.json",
+          "reportSha256": "68890fbd8dcf35b0f820f739e5748258ebfc7cd027a16fc8b77f8a076ef55336"
+        },
+        {
+          "setting": 3,
+          "bytes": 666494,
+          "score": 84.73376616,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-3/report.json",
+          "reportSha256": "d1e95b94f52abb0936a9593ed540d8d92e7d25105b817c2e2ad1bd1820eb967f"
+        },
+        {
+          "setting": 5,
+          "bytes": 323830,
+          "score": 64.21107703,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-5/report.json",
+          "reportSha256": "1ed1b0d95175e6425782b05a0669325c1362f6784dad9eb23939a2861a1ce034"
+        },
+        {
+          "setting": 4.435851,
+          "bytes": 352539,
+          "score": 67.29544119,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.435851/report.json",
+          "reportSha256": "0cbe097ae03a117c3f8c341e94bf2c94ad71635cf1cf747a01f8c169b184c551"
+        },
+        {
+          "setting": 4.148681,
+          "bytes": 369753,
+          "score": 68.86994932,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.148681/report.json",
+          "reportSha256": "c0b5d19d900f346a716444ba166e29fd2249e344b551adea3a9d98f122277b56"
+        },
+        {
+          "setting": 3.918945,
+          "bytes": 570919,
+          "score": 81.57203423,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-3.918945/report.json",
+          "reportSha256": "0756507c8d2ce5ef0625566d812f2c431ddd39350516dc2c39a0c83aed008b65"
+        },
+        {
+          "setting": 4.102734,
+          "bytes": 372313,
+          "score": 69.11719736,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.102734/report.json",
+          "reportSha256": "72c3e143be3bcd19c2495dd0da1b5f4ef5e33096acb643c921b3f3ec71a81966"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 323830,
+          "score": 64.21107703,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-5/report.json",
+          "reportSha256": "1ed1b0d95175e6425782b05a0669325c1362f6784dad9eb23939a2861a1ce034"
+        },
+        {
+          "setting": 4.435851,
+          "bytes": 352539,
+          "score": 67.29544119,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.435851/report.json",
+          "reportSha256": "0cbe097ae03a117c3f8c341e94bf2c94ad71635cf1cf747a01f8c169b184c551"
+        },
+        {
+          "setting": 4.148681,
+          "bytes": 369753,
+          "score": 68.86994932,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.148681/report.json",
+          "reportSha256": "c0b5d19d900f346a716444ba166e29fd2249e344b551adea3a9d98f122277b56"
+        },
+        {
+          "setting": 4.102734,
+          "bytes": 372313,
+          "score": 69.11719736,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-4.102734/report.json",
+          "reportSha256": "72c3e143be3bcd19c2495dd0da1b5f4ef5e33096acb643c921b3f3ec71a81966"
+        },
+        {
+          "setting": 3.918945,
+          "bytes": 570919,
+          "score": 81.57203423,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-hikers_cave/distance-3.918945/report.json",
+          "reportSha256": "0756507c8d2ce5ef0625566d812f2c431ddd39350516dc2c39a0c83aed008b65"
+        },
+        {
+          "setting": 3,
+          "bytes": 666494,
+          "score": 84.73376616,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-3/report.json",
+          "reportSha256": "d1e95b94f52abb0936a9593ed540d8d92e7d25105b817c2e2ad1bd1820eb967f"
+        },
+        {
+          "setting": 2,
+          "bytes": 825738,
+          "score": 88.46504276,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-2/report.json",
+          "reportSha256": "68890fbd8dcf35b0f820f739e5748258ebfc7cd027a16fc8b77f8a076ef55336"
+        },
+        {
+          "setting": 1,
+          "bytes": 859776,
+          "score": 88.6286727,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-1/report.json",
+          "reportSha256": "59ad02468deb184766777bbcc4bfd3099ca5ca5c5a06d30fcf75a349ea5fc0f7"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 1181086,
+          "score": 92.45234778,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.5/report.json",
+          "reportSha256": "f1a718f026d5b8d47cac85ee01c061b8c989f6e20593a086f1ac03d544923d44"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1582071,
+          "score": 94.19342646,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.25/report.json",
+          "reportSha256": "be3b7fea5eccb48f204c644ffd81310ef41388397f40c3475700704edc59a182"
+        }
+      ],
+      "matchedBytes": 383767.5807814832
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 2.827086780000002,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1340424,
+          "score": 93.15368282,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.25/report.json",
+          "reportSha256": "be3b7fea5eccb48f204c644ffd81310ef41388397f40c3475700704edc59a182"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 933774,
+          "score": 90.16664078,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.5/report.json",
+          "reportSha256": "f1a718f026d5b8d47cac85ee01c061b8c989f6e20593a086f1ac03d544923d44"
+        },
+        {
+          "setting": 1,
+          "bytes": 648496,
+          "score": 84.90657512,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-1/report.json",
+          "reportSha256": "59ad02468deb184766777bbcc4bfd3099ca5ca5c5a06d30fcf75a349ea5fc0f7"
+        },
+        {
+          "setting": 2,
+          "bytes": 380092,
+          "score": 72.73733677,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-2/report.json",
+          "reportSha256": "68890fbd8dcf35b0f820f739e5748258ebfc7cd027a16fc8b77f8a076ef55336"
+        },
+        {
+          "setting": 3,
+          "bytes": 249024,
+          "score": 61.58982647,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-3/report.json",
+          "reportSha256": "d1e95b94f52abb0936a9593ed540d8d92e7d25105b817c2e2ad1bd1820eb967f"
+        },
+        {
+          "setting": 5,
+          "bytes": 149695,
+          "score": 43.92550435,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-5/report.json",
+          "reportSha256": "1ed1b0d95175e6425782b05a0669325c1362f6784dad9eb23939a2861a1ce034"
+        },
+        {
+          "setting": 2.245556,
+          "bytes": 339803,
+          "score": 69.91024999,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-hikers_cave/distance-2.245556/report.json",
+          "reportSha256": "fab156555c74397c6988167088853870e09aad14a70763b420cf83c4b871a092"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 149695,
+          "score": 43.92550435,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-5/report.json",
+          "reportSha256": "1ed1b0d95175e6425782b05a0669325c1362f6784dad9eb23939a2861a1ce034"
+        },
+        {
+          "setting": 3,
+          "bytes": 249024,
+          "score": 61.58982647,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-3/report.json",
+          "reportSha256": "d1e95b94f52abb0936a9593ed540d8d92e7d25105b817c2e2ad1bd1820eb967f"
+        },
+        {
+          "setting": 2.245556,
+          "bytes": 339803,
+          "score": 69.91024999,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-hikers_cave/distance-2.245556/report.json",
+          "reportSha256": "fab156555c74397c6988167088853870e09aad14a70763b420cf83c4b871a092"
+        },
+        {
+          "setting": 2,
+          "bytes": 380092,
+          "score": 72.73733677,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-2/report.json",
+          "reportSha256": "68890fbd8dcf35b0f820f739e5748258ebfc7cd027a16fc8b77f8a076ef55336"
+        },
+        {
+          "setting": 1,
+          "bytes": 648496,
+          "score": 84.90657512,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-1/report.json",
+          "reportSha256": "59ad02468deb184766777bbcc4bfd3099ca5ca5c5a06d30fcf75a349ea5fc0f7"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 933774,
+          "score": 90.16664078,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.5/report.json",
+          "reportSha256": "f1a718f026d5b8d47cac85ee01c061b8c989f6e20593a086f1ac03d544923d44"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1340424,
+          "score": 93.15368282,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-hikers_cave/distance-0.25/report.json",
+          "reportSha256": "be3b7fea5eccb48f204c644ffd81310ef41388397f40c3475700704edc59a182"
+        }
+      ],
+      "matchedBytes": 341013.8673786123
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.1253723601668182,
+      "adequate": false
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "search_limit",
+      "intervalWidth": 13.444875440000004,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1550654,
+          "score": 93.50719615,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.25/report.json",
+          "reportSha256": "eb7144d7b4eba581d632a37f0b4723a6d3930b80f7a9d516ca27bcbed9a3a999"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 1133443,
+          "score": 91.57180067,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.5/report.json",
+          "reportSha256": "b3deae311c9f7e278ffefc960f9ba74afa868e49ccccf6cd2c0d0f24711367fd"
+        },
+        {
+          "setting": 1,
+          "bytes": 803388,
+          "score": 87.65285569,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-1/report.json",
+          "reportSha256": "255db4f82558c2da056ad0573bde5f8ac95ec40a4bca24919ec81a25da811917"
+        },
+        {
+          "setting": 2,
+          "bytes": 766216,
+          "score": 87.50910854,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-2/report.json",
+          "reportSha256": "0743451537bcf64152d41d56f4542d02b3d2b85fee87d69958a8643cdbe4ddfa"
+        },
+        {
+          "setting": 3,
+          "bytes": 610823,
+          "score": 83.52029168,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-3/report.json",
+          "reportSha256": "c87ce0612ff8a3d15cfeb8f0bc0b0ee934a7d2cc17f216579e3b8d99bcf6a783"
+        },
+        {
+          "setting": 5,
+          "bytes": 300734,
+          "score": 61.10343382,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-5/report.json",
+          "reportSha256": "bc63c22b932c991c21904ec8c5cceceeb277438bbd29db61c5c9cba75ef4924f"
+        },
+        {
+          "setting": 4.206261,
+          "bytes": 338887,
+          "score": 65.80736132,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.206261/report.json",
+          "reportSha256": "05fe8e0e3da24a01690bbf10e26941c1124c69ecefaf3acaa791cf416c55090b"
+        },
+        {
+          "setting": 3.92074,
+          "bytes": 520145,
+          "score": 80.02713258,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-3.92074/report.json",
+          "reportSha256": "4b7d3cbc936e84441f5335c9c093a4829a316ae3fd800fe912c171ff80c9be02"
+        },
+        {
+          "setting": 4.122076,
+          "bytes": 343731,
+          "score": 66.26701668,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.122076/report.json",
+          "reportSha256": "d2b8b7eb3c55a186915b7e086a3c02f31adf764286330a49847af11d89e0bbb2"
+        },
+        {
+          "setting": 4.067456,
+          "bytes": 346634,
+          "score": 66.58225714,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.067456/report.json",
+          "reportSha256": "83485dcee1c3a44cfca4245af506331916816790f430cbdf05ff8fbaa88ffb60"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 300734,
+          "score": 61.10343382,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-5/report.json",
+          "reportSha256": "bc63c22b932c991c21904ec8c5cceceeb277438bbd29db61c5c9cba75ef4924f"
+        },
+        {
+          "setting": 4.206261,
+          "bytes": 338887,
+          "score": 65.80736132,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.206261/report.json",
+          "reportSha256": "05fe8e0e3da24a01690bbf10e26941c1124c69ecefaf3acaa791cf416c55090b"
+        },
+        {
+          "setting": 4.122076,
+          "bytes": 343731,
+          "score": 66.26701668,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.122076/report.json",
+          "reportSha256": "d2b8b7eb3c55a186915b7e086a3c02f31adf764286330a49847af11d89e0bbb2"
+        },
+        {
+          "setting": 4.067456,
+          "bytes": 346634,
+          "score": 66.58225714,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-4.067456/report.json",
+          "reportSha256": "83485dcee1c3a44cfca4245af506331916816790f430cbdf05ff8fbaa88ffb60"
+        },
+        {
+          "setting": 3.92074,
+          "bytes": 520145,
+          "score": 80.02713258,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-glass_passage/distance-3.92074/report.json",
+          "reportSha256": "4b7d3cbc936e84441f5335c9c093a4829a316ae3fd800fe912c171ff80c9be02"
+        },
+        {
+          "setting": 3,
+          "bytes": 610823,
+          "score": 83.52029168,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-3/report.json",
+          "reportSha256": "c87ce0612ff8a3d15cfeb8f0bc0b0ee934a7d2cc17f216579e3b8d99bcf6a783"
+        },
+        {
+          "setting": 2,
+          "bytes": 766216,
+          "score": 87.50910854,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-2/report.json",
+          "reportSha256": "0743451537bcf64152d41d56f4542d02b3d2b85fee87d69958a8643cdbe4ddfa"
+        },
+        {
+          "setting": 1,
+          "bytes": 803388,
+          "score": 87.65285569,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-1/report.json",
+          "reportSha256": "255db4f82558c2da056ad0573bde5f8ac95ec40a4bca24919ec81a25da811917"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 1133443,
+          "score": 91.57180067,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.5/report.json",
+          "reportSha256": "b3deae311c9f7e278ffefc960f9ba74afa868e49ccccf6cd2c0d0f24711367fd"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1550654,
+          "score": 93.50719615,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.25/report.json",
+          "reportSha256": "eb7144d7b4eba581d632a37f0b4723a6d3930b80f7a9d516ca27bcbed9a3a999"
+        }
+      ],
+      "matchedBytes": 384304.49808692734
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 2.0626630200000022,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 1407995,
+          "score": 92.57740294,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.25/report.json",
+          "reportSha256": "eb7144d7b4eba581d632a37f0b4723a6d3930b80f7a9d516ca27bcbed9a3a999"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 960974,
+          "score": 89.52761342,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.5/report.json",
+          "reportSha256": "b3deae311c9f7e278ffefc960f9ba74afa868e49ccccf6cd2c0d0f24711367fd"
+        },
+        {
+          "setting": 1,
+          "bytes": 624912,
+          "score": 83.53559096,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-1/report.json",
+          "reportSha256": "255db4f82558c2da056ad0573bde5f8ac95ec40a4bca24919ec81a25da811917"
+        },
+        {
+          "setting": 2,
+          "bytes": 360465,
+          "score": 70.9618178,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-2/report.json",
+          "reportSha256": "0743451537bcf64152d41d56f4542d02b3d2b85fee87d69958a8643cdbe4ddfa"
+        },
+        {
+          "setting": 3,
+          "bytes": 253162,
+          "score": 60.94925071,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-3/report.json",
+          "reportSha256": "c87ce0612ff8a3d15cfeb8f0bc0b0ee934a7d2cc17f216579e3b8d99bcf6a783"
+        },
+        {
+          "setting": 5,
+          "bytes": 161767,
+          "score": 43.55935787,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-5/report.json",
+          "reportSha256": "bc63c22b932c991c21904ec8c5cceceeb277438bbd29db61c5c9cba75ef4924f"
+        },
+        {
+          "setting": 2.2,
+          "bytes": 332646,
+          "score": 68.89915478,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-glass_passage/distance-2.2/report.json",
+          "reportSha256": "8fd13979fcfefcec260bdf5b1cc38295207b0f06b06544dda6af09412fc68b4f"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 161767,
+          "score": 43.55935787,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-5/report.json",
+          "reportSha256": "bc63c22b932c991c21904ec8c5cceceeb277438bbd29db61c5c9cba75ef4924f"
+        },
+        {
+          "setting": 3,
+          "bytes": 253162,
+          "score": 60.94925071,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-3/report.json",
+          "reportSha256": "c87ce0612ff8a3d15cfeb8f0bc0b0ee934a7d2cc17f216579e3b8d99bcf6a783"
+        },
+        {
+          "setting": 2.2,
+          "bytes": 332646,
+          "score": 68.89915478,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-glass_passage/distance-2.2/report.json",
+          "reportSha256": "8fd13979fcfefcec260bdf5b1cc38295207b0f06b06544dda6af09412fc68b4f"
+        },
+        {
+          "setting": 2,
+          "bytes": 360465,
+          "score": 70.9618178,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-2/report.json",
+          "reportSha256": "0743451537bcf64152d41d56f4542d02b3d2b85fee87d69958a8643cdbe4ddfa"
+        },
+        {
+          "setting": 1,
+          "bytes": 624912,
+          "score": 83.53559096,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-1/report.json",
+          "reportSha256": "255db4f82558c2da056ad0573bde5f8ac95ec40a4bca24919ec81a25da811917"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 960974,
+          "score": 89.52761342,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.5/report.json",
+          "reportSha256": "b3deae311c9f7e278ffefc960f9ba74afa868e49ccccf6cd2c0d0f24711367fd"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 1407995,
+          "score": 92.57740294,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-glass_passage/distance-0.25/report.json",
+          "reportSha256": "eb7144d7b4eba581d632a37f0b4723a6d3930b80f7a9d516ca27bcbed9a3a999"
+        }
+      ],
+      "matchedBytes": 347214.79316367337
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.1068206356800308,
+      "adequate": false
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 1.2566532400000057,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 744608,
+          "score": 93.11788968,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.25/report.json",
+          "reportSha256": "71a130bcc80a6f98cf609e2add71367eefc5ad45a11d976317a8700ea3c905a4"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 514462,
+          "score": 91.44842734,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.5/report.json",
+          "reportSha256": "26f3d9831ae1983e07d600065375eab4533e9cfdc8f533ac954f17b47c46ffa8"
+        },
+        {
+          "setting": 1,
+          "bytes": 351980,
+          "score": 88.06189988,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-1/report.json",
+          "reportSha256": "cbcd9e27c27b7514aac966275eddbb01700b4bad4051261af3f17fa54afdb2d9"
+        },
+        {
+          "setting": 2,
+          "bytes": 333722,
+          "score": 87.93768209,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-2/report.json",
+          "reportSha256": "1f1e197fe73a8007765e9467a648932cd13b81bcab1806e5385a799955a86fda"
+        },
+        {
+          "setting": 3,
+          "bytes": 263988,
+          "score": 84.41359078,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-3/report.json",
+          "reportSha256": "89ba448ee008e33ed8d72eff3dc328793f6a7e1cb6f05bdb1e16d0c7a1f88868"
+        },
+        {
+          "setting": 5,
+          "bytes": 140166,
+          "score": 67.19265869,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-5/report.json",
+          "reportSha256": "1f85da330fd9683aade25b894c94d2e6da11bed77544785e7e38f35739801076"
+        },
+        {
+          "setting": 4.6,
+          "bytes": 147284,
+          "score": 68.81159606,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-pedestrian_overpass/distance-4.6/report.json",
+          "reportSha256": "9e7471ed28f29783ab5f06b9e4cb08539bbf6a0b8954075699c80ef8504552ee"
+        },
+        {
+          "setting": 4.28,
+          "bytes": 153700,
+          "score": 70.0682493,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-pedestrian_overpass/distance-4.28/report.json",
+          "reportSha256": "428e3f3e073821220b26e9041f8afe9d7131cfd32d08252375b88d6acc4dc16e"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 140166,
+          "score": 67.19265869,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-5/report.json",
+          "reportSha256": "1f85da330fd9683aade25b894c94d2e6da11bed77544785e7e38f35739801076"
+        },
+        {
+          "setting": 4.6,
+          "bytes": 147284,
+          "score": 68.81159606,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-pedestrian_overpass/distance-4.6/report.json",
+          "reportSha256": "9e7471ed28f29783ab5f06b9e4cb08539bbf6a0b8954075699c80ef8504552ee"
+        },
+        {
+          "setting": 4.28,
+          "bytes": 153700,
+          "score": 70.0682493,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-pedestrian_overpass/distance-4.28/report.json",
+          "reportSha256": "428e3f3e073821220b26e9041f8afe9d7131cfd32d08252375b88d6acc4dc16e"
+        },
+        {
+          "setting": 3,
+          "bytes": 263988,
+          "score": 84.41359078,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-3/report.json",
+          "reportSha256": "89ba448ee008e33ed8d72eff3dc328793f6a7e1cb6f05bdb1e16d0c7a1f88868"
+        },
+        {
+          "setting": 2,
+          "bytes": 333722,
+          "score": 87.93768209,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-2/report.json",
+          "reportSha256": "1f1e197fe73a8007765e9467a648932cd13b81bcab1806e5385a799955a86fda"
+        },
+        {
+          "setting": 1,
+          "bytes": 351980,
+          "score": 88.06189988,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-1/report.json",
+          "reportSha256": "cbcd9e27c27b7514aac966275eddbb01700b4bad4051261af3f17fa54afdb2d9"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 514462,
+          "score": 91.44842734,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.5/report.json",
+          "reportSha256": "26f3d9831ae1983e07d600065375eab4533e9cfdc8f533ac954f17b47c46ffa8"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 744608,
+          "score": 93.11788968,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.25/report.json",
+          "reportSha256": "71a130bcc80a6f98cf609e2add71367eefc5ad45a11d976317a8700ea3c905a4"
+        }
+      ],
+      "matchedBytes": 153344.47464489593
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 0.8075156999999962,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 738542,
+          "score": 92.45888314,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.25/report.json",
+          "reportSha256": "71a130bcc80a6f98cf609e2add71367eefc5ad45a11d976317a8700ea3c905a4"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 475060,
+          "score": 90.42837458,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.5/report.json",
+          "reportSha256": "26f3d9831ae1983e07d600065375eab4533e9cfdc8f533ac954f17b47c46ffa8"
+        },
+        {
+          "setting": 1,
+          "bytes": 281084,
+          "score": 86.68941049,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-1/report.json",
+          "reportSha256": "cbcd9e27c27b7514aac966275eddbb01700b4bad4051261af3f17fa54afdb2d9"
+        },
+        {
+          "setting": 2,
+          "bytes": 168185,
+          "score": 79.35157792,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-2/report.json",
+          "reportSha256": "1f1e197fe73a8007765e9467a648932cd13b81bcab1806e5385a799955a86fda"
+        },
+        {
+          "setting": 3,
+          "bytes": 119927,
+          "score": 72.70987485,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-3/report.json",
+          "reportSha256": "89ba448ee008e33ed8d72eff3dc328793f6a7e1cb6f05bdb1e16d0c7a1f88868"
+        },
+        {
+          "setting": 5,
+          "bytes": 78625,
+          "score": 61.96660222,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-5/report.json",
+          "reportSha256": "1f85da330fd9683aade25b894c94d2e6da11bed77544785e7e38f35739801076"
+        },
+        {
+          "setting": 3.504478,
+          "bytes": 105115,
+          "score": 69.23234743,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-pedestrian_overpass/distance-3.504478/report.json",
+          "reportSha256": "8accbf32baecebc812821518a393fe79a4aec4a1249109d35cd8cf71633f4096"
+        },
+        {
+          "setting": 3.393116,
+          "bytes": 107971,
+          "score": 70.03986313,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-pedestrian_overpass/distance-3.393116/report.json",
+          "reportSha256": "4191e61bc4a0c9de0b2020b96a0a9e6b954d74fb546687fde7e2bf1a2c34b4fc"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 78625,
+          "score": 61.96660222,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-5/report.json",
+          "reportSha256": "1f85da330fd9683aade25b894c94d2e6da11bed77544785e7e38f35739801076"
+        },
+        {
+          "setting": 3.504478,
+          "bytes": 105115,
+          "score": 69.23234743,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-pedestrian_overpass/distance-3.504478/report.json",
+          "reportSha256": "8accbf32baecebc812821518a393fe79a4aec4a1249109d35cd8cf71633f4096"
+        },
+        {
+          "setting": 3.393116,
+          "bytes": 107971,
+          "score": 70.03986313,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-pedestrian_overpass/distance-3.393116/report.json",
+          "reportSha256": "4191e61bc4a0c9de0b2020b96a0a9e6b954d74fb546687fde7e2bf1a2c34b4fc"
+        },
+        {
+          "setting": 3,
+          "bytes": 119927,
+          "score": 72.70987485,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-3/report.json",
+          "reportSha256": "89ba448ee008e33ed8d72eff3dc328793f6a7e1cb6f05bdb1e16d0c7a1f88868"
+        },
+        {
+          "setting": 2,
+          "bytes": 168185,
+          "score": 79.35157792,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-2/report.json",
+          "reportSha256": "1f1e197fe73a8007765e9467a648932cd13b81bcab1806e5385a799955a86fda"
+        },
+        {
+          "setting": 1,
+          "bytes": 281084,
+          "score": 86.68941049,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-1/report.json",
+          "reportSha256": "cbcd9e27c27b7514aac966275eddbb01700b4bad4051261af3f17fa54afdb2d9"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 475060,
+          "score": 90.42837458,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.5/report.json",
+          "reportSha256": "26f3d9831ae1983e07d600065375eab4533e9cfdc8f533ac954f17b47c46ffa8"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 738542,
+          "score": 92.45888314,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-pedestrian_overpass/distance-0.25/report.json",
+          "reportSha256": "71a130bcc80a6f98cf609e2add71367eefc5ad45a11d976317a8700ea3c905a4"
+        }
+      ],
+      "matchedBytes": 107828.20943862581
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.4221183440143954,
+      "adequate": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "engine": "purejsimage",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 1.137531359999997,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 728763,
+          "score": 93.24639967,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.25/report.json",
+          "reportSha256": "fdbfd9b8108c2187f45ee0ea91336c088fb6fbaad785e0d64e7bf812c3f91cf6"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 515385,
+          "score": 91.72640274,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.5/report.json",
+          "reportSha256": "4c3e913398ed076b0ba2ebfd44dd57d9b082c251cd831b9269d2f95b8c04e655"
+        },
+        {
+          "setting": 1,
+          "bytes": 365930,
+          "score": 88.26728546,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-1/report.json",
+          "reportSha256": "816d8126818b7660ce874ef2f7d11feab5c3a5e91a9263f02bb605ff1dc46da5"
+        },
+        {
+          "setting": 2,
+          "bytes": 350889,
+          "score": 88.21516182,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-2/report.json",
+          "reportSha256": "1828e48aa36bb67f87fc50dc5c003d493f398bca45f7a7d8ecbdc112ce09bae0"
+        },
+        {
+          "setting": 3,
+          "bytes": 281020,
+          "score": 84.88033195,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-3/report.json",
+          "reportSha256": "b859f5b6f622e706eac89eb3fd09b72f1ed2baf1b3ac1616f5e7cd4160c9e19f"
+        },
+        {
+          "setting": 5,
+          "bytes": 139518,
+          "score": 66.50838162,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-5/report.json",
+          "reportSha256": "cf176183781d5394130a8c1140ba7edc7a403fbff0b01a7de6e26ad503462672"
+        },
+        {
+          "setting": 4.6,
+          "bytes": 147506,
+          "score": 68.32449515,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.6/report.json",
+          "reportSha256": "3699605165d7ab03230d8c5e94704686d0de054b93f6f2cd2e6443d4b5198399"
+        },
+        {
+          "setting": 4.28,
+          "bytes": 154910,
+          "score": 69.84614627,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.28/report.json",
+          "reportSha256": "3c44c1e6235bbbf3902da8d178d546b8c4f65c03bdc0e17eca589b9d888d8a78"
+        },
+        {
+          "setting": 4.024,
+          "bytes": 161302,
+          "score": 70.98367763,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.024/report.json",
+          "reportSha256": "300bb37d92ca823c85bc116f672af3da973c36642d8659a0379ebc2565dc432d"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 139518,
+          "score": 66.50838162,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-5/report.json",
+          "reportSha256": "cf176183781d5394130a8c1140ba7edc7a403fbff0b01a7de6e26ad503462672"
+        },
+        {
+          "setting": 4.6,
+          "bytes": 147506,
+          "score": 68.32449515,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.6/report.json",
+          "reportSha256": "3699605165d7ab03230d8c5e94704686d0de054b93f6f2cd2e6443d4b5198399"
+        },
+        {
+          "setting": 4.28,
+          "bytes": 154910,
+          "score": 69.84614627,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.28/report.json",
+          "reportSha256": "3c44c1e6235bbbf3902da8d178d546b8c4f65c03bdc0e17eca589b9d888d8a78"
+        },
+        {
+          "setting": 4.024,
+          "bytes": 161302,
+          "score": 70.98367763,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-purejsimage/polyhaven-lakeside/distance-4.024/report.json",
+          "reportSha256": "300bb37d92ca823c85bc116f672af3da973c36642d8659a0379ebc2565dc432d"
+        },
+        {
+          "setting": 3,
+          "bytes": 281020,
+          "score": 84.88033195,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-3/report.json",
+          "reportSha256": "b859f5b6f622e706eac89eb3fd09b72f1ed2baf1b3ac1616f5e7cd4160c9e19f"
+        },
+        {
+          "setting": 2,
+          "bytes": 350889,
+          "score": 88.21516182,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-2/report.json",
+          "reportSha256": "1828e48aa36bb67f87fc50dc5c003d493f398bca45f7a7d8ecbdc112ce09bae0"
+        },
+        {
+          "setting": 1,
+          "bytes": 365930,
+          "score": 88.26728546,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-1/report.json",
+          "reportSha256": "816d8126818b7660ce874ef2f7d11feab5c3a5e91a9263f02bb605ff1dc46da5"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 515385,
+          "score": 91.72640274,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.5/report.json",
+          "reportSha256": "4c3e913398ed076b0ba2ebfd44dd57d9b082c251cd831b9269d2f95b8c04e655"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 728763,
+          "score": 93.24639967,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.25/report.json",
+          "reportSha256": "fdbfd9b8108c2187f45ee0ea91336c088fb6fbaad785e0d64e7bf812c3f91cf6"
+        }
+      ],
+      "matchedBytes": 155759.49291413953
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "engine": "libjxl",
+      "target": 70,
+      "domain": "headroom-1",
+      "status": "adequate_bracket",
+      "intervalWidth": 1.6913380999999958,
+      "nonmonotonic": [],
+      "points": [
+        {
+          "setting": 0.25,
+          "bytes": 625302,
+          "score": 92.70082384,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.25/report.json",
+          "reportSha256": "fdbfd9b8108c2187f45ee0ea91336c088fb6fbaad785e0d64e7bf812c3f91cf6"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 418625,
+          "score": 90.51744994,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.5/report.json",
+          "reportSha256": "4c3e913398ed076b0ba2ebfd44dd57d9b082c251cd831b9269d2f95b8c04e655"
+        },
+        {
+          "setting": 1,
+          "bytes": 268510,
+          "score": 86.44812649,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-1/report.json",
+          "reportSha256": "816d8126818b7660ce874ef2f7d11feab5c3a5e91a9263f02bb605ff1dc46da5"
+        },
+        {
+          "setting": 2,
+          "bytes": 159722,
+          "score": 77.60873367,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-2/report.json",
+          "reportSha256": "1828e48aa36bb67f87fc50dc5c003d493f398bca45f7a7d8ecbdc112ce09bae0"
+        },
+        {
+          "setting": 3,
+          "bytes": 106744,
+          "score": 69.42428073,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-3/report.json",
+          "reportSha256": "b859f5b6f622e706eac89eb3fd09b72f1ed2baf1b3ac1616f5e7cd4160c9e19f"
+        },
+        {
+          "setting": 5,
+          "bytes": 66544,
+          "score": 56.90218954,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-5/report.json",
+          "reportSha256": "cf176183781d5394130a8c1140ba7edc7a403fbff0b01a7de6e26ad503462672"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 115768,
+          "score": 71.11561883,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-lakeside/distance-2.8/report.json",
+          "reportSha256": "16b4aba345c1b947f41e85defade84b654f525918130f5057689a12d80d12542"
+        }
+      ],
+      "frontier": [
+        {
+          "setting": 5,
+          "bytes": 66544,
+          "score": 56.90218954,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-5/report.json",
+          "reportSha256": "cf176183781d5394130a8c1140ba7edc7a403fbff0b01a7de6e26ad503462672"
+        },
+        {
+          "setting": 3,
+          "bytes": 106744,
+          "score": 69.42428073,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-3/report.json",
+          "reportSha256": "b859f5b6f622e706eac89eb3fd09b72f1ed2baf1b3ac1616f5e7cd4160c9e19f"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 115768,
+          "score": 71.11561883,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-refined-20260929-libjxl/polyhaven-lakeside/distance-2.8/report.json",
+          "reportSha256": "16b4aba345c1b947f41e85defade84b654f525918130f5057689a12d80d12542"
+        },
+        {
+          "setting": 2,
+          "bytes": 159722,
+          "score": 77.60873367,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-2/report.json",
+          "reportSha256": "1828e48aa36bb67f87fc50dc5c003d493f398bca45f7a7d8ecbdc112ce09bae0"
+        },
+        {
+          "setting": 1,
+          "bytes": 268510,
+          "score": 86.44812649,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-1/report.json",
+          "reportSha256": "816d8126818b7660ce874ef2f7d11feab5c3a5e91a9263f02bb605ff1dc46da5"
+        },
+        {
+          "setting": 0.5,
+          "bytes": 418625,
+          "score": 90.51744994,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.5/report.json",
+          "reportSha256": "4c3e913398ed076b0ba2ebfd44dd57d9b082c251cd831b9269d2f95b8c04e655"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 625302,
+          "score": 92.70082384,
+          "path": ".tmp/jpegxl-m7/hdr-holdout-visual-contrast-final-20260929/polyhaven-lakeside/distance-0.25/report.json",
+          "reportSha256": "fdbfd9b8108c2187f45ee0ea91336c088fb6fbaad785e0d64e7bf812c3f91cf6"
+        }
+      ],
+      "matchedBytes": 109733.8548807452
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "comparison": true,
+      "target": 70,
+      "ratio": 1.4194297018309738,
+      "adequate": true
+    }
+  ]
+}

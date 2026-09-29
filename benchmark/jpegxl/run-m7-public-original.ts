@@ -1,20 +1,30 @@
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import { MemorySource } from '../../src/source.ts'
 import { verifyM7QualityPixels } from './m7-quality-decoding.ts'
-import fixturesManifest from './production-program/m7-visual-defects-original-size.json' with {
-  type: 'json',
-}
 import mapManifest from './production-program/m7-visual-defects-map-original.json' with {
   type: 'json',
 }
+import fixturesManifest from './production-program/m7-visual-defects-original-size.json' with {
+  type: 'json',
+}
 
-const [mode, runId, selectedId] = process.argv.slice(2)
+const [mode, runId, selectedId, settingsText] = process.argv.slice(2)
+const distances = settingsText === undefined ? [1, 3] : settingsText.split(',').map(Number)
+if (settingsText !== undefined && (mode !== 'native' || !selectedId))
+  throw new Error('Supplemental distances require native mode and one explicit source')
+if (
+  distances.length < 1 ||
+  distances.length > 8 ||
+  new Set(distances).size !== distances.length ||
+  distances.some((distance) => !Number.isFinite(distance) || distance < 0.05 || distance > 25)
+)
+  throw new Error('Supply 1..8 unique native distances within 0.05..25')
 const originalIds = [
   'im26-1030',
   'im26-1416',
@@ -32,8 +42,14 @@ if (
   !originalIds.includes(selectedId as (typeof originalIds)[number])
 )
   throw new Error('Case is outside the fixed eight or registered map supplement')
-if ((mode !== 'own' && mode !== 'baseline') || !runId || !/^[a-z0-9-]+$/u.test(runId))
-  throw new Error('Usage: run-m7-public-original.ts own|baseline unique-run-id [case-id]')
+if (
+  (mode !== 'own' && mode !== 'baseline' && mode !== 'native') ||
+  !runId ||
+  !/^[a-z0-9-]+$/u.test(runId)
+)
+  throw new Error(
+    'Usage: run-m7-public-original.ts own|baseline|native unique-run-id [case-id] [native-distances]',
+  )
 const fixtures = '.tmp/jpegxl-m7/visual-final-20260928-fixtures'
 const native = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
 const metrics = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools'
@@ -62,7 +78,9 @@ const ppm = (bytes: Uint8Array, width: number, height: number): Uint8Array => {
   return bytes.subarray(header[0].length)
 }
 const policy =
-  'Fixed eight original-size sources plus an explicit registered map supplement, effort 7 distances 1 and 3. All first-party streams use native, Rust and repository decoding. The observed cases are regression evidence. This probe does not replace the approved capped matrix.'
+  settingsText !== undefined
+    ? 'Supplemental native controls on one pinned original, effort 7. These measured endpoints do not replace the fixed original-size or capped matrices. Equal distance does not establish matched quality.'
+    : 'Fixed eight original-size sources plus an explicit registered map supplement, effort 7 distances 1 and 3. All first-party streams use native, Rust and repository decoding. The observed cases are regression evidence. This probe does not replace the approved capped matrix.'
 const directory = `.tmp/jpegxl-m7/public-original-${runId}`
 await mkdir(directory)
 const manifest = await readFile(`${fixtures}/manifest.json`)
@@ -89,6 +107,8 @@ for (const path of [
 const protocol = {
   policy,
   mode,
+  distances,
+  supplementalNativeControls: settingsText !== undefined,
   runtime: process.version,
   fixtureManifestSha256: hash(manifest),
   sources,
@@ -96,6 +116,29 @@ const protocol = {
   harnessSha256: hash(await readFile(import.meta.filename)),
 }
 await writeFile(`${directory}/protocol.json`, `${JSON.stringify(protocol, null, 2)}\n`)
+const reuseRunId = process.env.PUREJSIMAGE_M7_ORIGINAL_REUSE
+if (reuseRunId !== undefined && (!/^[a-z0-9-]+$/u.test(reuseRunId) || mode !== 'own'))
+  throw new Error('Original artifact reuse requires own mode and a valid prior run ID')
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+let reusePoints: Record<string, unknown>[] = []
+let reuseReportSha256: string | undefined
+if (reuseRunId) {
+  const bytes = await readFile(`.tmp/jpegxl-m7/public-original-${reuseRunId}/report.json`)
+  const value: unknown = JSON.parse(bytes.toString('utf8'))
+  if (
+    !isRecord(value) ||
+    !isRecord(value.protocol) ||
+    !Array.isArray(value.results) ||
+    JSON.stringify(value.protocol.toolHashes) !== JSON.stringify(toolHashes)
+  )
+    throw new Error('Original reuse report or oracle identity mismatch')
+  reusePoints = value.results.map((point) => {
+    if (!isRecord(point)) throw new Error('Invalid original reuse point')
+    return point
+  })
+  reuseReportSha256 = hash(bytes)
+}
 const results: object[] = []
 for (const id of caseIds) {
   const entry = { id }
@@ -112,8 +155,12 @@ for (const id of caseIds) {
   const pixels = ppm(await readFile(input), width, height)
   if (hash(pixels) !== source.inputPixelsSha256)
     throw new Error(`Original-size fixture hash mismatch: ${id}`)
-  for (const engine of mode === 'baseline' ? ['purejsimage', 'libjxl'] : ['purejsimage']) {
-    for (const distance of [1, 3]) {
+  for (const engine of mode === 'baseline'
+    ? ['purejsimage', 'libjxl']
+    : mode === 'native'
+      ? ['libjxl']
+      : ['purejsimage']) {
+    for (const distance of distances) {
       const path = `${directory}/${entry.id}-${engine}-${distance}`
       try {
         if (engine === 'purejsimage') {
@@ -158,6 +205,33 @@ for (const id of caseIds) {
             '--num_threads=1',
           ])
         const encoded = await readFile(`${path}.jxl`)
+        const previous = reusePoints.find(
+          (point) =>
+            point.id === entry.id && point.distance === distance && point.engine === engine,
+        )
+        if (
+          previous?.status === 'measured' &&
+          previous.width === width &&
+          previous.height === height &&
+          previous.inputPixelsSha256 === hash(pixels) &&
+          previous.encodedSha256 === hash(encoded)
+        ) {
+          results.push({
+            ...previous,
+            byteRevalidation: {
+              reuseRunId,
+              reuseReportSha256,
+              currentSources: sources,
+              policy:
+                'Fresh public encoding is byte-identical. Preserve previous independent decoding and quality evidence under identical input pixels, settings and pinned tools. No timing reuse.',
+            },
+          })
+          await writeFile(
+            `${directory}/report.json`,
+            `${JSON.stringify({ protocol, results }, null, 2)}\n`,
+          )
+          continue
+        }
         run(`${native}/djxl`, [
           `${path}.jxl`,
           `${path}.ppm`,

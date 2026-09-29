@@ -16,14 +16,7 @@
   },
   "availableBytes": 21339824128,
   "executable": "/usr/bin/env",
-  "args": [
-    "VITEST_MAX_WORKERS=2",
-    "GOMAXPROCS=2",
-    "RAYON_NUM_THREADS=2",
-    "npm",
-    "run",
-    "check"
-  ],
+  "args": ["VITEST_MAX_WORKERS=2", "GOMAXPROCS=2", "RAYON_NUM_THREADS=2", "npm", "run", "check"],
   "code": 0,
   "signal": null,
   "status": "completed",

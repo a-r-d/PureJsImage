@@ -36,7 +36,7 @@ Other floating layouts and associated CMYK alpha in the older RGBA8 API remain e
 - [x] Evidence admission requires exact case identities, source revision, a clean checkout, raw hashes, measured thresholds and internally consistent summaries
 - [x] One bounded pull-request smoke gate runs pinned conformance plus M9 integration and hostile-input checks; full package, browser, fuzz, oracle, benchmark, memory and evidence matrices run locally
 
-These gates harden the declared capability subsets. They do not promote Experimental lossy encoding or authorize a release. M10 reruns the M9 gates after its last production change.
+These gates harden the declared capability subsets. The M7 qualification below records the static lossy capability decision. Release authorization is separate. M10 reruns the M9 gates after its last production change.
 
 ## M8 sequence and native channel APIs
 
@@ -111,15 +111,15 @@ Progressive range-aware processing is M6 and is outside the M5 static boundary.
 - [x] Encode sparse RGB16 effort-7 groups with sorted per-channel palettes and optional index RCT; verify native samples, partial groups and allocation limits
 - [x] Accept the bounded local three-scalar-palette transform chain with optional index RCT
 
-## M7 experimental forward encoding
+## M7 static forward encoding
 
-Use `.jpegxl({ mode: 'lossy', distance: 1, effort: 3, progressive: true })` for forward pixel encoding. `.jpegxl()` stays lossless. Distance must be from 0.25 to 25; zero and lossless/distance conflicts are errors.
+Static forward encoding is Stable within the documented integer gray/RGB/RGBA subset. Use `.jpegxl({ mode: 'lossy', distance: 1, effort: 3, progressive: true })` for forward pixel encoding. `.jpegxl()` stays lossless. Distance must be from 0.25 to 25; zero and lossless/distance conflicts are errors.
 
-The current writer supports DCT8, effort-5/7 Hornuss and both rectangular half-block orientations, adaptive quantization, local chroma-from-luma, optional two-pass output, and exact straight alpha at native integer depths. Known-primary sRGB, linear, gamma, and PQ inputs retain their declared source metadata. HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain outside this experimental encoding subset. Opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above can use residual-scaled edge-preserving restoration when most blocks need filtering.
+The current writer supports DCT8, effort-5/7 Hornuss and both rectangular half-block orientations, adaptive quantization, local chroma-from-luma, optional two-pass output, and exact straight alpha at native integer depths. Known-primary sRGB, linear, gamma, and PQ inputs retain their declared source metadata. HLG, custom chromaticities, premultiplied alpha, larger DCT/AFV strategies, and Gaborish remain outside this encoding subset. Opaque standard-sRGB gray/RGB at effort 5/7 and distance 2 or above can use residual-scaled edge-preserving restoration when most blocks need filtering. Quantized AC magnitudes above 4095 are rejected with `UNSUPPORTED_OPERATION`; the writer does not clamp them.
 Opaque non-progressive effort-1 frames with 2 through 256 AC groups can use group-local entropy models and reusable scratch. DC averages and AC transforms share one pixel conversion per block. Exact section-size comparison retains the smaller prefix representation when appropriate. All scratch remains subject to maxWorkingBytes; process RSS is measured separately.
 Large pale sRGB RGB8 documents at effort 7 and distance 2 or above can use a first-party repeated-component patch dictionary. The writer keeps that two-frame stream only when it saves at least 5% against the selected output. Native and Rust decoders verify the displayed pixels. Other image classes keep their existing encoder paths.
 
-The frozen extended compression and rate-distortion gates are unfinished. These implementation and procedural conformance results do not establish production quality or speed across the corpus. The workbench exposes lossless and experimental lossy controls separately from exact JPEG recompression, with local comparison, download, reopen, and cancellation.
+The [static lossy qualification](benchmark/jpegxl/production-program/m7-visual-contrast-qualification.md) closes the registered sunset, screenshot, map and PQ visual defects and records measured compression, runtime, independent-decoder, browser and resource results. The original 240-source splits, capped/original distinction, wide or missing quality brackets, and tested-reference limits remain explicit. The workbench exposes lossless and static lossy controls separately from exact JPEG recompression, with local comparison, download, reopen and cancellation. Lossy animation remains Experimental.
 
 ## PR 35 precision, memory and evidence corrections
 
@@ -208,7 +208,7 @@ memory and notes fields for current support. Unimplemented operations still fail
 ## Output modes
 
 The default encoder is a constrained mathematically lossless Modular pixel
-encoder. Explicit lossy mode uses the experimental forward VarDCT subset
+encoder. Explicit lossy mode uses the Stable static forward VarDCT subset
 described above. Neither pixel mode claims original-file reconstruction.
 Exact JPEG recompression is a separate coefficient-domain API with byte-equality gates.
 

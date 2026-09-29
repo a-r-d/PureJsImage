@@ -1,0 +1,49 @@
+--- a/src/codecs/jpegxl-vardct-encode.ts
++++ b/src/codecs/jpegxl-vardct-encode.ts
+@@ -21,6 +21,16 @@
+   defaultJpegXlHornussDequantization,
+   defaultJpegXlQuantizationBiases,
+ } from './jpegxl-vardct-quantization.ts'
++
++// Choose the closest value produced by the normative AC reconstruction bias.
++const quantizeAcNearest = (coefficient: number, bias: number): number => {
++  const magnitude = Math.abs(coefficient)
++  let value = Math.round(magnitude)
++  const reconstructed = value === 0 ? 0 : value === 1 ? bias : value - 0.145 / value
++  const next = value === 0 ? bias : value + 1 - 0.145 / (value + 1)
++  if (value !== 0 && magnitude > (reconstructed + next) * 0.5) value++
++  return coefficient < 0 ? -value : value
++}
+ 
+ const strategyTables = (strategy: number): readonly Float64Array[] =>
+   strategy === 0
+@@ -725,7 +735,10 @@
+         coefficientErrors[0] = 0
+         for (let position = 1; position < 64; position++) {
+           const step = localScale * (table[position] ?? 0)
+-          const value = Math.round((transformed[position] ?? 0) / step)
++          const coefficient = (transformed[position] ?? 0) / step
++          const value = effort === 7
++            ? quantizeAcNearest(coefficient, defaultJpegXlQuantizationBiases[channel] ?? 1)
++            : Math.round(coefficient)
+           if (Math.abs(value) > 4095) return Infinity
+           const decoded =
+             value === 0
+@@ -890,11 +903,12 @@
+           transform(strategy, plane)
+           const inverse = fastAcInverse?.[channel]
+           for (let position = 1; position < 64; position++) {
+-            const value = Math.round(
+-              inverse
+-                ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
+-                : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+-            )
++            const coefficient = inverse
++              ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
++              : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0))
++            const value = effort === 7
++              ? quantizeAcNearest(coefficient, defaultJpegXlQuantizationBiases[channel] ?? 1)
++              : Math.round(coefficient)
+             if (value < -4095 || value > 4095)
+               throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
+             destination[offset + (position & 7) * 8 + (position >>> 3)] = value

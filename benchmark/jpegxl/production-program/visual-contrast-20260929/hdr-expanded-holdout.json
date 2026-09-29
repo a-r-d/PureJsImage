@@ -1,0 +1,958 @@
+{
+  "policy": "All final-source fixed-grid and bounded refinement points, every headroom and both quality metrics. Nondominated log-byte interpolation only inside measured brackets. Preserve missing comparisons. No quality or compression claim from equal numeric distances.",
+  "sourceIds": [
+    "polyhaven-glass_passage",
+    "polyhaven-hikers_cave",
+    "polyhaven-lakeside",
+    "polyhaven-metro_noord",
+    "polyhaven-modern_buildings_night",
+    "polyhaven-pedestrian_overpass"
+  ],
+  "summaries": [
+    {
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.2906242044562264,
+      "p90": 1.4079984956711158,
+      "worst": 1.4079984956711158
+    },
+    {
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.1032652613740894,
+      "p90": 1.2336936898580877,
+      "worst": 1.2336936898580877
+    },
+    {
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "matched": 6,
+      "missing": 0,
+      "median": 0.9730482122030119,
+      "p90": 1.0979937234864474,
+      "worst": 1.0979937234864474
+    },
+    {
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "matched": 4,
+      "missing": 2,
+      "median": 1.0221069126113416,
+      "p90": 1.1852439487600395,
+      "worst": 1.1852439487600395
+    },
+    {
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "matched": 5,
+      "missing": 1,
+      "median": 1.1244681760702444,
+      "p90": 1.4038608438866698,
+      "worst": 1.4038608438866698
+    },
+    {
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "matched": 2,
+      "missing": 4,
+      "median": 1.1327081326641006,
+      "p90": 1.1348722697261895,
+      "worst": 1.1348722697261895
+    },
+    {
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.2127650202709483,
+      "p90": 1.2601443523545712,
+      "worst": 1.2601443523545712
+    },
+    {
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "matched": 6,
+      "missing": 0,
+      "median": 0.9875353055590916,
+      "p90": 1.118072175799133,
+      "worst": 1.118072175799133
+    },
+    {
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "matched": 5,
+      "missing": 1,
+      "median": 1.0685446416098376,
+      "p90": 1.201822585151689,
+      "worst": 1.201822585151689
+    },
+    {
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.033323404839393,
+      "p90": 1.3578457713706702,
+      "worst": 1.3578457713706702
+    },
+    {
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "matched": 0,
+      "missing": 6
+    },
+    {
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.2503673417599641,
+      "p90": 1.3490322743708683,
+      "worst": 1.3490322743708683
+    },
+    {
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.0517151125799562,
+      "p90": 1.1826010737281623,
+      "worst": 1.1826010737281623
+    },
+    {
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "matched": 6,
+      "missing": 0,
+      "median": 0.9797622888859812,
+      "p90": 1.2213603989870245,
+      "worst": 1.2213603989870245
+    },
+    {
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "matched": 6,
+      "missing": 0,
+      "median": 1.154800889785545,
+      "p90": 1.41766539701068,
+      "worst": 1.41766539701068
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.0757726936813596,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.1126141814894819,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.4079984956711158,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.2370196268453608,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.3442287820670922,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.398209664019363,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 0.9779146292738895,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0459811765045428,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2305152491399953,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.1378167202550702,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0687138024931087,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2336936898580877,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9683723373107123,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.0437942250455243,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.0979937234864474,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9507099415094599,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9173802875171941,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 1,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9777240870953114,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.0537934000778506,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "firstPartyBracket": true,
+      "referenceBracket": false
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.1852439487600395,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.706725992756563,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.9904204251448324,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0043649425738284,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.1244681760702444,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.4038608438866698,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 0.6888583202844709,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 1,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.2335705984232879,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.1305439956020116,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "ratio": 1.1348722697261895,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 0.979176180012697,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0300705055066377,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2601443523545712,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.175580120068262,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2545817579727299,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2499499204736346,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9734030354771853,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9800127707833503,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.118072175799133,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9910090106873204,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.0045512516559854,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 2,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9840616004308628,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.0892493447780902,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.864854688745269,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.201822585151689,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.6872564010291402,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "firstPartyBracket": true,
+      "referenceBracket": false
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.0685446416098376,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0135968615416464,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0333440241297316,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.3578457713706702,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 0.9532358867740599,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0333027855490544,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 2,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.2659702644112318,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 70,
+      "firstPartyBracket": false,
+      "referenceBracket": false
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.031363428981149,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.0400543150014019,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.3113559518328308,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2221787041434806,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.2785559793764478,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 80,
+      "ratio": 1.3490322743708683,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9284023183622468,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 0.9653014408148217,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.1826010737281623,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.056968257383644,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.0464619677762683,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 4,
+      "metric": "ssimulacra2",
+      "target": 90,
+      "ratio": 1.1202382431379967,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.0407135142618409,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.8617518277793791,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.2213603989870245,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.9188110635101214,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 0.7886670777616118,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 1,
+      "ratio": 1.1284154017497658,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0867971662999283,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 0.9656266019446186,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.3164782299725897,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.0704920338323574,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.2228046132711616,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "headroom": 4,
+      "metric": "butteraugli",
+      "target": 2,
+      "ratio": 1.41766539701068,
+      "firstPartyBracket": true,
+      "referenceBracket": true
+    }
+  ]
+}
