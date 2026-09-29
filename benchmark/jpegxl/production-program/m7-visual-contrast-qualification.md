@@ -1,6 +1,6 @@
 # JPEG XL local contrast and visual-defect qualification
 
-This work starts at `bacfb0a189e2a8946f03e78d0bef6e773b2356a2` on PR #37. It addresses the four remaining items in the [finite visual register](m7-recovery-stage-a.md), after the retained [transform selector](m7-visual-selector-public-20260929.md). Implementation and final qualification revisions are recorded in the evidence index. Final gates are still being collected in this working draft.
+This work starts at `bacfb0a189e2a8946f03e78d0bef6e773b2356a2` on PR #37. It addresses the four remaining items in the [finite visual register](m7-recovery-stage-a.md), after the retained [transform selector](m7-visual-selector-public-20260929.md). The implementation is [`89395abd17027257d2b2d073abcd12a77c1622c2`](https://github.com/a-r-d/PureJsImage/commit/89395abd17027257d2b2d073abcd12a77c1622c2). The [evidence index](visual-contrast-20260929/evidence-index.json) links raw reports, input/artifact hashes, source hashes, independent decoders and final gate receipts. All final local gates passed.
 
 ## Implementation
 
@@ -86,7 +86,7 @@ The [native-original reuse audit](visual-contrast-20260929/native-original-reuse
 
 At distance 3, the other photo `im26-1030` improves SSIMULACRA2 82.571 to 84.253 and Butteraugli 1.936 to 1.633, with 751,812 to 912,808 bytes. The observed city photo `im26-1009` improves 83.414 to 85.318 and 1.932 to 1.569, with 2,286,581 to 2,597,868 bytes. The interior `im26-1221` improves 81.546 to 84.129 and 2.107 to 1.783, with 2,088,631 to 2,410,723 bytes. The three document/table distance-3 artifacts remain byte-identical. Native-scale source/before/after center crops and their sidecars are retained beside the registered defect crops; they show no new visible edge, color or texture defect in those regions.
 
-All nine focused Node/browser checks passed in Chromium, Firefox and WebKit: ordinary and progressive local contrast, plus the public rate-distortion selector. The deterministic 129×65 texture test improves source RMSE from 3.362 to 2.796 and recovered contrast from 0.745 to 0.825. Its two unit tests exercise odd dimensions and both output modes. The independent small-fixture and final HDR/alpha browser checks are recorded with the final gates below.
+The initial nine focused Node/browser checks passed in Chromium, Firefox and WebKit: ordinary and progressive local contrast, plus the public rate-distortion selector. The deterministic 129×65 texture test improves source RMSE from 3.362 to 2.796 and recovered contrast from 0.745 to 0.825. Its two source-quality unit tests exercise odd dimensions and both output modes; two additional tests cover the corrected distance boundaries. The independent small-fixture and final HDR/alpha browser checks are recorded with the final gates below.
 
 ## Distance-boundary correction
 
@@ -126,11 +126,11 @@ The core-plus-JPEG-XL bundle grows from 457,171 to **457,603 bytes (+432)**. The
 
 ## Handoff decision
 
-1. **Implemented behavior and correctness.** The documented static integer gray/RGB/RGBA forward encoder, including optional progressive output, is the proposed Stable scope after the final gates below. Streams retain declared color and native precision. Default lossy alpha stays exact. The first-party TypeScript implementation remains portable and has no runtime dependency tree. Lossless color under zero alpha and exact JPEG reconstruction keep their prior guarantees.
+1. **Implemented behavior and correctness.** The documented static integer gray/RGB/RGBA forward encoder, including optional progressive output, is the qualified Stable scope after the final gates below. Streams retain declared color and native precision. Default lossy alpha stays exact. The first-party TypeScript implementation remains portable and has no runtime dependency tree. Lossless color under zero alpha and exact JPEG reconstruction keep their prior guarantees.
 2. **Concrete defects and limits.** The four registered visual corrections are closed on their declared originals and views; the earlier transparent-icon correction remains exact in visible color and alpha. The distance-boundary defect found during qualification is also fixed. The public range remains 0.25 through 25. AC magnitudes above 4095 remain an explicit implementation limit with `UNSUPPORTED_OPERATION`, not a claim about the format's full coefficient range. HLG, custom chromaticities, premultiplied forward alpha, larger DCT/AFV and Gaborish writing remain unsupported. Encoder memory limits are unchanged; the 8 GiB metric-process envelope does not relax them. The documented HDR display-mapping clipping remains a rendering limitation.
 3. **Compression and speed.** The measured SDR and expanded HDR ratios pass the existing limits, including the conservative HDR bound. Photo JPEG medians stay below 1 on measured brackets. Effort-1 keeps the unchanged reference-host paired evidence of 5.608 times cold and 6.957 times warm, under 8. Fresh original 12 MP effort-3 timings are 4.759 seconds cold and 4.791 seconds warm, under 20. Effort-7 detail costs more bytes and time; its separate before/after measurements are reported below without claiming a speed win.
 4. **Coverage.** Preserve all 240 original families, the fixed eight originals, the map supplement, all HDR/alpha sources, every failed/unsupported/missing classification, and the original/capped distinction. Observed sources and the first-freeze eight-family supplement remain regression evidence for the final candidate. Reference-limited and wide comparisons are neither hidden nor converted into individual passes. The aggregate HDR upper bound is a separate justified decision. No fresh all-class generalization or full-resolution corpus claim is made.
-5. **Stable scope.** The explicit decision is Stable for the documented static lossy subset once final repository, browser, conformance and resource gates pass. Lossy animation remains Experimental. This decision changes capability documentation, with no version change or release. Competitive and marketing work is outside this handoff.
+5. **Stable scope.** The explicit decision is Stable for the documented static lossy subset after final repository, browser, conformance and resource gates passed. Lossy animation remains Experimental. This decision changes capability documentation, with no version change or release. Competitive and marketing work is outside this handoff.
 
 | Target | Qualification result |
 | --- | --- |
@@ -142,5 +142,13 @@ The core-plus-JPEG-XL bundle grows from 457,171 to **457,603 bytes (+432)**. The
 | JPEG median ratio <1 | Pass on measured aggregate and photo/class rows; sparse high-band coverage stays explicit. |
 | Reference-host effort-1 paired median ≤8 times native | Pass from unchanged-path reference-host evidence; no new paired timing claimed. |
 | Original 12 MP public effort-3 ≤20 seconds | Pass: 4.759 seconds cold, 4.791 seconds warm. |
-| Full local check, real browsers, conformance and resource checks | Final run records pending. |
-| Stable documented static lossy scope | Proposed decision supported by the quality evidence; final local gates pending. |
+| Full local check, real browsers, conformance and resource checks | Pass: 3,213 tests with three existing skips; 21 browser checks; 39/39 conformance expectations; 12 fuzz and 12 resource cases. |
+| Stable documented static lossy scope | Qualified. Lossy animation remains Experimental; no release or version change. |
+
+## Final local gates
+
+`npm run check` passed with **3,213 tests and three existing skips**, including generated capability/size/documentation checks, documentation build, TypeScript, package types, browser portability, lint and formatting. The [full-check receipt](visual-contrast-20260929/full-check-receipt.json) records a 2.1 GiB process-tree peak and zero swap. The [complete log](visual-contrast-20260929/full-check.log.gz) is retained. Earlier attempts exposed stale generated metrics, formatting in two previous-stage JSON views, and a standalone oracle command placed in the manifest's test-only evidence list; those bookkeeping issues were corrected without changing codec behavior or tolerances. The original previous-stage JSON bytes are retained in compressed copies. The focused encoder suite passes all 37 tests.
+
+Clean implementation commit `89395abd17027257d2b2d073abcd12a77c1622c2` passed [39/39 conformance expectations](visual-contrast-20260929/conformance.json) and [12 fuzz plus 12 resource cases](visual-contrast-20260929/resource.json), with no raw exceptions or leaked managed ownership. The [conformance](visual-contrast-20260929/conformance-receipt.json) and [resource](visual-contrast-20260929/resource-receipt.json) receipts retain their process limits and zero-swap results. These gates ran after the last codec change. The following evidence commit only completes this report and adds the gate records and hash index.
+
+All 21 final real-browser checks and six independent normal/progressive fixture checks passed as recorded above. No CI job was added. Remote pull-request checks remain separate from this local qualification.
