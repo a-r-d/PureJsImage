@@ -4,6 +4,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Fetch the pinned tundra JPEG from its byte-identical Wikimedia copy after Flickr
+  began returning HTTP 403 to the browser CI jobs. Keep the existing checksum.
+
 - Update JPEG XL browser checks for the separate tool pages and committed fixtures.
   Allow the existing two-encode quality regression test enough time on shared CI runners.
 
