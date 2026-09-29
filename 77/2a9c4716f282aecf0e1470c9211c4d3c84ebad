@@ -1,0 +1,31 @@
+benchmark/jpegxl/production-program/visual-contrast-20260929/evidence-index.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-893
+benchmark/jpegxl/production-program/visual-contrast-20260929/resource-receipt.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-28
+benchmark/jpegxl/production-program/visual-contrast-20260929/full-check-receipt.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-24
+benchmark/jpegxl/production-program/visual-contrast-20260929/conformance-receipt.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-30
+benchmark/jpegxl/production-program/visual-contrast-20260929/conformance.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-606
+benchmark/jpegxl/production-program/m7-visual-contrast-qualification.md
+  s_d4180e5cac980c::t_412f4c0fc74dd8 3,89,129,133,145-154
+benchmark/jpegxl/production-program/visual-contrast-20260929/resource.json
+  s_d4180e5cac980c::t_412f4c0fc74dd8 1-243
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "772a9c4716f282aecf0e1470c9211c4d3c84ebad",
+  "prompts": {},
+  "sessions": {
+    "s_d4180e5cac980c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0cb43-8934-7252-b527-e72d78ad8b2e",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
