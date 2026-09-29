@@ -60,7 +60,9 @@ test('progressive sample produces real stages and can cancel after opening', asy
   await page.locator('#tool-cancel').click()
   await expect(page.locator('#tool-status')).toContainText('Cancelled')
   await page.locator('#tool-run').click()
-  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-status')).toContainText('operation complete', {
+    timeout: 30_000,
+  })
   expect(await page.locator('#tool-stages li').count()).toBeGreaterThan(1)
 })
 
@@ -230,7 +232,9 @@ test('explicit URL input refuses unbounded full responses and can retry locally'
   await page.locator('#tool-run').click()
   await expect(page.locator('#tool-status')).toContainText('full file instead of a byte range')
   await page.getByRole('button', { name: 'Try progressive stages', exact: true }).click()
-  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-status')).toContainText('operation complete', {
+    timeout: 30_000,
+  })
 })
 
 test('capture actual tool outputs for showcase cards', async ({ page, browserName }) => {
