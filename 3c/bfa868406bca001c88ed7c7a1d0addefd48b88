@@ -1,0 +1,96 @@
+docs-astro/src/components/JpegXlNav.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 1-9,11-13
+  s_9bf27d14dec589::t_6e22d8e077eb35 10
+docs-astro/src/pages/jpeg-xl/comparison.astro
+  s_9bf27d14dec589::t_c49700443450e0 1-4,7,11-13,19-20,22,26-30,32,79-80,83,85,88-89
+  s_9bf27d14dec589::t_85af423a62f4d8 5,14-18,81,87
+  s_9bf27d14dec589::t_e663e42ce8f53d 6,8-10,21,23-25,31,33-78,82,84,86
+docs/jpegxl-showcase-handoff.md
+  s_9bf27d14dec589::t_c31dc1868ffba6 1-64
+  s_9bf27d14dec589::t_23ace6491d18e5 65-66
+docs-astro/src/components/JpegXlWorkbench.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 1-32,34-49
+  s_9bf27d14dec589::t_d6ffbb1346dcb1 33
+docs-astro/src/pages/jpeg-xl.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 2-3,6-10,12-16,18-22,24-28,30-34,37-40,42-43,45-46,48-53
+  s_9bf27d14dec589::t_a8ce3e09e0b98c 4-5,11,17,23,29,35,41,47,54-60
+docs-astro/src/data/jpegxl-comparison-crops.json
+  s_9bf27d14dec589::t_c49700443450e0 1-36
+docs-astro/src/pages/jpeg-xl/animation.astro
+  s_9bf27d14dec589::t_995b42df4d9743 1-9
+  s_9bf27d14dec589::t_35a48f45dbd7af 10
+docs-astro/src/layouts/SiteLayout.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 15,38,82-83
+docs-astro/src/scripts/jpegxl-tools.ts
+  s_9bf27d14dec589::t_995b42df4d9743 2-352
+  s_9bf27d14dec589::t_1441f13658781c 1
+docs-astro/src/pages/jpeg-xl/convert.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 1-9
+  s_9bf27d14dec589::t_21e78b673ffed6 10
+browser-tests/jpegxl-showcase.pw.ts
+  s_9bf27d14dec589::t_d6ffbb1346dcb1 9,11-12,32,43,54,65,70,84,88,98,113,119,122-124,127-128,134,138,185,189,219,224,234,267-269,271-281
+  s_9bf27d14dec589::t_32e774ab479dc6 1-8,10,13-31,33-42,44-53,55-64,66-69,71-83,85-87,89-97,99-112,114-118,120-121,125-126,129-133,135-137,139-184,186-188,190-218,220-223,225-233,235-266,270
+scripts/jpegxl-comparison-crops.ts
+  s_9bf27d14dec589::t_c49700443450e0 3,47
+  s_9bf27d14dec589::t_8d7e62fa011128 1-2,4-46,48-62
+docs-astro/src/pages/jpeg-xl/native.astro
+  s_9bf27d14dec589::t_995b42df4d9743 1-12
+  s_9bf27d14dec589::t_a36a5cde627cc8 13
+docs-astro/src/styles/jpegxl-tools.css
+  s_9bf27d14dec589::t_8d7e62fa011128 224,269-274
+  s_9bf27d14dec589::t_d9269c0ae295fc 1-185,187-223,225-253,255-268,275
+  s_9bf27d14dec589::t_b73447dc4f6d71 186,254
+docs-astro/src/pages/jpeg-xl/progressive.astro
+  s_9bf27d14dec589::t_995b42df4d9743 1-12
+docs-astro/src/pages/jpeg-xl/jpeg-recompression.astro
+  s_9bf27d14dec589::t_b73447dc4f6d71 1-8
+  s_9bf27d14dec589::t_46d5207e63da67 9
+docs-astro/src/layouts/JpegXlLayout.astro
+  s_9bf27d14dec589::t_92162dddd703d7 14-18
+  s_9bf27d14dec589::t_b73447dc4f6d71 1-5,8-13,19
+  s_9bf27d14dec589::t_703eaaddc9f26b 6-7
+docs-astro/src/scripts/jpegxl-workbench.ts
+  s_9bf27d14dec589::t_92162dddd703d7 48-63,67-69,83-112,119-121,125,127-130,177,194,199-202,214-219,228,262-266,292-294,374,376-379,382-386,403-406,420-428,448,470-471,478-487,490-491
+  s_9bf27d14dec589::t_1d83f371336964 2-6,494-498
+docs-astro/src/components/JpegXlAdvanced.astro
+  s_9bf27d14dec589::t_995b42df4d9743 1-13,15-33
+  s_9bf27d14dec589::t_fe8b7c5491212d 14
+scripts/jpegxl-showcase-assets.ts
+  s_9bf27d14dec589::t_c49700443450e0 8-18,26-44,47,50-51,54,62,73,85,96,110,164
+  s_9bf27d14dec589::t_85af423a62f4d8 19-25
+  s_9bf27d14dec589::t_9c4ad1660528e4 1-7,45-46,48-49,52-53,55-61,63-72,74-84,86-95,97-109,111-163,165
+browser-tests/jpegxl-workbench.pw.ts
+  s_9bf27d14dec589::t_5d64e5fff1136e 38-43,47,49-50,60,62,66-69,71-72,76,80,124,138,186,194,217,236,258,274,280
+docs-astro/public/llms.txt
+  s_9bf27d14dec589::t_6223f0d6b6d3a3 15-21,101
+docs-astro/src/components/SiteHeader.astro
+  s_9bf27d14dec589::t_b6fd97e810714e 25
+docs-astro/src/data/jpegxl-showcase-previews.json
+  s_9bf27d14dec589::t_673fc9c4a44dea 1-47
+docs-astro/src/scripts/jpegxl-progressive-workbench.ts
+  s_9bf27d14dec589::t_ea2fdde599ec56 1-2
+scripts/build-docs-site.ts
+  s_9bf27d14dec589::t_9b84769594844b 6,9,40,58-59,135,137-138,141,143
+scripts/jpegxl-showcase-previews.ts
+  s_9bf27d14dec589::t_461ddca358335c 1-33
+scripts/render-capabilities.ts
+  s_9bf27d14dec589::t_097c30d3e3828e 269
+scripts/serve-browser-tests.ts
+  s_9bf27d14dec589::t_3e60ab91e44693 16,483-484
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3cbfa868406bca001c88ed7c7a1d0addefd48b88",
+  "prompts": {},
+  "sessions": {
+    "s_9bf27d14dec589": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ed9f-b8ab-7d31-8a70-14b84d67369a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
