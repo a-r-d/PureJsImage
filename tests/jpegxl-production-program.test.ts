@@ -1,7 +1,10 @@
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { access, readFile } from 'node:fs/promises'
 import { describe, expect, test } from 'vitest'
 import { matchesCurrentConformanceExpectation } from '../benchmark/jpegxl/production-program/conformance-expectation.ts'
+
+import { validateJpegXlWriteCapability } from '../benchmark/jpegxl/production-program/validate-write-capability.ts'
 
 const root = 'benchmark/jpegxl/production-program'
 
@@ -279,5 +282,120 @@ describe('JPEG XL production program baseline', () => {
     expect(imazen).toBeDefined()
     const lockfile = String(imazen?.resolvedCargoLock)
     await expect(digest(lockfile)).resolves.toBe(imazen?.resolvedCargoLockSha256)
+  })
+})
+
+describe('JPEG XL scoped static-lossy status validation', () => {
+  const write = { status: 'limited', label: 'Stable lossless, static lossy and exact transcode' }
+  const currentMilestones = async () =>
+    record((await json(`${root}/program-state.json`)).milestones, 'milestones')
+
+  test('checks the live baseline and generated status against the recorded static decision', async () => {
+    const milestones = await currentMilestones()
+    await expect(validateJpegXlWriteCapability(write, milestones)).resolves.toBeUndefined()
+    const generated = array((await json(`${root}/status.json`)).milestones, 'milestones').map(
+      (value) => record(value, 'milestone'),
+    )
+    expect(generated.find((value) => value.id === 'M7')?.staticLossyQualification).toEqual(
+      record(milestones.M7, 'M7').staticLossyQualification,
+    )
+    expect(record(milestones.M7, 'M7').stablePromotionGatePassed).toBe(false)
+    expect(record(milestones.M8, 'M8').stablePromotionGatePassed).toBe(false)
+    const manifest = await json('capabilities/manifest.json')
+    const codec = array(manifest.codecs, 'codecs')
+      .map((value) => record(value, 'codec'))
+      .find((value) => value.id === 'jpegxl')
+    expect(codec?.recommendation).toContain('Lossy animation remains Experimental.')
+    for (const script of ['render-status.ts', 'render-baseline.ts'])
+      expect(() =>
+        execFileSync(process.execPath, [`${root}/${script}`, '--check'], { stdio: 'pipe' }),
+      ).not.toThrow()
+  })
+
+  test.each([
+    ['scope', 'all-lossy'],
+    ['status', 'Experimental'],
+    ['lossyAnimation', 'Stable'],
+    ['implementationCommit', '0'.repeat(40)],
+    ['evidenceIndex', `${root}/baseline.json`],
+    ['evidenceIndexSha256', '0'.repeat(64)],
+    ['reportSha256', '0'.repeat(64)],
+  ])('rejects an unbacked or broadened static decision: %s', async (field, value) => {
+    const milestones = await currentMilestones()
+    const m7 = record(milestones.M7, 'M7')
+    const qualification = record(m7.staticLossyQualification, 'qualification')
+    await expect(
+      validateJpegXlWriteCapability(write, {
+        ...milestones,
+        M7: { ...m7, staticLossyQualification: { ...qualification, [field]: value } },
+      }),
+    ).rejects.toThrow(/Static lossy qualification/)
+  })
+
+  test('requires the separate static decision and rejects an animation promotion', async () => {
+    const milestones = await currentMilestones()
+    await expect(
+      validateJpegXlWriteCapability(write, {
+        ...milestones,
+        M7: { stablePromotionGatePassed: true },
+      }),
+    ).rejects.toThrow(/static lossy qualification/)
+    await expect(
+      validateJpegXlWriteCapability(write, {
+        ...milestones,
+        M8: { stablePromotionGatePassed: true },
+      }),
+    ).rejects.toThrow(/animation Experimental/)
+    await expect(
+      validateJpegXlWriteCapability({ ...write, label: 'Stable lossy' }, milestones),
+    ).rejects.toThrow(/unrecognized label/)
+    await expect(
+      validateJpegXlWriteCapability({ ...write, status: 'supported' }, milestones),
+    ).rejects.toThrow(/limited boundary/)
+  })
+
+  test.each(['M1', 'M2'])(
+    'preserves the %s gate for legacy and scoped stable labels',
+    async (milestone) => {
+      const milestones = await currentMilestones()
+      for (const label of [
+        write.label,
+        'Stable lossless and exact transcode',
+        'Stable lossless and exact transcode; experimental lossy',
+      ])
+        await expect(
+          validateJpegXlWriteCapability(
+            { ...write, label },
+            { ...milestones, [milestone]: { stablePromotionGatePassed: false } },
+          ),
+        ).rejects.toThrow(milestone === 'M1' ? /Milestone 1/ : /Milestone 2/)
+    },
+  )
+
+  test('retains legacy labels and rejects conflicting Experimental status', async () => {
+    const milestones = await currentMilestones()
+    const legacy = { ...milestones, M7: { stablePromotionGatePassed: false } }
+    for (const label of [
+      'Experimental',
+      'Stable exact transcode',
+      'Stable lossless and exact transcode',
+      'Stable lossless and exact transcode; experimental lossy',
+    ])
+      await expect(
+        validateJpegXlWriteCapability({ ...write, label }, legacy),
+      ).resolves.toBeUndefined()
+    const experimental = {
+      ...write,
+      label: 'Stable lossless and exact transcode; experimental lossy',
+    }
+    await expect(validateJpegXlWriteCapability(experimental, milestones)).rejects.toThrow(
+      /conflicts/,
+    )
+    await expect(
+      validateJpegXlWriteCapability(experimental, {
+        ...legacy,
+        M7: { stablePromotionGatePassed: true },
+      }),
+    ).rejects.toThrow(/conflicts/)
   })
 })

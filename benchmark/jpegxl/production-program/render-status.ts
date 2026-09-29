@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { validateJpegXlWriteCapability } from './validate-write-capability.ts'
 
 type MilestoneStatus =
   | 'not started'
@@ -193,6 +194,14 @@ const state: unknown = JSON.parse(await readFile(statePath, 'utf8'))
 if (!isRecord(state) || !isRecord(state.milestones)) {
   throw new Error(`${statePath} is invalid`)
 }
+const manifest: unknown = JSON.parse(await readFile('capabilities/manifest.json', 'utf8'))
+if (!isRecord(manifest) || !Array.isArray(manifest.codecs))
+  throw new Error('Invalid capability manifest')
+const jpegxl: unknown = manifest.codecs.find(
+  (value: unknown) => isRecord(value) && value.id === 'jpegxl',
+)
+if (!isRecord(jpegxl)) throw new Error('Missing JPEG XL capability')
+await validateJpegXlWriteCapability(jpegxl.write, state.milestones)
 const milestoneState = state.milestones
 const currentMainSha = requiredString(state.currentMainSha, 'currentMainSha')
 const packageVersion = requiredString(state.packageVersion, 'packageVersion')
@@ -249,6 +258,9 @@ const outputMilestones = milestones.map((definition) => {
     acceptedLimitations: strings(value.acceptedLimitations, `${definition.id}.acceptedLimitations`),
     deferredWork: strings(value.deferredWork, `${definition.id}.deferredWork`),
     stablePromotionGatePassed: value.stablePromotionGatePassed === true,
+    ...(value.staticLossyQualification === undefined
+      ? {}
+      : { staticLossyQualification: value.staticLossyQualification }),
     remainingBlockers: strings(value.remainingBlockers, `${definition.id}.remainingBlockers`),
   })
 })

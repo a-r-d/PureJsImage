@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { access, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { validateJpegXlWriteCapability } from './validate-write-capability.ts'
 
 const directory = join('benchmark', 'jpegxl', 'production-program')
 const jsonPath = join(directory, 'baseline.json')
@@ -105,36 +106,7 @@ if (
 } else if (readCapability.status !== 'limited' || readCapability.label !== 'Limited') {
   throw new Error('JPEG XL read capability has an unrecognized boundary')
 }
-if (writeCapability.status !== 'limited') {
-  throw new Error('JPEG XL write capability no longer matches the recorded limited boundary')
-}
-if (
-  writeCapability.label === 'Stable exact transcode' ||
-  writeCapability.label === 'Stable lossless and exact transcode' ||
-  writeCapability.label === 'Stable lossless and exact transcode; experimental lossy'
-) {
-  const milestone1 = record(milestones.M1, 'programState.milestones.M1')
-  if (milestone1.stablePromotionGatePassed !== true) {
-    throw new Error('Stable exact transcode requires the Milestone 1 promotion gate')
-  }
-  if (
-    writeCapability.label === 'Stable lossless and exact transcode' ||
-    writeCapability.label === 'Stable lossless and exact transcode; experimental lossy'
-  ) {
-    const milestone2 = record(milestones.M2, 'programState.milestones.M2')
-    if (milestone2.stablePromotionGatePassed !== true) {
-      throw new Error('Stable lossless encoding requires the Milestone 2 promotion gate')
-    }
-  }
-  if (writeCapability.label.endsWith('experimental lossy')) {
-    const milestone7 = record(milestones.M7, 'programState.milestones.M7')
-    if (milestone7.stablePromotionGatePassed === true) {
-      throw new Error('Experimental lossy label conflicts with the Milestone 7 promotion gate')
-    }
-  }
-} else if (writeCapability.label !== 'Experimental') {
-  throw new Error('JPEG XL write capability has an unrecognized label')
-}
+await validateJpegXlWriteCapability(writeCapability, milestones)
 
 const corpusDefinitions = [
   ['conformance', join(directory, 'corpora', 'conformance.json')],
