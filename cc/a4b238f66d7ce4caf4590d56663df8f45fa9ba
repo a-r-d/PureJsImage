@@ -1,0 +1,76 @@
+capabilities/manifest.json
+  s_9bf27d14dec589::t_c2289cd60e3601 568-569,797-798,987-988,1223,1405,1616,1795,1984,2377,3057,3635,4277,4338,4394,4462
+scripts/render-capabilities.ts
+  s_9bf27d14dec589::t_c2289cd60e3601 3,41-52,71-72,81-83,87-89
+  s_9bf27d14dec589::t_8e61ce423fbf1e 91-92
+docs-astro/src/data/documentation-data.json
+  s_9bf27d14dec589::t_1477a0575f94fd 129
+docs-astro/src/data/package-metrics.json
+  s_9bf27d14dec589::t_6de5f56af265ca 179
+tests/package-metrics.test.ts
+  s_9bf27d14dec589::t_137411ac3596c4 31-49
+  s_9bf27d14dec589::t_587382f1755cd8 4,6-11,50-59,275-277
+scripts/render-documentation.ts
+  s_9bf27d14dec589::t_daa4cac9c9bfc2 1144,1146,1154,1165-1180,1182-1192,1198,1200,1209,1216
+  s_9bf27d14dec589::t_71755212c7cd91 1148,1150,1152,1164
+  s_9bf27d14dec589::t_cf751f6af7dce1 1181,1226-1230
+benchmark/generated/package-metrics.json
+  s_9bf27d14dec589::t_6de5f56af265ca 179
+README.md
+  s_9bf27d14dec589::t_c2289cd60e3601 9,52-57,59,62-63,66,74,76-77,79,98,107-132,147,200,250,253,275,278,280,286,331-332,343,356,491,493,510,512-514
+  s_9bf27d14dec589::t_b186f275f01ef3 144
+  s_9bf27d14dec589::t_41ae11e230181f 308-311,313
+  s_9bf27d14dec589::t_814a648fbe3bed 7,23-27,30,35-37,45,47-50,60-61,65,67-68,70,72,133,160,178-199,201-205,256-274,276-277,279,281,284-285,307,312,314,317-330,333-340,447-448,452,456,458,460-468,470-471,537-539
+  s_9bf27d14dec589::t_7da8f9e955eb84 384
+  s_9bf27d14dec589::t_71755212c7cd91 430,437,453-455,457,469
+  s_9bf27d14dec589::t_5e3f47dc27bcb0 71,81-96,100-102,104,106,134-143,145-146,282-283,287,377,390-392,394,405,407,419,421,449-451,459,476,478,486,540
+CHANGELOG.md
+  s_9bf27d14dec589::t_59959fe802124f 10-11
+  s_9bf27d14dec589::t_71755212c7cd91 13
+  s_9bf27d14dec589::t_a572654e465662 7-9,12
+tests/project-contract.test.ts
+  s_9bf27d14dec589::t_e2fbff33537125 107,363-366,370-372,564
+  s_9bf27d14dec589::t_d63e5251401830 99-103,108-112
+  s_9bf27d14dec589::t_de8d98a7b91a62 104-106
+browser-tests/jpegxl-pipeline.pw.ts
+  s_9bf27d14dec589::t_38a200059430ae 341,352
+  s_9bf27d14dec589::t_7c1a2fa392799a 321-328,343-348,350-351
+  s_9bf27d14dec589::t_d8769d5db3f0ac 194,320,329-333,338-339,342,353,356,359,365,367,369-377
+docs/readme-editorial-review.md
+  s_9bf27d14dec589::t_4d5785af75b157 14-16,19,41,45,49,60-62
+  s_9bf27d14dec589::t_0b5988a29b00d1 1-3,5-11,13,17-18,20-22,24-31,35-40,42-44,46-48,50-55,57,59,63-66
+  s_9bf27d14dec589::t_83c65cd28924ba 67-76
+  s_9bf27d14dec589::t_f1802e69425b93 4,12,23,32-34,56,58
+scripts/capability-manifest.ts
+  s_9bf27d14dec589::t_c2289cd60e3601 28-29,179-180,187-188
+browser-tests/jpegxl-hf-context.pw.ts
+  s_9bf27d14dec589::t_d0ae66ac279234 6
+browser-tests/jpegxl-m8-palette.pw.ts
+  s_9bf27d14dec589::t_30bc7916d49301 4
+browser-tests/jpegxl-showcase.pw.ts
+  s_9bf27d14dec589::t_7fd567db3fa103 95-96,123,256,273
+scripts/render-geo-capabilities.ts
+  s_9bf27d14dec589::t_539b6acfe94a81 117
+scripts/render-package-metrics.ts
+  s_9bf27d14dec589::t_41eed3e52144fb 7-9,52,54-56,62,64,80,82,89
+tests/capability-manifest.test.ts
+  s_9bf27d14dec589::t_52e4b0c9b7b103 170
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_9bf27d14dec589::t_b383758d1d1a27 186-188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "cca4b238f66d7ce4caf4590d56663df8f45fa9ba",
+  "prompts": {},
+  "sessions": {
+    "s_9bf27d14dec589": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ed9f-b8ab-7d31-8a70-14b84d67369a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
