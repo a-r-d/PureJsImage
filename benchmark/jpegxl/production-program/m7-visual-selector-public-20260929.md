@@ -1,6 +1,6 @@
 # M7 public lossy selector follow-up
 
-This is a retained encoder improvement on PR #37. Lossy remains Experimental. The previous [visual-defect qualification](m7-visual-defects-final.md) remains the last complete 2 MP matrix. This follow-up uses its pinned original-size inputs and a small development diagnostic. The observed screenshot and table are regression evidence, not unseen sources.
+Implementation commit: `d06a7dc1a3c01e9483683459df7e91298e16f27e`. This is a retained encoder improvement on PR #37. Lossy remains Experimental. The previous [visual-defect qualification](m7-visual-defects-final.md) remains the last complete 2 MP matrix. This follow-up uses its pinned original-size inputs and a small development diagnostic. The observed screenshot and table are regression evidence, not unseen sources.
 
 ## Change
 
@@ -28,6 +28,8 @@ The final-source 12 MP photo `im26-1030` at distance 3 is byte-identical to the 
 A separate deterministic 512×512 sparse-line graphic exercises the public encoder in the unit and real-browser tests. It produces 16,668 bytes instead of 33,356 conservative bytes. Its native-decoded SSIMULACRA2 improves from 82.197 to 88.820 and Butteraugli from 2.534 to 1.623; pinned Rust and native libjxl agree within one RGB8 sample. This is a generated development test, not corpus generalization evidence. The [browser receipt](visual-selector-public-20260929/browser-receipt.json) records a zero-swap run with Chromium, Firefox, and WebKit passing Node/browser parity.
 
 `npm run check` passed with 3,209 tests and three existing skips; the [bounded receipt](visual-selector-public-20260929/full-check-receipt.json) records a 2.1 GiB peak and zero swap. The JPEG XL core-plus-codec bundle grew from 456,008 to 457,171 minified bytes, below its 460,000-byte ceiling. The specialized entry grew from 544,074 to 545,226 bytes, below its 548,000-byte ceiling. The generated package-size and documentation data were refreshed. There is no new runtime dependency.
+
+The clean implementation commit passed [JPEG XL conformance](visual-selector-public-20260929/conformance.json) with 39/39 expectations and [resource checks](visual-selector-public-20260929/resource.json) with 12 fuzz and 12 resource cases. Both reports identify the implementation commit. Their bounded [conformance](visual-selector-public-20260929/conformance-receipt.json) and [resource](visual-selector-public-20260929/resource-receipt.json) receipts recorded zero swap and peaks of 924.3 MiB and 500.3 MiB.
 
 ## Qualification boundary
 
