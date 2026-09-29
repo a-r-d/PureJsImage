@@ -114,7 +114,7 @@ const readmeBlock = (manifest: GeoCapabilityManifest): string =>
     }),
     '',
     '“Fixture-limited” is implemented behavior with a narrow current corpus. “Metadata only” does not',
-    'claim the related pixel operation. See the [complete generated geo evidence table](docs/generated/geo-compatibility.md)',
+    'claim the related pixel operation. See the [full geographic support table](docs/generated/geo-compatibility.md)',
     'and the [machine-readable manifest](docs-astro/public/geo-capabilities.json).',
   ].join('\n')
 

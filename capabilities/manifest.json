@@ -565,6 +565,8 @@
       "name": "JPEG",
       "supportFile": "jpeg-codec-support.md",
       "packageFormat": "jpeg",
+      "readmeSummary": "8-bit baseline and progressive; grayscale, RGB and CMYK. Gain maps use the HDR API.",
+      "wasmSummary": "Baseline read/write",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -792,6 +794,8 @@
       "name": "PNG",
       "supportFile": "png-codec-support.md",
       "packageFormat": "png",
+      "readmeSummary": "1–16-bit decode; 8/16-bit grayscale, RGB and RGBA output. No APNG frame decode.",
+      "wasmSummary": "8-bit read/write",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -980,6 +984,8 @@
       "name": "WebP",
       "supportFile": "webp-codec-support.md",
       "packageFormat": "webp",
+      "readmeSummary": "Static lossy, lossless and near-lossless output; alpha supported. No animation.",
+      "wasmSummary": "Pixel/transform steps",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -1214,6 +1220,7 @@
       "name": "BMP",
       "supportFile": "bmp-codec-support.md",
       "packageFormat": "bmp",
+      "readmeSummary": "Common Windows/OS2 and palette/RLE inputs; 24-bit RGB or 32-bit RGBA output.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -1395,6 +1402,7 @@
       "name": "TIFF",
       "supportFile": "tiff-codec-support.md",
       "packageFormat": "tiff",
+      "readmeSummary": "Classic TIFF/BigTIFF, strips, tiles and pages. Scientific, OME and whole-slide APIs are separate.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -1605,6 +1613,7 @@
       "name": "GIF",
       "supportFile": "gif-codec-support.md",
       "packageFormat": "gif",
+      "readmeSummary": "Static images; animated files require frame 0 selection. No GIF output.",
       "read": {
         "status": "limited",
         "label": "Static / explicit frame 0"
@@ -1783,6 +1792,7 @@
       "name": "ICO",
       "supportFile": "ico-codec-support.md",
       "packageFormat": "ico",
+      "readmeSummary": "One selected PNG or DIB icon; transparency supported. No CUR or ICO output.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -1971,6 +1981,7 @@
       "name": "JPEG 2000 / JP2",
       "supportFile": "jpeg2000-codec-support.md",
       "packageFormat": "jp2",
+      "readmeSummary": "Static Part 1 JP2, 1–16-bit samples. No HTJ2K, JPX or encoding.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -2363,6 +2374,7 @@
       "name": "AVIF",
       "supportFile": "avif-codec-support.md",
       "packageFormat": "avif",
+      "readmeSummary": "Common 8/10/12-bit stills and alpha. Writer is limited to opaque 8-bit YUV420; no general animation.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -3042,6 +3054,7 @@
       "name": "HEIF / HEIC (experimental)",
       "supportFile": "heif-codec-support.md",
       "packageFormat": "heif",
+      "readmeSummary": "Opt-in HEVC and uncompressed still subsets, including alpha and grids. Patent notice below.",
       "experimental": true,
       "read": {
         "status": "limited",
@@ -3619,6 +3632,7 @@
       "name": "JPEG XL",
       "supportFile": "jpegxl-codec-support.md",
       "packageFormat": "jpegxl",
+      "readmeSummary": "Lossless/static lossy, exact JPEG recovery, high-depth samples and separate animation APIs. Lossy animation is Experimental.",
       "read": {
         "status": "supported",
         "label": "Stable common static"
@@ -4260,6 +4274,7 @@
       "name": "Radiance HDR / RGBE",
       "supportFile": "hdr-codec-support.md",
       "packageFormat": "hdr",
+      "readmeSummary": "RGBE decode to float32 RGB and RGBE output. No XYZE.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -4320,6 +4335,7 @@
       "name": "QOI",
       "supportFile": "qoi-codec-support.md",
       "packageFormat": "qoi",
+      "readmeSummary": "QOI v1 RGB/RGBA still images.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -4375,6 +4391,7 @@
       "name": "Netpbm and PFM",
       "supportFile": "netpbm-codec-support.md",
       "packageFormat": "netpbm",
+      "readmeSummary": "PBM, PGM, PPM, PAM and float32 PFM; one image per file.",
       "read": {
         "status": "supported",
         "label": "Yes"
@@ -4442,6 +4459,7 @@
       "name": "TGA / TARGA",
       "supportFile": "tga-codec-support.md",
       "packageFormat": "tga",
+      "readmeSummary": "Palette, grayscale and RGB/RGBA inputs, including RLE; RGB/RGBA output.",
       "read": {
         "status": "supported",
         "label": "Yes"

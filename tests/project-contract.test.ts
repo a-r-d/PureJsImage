@@ -96,18 +96,20 @@ describe('package contract', () => {
     expect(packageJson.description).toBe(
       'Portable image codecs and low-memory raster processing in strict TypeScript',
     )
-    expect(readme).toContain('## What PureJsImage is best at')
-    expect(readme).toContain('**Low peak memory usage**')
-    expect(readme).toContain('**Portable across Node.js and modern browsers**')
-    expect(readme).toContain('**Zero dependencies**')
-    expect(readme).toContain('**Native scientific raster processing**')
-    expect(readme).toContain('**Benchmarks that check correctness**')
-    expect(readme).toContain('**Optional WASM accelerators**')
-    expect(readme).toContain('PureJsImage provides portable image codecs')
-    expect(readme).not.toMatch(/first-party/i)
-    expect(readme).toContain('The permanent reference engine is strict TypeScript')
-    expect(readme).toContain('Low memory is a primary product requirement')
-    expect(readme).toContain('Low-memory execution is the main goal')
+    expect(readme).toContain('## Choose the API for your data')
+    expect(readme).toContain('Node.js and modern browsers')
+    expect(readme).toContain('first-party TypeScript codecs')
+    expect(readme).toContain('no runtime dependency tree, native addon or system executable')
+    expect(readme).toContain('source-sized RGBA buffers')
+    expect(readme).toContain('process rows, strips, tiles or regions')
+    expect(readme).toContain('that the output is correct before reporting speed')
+    expect(readme).toContain('You import and register them yourself')
+    expect(readme).toContain('the default TypeScript path never loads them')
+    expect(readme).toContain('[Image codecs and processing](#ordinary-image-pipeline)')
+    expect(readme).toContain('[Scientific datasets](#scientific-datasets)')
+    expect(readme).toContain('[Geographic rasters](#geographic-rasters)')
+    expect(readme).toContain('A reader does not imply a writer')
+    expect(readme).not.toMatch(/HUGE tested compatibility|Benchmaxxed/)
     expect(docsHome).toContain('Free and open source · zero runtime dependencies')
     expect(docsHome).toContain('Image codecs and low-memory raster processing in')
     expect(docsHome).toContain('portable image codecs and native scientific raster processing')
@@ -358,14 +360,16 @@ describe('package contract', () => {
       expect(source.startsWith('data:'), source).toBe(false)
     }
     expect(readme).toContain('docs-astro/public/assets/readme/whole-slide-viewer.jpg')
-    expect(readme).toContain('docs-astro/public/assets/readme/scientific-explorer.jpg')
+    expect(readme.indexOf('docs-astro/public/assets/readme/whole-slide-viewer.jpg')).toBeLessThan(
+      readme.indexOf('## Choose the API for your data'),
+    )
+    expect(readme).not.toContain('docs-astro/public/assets/readme/scientific-explorer.jpg')
     expect(readme).toContain('docs-astro/public/assets/readme/web-codec-speed.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/web-codec-memory.svg')
     expect(readme).toContain('docs-astro/public/assets/readme/brand-mark.svg')
-    const rasterBytes = [
-      'docs-astro/public/assets/readme/whole-slide-viewer.jpg',
-      'docs-astro/public/assets/readme/scientific-explorer.jpg',
-    ].reduce((sum, path) => sum + readFileSync(path).byteLength, 0)
+    const rasterBytes = localImages
+      .filter((source) => /\.(?:jpg|jpeg|png|webp|gif)$/iu.test(source))
+      .reduce((sum, path) => sum + readFileSync(path).byteLength, 0)
     expect(rasterBytes).toBeLessThan(1.2 * 1024 * 1024)
     expect(readFileSync('docs-astro/public/assets/readme/web-codec-speed.svg', 'utf8')).toContain(
       '<svg',
@@ -557,7 +561,7 @@ describe('package contract', () => {
     const readme = readFileSync('README.md', 'utf8')
     const header = readFileSync('docs-astro/src/components/SiteHeader.astro', 'utf8')
     expect(readme).toContain('https://purejsimage.com/ome-zarr/')
-    expect(readme).toContain('docs-astro/public/assets/ome-zarr-open-graph.png')
+    expect(readme).not.toContain('docs-astro/public/assets/ome-zarr-open-graph.png')
     expect(header).toContain("{ href: 'ome-zarr/', label: 'OME-Zarr viewer' }")
   })
 

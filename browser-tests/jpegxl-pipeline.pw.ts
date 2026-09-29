@@ -191,7 +191,7 @@ test('JPEG XL M5 output workflows agree with Node for all fits, color, depth and
 
 for (const id of ['srgb-12', 'p3-8', 'pq-10', 'vardct-linear-12']) {
   test(`workbench opens, inspects, resizes and exports ${id}`, async ({ page }) => {
-    await page.goto('/jpeg-xl/')
+    await page.goto('/jpeg-xl/convert/')
     await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
     await page.locator('#jxl-file').setInputFiles(`tests/fixtures/jpegxl/m4-color/${id}.jxl`)
     await expect(page.locator('#jxl-status')).toContainText(
@@ -317,56 +317,64 @@ test('progressive stages, viewport selection, cache reuse and timer cancellation
   expect(actual).toEqual(expected)
 })
 
-test('Range explorer shows stages, byte counters and cached viewport reuse', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
-  await page.locator('#jxl-progressive-url').fill('/fixtures/jpegxl-multi-group-progressive.jxl')
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
-  const first = await page.locator('#jxl-progressive-metrics').textContent()
-  expect(first).toContain('physicalReadBytes')
+test('Range explorer shows stages, byte counters and bounded fresh sessions', async ({ page }) => {
+  let sourceRequests = 0
+  page.on('request', (request) => {
+    if (request.url().endsWith('/fixtures/jpegxl-multi-group-progressive.jxl')) sourceRequests++
+  })
+  await page.goto('/jpeg-xl/progressive/')
+  await page
+    .locator('#tool-url')
+    .fill(new URL('/fixtures/jpegxl-multi-group-progressive.jxl', page.url()).href)
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-stages li').last()).toContainText('dc complete')
+  const first = await page.locator('#tool-details').textContent()
+  expect(first).toContain('sourceReadBytes')
   const firstMetrics: unknown = JSON.parse(first ?? '{}')
   if (
     typeof firstMetrics !== 'object' ||
     firstMetrics === null ||
-    !('physicalReadBytes' in firstMetrics) ||
-    typeof firstMetrics.physicalReadBytes !== 'number'
+    !('sourceReadBytes' in firstMetrics) ||
+    typeof firstMetrics.sourceReadBytes !== 'number'
   )
-    throw new Error('Missing physical read measurement')
-  expect(firstMetrics.physicalReadBytes).toBeLessThan(148_917 / 4)
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
-  const repeated: unknown = JSON.parse(
-    (await page.locator('#jxl-progressive-metrics').textContent()) ?? '{}',
-  )
-  if (typeof repeated !== 'object' || repeated === null || !('physicalReadBytes' in repeated))
+    throw new Error('Missing source read measurement')
+  expect(firstMetrics.sourceReadBytes).toBeLessThan(148_917 / 4)
+  const firstRequests = sourceRequests
+  expect(firstRequests).toBeGreaterThan(0)
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  const repeated: unknown = JSON.parse((await page.locator('#tool-details').textContent()) ?? '{}')
+  if (typeof repeated !== 'object' || repeated === null || !('sourceReadBytes' in repeated))
     throw new Error('Missing repeated measurement')
-  expect(repeated.physicalReadBytes).toBe(firstMetrics.physicalReadBytes)
-  await page.locator('#jxl-run-viewport').click()
+  expect(repeated.sourceReadBytes).toBe(firstMetrics.sourceReadBytes)
+  expect(sourceRequests).toBeGreaterThan(firstRequests)
+  await expect(page.locator('#tool-zoom')).toHaveValue('4')
+  await page.locator('#tool-viewport').click()
   // This action reconstructs all four stages; shared CI runners can exceed the
   // default five-second assertion budget while still making valid progress.
-  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete', {
+  await expect(page.locator('#tool-status')).toContainText('operation complete', {
     timeout: 30_000,
   })
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '16')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '16')
 })
 
 test('an independent embedded preview remains visible when a requested native stage is unavailable', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/progressive/')
   await page
-    .locator('#jxl-progressive-file')
+    .locator('#tool-file')
     .setInputFiles('tests/fixtures/jpegxl/m6-preview-modular/embedded-preview.jxl')
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText(
-    'cannot substitute final output',
-  )
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '333')
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('height', '77')
-  await expect(page.locator('#jxl-progressive-metrics')).toContainText('embedded-preview')
-  await page.locator('#jxl-run-progressive').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '1')
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('cannot substitute final output')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '333')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('height', '77')
+  await expect(page.locator('#tool-stages')).toContainText('embedded-preview')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '1')
 })
 
 test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', async ({ page }) => {

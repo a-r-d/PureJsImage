@@ -183,7 +183,9 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
       return error / samples
     }
     expect(await squaredError(publicBytes)).toBeLessThan(await squaredError(strict.toUint8Array()))
-  })
+    // Two effort-7 encodes and both reconstructions can exceed Vitest's default
+    // five seconds on shared CI runners. Size and quality checks stay unchanged.
+  }, 30_000)
 
   it('keeps bright PQ16 edges and native precision at effort 7', async () => {
     const width = 17,

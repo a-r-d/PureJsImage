@@ -4,6 +4,13 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Update JPEG XL browser checks for the separate tool pages and committed fixtures.
+  Allow the existing two-encode quality regression test enough time on shared CI runners.
+
+- Clarify README API choices, browser examples and JPEG XL tool links. Keep the
+  whole-slide showcase near the opening and retain the benchmark results. Move format support near the top, with
+  concise format notes, optional WASM coverage and dated speed examples.
+
 - Improve JPEG XL effort-7 lossy grain, text edges and PQ texture with bounded
   local quantizer refinement before transform selection. Small sRGB RGBA artwork can use a smaller Modular stream
   that preserves visible RGB and every alpha sample. Lossy mode may normalize

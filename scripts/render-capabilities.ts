@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
+import packageJson from '../package.json' with { type: 'json' }
 import {
   type CapabilityLevel,
   type CapabilityManifest,
@@ -37,9 +38,18 @@ const publicCodecs = (codecs: readonly CodecCapability[]): readonly CodecCapabil
   codecs.filter(({ packageFormat }) => packageFormat !== undefined)
 
 const codecTable = (codecs: readonly CodecCapability[]): readonly string[] => [
-  '| Format | Read | Write |',
-  '| --- | --- | --- |',
-  ...codecs.map(({ name, read, write }) => `| ${name} | ${read.label} | ${write.label} |`),
+  '| Format | Read | Write | Optional WASM | What’s supported |',
+  '| --- | --- | --- | --- | --- |',
+  ...codecs.map((codec) => {
+    if (!codec.readmeSummary) throw new Error(`Missing README summary for ${codec.id}`)
+    const hasWasm = Object.hasOwn(packageJson.exports, `./accelerators/wasm/${codec.packageFormat}`)
+    if (hasWasm !== Boolean(codec.wasmSummary))
+      throw new Error(`WASM summary/export mismatch for ${codec.id}`)
+    const wasm = codec.wasmSummary
+      ? `[${codec.wasmSummary}](https://purejsimage.com/api/#wasm-acceleration)`
+      : 'No'
+    return `| [${codec.name}](${codec.supportFile}) | ${codec.read.label} | ${codec.write.label} | ${wasm} | ${codec.readmeSummary} |`
+  }),
 ]
 
 const readmeBlock = (
@@ -58,6 +68,8 @@ const readmeBlock = (
     })
     .join('\n')
   return [
+    'All formats below have a TypeScript implementation. WASM is optional and covers only the listed work; other supported operations use TypeScript. Click a format for its full support list.',
+    '',
     '### Stable ordinary codecs',
     '',
     ...codecTable(stableCodecs),
@@ -66,15 +78,18 @@ const readmeBlock = (
     '',
     ...codecTable(experimentalCodecs),
     '',
-    '“Limited” means PureJsImage supports a useful subset and clearly rejects files',
-    'outside it.',
-    '“Experimental” means the codec is excluded from `allCodecs` and requires an',
-    'explicit direct import and registration.',
+    '“Limited” means only the documented subset is supported. Experimental codecs need a separate import and are excluded from `allCodecs`.',
+    '',
+    'WASM does not cover every file the TypeScript codec can read. JPEG acceleration handles common baseline images; PNG handles common non-interlaced 8-bit images; WebP accelerates selected color and transform steps. [Setup, supported cases and fallback behavior](https://purejsimage.com/api/#wasm-acceleration).',
     '',
     '[See the exact codec support matrix →](https://purejsimage.com/codecs/)',
     '',
-    'Detailed codec compatibility roadmaps:',
+    '<details>',
+    '<summary>Full support lists for each format</summary>',
+    '',
     linkedRoadmaps,
+    '',
+    '</details>',
   ].join('\n')
 }
 

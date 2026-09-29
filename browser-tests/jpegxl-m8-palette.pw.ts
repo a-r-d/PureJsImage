@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('workbench decodes the official global delta palette fixture', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
   await page
     .locator('#jxl-file')

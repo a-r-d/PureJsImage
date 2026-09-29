@@ -2,12 +2,11 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   formatKibibytes,
-  formatMebibytes,
-  parsePackageMetrics,
-  packageMetricsPath,
-  serializePackageMetrics,
   type PackageMetric,
   type PackageMetricsDocument,
+  packageMetricsPath,
+  parsePackageMetrics,
+  serializePackageMetrics,
 } from './bundle-size.ts'
 
 const repositoryDirectory = process.cwd()
@@ -50,19 +49,19 @@ const renderScientificReaders = (metrics: PackageMetricsDocument): string => {
     return `${reader.format} (\`${reader.packageExport}\`)`
   })
   return [
-    '### Scientific reader package surface',
+    '<a id="scientific-reader-package-surface"></a>',
     '',
-    `The package currently exposes **${metrics.scientificReaders.length} scientific readers** through explicit purejsimage/scientific/readers/* exports. This family summary is generated from the scientific reader inventory in capabilities/manifest.json, the package exports, and src/scientific/readers/all.ts.`,
+    '### Scientific readers',
+    '',
+    `Import the **${metrics.scientificReaders.length} scientific readers** from \`purejsimage/scientific/readers/*\` or choose a group below. Counts come from the reader manifest and package exports.`,
     '',
     '| Reader family | Count | Representative formats |',
     '| --- | ---: | --- |',
     ...groups,
     '',
-    'The complete per-reader imports and support boundaries remain on the [scientific format reference](https://purejsimage.com/scientific-formats/), the [API reference](https://purejsimage.com/api/#scientific), and the machine-readable [capability manifest](capabilities/manifest.json).',
+    'Find imports and supported variants in the [scientific format reference](https://purejsimage.com/scientific-formats/), the [API reference](https://purejsimage.com/api/#scientific), and the machine-readable [capability manifest](capabilities/manifest.json).',
     '',
-    `The live browser explorer provides curated samples for ${demoReaders.join(', ')}. Its generic tab builds a reader catalog from this same inventory, loads likely explicit reader chunks from safe filename and media-type hints, and confirms the format with bounded byte probing or explicit user selection.`,
-    '',
-    'The raster APIs preserve native numeric data instead of forcing every source through RGB. The full reader surface includes scientific images and volumes, spectroscopy and instrument data, microscopy and whole-slide data, surface and metrology formats, and ordinary image adapters.',
+    `The browser explorer includes sample files for ${demoReaders.join(', ')}. For other files, its generic tab uses the filename and media type to select likely readers, then checks a limited number of bytes to confirm the format. You can also select a reader yourself.`,
   ].join('\n')
 }
 
@@ -74,21 +73,20 @@ const renderBundle = (metrics: PackageMetricsDocument): string => {
     targetById(metrics, 'scientific'),
     targetById(metrics, 'scientific-readers-all'),
   ]
-  const installed = targetById(metrics, 'purejsimage-all')
   const wasmRawBytes = metrics.wasmAssets.reduce((sum, asset) => sum + asset.rawBytes, 0)
   return [
     '### Bundle size and npm package size',
     '',
-    `Generated for ${metrics.package.name} ${metrics.package.version}. The README keeps only the major entry points; the complete per-codec, per-reader, competitor, gzip, Brotli, installed-package, and WASM measurements are on the performance page and in the machine-readable artifact.`,
+    `Generated for ${metrics.package.name} ${metrics.package.version}. Use these imports to select an entry point; the table above also includes the geographic API and readers. Per-codec, per-reader, competitor, installed-package and WASM measurements are linked below.`,
     '',
-    '| Surface | Import | Minified JS | gzip | Brotli |',
+    '| Bundle | Import | Minified JS | gzip | Brotli |',
     '| --- | --- | ---: | ---: | ---: |',
     ...rows.map(
       (target) =>
         `| ${target.name} | \`${target.entry.packageExports?.join('; ') ?? target.entry.sourceEntries?.join(' + ') ?? '—'}\` | ${formatKibibytes(target.minifiedJsBytes)} | ${formatKibibytes(target.gzipBytes)} | ${formatKibibytes(target.brotliBytes)} |`,
     ),
     '',
-    `The extracted npm package is ${formatMebibytes(installed.unpackedPackageBytes)} and has ${installed.productionPackageCount} production package. The eight optional JPEG, PNG, and WebP accelerator assets total ${formatKibibytes(wasmRawBytes)} raw WASM and are loaded only through explicit accelerator imports.`,
+    `The ${metrics.wasmAssets.length} optional JPEG, PNG, and WebP accelerator assets total ${formatKibibytes(wasmRawBytes)} raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.`,
     '',
     '[Complete size and footprint tables →](https://purejsimage.com/performance/#package-footprint) · [Machine-readable package metrics](benchmark/generated/package-metrics.json)',
   ].join('\n')

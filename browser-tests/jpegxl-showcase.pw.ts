@@ -92,8 +92,8 @@ test('local names, metadata and bytes do not leave the browser; keyboard and nar
   )
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/jpeg-xl/native/')
-  const file = await readFile('tests/fixtures/jpegxl/m8-native/gray-icc.jxl').catch(() =>
-    readFile('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray16-default.jxl'),
+  const file = await readFile(
+    'benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray8-linear.jxl',
   )
   await page
     .locator('#tool-file')
@@ -120,7 +120,7 @@ test('local names, metadata and bytes do not leave the browser; keyboard and nar
 
 test('converter cancellation retries source and downloads remain usable', async ({ page }) => {
   await page.goto('/jpeg-xl/convert/')
-  await expect(page.locator('#jxl-status')).toContainText('inspected')
+  await expect(page.locator('#jxl-status')).toContainText('inspected', { timeout: 30_000 })
   await page.locator('#jxl-encode').click()
   await page.locator('#jxl-cancel').click()
   await expect(page.locator('#jxl-status')).toContainText('Cancelled')
@@ -253,7 +253,7 @@ test('capture actual tool outputs for showcase cards', async ({ page, browserNam
   }
   for (const tool of ['convert', 'jpeg-recompression']) {
     await page.goto(`/jpeg-xl/${tool}/`)
-    await expect(page.locator('#jxl-status')).toContainText('inspected')
+    await expect(page.locator('#jxl-status')).toContainText('inspected', { timeout: 30_000 })
     await page.locator('#jxl-preview').screenshot({ path: `.tmp/jpegxl-showcase-${tool}.png` })
   }
   await page.goto('/jpeg-xl/comparison/')
@@ -270,7 +270,7 @@ test('converter preserves lower-depth native JXL precision during lossless re-en
   page,
 }) => {
   await page.goto('/jpeg-xl/convert/')
-  await expect(page.locator('#jxl-status')).toContainText('inspected')
+  await expect(page.locator('#jxl-status')).toContainText('inspected', { timeout: 30_000 })
   await page
     .locator('#jxl-file')
     .setInputFiles('benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb10-linear.jxl')
