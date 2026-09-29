@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import Tool from '../../components/JpegXlAdvanced.astro'
+---
+<Layout title="JPEG XL animation player and creator" description="Play, step through and export frames, or create a bounded animation from local sRGB images. Timing retains its encoded rational tick rate." path="animation/"><Tool tool="animation"/><section class="jxl-card copy"><h2>Browser API</h2><pre><code>{`import { openJpegXlSequence } from 'purejsimage/jpegxl'
+const sequence = await openJpegXlSequence(file)
+try {
+  const frame = await sequence.frame(0)
+  console.log(frame.durationTicks, frame.header.animation)
+} finally { await sequence.close() }`}</code></pre><p>Run codec work in a worker. The example uses the same public APIs as this tool. Playback retains rational timing and replays dependencies when selecting frames. The sRGB display retains only the selected frame; loop timing includes the cost of replay. Lossy creation is Experimental.</p></section></Layout>

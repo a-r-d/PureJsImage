@@ -2,11 +2,11 @@ import { copyFile, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/pro
 import { dirname, join, relative, resolve } from 'node:path'
 import { build as buildAstro } from 'astro'
 import { build } from 'esbuild'
-import capabilityManifest from '../capabilities/manifest.json' with { type: 'json' }
-import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 import { jpegXlWorkbenchPng } from '../benchmark/jpegxl/workbench-fixture.ts'
+import { generatedScientificFixtures } from '../benchmark/scientific-readers/generated-fixtures.ts'
 import { assertGeoShowcaseSourceInputs, geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
+import { buildJpegXlShowcase, writeJpegXlShowcaseAssets } from './jpegxl-showcase-assets.ts'
 
 const sourceDirectory = resolve('docs-astro')
 const outputDirectory = resolve('benchmark/.tmp/docs-site')
@@ -37,6 +37,7 @@ const hdrSampleNames = [
   'hdr-surgery-synthetic-12mp.jpg',
 ] as const
 const jpegXlSamples = [
+  { source: 'tests/fixtures/jpegxl/gray-exact/gray-baseline.jpg', name: 'jpegxl-gray.jpg' },
   {
     source: 'benchmark/corpus/files/wpt-webcodecs-mozjpeg-yuv420.jpg',
     name: 'jpegxl-progressive-yuv420.jpg',
@@ -54,6 +55,8 @@ for (const sample of jpegXlSamples) {
   await copyFile(sample.source, join(outputDirectory, 'demo-data', sample.name))
 }
 await writeFile(join(outputDirectory, 'demo-data/jpegxl-pixel-lossless.png'), jpegXlWorkbenchPng())
+await writeJpegXlShowcaseAssets(outputDirectory)
+await buildJpegXlShowcase(outputDirectory)
 
 const geoFixtureDirectory = join(outputDirectory, 'fixtures/geo/geozarr-cube')
 for (const resource of geoShowcaseZarrResources()) {
@@ -128,42 +131,16 @@ if (!/<h1[^>]*>Ultra HDR JPEG editor and gain map inspector for JavaScript<\/h1>
   throw new Error('Generated HDR Surgery page omits its required H1')
 }
 const jpegXlPage = await readFile(join(outputDirectory, 'jpeg-xl', 'index.html'), 'utf8')
-const jpegXlCapability = capabilityManifest.codecs.find((codec) => codec.id === 'jpegxl')
-if (!jpegXlCapability) throw new Error('Missing JPEG XL capability summary')
-const jpegXlDescription = jpegXlCapability.description
-  .replaceAll('&', '&amp;')
-  .replaceAll('"', '&quot;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
 for (const required of [
-  '<title>JPEG XL Decoder, Lossless Encoder, and JPEG Transcoder | PureJsImage</title>',
-  `name="description" content="${jpegXlDescription}"`,
+  'JPEG XL encoder and decoder',
   'rel="canonical" href="https://purejsimage.com/jpeg-xl/"',
-  'property="og:image" content="https://purejsimage.com/assets/jpeg-xl-og.png"',
-  'property="og:image:width" content="1200"',
-  'property="og:image:height" content="630"',
-  'name="twitter:card" content="summary_large_image"',
-  'Quick answer',
-  'Interactive workbench',
-  'Transcode eligible JPEG coefficients',
+  '/jpeg-xl/convert/',
+  '/jpeg-xl/jpeg-recompression/',
   'Current limits',
-  'What is JPEG XL?',
-  'Can JavaScript decode JXL?',
-  'What does pixel-lossless mean?',
-  'Can PureJsImage reconstruct the original JPEG byte for byte?',
-  'Why can an exact JXL be larger than its source JPEG?',
-  'Which JPEG files are currently eligible?',
-  'Are Exif orientation and non-sRGB ICC supported by exact transcode?',
-  'Does PureJsImage have a general lossy JPEG XL encoder?',
-  'Does this work in Node.js and browsers?',
 ]) {
-  if (!jpegXlPage.includes(required)) throw new Error(`Generated JPEG XL page omits ${required}`)
+  if (!jpegXlPage.includes(required)) throw new Error(`Generated JPEG XL hub omits ${required}`)
 }
-if (
-  !/<h1[^>]*>Decode JPEG XL and verify exact JPEG transcoding in JavaScript<\/h1>/u.test(jpegXlPage)
-) {
-  throw new Error('Generated JPEG XL page omits its required H1')
-}
+
 const hdrJsonLd = [
   ...hdrPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
 ]
@@ -338,9 +315,6 @@ const viewerBuild = await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
-    'jpegxl-progressive-workbench': 'docs-astro/src/scripts/jpegxl-progressive-workbench.ts',
-    'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
-    'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',

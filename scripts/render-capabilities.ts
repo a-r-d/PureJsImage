@@ -266,7 +266,7 @@ outputs.set(
 let llmsGuide = await readFile('docs-astro/public/llms.txt', 'utf8')
 llmsGuide = llmsGuide.replace(
   /`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and [^\n]+/,
-  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented static subset fail explicitly.',
+  '`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL operations outside their documented subset fail explicitly; explicit sequence and native APIs have separate contracts.',
 )
 outputs.set('docs-astro/public/llms.txt', replaceRegion(llmsGuide, 'llms', llmsBlock(codecs)))
 

@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import Tool from '../../components/JpegXlAdvanced.astro'
+---
+<Layout title="JPEG XL native precision and channels" description="Inspect actual integer and float bit patterns, alpha, channel grids and color metadata. Export native samples separately from a mapped display." path="native/"><Tool tool="native"/><section class="jxl-card copy"><h2>Browser API</h2><pre><code>{`import { openJpegXlSequence, jpegXlNativeUnsignedPlanes } from 'purejsimage/jpegxl'
+const sequence = await openJpegXlSequence(file)
+try {
+  for await (const layer of sequence.layers()) {
+    const bits = jpegXlNativeUnsignedPlanes(layer)
+    console.log(layer.header, bits[0]?.[0])
+    break
+  }
+} finally { await sequence.close() }`}</code></pre><p>Run codec work in a worker. The example uses the same public APIs as this tool. The display is a scalar plane mapping. Native export supports preservable static Modular integer/binary32 layouts with orientation 1 and default luminance metadata. Additional metadata, custom chromaticities and unsupported writer combinations fail explicitly. A canvas does not prove sample precision.</p></section></Layout>

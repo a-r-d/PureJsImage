@@ -12,6 +12,7 @@ interface Props {
   readonly home?: boolean
   readonly hideHeader?: boolean
   readonly noindex?: boolean
+  readonly analytics?: boolean
   readonly skipLabel?: string
   readonly openGraph?: {
     readonly title: string
@@ -34,6 +35,7 @@ const {
   home = false,
   hideHeader = false,
   noindex = false,
+  analytics = true,
   skipLabel,
   openGraph,
   twitterCard,
@@ -77,8 +79,8 @@ const assetBase = base.endsWith('/') ? base : `${base}/`
         localStorage.getItem('purejsimage-theme') ||
         (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light')
     </script>
-    <script is:inline>
-      if (location.hostname === 'purejsimage.com') {
+    <script is:inline define:vars={{ analytics }}>
+      if (analytics && location.hostname === 'purejsimage.com') {
         window.dataLayer = window.dataLayer || [];
         window.gtag = function () {
           window.dataLayer.push(arguments);

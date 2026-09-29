@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import Tool from '../../components/JpegXlAdvanced.astro'
+---
+<Layout title="JPEG XL progressive and selective decoding" description="Read real early stages, scaled output and viewports in a worker. Compare source access with HTTP transfer without loading a full image first." path="progressive/"><Tool tool="progressive"/><section class="jxl-card copy"><h2>Browser API</h2><pre><code>{`import { openJpegXlSession } from 'purejsimage/jpegxl'
+const session = await openJpegXlSession(file)
+try {
+  for await (const event of session.progressive({scaleDenominator: 8})) {
+    console.log(event.type)
+    if (event.type === 'block') event.block.release?.()
+  }
+} finally { await session.close() }`}</code></pre><p>Run codec work in a worker. The example uses the same public APIs as this tool. Unsupported selective dependencies are reported as fallbacks or errors; a displayed image does not prove selective access.</p></section></Layout>

@@ -1,0 +1,47 @@
+{
+  "capture": "Actual Chromium canvas/output screenshots from browser-tests/jpegxl-showcase.pw.ts with PUREJSIMAGE_CAPTURE_JXL=1. No generated mockups.",
+  "previews": [
+    {
+      "tool": "convert",
+      "route": "/jpeg-xl/convert/",
+      "sha256": "298cf8edf69420a25c5eb623049af5390e8b8e6239fb7e4ba4d4be1774d9495d",
+      "captureSha256": "fa94fcffd4d7699670a89904876af7d07228b91a2097382bf7d9304bd70b3b08",
+      "bytes": 14574
+    },
+    {
+      "tool": "jpeg-recompression",
+      "route": "/jpeg-xl/jpeg-recompression/",
+      "sha256": "3451a472e19ce8ea31f2617529b7bee7a304b1c28eb4fdc3c950020e79035aa6",
+      "captureSha256": "85efa84aefcba44f41c1db10f632827e1c0b1b4b03e47448324e5dd0a93e08e3",
+      "bytes": 2616
+    },
+    {
+      "tool": "animation",
+      "route": "/jpeg-xl/animation/",
+      "sha256": "f28710615c761259cbdb06b22ace2e103cf5753054f68a22607dfaddd19c9ae0",
+      "captureSha256": "902c3536743e2b7303c545b63420cb550eaa6dd8f985c139a379efe0bed2a1d2",
+      "bytes": 2300
+    },
+    {
+      "tool": "progressive",
+      "route": "/jpeg-xl/progressive/",
+      "sha256": "dea03cd3148e242a2f9f950d42c180b149823b2e8c4e3bebc3cc651e198d13e0",
+      "captureSha256": "cda6eae001a1599c588bed7b9297e3475c2165e2cbb0415144be9d757bdeba0f",
+      "bytes": 33318
+    },
+    {
+      "tool": "native",
+      "route": "/jpeg-xl/native/",
+      "sha256": "6a052111de5e994330f8866fe94cb3709f4ebdd5c2bac1467c1952492950a265",
+      "captureSha256": "697778e7918886a32d20dbebcbcb5bb02c5a01535da4f5bf1de5f50b87f7ebd9",
+      "bytes": 2276
+    },
+    {
+      "tool": "comparison",
+      "route": "/jpeg-xl/comparison/",
+      "sha256": "29cd5f31a2718559bff8041b95c7d309373614a7b88f7efe54c4fffe04baeb1b",
+      "captureSha256": "34f9ae87b1783362c5c478ad89483e1e9682e1f0f897ecb6b3c682dacc49cfde",
+      "bytes": 15106
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+---
+interface Props {
+  tool: 'animation' | 'native' | 'progressive'
+}
+const { tool } = Astro.props
+const samples =
+  tool === 'animation'
+    ? [['jpegxl-animation.jxl', 'Try the animation']]
+    : tool === 'progressive'
+      ? [['jpegxl-progressive.jxl', 'Try progressive stages']]
+      : [
+          ['jpegxl-native16.jxl', '16-bit samples'],
+          ['jpegxl-native-float.jxl', 'Float and alpha'],
+          ['jpegxl-native-extra.jxl', 'Extra depth channel'],
+        ]
+---
+<section id="jxl-tool" data-tool={tool} class="jxl-grid">
+<aside class="jxl-card controls">
+<h2>Open</h2>{samples.map(([name,label])=><button type="button" data-sample={name}>{label}</button>)}
+<label>Local JPEG XL<input id="tool-file" type="file" accept=".jxl,image/jxl"/></label>
+<div hidden={tool!=='progressive'} class="controls"><label>Explicit HTTP Range URL<input id="tool-url" type="url" placeholder="https://example.org/image.jxl"/></label><label>Scale denominator<select id="tool-scale"><option>1</option><option>2</option><option>4</option><option selected>8</option></select></label><label>Viewport zoom<input id="tool-zoom" type="range" min="1" max="16" value="4"/></label><label>Horizontal position<input id="tool-x" type="range" min="0" max="100" value="50"/></label><label>Vertical position<input id="tool-y" type="range" min="0" max="100" value="50"/></label><button id="tool-native-stage" type="button">Native preview stages</button><button id="tool-viewport" type="button">Render viewport</button></div>
+<div hidden={tool!=='native'} class="controls"><label>Sample plane<select id="tool-plane"><option value="0">0</option></select></label><label>Map this value to display white<input id="tool-white" type="number" min="0.000001" value="1" step="any"/></label><label>Sample X<input id="tool-sample-x" type="number" value="0" min="0"/></label><label>Sample Y<input id="tool-sample-y" type="number" value="0" min="0"/></label><p>Plane preview maps 0 to black and your white value to white. It does not change stored samples or apply an ICC profile.</p></div>
+<div hidden={tool!=='animation'} class="controls"><label>Frame index (zero based)<input id="tool-frame" type="number" min="0" value="0"/></label><button id="tool-play" type="button">Play</button><button id="tool-next" type="button">Next frame</button><details><summary>Create an animation</summary><label>8-bit JPEG, PNG, TIFF or JXL frames<input id="tool-frames" type="file" multiple accept=".jpg,.jpeg,.png,.tif,.tiff,.jxl"/></label><ol id="tool-frame-list"></ol><label>Frame duration in milliseconds<input id="tool-duration" type="number" min="1" max="60000" value="100"/></label><label>Loops (0 means infinite)<input id="tool-loops" type="number" min="0" max="1000" value="0"/></label><label><input id="tool-lossy" type="checkbox"/> Experimental lossy animation</label><label>Lossy distance<input id="tool-distance" type="number" min="0.25" max="25" value="1" step="0.25"/></label><p>Lossless is the default. Use matching sRGB8 frames with orientation 1, at most 16 frames, one megapixel per frame and eight million total pixels.</p></details></div>
+<button id="tool-run" type="button">{tool==='progressive'?'Read progressive stages':tool==='native'?'Inspect / update mapping':'Open / retry selected frame'}</button>
+<button id="tool-cancel" type="button">Cancel</button>
+<button id="tool-encode" hidden={tool==='progressive'} type="button">{tool==='native'?'Re-encode native samples':'Encode selected frames'}</button>
+<button id="tool-export" hidden={tool==='progressive'} type="button">{tool==='native'?'Export mapped plane PNG':'Export selected frame PNG'}</button>
+<button id="tool-download" type="button" disabled>Download output</button><button id="tool-reopen" type="button" disabled>Reopen generated JXL</button>
+<p class="note">Generated samples: repository MIT fixtures. File limit 64 MiB. Previews at most four megapixels. Cancellation discards the worker session; retry reopens the same file.</p>
+</aside>
+<div class="results"><p id="tool-status" role="status">Try a sample or open a local file.</p><article class="jxl-card preview"><canvas id="tool-canvas" width="1" height="1" aria-label="Decoded display preview"></canvas><p id="tool-summary"></p></article><section class="jxl-card" hidden={tool!=='progressive'}><h2>Actual stages and source reads</h2><ol id="tool-stages"></ol><canvas id="tool-ranges" width="768" height="24" aria-label="Source read ranges"></canvas><p>Teal: first source read. Orange: repeated read. This map shows library source requests, not HTTP packets. HTTP transfer, cache and managed working bytes are reported separately. Unavailable measurements remain null.</p></section><details class="jxl-card"><summary>Timing, metadata and numeric evidence</summary><pre id="tool-details">No file opened.</pre></details></div>
+</section>
+<script type="module" src="/assets/jpegxl-tools.js"></script>

@@ -1,0 +1,9 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import Workbench from '../../components/JpegXlWorkbench.astro'
+---
+<Layout title="Exact JPEG recompression" description="Transfer eligible grayscale or color JPEG coefficients to JPEG XL and reconstruct the original JPEG bytes." path="jpeg-recompression/"><Workbench tool="exact"/><section class="jxl-card"><h2>Browser API</h2><pre><code>{`import { transcodeJpegToJpegXl, reconstructJpegFromJpegXl } from 'purejsimage/jpegxl'
+const bytes = new Uint8Array(await file.arrayBuffer())
+const jxl = await transcodeJpegToJpegXl(bytes, {reconstruction: 'required', onlyIfSmaller: false})
+const original = await reconstructJpegFromJpegXl(jxl.data)
+// Exact mode verifies every original byte before succeeding.`}</code></pre><p>Color JPEG: 320 × 240 four-color pattern from web-platform-tests contributors, generated with Squoosh MozJPEG (BSD 3-Clause). Grayscale JPEG and transparent PNG: generated repository fixtures (MIT). <a href="https://github.com/web-platform-tests/wpt/blob/master/LICENSE.md">WPT license</a>. No camera or personal data.</p></section></Layout>

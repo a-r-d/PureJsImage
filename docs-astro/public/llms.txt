@@ -12,7 +12,13 @@ This file is the compact implementation guide for coding agents and other LLM cl
 - API reference: https://purejsimage.com/api/
 - Ultra HDR JPEG workbench: https://purejsimage.com/hdr-surgery/
 - HDR Surgery developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/hdr-surgery.md
-- JPEG XL workbench: https://purejsimage.com/jpeg-xl/
+- JPEG XL encoder and decoder hub: https://purejsimage.com/jpeg-xl/
+- JPEG XL converter: https://purejsimage.com/jpeg-xl/convert/
+- Exact JPEG recompression: https://purejsimage.com/jpeg-xl/jpeg-recompression/
+- JPEG XL animation playback and creation: https://purejsimage.com/jpeg-xl/animation/
+- Progressive and selective reads: https://purejsimage.com/jpeg-xl/progressive/
+- Native precision, color and channels: https://purejsimage.com/jpeg-xl/native/
+- Measured JavaScript alternatives: https://purejsimage.com/jpeg-xl/comparison/
 - JPEG XL developer guide: https://github.com/a-r-d/PureJsImage/blob/main/docs/jpeg-xl.md
 - Whole-slide measurement demo: https://purejsimage.com/wsi/
 - Scientific Raster Explorer: https://purejsimage.com/scientific/
@@ -92,7 +98,7 @@ import { allCodecs } from 'purejsimage/codecs/all'
 const images = createImageLibrary(allCodecs)
 ```
 
-`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL files outside the documented static subset fail explicitly.
+`allCodecs` contains JPEG, PNG, WebP, BMP, TIFF, GIF, ICO, JPEG 2000, AVIF, and the limited JPEG XL codec. It intentionally excludes experimental HEIF/HEIC. JPEG XL operations outside their documented subset fail explicitly; explicit sequence and native APIs have separate contracts.
 
 ## Scientific application platform (alpha in 0.10.0)
 

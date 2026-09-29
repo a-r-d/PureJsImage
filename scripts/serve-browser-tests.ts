@@ -13,6 +13,7 @@ import { pngCodec } from '../src/codec-entries/png.ts'
 import { createImageLibrary } from '../src/index.ts'
 import { geoShowcaseSourceAliases } from './geo-showcase-build.ts'
 import { geoShowcaseZarrResources } from './geo-showcase-fixtures.ts'
+import { buildJpegXlShowcase, writeJpegXlShowcaseAssets } from './jpegxl-showcase-assets.ts'
 
 const outputDirectory = resolve('benchmark/.tmp/browser-tests')
 const fixtureDirectory = resolve(outputDirectory, 'fixtures')
@@ -363,9 +364,6 @@ await build({
     'xray-worker': 'docs-astro/src/scripts/xray-worker.ts',
     'hdr-surgery': 'docs-astro/src/scripts/hdr-surgery.ts',
     'hdr-surgery-worker': 'docs-astro/src/scripts/hdr-surgery-worker.ts',
-    'jpegxl-progressive-workbench': 'docs-astro/src/scripts/jpegxl-progressive-workbench.ts',
-    'jpegxl-workbench': 'docs-astro/src/scripts/jpegxl-workbench.ts',
-    'jpegxl-workbench-worker': 'docs-astro/src/scripts/jpegxl-workbench-worker.ts',
   },
   entryNames: '[name]',
   format: 'esm',
@@ -482,6 +480,8 @@ await writeFile(
   resolve(outputDirectory, 'demo-data/jpegxl-pixel-lossless.png'),
   jpegXlWorkbenchPng(),
 )
+await writeJpegXlShowcaseAssets(outputDirectory)
+await buildJpegXlShowcase(outputDirectory)
 await copyFile(
   'benchmark/corpus/files/webp-lossless-tux-386x395.webp',
   resolve(fixtureDirectory, 'benchmark-input.webp'),

@@ -1,0 +1,13 @@
+---
+const { current = '' } = Astro.props
+const tools = [
+  ['', 'Overview'],
+  ['convert/', 'Convert'],
+  ['jpeg-recompression/', 'Exact JPEG'],
+  ['animation/', 'Animation'],
+  ['progressive/', 'Progressive'],
+  ['native/', 'Native samples'],
+  ['comparison/', 'Comparison'],
+]
+---
+<nav class="jxl-tools-nav" aria-label="JPEG XL tools">{tools.map(([path,label]) => <a href={`/jpeg-xl/${path}`} aria-current={current === path ? 'page' : undefined}>{label}</a>)}</nav>

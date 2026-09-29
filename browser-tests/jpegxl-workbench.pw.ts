@@ -35,21 +35,19 @@ test('JPEG XL progressive explorer cancels a stalled header fetch and can run ag
     await stalled
     await route.abort().catch(() => undefined)
   })
-  await page.goto('/jpeg-xl/')
-  await page
-    .locator('#jxl-progressive-url')
-    .fill(`${new URL(page.url()).origin}/stalled-header.jxl`)
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toHaveText('Opening headers…')
-  await page.locator('#jxl-progressive-cancel').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('Cancelled')
+  await page.goto('/jpeg-xl/progressive/')
+  await page.locator('#tool-url').fill(`${new URL(page.url()).origin}/stalled-header.jxl`)
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('Working locally')
+  await page.locator('#tool-cancel').click()
+  await expect(page.locator('#tool-status')).toContainText('Cancelled')
   releaseRoute?.()
 
   await page
-    .locator('#jxl-progressive-file')
+    .locator('#tool-file')
     .setInputFiles('benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-effort1.jxl')
-  await page.locator('#jxl-run-progressive').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-status')).toContainText('complete')
 })
 
 test('JPEG XL progressive explorer reopens the same input after decode cancellation', async ({
@@ -59,27 +57,27 @@ test('JPEG XL progressive explorer reopens the same input after decode cancellat
     window.requestAnimationFrame = (callback) =>
       window.setTimeout(() => callback(performance.now()), 250)
   })
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/progressive/')
   await page
-    .locator('#jxl-progressive-file')
+    .locator('#tool-file')
     .setInputFiles(
       'benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl',
     )
-  await page.locator('#jxl-run-progressive').click()
-  await expect(page.locator('#jxl-progressive-canvas')).not.toHaveAttribute('width', '1')
-  await page.locator('#jxl-progressive-cancel').click()
-  await expect(page.locator('#jxl-progressive-status')).toHaveText('Cancelled.')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-canvas')).not.toHaveAttribute('width', '1')
+  await page.locator('#tool-cancel').click()
+  await expect(page.locator('#tool-status')).toContainText('Cancelled')
 
-  await page.locator('#jxl-run-progressive').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('complete')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-status')).toContainText('complete')
 })
 
 test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/jpeg-recompression/')
 
   await expect(
     page.getByRole('heading', {
-      name: 'Decode JPEG XL and verify exact JPEG transcoding in JavaScript',
+      name: 'Exact JPEG recompression',
     }),
   ).toBeVisible()
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
@@ -123,7 +121,7 @@ test('JPEG XL workbench transcodes and reconstructs the pinned JPEG locally', as
 })
 
 test('JPEG XL workbench opens a reconstruction file and enables exact output', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/jpeg-recompression/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   await page.locator('#jxl-open-jxl').click()
@@ -137,7 +135,7 @@ test('JPEG XL workbench opens a reconstruction file and enables exact output', a
 test('JPEG XL workbench converts linear samples and honors lower-depth display ranges', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   await page
@@ -185,7 +183,7 @@ test('JPEG XL workbench converts linear samples and honors lower-depth display r
 })
 
 test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   await page.locator('#jxl-open-png').click()
@@ -193,7 +191,7 @@ test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', a
     'jpegxl-pixel-lossless.png inspected and decoded locally',
   )
   await expect(page.locator('#jxl-summary')).toContainText('rgba8')
-  await expect(page.locator('#jxl-summary')).toContainText('Experimental')
+  await expect(page.locator('#jxl-summary')).toContainText('Stable')
   await expect(page.locator('#jxl-encode')).toBeEnabled()
 
   await page.locator('#jxl-encode').click()
@@ -216,7 +214,7 @@ test('JPEG XL workbench pixel-losslessly encodes and reopens the checked PNG', a
 test('JPEG XL workbench scales a 12 MP preview without changing logical dimensions', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   await page.locator('#jxl-file').setInputFiles('benchmark/corpus/files/tundra-4000x3000.jpg')
@@ -235,7 +233,7 @@ test('JPEG XL workbench scales a 12 MP preview without changing logical dimensio
 test('JPEG XL workbench presents a common VarDCT preview directly from decoder output', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   const started = performance.now()
@@ -257,7 +255,7 @@ test('JPEG XL workbench presents a common VarDCT preview directly from decoder o
 test('JPEG XL workbench rejects native pixel materialization before allocation and cleans state', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
 
   await page.locator('#jxl-file').setInputFiles({
@@ -273,13 +271,13 @@ test('JPEG XL workbench rejects native pixel materialization before allocation a
 
   await page.locator('#jxl-open-jpeg').click()
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
-  await expect(page.locator('#jxl-transcode')).toBeEnabled()
+  await expect(page.locator('#jxl-encode')).toBeEnabled()
 })
 
 test('JPEG XL workbench writes progressive lossy pixels and reopens them locally', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
   await page.locator('#jxl-open-png').click()
   await expect(page.locator('#jxl-status')).toContainText('jpegxl-pixel-lossless.png inspected')
