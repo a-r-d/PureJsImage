@@ -1,0 +1,19 @@
+browser-tests/jpegxl-showcase.pw.ts
+  s_9bf27d14dec589::t_8daa4658e79649 63-65,235-237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "39e888a6cd3a0365aab02cd9904ad472c4da5910",
+  "prompts": {},
+  "sessions": {
+    "s_9bf27d14dec589": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0ed9f-b8ab-7d31-8a70-14b84d67369a",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
