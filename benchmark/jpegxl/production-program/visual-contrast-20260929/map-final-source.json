@@ -1,0 +1,181 @@
+{
+  "protocol": {
+    "policy": "Fixed eight original-size sources plus an explicit registered map supplement, effort 7 distances 1 and 3. All first-party streams use native, Rust and repository decoding. The observed cases are regression evidence. This probe does not replace the approved capped matrix.",
+    "mode": "own",
+    "distances": [1, 3],
+    "supplementalNativeControls": false,
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "d2a0a760665ab4e24c25394c57897b360cd2eaba0df3e0dd94142cd626cdadb9",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "06f16984b99a374f6af9f69079ae24ac7608a0609c5a65fc3d9dbd16d75d2211"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "0a2a0007057d975f9e8e5f7d17b04c21aa7ee8918afabb41b5a3af3769873777"
+  },
+  "results": [
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 507673,
+      "encodedSha256": "e295e07c8882caf8da7c1ecaa99ae3d147a2d64ce207299021f33882ccbab348",
+      "decodedSha256": "1bb8fec0883109d126ba259420505cedafe112b2e593f310b1e10d68a5812f35",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.25917384075077704,
+        "samples": 24933930,
+        "rows": 3209
+      },
+      "ssimulacra2": 85.91893261,
+      "butteraugli": 1.2026166916,
+      "rawMetrics": {
+        "ssimText": "85.91893261\n",
+        "baText": "1.2026166916\n3-norm: 0.316939\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ],
+      "byteRevalidation": {
+        "reuseRunId": "visual-contrast-final-map-20260929",
+        "reuseReportSha256": "63c3151de2841ae73cc60e63443affd881e0b3153329cb595ab4fa99dea2dbf7",
+        "currentSources": [
+          {
+            "name": "jpegxl-vardct-encode.ts",
+            "sha256": "06f16984b99a374f6af9f69079ae24ac7608a0609c5a65fc3d9dbd16d75d2211"
+          },
+          {
+            "name": "jpegxl-vardct-forward-transforms.ts",
+            "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+          },
+          {
+            "name": "jpegxl-jpeg-encode.ts",
+            "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+          },
+          {
+            "name": "jpegxl-modular-encode.ts",
+            "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+          },
+          {
+            "name": "jpegxl-decode.ts",
+            "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+          }
+        ],
+        "policy": "Fresh public encoding is byte-identical. Preserve previous independent decoding and quality evidence under identical input pixels, settings and pinned tools. No timing reuse."
+      }
+    },
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 414426,
+      "encodedSha256": "5be0a0a3ea1092803ed21a400eac53fbdd29193e564d0d8e3a6effd5e89e08af",
+      "decodedSha256": "72f91dc6d826fbe9ab11d24216546d252fd67e12afce5551289f17ad2a928a63",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4517918962828936,
+        "samples": 24933930,
+        "rows": 3209
+      },
+      "ssimulacra2": 84.55641443,
+      "butteraugli": 1.6945562363,
+      "rawMetrics": {
+        "ssimText": "84.55641443\n",
+        "baText": "1.6945562363\n3-norm: 0.530522\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ],
+      "byteRevalidation": {
+        "reuseRunId": "visual-contrast-final-map-20260929",
+        "reuseReportSha256": "63c3151de2841ae73cc60e63443affd881e0b3153329cb595ab4fa99dea2dbf7",
+        "currentSources": [
+          {
+            "name": "jpegxl-vardct-encode.ts",
+            "sha256": "06f16984b99a374f6af9f69079ae24ac7608a0609c5a65fc3d9dbd16d75d2211"
+          },
+          {
+            "name": "jpegxl-vardct-forward-transforms.ts",
+            "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+          },
+          {
+            "name": "jpegxl-jpeg-encode.ts",
+            "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+          },
+          {
+            "name": "jpegxl-modular-encode.ts",
+            "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+          },
+          {
+            "name": "jpegxl-decode.ts",
+            "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+          }
+        ],
+        "policy": "Fresh public encoding is byte-identical. Preserve previous independent decoding and quality evidence under identical input pixels, settings and pinned tools. No timing reuse."
+      }
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "implementationCommit": "8925ce52fa06b2112310f60ccbe7f639eba0fdd1",
+  "baselineCommit": "2643604888dc8ad58322a3756d5aade68af066b4",
+  "policy": "All source-family splits, original-size cases and missing brackets retained. Observed holdout is regression evidence. New timings are exact-implementation-commit runs on the recorded reference host.",
+  "protocols": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+      "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-hdr-alpha-protocol.json",
+      "sha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-corpus-selection.json",
+      "sha256": "ff3670acd195143c3ac1f5344aa3cef5844aa30fdf678e56ec5305ea4a991a57"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "6425c8dd89d1786f9204aa2a26bc542f5f7e5fdff74cae7b13571e4a72472e26"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "9ab9487cc2452155ecf686b50915c6aabc72664b094df5be46c5a8a0308cdf53"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "acc6787cb75c5f7c0820a5e46ca0fa31bac3d15d39299d7130b14c3a63754dee"
+    }
+  ],
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-lossless-development.json",
+      "sha256": "b62aa89624e3a0d99213ec6b440cb996529582e34b171390315343e31df5e19d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-lossless-holdout.json",
+      "sha256": "06dc8092253fb99f9cda29a060d0a7d9130269dab50af7e49dcc7095121e68ef"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-lossless-expansion.json",
+      "sha256": "9f5a4e6754c3f5c10a6395f4f1acbaadd764ef1b275e1ba9bb5431a4ea1e33aa"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-original-size.json",
+      "sha256": "c17b213453d1d427ca55f66af72355eca4c83f196b13d6da568f29902dba08ef"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-alpha-conformance.json",
+      "sha256": "95031ed695373be9bfd6f9cd78eed9e4eb48abf9ba91c7330f92b5027ddd525f"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-runtime-commit-run1.json",
+      "sha256": "83b3de683c2e3febd1b8501e07f67a72a39f93a45b5fd37752658e40471279b4"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-public-effort3.json",
+      "sha256": "87ae24dbd999ec87503c18de84854eb10f5f55f7892da06bffafe4e6d29894eb"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-runtime-decoding.json",
+      "sha256": "c5d055307548da9f03e4681fd33df9eef0c88fba12dd45d405389274ff5d52e1"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-conformance.json",
+      "sha256": "a7ac1dcd1ec67e7a9b66bc98ab660f985ab13a03c4d15d564d96f0167452e703"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-resource.json",
+      "sha256": "4f9b598b17f3c236e1db4338e0cd20f73bf55789e5c8019d74fdd1673de6a36e"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-report.md",
+      "sha256": "881d687d85f0f2665bd5853d190c41adfab9ac01fc17cf4383bccb45f32d61b6"
+    }
+  ],
+  "runtime": {
+    "originalInputPath": ".tmp/jpegxl-m7/lossy-development/im26-1030/input.ppm",
+    "originalInputSha256": "2ac5372c83d016eb8af34ff1a6f8d1b28046e623df01be10787405c4c74e4c37",
+    "streamSha256": [
+      {
+        "effort": 1,
+        "encodedSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "nativePixelsSha256": "95134bfd0c512969dbbf2a6a1ea7d087ba88959e26a2ae86eae73d5a916556aa",
+        "rustPixelsSha256": "b806b1b3e3f60510856dbe6ee58baf87c5776727d8f51b1824f17f4abfab37cc",
+        "maximumIndependentDifference": 1
+      },
+      {
+        "effort": 3,
+        "encodedSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+        "nativePixelsSha256": "2e55cde17fde02b7f43ee3989daa19bb65017b60915c96413c74592b068d77e8",
+        "rustPixelsSha256": "c9caaeaa6f1362657ec3bcc0fc6cf6eabdb762b381b9845b90ef18a57566e55b",
+        "maximumIndependentDifference": 1
+      }
+    ],
+    "pairedSamples": {
+      "cold": 21,
+      "warm": 21,
+      "coreMedianRatio": {
+        "cold": 5.6462669465145,
+        "warm": 7.067046018791864
+      }
+    }
+  },
+  "localHarnesses": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt3/qualify-lossless-cached.ts",
+      "sha256": "88b601e618c7d65e8d4bfdd1f30fcd43af164339b7bdd290a041a33f19a3db39"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt3-final-paired.ts",
+      "sha256": "50d8d6e862b50cd1d604e1c22adfd3e90ae16f1778a085acdbb4871a6b549363"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt3-final-public.ts",
+      "sha256": "6eccf73c41ae29fa54d57d32ce5ce052fed09f5331f3410da779b1e6c05499c3"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/verify-prompt3-final-runtime.ts",
+      "sha256": "fb8c26848649792c927833daf2f05df20348ee741973dca04492b7502315f8cf"
+    }
+  ],
+  "decoderTools": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ]
+}

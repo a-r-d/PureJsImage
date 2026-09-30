@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "49f3c25611210c4f04dd3f8907e5be8e28781317",
+  "previousRevision": "8925ce52fa06b2112310f60ccbe7f639eba0fdd1",
+  "sourceFiles": [
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "b6d7a4be9e517bfa05cf630370eaa0b5bf3939c040f3878002dddc2950fe6edd"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "acc6787cb75c5f7c0820a5e46ca0fa31bac3d15d39299d7130b14c3a63754dee"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "6f69b6323fd1164e7fbbadf92f94fa63d43e9eb0293aeb6be929ddd9c9d4a2f6"
+    }
+  ],
+  "protocolFiles": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-hdr-alpha-protocol.json",
+      "sha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-downloads.json",
+      "sha256": "6640e3eddf225c8fb8a19ee6348bb28cc1b53f75813626dfa0811d201c462fd3"
+    }
+  ],
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-lossless-expansion.json",
+      "sha256": "3ab26f842b2a50cd8f344e3c77be6ba77c68a56e1745c9cbb6f16cd088802b90"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-palette-cost.json",
+      "sha256": "6df3e96956acabc61358247760798aee21f65cf5c47c9f676f3a48a3b7f839ab"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-conformance.json",
+      "sha256": "f514c27ea309909595e4ccaf0ec9986832aac35cd3656c9b7731bb2a9c8b85d0"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-resource.json",
+      "sha256": "e29d0105457b1cce5fb02d6564bd24c998c4c0942147525d423e0de818df4050"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt4-report.md",
+      "sha256": "d4068b548d4580056d5ca797993d536ed7c4c240e38a521d134319df99565e41"
+    }
+  ],
+  "reusedReports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-lossless-development.json",
+      "sha256": "b62aa89624e3a0d99213ec6b440cb996529582e34b171390315343e31df5e19d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-lossless-holdout.json",
+      "sha256": "06dc8092253fb99f9cda29a060d0a7d9130269dab50af7e49dcc7095121e68ef"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-pr35-lossless-regression.json",
+      "sha256": "20c69918acd35c2a31c9d480d7f9dc0861387d9a66240d1e1726a3131e9dba0c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-runtime-commit-run1.json",
+      "sha256": "83b3de683c2e3febd1b8501e07f67a72a39f93a45b5fd37752658e40471279b4"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-public-effort3.json",
+      "sha256": "87ae24dbd999ec87503c18de84854eb10f5f55f7892da06bffafe4e6d29894eb"
+    }
+  ],
+  "oracles": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+      "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "polyhaven-qwantani_moon_noon",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "normalizedPixelsSha256": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+      "encodedSha256": "83fbdc7ad33375837f3b6aeea66fda1f3a82da0fb8f0322c3dfc391c7162ddc3",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "fe1faffab8dfdb50758dd9d00fcaf844a8b21c6bcf8cc9e81005f30a1d3fcbe3",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-pond_bridge_night",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "normalizedPixelsSha256": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+      "encodedSha256": "53b882a6f0952d59c485e13b5441525ab254f05c902fcc0142ce2d35c83f5490",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "c03e54633c66ac8fa659b3e92958a7535690e7b09fc3bc51ca0ac3787b93a37a",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-abandoned_tiled_room",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "normalizedPixelsSha256": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+      "encodedSha256": "b35c1cbfd732b932e848ed44ebdbce7f1be9e758f971dfb015eef7569d2c9287",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "4134bcccfbb6624493e254732821c4dd42b3869cd991ae3099e9871abc39bf4c",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "normalizedPixelsSha256": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+      "encodedSha256": "4a3619bf408b2af5031055e3d239e043c6df1ea3395d30afb65add29ebe96fa0",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "56d84b41411114920b33057823d9ced88fa6d47de6ef7bdcb7454a5797a71f6d",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-cobblestone_parish_road",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "normalizedPixelsSha256": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+      "encodedSha256": "613eaa05e8155d1e0a38c804894bdab68b8f05287b8c3915f115782a6e441513",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "667cecbc87f7eecce72c9f03654706678dfceeaf61f844d620a55a8e52ee3e11",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-emmarentia",
+      "split": "development",
+      "format": "rgb16",
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "normalizedPixelsSha256": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+      "encodedSha256": "3d27b65a4a45c71062732f209f28348f85d7ec2f9fe44b2b5053d855cbedc438",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "b701a0e4d3be24929bf7579ff3392a37ae47aa1a8c10a965a82c3cda7a68c39f",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-metro_noord",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "normalizedPixelsSha256": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+      "encodedSha256": "d4ad19c527eebd504a3bf4c4e55e817b8c0d4ed4897d7c462308dbf15b44014d",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "96bd30143e3162858a8b7b8da7f720abf9b11859938d337fcd6ce137a21fbab3",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-modern_buildings_night",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "normalizedPixelsSha256": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+      "encodedSha256": "26ec4ffaea25a4adb1c576ba094f6a203d97eb395f03ae513af66aeda19a8402",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "fbb76fcb43b98e39017940c846a6efe73d33dbb75a2479024478a79396b21835",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-hikers_cave",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "normalizedPixelsSha256": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+      "encodedSha256": "83460400fe2a89ef7558bbd218da70d1c25550e9819c28bb9c5aa8ad126deccc",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "f8f1083d1268a652ec2850c0490b860b32eefe384d8c525d1cd3ff58ae5c6bfc",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-glass_passage",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "normalizedPixelsSha256": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+      "encodedSha256": "5e0e70fc118acbd265cd17883cd0bfc1d696c1000b55baea89d689f4db27df09",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "c7a0180c7ee3d33bd90bec2af5de101866afbae69d1950557363d15fbb91cb50",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-pedestrian_overpass",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "normalizedPixelsSha256": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+      "encodedSha256": "a599b6823da7aa3ad59c4a65c10a99db0afea94ff9ef66144eb2a0f4b2b0f627",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "bcb5964c9e09b3e0b67130bb227f7c29acf0962b733a049372e5d24c64f385ba",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "polyhaven-lakeside",
+      "split": "holdout",
+      "format": "rgb16",
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "normalizedPixelsSha256": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+      "encodedSha256": "f90d22670a227d5ae0327767f430c447df4680f2145a14af8e125b91636c70ba",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "85c4e1d3f9773f8f432d7c3690f720e26a89cad826dc0d1197d7bab26b82891a",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f600",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "d6e6be1b18cd8ae3f56556d171cc7d8eecd293bdbbc1aa66ab5493a66ba4dae0",
+      "normalizedPixelsSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+      "encodedSha256": "b4eb656444db1406eb35d60a2c16e219c5e882de93ba5005dfec7fbe1887403e",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f98a",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "b69aa86198b8d5b7f3d1ce4ca84ca8f983799fba0c4d01d8ea84804e1e1ce13d",
+      "normalizedPixelsSha256": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+      "encodedSha256": "d3553e861c89b201eb08ea2114e913f144a7e3019fb92719944ba17634fcae24",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "8b2ec2fce2ce25bc846b710a481387e7e4410be8e3d9ded319b75fbd8d12af0d",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f338",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "e87dddb11bb9fbe79c2efb549275be5368e47143670455a5f4d639458d22f669",
+      "normalizedPixelsSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+      "encodedSha256": "33be5661212a7be7f648f1bfea88e21a06b88a7a1b79d58e47520bb644464a0d",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f680",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "a477bf2e112db11a99926a6c300618f9274b6df405b8a67d64f87fb54c833b52",
+      "normalizedPixelsSha256": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+      "encodedSha256": "aec3e603406d067007e51ccef02a026aee7624fe4ced466f9e519911f054b1fb",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "b9464839b78ad0d356b9d0e41f7646689699c65816bc8f73bc1975f86e639ed7",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f355",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "c4d2a0edaea1c0b18ccdbe9d221410869bb0d60c3a746e69f5e7952b9241fd4e",
+      "normalizedPixelsSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+      "encodedSha256": "a34c394e437a990f5f098050cc53981cfeb17a7d6c31cc6219ef4f3f21789967",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f3a8",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "1611b786a08c0682c7e401fa79ddcaf9a7aaa468ec75c1026684a92c611ce3cc",
+      "normalizedPixelsSha256": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+      "encodedSha256": "0f511b3161e5b52d58ccc97acf370d6ca8d855222af99c7dd851bc0a51a959da",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f3b8",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "4506339f16ca114c6aeaf2b96bc6e64e1e127956876e06d5916acc5740403118",
+      "normalizedPixelsSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+      "encodedSha256": "075e93b5fc038f47f04638f08b24d176a716372d2ef4ea9efcadab749e8ae97c",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f984",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "6168167bea9f58117df26cf003ce391d8c0e9744f6117e477e99d161821da24f",
+      "normalizedPixelsSha256": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+      "encodedSha256": "5f5c3c52ee507fd495f8ccbdc6201bd26b4a9b3941ce7523a162a20e31686e28",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "224c12326cfb4c0bba75ae199a9e6309a5599a609e192faeb40b30620dedc91b",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f332",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "bcb20fcf0ed5d41842adc29d075e2a7eeb304f3f5bdfe082c91752649ad38125",
+      "normalizedPixelsSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+      "encodedSha256": "acbce2c66f1b51cab86f36377f10bbf1cff31f5daa6e08bcf2a3af905a31d3a3",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f4f7",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "24e0d488150cab4bc8d8750d878cdd7f3cc4e4be32821d1a33616a1453c2578d",
+      "normalizedPixelsSha256": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+      "encodedSha256": "4a151752cb0e5e30dd9fa128305656fb8fd256e7361600e64bf5bd6b294548d2",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "00d522ec34a051e7ed290563c0d96e2ce1d34e56e246df0d8cc22571048b975f",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f916",
+      "split": "development",
+      "format": "rgba8",
+      "sourceSha256": "98f6f4bdbd98d55100c0c379a25a70f63d347fb869e8e55d6f7b6bb8c1b1bc3b",
+      "normalizedPixelsSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "encodedSha256": "7674caeb663d2090eb945253ba6f02c2f3bec6fe1d5a61bc66870d5b8ceaac53",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "exact": true
+        }
+      ]
+    },
+    {
+      "id": "noto-1f308",
+      "split": "holdout",
+      "format": "rgba8",
+      "sourceSha256": "4245aacfb8d3e18437d6ccd086ae224ed52aa60c640e2b89f624ea4e35e41996",
+      "normalizedPixelsSha256": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+      "encodedSha256": "82fdf76e0b453b0ab70b5e393c9777efb9dabe14fdcc920893fd0635d040a125",
+      "independentDecoders": [
+        {
+          "oracle": "libjxl",
+          "decodedSha256": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+          "exact": true
+        },
+        {
+          "oracle": "jxl-rs",
+          "decodedSha256": "3179334b040e0d38cc5406822c6d8579bd48ea09e0aa01ccf70f3d50e5ca8d87",
+          "exact": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "started": "2026-09-29T15:21:58.869Z",
+  "updated": "2026-09-29T15:21:59.456Z",
+  "mode": "repair",
+  "runtime": "chromium",
+  "environment": {
+    "platform": "linux",
+    "release": "7.0.0-34-generic",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "hostMemoryBytes": 64921018368,
+    "node": "v24.16.0",
+    "browser": "151.0.7922.34",
+    "browserMemory": "unavailable: no consistent cross-browser measurement API",
+    "singleThread": true
+  },
+  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "subjectsSha256": "3819b5e062480e4d8fc323c2636cb51a7fe5eeed892e3620baddf97a795eca1b",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "rows": [
+    {
+      "key": "gray16-default-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "times": [1.3899999996647239],
+      "coldMs": 175.30000000074506,
+      "initializationMs": 150.88000000081956,
+      "output": {
+        "width": 41,
+        "height": 31,
+        "channels": 1,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "bytes": 2542
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6770
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "gray16-default-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "times": [2.5949999997392297],
+      "coldMs": 176.80000000074506,
+      "initializationMs": 142.85500000044703,
+      "output": {
+        "kind": "jxl",
+        "sha256": "e963d3f8b949ca29a55b53c3f8c44ab68ef7d9c986ebdd0c948f04c36d8cbc6b",
+        "bytes": 1379
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6770
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    }
+  ]
+}

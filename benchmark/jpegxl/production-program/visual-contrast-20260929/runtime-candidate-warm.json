@@ -1,0 +1,68 @@
+{
+  "runtime": "v24.16.0",
+  "effort": 7,
+  "distance": 3,
+  "temperature": "warm",
+  "moduleReadyMilliseconds": 158.352238,
+  "beforeWarmup": {
+    "rss": 93487104,
+    "heapTotal": 28844032,
+    "heapUsed": 10805040,
+    "external": 8844026,
+    "arrayBuffers": 328960
+  },
+  "baselineMemory": {
+    "rss": 204349440,
+    "heapTotal": 26431488,
+    "heapUsed": 7001512,
+    "external": 8845547,
+    "arrayBuffers": 328960
+  },
+  "warmup": {
+    "width": 4000,
+    "height": 3000,
+    "inputSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+    "outputSha256": "0293e59dffa3cb939af02e39808cfdceba54b68ad411c6f9b65bf8ad299d7e69",
+    "bytes": 851493,
+    "openMilliseconds": 89.213077,
+    "stagedMilliseconds": 16.095594000000006,
+    "firstOutputMilliseconds": 22066.842655999997,
+    "finishAndOutputMilliseconds": 22058.744517,
+    "totalMilliseconds": 22164.351977,
+    "managedPeakBytes": 51815596,
+    "managedLiveBytes": 0,
+    "finalMemory": {
+      "rss": 276070400,
+      "heapTotal": 27451392,
+      "heapUsed": 10928096,
+      "external": 103830309,
+      "arrayBuffers": 95317743
+    },
+    "peakRssBytes": 278114304
+  },
+  "measured": {
+    "width": 4000,
+    "height": 3000,
+    "inputSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+    "outputSha256": "0293e59dffa3cb939af02e39808cfdceba54b68ad411c6f9b65bf8ad299d7e69",
+    "bytes": 851493,
+    "openMilliseconds": 88.9089669999994,
+    "stagedMilliseconds": 16.036283999997977,
+    "firstOutputMilliseconds": 22004.637240999997,
+    "finishAndOutputMilliseconds": 21996.069153999997,
+    "totalMilliseconds": 22101.272756,
+    "managedPeakBytes": 51815596,
+    "managedLiveBytes": 0,
+    "finalMemory": {
+      "rss": 279752704,
+      "heapTotal": 27742208,
+      "heapUsed": 8900136,
+      "external": 89795650,
+      "arrayBuffers": 81279063
+    },
+    "peakRssBytes": 283070464
+  },
+  "scope": "Public forward encoder, original RGB8 PPM open, input staging, cooperative encode and file sink output. No complete output concatenation. Finish includes encoding and file writes; isolated core is measured separately by measure-m7-forward.ts. Process startup is measured by the parent. File I/O does not include fsync. Cold/warm refer to process codec state, not OS page-cache eviction.",
+  "rssScope": "Absolute process peak, including warmup for warm processes; post-GC baseline is reported separately and warmup source/output array reclamation is checked.",
+  "correctness": "Hash identity is checked across warmup; independent decoding remains required."
+}

@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "effort": 1,
+      "path": ".tmp/jpegxl-m7/prompt2-runtimecommit-cold-0.jxl",
+      "encodedSha256": "76e8c8b48e231e56fdf58badc6d87449bd48082d54a7477313abe0db5b9f1ad5",
+      "bytes": 1911970,
+      "nativePixelsSha256": "c5a36b99083866e62dcbd12825dc6608d370c4a39450ac29ea99e69543000736",
+      "rustPixelsSha256": "5e42e2e6131c75808e2c511b7ca53122d7e43a8361a61fb1e33c66b5912d95bc",
+      "maximumIndependentDifference": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4965855358792123,
+        "samples": 36000000,
+        "rows": 3000
+      }
+    },
+    {
+      "effort": 3,
+      "path": ".tmp/jpegxl-m7/prompt2-publiccommit-cold.jxl",
+      "encodedSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+      "bytes": 1512186,
+      "nativePixelsSha256": "2e55cde17fde02b7f43ee3989daa19bb65017b60915c96413c74592b068d77e8",
+      "rustPixelsSha256": "c9caaeaa6f1362657ec3bcc0fc6cf6eabdb762b381b9845b90ef18a57566e55b",
+      "maximumIndependentDifference": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49660961641022533,
+        "samples": 36000000,
+        "rows": 3000
+      }
+    }
+  ],
+  "harnessSha256": "4f92b6941e6561c871a735fe6dd24a890fc485c865da66f1957a3b100753277e",
+  "tools": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ]
+}

@@ -1,0 +1,1052 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29T15:56:47.753Z",
+  "decision": "Comparison uses each public lossy default, including its alpha behavior. Exact default alpha is a PureJsImage guarantee; do not call another wrapper incorrect merely for lossy alpha it does not promise to preserve. Preserve every measured alpha error and black/white score. Historical timing values and original statuses are retained.",
+  "reports": [
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/cold-chromium.json",
+      "sourceReportSha256": "7496bae947d76eb5d621f4e4f00488e2b865ebf42aefcce5059c7984a8abc316",
+      "amendments": []
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/cold-node.json",
+      "sourceReportSha256": "f484c964cd73a5e6be3a33e322f1abba008150ef2b735108143cadfe31690c97",
+      "amendments": []
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/compat-firefox.json",
+      "sourceReportSha256": "f5a469b3c07f9e9e79ab75626698862ea3e66ae8b985df7432c9757b50600d25",
+      "amendments": []
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/compat-webkit.json",
+      "sourceReportSha256": "3f27604e4ef5af0d6d8b6df777b055188843e244cdf237b9247c5d907739ccaf",
+      "amendments": []
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/main-chromium.json",
+      "sourceReportSha256": "176fe882497b31cde2190a85df6a7e7a78a5eff52845950668a047fd424d8528",
+      "amendments": [
+        {
+          "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-jsquash-encode-ly-e1",
+          "originalStatus": "incorrect output",
+          "status": "verified",
+          "maximumAlphaError": 6,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        }
+      ]
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/main-node.json",
+      "sourceReportSha256": "6bf24a5e074353f58775d81bdc404e5cbdad057cbcbe23ebaf3aa6b7a876bd03",
+      "amendments": [
+        {
+          "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1030-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2018-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-2400-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5032-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5034-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5052-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-purejsimage-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-jsquash-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-5334-diagnostic-vips-encode-ly-e7",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-1416-original-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "im26-8160-original-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-jsquash-encode-ly-e1",
+          "originalStatus": "incorrect output",
+          "status": "verified",
+          "maximumAlphaError": 6,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "alpha_triangles-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "sunset_logo-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-purejsimage-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": true,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-jsquash-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        },
+        {
+          "key": "gray8-vips-encode-ly-e1",
+          "originalStatus": "verified",
+          "status": "verified",
+          "maximumAlphaError": 0,
+          "exactAlphaRequired": false,
+          "detail": "Lossy public-default request: record alpha distortion, enforce exact alpha only where promised. All lossless samples and decode tolerances unchanged."
+        }
+      ]
+    },
+    {
+      "sourceReport": "benchmark/jpegxl/comparison/results/repair-chromium.json",
+      "sourceReportSha256": "ffde2b7974c526200eec97b0d54bae2d4541806b1e40d188538cbd1b3d98b604",
+      "amendments": []
+    }
+  ]
+}

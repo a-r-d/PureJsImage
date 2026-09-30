@@ -1,0 +1,27 @@
+{
+  "startedAt": "2026-09-29T04:43:34.843Z",
+  "finishedAt": "2026-09-29T04:43:35.709Z",
+  "policy": {
+    "memoryMaxBytes": 3221225472,
+    "memoryHighBytes": 3019898880,
+    "minimumAvailableBytes": 8589934592,
+    "swapMaxBytes": 0,
+    "maximumTasks": 256,
+    "cpuQuotaPercent": 800,
+    "oomScoreAdjust": 1000,
+    "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+    "runtime": "v24.16.0",
+    "unit": "purejsimage-m7-bounded",
+    "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+  },
+  "availableBytes": 23473848320,
+  "executable": "node",
+  "args": [
+    "benchmark/jpegxl/verify-m7-local-contrast.ts",
+    ".tmp/jpegxl-m7/visual-transition-fixture-oracles"
+  ],
+  "code": 0,
+  "signal": null,
+  "status": "completed",
+  "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 17d2641ab2d343b99424b0748b03849b\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 841ms\nCPU time consumed: 1.420s\nMemory peak: 155.5M (swap: 0B)\n"
+}

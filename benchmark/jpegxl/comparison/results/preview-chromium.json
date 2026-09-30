@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29T15:23:20.017Z",
+  "browser": "151.0.7922.34",
+  "fixture": {
+    "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl",
+    "sha256": "a4e09109bd4028c7cefbe570728d867b1733a8ea06785fc48e4595e5f5a2c8ef",
+    "bytes": 148917
+  },
+  "rows": [
+    {
+      "subject": "purejsimage",
+      "repeat": 0,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 62,
+        "firstTransferred": 20544,
+        "transferredTotal": 67431,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 12,
+            "transferred": 12
+          },
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 10829,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 25,
+            "requested": 10804,
+            "transferred": 10804
+          },
+          {
+            "offset": 10887,
+            "requested": 109,
+            "transferred": 109
+          },
+          {
+            "offset": 10996,
+            "requested": 1427,
+            "transferred": 1427
+          },
+          {
+            "offset": 12423,
+            "requested": 3069,
+            "transferred": 3069
+          },
+          {
+            "offset": 21495,
+            "requested": 6031,
+            "transferred": 6031
+          },
+          {
+            "offset": 39944,
+            "requested": 5838,
+            "transferred": 5838
+          },
+          {
+            "offset": 83711,
+            "requested": 31949,
+            "transferred": 31949
+          }
+        ],
+        "stages": [
+          {
+            "kind": "dc",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "final",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          }
+        ],
+        "scope": "HTTP Range source, 32x32 region at scale 2; first nonempty pixel block; no canvas upload; geometry-only preview check"
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "repeat": 1,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 56.40000000037253,
+        "firstTransferred": 20544,
+        "transferredTotal": 67431,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 12,
+            "transferred": 12
+          },
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 10829,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 25,
+            "requested": 10804,
+            "transferred": 10804
+          },
+          {
+            "offset": 10887,
+            "requested": 109,
+            "transferred": 109
+          },
+          {
+            "offset": 10996,
+            "requested": 1427,
+            "transferred": 1427
+          },
+          {
+            "offset": 12423,
+            "requested": 3069,
+            "transferred": 3069
+          },
+          {
+            "offset": 21495,
+            "requested": 6031,
+            "transferred": 6031
+          },
+          {
+            "offset": 39944,
+            "requested": 5838,
+            "transferred": 5838
+          },
+          {
+            "offset": 83711,
+            "requested": 31949,
+            "transferred": 31949
+          }
+        ],
+        "stages": [
+          {
+            "kind": "dc",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "final",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          }
+        ],
+        "scope": "HTTP Range source, 32x32 region at scale 2; first nonempty pixel block; no canvas upload; geometry-only preview check"
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "repeat": 2,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 56.59999999962747,
+        "firstTransferred": 20544,
+        "transferredTotal": 67431,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 12,
+            "transferred": 12
+          },
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 10829,
+            "requested": 4096,
+            "transferred": 4096
+          },
+          {
+            "offset": 25,
+            "requested": 10804,
+            "transferred": 10804
+          },
+          {
+            "offset": 10887,
+            "requested": 109,
+            "transferred": 109
+          },
+          {
+            "offset": 10996,
+            "requested": 1427,
+            "transferred": 1427
+          },
+          {
+            "offset": 12423,
+            "requested": 3069,
+            "transferred": 3069
+          },
+          {
+            "offset": 21495,
+            "requested": 6031,
+            "transferred": 6031
+          },
+          {
+            "offset": 39944,
+            "requested": 5838,
+            "transferred": 5838
+          },
+          {
+            "offset": 83711,
+            "requested": 31949,
+            "transferred": 31949
+          }
+        ],
+        "stages": [
+          {
+            "kind": "dc",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "pass",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          },
+          {
+            "kind": "final",
+            "width": 16,
+            "height": 16,
+            "groups": [0]
+          }
+        ],
+        "scope": "HTTP Range source, 32x32 region at scale 2; first nonempty pixel block; no canvas upload; geometry-only preview check"
+      }
+    },
+    {
+      "subject": "oxide",
+      "repeat": 0,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 60.89999999944121,
+        "firstTransferred": 4096,
+        "delivered": 4096,
+        "inputBytes": 148917,
+        "pngBytes": 13852,
+        "beforeComplete": true,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          }
+        ],
+        "scope": "Sequential 4096-byte HTTP chunks; first render exported to PNG; full frame, no reduced-resolution API, no canvas upload"
+      }
+    },
+    {
+      "subject": "oxide",
+      "repeat": 1,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 61.5,
+        "firstTransferred": 4096,
+        "delivered": 4096,
+        "inputBytes": 148917,
+        "pngBytes": 13852,
+        "beforeComplete": true,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          }
+        ],
+        "scope": "Sequential 4096-byte HTTP chunks; first render exported to PNG; full frame, no reduced-resolution API, no canvas upload"
+      }
+    },
+    {
+      "subject": "oxide",
+      "repeat": 2,
+      "result": {
+        "status": "verified",
+        "firstUsefulMs": 68.5,
+        "firstTransferred": 4096,
+        "delivered": 4096,
+        "inputBytes": 148917,
+        "pngBytes": 13852,
+        "beforeComplete": true,
+        "reads": [
+          {
+            "offset": 0,
+            "requested": 4096,
+            "transferred": 4096
+          }
+        ],
+        "scope": "Sequential 4096-byte HTTP chunks; first render exported to PNG; full frame, no reduced-resolution API, no canvas upload"
+      }
+    }
+  ],
+  "limitations": "Loopback HTTP, no latency/bandwidth emulation. PureJsImage requests a region at scale 2; oxide renders a full frame and exports PNG. Preview workloads differ and timings must not be ranked as equivalent. Requested and transferred source bytes exclude JS/WASM assets, enumerated separately."
+}

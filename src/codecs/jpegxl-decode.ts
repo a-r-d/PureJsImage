@@ -3245,8 +3245,14 @@ function* decodeNativeModularSteps(
     (sum, layout) => sum + BigInt(layout.width) * BigInt(layout.height),
     0n,
   )
+  // RCT inversion updates its existing planes in place. Patch-bearing RCT-only
+  // frames therefore need one decoded plane set and bounded decode scratch,
+  // rather than the extra full-plane transform allowance used below.
+  const inPlacePatchRct =
+    (frame.frameFlags & 2) !== 0 &&
+    program.transforms.every((transform) => transform.kind === 'rct')
   const bytes =
-    samples * 16n +
+    samples * (inPlacePatchRct ? 8n : 16n) +
     BigInt(sections.reduce((sum, section) => sum + section.length, 0)) +
     BigInt(Math.max(...program.channelLayouts.map((layout) => layout.width), 0)) * 256n
   if (bytes > BigInt(limits.maxDecodedBytes))

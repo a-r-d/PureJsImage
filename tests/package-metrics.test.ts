@@ -1,8 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import packageMetricsJson from '../benchmark/generated/package-metrics.json' with { type: 'json' }
+import capabilityManifestJson from '../capabilities/manifest.json' with { type: 'json' }
 import packageJson from '../package.json' with { type: 'json' }
+import {
+  applyRecordedNativeWrapperFootprints,
+  packageMetricsPath,
+  parsePackageMetrics,
+  serializePackageMetrics,
+} from '../scripts/bundle-size.ts'
 import {
   codecTargetId,
   createCompetitorBundleTargets,
@@ -10,12 +16,6 @@ import {
   scientificReaderTargetId,
 } from '../scripts/bundle-size-config.ts'
 import { parseCapabilityManifest } from '../scripts/capability-manifest.ts'
-import {
-  parsePackageMetrics,
-  packageMetricsPath,
-  serializePackageMetrics,
-  applyRecordedNativeWrapperFootprints,
-} from '../scripts/bundle-size.ts'
 import {
   parsePackageJsonSurface,
   validatePackageAndBundleSurfaces,
@@ -28,6 +28,35 @@ const competitorTargets = createCompetitorBundleTargets(manifest)
 const targetIds = new Set(metrics.targets.map(({ id }) => id))
 
 describe('generated package metrics contract', () => {
+  it('shows codec scope and exported WASM options before the README quick start', () => {
+    const readme = readFileSync('README.md', 'utf8')
+    const start = readme.indexOf('<!-- capabilities:readme:start -->')
+    const end = readme.indexOf('<!-- capabilities:readme:end -->')
+    expect(start).toBeGreaterThan(0)
+    expect(end).toBeGreaterThan(start)
+    expect(end).toBeLessThan(readme.indexOf('## Install'))
+    const table = readme.slice(start, end)
+    expect(table).toContain('| Format | Read | Write | Optional WASM | What’s supported |')
+    for (const codec of manifest.codecs.filter(
+      ({ packageFormat }) => packageFormat !== undefined,
+    )) {
+      expect(codec.readmeSummary, codec.id).toBeTruthy()
+      expect(table).toContain(
+        `| [${codec.name}](${codec.supportFile}) | ${codec.read.label} | ${codec.write.label} |`,
+      )
+      expect(table).toContain(`| ${codec.readmeSummary} |`)
+      const hasWasm = Object.hasOwn(
+        packageJson.exports,
+        `./accelerators/wasm/${codec.packageFormat}`,
+      )
+      expect(Boolean(codec.wasmSummary), codec.id).toBe(hasWasm)
+      if (codec.wasmSummary)
+        expect(table).toContain(
+          `[${codec.wasmSummary}](https://purejsimage.com/api/#wasm-acceleration)`,
+        )
+    }
+  })
+
   it('keeps scientific reader exports, all-readers, and measured targets aligned', async () => {
     await validatePackageAndBundleSurfaces({
       manifest,
@@ -243,7 +272,9 @@ describe('generated package metrics contract', () => {
       expect(readme).toContain(`<!-- package-metrics:${id}:end -->`)
     }
     expect(readme).toContain(`**${metrics.scientificReaders.length} scientific readers**`)
-    expect(readme).toContain('eight optional JPEG, PNG, and WebP accelerator assets')
+    expect(readme).toContain(
+      `${metrics.wasmAssets.length} optional JPEG, PNG, and WebP accelerator assets`,
+    )
     expect(readme).toContain('Complete size and footprint tables')
     expect(packageJson.scripts['package-metrics:check']).toBe(
       'node scripts/render-package-metrics.ts --check',

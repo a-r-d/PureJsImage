@@ -1,0 +1,510 @@
+{
+  "count": 72,
+  "policy": "Fresh final-source encoding and independent decoding. All 72 approved HDR grid streams match the pre-transition candidate; metric reuse retains its original conditions.",
+  "results": [
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-0.25",
+      "encodedSha256": "a3c433267e3a517abd6d78dd1970447622107f067716f2ac82e064b2c1d6d8df",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-0.5",
+      "encodedSha256": "df42ebeae959d735993e1db17a30ca0cc854d83814fcb6f53965b47fa21cef26",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-1",
+      "encodedSha256": "0bcc076fa5af51ec20bae4023ef53d450211c35bd4eb42f266d5673932be2bfd",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-2",
+      "encodedSha256": "7c30de2b8d56e22dc7b85144b9dfe566924df646c241dd5af5faa1e8277dbd79",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-3",
+      "encodedSha256": "fb66c2a576e24d95713fae81652d0a6d0f688dfc04f78aa72c6d3ed906365c5e",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-abandoned_tiled_room",
+      "setting": "distance-5",
+      "encodedSha256": "d9c8e5a91651c0ef78b44e42a27713533bbe22bc8742fad0b8b792ab3a111ba4",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-0.25",
+      "encodedSha256": "538ec4e3478012ba3d2af49030eb738a21298ca9d1ed511532e20ad95a2f4922",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-0.5",
+      "encodedSha256": "da4686d9ddbb14631a467b2fbde23b0c938ff8427c7392f595416c3674748030",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-1",
+      "encodedSha256": "28483891e82ad33d574e6988898858e0d0bfc422075ce20ad533afa548148788",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-2",
+      "encodedSha256": "21d6e3fa90202f3cdcda5424d514f8c62715953319fa11f42c4cf73d86ffdcec",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-3",
+      "encodedSha256": "e674685ee9e7a133566eeb90274d4207d4cefb668eb8c787a3fc448781568b3f",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-cobblestone_parish_road",
+      "setting": "distance-5",
+      "encodedSha256": "34a78c3dd3af9054663e1283315d1f7f59d61428c1bccebcc930e11207d4bac8",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-0.25",
+      "encodedSha256": "c349b9f15e06972cdd8fac0e801e05761c81cde541e98e16d5b1fd273fe7dd6c",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-0.5",
+      "encodedSha256": "a54c9c6b567cf13c5c0052d3ce53e913bfc3f4511f0aa366d22fc40ba067aed8",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-1",
+      "encodedSha256": "e2871926755765506a7fbf01b359af9aaf7fc587a5e7bb4575d22f60e3369621",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-2",
+      "encodedSha256": "31bee1ad6641266ee7e4e3af2fda8de372824cfe3d3391fb5931e60d49b58570",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-3",
+      "encodedSha256": "c9f1a6e95c15c921e18bace556cca44cccd2dab0eef52ed20bbbd08e4bd782a9",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-emmarentia",
+      "setting": "distance-5",
+      "encodedSha256": "6c80e0a24efd1440a16bc0229b161cee3ada6a96848fc678bbd2917e203ff667",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-0.25",
+      "encodedSha256": "9b8049b7f2643fbbbb452b626f659b57c9ee41f6105be23f1061582de8bbb16b",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-0.5",
+      "encodedSha256": "c4342d03b09b4465225710bc8c8b20f35a9df9291e75b6cae7a0455732d41252",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-1",
+      "encodedSha256": "61f893e5f3f0fdd6fc7cacb670f2ca6685bdc792a3a82ca629e16d6e1075ede3",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-2",
+      "encodedSha256": "f30e5174f1cbe549265f4b36d6eb65ec44a8f2f9c5360e87ca5d4b21ebffd185",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-3",
+      "encodedSha256": "158bfe051287c69662417f75fd85abb8370faf8a2311250192e5505ccd9eb327",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-pond_bridge_night",
+      "setting": "distance-5",
+      "encodedSha256": "95bb30875c45fe6a543466ea5eadbf515075dccb81580c1a35db8c1a378cda1a",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-0.25",
+      "encodedSha256": "dde631fb86a33cc006749b32314b18b2f8f47e5139367b1b18d2e7ba091cea0c",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-0.5",
+      "encodedSha256": "f2c9e9d84e08aa1285ab387cef7ae58ae2a776fba2808d7708ec60aee1a99535",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-1",
+      "encodedSha256": "e86c80b72bec93158cf5019d49ceb4924859670cc6b5dbd6900ab1e994f541d5",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-2",
+      "encodedSha256": "a1ba5b45924f66a72cef80748cf8cdf805a009e10e57af850195d4e996d7534c",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-3",
+      "encodedSha256": "29d31ac216617e2b0f105faab5c192a34bdc5ada5eaed5d16643984a7af04ec3",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-qwantani_moon_noon",
+      "setting": "distance-5",
+      "encodedSha256": "fde5bfe5df27cc30f65816c4f4b4cbcb01d8e4ea12a3664c44eb2d31ba858293",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-0.25",
+      "encodedSha256": "349de7f7a407af198eb17aab82c590a17926631caf4fc5b321f305567fc19488",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-0.5",
+      "encodedSha256": "273047d1358cc4a8dbcb7dc849ae3b8b40b6a7647576d5eea98ae886f04d5f3d",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-1",
+      "encodedSha256": "c568d9c93d5a0505868051a6f029f57381a2a1f8354362af06f1f77eb2db0899",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-2",
+      "encodedSha256": "d9adc73587751fe98ea16dff727478d7595eeecbfd7a8a85ea6980ab7d3d59ea",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-3",
+      "encodedSha256": "357cd1dfc01063c220b6249be4a77dcd4ede8e727311f969b26205d2a1c9bef9",
+      "identical": true
+    },
+    {
+      "split": "development",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "setting": "distance-5",
+      "encodedSha256": "6ff8f0792652e19697cee9146444d6365f45e78a7e337168702b240ed5be45a4",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-0.25",
+      "encodedSha256": "1aa55a05d0882a5491ad81c52772a357c8068d4ee695f1b8543a8399d92f79c2",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-0.5",
+      "encodedSha256": "16f191de3097141fc382a955b1657adfb1d1eec2f90fd257000559d32be0aa5d",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-1",
+      "encodedSha256": "ea9fb94454f700951a592d013124c07e7b9139d6c9f167a11f563cb68b537aa4",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-2",
+      "encodedSha256": "48d023e7483c93dbe3c06050cc07e4a6034d44ec408410f4abd13d062bb9624a",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-3",
+      "encodedSha256": "7bee90cd95a20a146a4b1c7070ac41baa7c479c028cbbe3eef434162bee6dc15",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-glass_passage",
+      "setting": "distance-5",
+      "encodedSha256": "35a16fd41db45d35b3db13b2d9b38700b7c8b23a2ad538b60953be659b8221c5",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-0.25",
+      "encodedSha256": "61130bd67a218600d21780f922a25ef9e0d1fd7c55c3603227543cca7f88eb42",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-0.5",
+      "encodedSha256": "14a775d9ec367e07508210d3dc60d71eac50f2196fae46405303c44820d4c25a",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-1",
+      "encodedSha256": "8e4648dd704e2dd5d0b34e8d7d42934ce138aaf008cfb01c30fe2adf5f394fb5",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-2",
+      "encodedSha256": "16d46d9e6accc11c48129e54412888d8db0aba84593a77e815d01cbcdda30a66",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-3",
+      "encodedSha256": "45a33c24fecf1a54412be06f199ad7258b0994990e0e4082edb215a92bd222e5",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-hikers_cave",
+      "setting": "distance-5",
+      "encodedSha256": "8856bc29d9eafd01391d19707a88bafda0b9f6ba1fcdbe0ca928eda0fa36e9c9",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-0.25",
+      "encodedSha256": "3f4b5abc69095118454d9658a7d01aedda31b024885533323e25b5f549fe29d2",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-0.5",
+      "encodedSha256": "5dced60ab03a24aab59b38e0a268ccd23d656dcf1238aa3bc0690868f31e51ea",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-1",
+      "encodedSha256": "6bcb165551d3b47a14ca5ca908673f67d2a51f8d172bd24ac42c68588ddcd6b1",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-2",
+      "encodedSha256": "b7580df0a4f1751476b35027a918837b9510d9dddfaa2b6ffa24c5b7416c37bc",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-3",
+      "encodedSha256": "bfc2f2bfc59a1800f4ec1e2ea72aede326239c44e5bc9f45b3ced9408bc8423b",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-lakeside",
+      "setting": "distance-5",
+      "encodedSha256": "d05e10bb9eb9b24c58f936102b562bba6b52b0ffccb25e4b6e8ab5cc15ce4013",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-0.25",
+      "encodedSha256": "185d57230e725252edd4b9e74b1b0b2e4cf493428d132ffbccae43764c4bb287",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-0.5",
+      "encodedSha256": "207e6fa7f2746db563473ec3307f50781cc6f54ed6c55e5d07956490f0ff8693",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-1",
+      "encodedSha256": "2ab291a31131fc1c1f47e920d8c991d64e6305160ab20b69bae3e4e0ac13cc83",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-2",
+      "encodedSha256": "608b7b097daed6905af960485686cd8897c6c19a508398ea727a48b6e4c5a5f3",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-3",
+      "encodedSha256": "47d5b6abd5fefb90e5599d61baabb1ebabd39b842ad888fc28d8d35ac8c16e3b",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-metro_noord",
+      "setting": "distance-5",
+      "encodedSha256": "76011797ef99bd1ed34b83b7c129958cbc78f6abffa30477e325c99e88678711",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-0.25",
+      "encodedSha256": "7842751a81cf885de392cd521c7d92c6a6c6024c2ea1091d0b642013dd8d8c3f",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-0.5",
+      "encodedSha256": "429fc33ca42b95b241683ed75ab1cda8faac57d0b315724b31d1f9a8cd02e549",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-1",
+      "encodedSha256": "2e9a6ce426603310532cd0497b5b8c11b47afccacd87f9fa81e126116a65c90d",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-2",
+      "encodedSha256": "c97224cb103d5ad6bcdd2b972a3b1a8b3753d4dc9be13903c334d134893d8c37",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-3",
+      "encodedSha256": "31ad9ee37c5bac02ecd5bc180cd15f5cf723dda5428027d1a1b13f1354c61a07",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-modern_buildings_night",
+      "setting": "distance-5",
+      "encodedSha256": "7e684c919d67f9d06631f98e6f1e242fab74c9d9ef20802523bdad5887ddc19a",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-0.25",
+      "encodedSha256": "7554b0249f68b25363ec1bb340e675e2db865251122906d75112c09befbc046b",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-0.5",
+      "encodedSha256": "7ea94971b98dcb823da079dbfe03336579001d75db371bdeacb5dc591e13d15d",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-1",
+      "encodedSha256": "7553c8142a326d6102fcca94008fe09dcfe3a7f3c3e356946bb94ec229512138",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-2",
+      "encodedSha256": "6e32091dfb95e00b17174410bb7709c3888a59d1bd26a394e28fb6c178f13c09",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-3",
+      "encodedSha256": "2ace66de369b4309de2f5434fe4f35e30b05184f098caa00516530cb835a4b8f",
+      "identical": true
+    },
+    {
+      "split": "holdout",
+      "id": "polyhaven-pedestrian_overpass",
+      "setting": "distance-5",
+      "encodedSha256": "399521d61b2665c37244a9044d76325aeac63de261b9199eb827ad2fe4d899f6",
+      "identical": true
+    }
+  ]
+}

@@ -97,6 +97,14 @@ const composite = (
   references: readonly (readonly Float64Array[] | undefined)[],
   signal?: AbortSignal,
 ): readonly Float64Array[] => {
+  const fullReplacement =
+    header.frameOriginX === 0 &&
+    header.frameOriginY === 0 &&
+    header.frameWidth === header.width &&
+    header.frameHeight === header.height &&
+    (header.blending?.mode ?? 0) === 0 &&
+    (header.extraChannelBlending?.every((blend) => blend.mode === 0) ?? true)
+  if (fullReplacement) return layer
   const result: Float64Array[] = []
   const colorCount = header.colorChannels
   for (let channel = 0; channel < layer.length; channel++) {
@@ -228,7 +236,20 @@ export const openJpegXlSequence = async (
         nativeReferenceBytes += reference.alpha?.byteLength ?? 0
       }
       for (const plane of dcPlanes ?? []) nativeReferenceBytes += plane.byteLength
-      const outputBytes = header.width * header.height * header.channelCount * 16
+      const terminalFullReplacement =
+        header.frameType === 'regular' &&
+        header.isLast &&
+        header.frameOriginX === 0 &&
+        header.frameOriginY === 0 &&
+        header.frameWidth === header.width &&
+        header.frameHeight === header.height &&
+        (header.blending?.mode ?? 0) === 0 &&
+        (header.extraChannelBlending?.every((blend) => blend.mode === 0) ?? true) &&
+        (options.orientation !== 'apply' || header.orientation === 1)
+      const outputBytes =
+        header.frameType === 'reference' || terminalFullReplacement
+          ? 0
+          : header.width * header.height * header.channelCount * 16
       const layerBytes = header.frameWidth * header.frameHeight * header.channelCount * 8
       const remaining =
         limits.maxDecodedBytes -
@@ -602,17 +623,19 @@ export const openJpegXlSequence = async (
       const firstIndex = origin[1] * header.width + origin[0]
       const columnStep = (nextColumn[1] - origin[1]) * header.width + nextColumn[0] - origin[0]
       const rowStep = (nextRow[1] - origin[1]) * header.width + nextRow[0] - origin[0]
-      const output = canvas.map((plane) => {
-        if (orientation === 1) return plane.slice()
-        const rotated = new Float64Array(plane.length)
-        for (let y = 0; y < height; y++) {
-          throwIfAborted(active)
-          let sourceIndex = firstIndex + y * rowStep
-          for (let x = 0; x < width; x++, sourceIndex += columnStep)
-            rotated[y * width + x] = plane[sourceIndex] ?? 0
-        }
-        return rotated
-      })
+      const output = terminalFullReplacement
+        ? canvas
+        : canvas.map((plane) => {
+            if (orientation === 1) return plane.slice()
+            const rotated = new Float64Array(plane.length)
+            for (let y = 0; y < height; y++) {
+              throwIfAborted(active)
+              let sourceIndex = firstIndex + y * rowStep
+              for (let x = 0; x < width; x++, sourceIndex += columnStep)
+                rotated[y * width + x] = plane[sourceIndex] ?? 0
+            }
+            return rotated
+          })
       const sourceSemantics = jpegXlSourceColorSemantics(header)
       const colorSemantics: PixelColorSemantics =
         header.colorTransform === 'xyb'

@@ -1,0 +1,125 @@
+{
+  "protocol": {
+    "policy": "Frozen eight-source original-resolution supplement, four development and four holdout cases, effort 7 distances 1 and 3, first-party and native libjxl. All first-party streams checked with native, Rust and repository decoders. Both metrics and visual review supplement the approved capped matrix. No all-source original-resolution quality claim.",
+    "mode": "own",
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "d2a0a760665ab4e24c25394c57897b360cd2eaba0df3e0dd94142cd626cdadb9",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "089c78e84e501e101b992f08223ea3d67a8a5db34f7c6a8d47aaa1967297e0e5"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "cd7712d727be78251454d29a07c8c20c99c0e9b9345812f75c41283ae4c8e49c"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "41be9c6dcae44d788dedcab9c6277fa2d22e540fcb7ac586320826d3fd9eef15"
+  },
+  "results": [
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 532212,
+      "encodedSha256": "2bba3370195fddd633160a3d8288a1b0f7d8d44eb5584447f400ee1895c4bafe",
+      "decodedSha256": "446b0a464c7e10ed9dc30f1f2af9552ab16fc8810e8e3d42995ba0567f83ef0a",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.25859235109858647,
+        "samples": 24933930,
+        "rows": 3209
+      },
+      "ssimulacra2": 85.65401598,
+      "butteraugli": 1.4680659771,
+      "rawMetrics": {
+        "ssimText": "85.65401598\n",
+        "baText": "1.4680659771\n3-norm: 0.361752\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-5032",
+      "width": 2590,
+      "height": 3209,
+      "inputPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 381974,
+      "encodedSha256": "af661fd9498cb740d97dafa5e78bfe70340102761d1e226efc75684d0b1d2f05",
+      "decodedSha256": "d42c9550179bea51c517652ad8a8427032a45f569a1b818aa66c0ad867c42b75",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.45252065058883495,
+        "samples": 24933930,
+        "rows": 3209
+      },
+      "ssimulacra2": 83.07676835,
+      "butteraugli": 2.2041268349,
+      "rawMetrics": {
+        "ssimText": "83.07676835\n",
+        "baText": "2.2041268349\n3-norm: 0.654262\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 2590,
+          "height": 3209,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "fixture": "im26-1030-diagnostic",
+  "crop": {
+    "left": 400,
+    "top": 200,
+    "width": 256,
+    "height": 192
+  },
+  "author": "lilith",
+  "license": "PD-own, public domain dedication in imazen-26",
+  "source": "https://github.com/imazen/codec-corpus",
+  "entries": [
+    {
+      "subject": "source",
+      "path": "/assets/jpegxl-comparison/source.webp",
+      "sourceSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sha256": "4a8992cbc4c140aa495944c50ca20b7975b68f53ffeeb52e972c4eb400fdc582"
+    },
+    {
+      "subject": "purejsimage",
+      "path": "/assets/jpegxl-comparison/purejsimage.webp",
+      "sourceSha256": "dd5e8fe5f472e6db10ae7b5f4c53d2d47d2efe7ebe9c6882c910417ece725677",
+      "sha256": "7d12e36009ec2d2adbfda8290577a5a9705b440a0fbb20c990844234a876852a",
+      "score": 80.03747073,
+      "setting": 3.2469
+    },
+    {
+      "subject": "vips",
+      "path": "/assets/jpegxl-comparison/vips.webp",
+      "sourceSha256": "6ec1e10b44d51750fe5f55f6cd3af419ce3f67ac24f48c4b7bd73415e13a9570",
+      "sha256": "cbe8eab158da91c61bd93b682d2d27fc2b9317f975fa93ecd4ff24831d0ff769",
+      "score": 79.98283979,
+      "setting": 1.7586
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-09-28T19:53:03.376Z",
+  "finishedAt": "2026-09-28T19:59:06.876Z",
+  "policy": {
+    "memoryMaxBytes": 8589934592,
+    "memoryHighBytes": 8053063680,
+    "minimumAvailableBytes": 19327352832,
+    "swapMaxBytes": 0,
+    "maximumTasks": 256,
+    "cpuQuotaPercent": 800,
+    "oomScoreAdjust": 1000,
+    "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+    "runtime": "v24.16.0",
+    "unit": "purejsimage-m7-bounded",
+    "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+  },
+  "availableBytes": 20292464640,
+  "executable": "env",
+  "args": [
+    "PUREJSIMAGE_M7_EXPANSION_SPLIT=holdout",
+    "PUREJSIMAGE_M7_EXPANSION_METRIC_CACHE=visual-final-alpha-20260928",
+    "node",
+    "benchmark/jpegxl/run-m7-hdr-development.ts",
+    "visual-defects-final-20260928"
+  ],
+  "code": 0,
+  "signal": null,
+  "status": "completed",
+  "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: ec17bd335f794953b42e58efe9ca53ee\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 6min 3.456s\nCPU time consumed: 6min 44.918s\nMemory peak: 1.8G (swap: 0B)\n"
+}

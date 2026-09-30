@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "phase": "M7 Prompt 2 encoder qualification",
+  "implementationCommit": "2643604888dc8ad58322a3756d5aade68af066b4",
+  "baseCommit": "a5f0143bdf0b48e726108ca15099ac4a869fbb0a",
+  "encoderSource": {
+    "path": "src/codecs/jpegxl-vardct-encode.ts",
+    "sha256": "8cfbdd0f4515928c481c2a0a6873109a890c82760cc77c9b2a79dc020fab6e79"
+  },
+  "approvedProtocol": {
+    "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+    "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+  },
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-artifacts.json",
+      "sha256": "90f2966ba72a976673ac83eaabf07c045b0ec12db2ed35fb57b1336e0167b2a1"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "sha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "sha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-original-size.json",
+      "sha256": "fe36e1a45935d45553029304116ed17582e8c9edb50d371cc0f7797e651055aa"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-runtime-preformat.json",
+      "sha256": "a349a4234ba79ee70633ba12d88b1bec37706a75e7c50e95e753798ff25430c4"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-runtime-commit-run1.json",
+      "sha256": "16a71c3ad7449ffd621fd018d611df08ee0cb30e8c43720c11358b41ee3ea2d9"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-runtime-commit-run2.json",
+      "sha256": "3cddd635f7dde4bdbc0b95c207a1104bdd87ec9b8c98a29827f2f0a633138bb6"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-public-effort3.json",
+      "sha256": "a187c4fdf0b6d24f69ecf510bb2f015e8fb5e9f91395fa06b6e53701fd21a43e"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-runtime-decoding.json",
+      "sha256": "9e05b5aab2b473b43adf64d6d5a692c5a83497d65ec1edf7b5b992487685022c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-conformance.json",
+      "sha256": "936d10b615369ab9c8575b6151630457da1cda97bd98e7a8a1ffee15f018a89b"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-resource.json",
+      "sha256": "be2e36e4c1e6dabceaffc5b86d86587b74c2da1232b03049e2214106f784d060"
+    }
+  ],
+  "localRaw": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt2-full-check3.log",
+      "sha256": "f2a701540830332a233f491cd4e448397cba38632ec171642dd50ab7a82c8425"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt2-final-oracles.log",
+      "sha256": "9dd5400f1e2783240ba4fe3a309b24dca7c240ac579e4d4433ff9db1cb16b50b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-commit-dev.json",
+      "sha256": "30ae67c778f9409caead64df2c75cf6154c40acca28bb0708183b88d46c3ee44"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-commit-hold.json",
+      "sha256": "90e71d1be8f4c5c1bd1d20a3e6019a2aa1b00dca17d0d6b26e54810d141acce7"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-originalcommit.json",
+      "sha256": "4a37530da06663f73409ccc6083dfee2de34436db3a8de37f482fd516fde60a1"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-runtimecommit.json",
+      "sha256": "d4f6183f4557df50da1fbbfd3537f459c312626af3cdd31cc84fe984a4f36ab7"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-runtimecommit2.json",
+      "sha256": "b75db596e96993954136930727d358999b38bb408646a0c0fc21e93ac8f0872b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/prompt2-publiccommit.json",
+      "sha256": "bee6d3cc960f074e86607d3beb81a9ac59e6f89a5a84e3ea2c6015f26af2e166"
+    }
+  ],
+  "sourcePolicy": "Original 120/120 source-family split; at-most-2MP SDR quality matrix and fixed eight original-size cases; separate original-size lossless, HDR and alpha evidence. Missing quality brackets are failures of coverage. The previously observed holdout remains regression evidence.",
+  "qualification": "Lossy Experimental. Lossless holdout and transparency size, complete lossy brackets and original-size outliers, and warm effort-1 timing remain open."
+}

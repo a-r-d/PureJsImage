@@ -1,0 +1,28 @@
+{
+  "policy": "Source / before / after from left to right. Lossless RGB8 PNG, 1:1 pixels, no rescaling or color conversion. Display at natural size. HDR inputs are separately declared display mappings, not native-light data.",
+  "width": 2048,
+  "height": 1024,
+  "left": 1280,
+  "top": 120,
+  "cropWidth": 256,
+  "cropHeight": 256,
+  "inputs": [
+    {
+      "path": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-pedestrian_overpass/headroom-1.ppm",
+      "fileSha256": "569167c4001a22ee3fbc41383fd5b89bd2c6b0064a1ae4d237c13e8ef7cc7b65",
+      "pixelsSha256": "0a398b0b10b5a75a3a38f472b4e710c6e1601bd0d2152a0ce1b92e8a7a33fc34"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/hdr-holdout-visual-defects-final-20260928/polyhaven-pedestrian_overpass/distance-3/purejsimage-headroom-1.ppm",
+      "fileSha256": "45d9aca2d7685cca513b6045a0c153518d492e34e3ff291465e6a15fdcc3ee02",
+      "pixelsSha256": "71be9d12ea5704aa0b4dd2cb6a91da164962f97dccf7447ff8284ae92889c78b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/hdr-holdout-visual-relative04-color-20260929/polyhaven-pedestrian_overpass/distance-3/purejsimage-headroom-1.ppm",
+      "fileSha256": "5cc44d361abfa3e652b10c545c80908195961a3150fdfb1bfdb3aa213bb831bb",
+      "pixelsSha256": "2fb71c8d514de9672cc8c4e6f251d227530d5cae70f8636583e2ccaf43866148"
+    }
+  ],
+  "outputSha256": "2b516d9a7f4638d89193ff9cbfe3919c977576d051befd34766ec99756e5cf5b",
+  "harnessSha256": "1b1cf8d216211703751477b1047b55d3b574c7b59d463b0e19311a378b69129e"
+}

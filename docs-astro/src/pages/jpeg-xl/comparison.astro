@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import raw from '../../../../benchmark/jpegxl/comparison/website-data.json'
+import crops from '../../data/jpegxl-comparison-crops.json'
+import subjectManifest from '../../../../benchmark/jpegxl/comparison/subjects.json'
+const record = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.filter(record) : [])
+const n = (v: unknown) => (typeof v === 'number' ? v : 0)
+const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')
+const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']
+const names = [
+  'PureJsImage repository build',
+  ...['@jsquash/jxl', 'jxl-oxide-wasm', 'wasm-vips'].map((name) => {
+    const p = subjectManifest.packages.find((p) => p.name === name)
+    if (!p) throw new Error(`Missing tested package ${name}`)
+    return `${p.name} ${p.manifest.version}`
+  }),
+]
+const footprints = rows(raw.footprints),
+  summaries = rows(raw.summaries).filter((r) => r.runtime === 'chromium'),
+  quality = rows(raw.qualityComparisons)
+const adequate = quality.filter((r) => r.status === 'measured with adequate brackets')
+const timings = rows(raw.timingRows).filter(
+  (r) =>
+    text(r.sourceReport).includes('/main-node') &&
+    r.fixture === 'im26-1030-diagnostic' &&
+    r.operation === 'encode' &&
+    record(r.settings) &&
+    r.settings.lossless === true &&
+    r.settings.effort === 1,
+)
+const specialized = rows(raw.capabilities).filter(
+  (r) =>
+    !r.fixture && !['runtime availability', 'dedicated module worker'].includes(text(r.feature)),
+)
+const coldRows = rows(raw.timingRows).filter(
+  (r) =>
+    text(r.sourceReport).includes('/cold-node') &&
+    r.fixture === 'im26-1030-diagnostic' &&
+    r.operation === 'encode' &&
+    record(r.settings) &&
+    r.settings.lossless === true &&
+    r.settings.effort === 1,
+)
+const spread = (values: unknown[], divisor = 1) => {
+  const sorted = values
+    .filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
+    .sort((a, b) => a - b)
+  if (!sorted.length) return 'unavailable'
+  return `${(sorted[Math.floor(sorted.length / 2)] / divisor).toFixed(1)} [${(sorted[0] / divisor).toFixed(1)}, ${(sorted[sorted.length - 1] / divisor).toFixed(1)}] (n=${sorted.length})`
+}
+const cold = subjects.map((subject) => {
+  const selected = coldRows.filter((r) => r.subject === subject)
+  const verified = selected.filter((r) => r.status === 'verified')
+  return {
+    subject,
+    status: verified.length ? 'verified' : text(selected[0]?.status),
+    time: spread(verified.map((r) => r.coldMs)),
+    memory: spread(
+      verified.map((r) => (record(r.memory) ? r.memory.peakRssBytes : null)),
+      1024 * 1024,
+    ),
+  }
+})
+const previews = subjects.map((subject) => {
+  const selected = rows(raw.preview.rows)
+    .filter((r) => r.subject === subject)
+    .flatMap((r) => (record(r.result) ? [r.result] : []))
+  return {
+    subject,
+    time: spread(selected.map((r) => r.firstUsefulMs)),
+    bytes: spread(selected.map((r) => r.firstTransferred)),
+    scope: selected.length ? text(selected[0].scope) : 'Public incremental preview API not exposed',
+  }
+})
+const maxWarm = Math.max(...timings.map((r) => (record(r.warmMs) ? n(r.warmMs.median) : 0)))
+const maxBytes = Math.max(...footprints.map((f) => n(f.brotliBytes)))
+---
+<Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
+<section class="jxl-card quick"><h2>Quick answer</h2><p>Among these tested APIs, PureJsImage has the smallest loaded toolkit and exposes native sample and exact JPEG workflows. The WASM alternatives are faster on several workloads and decode some native lossless streams this PureJsImage revision rejects. Most lossy quality comparisons remain unresolved under the finite sampling budget.</p><p>Measured {raw.generated.slice(0,10)} on one Linux workstation. PureJsImage revision <code>{raw.implementationRevision}</code>, a local repository build, not the published 0.17.0 tarball. Qualified codec scope and these comparator results are separate.</p></section>
+<section class="jxl-card copy"><h2>Correctness and API coverage</h2><p>Chromium main set: 16 still inputs, with 13 lossy decode fixtures. Counts retain failures. Encode counts include multiple settings. “Incorrect” means the declared exact-sample or RGB8 tolerance contract failed, not a claim that the library is generally broken.</p><div style="overflow:auto"><table><caption>Verified / attempted public workflows; all other outcomes retained</caption><thead><tr><th>Library</th><th>Operation</th><th>Verified / total</th><th>API absent</th><th>Unsupported</th><th>Incorrect</th><th>Execution failure</th><th>Unavailable / not tested</th></tr></thead><tbody>{summaries.map(r=>{const c=record(r.counts)?r.counts:{};return <tr><th>{names[subjects.indexOf(text(r.subject))]}</th><td>{text(r.operation)}</td><td>{n(c.verified)} / {Object.values(c).reduce<number>((sum,v)=>sum+n(v),0)}</td><td>{n(c['API not exposed'])}</td><td>{n(c['unsupported input'])}</td><td>{n(c['incorrect output'])}</td><td>{n(c['execution failure'])}</td><td>{n(c['environment unavailable'])} / {n(c['not tested'])}</td></tr>})}</tbody></table></div><details><summary>Native, animation, metadata and access probes</summary><div style="overflow:auto"><table><thead><tr><th>Library</th><th>Feature</th><th>Status</th><th>Scope / evidence</th></tr></thead><tbody>{specialized.map(r=><tr><td>{text(r.subject)}</td><td>{text(r.feature)}</td><td>{text(r.status)}</td><td>{text(r.runtime)} · {text(r.sourceReport)}</td></tr>)}</tbody></table></div></details><p>All four initialized in Node and Chromium, with representative Firefox and WebKit checks. Lossy animation in PureJsImage remains Experimental. Exact 3/5 ms timing is a separate edge case: wasm-vips normalizes it to 100/100 ms; its 30/50 ms control passes. Oxide timing fields did not match the expected timeline; its frame access and composition passed.</p></section>
+<section class="jxl-card copy"><h2>Quality and compressed size</h2><p>{adequate.length} of {quality.length} PureJsImage/comparator/target comparisons have adequate measured brackets on both sides. The rest remain unresolved. Four diagnostics use SSIMULACRA2 70/80/90 and retain Butteraugli coordinates, monotonicity evidence and missing intervals. Each engine/source has at most six lossy points. Alpha is scored on black and white; comparator default alpha distortion remains visible.</p>{adequate.map(r=><p>At SSIMULACRA2 {n(r.target)}, <code>{text(r.fixture)}</code>: PureJsImage / {text(r.subject)} size is <strong>{n(r.pureToOtherBytesRatio).toFixed(3)}×</strong>. This capped photo does not establish original-size, HDR or transparency quality.</p>)}<div class="jxl-tool-cards">{crops.entries.map(c=><figure><img src={c.path} width="256" height="192" alt={`Actual ${c.subject} crop from the measured photo`} loading="lazy"/><figcaption>{c.subject}{'score' in c ? ` · measured SSIMULACRA2 ${c.score.toFixed(3)}, setting ${c.setting}` : ' · normalized source'}</figcaption></figure>)}</div><p>Identical 256 × 192 crop coordinates, shown without rescaling. Result crops use actual nearby measured points, not synthesized target-80 images. Source: {crops.author}, {crops.license}. <a href="/assets/jpegxl-comparison/provenance.json">Crop hashes and provenance</a>.</p><details><summary>Paired lossless size and warm-time ratios</summary><table><thead><tr><th>Runtime / comparator</th><th>Scope / effort</th><th>Pairs</th><th>Median bytes ratio</th><th>Median warm-time ratio</th></tr></thead><tbody>{rows(raw.losslessPairs).filter(r=>rows(r.pairs).length).map(r=><tr><td>{text(r.runtime)} / {text(r.other)}</td><td>{text(r.scope)} / {n(r.effort)}</td><td>{rows(r.pairs).length}</td><td>{record(r.sizeRatio)?n(r.sizeRatio.median).toFixed(3):'unavailable'}</td><td>{record(r.warmTimeRatio)?n(r.warmTimeRatio.median).toFixed(3):'unavailable'}</td></tr>)}</tbody></table><p>PureJsImage divided by comparator, verified pairs only. Complete originals, capped diagnostics and precision fixtures stay separate. Equal effort numbers do not mean equal work.</p></details></section>
+<section class="jxl-card copy"><h2>Warm encoding and startup</h2><p>Representative capped photo, lossless effort 1, Node. Three warm operations after initialization, outputs materialized and independently checked. These are exact-output comparisons, not equal numeric lossy distances.</p><div class="timing-bars">{timings.filter(r=>r.status==='verified').map(r=>{const ms=record(r.warmMs)?n(r.warmMs.median):0;return <div><strong>{text(r.subject)}</strong><svg viewBox="0 0 720 32" role="img" aria-label={`${text(r.subject)} ${ms.toFixed(1)} milliseconds`}><rect width={Math.max(1,ms/maxWarm*720)} height="24" fill="#7e52b7"/></svg><span>{ms.toFixed(1)} ms {record(r.warmMs)?`[${n(r.warmMs.minimum).toFixed(1)}, ${n(r.warmMs.maximum).toFixed(1)}]`:''}</span></div>})}</div><p>Oxide exposes no encoding API, so it has no encoding time.</p><h3>Cold initialization plus first encode</h3><div style="overflow:auto"><table><caption>Same Node photo workflow; median [minimum, maximum], three fresh processes</caption><thead><tr><th>Library</th><th>Status</th><th>Cold milliseconds</th><th>Peak process RSS, MiB</th></tr></thead><tbody>{cold.map(r=><tr><td>{r.subject}</td><td>{r.status}</td><td>{r.time}</td><td>{r.memory}</td></tr>)}</tbody></table></div><p>Cold reports separately include initialization and first operation, with three fresh observations for selected cells. Process/worker harness startup and input fetching are excluded. Warm operations reuse initialized modules. Small differences on this interactive host are not durable wins.</p><p>Oxide's decoder returns PNG, so its measured workflow includes mandatory PNG export. No raw-decode speed ranking equates that workflow with the other outputs.</p></section>
+<section class="jxl-card copy"><h2>Startup assets</h2><p>Loaded encode/decode toolkit, required JS, WASM and worker assets counted once. Includes the common benchmark worker; these are not minimum decode-only application bundles. Brotli quality 11 is an offline estimate; actual requests used uncompressed no-store responses.</p>{footprints.map(r=><div class="asset-bar"><strong>{text(r.subject)}</strong><svg viewBox="0 0 600 28" role="img" aria-label={`${text(r.subject)} ${n(r.brotliBytes)} Brotli bytes`}><rect width={n(r.brotliBytes)/maxBytes*600} height="24" fill="#16858a"/></svg><span>{(n(r.brotliBytes)/1024).toFixed(1)} KiB Brotli · {(n(r.uniqueDeployedBytes)/1024).toFixed(1)} KiB raw</span></div>)}<p>wasm-vips uses concurrency(1), but still starts its pthread runtime and requires cross-origin isolation. Actual repeated worker-script transfers remain in the raw report. Native libjxl is an oracle only and never enters JavaScript runtime comparisons.</p></section>
+<section class="jxl-card copy"><h2>Preview I/O and memory</h2><p>PureJsImage's scaled region and oxide's full-frame PNG preview are different workflows; their latency is not ranked. The report retains first nonempty output, requested source bytes and transferred bytes. First-preview visual fidelity was not independently scored. <a href="/jpeg-xl/progressive/">Inspect actual stages in the local tool</a>.</p><div style="overflow:auto"><table><caption>First nonempty preview, Chromium, median [minimum, maximum]. Different outputs, no speed ranking.</caption><thead><tr><th>Library</th><th>Milliseconds</th><th>Transferred source bytes</th><th>Workflow</th></tr></thead><tbody>{previews.map(r=><tr><td>{r.subject}</td><td>{r.time}</td><td>{r.bytes}</td><td>{r.scope}</td></tr>)}</tbody></table></div><p>Node peak RSS is isolated per subject process and includes the runtime, prepared source, output, WASM and worker infrastructure. It is not encoder-managed storage. WASM linear memory was not separately instrumented. Browser memory is unavailable across the tested isolation combinations. Canvas memory was not measured.</p></section>
+<section class="jxl-card copy"><h2>Methodology, uncertainty and downloads</h2><p>Common inputs are pinned sRGB8 straight-alpha samples with orientation 1; high-depth samples are separate. Lossless validation includes color beneath zero alpha. PureJsImage's default lossy alpha must be exact; other wrappers' public lossy defaults may alter alpha, with that error retained. Native float probes and headroom 1/2/4 are not a perceptual HDR compression study.</p><p>Missing brackets, API boundaries, untested features and reference-limited comparisons remain visible. These inspected development sources are regression evidence, not an unseen holdout. No new measurements were run for this page.</p><ul><li><a href="/jpeg-xl/evidence/website-data.json" download>Complete generated dataset</a></li><li><a href="/jpeg-xl/evidence/REPORT.md" download>Methodology and reproduction commands</a></li><li><a href="/jpeg-xl/evidence/subjects.json" download>Tested package manifests and hashes</a></li><li><a href="/jpeg-xl/evidence/fixtures.json" download>Pinned input manifests</a></li><li><a href="/jpeg-xl/evidence/survey.json" download>Dated official-source survey and versions</a></li>{raw.sourceReports.map(r=><li><a href={`/jpeg-xl/evidence/${r.path.split('/').at(-1)}`} download>{r.path.split('/').at(-1)}</a> <small>SHA-256 {r.sha256}</small></li>)}</ul></section>
+</Layout>
+<style>.timing-bars>div,.asset-bar{display:grid;grid-template-columns:8rem minmax(5rem,1fr) 15rem;align-items:center;gap:1rem;margin:1rem 0}.timing-bars svg,.asset-bar svg{width:100%;max-height:32px}.jxl-tool-cards figure{margin:0}.jxl-tool-cards img{width:256px;height:192px;max-width:100%}small{overflow-wrap:anywhere}@media(max-width:650px){.timing-bars>div,.asset-bar{grid-template-columns:1fr;gap:.3rem}}</style>

@@ -1,0 +1,136 @@
+{
+  "beforeSourceSha256": "50f0f8a109c6eedf9bfa3e31f37c2a1dcbb0bcfbe93429cd7fb5fea2c6dee8c0",
+  "afterSourceSha256": "06f16984b99a374f6af9f69079ae24ac7608a0609c5a65fc3d9dbd16d75d2211",
+  "before": [
+    {
+      "progressive": false,
+      "distance": 1.99,
+      "bytes": 1715,
+      "rmse": 3.2794269658598387,
+      "contrast": 0.7546287325082025,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 2.01,
+      "bytes": 2339,
+      "rmse": 2.045302854019207,
+      "contrast": 0.8637656244047944,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 3.99,
+      "bytes": 1704,
+      "rmse": 3.3810478840553992,
+      "contrast": 0.7470084450870594,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 4.01,
+      "bytes": 1141,
+      "rmse": 4.704738642337662,
+      "contrast": 0.2753754246144724,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 1.99,
+      "bytes": 1949,
+      "rmse": 3.2794269658598387,
+      "contrast": 0.7546287325082025,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 2.01,
+      "bytes": 2843,
+      "rmse": 2.045302854019207,
+      "contrast": 0.8637656244047944,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 3.99,
+      "bytes": 1935,
+      "rmse": 3.3810478840553992,
+      "contrast": 0.7470084450870594,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 4.01,
+      "bytes": 1928,
+      "rmse": 4.704738642337662,
+      "contrast": 0.2753754246144724,
+      "samples": 25155
+    }
+  ],
+  "after": [
+    {
+      "progressive": false,
+      "distance": 1.99,
+      "bytes": 2351,
+      "rmse": 2.0184499820293498,
+      "contrast": 0.8751952274244224,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 2.01,
+      "bytes": 2339,
+      "rmse": 2.045302854019207,
+      "contrast": 0.8637656244047944,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 3.99,
+      "bytes": 1704,
+      "rmse": 3.3810478840553992,
+      "contrast": 0.7470084450870594,
+      "samples": 25155
+    },
+    {
+      "progressive": false,
+      "distance": 4.01,
+      "bytes": 1685,
+      "rmse": 3.3261520736093817,
+      "contrast": 0.7396846217929289,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 1.99,
+      "bytes": 2862,
+      "rmse": 2.0184499820293498,
+      "contrast": 0.8751952274244224,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 2.01,
+      "bytes": 2843,
+      "rmse": 2.045302854019207,
+      "contrast": 0.8637656244047944,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 3.99,
+      "bytes": 1935,
+      "rmse": 3.3810478840553992,
+      "contrast": 0.7470084450870594,
+      "samples": 25155
+    },
+    {
+      "progressive": true,
+      "distance": 4.01,
+      "bytes": 1918,
+      "rmse": 3.3261520736093817,
+      "contrast": 0.7396846217929289,
+      "samples": 25155
+    }
+  ]
+}

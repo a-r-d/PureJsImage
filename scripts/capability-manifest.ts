@@ -25,6 +25,8 @@ export interface CodecCapability {
   readonly name: string
   readonly supportFile: string
   readonly packageFormat?: string
+  readonly readmeSummary?: string
+  readonly wasmSummary?: string
   readonly read: CapabilityLevel
   readonly write: CapabilityLevel
   readonly boundary: string
@@ -174,12 +176,16 @@ const codecCapability = (value: unknown): CodecCapability => {
   if (!isRecord(value)) throw new Error('Capability manifest codec entries must be objects')
   const id = requiredString(value, 'id')
   const packageFormat = optionalString(value, 'packageFormat')
+  const readmeSummary = optionalString(value, 'readmeSummary')
+  const wasmSummary = optionalString(value, 'wasmSummary')
   return {
     experimental: optionalBoolean(value, 'experimental'),
     id,
     name: requiredString(value, 'name'),
     supportFile: requiredString(value, 'supportFile'),
     ...(packageFormat ? { packageFormat } : {}),
+    ...(readmeSummary ? { readmeSummary } : {}),
+    ...(wasmSummary ? { wasmSummary } : {}),
     read: capabilityLevel(value.read, id, 'read'),
     write: capabilityLevel(value.write, id, 'write'),
     boundary: requiredString(value, 'boundary'),

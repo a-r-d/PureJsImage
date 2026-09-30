@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-09-29T02:58:31.264Z",
+  "parentRevision": "bacfb0a189e2a8946f03e78d0bef6e773b2356a2",
+  "codecSources": [
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "50f0f8a109c6eedf9bfa3e31f37c2a1dcbb0bcfbe93429cd7fb5fea2c6dee8c0"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+    }
+  ],
+  "policy": "Eight new upstream validate/test families (all eligible texture families already have local artifacts, so no unseen texture-class claim), one per declared class, selected by fixed salted hash after implementation freeze. Exclude original 240 families and every im26 family named in existing local artifact paths. No source pixels or encoded results inspected before selection. Evaluate all selections without tuning or exclusions. This small SDR supplement supports only limited generalization; original HDR/alpha and fixed matrices remain separate.",
+  "catalogSha256": {
+    "canonical-catalog.tsv": "a85038a8b47eb6bc1b851a8e6f5c4a100fee4a7fef733d4e2e1f1a19f28867ba",
+    "families.tsv": "9d07a0f63ef5fa167c5333535010f44b4ab9a087f04e560521b6d1aa1961820c",
+    "train.tsv": "90f0e727343bfe4ccd63b9ebd055c3e45460186e8e48fc1d33dbfcf686e72e3d",
+    "validate.tsv": "5698f65fa9364ac6bf96f7a7272b1d46fa2b8449a205e974dfd36016f96ad004",
+    "test.tsv": "fcd23ee81d6a49fd47c27b92825e16ce57095c4888fa5cb9dd97e94cf8c39cd4"
+  },
+  "cases": [
+    {
+      "id": "im26-1003",
+      "sourceFamily": "1003",
+      "category": "1000-lilith-photos-general",
+      "license": "PD-own",
+      "description": "docked-boat-pier",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/1000-lilith-photos-general/1003_general_docked-boat-pier_brick-palace-lahaina_s21u_iso50-f2p2_20210609-124821_4000x3000.jpg",
+      "sourceSha256": "e8e47a0c310ec189b0341851dd2764fc41a26c70478797ea65eb172a086976ef",
+      "width": 4000,
+      "height": 3000,
+      "bytes": 3581855,
+      "format": "jpg"
+    },
+    {
+      "id": "im26-1229",
+      "sourceFamily": "1229",
+      "category": "1200-lilith-interiors",
+      "license": "PD-own",
+      "description": "lighted-archway-ceiling",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/1200-lilith-interiors/1229_interiors_lighted-archway-ceiling_casa-batllo-barcelona_zfold7_iso1250-f1p7_20260315-210321_4000x3000.jpg",
+      "sourceSha256": "d5c7bddf6124960b9710cb930c130973a308aca197a86f4e696d3c331f962bd1",
+      "width": 4000,
+      "height": 3000,
+      "bytes": 4459534,
+      "format": "jpg"
+    },
+    {
+      "id": "im26-1467",
+      "sourceFamily": "1467",
+      "category": "1400-lilith-nature",
+      "license": "PD-own",
+      "description": "riverside-walkway-cliff",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/1400-lilith-nature/1467_nature_riverside-walkway-cliff_cenote-x-canche-ek-balam_s23u_iso10-f1p7_20240529-130630_4000x3000.jpg",
+      "sourceSha256": "5dc59a6d52a8d0e67bf99e71d8ff8e0a7d84f22789c04fe52f4d267d78e78aba",
+      "width": 4000,
+      "height": 3000,
+      "bytes": 4743378,
+      "format": "jpg"
+    },
+    {
+      "id": "im26-2017",
+      "sourceFamily": "2017",
+      "category": "2000-unsplash-people",
+      "license": "Unsplash-License",
+      "description": "",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/2000-unsplash-people/2017_people_by-kateryna-hliznitsova-ttpz0t24e0c-unsplash_3157x4712.jpg",
+      "sourceSha256": "a6b5895cc0c541ed88e1630e4a461065e5cd48de5d1ee7609a6beb8d25bb33b7",
+      "width": 3157,
+      "height": 4712,
+      "bytes": 1554261,
+      "format": "jpg"
+    },
+    {
+      "id": "im26-1625",
+      "sourceFamily": "1625",
+      "category": "1600-lilith-food",
+      "license": "PD-own",
+      "description": "bowl",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/1600-lilith-food/1625_food_bowl_colorado_s23u_iso500-f1p7_20240510-210653_4000x3000.jpg",
+      "sourceSha256": "123c7b9f8eb83afeb82ad65919b2540d66847269016b893b07050c1740ab8683",
+      "width": 4000,
+      "height": 3000,
+      "bytes": 2762206,
+      "format": "jpg"
+    },
+    {
+      "id": "im26-5053",
+      "sourceFamily": "5053",
+      "category": "5000-national-park-service-brochures",
+      "license": "PD-USGov",
+      "description": "seki-20210826-german_gray_p01",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/5000-national-park-service-brochures/grayscale/5053_nps_seki-20210826-german_gray_p01_2550x4200.png",
+      "sourceSha256": "8598c1f4eb58978abc34fbf477ca43aee4e8554a2396fef26439b4d9e1198d7a",
+      "width": 2550,
+      "height": 4200,
+      "bytes": 1126710,
+      "format": "png"
+    },
+    {
+      "id": "im26-5343",
+      "sourceFamily": "5343",
+      "category": "5300-noaa-hurricane-documents",
+      "license": "PD-USGov",
+      "description": "nhc-al182024-rafael_p19",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/5300-noaa-hurricane-documents/5343_noaa_nhc-al182024-rafael_p19_2550x3300.png",
+      "sourceSha256": "cdcea62b82144d12940b6b436aa397b17301db01b36a2942615961cab41899cb",
+      "width": 2550,
+      "height": 3300,
+      "bytes": 148651,
+      "format": "png"
+    },
+    {
+      "id": "im26-8317",
+      "sourceFamily": "screen-page|sieduexhib|1",
+      "category": "8100-lilith-web-screenshots",
+      "license": "PD",
+      "description": "si-edu-exhibitions_dpr1_page1",
+      "sourceUrl": "https://codec-corpus.r2.imazen.org/imazen-26-unprocessed/8100-lilith-web-screenshots/375x667/8317_web-screenshots_si-edu-exhibitions_dpr1_page1_375x667.png",
+      "sourceSha256": "4b7b8eaac0881d2be1e3a6670d528af1bbf7ee05d3c8e54fa3d38031107bda2b",
+      "width": 375,
+      "height": 667,
+      "bytes": 27940,
+      "format": "png"
+    }
+  ]
+}

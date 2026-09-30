@@ -2,7 +2,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
-import { encodeJpegXlVarDct8 } from '../../src/codecs/jpegxl-vardct-encode.ts'
+import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
+import { defaultImageLimits } from '../../src/limits.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
 import {
   loadM7QualityCache,
@@ -89,6 +90,7 @@ function ppmPixels(bytes: Uint8Array, width: number, height: number) {
   return bytes.subarray(header[0].length)
 }
 const sourcePaths = [
+  'src/codecs/jpegxl.ts',
   'src/codecs/jpegxl-vardct-encode.ts',
   'src/codecs/jpegxl-vardct-quantization.ts',
   'src/codecs/jpegxl-vardct-forward-transforms.ts',
@@ -137,6 +139,7 @@ const protocol = {
     ),
   },
   sourceFingerprint,
+  firstPartyPath: 'public jpegxlCodec.createEncoder, including transform and patch selection',
   scheduling: {
     workers,
     maximumPairedPixelsPerImage: capped ? 2_000_000 : 12_000_000,
@@ -248,16 +251,39 @@ if (caseId) {
             const output = `${path}.jxl`
             if (engine === 'purejsimage') {
               const sink = new Uint8ArraySink()
-              for (const part of encodeJpegXlVarDct8(
-                pixels,
-                info.width,
-                info.height,
-                setting,
-                undefined,
-                3,
-                7,
-              ))
-                await sink.write(part)
+              const encoder = await jpegxlCodec.createEncoder?.(sink, {
+                width: info.width,
+                height: info.height,
+                pixelFormat: 'rgb8',
+                limits: defaultImageLimits,
+                colorSemantics: {
+                  family: 'rgb',
+                  primaries: 'srgb',
+                  transfer: { kind: 'srgb' },
+                  matrix: 'identity',
+                  range: 'full',
+                  alpha: 'none',
+                  provenance: 'assumed-default',
+                  renderingIntent: 'relative',
+                },
+                options: {
+                  mode: 'lossy',
+                  distance: setting,
+                  effort: 7,
+                  container: false,
+                },
+              })
+              if (!encoder) throw new Error('Missing public JPEG XL encoder')
+              await encoder.write({
+                x: 0,
+                y: 0,
+                width: info.width,
+                height: info.height,
+                format: 'rgb8',
+                stride: info.width * 3,
+                data: pixels,
+              })
+              await encoder.finish()
               encoded = sink.toUint8Array()
               await writeFile(output, encoded)
               const revalidated = await revalidateM7EncodedPoint(

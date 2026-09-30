@@ -345,13 +345,11 @@ export class JpegXlSession {
     if (
       frame.encoding !== 'vardct' ||
       frame.colorTransform !== 'xyb' ||
-      frame.extraChannels.length !== 0 ||
-      frame.bitDepth !== 8 ||
-      jpegXlXybOutputIsLinear(frame) ||
+      (frame.extraChannels.length !== 0 && this.plan({ until: 'dc' }).fallbackReasons.length > 0) ||
       frame.upsampling !== 1
     )
       throw unsupportedOperation(
-        'Progressive JPEG XL sessions currently require 8-bit SDR XYB without extra channels or upsampling',
+        'Progressive JPEG XL sessions require supported XYB channels without upsampling',
       )
     const dependencies = this.#frames.slice(0, -1).filter((entry) => !entry.isPreview)
     if (
@@ -474,7 +472,12 @@ export class JpegXlSession {
             () => new Uint8Array(),
           )
           for (const id of plan.sectionIds) {
-            if (frame.sections.length > 1 && id <= frame.dcGroupCount) continue
+            if (
+              frame.sections.length > 1 &&
+              id <= frame.dcGroupCount &&
+              (frame.extraChannels.length === 0 || id !== 0)
+            )
+              continue
             sections[id] = await this.#section(this.#frames.length - 1, id, signal)
           }
           const first = sections[0]

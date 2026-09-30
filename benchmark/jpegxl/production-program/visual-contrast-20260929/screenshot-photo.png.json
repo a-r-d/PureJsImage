@@ -1,0 +1,28 @@
+{
+  "policy": "Source / before / after from left to right. Lossless RGB8 PNG, 1:1 pixels, no rescaling or color conversion. Display at natural size. HDR inputs are separately declared display mappings, not native-light data.",
+  "width": 1920,
+  "height": 1080,
+  "left": 516,
+  "top": 290,
+  "cropWidth": 256,
+  "cropHeight": 256,
+  "inputs": [
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "fileSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "pixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/public-original-public-rd-final-screen-20260929/im26-8160-purejsimage-3.ppm",
+      "fileSha256": "08ff98c92965ea7a7fa706e0fba86dae5628d635cd91ce7be62dcbcf57a06def",
+      "pixelsSha256": "9a1c8d53f31d4409e688bca0f181193809b6930581f90ede59d46cc1a9751a55"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/public-original-visual-relative04-color-screen-20260929/im26-8160-purejsimage-3.ppm",
+      "fileSha256": "50ec5c7d60ffa04996ca5ed91ee4340d8483967199067a14982f0f87c512802b",
+      "pixelsSha256": "1c13cceea549aee938884fec3768dea2923e38756f60de100bd1c80ee5f60383"
+    }
+  ],
+  "outputSha256": "ce252c3e00b8f7cad7cf43b15ad210b4e143a4bac90489fab515844d6330e872",
+  "harnessSha256": "1b1cf8d216211703751477b1047b55d3b574c7b59d463b0e19311a378b69129e"
+}

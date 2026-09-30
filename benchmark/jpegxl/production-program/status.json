@@ -649,6 +649,16 @@
         "Revisit unmet compression and warm effort-1 speed targets before Stable lossy promotion; preserve the capped/original-resolution evidence distinction and missing quality brackets."
       ],
       "stablePromotionGatePassed": false,
+      "staticLossyQualification": {
+        "scope": "static-integer-gray-rgb-rgba",
+        "status": "Stable",
+        "lossyAnimation": "Experimental",
+        "implementationCommit": "89395abd17027257d2b2d073abcd12a77c1622c2",
+        "evidenceIndex": "benchmark/jpegxl/production-program/visual-contrast-20260929/evidence-index.json",
+        "evidenceIndexSha256": "073c7f7682886904d7a1017a377aa9a5cf11101eaa3e8fed388439d41e7735d7",
+        "report": "benchmark/jpegxl/production-program/m7-visual-contrast-qualification.md",
+        "reportSha256": "d174b5259a6a87e1b4d10af29bf1d876f9f57386abbf7683c4327fa85030440d"
+      },
       "remainingBlockers": []
     },
     {

@@ -1,0 +1,1179 @@
+{
+  "schemaVersion": 1,
+  "started": "2026-09-29T14:59:54.521Z",
+  "updated": "2026-09-29T15:00:07.641Z",
+  "mode": "smoke",
+  "runtime": "node",
+  "environment": {
+    "platform": "linux",
+    "release": "7.0.0-34-generic",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "hostMemoryBytes": 64921018368,
+    "node": "v24.16.0",
+    "browser": null,
+    "browserMemory": "unavailable: no consistent cross-browser measurement API",
+    "singleThread": true
+  },
+  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "subjectsSha256": "c14b47756e73693d28de8cda24ed8d954911c39abccd500d275e2984b08d5ba5",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "rows": [
+    {
+      "key": "im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "status": "unsupported input",
+      "detail": "ImageError: JPEG XL grouped Modular transform chains and transformed prefix channels are not supported",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 85487616,
+          "heapTotal": 14680064,
+          "heapUsed": 9725104,
+          "external": 15548464,
+          "arrayBuffers": 6840433
+        },
+        "after": {
+          "rss": 128765952,
+          "heapTotal": 36446208,
+          "heapUsed": 19100312,
+          "external": 23873253,
+          "arrayBuffers": 15124738
+        },
+        "peakRssBytes": 128765952,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-purejsimage-encode-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "ImageError: JPEG XL distance requires mode: lossy",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 85450752,
+          "heapTotal": 14942208,
+          "heapUsed": 9733048,
+          "external": 15548446,
+          "arrayBuffers": 6840415
+        },
+        "after": {
+          "rss": 106708992,
+          "heapTotal": 35135488,
+          "heapUsed": 19332408,
+          "external": 12775857,
+          "arrayBuffers": 4027342
+        },
+        "peakRssBytes": 106708992,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-jsquash-decode-lossless-ll-e1",
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-jsquash-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [266.09574299999997],
+      "coldMs": 332.983677,
+      "initializationMs": 17.645336,
+      "output": {
+        "width": 1024,
+        "height": 768,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "bytes": 3145728
+      },
+      "memory": {
+        "baseline": {
+          "rss": 85639168,
+          "heapTotal": 14680064,
+          "heapUsed": 9749088,
+          "external": 15548458,
+          "arrayBuffers": 6840427
+        },
+        "after": {
+          "rss": 171728896,
+          "heapTotal": 15204352,
+          "heapUsed": 9891688,
+          "external": 88059677,
+          "arrayBuffers": 12196337
+        },
+        "peakRssBytes": 171728896,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-jsquash-encode-ll-e1",
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-jsquash-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [53.289604],
+      "coldMs": 124.016872,
+      "initializationMs": 14.009253000000001,
+      "output": {
+        "kind": "jxl",
+        "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
+        "bytes": 781203
+      },
+      "memory": {
+        "baseline": {
+          "rss": 85319680,
+          "heapTotal": 14680064,
+          "heapUsed": 9725008,
+          "external": 15548440,
+          "arrayBuffers": 6840409
+        },
+        "after": {
+          "rss": 179605504,
+          "heapTotal": 15466496,
+          "heapUsed": 9879816,
+          "external": 126386947,
+          "arrayBuffers": 13757911
+        },
+        "peakRssBytes": 187912192,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "Error: null pointer passed to rust",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 84574208,
+          "heapTotal": 14680064,
+          "heapUsed": 9736912,
+          "external": 15548452,
+          "arrayBuffers": 6840421
+        },
+        "after": {
+          "rss": 130760704,
+          "heapTotal": 16515072,
+          "heapUsed": 12284032,
+          "external": 32690938,
+          "arrayBuffers": 6337929
+        },
+        "peakRssBytes": 130760704,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 19.18262999999999,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 85229568,
+          "heapTotal": 14942208,
+          "heapUsed": 9723768,
+          "external": 15548434,
+          "arrayBuffers": 6840403
+        },
+        "after": {
+          "rss": 96161792,
+          "heapTotal": 16252928,
+          "heapUsed": 12149192,
+          "external": 17007425,
+          "arrayBuffers": 5400016
+        },
+        "peakRssBytes": 96161792,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [177.16430500000007],
+      "coldMs": 406.17244,
+      "initializationMs": 69.152519,
+      "output": {
+        "width": 1024,
+        "height": 768,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "bytes": 3145728
+      },
+      "memory": {
+        "baseline": {
+          "rss": 85184512,
+          "heapTotal": 14680064,
+          "heapUsed": 9742264,
+          "external": 15548450,
+          "arrayBuffers": 6840419
+        },
+        "after": {
+          "rss": 216260608,
+          "heapTotal": 33329152,
+          "heapUsed": 14501400,
+          "external": 15679257,
+          "arrayBuffers": 6840605
+        },
+        "peakRssBytes": 216477696,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [27.445560999999998],
+      "coldMs": 200.15562999999997,
+      "initializationMs": 66.18246099999999,
+      "output": {
+        "kind": "jxl",
+        "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
+        "bytes": 784657
+      },
+      "memory": {
+        "baseline": {
+          "rss": 85594112,
+          "heapTotal": 14680064,
+          "heapUsed": 9723688,
+          "external": 15548432,
+          "arrayBuffers": 6840401
+        },
+        "after": {
+          "rss": 176013312,
+          "heapTotal": 35164160,
+          "heapUsed": 14959048,
+          "external": 15671325,
+          "arrayBuffers": 6832673
+        },
+        "peakRssBytes": 176013312,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "alpha_triangles-purejsimage-decode-lossless-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [1905.534162],
+      "coldMs": 2043.743194,
+      "initializationMs": 59.213716000000005,
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "bytes": 4194304
+      },
+      "memory": {
+        "baseline": {
+          "rss": 87691264,
+          "heapTotal": 14942208,
+          "heapUsed": 9725680,
+          "external": 17139929,
+          "arrayBuffers": 8431898
+        },
+        "after": {
+          "rss": 147804160,
+          "heapTotal": 30941184,
+          "heapUsed": 12187056,
+          "external": 37546634,
+          "arrayBuffers": 8729127
+        },
+        "peakRssBytes": 147804160,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "alpha_triangles-purejsimage-encode-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-encode-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "ImageError: JPEG XL distance requires mode: lossy",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 87568384,
+          "heapTotal": 14680064,
+          "heapUsed": 9732000,
+          "external": 17139911,
+          "arrayBuffers": 8431880
+        },
+        "after": {
+          "rss": 108228608,
+          "heapTotal": 34873344,
+          "heapUsed": 20213128,
+          "external": 13334814,
+          "arrayBuffers": 4586299
+        },
+        "peakRssBytes": 108228608,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "alpha_triangles-jsquash-decode-lossless-ll-e1",
+      "subject": "jsquash",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-jsquash-decode-lossless-ll-e1.bin",
+      "status": "incorrect output",
+      "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
+      "times": [355.943975],
+      "coldMs": 412.62142600000004,
+      "initializationMs": 17.06675700000001,
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "e46cd46216ef4ab401003d8c0d3419dce9124a0f044140d9614fcc3415384fda",
+        "bytes": 4194304
+      },
+      "memory": {
+        "baseline": {
+          "rss": 87879680,
+          "heapTotal": 14680064,
+          "heapUsed": 9727144,
+          "external": 17139923,
+          "arrayBuffers": 8431892
+        },
+        "after": {
+          "rss": 179212288,
+          "heapTotal": 14942208,
+          "heapUsed": 9876744,
+          "external": 102702593,
+          "arrayBuffers": 14846165
+        },
+        "peakRssBytes": 179372032,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 1,
+      "validation": {
+        "status": "incorrect output",
+        "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
+        "maximumError": 1,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "alpha_triangles-jsquash-encode-ll-e1",
+      "subject": "jsquash",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-jsquash-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [67.777736],
+      "coldMs": 156.60301900000002,
+      "initializationMs": 14.432071000000008,
+      "output": {
+        "kind": "jxl",
+        "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
+        "bytes": 499615
+      },
+      "memory": {
+        "baseline": {
+          "rss": 87379968,
+          "heapTotal": 14680064,
+          "heapUsed": 9725960,
+          "external": 17139905,
+          "arrayBuffers": 8431874
+        },
+        "after": {
+          "rss": 204386304,
+          "heapTotal": 15466496,
+          "heapUsed": 9878272,
+          "external": 169554360,
+          "arrayBuffers": 15834252
+        },
+        "peakRssBytes": 212500480,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "alpha_triangles-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "Error: null pointer passed to rust",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 87744512,
+          "heapTotal": 14680064,
+          "heapUsed": 9727136,
+          "external": 17139917,
+          "arrayBuffers": 8431886
+        },
+        "after": {
+          "rss": 128643072,
+          "heapTotal": 16515072,
+          "heapUsed": 12288280,
+          "external": 34970055,
+          "arrayBuffers": 5995606
+        },
+        "peakRssBytes": 128643072,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "alpha_triangles-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 20.268805,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 87629824,
+          "heapTotal": 14417920,
+          "heapUsed": 9725504,
+          "external": 17139899,
+          "arrayBuffers": 8431868
+        },
+        "after": {
+          "rss": 98344960,
+          "heapTotal": 16252928,
+          "heapUsed": 12186672,
+          "external": 17549998,
+          "arrayBuffers": 5942589
+        },
+        "peakRssBytes": 98344960,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "alpha_triangles-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [219.6946250000001],
+      "coldMs": 456.4043449999999,
+      "initializationMs": 64.60279500000001,
+      "output": {
+        "width": 1024,
+        "height": 1024,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "bytes": 4194304
+      },
+      "memory": {
+        "baseline": {
+          "rss": 87425024,
+          "heapTotal": 14942208,
+          "heapUsed": 9730296,
+          "external": 17139915,
+          "arrayBuffers": 8431884
+        },
+        "after": {
+          "rss": 223383552,
+          "heapTotal": 35426304,
+          "heapUsed": 14976392,
+          "external": 29853734,
+          "arrayBuffers": 21015082
+        },
+        "peakRssBytes": 223612928,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "alpha_triangles-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "category": "transparency",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [37.46793200000002],
+      "coldMs": 209.45003199999996,
+      "initializationMs": 67.158034,
+      "output": {
+        "kind": "jxl",
+        "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
+        "bytes": 508604
+      },
+      "memory": {
+        "baseline": {
+          "rss": 87592960,
+          "heapTotal": 14417920,
+          "heapUsed": 9744056,
+          "external": 17139897,
+          "arrayBuffers": 8431866
+        },
+        "after": {
+          "rss": 190611456,
+          "heapTotal": 34639872,
+          "heapUsed": 14973512,
+          "external": 15109478,
+          "arrayBuffers": 6270826
+        },
+        "peakRssBytes": 190611456,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "rgb16-default-purejsimage-decode-lossless-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [6.115645000000001],
+      "coldMs": 75.745439,
+      "initializationMs": 58.663874,
+      "output": {
+        "width": 47,
+        "height": 39,
+        "channels": 3,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "bytes": 10998
+      },
+      "memory": {
+        "baseline": {
+          "rss": 79286272,
+          "heapTotal": 14680064,
+          "heapUsed": 9719816,
+          "external": 8762601,
+          "arrayBuffers": 54570
+        },
+        "after": {
+          "rss": 104271872,
+          "heapTotal": 35397632,
+          "heapUsed": 22977168,
+          "external": 9357518,
+          "arrayBuffers": 609003
+        },
+        "peakRssBytes": 104271872,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgb16-default-purejsimage-encode-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-encode-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "ImageError: JPEG XL distance requires mode: lossy",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 79351808,
+          "heapTotal": 14680064,
+          "heapUsed": 9725400,
+          "external": 8762583,
+          "arrayBuffers": 54552
+        },
+        "after": {
+          "rss": 99749888,
+          "heapTotal": 34349056,
+          "heapUsed": 20071728,
+          "external": 9142402,
+          "arrayBuffers": 393887
+        },
+        "peakRssBytes": 99749888,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "rgb16-default-jsquash-decode-lossless-ll-e1",
+      "subject": "jsquash",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-jsquash-decode-lossless-ll-e1.bin",
+      "status": "incorrect output",
+      "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
+      "times": [1.340648999999999],
+      "coldMs": 43.42320299999999,
+      "initializationMs": 14.437286999999998,
+      "output": {
+        "width": 47,
+        "height": 39,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "1ea9342e7178aebb8dce1562d05daf387691ea5859d22bf208de5e91da1e04a0",
+        "bytes": 7332
+      },
+      "memory": {
+        "baseline": {
+          "rss": 79216640,
+          "heapTotal": 14417920,
+          "heapUsed": 9718136,
+          "external": 8762595,
+          "arrayBuffers": 54564
+        },
+        "after": {
+          "rss": 105005056,
+          "heapTotal": 15204352,
+          "heapUsed": 11027800,
+          "external": 46921942,
+          "arrayBuffers": 4613034
+        },
+        "peakRssBytes": 105005056,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": null,
+      "validation": {
+        "status": "incorrect output",
+        "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
+        "maximumError": null,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgb16-default-jsquash-encode-ll-e1",
+      "subject": "jsquash",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-jsquash-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "ImageData encoder accepts RGBA8 only; no silent native precision conversion",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 14.400816000000006,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 79286272,
+          "heapTotal": 14417920,
+          "heapUsed": 9718136,
+          "external": 8762577,
+          "arrayBuffers": 54546
+        },
+        "after": {
+          "rss": 85544960,
+          "heapTotal": 15204352,
+          "heapUsed": 10907656,
+          "external": 46891018,
+          "arrayBuffers": 4582110
+        },
+        "peakRssBytes": 85544960,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "rgb16-default-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-oxide-decode-lossless-ll-e1.bin",
+      "status": "execution failure",
+      "detail": "Error: null pointer passed to rust",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": null,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 78450688,
+          "heapTotal": 14680064,
+          "heapUsed": 9718264,
+          "external": 8762589,
+          "arrayBuffers": 54558
+        },
+        "after": {
+          "rss": 97816576,
+          "heapTotal": 16252928,
+          "heapUsed": 12244088,
+          "external": 13817145,
+          "arrayBuffers": 1750984
+        },
+        "peakRssBytes": 97816576,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "rgb16-default-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 19.470458,
+      "output": null,
+      "memory": {
+        "baseline": {
+          "rss": 79216640,
+          "heapTotal": 14417920,
+          "heapUsed": 9718128,
+          "external": 8762571,
+          "arrayBuffers": 54540
+        },
+        "after": {
+          "rss": 89931776,
+          "heapTotal": 16252928,
+          "heapUsed": 12161128,
+          "external": 13357586,
+          "arrayBuffers": 1750177
+        },
+        "peakRssBytes": 89931776,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      }
+    },
+    {
+      "key": "rgb16-default-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [1.6636470000000259],
+      "coldMs": 222.77970200000001,
+      "initializationMs": 66.229603,
+      "output": {
+        "width": 47,
+        "height": 39,
+        "channels": 3,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "bytes": 10998
+      },
+      "memory": {
+        "baseline": {
+          "rss": 79331328,
+          "heapTotal": 14942208,
+          "heapUsed": 9727120,
+          "external": 8762587,
+          "arrayBuffers": 54556
+        },
+        "after": {
+          "rss": 172122112,
+          "heapTotal": 34902016,
+          "heapUsed": 14597744,
+          "external": 8893648,
+          "arrayBuffers": 54996
+        },
+        "peakRssBytes": 172122112,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgb16-default-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [2.3488809999999773],
+      "coldMs": 163.56777900000003,
+      "initializationMs": 66.111957,
+      "output": {
+        "kind": "jxl",
+        "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
+        "bytes": 3088
+      },
+      "memory": {
+        "baseline": {
+          "rss": 79425536,
+          "heapTotal": 14680064,
+          "heapUsed": 9736720,
+          "external": 8762569,
+          "arrayBuffers": 54538
+        },
+        "after": {
+          "rss": 148074496,
+          "heapTotal": 34639872,
+          "heapUsed": 14566480,
+          "external": 8885738,
+          "arrayBuffers": 47086
+        },
+        "peakRssBytes": 148328448,
+        "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+        "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    }
+  ]
+}

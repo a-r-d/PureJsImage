@@ -17,8 +17,21 @@ if (metricCache !== undefined && !/^[a-z0-9-]+$/u.test(metricCache))
 const id = process.argv[2]
 const distance = Number(process.argv[3] ?? 1)
 const runId = process.argv[4]
-if (!id || ![0.25, 0.5, 1, 2, 3, 5].includes(distance) || !runId || !/^[a-z0-9-]+$/u.test(runId))
-  throw new Error('Usage: evaluate-m7-hdr-development.ts source-id distance unique-run-id')
+const nativeControl = process.argv[5] === '--native-control'
+const ownControl = process.argv[5] === '--own-control'
+if (process.argv[5] !== undefined && !nativeControl && !ownControl)
+  throw new Error('Unknown HDR mode')
+if (
+  !id ||
+  !(nativeControl || ownControl
+    ? Number.isFinite(distance) && distance >= (nativeControl ? 0.05 : 0.25) && distance <= 25
+    : [0.25, 0.5, 1, 2, 3, 5].includes(distance)) ||
+  !runId ||
+  !/^[a-z0-9-]+$/u.test(runId)
+)
+  throw new Error(
+    'Usage: evaluate-m7-hdr-development.ts source-id distance unique-run-id [--native-control|--own-control]',
+  )
 const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)
 if (!entry || entry.status !== 'verified')
   throw new Error('Source is outside the selected frozen HDR cohort')
@@ -115,6 +128,8 @@ const protocol = {
   width,
   height,
   effort: 7,
+  nativeControl,
+  ownControl,
   split,
   sourceSha256: entry.sourceSha256,
   inputSha256: hash(input),
@@ -145,7 +160,11 @@ const protocol = {
 await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\n', { flag: 'wx' })
 const results: object[] = []
 let failures = 0
-for (const engine of ['purejsimage', 'libjxl'] as const) {
+for (const engine of nativeControl
+  ? (['libjxl'] as const)
+  : ownControl
+    ? (['purejsimage'] as const)
+    : (['purejsimage', 'libjxl'] as const)) {
   try {
     const output = `${root}/${engine}.jxl`
     if (engine === 'purejsimage') {

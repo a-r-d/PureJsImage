@@ -52,6 +52,14 @@ const linearSrgb = Float32Array.from({ length: 256 }, (_, value) => {
 })
 const bias = 0.0037930732552754493
 const biasRoot = Math.cbrt(bias)
+// The default sRGB matrix maps 8-bit RGB into [0, 1]. The extra endpoint
+// covers its final floating-point rounding at white without a hot-loop clamp.
+const lookupCubeRoot = (linear: number, table: Float32Array): number => {
+  const scaled = linear * 16_384
+  const index = scaled | 0
+  const left = table[index] ?? 0
+  return left + ((table[index + 1] ?? left) - left) * (scaled - index)
+}
 
 import {
   forwardJpegXlDct8,
@@ -62,6 +70,20 @@ import {
 export { forwardJpegXlDct8 } from './jpegxl-vardct-forward-transforms.ts'
 
 const strategyCandidates = Uint8Array.of(1, 12, 13)
+
+// The AC writer emits each coefficient through the final nonzero scan position.
+// This natural scan is the starting order before its image-level order adaptation.
+const naturalAcScanRank = new Uint8Array(64)
+{
+  let scan = 1
+  for (let diagonal = 1; diagonal < 15; diagonal++) {
+    for (let step = 0; step <= diagonal; step++) {
+      const x = (diagonal & 1) !== 0 ? diagonal - step : step
+      const y = (diagonal & 1) !== 0 ? step : diagonal - step
+      if (x < 8 && y < 8) naturalAcScanRank[y * 8 + x] = scan++
+    }
+  }
+}
 
 // The mixed-linear matrix is the inverse of the repository decoder's default opsin matrix.
 const fillXybBlock = (
@@ -96,6 +118,81 @@ const fillXybBlock = (
       const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
       const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
       const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
+const fillXybBlockAligned = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = Math.cbrt(m0 * red + m1 * green + m2 * blue + bias) - biasRoot
+      const mixedGreen = Math.cbrt(m3 * red + m4 * green + m5 * blue + bias) - biasRoot
+      const mixedBlue = Math.cbrt(m6 * red + m7 * green + m8 * blue + bias) - biasRoot
+      const index = y * 8 + x
+      xPlane[index] = (mixedRed - mixedGreen) / 2
+      yPlane[index] = (mixedRed + mixedGreen) / 2
+      bPlane[index] = mixedBlue - (mixedRed + mixedGreen) / 2
+    }
+  }
+}
+
+const fillXybBlockAlignedFast = (
+  pixels: Uint8Array,
+  width: number,
+  blockX: number,
+  blockY: number,
+  xPlane: Float32Array,
+  yPlane: Float32Array,
+  bPlane: Float32Array,
+  transfer: Float32Array,
+  matrix: Float32Array,
+  cubeRootTable: Float32Array,
+): void => {
+  const m0 = matrix[0] ?? 0,
+    m1 = matrix[1] ?? 0,
+    m2 = matrix[2] ?? 0,
+    m3 = matrix[3] ?? 0,
+    m4 = matrix[4] ?? 0,
+    m5 = matrix[5] ?? 0,
+    m6 = matrix[6] ?? 0,
+    m7 = matrix[7] ?? 0,
+    m8 = matrix[8] ?? 0
+  for (let y = 0; y < 8; y++) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
+    for (let x = 0; x < 8; x++, offset += 3) {
+      const red = transfer[pixels[offset] ?? 0] ?? 0
+      const green = transfer[pixels[offset + 1] ?? 0] ?? 0
+      const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
+      const mixedRed = lookupCubeRoot(m0 * red + m1 * green + m2 * blue, cubeRootTable)
+      const mixedGreen = lookupCubeRoot(m3 * red + m4 * green + m5 * blue, cubeRootTable)
+      const mixedBlue = lookupCubeRoot(m6 * red + m7 * green + m8 * blue, cubeRootTable)
       const index = y * 8 + x
       xPlane[index] = (mixedRed - mixedGreen) / 2
       yPlane[index] = (mixedRed + mixedGreen) / 2
@@ -188,6 +285,12 @@ export const encodeJpegXlVarDct8 = (
   }
 }
 
+export interface JpegXlForwardFrameOptions {
+  readonly reference?: boolean
+  readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
+  readonly strategyPolicy?: 'rate-distortion'
+}
+
 export const encodeJpegXlVarDct8Async = (
   pixels: Uint8Array,
   width: number,
@@ -202,6 +305,7 @@ export const encodeJpegXlVarDct8Async = (
   progressive = false,
   color?: JpegXlForwardColor,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  frame: Readonly<JpegXlForwardFrameOptions> = {},
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const steps = prepare8(
@@ -217,6 +321,7 @@ export const encodeJpegXlVarDct8Async = (
       progressive,
       color,
       limits,
+      frame.strategyPolicy ?? 'conservative',
     )
     await checkpoint()
     let next = steps.next()
@@ -227,7 +332,15 @@ export const encodeJpegXlVarDct8Async = (
     const geometry = next.value
     const sections = await encodeVarDctCoefficientSectionsAsync(geometry, checkpoint)
     await checkpoint()
-    return varDctCodestreamParts({ width, height }, geometry, sections)
+    const global = sections[0]
+    if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
+    const selectedSections = frame.patchGlobalSection
+      ? [frame.patchGlobalSection(global), ...sections.slice(1)]
+      : sections
+    return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
+      reference: frame.reference === true,
+      patches: frame.patchGlobalSection !== undefined,
+    })
   })
 
 function* prepare8(
@@ -243,6 +356,7 @@ function* prepare8(
   progressive: boolean,
   color: JpegXlForwardColor | undefined,
   limits: Readonly<ImageLimits> = defaultImageLimits,
+  strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidInput('JPEG XL dimensions must be positive safe integers')
@@ -259,7 +373,7 @@ function* prepare8(
   const blockQuantization = 4
   const globalScale = Math.round(65536 / (distance * blockQuantization))
   const effectiveDistance = 65536 / globalScale / blockQuantization
-  // Keep fine DC precision for high-quality, alpha and native-depth output.
+  // Keep fine DC precision outside the measured SDR experiments.
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
   const moderateSdrDc =
     distance > 1 &&
@@ -269,9 +383,28 @@ function* prepare8(
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const finerSdrAc =
+    effort === 7 &&
+    channels === 3 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    distance >= 2 &&
+    distance <= 4 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
+  const moderateAlphaDc =
+    effort === 7 &&
+    channels === 4 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
   const dcQuantization = moderateSdrDc
     ? [1 / 16384, 1 / 4096, 1 / 2048]
-    : [1 / 16384, 1 / 16384, 1 / 16384]
+    : moderateAlphaDc
+      ? [1 / 8192, 1 / 1024, 1 / 512]
+      : [1 / 16384, 1 / 16384, 1 / 16384]
   const fullBlockWidth = Math.ceil(width / 8)
   const fullBlockHeight = Math.ceil(height / 8)
   const deferredDcGroups =
@@ -354,6 +487,20 @@ function* prepare8(
       }
     }
   }
+  const cubeRootTable =
+    effort === 1 &&
+    channels === 3 &&
+    sampleBytes === 1 &&
+    (width & 7) === 0 &&
+    (height & 7) === 0 &&
+    primaryCode === 1 &&
+    colorTransfer.kind === 'srgb'
+      ? allocateJpegXlArray(memory, Float32Array, 16_386)
+      : undefined
+  if (cubeRootTable) {
+    for (let index = 0; index < cubeRootTable.length; index++)
+      cubeRootTable[index] = Math.cbrt(index / 16_384 + bias) - biasRoot
+  }
   // Select the storage kernel once. Grayscale never expands to an RGB bitmap.
   const fillColor =
     channels === 1
@@ -373,20 +520,47 @@ function* prepare8(
           }
         }
       : sampleBytes === 1
-        ? (blockX: number, blockY: number) =>
-            fillXybBlock(
-              pixels,
-              width,
-              height,
-              blockX,
-              blockY,
-              xPlane,
-              yPlane,
-              bPlane,
-              channels,
-              transfer,
-              matrix,
-            )
+        ? channels === 3 && (width & 7) === 0 && (height & 7) === 0
+          ? cubeRootTable
+            ? (blockX: number, blockY: number) =>
+                fillXybBlockAlignedFast(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                  cubeRootTable,
+                )
+            : (blockX: number, blockY: number) =>
+                fillXybBlockAligned(
+                  pixels,
+                  width,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  transfer,
+                  matrix,
+                )
+          : (blockX: number, blockY: number) =>
+              fillXybBlock(
+                pixels,
+                width,
+                height,
+                blockX,
+                blockY,
+                xPlane,
+                yPlane,
+                bPlane,
+                channels,
+                transfer,
+                matrix,
+              )
         : (blockX: number, blockY: number) =>
             fillXybBlock16(
               pixels,
@@ -472,7 +646,19 @@ function* prepare8(
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
         const activity = gradient / Math.max(yy, 1e-12)
-        blockQuantizationMap[offset] = yy < 0.000064 || activity < 0.15 ? 6 : 4
+        blockQuantizationMap[offset] = moderateAlphaDc
+          ? 7
+          : yy < 0.000064 || activity < 0.15
+            ? 6
+            : finerSdrAc
+              ? 5
+              : 4
+        if (brightPqAc && (means[1] ?? 0) >= 0.5 && blockQuantizationMap[offset] === 4)
+          blockQuantizationMap[offset] = 5
+        // Spend extra AC precision on strong SDR edges and thin PQ edges.
+        if (finerSdrAc && gradient > 0.01) blockQuantizationMap[offset] = 6
+        if (brightPqAc && distance >= 2 && distance <= 4 && gradient > 0.01 && activity > 3)
+          blockQuantizationMap[offset] = 6
       }
     }
     yield
@@ -519,6 +705,7 @@ function* prepare8(
       ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
       : undefined
   if (blockStrategyMap) {
+    const alternatePolicy = strategyPolicy === 'rate-distortion'
     const errors = allocateJpegXlArray(memory, Float32Array, 3)
     const baselineErrors = allocateJpegXlArray(memory, Float32Array, 3)
     const coefficientErrors = allocateJpegXlArray(memory, Float32Array, 64)
@@ -532,7 +719,9 @@ function* prepare8(
           table = strategyTables(strategy)[channel]
         if (!plane || !table) throw invalidInput('Missing strategy plane')
         transform(strategy, plane)
-        let squared = 0
+        let squared = 0,
+          nonzero = 0,
+          lastNonzero = 0
         coefficientErrors[0] = 0
         for (let position = 1; position < 64; position++) {
           const step = localScale * (table[position] ?? 0)
@@ -548,8 +737,16 @@ function* prepare8(
           coefficientErrors[position] = error
           squared +=
             error * error * ((strategy === 12 || strategy === 13) && position !== 8 ? 0.5 : 1)
-          if (value !== 0) bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+          if (value !== 0) {
+            bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+            if (alternatePolicy) {
+              nonzero++
+              lastNonzero = Math.max(lastNonzero, naturalAcScanRank[position] ?? 0)
+            }
+          }
         }
+        // The alternate estimate includes zero tokens up to the final nonzero.
+        if (alternatePolicy) bits += 0.4 * (lastNonzero - nonzero)
         if (strategy === 1) {
           squared = 0
           const c01 = coefficientErrors[1] ?? 0,
@@ -582,24 +779,77 @@ function* prepare8(
       for (let x = 0; x < fullBlockWidth; x++) {
         fillCorrelated(x, y)
         const index = y * fullBlockWidth + x
-        const localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
+        let localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
         errors.fill(Infinity)
-        let bestBits = measureStrategy(0, localScale),
-          best = 0,
-          selectedError = errors[1] ?? 0
+        let baselineBits = measureStrategy(0, localScale)
+        // Refine excessive loss of local contrast before choosing a transform. Mean-normalized
+        // DCT energy equals pixel variance. The floors avoid spending bits on
+        // tiny residuals, including decorrelated X chroma.
+        // One bounded refinement retains the existing quantizer as the fallback.
+        if (effort === 7 && channels === 3 && distance > 1 && distance < 5) {
+          let relativeError = 0
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = planes[channel]
+            if (!plane) throw invalidInput('Missing refinement channel')
+            let sum = 0,
+              squares = 0
+            for (let position = 0; position < 64; position++) {
+              const sample = plane[position] ?? 0
+              sum += sample
+              squares += sample * sample
+            }
+            const variance = Math.max(0, squares / 64 - (sum / 64) ** 2)
+            relativeError = Math.max(
+              relativeError,
+              (errors[channel] ?? 0) / (variance + (channel === 0 ? 0.00000001 : 0.000001)),
+            )
+          }
+          const current = blockQuantizationMap[index] ?? blockQuantization
+          const target = Math.min(8, Math.ceil(current * Math.sqrt(relativeError / 0.04)))
+          // Fade toward the surrounding quality ranges without a large endpoint jump.
+          const strength = Math.min(1, distance - 1, 5 - distance)
+          const refined = current + Math.round(Math.max(0, target - current) * strength)
+          if (refined > current) {
+            blockQuantizationMap[index] = refined
+            localScale = 65536 / globalScale / refined
+            baselineBits = measureStrategy(0, localScale)
+          }
+        }
         baselineErrors.set(errors)
-        for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
-          const strategy = strategyCandidates[candidate] ?? 0
-          const bits = measureStrategy(strategy, localScale)
-          if (
-            bits + 2 < bestBits &&
-            (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
-            (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
-            (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
-          ) {
-            bestBits = bits
-            best = strategy
-            selectedError = errors[1] ?? 0
+        let best = 0,
+          selectedError = baselineErrors[1] ?? 0
+        if (alternatePolicy) {
+          const baselineDistortion =
+            2 * (baselineErrors[1] ?? 0) + (baselineErrors[0] ?? 0) + (baselineErrors[2] ?? 0)
+          const lambda = (baselineDistortion * 2) / Math.max(8, baselineBits)
+          let bestCost = baselineDistortion + lambda * baselineBits
+          for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
+            const strategy = strategyCandidates[candidate] ?? 0
+            const bits = measureStrategy(strategy, localScale)
+            const distortion =
+              2 * (errors[1] ?? Infinity) + (errors[0] ?? Infinity) + (errors[2] ?? Infinity)
+            const cost = distortion + lambda * (bits + 2)
+            if (bits + 2 < baselineBits && cost < bestCost) {
+              bestCost = cost
+              best = strategy
+              selectedError = errors[1] ?? 0
+            }
+          }
+        } else {
+          let bestBits = baselineBits
+          for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
+            const strategy = strategyCandidates[candidate] ?? 0
+            const bits = measureStrategy(strategy, localScale)
+            if (
+              bits + 2 < bestBits &&
+              (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
+              (errors[1] ?? Infinity) <= (baselineErrors[1] ?? 0) + 1e-12 &&
+              (errors[2] ?? Infinity) <= (baselineErrors[2] ?? 0) + 1e-12
+            ) {
+              bestBits = bits
+              best = strategy
+              selectedError = errors[1] ?? 0
+            }
           }
         }
         blockStrategyMap[index] = best
@@ -632,6 +882,15 @@ function* prepare8(
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
+  const fastAcInverse =
+    effort === 1
+      ? defaultJpegXlDct8Dequantization.map((table) => {
+          const inverse = allocateJpegXlArray(memory, Float32Array, 64)
+          for (let position = 1; position < 64; position++)
+            inverse[position] = 1 / (effectiveDistance * (table[position] ?? 0))
+          return inverse
+        })
+      : undefined
   const fillAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
     const originX = (group % groupsAcross) * 32
     const originY = Math.floor(group / groupsAcross) * 32
@@ -662,14 +921,15 @@ function* prepare8(
             )
           }
           transform(strategy, plane)
+          const inverse = fastAcInverse?.[channel]
           for (let position = 1; position < 64; position++) {
             const value = Math.round(
-              (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+              inverse
+                ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
+                : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
             )
             if (value < -4095 || value > 4095)
-              throw unsupportedOperation(
-                'JPEG XL forward AC coefficient exceeds the entropy subset',
-              )
+              throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
             destination[offset + (position & 7) * 8 + (position >>> 3)] = value
           }
         }
@@ -766,6 +1026,7 @@ function* prepare8(
     dcPlaneComponents: [second, first, third],
     quantization,
     dcQuantization,
+    ...(moderateAlphaDc ? { adaptiveLfSmoothing: true } : {}),
     defaultQuantization: true,
     globalScale,
     blockQuantization,

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "55c1d74b2ced4f5bd85afb57580be04a427c4c15",
+  "sourcePaths": [
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "bytes": 174133,
+      "sha256": "3706c661b96a14cd075ae9ce47a3187e0c574748836b9d440c2b5e471634e78c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "bytes": 36090,
+      "sha256": "61cf57685f075788b2d4d7316e5b40e44e01353edc817ef71366398702632e9a"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "bytes": 4895,
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "bytes": 179306,
+      "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+    }
+  ],
+  "contracts": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-corpus-selection.json",
+      "bytes": 210966,
+      "sha256": "ff3670acd195143c3ac1f5344aa3cef5844aa30fdf678e56ec5305ea4a991a57"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "bytes": 2758,
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+      "bytes": 2481,
+      "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-hdr-alpha-protocol.json",
+      "bytes": 2409,
+      "sha256": "ace6e30cd1100a139b89ebebf53aa4a645c83c562f65c2d890af7fb3f8bd6b49"
+    }
+  ],
+  "reports": {
+    "qualityDevelopment": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-quality-development.json",
+      "bytes": 842660,
+      "sha256": "c60cf446ad4f5bb0730ef28d11e739b2d00597d13d7afc1418633302e85e5588"
+    },
+    "qualityObserved": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-quality-observed.json",
+      "bytes": 865032,
+      "sha256": "a34ac5898b87fce5baf5b95cd59f80a93ea7e5043ed1a0dacd55c81c3938cfa9"
+    },
+    "originalEight": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-original-size.json",
+      "bytes": 19408,
+      "sha256": "013074ba70dd271fbc33fcf1632ac9fa9fda34d34a7aea838dac56aaeea07073"
+    },
+    "mapOriginal": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-map-original.json",
+      "bytes": 4439,
+      "sha256": "aafae5f03fd62b11cb94fe8d0065a64007f73108255b710fdda3dbac70cee7cc"
+    },
+    "publicScreenshot": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-public-screenshot.json",
+      "bytes": 16904,
+      "sha256": "16726af87296749cb23fe61cae648e2e5aada0da2c58c9502bfb1cdacd855061"
+    },
+    "hdrDevelopment": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-hdr-alpha-development.json",
+      "bytes": 610416,
+      "sha256": "9cad0ae64b3a36c4e052f31b741dbe51557fa257d2c64e96c1f25872b87127c0"
+    },
+    "hdrObserved": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-hdr-alpha-observed.json",
+      "bytes": 611138,
+      "sha256": "5e7048c57933aaf3ada882b3726fe458c66252b1ae904a81d5adc385cddbe660"
+    },
+    "alphaPublicDevelopment": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-alpha-public-development.json",
+      "bytes": 48356,
+      "sha256": "bfe9162d61bdade9473aa6ecb4c73341e7fa3bd0c236a79c7643b8d97e5b3a5b"
+    },
+    "alphaPublicObserved": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-alpha-public-observed.json",
+      "bytes": 44963,
+      "sha256": "bb9ff1c2ef67f4cb4374984ff98e093e81c55c32b265be88fa20bf450c85f8af"
+    },
+    "smallDiagnostic": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-small-diagnostic.json",
+      "bytes": 27173,
+      "sha256": "ea8cdc5baa7828066b321687b5b26f805d6729175fc1025c9f8286e483008025"
+    },
+    "conformance": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-conformance.json",
+      "bytes": 22705,
+      "sha256": "cb9ff9b2b79c97666a937edc42ed418feb09238ef2b90210e631288fa604b586"
+    },
+    "resource": {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-resource.json",
+      "bytes": 8095,
+      "sha256": "d1a1c763fa002bf479fd61351044718990edb53f428f841ca312e40c35596e76"
+    }
+  },
+  "receipts": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/alpha-development.json",
+      "bytes": 1260,
+      "sha256": "05e5f2d5de9b18b30b502aa612762351a84c3458f419bd195c7986c0fe680443"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/alpha-observed.json",
+      "bytes": 1208,
+      "sha256": "666fd080e6537f856367dc9472f42f2be92edd44b7285f5be296943ee5852cfb"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/capped-development.json",
+      "bytes": 1336,
+      "sha256": "a40de2f743ed96add3f4f0745def84f349001a328f78c4c197707201e6340df6"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/capped-observed.json",
+      "bytes": 1453,
+      "sha256": "bdf4d50be92532ef47a4f75687e2f627b72455abbd4b08b1d4bc58d5e4725753"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/conformance.json",
+      "bytes": 1183,
+      "sha256": "54c549e6ddff097d6cc31e0dd66ed5e5b77805cba8e82b095940d0be5ca101b3"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/fixed-eight-originals.json",
+      "bytes": 1041,
+      "sha256": "e20e1a03abda315530c801c40ed34479429ce4d9f7da80ae2770d8aaf65027c7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/hdr-development.json",
+      "bytes": 1157,
+      "sha256": "e13345bacbb2946ca03e758049cc6bb9ca02b488c902ab3fd27f2466d515498c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/hdr-observed.json",
+      "bytes": 1202,
+      "sha256": "ea6b0e2cd46770173d3a03f2971155c4b3640eea8c7389934316fd6f5c75de1e"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/public-screenshot.json",
+      "bytes": 1062,
+      "sha256": "dabe17252c756c34db726e0e55f0a6191b246804746da6c98dbf86fb8621e173"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-visual-defects-receipts/resource.json",
+      "bytes": 1103,
+      "sha256": "cdd61d9c48fdcfb0eeaf365f56e84bc65458825a34a5d637e19daf76aef81491"
+    }
+  ],
+  "selectedArtifacts": [
+    {
+      "label": "sunset-original-d3",
+      "input": {
+        "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+        "bytes": 36000017,
+        "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+      },
+      "encoded": {
+        "path": ".tmp/jpegxl-m7/visual-edge-original-visual-defects-final-20260928/im26-1416-purejsimage-3.jxl",
+        "bytes": 607348,
+        "sha256": "93de90e35a049a914b4323cfea75550869bd1a592a2c67dfdeecdedbfe570b9f"
+      },
+      "normalizedPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "independentDecoderMaximum": 1
+    },
+    {
+      "label": "screenshot-original-d3",
+      "input": {
+        "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+        "bytes": 6220817,
+        "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+      },
+      "encoded": {
+        "path": ".tmp/jpegxl-m7/visual-edge-original-visual-defects-final-20260928/im26-8160-purejsimage-3.jxl",
+        "bytes": 178857,
+        "sha256": "cfbfe96fe12f71f7fd1f9ff915c0f6896989b82219f706e71ba3551b6795c166"
+      },
+      "normalizedPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "independentDecoderMaximum": 1
+    },
+    {
+      "label": "map-original-d3",
+      "input": {
+        "path": ".tmp/jpegxl-m7/lossy-development-integrated054-fast/im26-5032/input.ppm",
+        "bytes": 24933947,
+        "sha256": "403be6a9643fc22cda3ecc00e30d317c9da86e575d6be723b0c8a5e1f60e7d9f"
+      },
+      "encoded": {
+        "path": ".tmp/jpegxl-m7/visual-edge-original-visual-edge-map-original/im26-5032-purejsimage-3.jxl",
+        "bytes": 381974,
+        "sha256": "af661fd9498cb740d97dafa5e78bfe70340102761d1e226efc75684d0b1d2f05"
+      },
+      "normalizedPixelsSha256": "174ee1511bea6b681ab4863a6a2d18ee828777631549791f16d845b76b623a97",
+      "independentDecoderMaximum": 1
+    },
+    {
+      "label": "transparent-icon-public-d3",
+      "input": {
+        "path": ".tmp/jpegxl-m7/expansion-inputs/noto-1f3a8/input.rgba8",
+        "bytes": 1048576,
+        "sha256": "f048f7e136d9ca4757fa50a9e9365d67f68584db11381ac88a5f7f1149ed8390"
+      },
+      "encoded": {
+        "path": ".tmp/jpegxl-m7/alpha-public-holdout-visual-defects-palette-final-20260928/noto-1f3a8/purejsimage-3.jxl",
+        "bytes": 11692,
+        "sha256": "805874ef725388406cf21ae47204a73ccb3d1244bb8f7026705865461a44c514"
+      },
+      "independentDecoderMaximum": 0
+    },
+    {
+      "label": "pq-overpass-original-d3",
+      "input": {
+        "path": ".tmp/jpegxl-m7/expansion-inputs/polyhaven-pedestrian_overpass/input-pq16.ppm",
+        "bytes": 12582931,
+        "sha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd"
+      },
+      "encoded": {
+        "path": ".tmp/jpegxl-m7/hdr-holdout-visual-defects-final-20260928/polyhaven-pedestrian_overpass/distance-3/purejsimage.jxl",
+        "bytes": 188979,
+        "sha256": "e255ed2f3b7d717e83b6195e29bda4f58a2f7b3530d6b44c285917b6dd1140ff"
+      },
+      "independentDecoderMaximum": 6.83814287185669e-5
+    }
+  ],
+  "checks": {
+    "fullRepository": {
+      "path": ".tmp/jpegxl-m7/visual-defects-evidence-check-log.txt",
+      "bytes": 39245,
+      "sha256": "20dce98dee85665192e8f100edc8fe2034fcfb96092128d1e0665d05f02336fa",
+      "passedTests": 3208,
+      "skippedTests": 3
+    },
+    "realBrowser": {
+      "path": ".tmp/jpegxl-m7/visual-defects-browser-log.txt",
+      "bytes": 1200,
+      "sha256": "dcacfc765febdd0161d48eb5764380936816104872cd80c51a0727c7fb8e1c72",
+      "passed": 3,
+      "browsers": ["Chromium", "Firefox", "WebKit"]
+    }
+  },
+  "reuseDecision": "The final palette guard is limited to effort-7 small sRGB RGBA8. Both complete final-source alpha grids were independently decoded and all 72 first-party encoded hashes equal the earlier scored streams. Opaque RGB8 and PQ16 paths cannot enter this condition, so their prior final-candidate encoded artifacts, source pixels, tools, and quality measurements remain applicable. Timings were not reused as new timings.",
+  "observedSplit": "Regression evidence only; the inspected families are not unseen.",
+  "stablePromotionGatePassed": false
+}

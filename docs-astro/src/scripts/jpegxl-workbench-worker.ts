@@ -1,6 +1,6 @@
 import { throwIfAborted } from '../../../src/abort.ts'
 import { createImageLibrary } from '../../../src/browser.ts'
-import type { ImageCodec, ImageDecoder } from '../../../src/codec.ts'
+import type { ImageCodec } from '../../../src/codec.ts'
 import { jpegCodec } from '../../../src/codecs/jpeg.ts'
 import { jpegxlCodec } from '../../../src/codecs/jpegxl.ts'
 import { pngCodec } from '../../../src/codecs/png.ts'
@@ -13,9 +13,10 @@ import {
   transcodeJpegToJpegXl,
 } from '../../../src/jpegxl.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
-import type { PixelFormat } from '../../../src/pixel.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
 import { MemorySource } from '../../../src/source.ts'
+import { isJxlToolRequest } from './jpegxl-tool-types.ts'
+import { channelCount, encoderPixelFormat, nativePixels } from './jpegxl-workbench-pixels.ts'
 import {
   isJpegXlWorkbenchPreviewPixelFormat,
   jpegXlWorkbenchPreviewMode,
@@ -37,16 +38,6 @@ interface StoredInput {
   readonly name: string
   readonly kind: 'jpeg' | 'jpegxl' | 'png' | 'tiff'
   readonly bytes: Uint8Array
-}
-
-type EncoderPixelFormat = 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
-
-interface NativePixels {
-  readonly width: number
-  readonly height: number
-  readonly format: EncoderPixelFormat
-  readonly pixels: Uint8Array
-  readonly decoder: ImageDecoder
 }
 
 let stored: StoredInput | undefined
@@ -84,51 +75,6 @@ const inputCodec = (
   if (tiffCodec.detect(data)) return Object.freeze({ kind: 'tiff', codec: tiffCodec })
   if (jpegxlCodec.detect(data)) return Object.freeze({ kind: 'jpegxl', codec: jpegxlCodec })
   throw new Error('Workbench input must be JPEG, JPEG XL, PNG, or TIFF')
-}
-
-const encoderPixelFormat = (format: PixelFormat): format is EncoderPixelFormat =>
-  format === 'gray8' ||
-  format === 'gray16' ||
-  format === 'rgb8' ||
-  format === 'rgb16' ||
-  format === 'rgba8' ||
-  format === 'rgba16'
-
-const channelCount = (format: EncoderPixelFormat): 1 | 3 | 4 =>
-  format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
-
-const nativePixels = async (
-  codec: ImageCodec,
-  data: Uint8Array,
-  signal: AbortSignal,
-): Promise<NativePixels> => {
-  const decoder = await codec.createDecoder?.(new MemorySource(data), defaultImageLimits, {
-    signal,
-  })
-  if (!decoder) throw new Error(`${codec.format} decoder is unavailable`)
-  if (!encoderPixelFormat(decoder.pixelFormat)) {
-    throw new Error(`Pixel-lossless JPEG XL encode does not support ${decoder.pixelFormat}`)
-  }
-  const format = decoder.pixelFormat
-  const memoryPlan = planJpegXlWorkbenchNativeMemory(decoder.width, decoder.height, format)
-  const sampleBytes = format.endsWith('16') ? 2 : 1
-  const pixels = new Uint8Array(memoryPlan.nativePixelBytes)
-  for await (const block of decoder.decode({ signal })) {
-    try {
-      throwIfAborted(signal)
-      if (block.format !== format) throw new Error('Decoder changed pixel format between blocks')
-      const blockRowBytes = block.width * channelCount(format) * sampleBytes
-      for (let row = 0; row < block.height; row += 1) {
-        pixels.set(
-          block.data.subarray(row * block.stride, row * block.stride + blockRowBytes),
-          ((block.y + row) * decoder.width + block.x) * channelCount(format) * sampleBytes,
-        )
-      }
-    } finally {
-      block.release?.()
-    }
-  }
-  return Object.freeze({ width: decoder.width, height: decoder.height, format, pixels, decoder })
 }
 
 const sameBytes = (left: Uint8Array, right: Uint8Array): boolean => {
@@ -245,7 +191,7 @@ const isCurrent = (generation: number, requestId: number, abort: AbortController
 
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
   if (!isJpegXlWorkbenchWorkerEvent(event)) return
-  if (!isJpegXlWorkbenchRequest(event.data)) return
+  if (!isJpegXlWorkbenchRequest(event.data) && !isJxlToolRequest(event.data)) return
   const request = event.data
   if (
     request.generation < activeGeneration ||
@@ -269,6 +215,13 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
   }
   void (async () => {
     try {
+      if (request.type === 'tool') {
+        const { runJxlTool } = await import('./jpegxl-tool-worker.js')
+        await runJxlTool(request, abort.signal, (response) => {
+          if (isCurrent(request.generation, request.requestId, abort)) self.postMessage(response)
+        })
+        return
+      }
       if (request.type === 'open') {
         const bytes = new Uint8Array(request.bytes)
         const selected = inputCodec(bytes)
@@ -370,14 +323,24 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
         return
       }
       if (request.type === 'encode') {
-        if (input.kind !== 'png' && input.kind !== 'tiff') {
-          throw new Error('Pixel-lossless encode requires a supported PNG or TIFF input')
-        }
         const started = performance.now()
         const mode = request.mode ?? 'lossless'
-        const codec = input.kind === 'png' ? pngCodec : tiffCodec
+        const codec = inputCodec(input.bytes).codec
         const source = await nativePixels(codec, input.bytes, abort.signal)
-        const semantics = source.decoder.colorSemantics
+        const semantics =
+          source.decoder.colorSemantics ??
+          (input.kind === 'jpeg'
+            ? {
+                family: source.format.startsWith('gray') ? ('gray' as const) : ('rgb' as const),
+                primaries: 'srgb' as const,
+                transfer: { kind: 'srgb' as const },
+                matrix: 'identity' as const,
+                range: 'full' as const,
+                alpha: 'none' as const,
+                provenance: 'assumed-default' as const,
+                renderingIntent: 'relative' as const,
+              }
+            : undefined)
         if (!semantics || jpegxlCodec.acceptsColorSemantics?.(semantics) !== true) {
           throw new Error(
             'Pixel-lossless JPEG XL encode does not support the source color semantics',
@@ -393,6 +356,11 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           source.height,
           source.format,
         )
+        const nativeInspection =
+          input.kind === 'jpegxl'
+            ? await inspectJpegXl(input.bytes, { signal: abort.signal })
+            : undefined
+        const depths = source.decoder.execution?.sampleBitDepths
         const sink = new Uint8ArraySink()
         const encoder = await jpegxlCodec.createEncoder?.(sink, {
           width: source.width,
@@ -401,6 +369,24 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           colorSemantics: semantics,
           options: {
             mode,
+            sampleBitDepth: depths?.[0] ?? (source.format.endsWith('16') ? 16 : 8),
+            ...(source.format.startsWith('rgba')
+              ? { alphaBitDepth: depths?.[3] ?? (source.format.endsWith('16') ? 16 : 8) }
+              : {}),
+            ...(nativeInspection
+              ? {
+                  orientation: nativeInspection.orientation,
+                  toneMapping: nativeInspection.toneMapping,
+                  ...(nativeInspection.intrinsicWidth && nativeInspection.intrinsicHeight
+                    ? {
+                        intrinsicSize: {
+                          width: nativeInspection.intrinsicWidth,
+                          height: nativeInspection.intrinsicHeight,
+                        },
+                      }
+                    : {}),
+                }
+              : {}),
             maxWorkingBytes: memoryPlan.encoderWorkingBytes,
             maxOutputBytes: memoryPlan.estimatedOutputBytes,
             effort: request.effort ?? (mode === 'lossless' ? 1 : 3),
@@ -487,7 +473,7 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
           preview: rendered,
           inspection,
           encode: Object.freeze({
-            status: 'Experimental',
+            status: 'Stable',
             sourcePixelFormat: source.format,
             decodedPixelFormat: reopened.format,
             exactDecodedSamples,

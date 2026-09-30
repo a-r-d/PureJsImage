@@ -1,5 +1,9 @@
 import type { JpegXlWorkbenchPreview, JpegXlWorkbenchRequest } from './jpegxl-workbench-types.ts'
-import { isJpegXlWorkbenchResponse } from './jpegxl-workbench-types.ts'
+import {
+  isJpegXlWorkbenchResponse,
+  jpegXlWorkbenchMaximumInputBytes,
+} from './jpegxl-workbench-types.ts'
+import { JxlWorkerClient } from './jpegxl-worker-client.ts'
 
 const element = (id: string): HTMLElement => {
   const value = document.getElementById(id)
@@ -41,12 +45,28 @@ if (!(onlyIfSmaller instanceof HTMLInputElement)) {
 const status = element('jxl-status')
 const summary = element('jxl-summary')
 const details = element('jxl-details')
-const worker = new Worker(new URL('./jpegxl-workbench-worker.js', import.meta.url), {
-  type: 'module',
-})
+let receive: (event: MessageEvent<unknown>) => void = () => undefined
+const worker = new JxlWorkerClient(
+  (value) => receive(new MessageEvent('message', { data: value })),
+  (message) => {
+    generation++
+    needsReopen = true
+    pending = undefined
+    status.textContent = message
+  },
+)
+
+let downloadUrl: string | undefined
+const revokeDownload = () => {
+  if (downloadUrl) URL.revokeObjectURL(downloadUrl)
+  downloadUrl = undefined
+}
 let nextRequestId = 0
 let latestRequestId = 0
 let generation = 0
+let sourceFile: File | undefined
+let needsReopen = false
+let pending: WithoutIdentity<JpegXlWorkbenchRequest> | undefined
 let output: Readonly<{ name: string; bytes: ArrayBuffer }> | undefined
 
 type WithoutIdentity<Request> = Request extends {
@@ -60,20 +80,54 @@ const request = (
   value: WithoutIdentity<JpegXlWorkbenchRequest>,
   requestGeneration = generation,
 ): void => {
+  if (value.type === 'cancel') {
+    worker.reset()
+    generation++
+    latestRequestId = ++nextRequestId
+    needsReopen = true
+    pending = undefined
+    status.textContent = 'Cancelled. Retry reopens the source.'
+    return
+  }
+  if (value.type === 'open') {
+    if (value.bytes.byteLength > jpegXlWorkbenchMaximumInputBytes) {
+      status.textContent = 'Choose a file no larger than 64 MiB.'
+      return
+    }
+    sourceFile = new File([value.bytes], value.name)
+    needsReopen = false
+  } else if (needsReopen && sourceFile) {
+    pending = value
+    const source = sourceFile,
+      expected = generation
+    void source
+      .arrayBuffer()
+      .then((bytes) => {
+        if (expected === generation) request({ type: 'open', name: source.name, bytes })
+      })
+      .catch((error: unknown) => {
+        if (expected === generation) status.textContent = String(error)
+      })
+    return
+  }
   latestRequestId = ++nextRequestId
   const message = {
     ...value,
     requestId: latestRequestId,
     generation: requestGeneration,
   } as JpegXlWorkbenchRequest
-  if (message.type !== 'cancel') status.textContent = 'Working locally in a browser worker…'
-  if (message.type === 'open') worker.postMessage(message, [message.bytes])
-  else worker.postMessage(message)
+  status.textContent = 'Working locally in a browser worker…'
+  if (message.type === 'open') worker.post(message, [message.bytes])
+  else worker.post(message)
 }
 
 const beginOpen = (): number => {
+  worker.reset()
   generation += 1
-  request({ type: 'cancel' }, generation)
+  needsReopen = false
+  pending = undefined
+  sourceFile = undefined
+  revokeDownload()
   output = undefined
   button('jxl-download').disabled = true
   button('jxl-reopen').disabled = true
@@ -120,7 +174,7 @@ const openSample = async (name: string): Promise<void> => {
   request({ type: 'open', name, bytes }, openGeneration)
 }
 
-worker.addEventListener('message', (event: MessageEvent<unknown>) => {
+receive = (event: MessageEvent<unknown>) => {
   if (!isJpegXlWorkbenchResponse(event.data)) {
     status.textContent = 'The JPEG XL worker returned an invalid response.'
     return
@@ -137,11 +191,15 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     sourceCanvas.height = canvas.height
     sourceCanvas.getContext('2d')?.drawImage(canvas, 0, 0)
   }
+  revokeDownload()
   output = response.type === 'output' ? { name: response.name, bytes: response.bytes } : undefined
   button('jxl-download').disabled = output === undefined
   if (response.type === 'opened') {
     const exact = response.eligibility?.eligible
-    const pixelInput = response.sourceKind === 'png' || response.sourceKind === 'tiff'
+    const pixelInput =
+      !response.inspection ||
+      (response.inspection.exponentBits === 0 &&
+        response.inspection.extraChannels === response.inspection.alphaChannels)
     rows([
       ['File', response.name],
       [
@@ -153,6 +211,12 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
             : (response.pixelSource?.container ?? response.sourceKind.toUpperCase()),
       ],
       ['Bytes', response.inputBytes.toLocaleString()],
+      [
+        'Source precision',
+        response.inspection
+          ? `${response.inspection.expectedPixelFormat}; ${response.inspection.bitDepth}-bit color`
+          : (response.pixelSource?.pixelFormat ?? 'JPEG decoded integer pixels'),
+      ],
       ['Dimensions', `${response.preview.logicalWidth} × ${response.preview.logicalHeight}`],
       ...(response.pixelSource
         ? ([
@@ -161,7 +225,7 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
               'Color and alpha',
               `${response.pixelSource.color}; alpha ${response.pixelSource.alpha}`,
             ],
-            ['Encoder status', 'Experimental'],
+            ['Encoder status', 'Stable static encoding'],
           ] as const)
         : []),
       [
@@ -195,6 +259,11 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
       response.inspection?.jpegReconstruction !== 'metadata-valid'
     button('jxl-transform').disabled = false
     status.textContent = `${response.name} inspected and decoded locally.`
+    if (pending) {
+      const next = pending
+      pending = undefined
+      request(next)
+    }
     return
   }
   button('jxl-reopen').disabled = !response.name.endsWith('.jxl')
@@ -220,8 +289,9 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
         `${response.encode?.managedPeakBytes.toLocaleString() ?? '0'} bytes`,
       ],
       ['Normalized color RMSE', response.encode?.normalizedRmse.toFixed(6) ?? 'unknown'],
-      ['Encoder status', response.encode?.status ?? 'Experimental'],
-      ['Pixel format', response.encode?.sourcePixelFormat ?? 'unknown'],
+      ['Encoder status', response.encode?.status ?? 'Unknown'],
+      ['Source pixel format', response.encode?.sourcePixelFormat ?? 'unknown'],
+      ['Output pixel format', response.encode?.decodedPixelFormat ?? 'unknown'],
       [
         'Decoded samples',
         response.encode?.exactDecodedSamples
@@ -301,14 +371,19 @@ worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     details.textContent = JSON.stringify({ exactReconstruction: true }, null, 2)
     status.textContent = 'Original JPEG bytes reconstructed locally.'
   }
-})
+}
 
-worker.addEventListener('error', (event) => {
-  status.textContent = event.message
+button('jxl-open-gray').addEventListener('click', () => {
+  void openSample('jpegxl-gray.jpg').catch((error: unknown) => {
+    status.textContent = String(error)
+  })
 })
-
 button('jxl-open-jpeg').addEventListener('click', () => {
-  void openSample('jpegxl-progressive-yuv420.jpg').catch((error: unknown) => {
+  void openSample(
+    document.querySelector('[data-tool]')?.getAttribute('data-tool') === 'exact'
+      ? 'jpegxl-progressive-yuv420.jpg'
+      : 'jpegxl-pixel-lossless.png',
+  ).catch((error: unknown) => {
     status.textContent = error instanceof Error ? error.message : 'Could not load JPEG sample'
   })
 })
@@ -325,6 +400,10 @@ button('jxl-open-png').addEventListener('click', () => {
 file.addEventListener('change', () => {
   const selected = file.files?.[0]
   if (!selected) return
+  if (selected.size > jpegXlWorkbenchMaximumInputBytes) {
+    status.textContent = 'Choose a file no larger than 64 MiB.'
+    return
+  }
   const openGeneration = beginOpen()
   void selected.arrayBuffer().then((bytes) => {
     if (openGeneration !== generation) return
@@ -338,6 +417,15 @@ button('jxl-encode').addEventListener('click', () => {
   const effort = Number(effortInput.value)
   if (effort !== 1 && effort !== 3 && effort !== 5 && effort !== 7)
     throw new Error('Invalid effort')
+  if (
+    encodeMode.value === 'lossy' &&
+    (!Number.isFinite(distanceInput.valueAsNumber) ||
+      distanceInput.valueAsNumber < 0.25 ||
+      distanceInput.valueAsNumber > 25)
+  ) {
+    status.textContent = 'Choose distance from 0.25 through 25.'
+    return
+  }
   request({
     type: 'encode',
     effort,
@@ -357,6 +445,7 @@ zoomInput.addEventListener('change', () => {
     target.style.width =
       zoomInput.value === 'fit' ? '' : `${target.width * Number(zoomInput.value)}px`
     target.style.height = 'auto'
+    target.style.maxHeight = zoomInput.value === 'fit' ? '34rem' : 'none'
   }
 })
 const updateEncodeControls = () => {
@@ -378,20 +467,35 @@ button('jxl-reopen').addEventListener('click', () => {
 })
 button('jxl-download').addEventListener('click', () => {
   if (!output) return
-  const url = URL.createObjectURL(new Blob([output.bytes]))
+  downloadUrl ??= URL.createObjectURL(new Blob([output.bytes]))
+  const url = downloadUrl
   const anchor = document.createElement('a')
   anchor.href = url
   anchor.download = output.name
   anchor.click()
-  URL.revokeObjectURL(url)
 })
 
+for (const [a, b] of [
+  [canvas.parentElement, sourceCanvas.parentElement],
+  [sourceCanvas.parentElement, canvas.parentElement],
+])
+  a?.addEventListener('scroll', () => {
+    if (b && (b.scrollLeft !== a.scrollLeft || b.scrollTop !== a.scrollTop)) {
+      b.scrollLeft = a.scrollLeft
+      b.scrollTop = a.scrollTop
+    }
+  })
 window.addEventListener('pagehide', () => {
   request({ type: 'cancel' })
-  worker.terminate()
+  revokeDownload()
+  worker.reset()
 })
 
-void openSample('jpegxl-progressive-yuv420.jpg').catch((error: unknown) => {
+void openSample(
+  document.querySelector('[data-tool]')?.getAttribute('data-tool') === 'exact'
+    ? 'jpegxl-progressive-yuv420.jpg'
+    : 'jpegxl-pixel-lossless.png',
+).catch((error: unknown) => {
   status.textContent = error instanceof Error ? error.message : 'Could not load JPEG sample'
 })
 

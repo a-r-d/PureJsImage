@@ -1,0 +1,1202 @@
+{
+  "schemaVersion": 1,
+  "started": "2026-09-29T15:44:51.124Z",
+  "updated": "2026-09-29T15:44:53.122Z",
+  "mode": "repair",
+  "runtime": "chromium",
+  "environment": {
+    "platform": "linux",
+    "release": "7.0.0-34-generic",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "logicalCpus": 16,
+    "hostMemoryBytes": 64921018368,
+    "node": "v24.16.0",
+    "browser": "151.0.7922.34",
+    "browserMemory": "unavailable: no consistent cross-browser measurement API",
+    "singleThread": true
+  },
+  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "subjectsSha256": "9b81356ae905fcd84071604e717a27bd81c2817fc67a5a66717e8d244340524d",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "rows": [
+    {
+      "key": "gray16-default-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-oxide-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "times": [0.40000000037252903, 0.39999999944120646, 0.40000000037252903],
+      "coldMs": 29.299999999813735,
+      "initializationMs": 13.900000000372529,
+      "output": {
+        "kind": "png",
+        "sha256": "c8ed4fef7fe5689511f6f4669b9840f6614d1e495c0066542a5371b1ce3b0c4d",
+        "bytes": 300
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "gray16-default-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 12.799999999813735,
+      "output": null,
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        }
+      ],
+      "errors": [],
+      "memory": null
+    },
+    {
+      "key": "gray16-default-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "times": [1.3799999998882413, 1.3450000006705523, 1.3649999992921948],
+      "coldMs": 169.9550000000745,
+      "initializationMs": 146.4199999999255,
+      "output": {
+        "width": 41,
+        "height": 31,
+        "channels": 1,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "bytes": 2542
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "gray16-default-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "gray16-default",
+      "scope": "specialized",
+      "category": "gray16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "times": [2.650000000372529, 2.3999999994412065, 2.235000000335276],
+      "coldMs": 179.16500000003725,
+      "initializationMs": 145.60500000044703,
+      "output": {
+        "kind": "jxl",
+        "sha256": "e963d3f8b949ca29a55b53c3f8c44ab68ef7d9c986ebdd0c948f04c36d8cbc6b",
+        "bytes": 1379
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/gray16-default-lossless.jxl",
+          "bytes": 392
+        },
+        {
+          "url": "/fixtures/gray16-default.raw",
+          "bytes": 2542
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "rgb16-default-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-oxide-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [1, 1.099999999627471, 0.7999999998137355],
+      "coldMs": 30.300000000745058,
+      "initializationMs": 12.700000000186265,
+      "output": {
+        "kind": "png",
+        "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
+        "bytes": 961
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgb16-default-lossless.jxl",
+          "bytes": 581
+        },
+        {
+          "url": "/fixtures/rgb16-default.raw",
+          "bytes": 10998
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgb16-default-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 12.600000000558794,
+      "output": null,
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgb16-default-lossless.jxl",
+          "bytes": 581
+        },
+        {
+          "url": "/fixtures/rgb16-default.raw",
+          "bytes": 10998
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        }
+      ],
+      "errors": [],
+      "memory": null
+    },
+    {
+      "key": "rgb16-default-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [1.7199999997392297, 1.6349999997764826, 1.8250000001862645],
+      "coldMs": 168.56500000040978,
+      "initializationMs": 143.82500000018626,
+      "output": {
+        "width": 47,
+        "height": 39,
+        "channels": 3,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "bytes": 10998
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgb16-default-lossless.jxl",
+          "bytes": 581
+        },
+        {
+          "url": "/fixtures/rgb16-default.raw",
+          "bytes": 10998
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgb16-default-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [3.159999999217689, 3.010000000707805, 2.4100000001490116],
+      "coldMs": 181.34999999962747,
+      "initializationMs": 144.48000000044703,
+      "output": {
+        "kind": "jxl",
+        "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
+        "bytes": 3088
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgb16-default-lossless.jxl",
+          "bytes": 581
+        },
+        {
+          "url": "/fixtures/rgb16-default.raw",
+          "bytes": 10998
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "rgba16-straight-oxide-decode-lossless-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgba16-straight",
+      "scope": "specialized",
+      "category": "rgba16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-oxide-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+      "times": [1.199999999254942, 1, 1],
+      "coldMs": 30.100000000558794,
+      "initializationMs": 12.799999999813735,
+      "output": {
+        "kind": "png",
+        "sha256": "1ba8f3409b59ea6dc65506049bbf9eac33c2dbe3949052ac0d2d00911e14e583",
+        "bytes": 1996
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgba16-straight-lossless.jxl",
+          "bytes": 1462
+        },
+        {
+          "url": "/fixtures/rgba16-straight.raw",
+          "bytes": 9240
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgba16-straight-oxide-encode-ll-e1",
+      "subject": "oxide",
+      "fixture": "rgba16-straight",
+      "scope": "specialized",
+      "category": "rgba16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "decode + mandatory PNG export",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-oxide-encode-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "Published binding has no encoder",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 12.399999999441206,
+      "output": null,
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgba16-straight-lossless.jxl",
+          "bytes": 1462
+        },
+        {
+          "url": "/fixtures/rgba16-straight.raw",
+          "bytes": 9240
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
+          "bytes": 9029
+        },
+        {
+          "url": "/assets/oxide.wasm",
+          "bytes": 1698491
+        }
+      ],
+      "errors": [],
+      "memory": null
+    },
+    {
+      "key": "rgba16-straight-vips-decode-lossless-ll-e1",
+      "subject": "vips",
+      "fixture": "rgba16-straight",
+      "scope": "specialized",
+      "category": "rgba16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-vips-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+      "times": [2, 1.8149999994784594, 1.7599999997764826],
+      "coldMs": 165.0100000007078,
+      "initializationMs": 140.3400000007823,
+      "output": {
+        "width": 35,
+        "height": 33,
+        "channels": 4,
+        "interpretation": "srgb16",
+        "sampleType": "uint16",
+        "kind": "pixels",
+        "sha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+        "bytes": 9240
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgba16-straight-lossless.jxl",
+          "bytes": 1462
+        },
+        {
+          "url": "/fixtures/rgba16-straight.raw",
+          "bytes": 9240
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "rgba16-straight-vips-encode-ll-e1",
+      "subject": "vips",
+      "fixture": "rgba16-straight",
+      "scope": "specialized",
+      "category": "rgba16",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-vips-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+      "times": [2.8399999998509884, 2.3900000005960464, 2.2850000001490116],
+      "coldMs": 176.34999999962747,
+      "initializationMs": 142.3300000000745,
+      "output": {
+        "kind": "jxl",
+        "sha256": "882811a8312dd607d39f4fd94ea6b5d7120cddfb667be289a658b23417ce8107",
+        "bytes": 3829
+      },
+      "crossOriginIsolated": true,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/isolated",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgba16-straight-lossless.jxl",
+          "bytes": 1462
+        },
+        {
+          "url": "/fixtures/rgba16-straight.raw",
+          "bytes": 9240
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips.wasm",
+          "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    }
+  ]
+}

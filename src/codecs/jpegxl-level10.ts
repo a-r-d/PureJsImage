@@ -1,5 +1,15 @@
-import { invalidInput, unsupportedOperation } from '../errors.ts'
-import { parseCmykIccTransform, writeCmykIcc } from './icc.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import type { PixelColorSemantics } from '../color.ts'
+import { jpegXlSourceColorSemantics } from './jpegxl-decode.ts'
+import {
+  parseCmykIccTransform,
+  parseCmykIccTransform16,
+  parseGrayIccTransform16,
+  parseRgbIccTransform16,
+  writeCmykIcc,
+  writeCmykIcc16,
+  writeRgbIcc16,
+} from './icc.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
 import { upsampleJpegXlNativePlane } from './jpegxl-vardct-render.ts'
 
@@ -15,12 +25,33 @@ export interface JpegXlRgba16Image {
   readonly height: number
   readonly format: 'rgba16'
   readonly data: Uint16Array
+  /** The mapped RGB samples have straight alpha, even when source samples were associated. */
+  readonly colorSemantics: PixelColorSemantics
+  readonly sourceColorSemantics: PixelColorSemantics
+  readonly displayRange?: Readonly<{ black: number; white: number }>
 }
 
 const integerPlane = (layer: Readonly<JpegXlNativeLayer>, index: number): Int32Array => {
   const plane = layer.planes[index]
   if (!(plane instanceof Int32Array)) throw unsupportedOperation('Integer plane unavailable')
   return plane
+}
+
+const binary16 = (bits: number): number => {
+  const sign = (bits & 0x8000) === 0 ? 1 : -1
+  const exponent = (bits >>> 10) & 0x1f
+  const fraction = bits & 0x03ff
+  if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024)
+  if (exponent === 0x1f) return fraction === 0 ? sign * Number.POSITIVE_INFINITY : Number.NaN
+  return sign * 2 ** (exponent - 15) * (1 + fraction / 1024)
+}
+
+const binary32 = new Float32Array(1)
+const binary32Bits = new Uint32Array(binary32.buffer)
+const floatSample = (bits: number, depth: 16 | 32): number => {
+  if (depth === 16) return binary16(bits)
+  binary32Bits[0] = bits >>> 0
+  return binary32[0] ?? 0
 }
 
 const normalizedExtraPlane = (
@@ -48,9 +79,19 @@ const normalizedExtraPlane = (
     const maximum = 2 ** descriptor.bitDepth.bits - 1
     for (let index = 0; index < source.length; index++)
       normalized[index] = (source[index] ?? 0) / maximum
+  } else if (
+    (descriptor.bitDepth.bits === 16 && descriptor.bitDepth.exponentBits === 5) ||
+    (descriptor.bitDepth.bits === 32 && descriptor.bitDepth.exponentBits === 8)
+  ) {
+    const depth = descriptor.bitDepth.bits === 16 ? 16 : 32
+    for (let index = 0; index < source.length; index++)
+      normalized[index] = floatSample(source[index] ?? 0, depth)
   } else {
-    throw unsupportedOperation('JPEG XL display conversion requires integer alpha')
+    throw unsupportedOperation('JPEG XL display conversion requires integer or IEEE alpha')
   }
+  for (let index = 0; index < normalized.length; index++)
+    if (!Number.isFinite(normalized[index]))
+      throw invalidInput('Float display rejects NaN and infinity')
   return factor === 1
     ? normalized
     : upsampleJpegXlNativePlane(
@@ -64,16 +105,24 @@ const normalizedExtraPlane = (
       )
 }
 
-const displayAlpha = (layer: Readonly<JpegXlNativeLayer>): Float64Array | undefined => {
+const displayAlpha = (
+  layer: Readonly<JpegXlNativeLayer>,
+):
+  | Readonly<{
+      samples: Float64Array
+      associated: boolean
+    }>
+  | undefined => {
   const selected = layer.header.selectedAlphaChannel
   const index =
     selected !== undefined && layer.header.extraChannels[selected]?.type === 0
       ? selected
       : layer.header.extraChannels.findIndex((channel) => channel.type === 0)
   if (index < 0) return undefined
-  if (layer.header.extraChannels[index]?.associatedAlpha)
-    throw unsupportedOperation('JPEG XL display conversion does not support associated alpha')
-  return normalizedExtraPlane(layer, index)
+  return Object.freeze({
+    samples: normalizedExtraPlane(layer, index),
+    associated: layer.header.extraChannels[index]?.associatedAlpha ?? false,
+  })
 }
 
 /** Returns caller-owned unsigned samples without losing integer or floating-point bit patterns. */
@@ -110,40 +159,189 @@ export const jpegXlNativeFloat32ColorPlanes = (
   )
 }
 
-/** Explicitly maps binary32 color to integer display samples. Non-finite input is rejected. */
-export const convertJpegXlFloat32LayerToRgba16 = (
+/** Maps IEEE binary16/32 native color to straight RGBA16. Non-finite input is rejected. */
+export const convertJpegXlFloatLayerToRgba16 = (
   layer: Readonly<JpegXlNativeLayer>,
   range: Readonly<{ black: number; white: number }>,
 ): JpegXlRgba16Image => {
   if (!Number.isFinite(range.black) || !Number.isFinite(range.white) || range.white <= range.black)
     throw invalidInput('Float range must be finite and increasing')
-  const planes = jpegXlNativeFloat32ColorPlanes(layer)
-  if (planes.length !== 1 && planes.length !== 3)
+  const header = layer.header
+  if (layer.domain !== 'modular' || header.sampleFormat !== 'floating-point')
+    throw invalidInput('Not IEEE floating-point color')
+  const depth =
+    header.bitDepth === 16 && header.exponentBits === 5
+      ? 16
+      : header.bitDepth === 32 && header.exponentBits === 8
+        ? 32
+        : undefined
+  if (!depth) throw unsupportedOperation('Float display needs IEEE binary16 or binary32 color')
+  if (header.colorChannels !== 1 && header.colorChannels !== 3)
     throw unsupportedOperation('Float display needs gray or RGB')
   const width = layer.layouts[0]?.width ?? 0
   const height = layer.layouts[0]?.height ?? 0
   const pixels = width * height
+  const planes = Array.from({ length: header.colorChannels }, (_, index) =>
+    integerPlane(layer, index),
+  )
   if (pixels < 1 || planes.some((plane) => plane.length !== pixels))
     throw invalidInput('Float plane sizes disagree')
-  const output = new Uint16Array(pixels * 4)
   const alpha = displayAlpha(layer)
-  if (alpha && alpha.length !== pixels) throw invalidInput('Float alpha plane size disagrees')
+  if (alpha && alpha.samples.length !== pixels)
+    throw invalidInput('Float alpha plane size disagrees')
+  const output = new Uint16Array(pixels * 4)
   const scale = 65_535 / (range.white - range.black)
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
+    const alphaValue = alpha?.samples[index] ?? 1
+    const unitAlpha = Math.max(0, Math.min(1, alphaValue))
     for (let channel = 0; channel < 3; channel++) {
-      const value = planes[planes.length === 1 ? 0 : channel]?.[index]
-      if (value === undefined || !Number.isFinite(value))
-        throw invalidInput('Float display rejects NaN and infinity')
+      const source = planes[planes.length === 1 ? 0 : channel]
+      const value = floatSample(source?.[index] ?? 0, depth)
+      if (!Number.isFinite(value)) throw invalidInput('Float display rejects NaN and infinity')
+      // Associated samples must be straightened in the native domain. Applying the
+      // nonzero display black point first would change their color meaning.
+      if (alpha?.associated && alphaValue <= 0) {
+        output[target + channel] = 0
+        continue
+      }
+      const straight = alpha?.associated ? value / alphaValue : value
       output[target + channel] = Math.round(
-        Math.max(0, Math.min(65_535, (value - range.black) * scale)),
+        Math.max(0, Math.min(65_535, (straight - range.black) * scale)),
       )
     }
-    output[target + 3] = alpha
-      ? Math.round(Math.max(0, Math.min(1, alpha[index] ?? 0)) * 65_535)
-      : 65_535
+    output[target + 3] = Math.round(unitAlpha * 65_535)
   }
-  return Object.freeze({ width, height, format: 'rgba16' as const, data: output })
+  const sourceSemantics = jpegXlSourceColorSemantics(header)
+  const colorSemantics: PixelColorSemantics = Object.freeze({
+    family: 'rgb',
+    primaries: 'unspecified',
+    transfer: Object.freeze({ kind: 'unspecified' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: 'straight',
+    provenance: 'decoder-converted',
+  })
+  return Object.freeze({
+    width,
+    height,
+    format: 'rgba16' as const,
+    data: output,
+    colorSemantics,
+    sourceColorSemantics: sourceSemantics,
+    displayRange: Object.freeze({ black: range.black, white: range.white }),
+  })
+}
+
+/** Retained binary32-specific entry point for existing callers. */
+export const convertJpegXlFloat32LayerToRgba16 = (
+  layer: Readonly<JpegXlNativeLayer>,
+  range: Readonly<{ black: number; white: number }>,
+): JpegXlRgba16Image => {
+  if (layer.header.bitDepth !== 32 || layer.header.exponentBits !== 8)
+    throw invalidInput('Not IEEE binary32 color')
+  return convertJpegXlFloatLayerToRgba16(layer, range)
+}
+
+/** Converts supported high-depth source-profile samples directly to straight sRGB16. */
+export const convertJpegXlIccLayerToRgba16 = (
+  layer: Readonly<JpegXlNativeLayer>,
+): JpegXlRgba16Image => {
+  const header = layer.header
+  const profile = header.iccProfile
+  if (layer.domain !== 'modular' || !profile)
+    throw invalidInput('JPEG XL native layer has no ICC profile')
+  if (header.sampleFormat !== 'unsigned-integer' || header.bitDepth < 8 || header.bitDepth > 16)
+    throw unsupportedOperation('High-depth ICC conversion requires 8- through 16-bit integer color')
+  const width = layer.layouts[0]?.width ?? 0
+  const height = layer.layouts[0]?.height ?? 0
+  const pixels = width * height
+  if (!Number.isSafeInteger(pixels) || pixels < 1 || pixels > 134_217_728)
+    throw limitExceeded('High-depth ICC output exceeds 1 GiB')
+  const color = Array.from({ length: header.colorChannels }, (_, index) =>
+    integerPlane(layer, index),
+  )
+  if (color.some((plane) => plane.length !== pixels))
+    throw invalidInput('JPEG XL ICC color planes must be full-size')
+  const blackIndex = header.extraChannels.findIndex((channel) => channel.type === 4)
+  if (
+    blackIndex >= 0 &&
+    header.extraChannels[blackIndex]?.bitDepth.sampleFormat !== 'unsigned-integer'
+  )
+    throw unsupportedOperation('CMYK black must be integer')
+  const black = blackIndex < 0 ? undefined : normalizedExtraPlane(layer, blackIndex)
+  const grayTransform =
+    blackIndex < 0 && header.colorChannels === 1 ? parseGrayIccTransform16(profile) : undefined
+  const rgbTransform =
+    blackIndex < 0 && header.colorChannels === 3 ? parseRgbIccTransform16(profile) : undefined
+  const cmykTransform =
+    blackIndex >= 0 && header.colorChannels === 3 ? parseCmykIccTransform16(profile) : undefined
+  if (!grayTransform && !rgbTransform && !cmykTransform)
+    throw unsupportedOperation('ICC native display needs GRAY, RGB, or CMYK')
+  const alpha = displayAlpha(layer)
+  if (alpha && alpha.samples.length !== pixels)
+    throw invalidInput('JPEG XL ICC alpha plane size disagrees')
+  const output = new Uint16Array(pixels * 4)
+  const colorMaximum = 2 ** header.bitDepth - 1
+  const toIndex = (value: number, alphaValue: number): number =>
+    Math.round(Math.max(0, Math.min(1, value / colorMaximum / alphaValue)) * 65_535)
+  for (let index = 0; index < pixels; index++) {
+    const offset = index * 4
+    const alphaValue = alpha?.samples[index] ?? 1
+    const denominator = alpha?.associated ? alphaValue : 1
+    if (denominator <= 0) {
+      output[offset] = 0
+      output[offset + 1] = 0
+      output[offset + 2] = 0
+    } else if (grayTransform) {
+      const sample = toIndex(color[0]?.[index] ?? 0, denominator)
+      const value = grayTransform[sample] ?? 0
+      output[offset] = value
+      output[offset + 1] = value
+      output[offset + 2] = value
+    } else if (rgbTransform) {
+      writeRgbIcc16(
+        rgbTransform,
+        toIndex(color[0]?.[index] ?? 0, denominator),
+        toIndex(color[1]?.[index] ?? 0, denominator),
+        toIndex(color[2]?.[index] ?? 0, denominator),
+        output,
+        offset,
+      )
+    } else if (cmykTransform && black) {
+      const blackSample = Math.round(
+        Math.max(0, Math.min(1, (black[index] ?? 0) / denominator)) * 65_535,
+      )
+      writeCmykIcc16(
+        cmykTransform,
+        65_535 - toIndex(color[0]?.[index] ?? 0, denominator),
+        65_535 - toIndex(color[1]?.[index] ?? 0, denominator),
+        65_535 - toIndex(color[2]?.[index] ?? 0, denominator),
+        65_535 - blackSample,
+        output,
+        offset,
+      )
+    }
+    output[offset + 3] = Math.round(Math.max(0, Math.min(1, alphaValue)) * 65_535)
+  }
+  const sourceColorSemantics = jpegXlSourceColorSemantics(header)
+  const colorSemantics: PixelColorSemantics = Object.freeze({
+    family: 'rgb',
+    primaries: 'srgb',
+    transfer: Object.freeze({ kind: 'srgb' }),
+    matrix: 'identity',
+    range: 'full',
+    alpha: 'straight',
+    provenance: 'decoder-converted',
+  })
+  return Object.freeze({
+    width,
+    height,
+    format: 'rgba16' as const,
+    data: output,
+    colorSemantics,
+    sourceColorSemantics,
+  })
 }
 
 /** Applies the embedded CMYK ICC profile while leaving native CMYK planes available separately. */
@@ -171,6 +369,8 @@ export const convertJpegXlCmykLayerToRgba8 = (
   const transform = parseCmykIccTransform(profile)
   const output = new Uint8Array(pixels * 4)
   const alpha = displayAlpha(layer)
+  if (alpha?.associated)
+    throw unsupportedOperation('JPEG XL CMYK display conversion does not support associated alpha')
   for (let index = 0; index < pixels; index++) {
     const target = index * 4
     writeCmykIcc(
@@ -182,7 +382,9 @@ export const convertJpegXlCmykLayerToRgba8 = (
       output,
       target,
     )
-    output[target + 3] = alpha ? Math.round(Math.max(0, Math.min(1, alpha[index] ?? 0)) * 255) : 255
+    output[target + 3] = alpha
+      ? Math.round(Math.max(0, Math.min(1, alpha.samples[index] ?? 0)) * 255)
+      : 255
   }
   return Object.freeze({ width, height, format: 'rgba8' as const, data: output })
 }

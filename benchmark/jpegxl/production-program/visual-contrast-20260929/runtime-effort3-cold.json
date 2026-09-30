@@ -1,0 +1,47 @@
+{
+  "runtime": "v24.16.0",
+  "effort": 3,
+  "distance": 1,
+  "temperature": "cold",
+  "moduleReadyMilliseconds": 152.959913,
+  "beforeWarmup": {
+    "rss": 93102080,
+    "heapTotal": 29106176,
+    "heapUsed": 10805032,
+    "external": 8844026,
+    "arrayBuffers": 328960
+  },
+  "baselineMemory": {
+    "rss": 93102080,
+    "heapTotal": 29106176,
+    "heapUsed": 10808360,
+    "external": 8844066,
+    "arrayBuffers": 328960
+  },
+  "warmup": null,
+  "measured": {
+    "width": 4000,
+    "height": 3000,
+    "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+    "outputSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+    "bytes": 1512186,
+    "openMilliseconds": 86.26308500000002,
+    "stagedMilliseconds": 15.359973999999994,
+    "firstOutputMilliseconds": 4663.975729,
+    "finishAndOutputMilliseconds": 4657.409408,
+    "totalMilliseconds": 4759.286663,
+    "managedPeakBytes": 50207126,
+    "managedLiveBytes": 0,
+    "finalMemory": {
+      "rss": 267296768,
+      "heapTotal": 26955776,
+      "heapUsed": 10912896,
+      "external": 124334595,
+      "arrayBuffers": 115822029
+    },
+    "peakRssBytes": 267296768
+  },
+  "scope": "Public forward encoder, original RGB8 PPM open, input staging, cooperative encode and file sink output. No complete output concatenation. Finish includes encoding and file writes; isolated core is measured separately by measure-m7-forward.ts. Process startup is measured by the parent. File I/O does not include fsync. Cold/warm refer to process codec state, not OS page-cache eviction.",
+  "rssScope": "Absolute process peak, including warmup for warm processes; post-GC baseline is reported separately and warmup source/output array reclamation is checked.",
+  "correctness": "Hash identity is checked across warmup; independent decoding remains required."
+}

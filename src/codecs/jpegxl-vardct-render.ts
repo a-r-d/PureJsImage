@@ -3026,6 +3026,7 @@ export interface JpegXlVarDctLowFrequencyState {
   readonly lfGlobal: Readonly<JpegXlJpegLfGlobal>
   readonly dcGroup: Readonly<JpegXlJpegDcGroup>
   readonly dcPlanes: readonly [Float64Array, Float64Array, Float64Array]
+  readonly nativeExtraPlanes?: readonly Int32Array[]
   readonly released: boolean
   release(): void
 }
@@ -3036,14 +3037,8 @@ export const prepareJpegXlVarDctLowFrequency = (
   memory: JpegXlVarDctMemoryLedger,
   externalDcPlanes?: readonly [Float64Array, Float64Array, Float64Array],
 ): JpegXlVarDctLowFrequencyState => {
-  if (
-    frame.encoding !== 'vardct' ||
-    frame.colorTransform !== 'xyb' ||
-    frame.extraChannels.length !== 0
-  )
-    throw unsupportedOperation(
-      'JPEG XL reusable LF state requires XYB VarDCT without extra channels',
-    )
+  if (frame.encoding !== 'vardct' || frame.colorTransform !== 'xyb')
+    throw unsupportedOperation('JPEG XL reusable LF state requires XYB VarDCT')
   const section = sections[0]
   if (!section) throw invalidInput('JPEG XL LF global section is missing')
   const rollback = memory.checkpoint()
@@ -3051,16 +3046,46 @@ export const prepareJpegXlVarDctLowFrequency = (
   const lfGlobal = decodeJpegXlJpegLfGlobal(
     section,
     0,
-    separated,
+    separated && frame.extraChannels.length === 0,
     frame.frameFlags,
     frame.codedWidth,
     frame.codedHeight,
-    0,
+    frame.extraChannels.length,
   )
   const lfLease = memory.retain('jpegxl-vardct-lf-metadata', retainedTypedArrayBytes(lfGlobal))
   let dcLease: JpegXlVarDctMemoryLease | undefined
   let planesLease: JpegXlVarDctMemoryLease | undefined
+  let extraLease: JpegXlVarDctMemoryLease | undefined
   try {
+    const extraLayouts = frame.extraChannels.map((channel, index) => {
+      const factor = (frame.extraChannelUpsampling[index] ?? 1) * 2 ** channel.dimShift
+      return {
+        width: Math.ceil(frame.codedWidth / factor),
+        height: Math.ceil(frame.codedHeight / factor),
+        hshift: Math.log2(factor),
+        vshift: Math.log2(factor),
+      }
+    })
+    const extraBytes = extraLayouts.reduce(
+      (sum, layout) => sum + layout.width * layout.height * 16,
+      0,
+    )
+    if (extraBytes > 0)
+      extraLease = memory.retain('jpegxl-vardct-selective-extra-planes', extraBytes)
+    const extraChannels =
+      extraLayouts.length > 0
+        ? new JpegXlGroupedModularPlanes(
+            section,
+            lfGlobal.endingBitPosition,
+            extraLayouts,
+            frame.groupDimension,
+            extraBytes,
+            Math.max(...frame.extraChannels.map((channel) => channel.bitDepth.bits)),
+            lfGlobal.globalModularCode,
+          )
+        : undefined
+    if (extraChannels?.hasGroups)
+      throw unsupportedOperation('JPEG XL selective alpha requires complete early extra planes')
     const decoded = decodeJpegXlVarDctDcGroups(
       sections,
       frame,
@@ -3069,8 +3094,9 @@ export const prepareJpegXlVarDctLowFrequency = (
       Math.ceil(frame.codedHeight / 8),
       separated,
       memory,
-      lfGlobal.endingBitPosition,
+      extraChannels?.endingBitPosition ?? lfGlobal.endingBitPosition,
       externalDcPlanes,
+      extraChannels,
     )
     dcLease = decoded.lease
     const prepared = prepareRenderDcPlanes(frame, lfGlobal, decoded.group, memory, externalDcPlanes)
@@ -3082,6 +3108,7 @@ export const prepareJpegXlVarDctLowFrequency = (
       lfGlobal,
       dcGroup: decoded.group,
       dcPlanes: prepared.planes,
+      ...(extraChannels ? { nativeExtraPlanes: extraChannels.finish() } : {}),
       get released(): boolean {
         return released
       },
@@ -3090,12 +3117,14 @@ export const prepareJpegXlVarDctLowFrequency = (
         released = true
         planesLease?.release()
         dcLease?.release()
+        extraLease?.release()
         lfLease.release()
       },
     })
   } catch (error) {
     planesLease?.release()
     dcLease?.release()
+    extraLease?.release()
     lfLease.release()
     rollback()
     throw error
@@ -3112,15 +3141,13 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
   const opsin = resolveOpsin(frame.opsinInverse)
   if (state.released) throw invalidInput('JPEG XL LF state has been released')
   if (
-    frame.bitDepth !== 8 ||
-    jpegXlXybOutputIsLinear(frame) ||
     frame.upsampling !== 1 ||
     lfGlobal.patches.length > 0 ||
     lfGlobal.splines.length > 0 ||
     lfGlobal.noiseLut !== undefined
   )
     throw unsupportedOperation(
-      'JPEG XL DC preview requires 8-bit SDR without upsampling, patches, splines or noise',
+      'JPEG XL DC preview requires no upsampling, patches, splines or noise',
     )
   const blockWidth = Math.ceil(frame.codedWidth / 8)
   const blockHeight = Math.ceil(frame.codedHeight / 8)
@@ -3131,8 +3158,34 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
   const transpose = orientation >= 5
   const width = Math.ceil(region.width / scaleDenominator)
   const height = Math.ceil(region.height / scaleDenominator)
-  const channels = frame.colorChannels
-  const outputLease = memory.retain('jpegxl-vardct-dc-preview-output', width * height * channels)
+  const linearOutput = jpegXlXybOutputIsLinear(frame)
+  const highDepth = Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8
+  const selectedAlpha = frame.selectedAlphaChannel
+  const alphaDescriptor =
+    selectedAlpha === undefined ? undefined : frame.extraChannels[selectedAlpha]
+  const alphaPlane =
+    selectedAlpha === undefined ? undefined : state.nativeExtraPlanes?.[selectedAlpha]
+  if (alphaDescriptor && !alphaPlane)
+    throw invalidInput('JPEG XL selective alpha plane is unavailable')
+  const alphaFactorValue = alphaDescriptor
+    ? (frame.extraChannelUpsampling[selectedAlpha ?? 0] ?? 1) * 2 ** alphaDescriptor.dimShift
+    : 1
+  if (
+    alphaFactorValue !== 1 &&
+    alphaFactorValue !== 2 &&
+    alphaFactorValue !== 4 &&
+    alphaFactorValue !== 8
+  )
+    throw unsupportedOperation('JPEG XL selective alpha upsampling factor exceeds eight')
+  const alphaFactor = alphaFactorValue
+  const alphaWidth = Math.ceil(frame.codedWidth / alphaFactor)
+  const alphaHeight = Math.ceil(frame.codedHeight / alphaFactor)
+  const channels = alphaDescriptor ? 4 : linearOutput ? 3 : frame.colorChannels
+  const bytesPerSample = linearOutput ? 4 : highDepth ? 2 : 1
+  const outputLease = memory.retain(
+    'jpegxl-vardct-dc-preview-output',
+    width * height * channels * bytesPerSample,
+  )
   let scratchLease: JpegXlVarDctMemoryLease | undefined
   try {
     const bandRows = 32
@@ -3176,8 +3229,17 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
       state.dcGroup.sharpness,
       lfGlobal.globalScale,
     )
-    const output = new Uint8Array(width * height * channels)
+    const output = new Uint8Array(width * height * channels * bytesPerSample)
+    const view = new DataView(output.buffer)
     const grayScratch = new Uint8Array(3)
+    const alphaFloat = alphaPlane ? Float32Array.from(alphaPlane) : undefined
+    const alphaMaximum = 2 ** (frame.alphaBitDepth ?? 8) - 1
+    const alphaKernels = alphaFloat ? frameUpsamplingKernels(frame) : undefined
+    const colorMaximum = 2 ** frame.bitDepth - 1
+    const linearScale =
+      frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
+        ? 255 / 203
+        : 1
     const planes = [
       new Float32Array(stride * maximumRows),
       new Float32Array(stride * maximumRows),
@@ -3287,23 +3349,82 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
           const sampleX = encodedXs[x]
           if (sampleX === undefined) throw invalidInput('JPEG XL DC sample coordinate is missing')
           const source = sampleY * stride + sampleX
-          const offset = (transpose ? x * width + y : y * width + x) * channels
-          writeRgb(
-            channels === 3 ? output : grayScratch,
-            channels === 3 ? offset : 0,
-            planes[0][source] ?? 0,
-            planes[1][source] ?? 0,
-            planes[2][source] ?? 0,
-            opsin,
-          )
-          if (channels === 1) output[offset] = grayScratch[0] ?? 0
+          const offset = (transpose ? x * width + y : y * width + x) * channels * bytesPerSample
+          const opsinX = planes[0][source] ?? 0
+          const opsinY = planes[1][source] ?? 0
+          const opsinB = planes[2][source] ?? 0
+          if (!highDepth && !linearOutput) {
+            writeRgb(
+              channels === 1 ? grayScratch : output,
+              channels === 1 ? 0 : offset,
+              opsinX,
+              opsinY,
+              opsinB,
+              opsin,
+            )
+            if (channels === 1) output[offset] = grayScratch[0] ?? 0
+          } else {
+            const gammaRed = opsinY + opsinX + (opsin.roots[0] ?? 0)
+            const gammaGreen = opsinY - opsinX + (opsin.roots[1] ?? 0)
+            const gammaBlue = opsinB + (opsin.roots[2] ?? 0)
+            const mixedRed = gammaRed ** 3 + (opsin.biases[0] ?? 0)
+            const mixedGreen = gammaGreen ** 3 + (opsin.biases[1] ?? 0)
+            const mixedBlue = gammaBlue ** 3 + (opsin.biases[2] ?? 0)
+            for (let channel = 0; channel < (channels === 1 ? 1 : 3); channel++) {
+              const linear =
+                (opsin.matrix[channel * 3] ?? 0) * mixedRed +
+                (opsin.matrix[channel * 3 + 1] ?? 0) * mixedGreen +
+                (opsin.matrix[channel * 3 + 2] ?? 0) * mixedBlue
+              if (linearOutput) view.setFloat32(offset + channel * 4, linear * linearScale, false)
+              else
+                view.setUint16(
+                  offset + channel * 2,
+                  Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * colorMaximum),
+                  false,
+                )
+            }
+          }
+          if (alphaFloat && alphaKernels) {
+            const alpha = upsampleSample(
+              alphaFloat,
+              alphaWidth,
+              alphaWidth,
+              alphaHeight,
+              sampleX,
+              absoluteY,
+              alphaFactor,
+              alphaKernels,
+            )
+            if (linearOutput) view.setFloat32(offset + 12, alpha / alphaMaximum, false)
+            else if (highDepth)
+              view.setUint16(
+                offset + 6,
+                Math.max(0, Math.min(alphaMaximum, Math.round(alpha))),
+                false,
+              )
+            else output[offset + 3] = Math.max(0, Math.min(255, Math.round(alpha)))
+          }
         }
       }
     }
     return Object.freeze({
       width,
       height,
-      format: channels === 1 ? 'gray8' : 'rgb8',
+      format: linearOutput
+        ? alphaDescriptor
+          ? 'rgbaf32'
+          : 'rgbf32'
+        : alphaDescriptor
+          ? highDepth
+            ? 'rgba16'
+            : 'rgba8'
+          : channels === 1
+            ? highDepth
+              ? 'gray16'
+              : 'gray8'
+            : highDepth
+              ? 'rgb16'
+              : 'rgb8',
       data: output,
       managedPeakBytes: memory.peakBytes,
       release: outputLease.release,
@@ -3809,8 +3930,6 @@ const decodeJpegXlDct8Steps = function* (
       preparedLowFrequency.released)
   )
     throw invalidInput('JPEG XL LF state does not belong to this live frame and memory ledger')
-  if (maximumPasses !== frame.passCount && frame.extraChannels.length !== 0)
-    throw unsupportedOperation('JPEG XL partial passes with extra channels are not supported')
   const separatedSections = continuationSections !== undefined
   if (
     frame.encoding !== 'vardct' ||
@@ -3883,8 +4002,7 @@ const decodeJpegXlDct8Steps = function* (
     : memory.retain('jpegxl-vardct-lf-metadata', retainedTypedArrayBytes(lfGlobal))
   if (
     selectedGroups &&
-    (frame.extraChannels.length !== 0 ||
-      frame.upsampling !== 1 ||
+    (frame.upsampling !== 1 ||
       lfGlobal.patches.length !== 0 ||
       lfGlobal.splines.length !== 0 ||
       lfGlobal.noiseLut !== undefined)
@@ -3914,6 +4032,8 @@ const decodeJpegXlDct8Steps = function* (
     )
     globalSectionEnd = groupedAlphaPlanes.endingBitPosition
     groupedAlpha = groupedAlphaPlanes.hasGroups
+    if ((maximumPasses !== frame.passCount || selectedGroups) && groupedAlpha)
+      throw unsupportedOperation('JPEG XL selective passes require complete early alpha planes')
   }
   const { group: dcGroup, lease: dcGroupLease } = preparedLowFrequency
     ? { group: preparedLowFrequency.dcGroup, lease: borrowedLowFrequencyLease }

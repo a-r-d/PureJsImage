@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29T15:23:50.020Z",
+  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "packages": [
+    {
+      "name": "@jsquash/jxl",
+      "manifest": {
+        "name": "@jsquash/jxl",
+        "version": "1.3.0",
+        "main": "index.js",
+        "description": "Wasm JPEG XL encoder and decoder supporting the browser. Repackaged from Squoosh App.",
+        "repository": "jamsinclair/jSquash",
+        "author": {
+          "name": "Jamie Sinclair",
+          "email": "jamsinclairnz+npm@gmail.com"
+        },
+        "keywords": [
+          "image",
+          "optimisation",
+          "optimization",
+          "squoosh",
+          "wasm",
+          "webassembly",
+          "jpegxl",
+          "jpeg xl",
+          "jxl"
+        ],
+        "license": "Apache-2.0",
+        "scripts": {
+          "clean": "rm -rf dist",
+          "build:codec": "cd codec && npm run build",
+          "build": "npm run clean && tsc && cp -r codec package.json README.md CHANGELOG.md *.d.ts .npmignore ../../LICENSE dist",
+          "prepublishOnly": "[[ \"$PWD\" == *'/dist' ]] && exit 0 || (echo 'Please run npm publish from the dist directory' && exit 1)"
+        },
+        "dependencies": {
+          "wasm-feature-detect": "^1.5.1"
+        },
+        "devDependencies": {
+          "@types/node": "^20.9.2",
+          "typescript": "^4.4.4"
+        },
+        "type": "module",
+        "sideEffects": false
+      },
+      "manifestSha256": "1c19fda20ec37523f13251e3b7f8874cb90f908beea1d590c056265fe458da21"
+    },
+    {
+      "name": "jxl-oxide-wasm",
+      "manifest": {
+        "name": "jxl-oxide-wasm",
+        "type": "module",
+        "collaborators": ["Wonwoo Choi <chwo9843@gmail.com>"],
+        "description": "WebAssembly bindings of jxl-oxide",
+        "version": "0.12.6",
+        "license": "MIT OR Apache-2.0",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/tirr-c/jxl-oxide.git"
+        },
+        "files": [
+          "jxl_oxide_wasm.js",
+          "jxl_oxide_wasm.d.ts",
+          "jxl_oxide_wasm_bg.wasm",
+          "jxl_oxide_wasm_bg.wasm.d.ts",
+          "LICENSE-APACHE",
+          "LICENSE-MIT",
+          "README.md"
+        ],
+        "main": "jxl_oxide_wasm.js",
+        "types": "jxl_oxide_wasm.d.ts",
+        "sideEffects": ["./snippets/*"],
+        "keywords": ["jpeg-xl", "decoder", "jxl-oxide", "webassembly"],
+        "exports": {
+          "./package.json": "./package.json",
+          ".": {
+            "types": "./jxl_oxide_wasm.d.ts",
+            "import": "./jxl_oxide_wasm.js"
+          },
+          "./module.wasm": {
+            "types": "./jxl_oxide_wasm_bg.wasm.d.ts",
+            "import": "./jxl_oxide_wasm_bg.wasm"
+          }
+        }
+      },
+      "manifestSha256": "a9c683448e059a5fdfba66d5fbefc4d4ec9382d40b2e3794196c61fe6a239e22"
+    },
+    {
+      "name": "wasm-vips",
+      "manifest": {
+        "name": "wasm-vips",
+        "version": "0.0.19",
+        "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
+        "homepage": "https://github.com/kleisauke/wasm-vips",
+        "bugs": {
+          "url": "https://github.com/kleisauke/wasm-vips/issues"
+        },
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/kleisauke/wasm-vips.git"
+        },
+        "license": "MIT",
+        "author": "Kleis Auke Wolthuizen",
+        "type": "commonjs",
+        "exports": {
+          ".": {
+            "browser": {
+              "import": "./lib/vips-es6.js",
+              "require": "./lib/vips.js"
+            },
+            "node": {
+              "import": "./lib/vips-node.mjs",
+              "require": "./lib/vips-node.js"
+            },
+            "default": "./lib/vips.js"
+          },
+          "./versions": "./versions.json",
+          "./vips.wasm": "./lib/vips.wasm",
+          "./vips-heif.wasm": "./lib/vips-heif.wasm",
+          "./vips-jxl.wasm": "./lib/vips-jxl.wasm",
+          "./vips-resvg.wasm": "./lib/vips-resvg.wasm"
+        },
+        "main": "lib/vips-node.js",
+        "browser": "lib/vips.js",
+        "types": "lib/vips.d.ts",
+        "files": [
+          "lib/*.js",
+          "lib/*.mjs",
+          "lib/vips.d.ts",
+          "lib/vips.wasm",
+          "lib/vips-heif.wasm",
+          "lib/vips-jxl.wasm",
+          "lib/vips-resvg.wasm",
+          "THIRD-PARTY-NOTICES.md",
+          "versions.json"
+        ],
+        "scripts": {
+          "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
+          "test": "npm run test:lint && npm run test:node",
+          "test:lint": "biome lint",
+          "test:node": "npm --prefix test/unit test",
+          "test:web": "serve -c test/unit/serve.json",
+          "bench": "npm run bench:node",
+          "bench:node": "npm --prefix test/bench test",
+          "bench:web": "serve -c test/bench/serve.json"
+        },
+        "devDependencies": {
+          "@biomejs/biome": "^2.5.14",
+          "serve": "^14.2.6"
+        },
+        "engines": {
+          "node": ">=17.0.0"
+        }
+      },
+      "manifestSha256": "04a3e2736eaf852515b49245eff9ac55315ef44cb04aa5acf415679fb311f2f0"
+    }
+  ],
+  "files": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/browser-7T2DSXMK.js",
+      "sha256": "e3be69df422d13800676d15b0eba79eed81b79fef38715335ba134cc4e00dc49",
+      "bytes": 18621,
+      "gzipBytes": 6269,
+      "brotliBytes": 5621
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
+      "sha256": "ba86d1aa4ab17c0a85458aeea1ef67e6d9cf765ae2ee84204ac49b4fa15c1193",
+      "bytes": 6806,
+      "gzipBytes": 2733,
+      "brotliBytes": 2424
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
+      "sha256": "dc9edfa935e755397197df8eaab980cd30e9deb828189f678a4ed053d019c9ff",
+      "bytes": 168,
+      "gzipBytes": 151,
+      "brotliBytes": 123
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-6J3OTJNT.js",
+      "sha256": "c025f5a74a5b43d7deb7adac1dd7b43b848ff04f19e92fcdd8c16491e42d33e7",
+      "bytes": 14797,
+      "gzipBytes": 4780,
+      "brotliBytes": 4261
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-EXMCXZWG.js",
+      "sha256": "03003830b4c7804dabaffde95d9b718061dd57e6cae0be5504c69720489e335e",
+      "bytes": 1317,
+      "gzipBytes": 630,
+      "brotliBytes": 568
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-SIPYYJJH.js",
+      "sha256": "307b7301f444b2c5da9e075d4b4bc83c1ad347964d6cd863541105aa028ce48d",
+      "bytes": 15995,
+      "gzipBytes": 4750,
+      "brotliBytes": 4277
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/decode-BZOCFKIT.js",
+      "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2",
+      "bytes": 20176,
+      "gzipBytes": 7668,
+      "brotliBytes": 6966
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/encode-IGAQVTBR.js",
+      "sha256": "5436db29b9e13bc20c854f894a294c4332b2c138a3ce4875304fe606c2456098",
+      "bytes": 1788,
+      "gzipBytes": 884,
+      "brotliBytes": 775
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/executor-4V6RSNQI.js",
+      "sha256": "191614f689b7d61f1e88dd9a808cef7c0cbe753d62e5df400617b11aeb7c9afd",
+      "bytes": 42302,
+      "gzipBytes": 13607,
+      "brotliBytes": 11870
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-6XT2CMLU.js",
+      "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59",
+      "bytes": 362269,
+      "gzipBytes": 120628,
+      "brotliBytes": 97572
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc-O5JHJYUX.js",
+      "sha256": "4ba09a64ade049c67ed371111fa5ab1985cb612571a7bf4684a57ef5b8ff44f6",
+      "bytes": 26274,
+      "gzipBytes": 9761,
+      "brotliBytes": 8820
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt-TVP6DHGU.js",
+      "sha256": "c686761a7473942688c154f4f3e33be62019becf2300575b10febb36d900c0da",
+      "bytes": 34095,
+      "gzipBytes": 12434,
+      "brotliBytes": 11157
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc_mt_simd-YYJQ5EU7.js",
+      "sha256": "5398536155e7b7c9c2f48a7d2ca580054d32756ce8fa643b2ffef05e43db2675",
+      "bytes": 34085,
+      "gzipBytes": 12436,
+      "brotliBytes": 11166
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jxl_oxide_wasm-NH5ML3RN.js",
+      "sha256": "a94cb667f54e73fb6db1ba132df95c4ddfe18ea17603cdb8931318fefa140d8b",
+      "bytes": 9029,
+      "gzipBytes": 2972,
+      "brotliBytes": 2642
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/jsquash-dec.wasm",
+      "sha256": "165bde0f48f3bdc39c7806365db5bb3b777df67fefff48050841fb4430062433",
+      "bytes": 849240,
+      "gzipBytes": 317757,
+      "brotliBytes": 231793
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/jsquash-enc.wasm",
+      "sha256": "3c6c02df45c0dededab146888789d541b23b9a299cb16d497dce412a3a4bc7d3",
+      "bytes": 1363824,
+      "gzipBytes": 516855,
+      "brotliBytes": 387967
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/oxide.wasm",
+      "sha256": "3336f3abd4a04fccc437e7a84f12d4b63c12f302044110867f99be14c4c75a69",
+      "bytes": 1698491,
+      "gzipBytes": 609588,
+      "brotliBytes": 427795
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/vips/vips-es6.js",
+      "sha256": "4de6113dc80958b2acc7d45af95086277bab670af474125fdbd179e62dae96af",
+      "bytes": 83765,
+      "gzipBytes": 31813,
+      "brotliBytes": 28224
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/vips/vips-jxl.wasm",
+      "sha256": "ffdd01c8dbd6a8fc616f1a023cbf2b526d12df770f5adca96e44cdf8c20c8afe",
+      "bytes": 2224543,
+      "gzipBytes": 798402,
+      "brotliBytes": 613990
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/assets/vips/vips.wasm",
+      "sha256": "36c25e290570757f911b45d67947e8262b01261028db438dadc09990ad978ff6",
+      "bytes": 5154052,
+      "gzipBytes": 2023395,
+      "brotliBytes": 1610227
+    }
+  ],
+  "build": {
+    "esbuild": "0.28.1",
+    "target": "ESM modern browser; minified; code splitting; public PureJsImage dist exports; published WASM assets unchanged",
+    "node": "v24.16.0"
+  },
+  "threads": {
+    "purejsimage": 1,
+    "jsquash": "single thread on non-isolated browser origin and Node default",
+    "oxide": 1,
+    "vips": "concurrency(1), pthread runtime; isolated browser origin required"
+  },
+  "cache": "Cold worker/module initialization and asset fetch; fresh browser context, HTTP no-store. Warm operations reuse initialized module but no operation-result cache. Browser compilation code cache controlled only by fresh context, not OS cache."
+}

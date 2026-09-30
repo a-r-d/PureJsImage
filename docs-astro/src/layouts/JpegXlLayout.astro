@@ -1,0 +1,19 @@
+---
+import SiteLayout from './SiteLayout.astro'
+import Nav from '../components/JpegXlNav.astro'
+import '../styles/jpegxl-tools.css'
+interface Props {
+  title: string
+  description: string
+  path?: string
+}
+const { title, description, path = '' } = Astro.props
+const canonical = `https://purejsimage.com/jpeg-xl/${path}`
+---
+<SiteLayout title={`${title} | PureJsImage`} description={description} canonical={canonical} current="jpeg-xl/" bodyClass="jxl-page" analytics={false}>
+<script type="application/ld+json" set:html={JSON.stringify({'@context':'https://schema.org','@graph':[
+ {'@type':'WebApplication',name:title,description,url:canonical,applicationCategory:'DeveloperApplication'},
+ {'@type':'TechArticle',headline:title,description,mainEntityOfPage:canonical},
+ {'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'JPEG XL',item:'https://purejsimage.com/jpeg-xl/'}]}
+]})}/><main id="main" class="jxl-shell"><header class="jxl-hero"><div><p class="eyebrow">PureJsImage · JPEG XL</p><h1>{title}</h1><p class="lede">{description}</p></div><aside><strong>Files stay on your device</strong><span>First-party JavaScript in a worker. No file uploads or analytics on these tools.</span></aside></header><Nav current={path}/><p class="note">These tools use the current repository build. Repository functionality may be newer than the npm release. Static lossy encoding is qualified; lossy animation remains Experimental.</p><slot /></main>
+</SiteLayout>

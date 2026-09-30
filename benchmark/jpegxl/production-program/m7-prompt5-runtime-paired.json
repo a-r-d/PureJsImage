@@ -1,0 +1,4204 @@
+{
+  "source": [
+    {
+      "path": "abort.ts",
+      "sha256": "a01655bf27e5c52bc8bd887355584066d47de1041cf771806c458abbd40b8033"
+    },
+    {
+      "path": "accelerator-entries/wasm-jpeg-browser.ts",
+      "sha256": "5323de7289dfa7353899d1c7c62dd5c6db863fd481824bea968f5598dee5c312"
+    },
+    {
+      "path": "accelerator-entries/wasm-jpeg-node.ts",
+      "sha256": "666a78b1c6902ea16016c64b7d1b528c1cdfe130722154cef86fdd398a6a559c"
+    },
+    {
+      "path": "accelerator-entries/wasm-png-browser.ts",
+      "sha256": "c5607904a3c6f3307ff80ef9beb4393952c75e895c4b3e76dd714d5afa8ae363"
+    },
+    {
+      "path": "accelerator-entries/wasm-png-node.ts",
+      "sha256": "5efdfcea4d72ba171224ec38e8e1a6d0736bc521fa0e8f7933e334218ea862b4"
+    },
+    {
+      "path": "accelerator-entries/wasm-webp-browser.ts",
+      "sha256": "fc89de8166972af00c6565abded8421e30a18f2002c53655347436cfd72b4c88"
+    },
+    {
+      "path": "accelerator-entries/wasm-webp-node.ts",
+      "sha256": "631d7de6ab0e1f9343187ad6a9f71eaffc24bf9dee697da251e1ffbb1015a213"
+    },
+    {
+      "path": "accelerator.ts",
+      "sha256": "47fe8fc7d0b5b882439edc77754cdff64b442cacc4a85a5397f18a3655518b96"
+    },
+    {
+      "path": "accelerators/wasm/jpeg.ts",
+      "sha256": "ba95a136a5d5445643985060e35ab8144cdc5bd06593d4a21bb715ea5092dfb7"
+    },
+    {
+      "path": "accelerators/wasm/png.ts",
+      "sha256": "436e8cfc72b2c5813b77848b46d969150530b7d4febaf3f788298eec8ba15a21"
+    },
+    {
+      "path": "accelerators/wasm/webp.ts",
+      "sha256": "82e3e78de5035f34766c0b4cf98c6d2d291f3b8a8254f3a20d6204a15e030ecf"
+    },
+    {
+      "path": "analysis/builtin-dataset-operations.ts",
+      "sha256": "be564b5bfc076f429966781c6be1f0044a1d16df42711237ee148dbf06a7278b"
+    },
+    {
+      "path": "analysis/builtin-result-operations.ts",
+      "sha256": "37430e47028c59f33f441491ecd976acd1e51cc2e5053999e2654d0867b8dbaf"
+    },
+    {
+      "path": "analysis/builtins.ts",
+      "sha256": "9ecfca189920900f657e0abadafa7b3c1fcde43ee82fb0fc1cdab691d33ae053"
+    },
+    {
+      "path": "analysis/canonical-json.ts",
+      "sha256": "6eded3da61aac687f76ff88bef759916cf634ddca664e4a1d3e75cabac72a92b"
+    },
+    {
+      "path": "analysis/connected-components.ts",
+      "sha256": "414827e677f9eb26739384165119a444efd424130a0d5004806da19a1aaa191b"
+    },
+    {
+      "path": "analysis/controller.ts",
+      "sha256": "99e22c193625c3689747bfe67652f38d8dbf7045ffac27153f0a76954d5d3ad2"
+    },
+    {
+      "path": "analysis/executor.ts",
+      "sha256": "a1333eb2cc141e1bab069d5b31aebc4797e01cdf6c510a106beebfdcbad178bd"
+    },
+    {
+      "path": "analysis/four-d-stem.ts",
+      "sha256": "4af40ef0f65403d37d5cd964b00f7ab7d1321719c85159b3c5062121c726fbd5"
+    },
+    {
+      "path": "analysis/graph.ts",
+      "sha256": "712aeb8341a06a18ab49ad7c37b00242ae005676d3ef73ce35787cd28e56f1bc"
+    },
+    {
+      "path": "analysis/index.ts",
+      "sha256": "7ffcde77b09eead354f1a8b7a6f9aa05a7d85bd1fcb7609293d4ef70f7bd351a"
+    },
+    {
+      "path": "analysis/migrations.ts",
+      "sha256": "bdcdf08ef21210b345ed86208b2fc4f37992fb9ed5a2e1c4fb983d812c067734"
+    },
+    {
+      "path": "analysis/planner.ts",
+      "sha256": "ec1fa798c20b700674d7e4be110c927a9fd0b88a38ffed1abacea40cd3f36f92"
+    },
+    {
+      "path": "analysis/project-entry.ts",
+      "sha256": "4b37d3aae8820f09ee3e6aa952594a4bcadeccfd265046dda63d98c6a7428a80"
+    },
+    {
+      "path": "analysis/project.ts",
+      "sha256": "91407cbad8720d9b821ee1f270a9fed1e87bcf8ce6d732089f84038b37f22184"
+    },
+    {
+      "path": "analysis/raster-band-math.ts",
+      "sha256": "2b34f088210650658ae30d0b490a2eb81471633b9393ca381a4b61302cec6703"
+    },
+    {
+      "path": "analysis/raster-contracts.ts",
+      "sha256": "36e763855fa64fc75ae4265c5d416ed7955ad82d3ecd2ec4aafce67e8d8908f9"
+    },
+    {
+      "path": "analysis/raster-sampling.ts",
+      "sha256": "1c83ea0e407af5975122cfbeb33168a3163053b2044b49ddbeea56579af99575"
+    },
+    {
+      "path": "analysis/raster-terrain.ts",
+      "sha256": "8ea1f34fa081ab2518271752196fea87f1dbf0ff60ccbc7fd8e71322d3d7a173"
+    },
+    {
+      "path": "analysis/result.ts",
+      "sha256": "aee1ac38dd426498ec75a897a8ce36728289a0f8f50fc9a06242080a15804f92"
+    },
+    {
+      "path": "analysis/results.ts",
+      "sha256": "9fdd5dfcb14f582cf582088eb070ffcf4c53bfc6809b41223183b60de76ca0b3"
+    },
+    {
+      "path": "analysis/roi-entry.ts",
+      "sha256": "9b6b43c1d6e011edc12477a68eaaf2254c35ea4477505b5a593b4c960a3bc05f"
+    },
+    {
+      "path": "analysis/roi-sampling.ts",
+      "sha256": "b5eef382f29b54625e8ca97cb2619876cc7572c72e372f7b78f37654a3706237"
+    },
+    {
+      "path": "analysis/roi.ts",
+      "sha256": "e246c3c5ddeb5b295938adba34e188a21f6df68a4ebb1f4022703792d5a44155"
+    },
+    {
+      "path": "analysis/runtime.ts",
+      "sha256": "f5f18dc0a8a63f87257b816bd1ed6071e9723782dea7969f9ee65d2546a0d88b"
+    },
+    {
+      "path": "analysis/scientific.ts",
+      "sha256": "1198a980caed622751812aaa7c3c5f5c5a300ddb18ef45e92453e46e11ddbdd1"
+    },
+    {
+      "path": "analysis/tile-runtime.ts",
+      "sha256": "1c4cce9edb426704a01009d9139e2ba91b31bd2f970e09f0e2b87a31ad69f699"
+    },
+    {
+      "path": "analysis/tile-source.ts",
+      "sha256": "269c9b35b51d8a0d61e8375eb4160fb5ef1fcc0d6b77ea2a0e2986ab9e2088e7"
+    },
+    {
+      "path": "analysis/workspace.ts",
+      "sha256": "9c58876bbd89865ee7f663261fffd0e3f280f33a3120fa0f54adc5bc175dd3c8"
+    },
+    {
+      "path": "archive/zip.ts",
+      "sha256": "c71ba53e429fdaac885e0d59089ae6390fe99a2d72f28fde069dbbd5b96aba4f"
+    },
+    {
+      "path": "browser-platform.ts",
+      "sha256": "5eed2e7a29123bc29843ebc72b6c37088bd7dc288fc393a98b22735c9e6b490d"
+    },
+    {
+      "path": "browser-runtime.ts",
+      "sha256": "d3c0bb48fbc937a6fe382bdae999b7f6a68d603e4e4112345526ae2b9bbfa161"
+    },
+    {
+      "path": "browser.ts",
+      "sha256": "1c365a8b138ebdef35d844b5c25176cefa8cef844d2d7d6989fa51147646f543"
+    },
+    {
+      "path": "codec-entries/all.ts",
+      "sha256": "b661a668f25329390b41351d8b34192151984436545beebdeac95c5317a936d7"
+    },
+    {
+      "path": "codec-entries/avif.ts",
+      "sha256": "fb74fdb17ea4b87e8c6b458ce8b8c7b217fedc383dc9a6efa586d193ef1dd411"
+    },
+    {
+      "path": "codec-entries/bmp.ts",
+      "sha256": "5ebe7f05ac35b85f4f4759a36fd50343f4f8300aeb62d5831a3c09565712d75a"
+    },
+    {
+      "path": "codec-entries/experimental/heic.ts",
+      "sha256": "85ef8016fcab4adaf61e8160c6f6511db0500bea18de141443878ac93fb6a161"
+    },
+    {
+      "path": "codec-entries/gif.ts",
+      "sha256": "f9c37d44db579c32cebb743af3d0f20f577e8ca913458bee3ea8b123e051cab6"
+    },
+    {
+      "path": "codec-entries/hdr.ts",
+      "sha256": "ef32347c5e2291e24d1816b6f80d91be60d12cfa56913eb9c3ccd966b5186796"
+    },
+    {
+      "path": "codec-entries/ico.ts",
+      "sha256": "65baa8a0b0086447b426d102e0221b994803c94a0bb44bc7bf25272322a26ed0"
+    },
+    {
+      "path": "codec-entries/jpeg.ts",
+      "sha256": "28b180cff4e91e2fc7f8c403ca357f51c85e9912743caf4fa17c9a27f092ef3b"
+    },
+    {
+      "path": "codec-entries/jpeg2000.ts",
+      "sha256": "d7699b680e49ec50aec0a62130a13692e053a171bd4e00699de4d912707e0ffd"
+    },
+    {
+      "path": "codec-entries/jpegxl.ts",
+      "sha256": "807f81277484ecb1cca917b505c1395589de1101ec4d7295b6fd71ce01bcda91"
+    },
+    {
+      "path": "codec-entries/netpbm.ts",
+      "sha256": "04684cd06aa5e304234e3c5f7c6a7849a285a6fe31afcf396553324479837a67"
+    },
+    {
+      "path": "codec-entries/png.ts",
+      "sha256": "41aab897c17632f84a0f3e80281ddd8544fa629ecc9a0eae506ec7119ab6a455"
+    },
+    {
+      "path": "codec-entries/qoi.ts",
+      "sha256": "96d14d509388d05fbf541a6c5f01b283bd027e9b9b54f8813076d056d96307cb"
+    },
+    {
+      "path": "codec-entries/tga.ts",
+      "sha256": "f2968975353f8b1654836caaa98a62beadfaf6adc2a250f84bd3cc32e955c4a1"
+    },
+    {
+      "path": "codec-entries/tiff.ts",
+      "sha256": "0ab13a8713fccf6234f456d22226aa295625f43f9d37bf137c6ed2adfb0542ff"
+    },
+    {
+      "path": "codec-entries/web.ts",
+      "sha256": "3d7396f532093a9742fd4b7baedadb2e06d10198c5756f1a9b7473c40722f9b3"
+    },
+    {
+      "path": "codec-entries/webp.ts",
+      "sha256": "0025a624b68edbd32331a07951b56de6f0dfd0cc258dec1740b18140fb45b931"
+    },
+    {
+      "path": "codec.ts",
+      "sha256": "91cde1ade1659c3981743449e488d7150bf3e8ca95f1ca1634f9e28ac8080fff"
+    },
+    {
+      "path": "codecs/av1-coeff-encode.ts",
+      "sha256": "fa6aec4c95e4c3ba02f28b44c00180e30dcb920e1d622ecf6040de42870b9cee"
+    },
+    {
+      "path": "codecs/av1-coeff-q0.ts",
+      "sha256": "718d2ebd6d13f1d9ed7383836f64b1cf28cb5a6c6c297f7b1a965dc7930907e0"
+    },
+    {
+      "path": "codecs/av1-coeff-q1-q3.ts",
+      "sha256": "482d44c93dbdc40b35e9907ed9f207e1a124226dc5450bcfb5e2f4a65a0abc6d"
+    },
+    {
+      "path": "codecs/av1-coeff-q2.ts",
+      "sha256": "b10691574d3cb4cebf8084efec60725dde16d785839477ee301da02f26cc5a08"
+    },
+    {
+      "path": "codecs/av1-coeff.ts",
+      "sha256": "da038fe91bce9cf276e579145856b109dd6e0a1164c987eaa52a3a7964dc25c2"
+    },
+    {
+      "path": "codecs/av1-film-grain.ts",
+      "sha256": "61ae9ebe6806929293b5ac7a7fa8beec1beeaa4ceb1afa9f72ceb52582171462"
+    },
+    {
+      "path": "codecs/av1-frame.ts",
+      "sha256": "8cdb81a3bad61e91fc4694212801dc0d76c3e517e5dda3ee2b960dd54e89a743"
+    },
+    {
+      "path": "codecs/av1-intra.ts",
+      "sha256": "b0ea0fc5cf14d6d3353306e38c89e310fa2bac82683e5e9b819fd242b37237b5"
+    },
+    {
+      "path": "codecs/av1-palette-cdfs.ts",
+      "sha256": "53d55b255109868eeaa927ca25f76a141f98f273bf064d4ea79cedac46abc225"
+    },
+    {
+      "path": "codecs/av1-post-filter.ts",
+      "sha256": "a06f66c91b2527fde1d6c0876ef8c6a7c3d0cad56006d059a2b0a48cf1f8a1f9"
+    },
+    {
+      "path": "codecs/av1-qmatrix.ts",
+      "sha256": "3b20dc4e5229c84c9d247fd033833ff3c7ee360d8d0413683d8a700e8b84f75b"
+    },
+    {
+      "path": "codecs/av1-quant.ts",
+      "sha256": "ea51194d1c5a1fc763816df368b9532595c7874513f75020fc43eb857099a9a6"
+    },
+    {
+      "path": "codecs/av1-scans.ts",
+      "sha256": "46eb45d3cec5fc9af824113b8a1a78a18b11b35af902e3248cc303731735b5a8"
+    },
+    {
+      "path": "codecs/av1-symbol-encode.ts",
+      "sha256": "2ea1e1385b3cf20868d3defbd2779e4f3166c36fd7fabf7961b7503cdb977f87"
+    },
+    {
+      "path": "codecs/av1-symbol.ts",
+      "sha256": "c9e6ab87de7a8101cbc9f1f34358ae21615d52acb5626c4fc94655a07581a03b"
+    },
+    {
+      "path": "codecs/av1-transform.ts",
+      "sha256": "6b34afbf9e02ccdd8e0d443fe79168a2001de2ea5fb1df967aa5aec0b3887ffa"
+    },
+    {
+      "path": "codecs/av1.ts",
+      "sha256": "e6a0d510f47d9170c2ac62a636b1c6107d12cd48bcb97343952c5c7e6ae0babb"
+    },
+    {
+      "path": "codecs/avif-encode.ts",
+      "sha256": "039991d34369c213976edeee4c11c2aec51d9a2dee5acef278339d632605a393"
+    },
+    {
+      "path": "codecs/avif.ts",
+      "sha256": "cf36cfd3905c68a089b05019ba316c3134033b06bca0849194107636d7a228e4"
+    },
+    {
+      "path": "codecs/bmp.ts",
+      "sha256": "d72568e98df4373b4d2df820eb54ef4fc744a426896b11153861bbff242a513d"
+    },
+    {
+      "path": "codecs/brotli.ts",
+      "sha256": "152b2076162dd36dbeb375d36a9b533c27db81d80368dcddac536eb60db04d88"
+    },
+    {
+      "path": "codecs/crc32.ts",
+      "sha256": "70ae673507aa95e57e9f4117f9a6acfe91ecdb5c3945e5d74c0262ce665f4f1a"
+    },
+    {
+      "path": "codecs/gif.ts",
+      "sha256": "124356f0909f52efc5aacdfc474567b4d8d8150137bf38fce900c217d051d50b"
+    },
+    {
+      "path": "codecs/hdr.ts",
+      "sha256": "a9ea1cd13120ec285801538b57ef99e56a12cf2f6b6422c85acbf530a7031472"
+    },
+    {
+      "path": "codecs/heif-uncompressed.ts",
+      "sha256": "6d43e3af041d7dc6ac071f28ed81e9d3fdf1d9141b96e8d44cfd679378a46d15"
+    },
+    {
+      "path": "codecs/heif.ts",
+      "sha256": "124fba501a0678ec6481518be4eabfbf51e0273a5263e4b270aa2d0aac3448db"
+    },
+    {
+      "path": "codecs/helpers.ts",
+      "sha256": "3186eb200f36e63282c66ef04ad030dce28ebfc68377e84f3e12524da218a047"
+    },
+    {
+      "path": "codecs/hevc-cabac.ts",
+      "sha256": "9e6ccd0c2dd50f1d53276d3a8e7624ff1400b78aaee90b78bcd682fd489bc307"
+    },
+    {
+      "path": "codecs/hevc-contexts.ts",
+      "sha256": "055953e77349f7b50c6a9a9bffb9275de3a9771c12b9263fc248fca9f4a4cda5"
+    },
+    {
+      "path": "codecs/hevc-deblock.ts",
+      "sha256": "9f2914840221b2a841efc2e6c4ffcf43bf04792053b862be79921c8eca50d747"
+    },
+    {
+      "path": "codecs/hevc-intra.ts",
+      "sha256": "8844f97466af18641c393f1675e1c068744cdf17cbc67cf14d0ec05d5aa8493e"
+    },
+    {
+      "path": "codecs/hevc-picture.ts",
+      "sha256": "27af40c24007ad44c3aeb87737f62086154eb140f9e5a165b0f232a69b0b37e6"
+    },
+    {
+      "path": "codecs/hevc-residual.ts",
+      "sha256": "e6dc95a8b803493eb339d461e2a79380136999470b30b6d1983d45a8c4b70778"
+    },
+    {
+      "path": "codecs/hevc-sao.ts",
+      "sha256": "004c5ba1ec55ae2d3afe977ee6a6cfa12c15c605042376cf818b6b85dfc3ae4b"
+    },
+    {
+      "path": "codecs/hevc-transform.ts",
+      "sha256": "62bffd72ffda6e35e7eb0d6556569e67b329e21ee4a2fb16a7af989758793157"
+    },
+    {
+      "path": "codecs/hevc.ts",
+      "sha256": "638005d18bc5ef88afcef224cd7de5cd1fe60b82ef0dd8411db5a6f5db7de701"
+    },
+    {
+      "path": "codecs/icc.ts",
+      "sha256": "91119632fa71506c2c2e1edb0ea2f2d7dce87f507e4d932fc76aff920625b40f"
+    },
+    {
+      "path": "codecs/ico.ts",
+      "sha256": "247d43b58f73813b283255110dc2031c845cf7740f8a4ba097ebe3eaaab91550"
+    },
+    {
+      "path": "codecs/isobmff.ts",
+      "sha256": "b5f548d4bdd18c3b942027a95e1400d2625779cc2d283f0e7bccaed2e92e1684"
+    },
+    {
+      "path": "codecs/jpeg-baseline.ts",
+      "sha256": "db5bbd0a3e20dd8a55ab3ec803557d84e92bcc344e6c7b7c9aa1865c22002372"
+    },
+    {
+      "path": "codecs/jpeg-coefficients.ts",
+      "sha256": "8cf5393d0744fb41af2ace01f9c2e9d2b84ff8894f7866cc4ac8d2c0bbe1f879"
+    },
+    {
+      "path": "codecs/jpeg-display-semantics.ts",
+      "sha256": "906743bd5b0629ddbbe90d578f59f8ba18c98a6fee05abb6ff19a8ac2b0da760"
+    },
+    {
+      "path": "codecs/jpeg-encode.ts",
+      "sha256": "2a7ed43788cf282f8a5a3a5ef6611f9a69722543564953f8730319e46ddf2f40"
+    },
+    {
+      "path": "codecs/jpeg-lossless.ts",
+      "sha256": "8da715d35ae68cbc8165cf6f96ec3533a2d93b474cf634858dd38c6d693956a1"
+    },
+    {
+      "path": "codecs/jpeg-marker-walk.ts",
+      "sha256": "8391fb6552aebdf9b5b17994b8dce9479e6af6a73630f0460d0bdcf89021a831"
+    },
+    {
+      "path": "codecs/jpeg-metadata.ts",
+      "sha256": "ee1f60ed8fb4f610a8fc505766b87b744d8a4f40eddf1983da3d2994d4a07814"
+    },
+    {
+      "path": "codecs/jpeg-source.ts",
+      "sha256": "62df6c99b213d00475982cc15a29a021524ba0cadb02dc8672ff17fe76ec4785"
+    },
+    {
+      "path": "codecs/jpeg.ts",
+      "sha256": "0f4d8d78b1a25ed6d8105e3c34ade3e65cb7a3369a20cf3a594bec6a18d17a34"
+    },
+    {
+      "path": "codecs/jpeg2000-mq.ts",
+      "sha256": "72b84800861b7bb44695a667c3dbdf4ed59c63f392166b6dadbf1678c30a9d8f"
+    },
+    {
+      "path": "codecs/jpeg2000-tier1.ts",
+      "sha256": "3dfe2fe0741617386b4390c038252aceb9bc01af45d5733bfb2f974cf4227517"
+    },
+    {
+      "path": "codecs/jpeg2000-wavelet.ts",
+      "sha256": "0e401573bc982849acd9013ceafafaafe65b98f5b868b15d871b6f057cd00124"
+    },
+    {
+      "path": "codecs/jpeg2000.ts",
+      "sha256": "d604a494df0451d0537ef1577c5f09458dcfa7ca759ceed28b54a5751ec9b2ef"
+    },
+    {
+      "path": "codecs/jpegxl-bitstream.ts",
+      "sha256": "ea6f9ee90d45252bfd81178879e4e3490d501566679785717fc4384c1ba5d208"
+    },
+    {
+      "path": "codecs/jpegxl-chroma.ts",
+      "sha256": "bc6d12084d4ae397ab9362321d0221e46e18607711bab89ba8140541298915fb"
+    },
+    {
+      "path": "codecs/jpegxl-container.ts",
+      "sha256": "bd86057eb8c909274482478e4c9dc1b95292bd14cd081eae91043142fe738a76"
+    },
+    {
+      "path": "codecs/jpegxl-decode.ts",
+      "sha256": "acc6787cb75c5f7c0820a5e46ca0fa31bac3d15d39299d7130b14c3a63754dee"
+    },
+    {
+      "path": "codecs/jpegxl-encoder-memory.ts",
+      "sha256": "6f69b6323fd1164e7fbbadf92f94fa63d43e9eb0293aeb6be929ddd9c9d4a2f6"
+    },
+    {
+      "path": "codecs/jpegxl-exif.ts",
+      "sha256": "60d1f5be35ed8c1321ed62ffb16c8f3809158445d5e08f34ab6c1f7c49a60dad"
+    },
+    {
+      "path": "codecs/jpegxl-frame-features.ts",
+      "sha256": "5c033a40e7520a1478eb3b7a51e981debfff7c5962c70b118e746cfa2dfd3b67"
+    },
+    {
+      "path": "codecs/jpegxl-icc.ts",
+      "sha256": "faa3410a31a922dc2b9eec1f59b268874275e4bb5e93fd83b611c549637a9166"
+    },
+    {
+      "path": "codecs/jpegxl-inspect.ts",
+      "sha256": "43e410eaf1db6d79466569b05fb3aeb1020591f991709f2f451df01a0fadeed8"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-data.ts",
+      "sha256": "c4ed783b0824d6855b51cd506a1f0a06cb89529bc066663224e5695f0f7b1cc0"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "325cd0c6a48548628149e507fef3e5b87d5bb96903ed201713c75aba8205fc5d"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "29d5dcd6a00ad4fce0103799f2783b40ecfc233a759d55908c6f64bab0657984"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "c780f9c80e44d98d8f58470107c518208bc0164520495bd72ad5a44d5d6e2753"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "195e1fd5f8b29d70c0b756a4579d69d93805bf3b31983e9fe700f153dc0c012c"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "84c5883b79b4abd4d92ad72f4788fdc771ed7aa3ca309402a6c272f61e1840ab"
+    },
+    {
+      "path": "codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50067f8a39524a318942811e83b7a22021254afed174ef26242da09080c1c195"
+    },
+    {
+      "path": "codecs/jpegxl-level10.ts",
+      "sha256": "596d400c407f7030f60e14dd67034ad792950f63cf2c9600b7d458e35796a1f5"
+    },
+    {
+      "path": "codecs/jpegxl-limits.ts",
+      "sha256": "c2b8bf339c8ec40b9180ac999c105eb58eeba7651d812fc48fef0624bef7c2f7"
+    },
+    {
+      "path": "codecs/jpegxl-modular-encode.ts",
+      "sha256": "f344cc9e8d1b8d4ad007f2b22b5b7eefe13b24a82a9a8abc69c1293f485c8e61"
+    },
+    {
+      "path": "codecs/jpegxl-native-encode.ts",
+      "sha256": "5d0567047e031f4bac8eb14e9d53882e3da04ab0c0991302f11b062de473b7a7"
+    },
+    {
+      "path": "codecs/jpegxl-patch-blend.ts",
+      "sha256": "72ed255fc24131acd09219648524a588f5cc67dbcdf2092c22515b0a0de5ff6f"
+    },
+    {
+      "path": "codecs/jpegxl-progressive-plan.ts",
+      "sha256": "94efd09a1f453e4124fb4d5d4d145dbf1b15043f7b77d4025fa8996187a66647"
+    },
+    {
+      "path": "codecs/jpegxl-sequence-encode.ts",
+      "sha256": "eb8b1d89e2fc46618083062e449f79485aeac730cf40733eb668ba23a7c6048d"
+    },
+    {
+      "path": "codecs/jpegxl-sequence.ts",
+      "sha256": "efec39b0330b2260735aa8cc2bc1bde2aa18d49ba300b09498a247ae3914e825"
+    },
+    {
+      "path": "codecs/jpegxl-session.ts",
+      "sha256": "5851612f6095f1282c144c5c88a697fe3ae09df4ef4a7da3e7893e28dd219f49"
+    },
+    {
+      "path": "codecs/jpegxl-splines.ts",
+      "sha256": "11f48d5aa3e071c301755c2673d341f8c6b128d59c61371ccced704ab25789ae"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-encode.ts",
+      "sha256": "9ab9487cc2452155ecf686b50915c6aabc72664b094df5be46c5a8a0308cdf53"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "eb460ffc022c9e9c27c9495208427494b91805aeb7e6973312b79f02457e7c1a"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-memory.ts",
+      "sha256": "5beaca75a5013513aaf80132b5ac86a9b28d6cb4729a1067afe39a1b451c20f3"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "codecs/jpegxl-vardct-render.ts",
+      "sha256": "1721dc478df4656cbb3f3c11bf6ab28c9c25df0161de684dd2640deedd39c608"
+    },
+    {
+      "path": "codecs/jpegxl-vardct.ts",
+      "sha256": "d3cac31180d273352f150402c2319c44ed3a8e5faa809160242c410ed4649b07"
+    },
+    {
+      "path": "codecs/jpegxl.ts",
+      "sha256": "dffc0724f81068cbc81204838bfbc3ec710aabca5b5f789abe7a766cb91b89e3"
+    },
+    {
+      "path": "codecs/netpbm.ts",
+      "sha256": "53e6512c2f5692a122a92067d834eeca1d8a31075a91eb6c3b61f118824dd9ba"
+    },
+    {
+      "path": "codecs/png.ts",
+      "sha256": "608175818a5025f71ffb08d22d9dc94a4930d33370de3b43a166f5f169403be8"
+    },
+    {
+      "path": "codecs/qoi.ts",
+      "sha256": "25e7f12f743da7d82251813e02d7cfb98bbff6dc4abb743c051fd5f1f7efaadf"
+    },
+    {
+      "path": "codecs/source-cursor.ts",
+      "sha256": "250daac9825122c67011e69abddec28d746a6eed21360fe62e29a81b05656844"
+    },
+    {
+      "path": "codecs/tga.ts",
+      "sha256": "229a946248d9fc38afd780a9e3e74ca4d4bea4a0ec48ab72c1f67a4056972b17"
+    },
+    {
+      "path": "codecs/tiff-encode.ts",
+      "sha256": "902f65d197fbac6087f421164d4cb01f866b7f1269b3f35b1c209df3ec508703"
+    },
+    {
+      "path": "codecs/tiff-lerc.ts",
+      "sha256": "1879beffbdf2fffba8e5aee29f7743ee2cdcf63610f332ac70b7c7076fc43a81"
+    },
+    {
+      "path": "codecs/tiff-logluv.ts",
+      "sha256": "370ff7a58211c12ba9f966ce4a3191440182ed8c10bb9be58345ecfba2ba3367"
+    },
+    {
+      "path": "codecs/tiff.ts",
+      "sha256": "7bc6be16602e3fb5a45e69e597f3813cd07569e27c2c58a6187f1203ad31ae93"
+    },
+    {
+      "path": "codecs/vp8-tables.ts",
+      "sha256": "7a93952665d28b4494b19ba5cdbe71792e2a188ad1638b87692479a80f062362"
+    },
+    {
+      "path": "codecs/vp8.ts",
+      "sha256": "a369be610783d1c07729664ed596cd5e93515395c3d19f80f560fb914d3aeeb1"
+    },
+    {
+      "path": "codecs/webp-acceleration.ts",
+      "sha256": "e9ce0cec9a41b97d1bd97d1b9041e8aebd944423d6916e8c45ab71a6b9745f53"
+    },
+    {
+      "path": "codecs/webp-lossless-encode.ts",
+      "sha256": "aaaf2ee7f308df4a2054403d53c910c1db79f1155e3f2150f4e0d54b88f2223d"
+    },
+    {
+      "path": "codecs/webp-lossless.ts",
+      "sha256": "af5941d22c5de762b1d12b21044875512b962b4997ce58011def855ed431bc49"
+    },
+    {
+      "path": "codecs/webp-lossy-encode.ts",
+      "sha256": "1361f96864bae0a82a809e6e8e5d7253caa26e8a6a75e26a16f1c95f0c4e8ca7"
+    },
+    {
+      "path": "codecs/webp.ts",
+      "sha256": "283c4e3abb209c8b454f89c1ca78416cedf13cc6a9b0f37417688ac847a8cdee"
+    },
+    {
+      "path": "color.ts",
+      "sha256": "b8b80a8d2bd6dce63f9864096b072947e551338e5d46267b7a5a34d40a563da6"
+    },
+    {
+      "path": "compression/lz4/block.ts",
+      "sha256": "2a86e87856e98a78f6181702b547d50177b4d23125227b3035173d78aa828b71"
+    },
+    {
+      "path": "compression/zstd/bitstream.ts",
+      "sha256": "f463ccf2d9cb896ce2c3c3d0465b9e7c442d61be965b11e136bf9306320f0869"
+    },
+    {
+      "path": "compression/zstd/decode.ts",
+      "sha256": "abbbeeec7560e1d263adc3bb4fcf64f490361c5bf5d1ef0bfa356775f8ac010a"
+    },
+    {
+      "path": "compression/zstd/fse.ts",
+      "sha256": "23d70ff51b647eafe25fc3b3848c65d2ebfb49312b2c7879ac21a65b3cca5839"
+    },
+    {
+      "path": "compression/zstd/huffman.ts",
+      "sha256": "834c25a2feaa185f98f2b22ee55960478d3b9011cf088f6c45d0342f58f7d602"
+    },
+    {
+      "path": "compression/zstd/index.ts",
+      "sha256": "faca66c4717a8f801d8c2c8bbec8801555779081803e4b7528c350d9f88abbef"
+    },
+    {
+      "path": "compression/zstd/xxhash64.ts",
+      "sha256": "0789819f0ed8f96ed670f57598b418d0b02db0960a1172c66d4bcaed1596ab52"
+    },
+    {
+      "path": "convert.ts",
+      "sha256": "8c75d2464b55de65706494a9ed7eb269ff48a57e3a6991ba80bdf49b95684f20"
+    },
+    {
+      "path": "crop.ts",
+      "sha256": "e35cbfce8c10867072da02d9362e444b7b8ab47643e1035d16821d3eca83ac98"
+    },
+    {
+      "path": "errors.ts",
+      "sha256": "a81b637702243390eb0c47edc2935c2f51662ad5b268091bd73b6e0496548585"
+    },
+    {
+      "path": "evidence.ts",
+      "sha256": "8ed7e7c93e930abcbc80ab4d24f5d7da3cdd92e5bb1a8bb3d5cc587c715361ee"
+    },
+    {
+      "path": "execution-plan-contract.ts",
+      "sha256": "797672cc762aff0527a86692281d341a4e02e47b0c45bb62328bf99b9263f01b"
+    },
+    {
+      "path": "executor.ts",
+      "sha256": "e1238c801e842e5b2b04e1dd02b15f6852ea1973842eef0f6edf4b9b2877cb50"
+    },
+    {
+      "path": "explain.ts",
+      "sha256": "f1a955c0d12d7bd43f45a6d087f83614b859fa233d2d3c71c5379ae9d0d1920f"
+    },
+    {
+      "path": "extensions/index.ts",
+      "sha256": "c996377396b01c2676c8b90cd17b4b8e92d5a8afd31138a5a96fb62423533f72"
+    },
+    {
+      "path": "gain-map-math.ts",
+      "sha256": "61c39d070504cb3abd0ded862d491c13948ec693836e07142e9a1d77698156f8"
+    },
+    {
+      "path": "geo/browser.ts",
+      "sha256": "941d032506a9ca16013a16000c50d134a52d8853caf7e5b9c0c97f1d4f4098f0"
+    },
+    {
+      "path": "geo/contracts.ts",
+      "sha256": "c179c97a1d0ec352724ccf15cac18eb1c578e33557d4c1310d8be4bee10fb4d1"
+    },
+    {
+      "path": "geo/conventions/geozarr/diagnostics.ts",
+      "sha256": "f8d2ccb8bc4482882f0bc4cf4985aa6b51c2b77c311af2ca8569197d4769a249"
+    },
+    {
+      "path": "geo/conventions/geozarr/index.ts",
+      "sha256": "19a7a608ff8b3f0a1491dd50745b48d08fd49aa286f40dfe1bbf59dcb110df47"
+    },
+    {
+      "path": "geo/conventions/geozarr/inheritance.ts",
+      "sha256": "ecb8da5a872d434e0c3926fb9a088af4ff20aaf4f2d2fcbab48c6689f4d0b690"
+    },
+    {
+      "path": "geo/conventions/geozarr/multiscales.ts",
+      "sha256": "b420bcea180b25d5dee1d67d2bd1b3f4a91d163455db8f8efbeae23b2924e19b"
+    },
+    {
+      "path": "geo/conventions/geozarr/proj.ts",
+      "sha256": "9131bd419b834c9f9ce0a7bbf0036a6182139fd6e4296e755e0e2d700317e31b"
+    },
+    {
+      "path": "geo/conventions/geozarr/registry.ts",
+      "sha256": "6dc869d634d9de52d8ef6df0db7ef975a18eecfbb55b32032b03fcbf54b991ac"
+    },
+    {
+      "path": "geo/conventions/geozarr/spatial.ts",
+      "sha256": "e6cd8469affe5569c03450ab931f28220f48b5916c933855cb60a12d26a2f2fa"
+    },
+    {
+      "path": "geo/conventions/geozarr/validation.ts",
+      "sha256": "c4b66ad8d282cee5a28fed06d6fe6eddb4d0c84afb39d46492c7938bf5ea9945"
+    },
+    {
+      "path": "geo/crs.ts",
+      "sha256": "1b9438dcb6482475b977f0b981299d2d493412b370be27cdd9aba420c86f199e"
+    },
+    {
+      "path": "geo/grid.ts",
+      "sha256": "e80479a21520abf035b0bf482a5ecc18e1cbedab12b9f6dac1621db48770f652"
+    },
+    {
+      "path": "geo/index.ts",
+      "sha256": "124b0176efd1ccddd4e354f41012cb44ae79a37f16c7d2b279ee02044de11caf"
+    },
+    {
+      "path": "geo/operations.ts",
+      "sha256": "5883d804a1c48b2ef12e01d78fc6495be7201ac7011027726ae9c65fdcfe6a9e"
+    },
+    {
+      "path": "geo/readers/all.ts",
+      "sha256": "17e93ca6f7e7542de25fd53f5996511ab89388261255a75ef9e324e72d4c59ab"
+    },
+    {
+      "path": "geo/readers/envi.ts",
+      "sha256": "38cea36a414b7d4688fd52281d36d7842885ce9190f201efc332f12b5b4eb19f"
+    },
+    {
+      "path": "geo/readers/esri-ascii-grid.ts",
+      "sha256": "7a0d1a14a756f08ed85f5ce8aed5027e1df2e5c3bba7409a8ac5b65e0b722859"
+    },
+    {
+      "path": "geo/readers/geotiff.ts",
+      "sha256": "01617b87f5e6cfe0878a6826e5627080381e5053d200dbdc9daa6635151ffee0"
+    },
+    {
+      "path": "geo/readers/geozarr/index.ts",
+      "sha256": "3f6941ad2161635a76531705cc5825fb51df5a7222bec2d905762fbbd59ab90f"
+    },
+    {
+      "path": "geo/readers/geozarr/node.ts",
+      "sha256": "a609bbe9efb035abda1ba86aad76f8859a3185b04b07cfc75966a2880d76317d"
+    },
+    {
+      "path": "geo/readers/index.ts",
+      "sha256": "4c2505f612b35304bc41a8c5af25fe376624fb7f17b77b8a6799d51bd15ff756"
+    },
+    {
+      "path": "geo/readers/netcdf.ts",
+      "sha256": "70f90beab73caae62aeda26ef8bc36ff1eb6cc11bda570ff50fc0d1b72382ed5"
+    },
+    {
+      "path": "geo/readers/shared.ts",
+      "sha256": "e91d5db03396a24bf84698664c80f3b9d750f21b2ed04d1e73e1d3797896650e"
+    },
+    {
+      "path": "geo/readers/srtm-hgt.ts",
+      "sha256": "efbe240c429ad8dc55fed869bd3be512f95ff239a24b7c60252d154388510e27"
+    },
+    {
+      "path": "geo/readers/world-file-node.ts",
+      "sha256": "8bd879355ec9b6e1d26c81a1e9323f11f99e4bc94f57b1fa213fbd9618efef0b"
+    },
+    {
+      "path": "geo/readers/world-file.ts",
+      "sha256": "d5595b0e0f9be613c2b3fcfa6257d0d5193b37a21af0959e7e8e2120113633e0"
+    },
+    {
+      "path": "geo/reprojection.ts",
+      "sha256": "375c094de4a5ee33127f40a73b16201d7e9ff1f33d69d62dc2ee867e539501a9"
+    },
+    {
+      "path": "geo/scientific-adapter.ts",
+      "sha256": "d52680bc05bf78e56dc9f5193549c709d6a8100f50d5207054199b948467bcb6"
+    },
+    {
+      "path": "geo/transform.ts",
+      "sha256": "02bd1b9c002bbaf05404d6a905922b979ad6ac085688432106e2cc06ea4d10b3"
+    },
+    {
+      "path": "geotiff.ts",
+      "sha256": "12506109966d81e917ea57b83e91dadcab3acd6be869ebdd6e9e7d9d1c168d4b"
+    },
+    {
+      "path": "hdr/avif-output.ts",
+      "sha256": "2c16fad864e6a2cd2cb5fca88c71223b4b6be1844630dd43c0667de0a97c0c8a"
+    },
+    {
+      "path": "hdr/geometry.ts",
+      "sha256": "82c2947f4aeab06c47ca1a069999675a3dc6e8ec0cdecd5b295306e2d605ce4b"
+    },
+    {
+      "path": "hdr/index.ts",
+      "sha256": "b893b010e5deb458a3461c5ac4fbf3fdedeafa364a2df15c2101973651c91158"
+    },
+    {
+      "path": "hdr/inspect.ts",
+      "sha256": "01a075ed112d8e80dca2ae34a096cf7fb31a65b4a2c3a65641d33dcc3f425f0d"
+    },
+    {
+      "path": "hdr/iso.ts",
+      "sha256": "70aaf614f8e03b8f7989f35cd01567d859101a127ab6b0e524b31d5d37a53e13"
+    },
+    {
+      "path": "hdr/jpeg-output.ts",
+      "sha256": "562f0e8fae1e4aaa876bc9f0e5cace93a455c94b943aace647720f2b9ab54e6c"
+    },
+    {
+      "path": "hdr/jpeg.ts",
+      "sha256": "104e1d8befa7d3d7eccce81f9497a2f676a53abfcbf37f28a0e2a25d8c402031"
+    },
+    {
+      "path": "hdr/materialization.ts",
+      "sha256": "d3d73d9756f31fafd2db9bd0fc931c13dc3edbe28a6e1b984b0a6e2dd0827c7a"
+    },
+    {
+      "path": "hdr/math.ts",
+      "sha256": "c5756747ddab431f8b174ac34a0d66d033d97ebaa378ba76098c762d454d37d7"
+    },
+    {
+      "path": "hdr/model.ts",
+      "sha256": "8064b3727929761c1f7ce7ced0a2542c02b390aa905508df3b30a9aa39fe37e1"
+    },
+    {
+      "path": "hdr/open.ts",
+      "sha256": "7bae3c21b0acd36ad082e158944d48683808a96785ffe31edd87be1baaaef114"
+    },
+    {
+      "path": "hdr/source-slice.ts",
+      "sha256": "63822146f9e2e7a93e510ff3b763e701d8b5b70b07e80b0e34207b53c38474e9"
+    },
+    {
+      "path": "hdr/srgb-icc.ts",
+      "sha256": "5bba31bbe9403807b9dfa22f30f55635cc038ecc0006cb87503ac612827d5b11"
+    },
+    {
+      "path": "hdr/transform.ts",
+      "sha256": "5a76264110894119398a2687819d587ecec0bbda87d7ef4b76a8fdab50197e03"
+    },
+    {
+      "path": "hdr/xml.ts",
+      "sha256": "0735ebc9fd3905538f91e991b381b459954055b10414953a089f21b108b2baa4"
+    },
+    {
+      "path": "image-core.ts",
+      "sha256": "4f5c1ddece80b41c0cbb77b068864c50c9a04c586a5addeebc557a7d470298f6"
+    },
+    {
+      "path": "image.ts",
+      "sha256": "1ab4433053147762eb171c324afa4dcadf58390e937a5400f45ea1e98869d54e"
+    },
+    {
+      "path": "index.ts",
+      "sha256": "85604942a029f83bc39f822591a8373bb3cfa8f95bf999b814836d6919da8408"
+    },
+    {
+      "path": "input-format.ts",
+      "sha256": "a9e8ee562f910c29c586fd848149b207f6374d6607b62da453d7187e3d91bcb6"
+    },
+    {
+      "path": "jpegxl.ts",
+      "sha256": "54dc494a7d3cec3b9cd0946b79a2ff1be508d889e71fecff096735727da938dc"
+    },
+    {
+      "path": "limits.ts",
+      "sha256": "a00dda8a11f21cb17d3f0098fb196e063be6eee2d6e336a39f364e4e79221eeb"
+    },
+    {
+      "path": "lut.ts",
+      "sha256": "1f7e284daf1f248265e9aa8b48e69b04d9406a195d7ea2c2e1e2eeaea6922462"
+    },
+    {
+      "path": "memory-temporary-store.ts",
+      "sha256": "91960358a8440f8e73f54c1785b028120ece3a7e92d8feb0e86c23f657b1ac97"
+    },
+    {
+      "path": "metadata.ts",
+      "sha256": "0dab4774dd103fea143585801b99b6006143dbfe27ca00472fcdb0d07a1c3070"
+    },
+    {
+      "path": "netcdf/classic.ts",
+      "sha256": "578e86b0d7bf0181e63d53c99769fc8c760e22a7d853bb9368051db940efa26e"
+    },
+    {
+      "path": "node-image.ts",
+      "sha256": "2243be1ddc73c8ce11f0df6619f2cf8e5f3cc7ce55aefc6b6f47c958067ebf8a"
+    },
+    {
+      "path": "node-options.ts",
+      "sha256": "1aaf98f63ed3f69c9d2eccc61299042e1b10329e960fad1969af6af69324bf78"
+    },
+    {
+      "path": "node-platform.ts",
+      "sha256": "63b2f2bbc78833d9e505856068b67b9612072449905e729a17d347f938a6458b"
+    },
+    {
+      "path": "node-runtime.ts",
+      "sha256": "fcc8a6cdfc5e39292832a740673d7e76dbf325d096d47dbf39d6ac77fe9e48cf"
+    },
+    {
+      "path": "node-sink.ts",
+      "sha256": "29b49a904775b41ac25e4b06603a8295d7c21dd9d29160cc7d0c0653ac6871a2"
+    },
+    {
+      "path": "node-source.ts",
+      "sha256": "b2f4752599bfc6a67ad307ec3155e96df7471592655b966c431f2c8a8329cdc3"
+    },
+    {
+      "path": "operations/builtins.ts",
+      "sha256": "e542afbc56304ec093b8febd188cc50d42f005506cab943bea368b976d0aecdc"
+    },
+    {
+      "path": "operations/descriptor.ts",
+      "sha256": "1e18302ae2023344138f6e7a1d2c489ca823d32a85222872ba32de5d9b795327"
+    },
+    {
+      "path": "operations/index.ts",
+      "sha256": "29622b303ac45dca7f497d68c51e08d13622a67342977f753625ef7fed264744"
+    },
+    {
+      "path": "operations/provider.ts",
+      "sha256": "581c43a2f4fc9c6852637f13b46f0a8a47d747021936f84a9ea67798986ecf50"
+    },
+    {
+      "path": "operations/registry.ts",
+      "sha256": "c85cef89f1bd3b42d03fe6019bd644262c6870f6445da4ce6fcd86dccb3900ff"
+    },
+    {
+      "path": "orient.ts",
+      "sha256": "d17c85f8e3e6346197ac5079738d5f1213582fe5024771399dc36a70b5af9ee3"
+    },
+    {
+      "path": "pathology/aperio-svs.ts",
+      "sha256": "23fab77fafb16ee622468bec96ef3c7ef5e8c029075b1a92c2c9fb063c666ca5"
+    },
+    {
+      "path": "pathology/index.ts",
+      "sha256": "d6f87548aa9c4da3eb05b6d5bc032b09a4e4cec4f317d6c178d9607426d49f6a"
+    },
+    {
+      "path": "pathology/whole-slide.ts",
+      "sha256": "dc251cafbc3e8cfd0ebe3f4d26e68711961464d62afb2ef21b5a874282ce5483"
+    },
+    {
+      "path": "pipeline.ts",
+      "sha256": "78d84ab2fbe5c8108f635e1a69c73af7ea2cfb0c8b39d27c59baa873860db468"
+    },
+    {
+      "path": "pixel.ts",
+      "sha256": "4cff7650bd32255e899a11e753060c52e0c0118d297fe7f3bc10335589da04a6"
+    },
+    {
+      "path": "precision-plan.ts",
+      "sha256": "c78ea212206c9ed9399c1a93f4fec4385913083bd7d250455d5daa0864ab3f2b"
+    },
+    {
+      "path": "raster.ts",
+      "sha256": "01b14700cf76871a30cf96b328c740416354c2142d71b7ee65074b12708504cb"
+    },
+    {
+      "path": "resize.ts",
+      "sha256": "892e2dd578f8f556fc9186b0edd64f30d12a00b620d78d4bc37f81f2a171b7be"
+    },
+    {
+      "path": "rotate.ts",
+      "sha256": "22e7013d75ae1e90f07c175684ceb7120f28395479f99135e32ffbec98c02077"
+    },
+    {
+      "path": "runtime.ts",
+      "sha256": "3eb3f97c88ac3cd3952b72d3f52a07fba68a9c7b778f68d43ff5651899054ba7"
+    },
+    {
+      "path": "scientific/browser-reader-catalog.generated.ts",
+      "sha256": "8631f010b62e83256824292e61aceaf58fd13561264d284b040018be95edf080"
+    },
+    {
+      "path": "scientific/browser-reader-catalog.ts",
+      "sha256": "ad89952a8c35225386342971051773152b665a2325258edeef90f7f5eff82f5e"
+    },
+    {
+      "path": "scientific/browser.ts",
+      "sha256": "aab8702bd1ee5a393df915cd6bc5fd10f5903f3ac9d81f6b6f6be5c94122c6ec"
+    },
+    {
+      "path": "scientific/classification.ts",
+      "sha256": "a1ea29e96d014f14a35d3e6fc255e556d94d17d535e3db9d5878096be555b8ee"
+    },
+    {
+      "path": "scientific/dataset-adapters.ts",
+      "sha256": "95f7e8cdddbd15ab3e93fba59facedaf8f2953036d445f4f7ebb8c6122704ba7"
+    },
+    {
+      "path": "scientific/dataset.ts",
+      "sha256": "238d39239726d9ab8bf0f7c630009e132712e5641266a39b650f740cf781db71"
+    },
+    {
+      "path": "scientific/formats/blosc.ts",
+      "sha256": "1ac643f8ed14a72391ec13b0097a414463da2b246937968c72de1b55bf4851ca"
+    },
+    {
+      "path": "scientific/formats/cbf.ts",
+      "sha256": "47e0f9baaebfb7bcbe5f187dac22b45cc9d125ecdfc88e76d1a57e0ef2e60ed0"
+    },
+    {
+      "path": "scientific/formats/crc32c.ts",
+      "sha256": "10ec242b4373411289ae2b8208f1d4486ba580619678d1bf1563e8377014c154"
+    },
+    {
+      "path": "scientific/formats/dicom/codestream.ts",
+      "sha256": "c00d8dd24c8e7b6cb40dd3243efe67a0898cacdc0830105a324e5c0142447558"
+    },
+    {
+      "path": "scientific/formats/dicom/constants.ts",
+      "sha256": "86a6e5b082e3f40440f469ad68573e1875c4fc9833dd67195ecf623f56330ab6"
+    },
+    {
+      "path": "scientific/formats/dicom/dictionary.generated.ts",
+      "sha256": "26865ab76c5c72f37f27fd0e5486365cbbdee778844c393c1058b39412ecbe46"
+    },
+    {
+      "path": "scientific/formats/dicom/dictionary.ts",
+      "sha256": "174a8f10dbffe8f91513ef613820b14c7352898f0027830f6dcb0d518eafe43d"
+    },
+    {
+      "path": "scientific/formats/dicom/elements.ts",
+      "sha256": "6c02dfb7cb2997c7f32dd7c849086a33e0e940e000db75bced82574ba02fe135"
+    },
+    {
+      "path": "scientific/formats/dicom/encapsulated-pixel.ts",
+      "sha256": "4d16fb322349c7e3d070ac78348f76b086437cb840066d79998ecc00609e221b"
+    },
+    {
+      "path": "scientific/formats/dicom/file-meta.ts",
+      "sha256": "247a20e0270b073b52d37f240ae4e7c4d7f3393fbc4a83c6a5c1889ab72b62af"
+    },
+    {
+      "path": "scientific/formats/dicom/functional-groups.ts",
+      "sha256": "b395aa907d74685630eb7c49fbdb8d4991bc8c74b3e63d5b74fc6fd083fbfdea"
+    },
+    {
+      "path": "scientific/formats/dicom/limits.ts",
+      "sha256": "d8d122f5b3c9d4f48b93fd94c5c50742758fe124d89a036adf2d9f8e244ab428"
+    },
+    {
+      "path": "scientific/formats/dicom/metadata.ts",
+      "sha256": "57e0a4d8f41471a635c4793bae9dd18471a1ea4559e1599f5ae10be82a03c339"
+    },
+    {
+      "path": "scientific/formats/dicom/native-pixel.ts",
+      "sha256": "8725930b803c79dc3616c9e558127095508d6edcdc1299080945e429866a081b"
+    },
+    {
+      "path": "scientific/formats/dicom/parser.ts",
+      "sha256": "816063831a1f1590c66f100a9f85b48c5816bc97c34e560b14ee212a78e3c606"
+    },
+    {
+      "path": "scientific/formats/dicom/pixel-description.ts",
+      "sha256": "b423f63734adb79784fd09e59efa127c7d367bf2304e54eafd9242d3686aade5"
+    },
+    {
+      "path": "scientific/formats/dicom/presentation.ts",
+      "sha256": "52a1aa264701fb7e5d2fb6f8f6dc3ca3a7a9414bbbc9c06ab7e3086ba43101e5"
+    },
+    {
+      "path": "scientific/formats/dicom/rle.ts",
+      "sha256": "74ce6bc7b04f58a20a4e727a15577606a2f27d862cf0b02073abb15e9c2aace6"
+    },
+    {
+      "path": "scientific/formats/dicom/sequences.ts",
+      "sha256": "80ea9700b38baef73f2601d0fdb2b9d63b9600fedf1df000c29dc2be780d7a45"
+    },
+    {
+      "path": "scientific/formats/dicom/transfer-syntax.ts",
+      "sha256": "8f0c1846a07ec494c905e75004cd87679a3d7be6dec344f607fb54dd55868ce1"
+    },
+    {
+      "path": "scientific/formats/digital-micrograph.ts",
+      "sha256": "426c9425033f7ee409eda7cbce3fb0ad14fc18dd18a56c75069282aab48ae095"
+    },
+    {
+      "path": "scientific/formats/envi.ts",
+      "sha256": "f634fa63ab90db11339d1c2458062a7117f076296d6b91a7a1878272808184a4"
+    },
+    {
+      "path": "scientific/formats/fits.ts",
+      "sha256": "d9a3726456f045cd48ef7f57de933a63bb19714cfd8cc6357d1568e3ef4b33d9"
+    },
+    {
+      "path": "scientific/formats/gsf.ts",
+      "sha256": "879cd87b1164bf802675cab0eb894243fdab731fbc5068963ddeed6eafa0544d"
+    },
+    {
+      "path": "scientific/formats/hdf5-attributes.ts",
+      "sha256": "cc9d3be181db4db8e7badb74d3fd8ed13b6da4cf0b12e5e70455e9a0e4dbb914"
+    },
+    {
+      "path": "scientific/formats/hdf5-chunks.ts",
+      "sha256": "384c52b5b3f1e2c5107f0bf63af51dded136762a4b3d240e4af580dd262e85a4"
+    },
+    {
+      "path": "scientific/formats/hdf5-dataset.ts",
+      "sha256": "f6d6d7e4eadbcdc6ba616f94d4e5631554b32d6c0b8ccc67c28ca645d2ac1fe5"
+    },
+    {
+      "path": "scientific/formats/hdf5-dense-group.ts",
+      "sha256": "edc65cca8176c0b63239975b459caff19d541e20c238eee1239ef24e12fd854e"
+    },
+    {
+      "path": "scientific/formats/hdf5-file.ts",
+      "sha256": "46a2982e65103c0abdf3e59069283c98b359b6f0cd3de02041ac9f7681ab6e17"
+    },
+    {
+      "path": "scientific/formats/hdf5-filter-message.ts",
+      "sha256": "88dc0d1a8da0a84134769d1aaf9733e169e8267fa6020bddd1efb9330d62a4a4"
+    },
+    {
+      "path": "scientific/formats/hdf5-filters.ts",
+      "sha256": "bd2925388d90b1fcbd9218d17ea107365c7d13cb00d3572cf3620a2ff9e9ee42"
+    },
+    {
+      "path": "scientific/formats/hdf5-global-heap.ts",
+      "sha256": "598bc2855d92f9500b30e51dc47c781b825cb495cfa12fdc739e854f413abb2c"
+    },
+    {
+      "path": "scientific/formats/hdf5-graph.ts",
+      "sha256": "5e701565808914b6ed562e7ea35f308e02a96685632af4a0446c96f295856bf5"
+    },
+    {
+      "path": "scientific/formats/hdf5-layout.ts",
+      "sha256": "c7d33435d0862bc2196104a0cff4d053f36702353954c55af02696a613e9d8f9"
+    },
+    {
+      "path": "scientific/formats/hdf5-legacy-group.ts",
+      "sha256": "d71aecddb86bf12be6cf93857780fbb9c1b8d74f0fd98bcadcc96ba7b2c9b98b"
+    },
+    {
+      "path": "scientific/formats/hdf5-object.ts",
+      "sha256": "0098a91d56da32ccebd5ab0a66bf62f77e5c02dbe0f3d1db74f4e9b43e4152a1"
+    },
+    {
+      "path": "scientific/formats/hdf5.ts",
+      "sha256": "7e8a327a1e5ae5ff081d6901c16d8b3d38458f5a33b3bd7891642430b25f7e59"
+    },
+    {
+      "path": "scientific/formats/mrc.ts",
+      "sha256": "9f3cbd5bc6d96f7044fe13264694e4d8fde2f735e9caa479609a6d584015026d"
+    },
+    {
+      "path": "scientific/formats/ncem-emd-reader.ts",
+      "sha256": "cff81b0f9e0c8e0b268512f3b6340ac4d56225a46bf2b21ac742b947a3255224"
+    },
+    {
+      "path": "scientific/formats/ncem-emd.ts",
+      "sha256": "a2323451a890aa444dc8cbebe311efc245ca21b61b0ac83a6c5838f1bbaae058"
+    },
+    {
+      "path": "scientific/formats/ome-zarr.ts",
+      "sha256": "a95331c59598b6928f8494f5a9edc7b998b45ebd04f2ccd4fcca67b6a278e68d"
+    },
+    {
+      "path": "scientific/formats/tia-emi.ts",
+      "sha256": "eca405c47a03d70cdb4497162ebc0dc0649ce311d647a3f536e1b991d80da69a"
+    },
+    {
+      "path": "scientific/formats/tia-ser.ts",
+      "sha256": "941fa28861a822effaaa665d95118d10bc6a190af831d2f20359b15c39e6f872"
+    },
+    {
+      "path": "scientific/formats/velox-emd.ts",
+      "sha256": "ce87dfc9e5aade30bc00c3aa9cc7c84d223bfaf36c2d6d3c374bc7c5d05127be"
+    },
+    {
+      "path": "scientific/formats/zarr.ts",
+      "sha256": "6b887a9a8f4f329d465e5d9ea8c0582f53837ff052ee052b0007c7d7e60fe1bd"
+    },
+    {
+      "path": "scientific/formats/zip.ts",
+      "sha256": "fe9b4f24c51ec5462a8c26d4ebdbc7ba6dc5d9365b6f7742d018dcb46a81d45d"
+    },
+    {
+      "path": "scientific/image-codec-reader.ts",
+      "sha256": "56d4c6f3d4f1f44ac5dd901d15764466340774e65f660fb6859b2552e4e1c9dc"
+    },
+    {
+      "path": "scientific/index.ts",
+      "sha256": "1beab2915f0c250301d318b3a6298834aeff169913b997dc918e92f438e24349"
+    },
+    {
+      "path": "scientific/legacy-dataset.ts",
+      "sha256": "49b9c1bab0bacf6c3b1438e18dacd88526b0960d3a049bec57c6c64d55b488de"
+    },
+    {
+      "path": "scientific/library.ts",
+      "sha256": "7a4d67739e95151e00115b472de1d4562f69fa9f4dcaa152c87567dd15c31254"
+    },
+    {
+      "path": "scientific/node.ts",
+      "sha256": "65882b1f564e95c5022cb618a1ba8548a9ec06492647c7459b72b9482fddbfa1"
+    },
+    {
+      "path": "scientific/numeric-tile.ts",
+      "sha256": "af818f56db8eebf1f57ad585bb229d7af56bebeee40fc1baa8316b18289cb200"
+    },
+    {
+      "path": "scientific/ome-tiff.ts",
+      "sha256": "ad6f2e2f7c8857b63e2d0d6a9257508bbc7967f22487d6cdb15f1c97402c88ab"
+    },
+    {
+      "path": "scientific/ome-zarr-http.ts",
+      "sha256": "9cfd68b4d9d98376ee4de2cc9d8ca5e81db2df8605007c12920b86e0ffbef4b9"
+    },
+    {
+      "path": "scientific/palettes.ts",
+      "sha256": "09217430d6f2a330300de0bc2af21d41ace10e7e58ced5c922cb3427aff70d46"
+    },
+    {
+      "path": "scientific/public.ts",
+      "sha256": "9cb9bfaa5e2cf9a651486319393cc36a3e3f05694e81ebd513357d9472ef5db8"
+    },
+    {
+      "path": "scientific/reader.ts",
+      "sha256": "8b860047f8676d66300b46c7321c72faff5a71c951a86e735c8bb23bed32cf0a"
+    },
+    {
+      "path": "scientific/readers/all.ts",
+      "sha256": "5e91372a01ba7345421e5cbbceaa2697bad57fe6b66acd0831f7d9e792dc4d1c"
+    },
+    {
+      "path": "scientific/readers/aperio-svs.ts",
+      "sha256": "3e14e17371861dc4a78a4968e5cdd2a7ed2edff94209baf160e98a9df10d62dd"
+    },
+    {
+      "path": "scientific/readers/blockfile.ts",
+      "sha256": "25668b456ed77760de8f15a9e07199e09dfce21d0864db063cdcf0dad4105767"
+    },
+    {
+      "path": "scientific/readers/bmp.ts",
+      "sha256": "9b291d4ad1d8c1b58bb8fa2101880699eebba4da40eb452858bfbef0feb7e8ed"
+    },
+    {
+      "path": "scientific/readers/cbf.ts",
+      "sha256": "8ec61d62f45a5762037a0e78ad9dac6ea3c696746ab1ec80b4f5d2caf6f5beca"
+    },
+    {
+      "path": "scientific/readers/dicom.ts",
+      "sha256": "27e78963307509effe818ceb1bf745a1fa66808f5784e830df61a5ec575fb594"
+    },
+    {
+      "path": "scientific/readers/digital-micrograph.ts",
+      "sha256": "08d31536c099ceea782beaf114542b5506c5d1b7f6a5c457c4e1987024e0fbe3"
+    },
+    {
+      "path": "scientific/readers/digital-surf.ts",
+      "sha256": "bad9e31a99e215ffb8db0bb9cc3e2e01f253219938b6e6e72da3ba69d05a05ed"
+    },
+    {
+      "path": "scientific/readers/ebsd-text.ts",
+      "sha256": "04c8df9f528af9ca57df584f59c5f787936661e942d7480514efce4ccf95bd1f"
+    },
+    {
+      "path": "scientific/readers/emsa.ts",
+      "sha256": "5491d189e798b8825bd30485a27e734889659962eb5627f05b50133349986f83"
+    },
+    {
+      "path": "scientific/readers/envi.ts",
+      "sha256": "af47a5f61d5565e98ff45a270188089772d44eb5bd44f3f83f15f668855fcf1a"
+    },
+    {
+      "path": "scientific/readers/fits.ts",
+      "sha256": "fec5b04784cedf1bd94179334b768e7720c75157d47382a248cf9c1dcfe052af"
+    },
+    {
+      "path": "scientific/readers/gsf.ts",
+      "sha256": "30911f68f4891570efe339853be3eb2c8208ee4e74fab10d8092db73beced658"
+    },
+    {
+      "path": "scientific/readers/igor-binary-wave.ts",
+      "sha256": "fe2ccb002adef78664af759d9ff3c680e756e26c1a371ee494f72ace98a1413b"
+    },
+    {
+      "path": "scientific/readers/interchange-shared.ts",
+      "sha256": "215d02b18c1a7c90ca3b47f912f97afe8373c14001ce08a4d244848232e2f852"
+    },
+    {
+      "path": "scientific/readers/jp2.ts",
+      "sha256": "7a6bd5b9f9d0e43922fbb5f5ba66029941ba6512c28560e4abc528848b5d5091"
+    },
+    {
+      "path": "scientific/readers/jpeg.ts",
+      "sha256": "58d7b5064212e8456e7bc6e2cb3659705c1bd9ac2b671f68eb4122566e1a5287"
+    },
+    {
+      "path": "scientific/readers/meta-image.ts",
+      "sha256": "92939dd3997001ece619d027b8fbf5872b2b4a4d96f22e9dacef3debc811eab7"
+    },
+    {
+      "path": "scientific/readers/mib.ts",
+      "sha256": "f1855042e8a2fefd2db2938e095509b493619ec23f1d1689032a061e30bd4daf"
+    },
+    {
+      "path": "scientific/readers/mrc-internal.ts",
+      "sha256": "7b9f4433bec13e23aa8dd11509804c6ca8018c30867a3ac0fa34ea31e5aa8984"
+    },
+    {
+      "path": "scientific/readers/mrc.ts",
+      "sha256": "a0a2702bfacfcd5e3e7f4875d5250f567f304c24703c60944ac57f77e33e532c"
+    },
+    {
+      "path": "scientific/readers/nanonis-sxm.ts",
+      "sha256": "95e0b7e0370c0533960c016f4c1f45c0f9a6a4c06429fb647dda49443865828f"
+    },
+    {
+      "path": "scientific/readers/ncem-emd.ts",
+      "sha256": "82172beeec26189daa64ee631e1d46a03c229fca30acd42728229f7b15a44f9a"
+    },
+    {
+      "path": "scientific/readers/nifti.ts",
+      "sha256": "6a23a73475c8c7f91b3f71aeeef1c05d27979828a3622e51b094a495ed03baad"
+    },
+    {
+      "path": "scientific/readers/npy.ts",
+      "sha256": "b0b35a0f15c69843ac3ffdf0636fd442481c4f290f9bb8c6b612475ae09820b9"
+    },
+    {
+      "path": "scientific/readers/nrrd.ts",
+      "sha256": "a205134c8453e898122fc57c70e6928362417c4b413ba0f2524392a4734e5444"
+    },
+    {
+      "path": "scientific/readers/ome-tiff.ts",
+      "sha256": "766c3a6423976a304f524e58058cc73464ad459c3f752a27dffa3ea930ad723f"
+    },
+    {
+      "path": "scientific/readers/ome-zarr.ts",
+      "sha256": "5abe5de8a015e448a1de8a9b23186c2177f00c4642417650710a81283ff0c1dc"
+    },
+    {
+      "path": "scientific/readers/png.ts",
+      "sha256": "4eb4aa987572dde5d640d2f504bb1fee6c0d463bc9df75bd635e5562a520871b"
+    },
+    {
+      "path": "scientific/readers/rpl.ts",
+      "sha256": "57bde3e019665a8830ea5d70bf405c4a01ed9b4c732e61a9f97e10a03f91885b"
+    },
+    {
+      "path": "scientific/readers/shared.ts",
+      "sha256": "a1615574fd5601143186086df4a41ca7fd39ae0d05e2dcd96ddf54ee3dfcb1b0"
+    },
+    {
+      "path": "scientific/readers/tia-emi.ts",
+      "sha256": "66925d613d66f69b95c313cc4d8c9b439088e913c3e2898df818de580015e4cf"
+    },
+    {
+      "path": "scientific/readers/tia-ser.ts",
+      "sha256": "ea3e8a692f274d9adce732791038df0bee88c6a50345fac3d3b9038cc514641a"
+    },
+    {
+      "path": "scientific/readers/tiff-bridge.ts",
+      "sha256": "89d7e2835eb179faa9ad4dbf20a49cf1309c993511162ef949e39700d033d9e2"
+    },
+    {
+      "path": "scientific/readers/tiff.ts",
+      "sha256": "eb6abccda4b70378fd8e04c44c6700985cc94c5cf6713e9f7471da03e6d8421c"
+    },
+    {
+      "path": "scientific/readers/velox-emd.ts",
+      "sha256": "f39cf4dafc4e4f4c17ffb6793214eab873955af811b0a2ab7168203d469ad008"
+    },
+    {
+      "path": "scientific/readers/webp.ts",
+      "sha256": "d0e1184ec949d193ede186f81572deec0d78b228c3207fcdff212c263f9bfc8d"
+    },
+    {
+      "path": "scientific/readers/x3p.ts",
+      "sha256": "62e196e158955049332ea0dad3c1768f9f411f014eb161e45d950b6d37c6563f"
+    },
+    {
+      "path": "scientific/render.ts",
+      "sha256": "8e4b73d1b934a1f38bd8ff7209c09ed7ad21974da0a0d60a6da8f2f7b4b51f4a"
+    },
+    {
+      "path": "scientific/samples.ts",
+      "sha256": "dc4431181914d5c0663e36d1d65530acdb7145874e079b99448cdfd5952d5dda"
+    },
+    {
+      "path": "scientific/spectral.ts",
+      "sha256": "8b3190c98f0aa0c19327f4994ebcd9d0f2c00130bdc48352f2f020ea6011cd50"
+    },
+    {
+      "path": "scientific/volume.ts",
+      "sha256": "ca3faa899898e15d15ba198f72f1f3631b4f81cf0b29f75fc1c0fda065147021"
+    },
+    {
+      "path": "scientific/whole-slide-bridge.ts",
+      "sha256": "05a934223c7328490a3357183fa5aeda7454a7c870659d192155ac85ba6688e0"
+    },
+    {
+      "path": "sink.ts",
+      "sha256": "eb68dc839ce11358dffef333daf339aa2740e142af233cb2eb8e13613b5b7025"
+    },
+    {
+      "path": "source-identity-contract.ts",
+      "sha256": "ee45891ba0b57e16d9c555e4e60fdeb5cc01f39c9fd8921a369a41c932eca01b"
+    },
+    {
+      "path": "source-identity.ts",
+      "sha256": "c7f83c6d949495b3e621b916be18363ece814c10360d1196804e4e6d401b4cf6"
+    },
+    {
+      "path": "source.ts",
+      "sha256": "b9e7f7854c60d9a15cce27c099b4404407e49bcd55e4cfb1c9638a26e3deb3af"
+    },
+    {
+      "path": "sources/http-range.ts",
+      "sha256": "d2f6ffab6f00d7b2f2ee74a9186d99e778e761b08775827522b79c82a30a052d"
+    },
+    {
+      "path": "tiff/calibration-profiles.ts",
+      "sha256": "4061f5c93e43435e962501684368100afd4585b270ea0217c9edf1e20d0c7514"
+    },
+    {
+      "path": "tiff/cog.ts",
+      "sha256": "b37c25887b324eab8a118c3e858011f598d3e3e6551fc861646bbaeced65f055"
+    },
+    {
+      "path": "tiff/compressions.ts",
+      "sha256": "56254cfdf50614dcea4cabb1bcabe1669009a3cf47c3d63ebf124f2049114c70"
+    },
+    {
+      "path": "tiff/index.ts",
+      "sha256": "1e068e213f683f5a6ff04b0b0c9bfcc1271067ea1f57bbd463b83b05ff2e52e4"
+    },
+    {
+      "path": "tiff/profiles.ts",
+      "sha256": "c5590d42e8a39dd0ae5baa5edf81b4c68d31b8bc171c9d7a4bf42f1cd1c9932b"
+    },
+    {
+      "path": "tiff/types.ts",
+      "sha256": "27a6f8325a3947c2f8fc47a83d392dd59e8f3f0827cd7ccf0a956eaf25e85fe5"
+    },
+    {
+      "path": "xml.ts",
+      "sha256": "05add0ba52a40812cd0da21fdb888c7ec0fd41c7db647517d3494e6f505a192d"
+    },
+    {
+      "path": "zarr/blosc.ts",
+      "sha256": "87b8fada367953de800166bc60de0acbf641c28a51aa818a7d4b7877eef10534"
+    },
+    {
+      "path": "zarr/core.ts",
+      "sha256": "5f45835626d0b52b16ff14746733cdf88546e774fa908f8c4e690d60f4c1bdfb"
+    },
+    {
+      "path": "zarr/crc32c.ts",
+      "sha256": "50fbc460bfcff1ba34d16d896f6e4700df6b2620ab97e5d517b942f9062e9391"
+    },
+    {
+      "path": "zarr/http-store.ts",
+      "sha256": "f223f9c9022269f002d12779e67a9f3d0975678bca9e3f5a9b1991f31a9ec757"
+    },
+    {
+      "path": "zarr/index.ts",
+      "sha256": "4df2422b435da38a141e8f999d374ce4c43c11083c10eb76f1de3b6b6fdf68ba"
+    },
+    {
+      "path": "zarr/node.ts",
+      "sha256": "928b9140427d0336cb237bd636b5e9d37c96bd854906249c0ee2e61c5827fac2"
+    },
+    {
+      "path": "zarr/zip-store.ts",
+      "sha256": "e02d8bebc1ed52c99df8078b8a223d35cd73340ab946ff5f92747a59aacda77a"
+    }
+  ],
+  "inputSha256": "2ac5372c83d016eb8af34ff1a6f8d1b28046e623df01be10787405c4c74e4c37",
+  "oracleSha256": "23e942058e2dedd691f825e5ee37cd3db917f44c4713b5b3b8dad8525566dd0b",
+  "policy": "Twenty-one alternating pairs per cold/warm state, one benchmark child at a time, original 12 MP RGB8 input and distance 1. Core boundaries only are comparable. No quality equivalence claim from equal distance.",
+  "results": [
+    {
+      "pair": 0,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2075.054913,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135090176,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 82.43474899999998,
+        "coreMilliseconds": 1801.09259,
+        "encodeOutputMilliseconds": 1802.4528159999998,
+        "openEncodeOutputMilliseconds": 1884.8875649999998,
+        "moduleReadySeconds": 0.16160728800000002,
+        "peakRssBytes": 161173504,
+        "baselineMemory": {
+          "rss": 135090176,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161173504,
+          "heapTotal": 21803008,
+          "heapUsed": 14167896,
+          "external": 69145423,
+          "arrayBuffers": 56567085
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 0,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 534.472467,
+      "measurement": {
+        "coreMilliseconds": 305.61600762574284,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,39.26495897,67.35631109,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 0,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3911.1443069999996,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135548928,
+          "heapTotal": 20520960,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 84.28423799999999,
+        "coreMilliseconds": 1774.980915,
+        "encodeOutputMilliseconds": 1776.0004789999998,
+        "openEncodeOutputMilliseconds": 1860.2847169999998,
+        "moduleReadySeconds": 0.171683774,
+        "peakRssBytes": 165507072,
+        "baselineMemory": {
+          "rss": 159739904,
+          "heapTotal": 19996672,
+          "heapUsed": 10508000,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165507072,
+          "heapTotal": 22851584,
+          "heapUsed": 15906464,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 0,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 774.2170099999994,
+      "measurement": {
+        "coreMilliseconds": 244.67321904238668,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,49.04500806,69.19854491,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 1,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 538.8590359999998,
+      "measurement": {
+        "coreMilliseconds": 307.0046361212699,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,39.08735761,66.62384604,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 1,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 1945.303648,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 136019968,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 90.65099699999999,
+        "coreMilliseconds": 1682.1235900000001,
+        "encodeOutputMilliseconds": 1683.6019419999998,
+        "openEncodeOutputMilliseconds": 1774.2529389999997,
+        "moduleReadySeconds": 0.147699827,
+        "peakRssBytes": 161710080,
+        "baselineMemory": {
+          "rss": 136019968,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161710080,
+          "heapTotal": 21803008,
+          "heapUsed": 14147264,
+          "external": 69178452,
+          "arrayBuffers": 56600114
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 1,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 773.8332610000016,
+      "measurement": {
+        "coreMilliseconds": 245.373250926431,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,48.90508625,64.02303046,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 1,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3892.9260680000007,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134201344,
+          "heapTotal": 20783104,
+          "heapUsed": 9956408,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 88.45887099999999,
+        "coreMilliseconds": 1731.451168,
+        "encodeOutputMilliseconds": 1732.4171029999998,
+        "openEncodeOutputMilliseconds": 1820.8759739999998,
+        "moduleReadySeconds": 0.166080993,
+        "peakRssBytes": 165437440,
+        "baselineMemory": {
+          "rss": 159145984,
+          "heapTotal": 20520960,
+          "heapUsed": 10508192,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165437440,
+          "heapTotal": 31502336,
+          "heapUsed": 15361792,
+          "external": 69166660,
+          "arrayBuffers": 56588322
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 2,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2095.641287999999,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135704576,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 86.58176699999999,
+        "coreMilliseconds": 1822.4325290000002,
+        "encodeOutputMilliseconds": 1823.806837,
+        "openEncodeOutputMilliseconds": 1910.388604,
+        "moduleReadySeconds": 0.158501181,
+        "peakRssBytes": 163360768,
+        "baselineMemory": {
+          "rss": 135704576,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 163360768,
+          "heapTotal": 22065152,
+          "heapUsed": 15420496,
+          "external": 69183044,
+          "arrayBuffers": 56604706
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 2,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 514.6497130000025,
+      "measurement": {
+        "coreMilliseconds": 290.8729738641868,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,41.25512192,69.53144324,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 2,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3836.0366310000027,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134451200,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 80.11076300000002,
+        "coreMilliseconds": 1840.470922,
+        "encodeOutputMilliseconds": 1841.741833,
+        "openEncodeOutputMilliseconds": 1921.8525960000002,
+        "moduleReadySeconds": 0.154201509,
+        "peakRssBytes": 164425728,
+        "baselineMemory": {
+          "rss": 158134272,
+          "heapTotal": 19734528,
+          "heapUsed": 10497120,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164425728,
+          "heapTotal": 22851584,
+          "heapUsed": 15885872,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 2,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 814.097525000001,
+      "measurement": {
+        "coreMilliseconds": 258.7595530808676,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,46.37509942,64.28183735,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 3,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 524.9502649999995,
+      "measurement": {
+        "coreMilliseconds": 297.7764113005752,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,40.29869239,66.73459052,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 3,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2009.9511380000004,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 136302592,
+          "heapTotal": 20258816,
+          "heapUsed": 9956528,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 80.51058,
+        "coreMilliseconds": 1748.7255269999998,
+        "encodeOutputMilliseconds": 1749.807744,
+        "openEncodeOutputMilliseconds": 1830.3183239999998,
+        "moduleReadySeconds": 0.156502624,
+        "peakRssBytes": 160944128,
+        "baselineMemory": {
+          "rss": 136302592,
+          "heapTotal": 20258816,
+          "heapUsed": 9959856,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 160944128,
+          "heapTotal": 22065152,
+          "heapUsed": 12423352,
+          "external": 67022953,
+          "arrayBuffers": 54444615
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 3,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 777.7245260000018,
+      "measurement": {
+        "coreMilliseconds": 252.91004499334403,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,47.44770023,64.90280809,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 3,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3762.5241270000006,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 136237056,
+          "heapTotal": 20520960,
+          "heapUsed": 9956240,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 81.65970099999998,
+        "coreMilliseconds": 1742.3256689999998,
+        "encodeOutputMilliseconds": 1743.0873820000002,
+        "openEncodeOutputMilliseconds": 1824.7470830000002,
+        "moduleReadySeconds": 0.159712566,
+        "peakRssBytes": 165105664,
+        "baselineMemory": {
+          "rss": 159600640,
+          "heapTotal": 19472384,
+          "heapUsed": 10496032,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165105664,
+          "heapTotal": 22065152,
+          "heapUsed": 12803936,
+          "external": 67022953,
+          "arrayBuffers": 54444615
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 4,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2024.0983720000004,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 136110080,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 81.024315,
+        "coreMilliseconds": 1766.94243,
+        "encodeOutputMilliseconds": 1768.2611060000002,
+        "openEncodeOutputMilliseconds": 1849.285421,
+        "moduleReadySeconds": 0.150686399,
+        "peakRssBytes": 161013760,
+        "baselineMemory": {
+          "rss": 136110080,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161013760,
+          "heapTotal": 22065152,
+          "heapUsed": 14083360,
+          "external": 69145679,
+          "arrayBuffers": 56567341
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 4,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 551.1125250000005,
+      "measurement": {
+        "coreMilliseconds": 322.3221469584251,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,37.22983392,66.03923122,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 4,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3766.8874419999993,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 136286208,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 86.09425300000001,
+        "coreMilliseconds": 1771.34251,
+        "encodeOutputMilliseconds": 1772.308897,
+        "openEncodeOutputMilliseconds": 1858.4031499999999,
+        "moduleReadySeconds": 0.149755651,
+        "peakRssBytes": 165875712,
+        "baselineMemory": {
+          "rss": 159846400,
+          "heapTotal": 20783104,
+          "heapUsed": 10495968,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165875712,
+          "heapTotal": 32550912,
+          "heapUsed": 14364376,
+          "external": 69121604,
+          "arrayBuffers": 56543266
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 4,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 794.0623839999971,
+      "measurement": {
+        "coreMilliseconds": 259.3361357907901,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,46.27199354,68.56969748,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 5,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 529.3264889999991,
+      "measurement": {
+        "coreMilliseconds": 298.43042324398886,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,40.21037758,65.22349679,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 5,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 1967.8298680000007,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135335936,
+          "heapTotal": 20520960,
+          "heapUsed": 9956208,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 79.973772,
+        "coreMilliseconds": 1706.402772,
+        "encodeOutputMilliseconds": 1707.529059,
+        "openEncodeOutputMilliseconds": 1787.502831,
+        "moduleReadySeconds": 0.157329174,
+        "peakRssBytes": 161288192,
+        "baselineMemory": {
+          "rss": 135335936,
+          "heapTotal": 20520960,
+          "heapUsed": 9959536,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161288192,
+          "heapTotal": 22327296,
+          "heapUsed": 15242344,
+          "external": 69148228,
+          "arrayBuffers": 56569890
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 5,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 769.8780760000009,
+      "measurement": {
+        "coreMilliseconds": 245.74953599262142,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,48.83020410,69.17752363,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 5,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4010.5416780000014,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134811648,
+          "heapTotal": 20258816,
+          "heapUsed": 9956088,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 78.282198,
+        "coreMilliseconds": 1824.3250040000003,
+        "encodeOutputMilliseconds": 1825.2692030000003,
+        "openEncodeOutputMilliseconds": 1903.5514010000002,
+        "moduleReadySeconds": 0.14646498,
+        "peakRssBytes": 165842944,
+        "baselineMemory": {
+          "rss": 159813632,
+          "heapTotal": 20258816,
+          "heapUsed": 10493848,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165842944,
+          "heapTotal": 23113728,
+          "heapUsed": 15709896,
+          "external": 69211716,
+          "arrayBuffers": 56633378
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 6,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2329.425381000001,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134074368,
+          "heapTotal": 20783104,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 80.71015299999999,
+        "coreMilliseconds": 2075.032717,
+        "encodeOutputMilliseconds": 2076.24458,
+        "openEncodeOutputMilliseconds": 2156.954733,
+        "moduleReadySeconds": 0.145407359,
+        "peakRssBytes": 159633408,
+        "baselineMemory": {
+          "rss": 134074368,
+          "heapTotal": 20783104,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 159633408,
+          "heapTotal": 21803008,
+          "heapUsed": 12432864,
+          "external": 67022953,
+          "arrayBuffers": 54444615
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 6,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 681.8694830000022,
+      "measurement": {
+        "coreMilliseconds": 391.4328492313557,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,30.65659927,52.83067828,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 6,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4191.176479000002,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 132997120,
+          "heapTotal": 20783104,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 88.41401900000002,
+        "coreMilliseconds": 2010.5737270000004,
+        "encodeOutputMilliseconds": 2011.4406480000002,
+        "openEncodeOutputMilliseconds": 2099.854667,
+        "moduleReadySeconds": 0.19309189499999999,
+        "peakRssBytes": 164634624,
+        "baselineMemory": {
+          "rss": 157818880,
+          "heapTotal": 19996672,
+          "heapUsed": 10494728,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164634624,
+          "heapTotal": 22065152,
+          "heapUsed": 12756000,
+          "external": 67022953,
+          "arrayBuffers": 54444615
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 6,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 907.9675889999999,
+      "measurement": {
+        "coreMilliseconds": 296.1706207176719,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,40.51718557,53.32054114,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 7,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 649.735010000004,
+      "measurement": {
+        "coreMilliseconds": 357.6533370281307,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,33.55204260,52.06410594,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 7,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2320.2750610000003,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134598656,
+          "heapTotal": 20520960,
+          "heapUsed": 9956392,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 110.34234700000002,
+        "coreMilliseconds": 1977.01766,
+        "encodeOutputMilliseconds": 1978.2768030000002,
+        "openEncodeOutputMilliseconds": 2088.6191500000004,
+        "moduleReadySeconds": 0.20084311800000001,
+        "peakRssBytes": 161337344,
+        "baselineMemory": {
+          "rss": 134598656,
+          "heapTotal": 20520960,
+          "heapUsed": 9959720,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161337344,
+          "heapTotal": 22851584,
+          "heapUsed": 15551024,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 7,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 994.1909139999989,
+      "measurement": {
+        "coreMilliseconds": 341.85397480987734,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,35.10270725,51.06218319,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 7,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3946.627926000001,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135991296,
+          "heapTotal": 20520960,
+          "heapUsed": 9956472,
+          "external": 48643557,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 113.931018,
+        "coreMilliseconds": 1722.5376,
+        "encodeOutputMilliseconds": 1724.0773869999998,
+        "openEncodeOutputMilliseconds": 1838.0084049999998,
+        "moduleReadySeconds": 0.16952895599999998,
+        "peakRssBytes": 163704832,
+        "baselineMemory": {
+          "rss": 157675520,
+          "heapTotal": 20258816,
+          "heapUsed": 10498840,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 163704832,
+          "heapTotal": 22589440,
+          "heapUsed": 14100432,
+          "external": 69118162,
+          "arrayBuffers": 56539824
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 8,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2265.6092949999947,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134864896,
+          "heapTotal": 20783104,
+          "heapUsed": 9956560,
+          "external": 48660616,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 87.25442699999999,
+        "coreMilliseconds": 1991.249301,
+        "encodeOutputMilliseconds": 1993.09367,
+        "openEncodeOutputMilliseconds": 2080.348097,
+        "moduleReadySeconds": 0.15071598800000002,
+        "peakRssBytes": 162258944,
+        "baselineMemory": {
+          "rss": 134864896,
+          "heapTotal": 20783104,
+          "heapUsed": 9959888,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 162258944,
+          "heapTotal": 21540864,
+          "heapUsed": 12610536,
+          "external": 67022953,
+          "arrayBuffers": 54444615
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 8,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 635.0565100000022,
+      "measurement": {
+        "coreMilliseconds": 349.4652710303173,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,34.33817605,52.21917505,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 8,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4250.015831000004,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134733824,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 81.20961500000001,
+        "coreMilliseconds": 2047.4803580000003,
+        "encodeOutputMilliseconds": 2048.3934569999997,
+        "openEncodeOutputMilliseconds": 2129.603072,
+        "moduleReadySeconds": 0.168222702,
+        "peakRssBytes": 165384192,
+        "baselineMemory": {
+          "rss": 158830592,
+          "heapTotal": 19996672,
+          "heapUsed": 10496000,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165384192,
+          "heapTotal": 22851584,
+          "heapUsed": 15753488,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 8,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 826.0066329999972,
+      "measurement": {
+        "coreMilliseconds": 268.5238439865753,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,44.68876887,63.58498167,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 9,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 541.8007540000108,
+      "measurement": {
+        "coreMilliseconds": 307.90257404432504,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,38.97336694,63.74478935,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 9,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2191.5745120000065,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134471680,
+          "heapTotal": 20520960,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 84.03751,
+        "coreMilliseconds": 1906.160553,
+        "encodeOutputMilliseconds": 1907.9498,
+        "openEncodeOutputMilliseconds": 1991.98731,
+        "moduleReadySeconds": 0.17288601,
+        "peakRssBytes": 161079296,
+        "baselineMemory": {
+          "rss": 134471680,
+          "heapTotal": 20520960,
+          "heapUsed": 9959752,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161079296,
+          "heapTotal": 22065152,
+          "heapUsed": 14181792,
+          "external": 69145423,
+          "arrayBuffers": 56567085
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 9,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 825.8053899999941,
+      "measurement": {
+        "coreMilliseconds": 279.6637588271548,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,42.90867022,62.48982432,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 9,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4136.845777999988,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 136392704,
+          "heapTotal": 20520960,
+          "heapUsed": 9956216,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 86.734983,
+        "coreMilliseconds": 1926.9340260000004,
+        "encodeOutputMilliseconds": 1928.181177,
+        "openEncodeOutputMilliseconds": 2014.91616,
+        "moduleReadySeconds": 0.166641651,
+        "peakRssBytes": 165486592,
+        "baselineMemory": {
+          "rss": 158801920,
+          "heapTotal": 19996672,
+          "heapUsed": 10502760,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165486592,
+          "heapTotal": 21803008,
+          "heapUsed": 15383456,
+          "external": 69128981,
+          "arrayBuffers": 56550643
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 10,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2446.760467,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135897088,
+          "heapTotal": 20520960,
+          "heapUsed": 9956040,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 90.70091200000002,
+        "coreMilliseconds": 2123.6509739999997,
+        "encodeOutputMilliseconds": 2124.8575809999998,
+        "openEncodeOutputMilliseconds": 2215.5584929999995,
+        "moduleReadySeconds": 0.203856309,
+        "peakRssBytes": 160145408,
+        "baselineMemory": {
+          "rss": 135897088,
+          "heapTotal": 20520960,
+          "heapUsed": 9959368,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 160145408,
+          "heapTotal": 21803008,
+          "heapUsed": 15043608,
+          "external": 69051972,
+          "arrayBuffers": 56473634
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 10,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 625.6572549999983,
+      "measurement": {
+        "coreMilliseconds": 379.3046549198761,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,31.63683821,62.64079267,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 10,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4081.5061879999994,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134799360,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 85.44565399999999,
+        "coreMilliseconds": 1921.0814500000001,
+        "encodeOutputMilliseconds": 1922.30253,
+        "openEncodeOutputMilliseconds": 2007.748184,
+        "moduleReadySeconds": 0.154902727,
+        "peakRssBytes": 166535168,
+        "baselineMemory": {
+          "rss": 160243712,
+          "heapTotal": 19996672,
+          "heapUsed": 10502368,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 166535168,
+          "heapTotal": 22851584,
+          "heapUsed": 15201848,
+          "external": 69146180,
+          "arrayBuffers": 56567842
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 10,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 904.2162280000048,
+      "measurement": {
+        "coreMilliseconds": 297.2544319562592,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,40.36945697,59.82118047,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 11,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 603.8763029999973,
+      "measurement": {
+        "coreMilliseconds": 329.3565488812509,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,36.43467859,54.18476722,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 11,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2195.326976000011,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134828032,
+          "heapTotal": 20783104,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 98.50632100000001,
+        "coreMilliseconds": 1875.5011359999999,
+        "encodeOutputMilliseconds": 1876.662988,
+        "openEncodeOutputMilliseconds": 1975.169309,
+        "moduleReadySeconds": 0.194189102,
+        "peakRssBytes": 160911360,
+        "baselineMemory": {
+          "rss": 134828032,
+          "heapTotal": 20783104,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 160911360,
+          "heapTotal": 22065152,
+          "heapUsed": 15040760,
+          "external": 69058116,
+          "arrayBuffers": 56479778
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 11,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 770.4607120000001,
+      "measurement": {
+        "coreMilliseconds": 243.7997772176327,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,49.22071766,69.57211886,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 11,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4853.215488000002,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134557696,
+          "heapTotal": 20520960,
+          "heapUsed": 9956800,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 87.701472,
+        "coreMilliseconds": 2844.5264910000005,
+        "encodeOutputMilliseconds": 2846.024099,
+        "openEncodeOutputMilliseconds": 2933.7255710000004,
+        "moduleReadySeconds": 0.14234736,
+        "peakRssBytes": 164892672,
+        "baselineMemory": {
+          "rss": 159649792,
+          "heapTotal": 20783104,
+          "heapUsed": 10517384,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164892672,
+          "heapTotal": 22065152,
+          "heapUsed": 15530336,
+          "external": 69119968,
+          "arrayBuffers": 56541630
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 12,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2791.5139749999944,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135561216,
+          "heapTotal": 20783104,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 91.35754899999998,
+        "coreMilliseconds": 2482.916255,
+        "encodeOutputMilliseconds": 2484.128303,
+        "openEncodeOutputMilliseconds": 2575.485852,
+        "moduleReadySeconds": 0.183934249,
+        "peakRssBytes": 163217408,
+        "baselineMemory": {
+          "rss": 135561216,
+          "heapTotal": 20783104,
+          "heapUsed": 9959752,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 163217408,
+          "heapTotal": 22589440,
+          "heapUsed": 15570216,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 12,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 726.0196300000098,
+      "measurement": {
+        "coreMilliseconds": 378.8409811004001,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,31.67555940,40.48499689,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 12,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 5634.693807000003,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135884800,
+          "heapTotal": 20258816,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 115.75993,
+        "coreMilliseconds": 2649.159447,
+        "encodeOutputMilliseconds": 2650.8523729999997,
+        "openEncodeOutputMilliseconds": 2766.612303,
+        "moduleReadySeconds": 0.214388377,
+        "peakRssBytes": 165388288,
+        "baselineMemory": {
+          "rss": 159752192,
+          "heapTotal": 20258816,
+          "heapUsed": 10521480,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 165388288,
+          "heapTotal": 22065152,
+          "heapUsed": 14167872,
+          "external": 69145418,
+          "arrayBuffers": 56567080
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 12,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 1177.3470569999918,
+      "measurement": {
+        "coreMilliseconds": 426.6041261225734,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,28.12912315,46.85125068,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 13,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 919.0338990000018,
+      "measurement": {
+        "coreMilliseconds": 458.85746607808994,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,26.15191184,30.92939077,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 13,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 3277.349086000002,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134348800,
+          "heapTotal": 20520960,
+          "heapUsed": 9956176,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 131.97276000000005,
+        "coreMilliseconds": 2704.564927,
+        "encodeOutputMilliseconds": 2705.995375,
+        "openEncodeOutputMilliseconds": 2837.968135,
+        "moduleReadySeconds": 0.406694731,
+        "peakRssBytes": 161873920,
+        "baselineMemory": {
+          "rss": 134348800,
+          "heapTotal": 20520960,
+          "heapUsed": 9959504,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161873920,
+          "heapTotal": 22065152,
+          "heapUsed": 14797648,
+          "external": 69145936,
+          "arrayBuffers": 56567598
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 13,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 1028.1743970000098,
+      "measurement": {
+        "coreMilliseconds": 326.82214675972085,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,36.71721797,46.53533046,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 13,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4739.4263860000065,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135290880,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 100.452898,
+        "coreMilliseconds": 2157.3051119999996,
+        "encodeOutputMilliseconds": 2158.606453,
+        "openEncodeOutputMilliseconds": 2259.059351,
+        "moduleReadySeconds": 0.259901655,
+        "peakRssBytes": 164220928,
+        "baselineMemory": {
+          "rss": 156618752,
+          "heapTotal": 20258816,
+          "heapUsed": 10500600,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164220928,
+          "heapTotal": 22851584,
+          "heapUsed": 15762856,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 14,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2294.492392999993,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134901760,
+          "heapTotal": 20520960,
+          "heapUsed": 9956360,
+          "external": 48643557,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 87.890163,
+        "coreMilliseconds": 2000.4236549999998,
+        "encodeOutputMilliseconds": 2002.0121689999999,
+        "openEncodeOutputMilliseconds": 2089.9023319999997,
+        "moduleReadySeconds": 0.176165361,
+        "peakRssBytes": 159281152,
+        "baselineMemory": {
+          "rss": 134901760,
+          "heapTotal": 20520960,
+          "heapUsed": 9959688,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 159281152,
+          "heapTotal": 21803008,
+          "heapUsed": 14134024,
+          "external": 69145423,
+          "arrayBuffers": 56567085
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 14,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 600.3814969999949,
+      "measurement": {
+        "coreMilliseconds": 356.72533742064786,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,33.63932623,63.32080019,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 14,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4138.1583459999965,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134434816,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 85.417327,
+        "coreMilliseconds": 1822.5664379999998,
+        "encodeOutputMilliseconds": 1823.522653,
+        "openEncodeOutputMilliseconds": 1908.93998,
+        "moduleReadySeconds": 0.165872604,
+        "peakRssBytes": 163864576,
+        "baselineMemory": {
+          "rss": 157442048,
+          "heapTotal": 20258816,
+          "heapUsed": 10494752,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 163864576,
+          "heapTotal": 22589440,
+          "heapUsed": 15772896,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 14,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 802.6950290000095,
+      "measurement": {
+        "coreMilliseconds": 253.1202700997128,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,47.40829328,64.53406295,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 15,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 606.1610740000033,
+      "measurement": {
+        "coreMilliseconds": 375.9524221231992,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,31.91893254,65.46732454,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 15,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2074.864692999996,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134488064,
+          "heapTotal": 20258816,
+          "heapUsed": 9956392,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 85.87911799999998,
+        "coreMilliseconds": 1782.7223560000002,
+        "encodeOutputMilliseconds": 1784.065446,
+        "openEncodeOutputMilliseconds": 1869.9445640000001,
+        "moduleReadySeconds": 0.179233483,
+        "peakRssBytes": 161882112,
+        "baselineMemory": {
+          "rss": 134488064,
+          "heapTotal": 20258816,
+          "heapUsed": 9959720,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161882112,
+          "heapTotal": 21803008,
+          "heapUsed": 14775912,
+          "external": 69145936,
+          "arrayBuffers": 56567598
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 15,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 786.4850829999923,
+      "measurement": {
+        "coreMilliseconds": 251.93697586937063,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,47.63095992,66.01986309,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 15,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4028.668580999991,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 136413184,
+          "heapTotal": 21045248,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 88.924113,
+        "coreMilliseconds": 1977.330999,
+        "encodeOutputMilliseconds": 1978.5206620000001,
+        "openEncodeOutputMilliseconds": 2067.444775,
+        "moduleReadySeconds": 0.158173257,
+        "peakRssBytes": 164761600,
+        "baselineMemory": {
+          "rss": 159649792,
+          "heapTotal": 20258816,
+          "heapUsed": 10489960,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164761600,
+          "heapTotal": 22589440,
+          "heapUsed": 12535784,
+          "external": 67022696,
+          "arrayBuffers": 54444358
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 16,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2095.146721000012,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134524928,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 90.52632600000001,
+        "coreMilliseconds": 1794.076111,
+        "encodeOutputMilliseconds": 1795.195501,
+        "openEncodeOutputMilliseconds": 1885.7218269999998,
+        "moduleReadySeconds": 0.18402365499999998,
+        "peakRssBytes": 162967552,
+        "baselineMemory": {
+          "rss": 134524928,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 162967552,
+          "heapTotal": 22589440,
+          "heapUsed": 15765360,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 16,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 564.0710080000135,
+      "measurement": {
+        "coreMilliseconds": 331.3812389901138,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,36.21206812,65.33626824,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 16,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 3991.035176000005,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135770112,
+          "heapTotal": 20258816,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 92.45349900000002,
+        "coreMilliseconds": 1861.5977790000002,
+        "encodeOutputMilliseconds": 1862.71013,
+        "openEncodeOutputMilliseconds": 1955.163629,
+        "moduleReadySeconds": 0.17389112499999998,
+        "peakRssBytes": 166023168,
+        "baselineMemory": {
+          "rss": 159469568,
+          "heapTotal": 19996672,
+          "heapUsed": 10528528,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 166023168,
+          "heapTotal": 22851584,
+          "heapUsed": 15736232,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 16,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 798.8610159999807,
+      "measurement": {
+        "coreMilliseconds": 258.0971107968692,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,46.49412759,65.86100868,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 17,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 593.3644599999825,
+      "measurement": {
+        "coreMilliseconds": 337.66956298701047,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,35.53770110,57.15447773,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 17,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2181.6098699999857,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135811072,
+          "heapTotal": 20520960,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 81.61094599999998,
+        "coreMilliseconds": 1891.5785190000001,
+        "encodeOutputMilliseconds": 1892.9797119999998,
+        "openEncodeOutputMilliseconds": 1974.5906579999998,
+        "moduleReadySeconds": 0.177283463,
+        "peakRssBytes": 162549760,
+        "baselineMemory": {
+          "rss": 135811072,
+          "heapTotal": 20520960,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 162549760,
+          "heapTotal": 21803008,
+          "heapUsed": 14035232,
+          "external": 69145423,
+          "arrayBuffers": 56567085
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 17,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 902.2494169999845,
+      "measurement": {
+        "coreMilliseconds": 281.9638843569904,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,42.55864196,57.98416738,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 17,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4028.0539210000134,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 136327168,
+          "heapTotal": 20520960,
+          "heapUsed": 9956800,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 83.020838,
+        "coreMilliseconds": 1961.57615,
+        "encodeOutputMilliseconds": 1962.507766,
+        "openEncodeOutputMilliseconds": 2045.5286039999999,
+        "moduleReadySeconds": 0.16121243100000002,
+        "peakRssBytes": 164831232,
+        "baselineMemory": {
+          "rss": 159719424,
+          "heapTotal": 20520960,
+          "heapUsed": 10496424,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 164831232,
+          "heapTotal": 23113728,
+          "heapUsed": 15421856,
+          "external": 69166660,
+          "arrayBuffers": 56588322
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 18,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2302.65402799999,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134746112,
+          "heapTotal": 20520960,
+          "heapUsed": 9956184,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 89.55985799999996,
+        "coreMilliseconds": 1993.4902900000002,
+        "encodeOutputMilliseconds": 1995.0070719999999,
+        "openEncodeOutputMilliseconds": 2084.56693,
+        "moduleReadySeconds": 0.18648846800000002,
+        "peakRssBytes": 161746944,
+        "baselineMemory": {
+          "rss": 134746112,
+          "heapTotal": 20520960,
+          "heapUsed": 9959512,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161746944,
+          "heapTotal": 21803008,
+          "heapUsed": 14085616,
+          "external": 69145679,
+          "arrayBuffers": 56567341
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 18,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 639.1845880000037,
+      "measurement": {
+        "coreMilliseconds": 376.65569781975535,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,31.85933485,58.02938394,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 18,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4108.041626999999,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134561792,
+          "heapTotal": 20258816,
+          "heapUsed": 9956424,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 87.61739299999999,
+        "coreMilliseconds": 1912.211765,
+        "encodeOutputMilliseconds": 1913.630447,
+        "openEncodeOutputMilliseconds": 2001.24784,
+        "moduleReadySeconds": 0.161885674,
+        "peakRssBytes": 166182912,
+        "baselineMemory": {
+          "rss": 159760384,
+          "heapTotal": 20520960,
+          "heapUsed": 10500984,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 166182912,
+          "heapTotal": 22327296,
+          "heapUsed": 14042496,
+          "external": 69102275,
+          "arrayBuffers": 56523937
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 18,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 962.7994410000101,
+      "measurement": {
+        "coreMilliseconds": 302.322110661352,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,39.69276337,52.49943113,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 19,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 624.7678770000057,
+      "measurement": {
+        "coreMilliseconds": 349.8549251771263,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,34.29993159,55.93382488,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 19,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2249.5032389999833,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 135589888,
+          "heapTotal": 20520960,
+          "heapUsed": 9956392,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 89.42291800000001,
+        "coreMilliseconds": 1949.2090690000002,
+        "encodeOutputMilliseconds": 1950.690397,
+        "openEncodeOutputMilliseconds": 2040.113315,
+        "moduleReadySeconds": 0.182129831,
+        "peakRssBytes": 162066432,
+        "baselineMemory": {
+          "rss": 135589888,
+          "heapTotal": 20520960,
+          "heapUsed": 9959720,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 162066432,
+          "heapTotal": 22065152,
+          "heapUsed": 14123384,
+          "external": 69145679,
+          "arrayBuffers": 56567341
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 19,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 884.6700189999829,
+      "measurement": {
+        "coreMilliseconds": 287.5830358869982,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,41.72707880,58.35578578,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 19,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4120.868734999996,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 134574080,
+          "heapTotal": 20783104,
+          "heapUsed": 9956496,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 92.083293,
+        "coreMilliseconds": 1832.2524050000002,
+        "encodeOutputMilliseconds": 1833.4294750000004,
+        "openEncodeOutputMilliseconds": 1925.5127680000003,
+        "moduleReadySeconds": 0.172775475,
+        "peakRssBytes": 166060032,
+        "baselineMemory": {
+          "rss": 159768576,
+          "heapTotal": 20520960,
+          "heapUsed": 10500272,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 166060032,
+          "heapTotal": 23113728,
+          "heapUsed": 15677744,
+          "external": 69193284,
+          "arrayBuffers": 56614946
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 20,
+      "temperature": "cold",
+      "engine": "purejsimage",
+      "processMilliseconds": 2202.4287459999905,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "cold",
+        "beforeWarmup": {
+          "rss": 134569984,
+          "heapTotal": 20258816,
+          "heapUsed": 9956456,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": null,
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 81.62901,
+        "coreMilliseconds": 1926.022664,
+        "encodeOutputMilliseconds": 1927.1758410000002,
+        "openEncodeOutputMilliseconds": 2008.8048510000003,
+        "moduleReadySeconds": 0.167467307,
+        "peakRssBytes": 161832960,
+        "baselineMemory": {
+          "rss": 134569984,
+          "heapTotal": 20258816,
+          "heapUsed": 9959784,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 161832960,
+          "heapTotal": 22589440,
+          "heapUsed": 15642624,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 20,
+      "temperature": "cold",
+      "engine": "libjxl",
+      "processMilliseconds": 558.5923780000012,
+      "measurement": {
+        "coreMilliseconds": 318.8495705979896,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,37.63530237,63.89678810,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    },
+    {
+      "pair": 20,
+      "temperature": "warm",
+      "engine": "purejsimage",
+      "processMilliseconds": 4142.416473999998,
+      "measurement": {
+        "runtime": "v24.16.0",
+        "width": 4000,
+        "height": 3000,
+        "distance": 1,
+        "effort": 1,
+        "progressive": false,
+        "temperature": "warm",
+        "beforeWarmup": {
+          "rss": 135045120,
+          "heapTotal": 20520960,
+          "heapUsed": 9956488,
+          "external": 48651749,
+          "arrayBuffers": 36037112
+        },
+        "warmup": {
+          "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+          "managedPeakBytes": 15287559
+        },
+        "inputSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+        "outputSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+        "bytes": 1911972,
+        "openMilliseconds": 96.25399500000003,
+        "coreMilliseconds": 1894.0969890000006,
+        "encodeOutputMilliseconds": 1894.9475490000004,
+        "openEncodeOutputMilliseconds": 1991.2015440000005,
+        "moduleReadySeconds": 0.16715409399999998,
+        "peakRssBytes": 163844096,
+        "baselineMemory": {
+          "rss": 158076928,
+          "heapTotal": 20258816,
+          "heapUsed": 10495672,
+          "external": 48615450,
+          "arrayBuffers": 36037112
+        },
+        "finalMemory": {
+          "rss": 163844096,
+          "heapTotal": 23113728,
+          "heapUsed": 15772808,
+          "external": 69226052,
+          "arrayBuffers": 56647714
+        },
+        "managedPeakBytes": 15287559,
+        "managedLiveBytes": 0,
+        "scope": "Forward RGB8 core with borrowed input, DCT8, local CFL, adaptive quantization and explicit effort/pass selection. Public encoder input staging and pipeline conversion are separate; no quality promotion.",
+        "correctness": "independent verification required after measurement"
+      }
+    },
+    {
+      "pair": 20,
+      "temperature": "warm",
+      "engine": "libjxl",
+      "processMilliseconds": 792.3862300000037,
+      "measurement": {
+        "coreMilliseconds": 246.69317390576455,
+        "bytes": 1026823,
+        "csv": "jxl:d1:1:uint8,input.ppm,0,1026823,12000000,48.64342134,64.23267823,0.68454867,-1.00000000,0.00000000,0.00000000,0.00000000,0.00000000,0.68454867",
+        "note": "Single-thread native encoder core. Warm measurement skips first repetition. Process duration and memory include one decode; neither is encoder-only."
+      }
+    }
+  ]
+}

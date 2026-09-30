@@ -1,0 +1,1162 @@
+{
+  "split": "development",
+  "policy": "Modular selections preserve alpha and visible RGB exactly; RGB under zero alpha may be canonicalized only in lossy mode. They are reported separately and never inserted into VarDCT lossy-only matched-quality curves. Inspected observed families are regression evidence.",
+  "publicProtocolSha256": "a1999886068ca7018ead66da17c4833895f5d36088695638ae83127173a96b95",
+  "baselineRunId": "visual-final-alpha-20260928",
+  "expectedSources": 6,
+  "expectedOwnPoints": 36,
+  "modularPoints": 29,
+  "vardctPoints": 7,
+  "failures": 0,
+  "results": [
+    {
+      "id": "noto-1f600",
+      "sourceSha256": "d6e6be1b18cd8ae3f56556d171cc7d8eecd293bdbbc1aa66ab5493a66ba4dae0",
+      "pixelsSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+      "visibleExactSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 34561,
+          "directBytes": 39910,
+          "encodedSha256": "24aaa2bcb67fdff089f9c6bdf0326b0388743aa039065da67130ffb6aa1f2440",
+          "decodedSha256": "be2e509396c724801068a75635ce26bed8fe007cd366e0337fa4f67b0a55cb0e",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "9bad7f1bd5195805d2e0dfcd77552c424a44b90d88ef165888e004d5b3d8a092"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "7be0da990700b4eba44fd942a65b10727aff51bdc2415c5ad7f229e530c8dee2"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "vardct",
+          "bytes": 29861,
+          "directBytes": 29861,
+          "encodedSha256": "23fc308c2f38326f85db3dd0d5610762336bfe8219fd1baed9ce965d07f03eda",
+          "decodedSha256": "aec566f2563c9902541166e1fc85b91dfdec5bf131decc41347f319f6a27f55d",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 94.3949215,
+              "butteraugli": 0.5441670418,
+              "ssimulacra2Text": "94.39492150\n",
+              "butteraugliText": "0.5441670418\n3-norm: 0.215714\n",
+              "decodedSha256": "dc1a95a2ada1fba6b3de99a47900676aac077279f5c3bbfd90db1fb4038137a1",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 94.06130491,
+              "butteraugli": 0.5395314693,
+              "ssimulacra2Text": "94.06130491\n",
+              "butteraugliText": "0.5395314693\n3-norm: 0.217761\n",
+              "decodedSha256": "895b7fd7a3a83f2f12bce811c46c33e30a1b343ffc06fcf3a67ce2e2984c943e",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "vardct",
+          "bytes": 23768,
+          "directBytes": 23768,
+          "encodedSha256": "2f0b24bb38d717a8118b4cfb91fd59e1c9830d73a87e807d45d760c0021f8b3c",
+          "decodedSha256": "ff77dc28ce2f80c76f3275dc820b655d69ba9e273ef568449de4bab429808d72",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 92.67900056,
+              "butteraugli": 0.729675293,
+              "ssimulacra2Text": "92.67900056\n",
+              "butteraugliText": "0.7296752930\n3-norm: 0.304179\n",
+              "decodedSha256": "db5a90c529f55836ec4a31a89be504ed0259f2d89d0274e3713dbd0b99ef3904",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 92.34070388,
+              "butteraugli": 0.729675293,
+              "ssimulacra2Text": "92.34070388\n",
+              "butteraugliText": "0.7296752930\n3-norm: 0.306414\n",
+              "decodedSha256": "63dcd21bf0ac51c8186d640d90414b95038cb99445ba83500c4c2fc03787eff5",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "vardct",
+          "bytes": 19206,
+          "directBytes": 19206,
+          "encodedSha256": "b832e414fd140417fd9123674509e0a57d96597990f439e92f0607a35a807e67",
+          "decodedSha256": "a8b0eff75b4a5649a71084716f1d1bf940dca738e739df3a5f6a97eb0b95b246",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.16003551,
+              "butteraugli": 1.3134300709,
+              "ssimulacra2Text": "90.16003551\n",
+              "butteraugliText": "1.3134300709\n3-norm: 0.649321\n",
+              "decodedSha256": "58aed50c27c259b4f414dde2efb27c830c06cbabcd40353802ed5af78b32d7d0",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.97554831,
+              "butteraugli": 1.3134360313,
+              "ssimulacra2Text": "89.97554831\n",
+              "butteraugliText": "1.3134360313\n3-norm: 0.650490\n",
+              "decodedSha256": "2a8d7f90db24c8361c14824621b7b02c8a17a05ce10386b750fb6abcc42e4223",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "vardct",
+          "bytes": 16769,
+          "directBytes": 16769,
+          "encodedSha256": "88e0d972da216c548d142a9f97c4e7cc3db33df3423df3cd2caa6d68dfacf24a",
+          "decodedSha256": "1e76f07aab6712f5b5a59011b89802b802a0a720b99708b0693b6cf31ebf085d",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 86.84559886,
+              "butteraugli": 1.8381505013,
+              "ssimulacra2Text": "86.84559886\n",
+              "butteraugliText": "1.8381505013\n3-norm: 0.937917\n",
+              "decodedSha256": "b80106a8a70dc5a2f115926de1cb9f4dd918451e2e31bc2bac14f7116da94b1f",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 86.64092135,
+              "butteraugli": 1.8381505013,
+              "ssimulacra2Text": "86.64092135\n",
+              "butteraugliText": "1.8381505013\n3-norm: 0.939657\n",
+              "decodedSha256": "6b82b23d6030ec5c9f7b01607b477b273fcd5101e64c62eb74f0f4a65e2cfec2",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "vardct",
+          "bytes": 13968,
+          "directBytes": 13968,
+          "encodedSha256": "0c4b86c0d3561e7d2734126368d64f510d9eef4279c06991d6e61782d8d2fa93",
+          "decodedSha256": "13751f75c5cb42e7d6d57b8e0fa0fde35b03dee6407f7eed8ab7207bce8e9f41",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 82.25005002,
+              "butteraugli": 2.7227656841,
+              "ssimulacra2Text": "82.25005002\n",
+              "butteraugliText": "2.7227656841\n3-norm: 1.235359\n",
+              "decodedSha256": "89109e393b59129b41d048b5da1fc8b917fea683563247fdffbe300ff736bd77",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.95112685,
+              "butteraugli": 2.7227656841,
+              "ssimulacra2Text": "81.95112685\n",
+              "butteraugliText": "2.7227656841\n3-norm: 1.237218\n",
+              "decodedSha256": "5c26816390078e6ef58f4c91ce211c31a84e968099d908d543fe6fe4391088ab",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f600/report.json",
+                "reportSha256": "ec3af4973ef123ed9fe93da0e9e72baea6e4a8abed58011fdefab39df931bfa3"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noto-1f338",
+      "sourceSha256": "e87dddb11bb9fbe79c2efb549275be5368e47143670455a5f4d639458d22f669",
+      "pixelsSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+      "visibleExactSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 21458,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 19071,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 16871,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 14780,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 13587,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "modular",
+          "bytes": 7453,
+          "directBytes": 12279,
+          "encodedSha256": "0e2d7cb3a0a344e5ffc0937d0a26da134bc39776caa5246fd20787ab575f3fa7",
+          "decodedSha256": "5c6fb84646501406ece21397e1fce6bfd6f8d716b99ed7a13a42c80d2d7a9415",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "c48e8106e30c3e65b47f1771d869f977655211c31be8e92b969a403c96cee62d"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "dbb5a0e50df74a54832287a081ee64b325b4c2f8c6c5fafa2c167031802980d2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noto-1f355",
+      "sourceSha256": "c4d2a0edaea1c0b18ccdbe9d221410869bb0d60c3a746e69f5e7952b9241fd4e",
+      "pixelsSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+      "visibleExactSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 30597,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 26197,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 21828,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 17766,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 15813,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "modular",
+          "bytes": 11645,
+          "directBytes": 13549,
+          "encodedSha256": "4570b7fdf7627bed02629544deb73b213b7a23a7ef66c21435769b941a435733",
+          "decodedSha256": "955fc50b6400d37b365b528b6629f5efed38d09e09ef7126258033d0fafa6863",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "1d3b34c89e479803eca95bbc415801037cdbdee195dbefba73820db3fa642e2b"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "2fa175bb8b428e7e7c490151ebed1b46bf5066687669c6ac09687b4ef9f6fe26"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noto-1f3b8",
+      "sourceSha256": "4506339f16ca114c6aeaf2b96bc6e64e1e127956876e06d5916acc5740403118",
+      "pixelsSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+      "visibleExactSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 47020,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 39045,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 31862,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 25254,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 21731,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "modular",
+          "bytes": 15126,
+          "directBytes": 18057,
+          "encodedSha256": "e334c57193ccf2245040995dd0c89b21a3103a67091130e09570e99043f1e2e3",
+          "decodedSha256": "85ec795aabc8b3e9da9089abf43c9d8fa79ca2ec12b64988041e2351ea35f3cf",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "b0bddc360f218a879f63533a9c31da6e630bc27cf0b22709328942c33d215511"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "28c0cdcf73ff623979323f6703f97d2c69769503c6336c7a38b6570347111f28"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noto-1f332",
+      "sourceSha256": "bcb20fcf0ed5d41842adc29d075e2a7eeb304f3f5bdfe082c91752649ad38125",
+      "pixelsSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+      "visibleExactSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 29088,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 24848,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 20423,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 17173,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 15411,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "modular",
+          "bytes": 10193,
+          "directBytes": 13460,
+          "encodedSha256": "2ad4168dd413ebfdc2d40555cef1344a127653587af8fe38f0f899c5a3cb59c1",
+          "decodedSha256": "04932e523ed0e0428643d8ecbdf243ac91ed180758af4288149ce31b9b77ca2a",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "8690164fa3f13b957e0f67b7be91bb6d9d00dab7a32d27b29fddd7be8821d2dc"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "76769553ba4f8f9e243744ea113d48453846cd580d73520299c892037e796c25"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noto-1f916",
+      "sourceSha256": "98f6f4bdbd98d55100c0c379a25a70f63d347fb869e8e55d6f7b6bb8c1b1bc3b",
+      "pixelsSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "visibleExactSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+      "choices": [
+        {
+          "setting": 0.25,
+          "encoding": "modular",
+          "bytes": 10212,
+          "directBytes": 20528,
+          "encodedSha256": "3d1a92ce1a089453dafdd670663cf2412e08ab8febd7857afec48bf4d23f44c7",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "5f77eff7edb2adc05d952362ed865bc68aa082ce97ee713f6113f1ef51a6fb95"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "794bd452c15ef22fc8a4a96638bea159ca1e2543a8a90a40ef0e72d43c0cf1bd"
+            }
+          ]
+        },
+        {
+          "setting": 0.5,
+          "encoding": "modular",
+          "bytes": 10212,
+          "directBytes": 17402,
+          "encodedSha256": "3d1a92ce1a089453dafdd670663cf2412e08ab8febd7857afec48bf4d23f44c7",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "5f77eff7edb2adc05d952362ed865bc68aa082ce97ee713f6113f1ef51a6fb95"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "794bd452c15ef22fc8a4a96638bea159ca1e2543a8a90a40ef0e72d43c0cf1bd"
+            }
+          ]
+        },
+        {
+          "setting": 1,
+          "encoding": "modular",
+          "bytes": 10212,
+          "directBytes": 14404,
+          "encodedSha256": "3d1a92ce1a089453dafdd670663cf2412e08ab8febd7857afec48bf4d23f44c7",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "5f77eff7edb2adc05d952362ed865bc68aa082ce97ee713f6113f1ef51a6fb95"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "794bd452c15ef22fc8a4a96638bea159ca1e2543a8a90a40ef0e72d43c0cf1bd"
+            }
+          ]
+        },
+        {
+          "setting": 2,
+          "encoding": "modular",
+          "bytes": 10212,
+          "directBytes": 11699,
+          "encodedSha256": "3d1a92ce1a089453dafdd670663cf2412e08ab8febd7857afec48bf4d23f44c7",
+          "decodedSha256": "262f1b4ac55206dfbee04ff12db345d5bc04d1c35a7ce3c9430b1baea04bc6d5",
+          "independentMaximum": 0,
+          "ownMaximum": 0,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "5f77eff7edb2adc05d952362ed865bc68aa082ce97ee713f6113f1ef51a6fb95"
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 100,
+              "butteraugli": 0,
+              "ssimulacra2Text": "100.00000000\n",
+              "butteraugliText": "0.0000000000\n3-norm: 0.000000\n",
+              "decodedSha256": "794bd452c15ef22fc8a4a96638bea159ca1e2543a8a90a40ef0e72d43c0cf1bd"
+            }
+          ]
+        },
+        {
+          "setting": 3,
+          "encoding": "vardct",
+          "bytes": 10311,
+          "directBytes": 10311,
+          "encodedSha256": "a50dcc9fb9c46019c50576e6d7f71baf9d9f847e258c731f11029f377eb5db59",
+          "decodedSha256": "130f66d45ac402a06c6772f621d2d4bfb7e74ec98ff99cd64f0f03a612f6b9c9",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.37976849,
+              "butteraugli": 1.9903780222,
+              "ssimulacra2Text": "90.37976849\n",
+              "butteraugliText": "1.9903780222\n3-norm: 0.662862\n",
+              "decodedSha256": "980e81b36a42385b2068b9ea7cb198f0a645f5bbc4374486024fdcb24b3604a2",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f916/report.json",
+                "reportSha256": "aabb2dbda47fc8231377390ec5d91d4f3abbf2a1d83f1ee02410f8d2f5ec900c"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.85423787,
+              "butteraugli": 1.9903780222,
+              "ssimulacra2Text": "89.85423787\n",
+              "butteraugliText": "1.9903780222\n3-norm: 0.666882\n",
+              "decodedSha256": "024f49383c6630100f0f8aa4046b2317bed37506dbe2d4e4b376a54837496046",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f916/report.json",
+                "reportSha256": "aabb2dbda47fc8231377390ec5d91d4f3abbf2a1d83f1ee02410f8d2f5ec900c"
+              }
+            }
+          ]
+        },
+        {
+          "setting": 5,
+          "encoding": "vardct",
+          "bytes": 9027,
+          "directBytes": 9027,
+          "encodedSha256": "8d86748d7fce3654f26372b728d529d553c3eac566df143ddc8adb52d7bbbdf2",
+          "decodedSha256": "725bb33f828be0d7bb76493adaa738dd895604f701cc74971fe0585622c9756d",
+          "independentMaximum": 1,
+          "ownMaximum": 1,
+          "alphaMaximumError": 0,
+          "composites": [
+            {
+              "background": "black",
+              "ssimulacra2": 85.60509355,
+              "butteraugli": 2.9666309357,
+              "ssimulacra2Text": "85.60509355\n",
+              "butteraugliText": "2.9666309357\n3-norm: 1.965000\n",
+              "decodedSha256": "ecabecc07724e5432597cd7808a9792118a6a74561623c9703e594851d4246c8",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f916/report.json",
+                "reportSha256": "aabb2dbda47fc8231377390ec5d91d4f3abbf2a1d83f1ee02410f8d2f5ec900c"
+              }
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 85.30875002,
+              "butteraugli": 2.9666042328,
+              "ssimulacra2Text": "85.30875002\n",
+              "butteraugliText": "2.9666042328\n3-norm: 1.987291\n",
+              "decodedSha256": "33fff0f4268165cc9d3f7674cd9d97a9999d9c9798bcf6c78e9c43fd0be76e61",
+              "metricReuse": {
+                "reportPath": ".tmp/jpegxl-m7/alpha-development-visual-final-alpha-20260928/noto-1f916/report.json",
+                "reportSha256": "aabb2dbda47fc8231377390ec5d91d4f3abbf2a1d83f1ee02410f8d2f5ec900c"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stablePromotionGatePassed": false
+}

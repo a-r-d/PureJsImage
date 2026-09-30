@@ -1,0 +1,135 @@
+{
+  "protocol": {
+    "policy": "Fixed eight original-size sources plus an explicit registered map supplement, effort 7 distances 1 and 3. All first-party streams use native, Rust and repository decoding. The observed cases are regression evidence. This probe does not replace the approved capped matrix.",
+    "mode": "own",
+    "distances": [1, 3],
+    "supplementalNativeControls": false,
+    "runtime": "v24.16.0",
+    "fixtureManifestSha256": "d2a0a760665ab4e24c25394c57897b360cd2eaba0df3e0dd94142cd626cdadb9",
+    "sources": [
+      {
+        "name": "jpegxl-vardct-encode.ts",
+        "sha256": "a8a4a821cd92b30bc202c17a3374f3756298fd0df1f8c5c5bb77f916efcd9703"
+      },
+      {
+        "name": "jpegxl-vardct-forward-transforms.ts",
+        "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+      },
+      {
+        "name": "jpegxl-jpeg-encode.ts",
+        "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+      },
+      {
+        "name": "jpegxl-modular-encode.ts",
+        "sha256": "9b96306cffb276ea957652204a6df6a9502e8bb9dd434f35d0a04518e6862f09"
+      },
+      {
+        "name": "jpegxl-decode.ts",
+        "sha256": "fd525c487f749d0a2b5916338dccdded0a2e9b83c15cb10438d0566fe719441c"
+      }
+    ],
+    "toolHashes": [
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+        "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+        "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+        "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+        "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+      },
+      {
+        "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+        "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+      }
+    ],
+    "harnessSha256": "57176f351102967a28c006bf33299158a811649237db4cf224dce9ee761a9384"
+  },
+  "results": [
+    {
+      "id": "im26-8160",
+      "width": 1920,
+      "height": 1080,
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "engine": "purejsimage",
+      "distance": 1,
+      "status": "measured",
+      "bytes": 262537,
+      "encodedSha256": "1455e192e61f22040b6e8c9a0dff2aff3b3ac840f9dcb3cc7d48713438bfde0b",
+      "decodedSha256": "7faa9b1ac05d01093c7bb77d8df798b8681637fe62e955085ea0e9f3575bc318",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.2919638587300263,
+        "samples": 6220800,
+        "rows": 1080
+      },
+      "ssimulacra2": 87.76779737,
+      "butteraugli": 1.2944703102,
+      "rawMetrics": {
+        "ssimText": "87.76779737\n",
+        "baText": "1.2944703102\n3-norm: 0.380888\n"
+      },
+      "frames": [
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1920,
+          "height": 1080,
+          "flags": 128,
+          "upsampling": 1
+        }
+      ]
+    },
+    {
+      "id": "im26-8160",
+      "width": 1920,
+      "height": 1080,
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "engine": "purejsimage",
+      "distance": 3,
+      "status": "measured",
+      "bytes": 201346,
+      "encodedSha256": "a87b0967edc41e6a72b52e7b97d3794d2d8ce11cd1db3b7b813769de2a035908",
+      "decodedSha256": "1c13cceea549aee938884fec3768dea2923e38756f60de100bd1c80ee5f60383",
+      "independentMaximum": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.3602672208539249,
+        "samples": 6220800,
+        "rows": 1080
+      },
+      "ssimulacra2": 85.40384458,
+      "butteraugli": 2.0857417583,
+      "rawMetrics": {
+        "ssimText": "85.40384458\n",
+        "baText": "2.0857417583\n3-norm: 0.582202\n"
+      },
+      "frames": [
+        {
+          "type": "reference",
+          "encoding": "vardct",
+          "width": 136,
+          "height": 117,
+          "flags": 128,
+          "upsampling": 1
+        },
+        {
+          "type": "regular",
+          "encoding": "vardct",
+          "width": 1920,
+          "height": 1080,
+          "flags": 130,
+          "upsampling": 1
+        }
+      ]
+    }
+  ]
+}

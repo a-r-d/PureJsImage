@@ -220,8 +220,6 @@ export const encodeJpegXlNative = async (
   const groupsAcross = Math.ceil(options.width / groupDimension)
   const groupsDown = Math.ceil(options.height / groupDimension)
   const groupCount = groupsAcross * groupsDown
-  if (groupCount > 1 && extra.some((channel) => (channel.dimShift ?? 0) !== 0))
-    throw unsupportedOperation('Shifted native channels across multiple groups are not supported')
   const first = options.color[0]
   if (!first) throw invalidInput('Native color channel is missing')
   let inputBytes = 0
@@ -334,10 +332,47 @@ export const encodeJpegXlNative = async (
     writeModularTree(global, 0)
     const code = writePrefixCode(global, 1, frequencies)
     writeModularHeader(global, true)
-    sections.push(global.finish(), new Uint8Array(0))
-    const dcGroupCount = Math.ceil(options.width / 8_192) * Math.ceil(options.height / 8_192)
-    for (let index = 0; index < dcGroupCount; index++) sections.push(new Uint8Array(0))
+    sections.push(global.finish())
+    const dcDimension = groupDimension * 8
+    const dcAcross = Math.ceil(options.width / dcDimension)
+    const dcDown = Math.ceil(options.height / dcDimension)
     let sectionBytes = sections[0]?.length ?? 0
+    const shiftedDcPlanes = extra.filter((plane) => plane.dimShift === 3)
+    for (let groupY = 0; groupY < dcDown; groupY++) {
+      for (let groupX = 0; groupX < dcAcross; groupX++) {
+        if (shiftedDcPlanes.length === 0) {
+          sections.push(new Uint8Array(0))
+          continue
+        }
+        if (sectionBytes >= maximum)
+          throw limitExceeded('JPEG XL native output exceeds maxOutputBytes')
+        const section = new JpegXlBitWriter(undefined, maximum - sectionBytes)
+        writeModularHeader(section, true)
+        const left = groupX * (dcDimension / 8)
+        const top = groupY * (dcDimension / 8)
+        const planeWidth = Math.ceil(options.width / 8)
+        const planeHeight = Math.ceil(options.height / 8)
+        const width = Math.min(dcDimension / 8, planeWidth - left)
+        const height = Math.min(dcDimension / 8, planeHeight - top)
+        for (const plane of shiftedDcPlanes) {
+          for (let y = 0; y < height; y++) {
+            const row = (top + y) * planeWidth + left
+            for (let x = 0; x < width; x++) {
+              if (((y * width + x) & 65535) === 0) await pause()
+              writeHybridUint(
+                section,
+                packSigned(encodedSample(plane, plane.data[row + x] ?? 0)),
+                code,
+              )
+            }
+          }
+        }
+        const bytes = section.finish()
+        sections.push(bytes)
+        sectionBytes += bytes.length
+      }
+    }
+    sections.push(new Uint8Array(0)) // DC HF global section follows the DC groups.
     for (let groupY = 0; groupY < groupsDown; groupY++) {
       for (let groupX = 0; groupX < groupsAcross; groupX++) {
         throwIfAborted(options.signal)
@@ -347,13 +382,27 @@ export const encodeJpegXlNative = async (
         writeModularHeader(section, true)
         const originX = groupX * groupDimension
         const originY = groupY * groupDimension
-        const groupWidth = Math.min(groupDimension, options.width - originX)
-        const groupHeight = Math.min(groupDimension, options.height - originY)
-        for (const plane of planes) {
-          for (let y = 0; y < groupHeight; y++) {
-            const row = (originY + y) * options.width + originX
-            for (let x = 0; x < groupWidth; x++) {
-              if (((y * groupWidth + x) & 65535) === 0) await pause()
+        for (let channel = 0; channel < planes.length; channel++) {
+          const plane = planes[channel]
+          if (!plane) throw invalidInput('Native channel is missing')
+          const shift =
+            channel < options.color.length
+              ? 0
+              : (extra[channel - options.color.length]?.dimShift ?? 0)
+          if (shift >= 3) continue
+          const factor = 2 ** shift
+          const planeWidth = Math.ceil(options.width / factor)
+          const left = Math.floor(originX / factor)
+          const top = Math.floor(originY / factor)
+          const width = Math.min(Math.floor(groupDimension / factor), planeWidth - left)
+          const height = Math.min(
+            Math.floor(groupDimension / factor),
+            Math.ceil(options.height / factor) - top,
+          )
+          for (let y = 0; y < height; y++) {
+            const row = (top + y) * planeWidth + left
+            for (let x = 0; x < width; x++) {
+              if (((y * width + x) & 65535) === 0) await pause()
               const sample = plane.data[row + x] ?? 0
               writeHybridUint(section, packSigned(encodedSample(plane, sample)), code)
             }

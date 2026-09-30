@@ -1,0 +1,10 @@
+---
+import Layout from '../../layouts/JpegXlLayout.astro'
+import Workbench from '../../components/JpegXlWorkbench.astro'
+---
+<Layout title="JPEG XL encoder and decoder" description="Open JPEG XL, JPEG, PNG or TIFF. Encode supported native integer pixels, compare decoded output, or resize and export a display image." path="convert/"><Workbench tool="convert"/><section class="jxl-card"><h2>Browser API</h2><pre><code>{`import { createImageLibrary } from 'purejsimage/browser'
+import { pngCodec } from 'purejsimage/codecs/png'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+const images = createImageLibrary([pngCodec, jpegxlCodec])
+const image = await images.open(file)
+const bytes = await image.jpegxl({mode: 'lossless', effort: 1}).toUint8Array()`}</code></pre><p>Color JPEG: 320 × 240 four-color pattern from web-platform-tests contributors, generated with Squoosh MozJPEG (BSD 3-Clause). Grayscale JPEG and transparent PNG: generated repository fixtures (MIT). <a href="https://github.com/web-platform-tests/wpt/blob/master/LICENSE.md">WPT license</a>. No camera or personal data.</p></section></Layout>

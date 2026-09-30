@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "4c23be521aaad656a56fe8e01258639168fb01ae",
+  "previousEncoderRevision": "dd59fde0092d163243255de44dcd89ec325b5beb",
+  "evidenceCommitNote": "Conformance ran on the implementation revision. Resource verification ran on clean evidence commit 798101d after the last codec change. Later report commits contain no codec edits.",
+  "sourceFiles": [
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "f344cc9e8d1b8d4ad007f2b22b5b7eefe13b24a82a9a8abc69c1293f485c8e61"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "9ab9487cc2452155ecf686b50915c6aabc72664b094df5be46c5a8a0308cdf53"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "acc6787cb75c5f7c0820a5e46ca0fa31bac3d15d39299d7130b14c3a63754dee"
+    },
+    {
+      "path": "tests/jpegxl-large-document-lossy.test.ts",
+      "sha256": "952934fe55363d8434377649c54392e3ee9e783fce8d62725474b200689fb8b7"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "1ce3fd0c3bdb829eed561f2dd4ebc1e74cf26f6faa62533f93809bd06feb5c2d"
+    }
+  ],
+  "protocolFiles": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-evaluation-protocol.json",
+      "sha256": "df63e8d7d5e2799652922d9a4f842e5dd3832a0b7ab205494fba1d654b4c79ff"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-bounded-quality-protocol.json",
+      "sha256": "293b6b63e6e1caebda5b1e14171fe76c71cf2f709b3ede0540810546a66f9255"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-corpus-selection.json",
+      "sha256": "ff3670acd195143c3ac1f5344aa3cef5844aa30fdf678e56ec5305ea4a991a57"
+    }
+  ],
+  "reports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-original-size.json",
+      "sha256": "1f99d06dc5b3613f1ab0d6653678197835fd0348cffb9d562a478e8926c5e80d"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-runtime-paired.json",
+      "sha256": "1123c72089ecdf498b3cc389deb68d22914706f5d9a43861b375647bcced1004"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-public-effort3.json",
+      "sha256": "44497500922621589c6e53fe84c5be4543c915bf43f76fc006f1ddf2058239e5"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-diagnostics.json",
+      "sha256": "9b255065950ed475f8ea16b8a40d914402faa2f2dee442215544541dc138c176"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-conformance.json",
+      "sha256": "4f4913f6f150587ed4e76fdc96eaf9f65d209cb45e9409c994961219329b6863"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-resource.json",
+      "sha256": "71ae7fb5b6c5f420b723331040c3c5913ceddb008f93d129bc6ee1c9a11dc99c"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt5-report.md",
+      "sha256": "1af8d2d8c83f98c8419ad82e26e8ee7de353e3da42fb9b051538b93b7fa8789d"
+    }
+  ],
+  "reusedReports": [
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-development.json",
+      "sha256": "c42055ee06e7358e0d7af8db3095b19235a85162afb1d2dd2e7fb70d329482f7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-quality-holdout.json",
+      "sha256": "b1d3f70495acbccfd82586ffa4ed64fc17e51be454ea0049774984ab7e07ea17"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-artifacts.json",
+      "sha256": "90f2966ba72a976673ac83eaabf07c045b0ec12db2ed35fb57b1336e0167b2a1"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-original-size.json",
+      "sha256": "c17b213453d1d427ca55f66af72355eca4c83f196b13d6da568f29902dba08ef"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-development-integrated054.json",
+      "sha256": "9d6727da3e19dcab5ff2f8e18d1cfa00fce90f1beb5e78645d74fcc9a8f9f6d7"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-expansion-quality-holdout-integrated054.json",
+      "sha256": "b3122fa0ad6b0e51033ba2447578859c7aa6967283207f022d58e0d932b7fe56"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt3-alpha-conformance.json",
+      "sha256": "95031ed695373be9bfd6f9cd78eed9e4eb48abf9ba91c7330f92b5027ddd525f"
+    },
+    {
+      "path": "benchmark/jpegxl/production-program/m7-prompt2-original-size.json",
+      "sha256": "fe36e1a45935d45553029304116ed17582e8c9edb50d371cc0f7797e651055aa"
+    }
+  ],
+  "oracles": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/cjxl",
+      "sha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "originalSizeArtifacts": [
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "sourceFamily": "1030",
+      "distance": 1,
+      "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "encodedSha256": "9335d4f48e0dac2f09bfeab8495662b9f07cb6356869aff6a47dba36d9a576dc",
+      "decodedSha256": "965c31f083b12284de39770994cfeeb0b6f146fdc2152388f68f9ebf89395f5d",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1030",
+      "split": "development",
+      "sourceFamily": "1030",
+      "distance": 3,
+      "sourceSha256": "ee49d360bbb2f1077c051bdc8b51f7ceca6debcd7ab7566afb7b64a25c5b2e0e",
+      "inputPixelsSha256": "b3c60e917faaab9843ac2429921cc1e7d7195105cc958ea671e12db225a4066a",
+      "encodedSha256": "22428a0cb275d2ad25d4db56006ba42d0388c43c387094b643f7d53b32bf7dcf",
+      "decodedSha256": "bd46636b50698186c47549262287ccb312a8da98ad856a1acae23f751ae7774b",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "sourceFamily": "1416",
+      "distance": 1,
+      "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "encodedSha256": "1c9896b378d5ad2168e153d372631af8f8b4f5174b9edeae63365c94e0678194",
+      "decodedSha256": "8e9d4150eff6b7e789646749b0051e7313dc1f0a194ba71d5b98c0bac68fe075",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1416",
+      "split": "development",
+      "sourceFamily": "1416",
+      "distance": 3,
+      "sourceSha256": "a33954bdd20e176ab16eeee424daaeb95e84035fda7d407eeb456c50818cc310",
+      "inputPixelsSha256": "dbf8702fd6c6c24aea9839f84dc48985f055489963ad3f4b4545a8c69ea491ef",
+      "encodedSha256": "cbfc0434dfc840c89892f32ac15e06370d5cc23913e3ceb034a1ce4731791fde",
+      "decodedSha256": "065b3096dbb7ac53cadef50dca3526edc0031928596f2104c4236908b1b63d40",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "sourceFamily": "5034",
+      "distance": 1,
+      "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "5d51c66c2e895a1158f3abb052c28ce5056a9f5526450ace90b948faada11ba6",
+      "decodedSha256": "9d858499f47d41712e50fe71227f4eda444dfad6c07712f7d9bfbde461c21f47",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-5034",
+      "split": "development",
+      "sourceFamily": "5034",
+      "distance": 3,
+      "sourceSha256": "721f3466e88eb745625cc47c745ac08e139757ddb8893cc640600fb1ca6af9ba",
+      "inputPixelsSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "bd8af4e364c3913f19957adb1f11264a2dc537f163d878523e54d70f1a259386",
+      "decodedSha256": "2cc5b2c253c044655c650e2130fa053db8c049f7dfc5c8d1beb55b044070884e",
+      "independentMaximum": 0,
+      "repositoryMaximum": 0
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "sourceFamily": "5052",
+      "distance": 1,
+      "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "encodedSha256": "823587b1f43cf93c26a6a615f1fa13e925a5e1cac66f601975bafc89fe16199d",
+      "decodedSha256": "3840dbd3b5c1088ae97a7a0dde3cb9ba0b0bca26a34c20c7fa0b0d3f0b6bbf31",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-5052",
+      "split": "development",
+      "sourceFamily": "5052",
+      "distance": 3,
+      "sourceSha256": "7e7524f5df274ab86f010e406bf478fc27042d135fb45aa986690d8ff4bb04b6",
+      "inputPixelsSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "encodedSha256": "cd3bef15626f9cd617de0c2187fc3dee3d0db4ff948bcb2d6fca675e41758c5b",
+      "decodedSha256": "48ae5c44b0d98e7e37b2b1839943cee85e48034be8ce5b25b1eedd9a58ecc4d4",
+      "independentMaximum": 0,
+      "repositoryMaximum": 0
+    },
+    {
+      "id": "im26-1009",
+      "split": "holdout",
+      "sourceFamily": "1009",
+      "distance": 1,
+      "sourceSha256": "072ae0f785316dbf261c4a7d6fdf715fe3822161017c8dbbcf5f3b680e23bd2d",
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "encodedSha256": "2b0f2bc7dc82036b0daf331ed7c69a3adf82d9cb3d4e7ad116a9486373fefa24",
+      "decodedSha256": "dcc4a27b001d6712009775c7e2d9af35863c8c2485fe261502acd01100931ff3",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1009",
+      "split": "holdout",
+      "sourceFamily": "1009",
+      "distance": 3,
+      "sourceSha256": "072ae0f785316dbf261c4a7d6fdf715fe3822161017c8dbbcf5f3b680e23bd2d",
+      "inputPixelsSha256": "11dea025fd9165d16f5c08b24e16ada90fec25a987af326382ee93cf917519f9",
+      "encodedSha256": "d1789ce061ea796680fbe93fe257a6a553d83239c3442b706a7d5fc13128c7b9",
+      "decodedSha256": "7ce505d5b390480547b7f5e752c134112d2e9ed0b610baa85120e2418b849734",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1221",
+      "split": "holdout",
+      "sourceFamily": "1221",
+      "distance": 1,
+      "sourceSha256": "756761b0a0d1a9022d55a650e730e65ec1e5cc62e20b8c9b05db326290271cb2",
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "encodedSha256": "bdddd4b7d132088fe96ad25b5d385512827a4f711fdbcbfd9666c47cd0dd93bf",
+      "decodedSha256": "67c828bc44e508f9a924eda6f97078df66938cf87e8d290e6421d23b29f5e8a6",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-1221",
+      "split": "holdout",
+      "sourceFamily": "1221",
+      "distance": 3,
+      "sourceSha256": "756761b0a0d1a9022d55a650e730e65ec1e5cc62e20b8c9b05db326290271cb2",
+      "inputPixelsSha256": "263cb27042fc448afe9b7930ba15a1971c18a50b4795b22eb97c89874bed0728",
+      "encodedSha256": "781a69dcc1691bfd6a438381349a9e8de44ae07497270f6c037f710a94d4d3b9",
+      "decodedSha256": "b159d44508cd45866c34e5d77f46d173f032351ac41cb4a58284390acc27642f",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-5337",
+      "split": "holdout",
+      "sourceFamily": "5337",
+      "distance": 1,
+      "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "encodedSha256": "16a78cee2e51dee3f9e900f125c61a85498fbbc7f395260b03a544fafa96fac2",
+      "decodedSha256": "39391bf464a1a7e029532dd099168e21ae097d5e1d9e21f853127bdd9c83bfa0",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-5337",
+      "split": "holdout",
+      "sourceFamily": "5337",
+      "distance": 3,
+      "sourceSha256": "8abb23dcf34844be7e0d102e8e7534307d9ceeeabd85ee6c2844f9b37f830550",
+      "inputPixelsSha256": "eb3a9a4dcedf0f6873d7a3b5b7df72dd94e93bd822a557083b4441c4bb47a781",
+      "encodedSha256": "a9e77e2df35ea4e6b93f12af7ae257f78c12abcb3b01fa73b958eba09e82d83a",
+      "decodedSha256": "7815d1fe06ad3b679a42019dbd877e2b120cdac84f02125cea6280fb87a3ab03",
+      "independentMaximum": 0,
+      "repositoryMaximum": 0
+    },
+    {
+      "id": "im26-8160",
+      "split": "holdout",
+      "sourceFamily": "screen-page|archivesex|1",
+      "distance": 1,
+      "sourceSha256": "fd46f504251c81de380a8f2193cf811671087d9db9b50bd4757ade9fe088e2aa",
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "encodedSha256": "e596f9b9551e5fe0f918f3e028e40cee3df3ef0c90710c3931e1e3dd3c435448",
+      "decodedSha256": "aaff73f9631992fe33221d65d8a89ee8893d70eff934dd85d2dd28b49c285f8a",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    },
+    {
+      "id": "im26-8160",
+      "split": "holdout",
+      "sourceFamily": "screen-page|archivesex|1",
+      "distance": 3,
+      "sourceSha256": "fd46f504251c81de380a8f2193cf811671087d9db9b50bd4757ade9fe088e2aa",
+      "inputPixelsSha256": "0b27dbdb1db585288e8848958d14004596148914de64c2bf05880e0ca43a10ca",
+      "encodedSha256": "c05d23b44d59d5e4203c743068720a25ccfc46b8f8f87c87c22a7b138db679aa",
+      "decodedSha256": "1167f8ac8710e34b68f5ace6b26e95c1ed6ec3eab2fc3fbb837587eb71040676",
+      "independentMaximum": 1,
+      "repositoryMaximum": 1
+    }
+  ]
+}

@@ -1,0 +1,878 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-29T15:46:11.692Z",
+  "sourceReport": "benchmark/jpegxl/comparison/results/quality.json",
+  "sourceReportSha256": "4bbefe2ebbdc41b60bb9ec6c23dc440f0da1306563023cba61d201c141a06e58",
+  "rows": [
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-1.jxl",
+      "artifactSha256": "54b4a747a1319235960dd6138213d7015f0a31126c8891418ba023898fffea55",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-4.jxl",
+      "artifactSha256": "083a372d51f15065c5311c94afa8fd7dc92d07176b0d7cbe5b4b9098c26595f4",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 2.8829,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-2.8829.jxl",
+      "artifactSha256": "d67e468d533ff8bdab136ea6c2be54e3b1a2af6390d65f540db671d7d3c13d33",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 3.2215,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-3.2215.jxl",
+      "artifactSha256": "ced66e6931d068b15dcc555f2e191c1bc1826cf55ed8ebc15c6a29cd511bee97",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 3.2469,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-3.2469.jxl",
+      "artifactSha256": "0baf0c93f591374bf3b7ba599201e7251a367bc7d4c155d9a78ec731815fcfba",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 3.2547,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-purejsimage-3.2547.jxl",
+      "artifactSha256": "7657e030dc3b0ba1324a6b0e1f8d8ec2ec9b748504d6cce62f501d2f1d726fb2",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 11,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-11.jxl",
+      "artifactSha256": "20242a6fae720a6acbb478cf1e2a7929951f0dcd6f9568906eecd470636949ce",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 51,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-51.jxl",
+      "artifactSha256": "f0eda20a81a765a5de09a7d8c03fde91724df078940bd2a4713b852bb337cac1",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 14.939,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-14.939.jxl",
+      "artifactSha256": "9ed341d1e00e5bf891376d1a40bb43c44111cc4f01972a4c471918fcdf393467",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 16.556,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-16.556.jxl",
+      "artifactSha256": "65966dd5be5e018870ba558a99a951be3832a3ac7851a52b3122f587109a837d",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 17.071,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-17.071.jxl",
+      "artifactSha256": "a1838d38aa4e466d5d936ef95bc7c962a5842f76ff815984439e367233ad3bc1",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 17.286,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-jsquash-17.286.jxl",
+      "artifactSha256": "fe2ddb484bcb28b80913fbca8cc4d6cc74e4cfe48c24718cb992550ab962224d",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-vips-1.jxl",
+      "artifactSha256": "f52b0071d78b40e8707170a432eb991bee38c4f1030ecf51afb65e18372a8247",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-vips-4.jxl",
+      "artifactSha256": "2b52743b51f32be192efc6fd5c7ee2b3c5f6a467237af9b55d4ff7a90bca9ff3",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.4848,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-vips-1.4848.jxl",
+      "artifactSha256": "f1e862a52c025c08e811ac4f41a4aab48ee5fa99a22ec7414483a4f3e3437be0",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.6738,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-vips-1.6738.jxl",
+      "artifactSha256": "d4ac8d4bd32671a277b64c65b868bbf7911a3bae50574aefc3bbd452031a0d66",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.7586,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-vips-1.7586.jxl",
+      "artifactSha256": "15551981fd930d7735d0902b81ca193588c8d2e5e3b8c2f4208e6436be654d93",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-1.jxl",
+      "artifactSha256": "fbb1c635564fa4930babfa0a239526b19c55fe4b6963255c5ae5533547ec1bd0",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-4.jxl",
+      "artifactSha256": "c910a6f74eb5e876d7a0a40c2ff9adf40a757d26639090fb486fd86538c6f2bd",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.4853,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-1.4853.jxl",
+      "artifactSha256": "c7969f65498e646ff5c0129f3c21f171b110b8d2315f8589035295f7a37e0fe5",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.6789,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-1.6789.jxl",
+      "artifactSha256": "3df85385b80b0014fd56e908253c57987be9a9c4376a2ceb77c1d77bdea4e61e",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.7569,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-1.7569.jxl",
+      "artifactSha256": "9adbaaee82531524b126376a5317e1bc806e9a3dcdd51f24ed5e098b1dc4bfa8",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1030-diagnostic",
+      "setting": 1.7753,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1030-diagnostic-native-libjxl-1.7753.jxl",
+      "artifactSha256": "e9e627301675c3815fd99b9d4ffb1ed942eaaf2047033e3ced65ed088482ac00",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-purejsimage-1.jxl",
+      "artifactSha256": "acbf222937fcd21e09f95d6967ec93432ef69d22385f06dfcdf55b11f853e592",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-purejsimage-4.jxl",
+      "artifactSha256": "05a7412bf5b88da73403fdd5446037a294dc48c6de6b6dff8dbb26b1a666e470",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 2.895,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-purejsimage-2.895.jxl",
+      "artifactSha256": "9f4019e72f97d23b9601e2f07d06815586fcf29a7ee1a8326cd12a5c4a0cfb0f",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 3.247,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-purejsimage-3.247.jxl",
+      "artifactSha256": "cc47c2e9b09588a3d8ec6f5515313bdbd11995c2620e72b8b57dc0d4527d7868",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 11,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-11.jxl",
+      "artifactSha256": "facff8a04bcdf659a6c7e08e5a52239468bd3b210438e18dd48c74df654f2b08",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 51,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-51.jxl",
+      "artifactSha256": "4c04e5a8a7923b2e51fd3eb3fd58e7b64d1f232265aaeda78b349ca09beb19b2",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 14.578,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-14.578.jxl",
+      "artifactSha256": "cffa513f6a451f389936d04ceddfa8a3be52ccdee469b9557e3271f65b920dac",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 15.77,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-15.77.jxl",
+      "artifactSha256": "44ef182ed0744770ac4be1030f02864f27a9121c0b31f1597d4f3dbe495b23c1",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 16.092,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-16.092.jxl",
+      "artifactSha256": "e6e66eb2ae1acb6b51d893c5978d3de2142195b9795af53478b059e20804a15e",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 16.113,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-jsquash-16.113.jxl",
+      "artifactSha256": "a3c7db5ddc628418b1deee8e79bd4a08885f5de3890b6ba0dfa4cf85e00d9438",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-1.jxl",
+      "artifactSha256": "4498a6d66c6e0a08e18bcad8387b1d0577f79536f6267f34dcedb358efaebef8",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-4.jxl",
+      "artifactSha256": "176707720882f3575ff172862cecfef47aba1199edcaca4a40dad17c765bbd04",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.2778,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-1.2778.jxl",
+      "artifactSha256": "46758659c3c8fca37b729af3543b67886570af60f008c30307d7ceb2ae449b98",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.3956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-1.3956.jxl",
+      "artifactSha256": "40ffc26b8f7f10e7224be5cbb216dafd0c085ccc25179e5b70c6128535ff3235",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.4441,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-1.4441.jxl",
+      "artifactSha256": "d4f7cabcfd2ad9ceee37a043773d469a9f256f9dc0ea86149baf3646fc77f999",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.4566,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-vips-1.4566.jxl",
+      "artifactSha256": "49740185a02db1502bb2ef385e4c69fdfbb78e7a3a0a115aaeb0f6bc9e15baba",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-1.jxl",
+      "artifactSha256": "c6a21bd509569d76f015d11c183079eec3870286cfc1a2bb959384f8898c1c02",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-4.jxl",
+      "artifactSha256": "8b5981d5afcc23be85370a6d5b47560bc6102cc0e82a9ae694786c285df8efc9",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.2767,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-1.2767.jxl",
+      "artifactSha256": "dd52ba3bf994fff26271f544e8fd4f133e6d2d791b4e9900a8a972ec74c0723b",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.395,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-1.395.jxl",
+      "artifactSha256": "7940e50a585d7fd11c4de4641fb3550c6478de611fe8dff57194b0eb99f68927",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.445,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-1.445.jxl",
+      "artifactSha256": "5cf880c3f4736e7ebc0c61217740bf94feeedfce0cc014a452369636e539c2d6",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-1416-diagnostic",
+      "setting": 1.4609,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-1416-diagnostic-native-libjxl-1.4609.jxl",
+      "artifactSha256": "c0ec61d0e5fc24ece9952faff36342274d74e1fdfd3274431fb0ff8a0bcb520c",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-1.jxl",
+      "artifactSha256": "cb732db4df9479d7a51871da84086807c8a21fd281362cdeb59aca1be3b3c73a",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-4.jxl",
+      "artifactSha256": "9bbcbdb8c366217d236f615efa83ccecc10273517c25e395137c1d17cec399dc",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-8.jxl",
+      "artifactSha256": "5529067d008be8721c044d62a12a32d22b9a45ccc33e1f89dcbe40a4b26cfd4e",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-16.jxl",
+      "artifactSha256": "0c5c5860064cc04b5bd05ee7d41fd74494477552bd83ba8fa093fdeb652fdc41",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 11.096,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-11.096.jxl",
+      "artifactSha256": "4885380d7e85db57842901bbfb2a53c25ffb7839ba06e0348e130eb9ed76a401",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 11.14,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-purejsimage-11.14.jxl",
+      "artifactSha256": "ae1a0014459b5fc007ea80d57ab21180aec2e1b5a91c9d621bdd305892035548",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 11,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-jsquash-11.jxl",
+      "artifactSha256": "9e93585604168a0a06b48befc4f4176b2f750a17cb131f40d0381bd1e3d8cf41",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 51,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-jsquash-51.jxl",
+      "artifactSha256": "0ab21c781fddb22d0d7712b95bb5906ac0c406d861a37f1de940e0ddd03d9a28",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 81,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-jsquash-81.jxl",
+      "artifactSha256": "6c9fa29d2f14ea0932a4aa44ca5328e3b1ce8df641ae0a4563d56541d5afd7e4",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-1.jxl",
+      "artifactSha256": "a77063b1147bfaf88f74a15e5c336c5a99b80a6aed2e71c61b01faa14c50ad32",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-4.jxl",
+      "artifactSha256": "76caefa4c20d6328f0846af0c2a1d02779d3a473c9a4ef55f0eefb2d4cf2c3af",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-8.jxl",
+      "artifactSha256": "6c9cd601e7e85e09820c7a9f326ee350928941255bd950f4af4890c0b2c4551f",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-16.jxl",
+      "artifactSha256": "ad374d24199b269ddeb62fd15d329d72e663dd2fbc0bd3b0bcfcabea21fefe24",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 8.0536,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-8.0536.jxl",
+      "artifactSha256": "9d5cfdfd63b9819e2d7b00d12f1c45f1a1d98de53d31ef7b2431c7e86022649c",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 11.352,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-vips-11.352.jxl",
+      "artifactSha256": "3b128d16f5166cd0b8f3966f19796c71b80cc73b1daebcada1478508e0b3eda6",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-1.jxl",
+      "artifactSha256": "22524a4c079ce55f99e5a6bd1747fe9c4dbda82253b74f7d761e4c176924b149",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-4.jxl",
+      "artifactSha256": "e679de22586ec89fd6f594a80476d7f592bf16b7a8535c89b31f80f2275d6fdc",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-8.jxl",
+      "artifactSha256": "e96fa1ced43b66e4c01ae2bf55a5dcbd5bf36ca8e8396aa6ecefa5a8194146d7",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-16.jxl",
+      "artifactSha256": "0f04a4e8fb42bda3cbd6ea4377537d160fc4efb6cd206b3ca1beefcf817a7043",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 8.0536,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-8.0536.jxl",
+      "artifactSha256": "21a37b09954c6de374208d1bb2f72f7f915f30f0416a64eea04e4d392270061e",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "im26-5034-diagnostic",
+      "setting": 11.352,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/im26-5034-diagnostic-native-libjxl-11.352.jxl",
+      "artifactSha256": "904505ffeab92b66356cfcdaf0e6e6ffa1cc874083db0e60e474e286b688b6e1",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-1.jxl",
+      "artifactSha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-4.jxl",
+      "artifactSha256": "86d01f4476b139e8e8d111717f92202fdf5c32b5ad8374654a6af23b967240a0",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-8.jxl",
+      "artifactSha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-16.jxl",
+      "artifactSha256": "25f415c36bc1d8457e0bf070d2a51e4340603ffa2bc95efdb4f8d111ed273266",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 10.439,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-10.439.jxl",
+      "artifactSha256": "c7a4183cb450724f03f6b774b475c06bb45f2662dbf416e6d059e54eeb42f955",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "purejsimage",
+      "fixture": "alpha_triangles",
+      "setting": 11.226,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-purejsimage-11.226.jxl",
+      "artifactSha256": "96794a961ecc79015736d9c54aa2265a46a27ab7adbafecbdec199a6c3e5250b",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "alpha_triangles",
+      "setting": 11,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-jsquash-11.jxl",
+      "artifactSha256": "749e35c08ef992ab75995cdc6b2457cb47720cf07b36308c1d8d4e8693d40d97",
+      "status": "incorrect output",
+      "shape": true,
+      "maximumAlphaError": 4
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "alpha_triangles",
+      "setting": 51,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-jsquash-51.jxl",
+      "artifactSha256": "7db3a7ccff4f9357c5f3b8454838c1eb609539b772a0d2df10c7807283af9bf4",
+      "status": "incorrect output",
+      "shape": true,
+      "maximumAlphaError": 8
+    },
+    {
+      "subject": "jsquash",
+      "fixture": "alpha_triangles",
+      "setting": 81,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-jsquash-81.jxl",
+      "artifactSha256": "d8a4a494a798dc3d66a2e751f13bf0b3776f10a4d9df56099ea7331fdd54e00b",
+      "status": "incorrect output",
+      "shape": true,
+      "maximumAlphaError": 12
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-1.jxl",
+      "artifactSha256": "8db2b161492293cb7aeabd3d0966a5b34e6dacb373a18a51d526a37b221f3b91",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-4.jxl",
+      "artifactSha256": "d7b8e52ee9be719ccec297e8e6d493db73259d9c9718ca0cdda14c4b6a66fc43",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-8.jxl",
+      "artifactSha256": "494584ac0e84227d27caeace2fd1d8aad2345307f46031d5baa6e303cc10e7fe",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-16.jxl",
+      "artifactSha256": "24b898ceea3b79847f866f61874a8528a0397b36bc45bc8ecd2634a079b18796",
+      "status": "incorrect output",
+      "shape": true,
+      "maximumAlphaError": 192
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 8.6275,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-8.6275.jxl",
+      "artifactSha256": "6fdac905be427c42878abe30e6246897681c921abcb73296575017b0b8879769",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "vips",
+      "fixture": "alpha_triangles",
+      "setting": 9.1991,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-vips-9.1991.jxl",
+      "artifactSha256": "0d0f1aeba2667928d82572a9bcd1274811b5c43f048cc4ab48b2dbc735f2733f",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 1,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-1.jxl",
+      "artifactSha256": "2f4ad70f67db422c47437ffe91ed2beff0657fbe5b1177430b820dea4a4484b9",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 4,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-4.jxl",
+      "artifactSha256": "bfd304f490f231cf626a694cb24c15b3e95abac648a67c6765a76518a5271f12",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 8,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-8.jxl",
+      "artifactSha256": "092e75ae5b056c5f17b3ed6e2f547fa2393290264a327ddeefae3310559d746a",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 16,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-16.jxl",
+      "artifactSha256": "8f9c9d3ad6f226c433a8085710528138007530535f107b2d43bb12d8c68ab141",
+      "status": "incorrect output",
+      "shape": true,
+      "maximumAlphaError": 192
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 8.6275,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-8.6275.jxl",
+      "artifactSha256": "3e598010fe1c83e833cc157201761cfa60a6d8419566b1452aa97f17d15c9686",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    },
+    {
+      "subject": "native-libjxl",
+      "fixture": "alpha_triangles",
+      "setting": 9.1993,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-native-libjxl-9.1993.jxl",
+      "artifactSha256": "d4c9d4b445d90475881064966b7d37448afc46ed334cdac7e670d4d134756b5a",
+      "status": "verified",
+      "shape": true,
+      "maximumAlphaError": 0
+    }
+  ]
+}

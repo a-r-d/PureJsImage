@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "effort": 1,
+      "path": ".tmp/jpegxl-m7/prompt3-final-paired-cold-0.jxl",
+      "encodedSha256": "ac05ab039f1cd595263aa19ba15ec235e4d3f13660738dc197497c9450227989",
+      "bytes": 1911972,
+      "nativePixelsSha256": "95134bfd0c512969dbbf2a6a1ea7d087ba88959e26a2ae86eae73d5a916556aa",
+      "rustPixelsSha256": "b806b1b3e3f60510856dbe6ee58baf87c5776727d8f51b1824f17f4abfab37cc",
+      "maximumIndependentDifference": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4965853960353199,
+        "samples": 36000000,
+        "rows": 3000
+      }
+    },
+    {
+      "effort": 3,
+      "path": ".tmp/jpegxl-m7/prompt3-final-public-cold.jxl",
+      "encodedSha256": "a7ddf89c74744c21f68a04f733668bb298e1f5365f65cb124f5eee18aba67c77",
+      "bytes": 1512186,
+      "nativePixelsSha256": "2e55cde17fde02b7f43ee3989daa19bb65017b60915c96413c74592b068d77e8",
+      "rustPixelsSha256": "c9caaeaa6f1362657ec3bcc0fc6cf6eabdb762b381b9845b90ef18a57566e55b",
+      "maximumIndependentDifference": 1,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.49660961641022533,
+        "samples": 36000000,
+        "rows": 3000
+      }
+    }
+  ],
+  "harnessSha256": "fb8c26848649792c927833daf2f05df20348ee741973dca04492b7502315f8cf",
+  "tools": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ]
+}

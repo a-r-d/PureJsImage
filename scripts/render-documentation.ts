@@ -1141,21 +1141,17 @@ const documentation = {
 }
 
 const summaryBlock = [
-  '## Current package surface',
+  '<a id="current-package-surface"></a>',
   '',
-  `PureJsImage ${packageMetrics.package.version} is a zero-runtime-dependency strict TypeScript image-processing package for Node.js and modern browsers. The default path uses portable TypeScript implementations; optional JPEG, PNG, and WebP WASM accelerators require explicit registration.`,
+  '## Package sizes',
   '',
-  `**${stableCodecs.length} stable ordinary codecs:** ${stableCodecs.map(({ name }) => name).join(', ')}.`,
+  `Generated from the repository manifests and recorded package metrics (package version ${packageMetrics.package.version}). A repository checkout can include APIs newer than the published package.`,
   '',
-  `**Experimental:** ${experimentalCodecs.map(({ name }) => name).join(', ')} remains a separate explicit import, is excluded from \`allCodecs\`, and carries the documented HEVC/H.265 patent notice.`,
+  `**${stableCodecs.length} stable ordinary codecs** and **${experimentalCodecs.length} experimental codec${experimentalCodecs.length === 1 ? '' : 's'}** are listed in the [format tables](#supported-formats). Read/write subsets remain separate.`,
   '',
-  `**${manifest.scientificReaders.length} scientific readers:** ${Object.entries(readerFamilyIds)
-    .map(([id, ids]) => `${readerFamilyLabels[id]} (${ids.length})`)
-    .join(
-      '; ',
-    )}. Direct-range readers request selected source spans, and specialized scientific readers retain native numeric precision instead of forcing data through RGBA.`,
+  `**${manifest.scientificReaders.length} scientific readers** are grouped in the [reader table](#scientific-reader-package-surface). This count includes ordinary image adapters; it is not an additional count of unique file formats.`,
   '',
-  '| Current measured surface | Minified JS | gzip | Brotli |',
+  '| Bundle | Minified JS | gzip | Brotli |',
   '| --- | ---: | ---: | ---: |',
   `| Core API | ${formatKibibytes(coreSize.minifiedJsBytes)} | ${formatKibibytes(coreSize.gzipBytes)} | ${formatKibibytes(coreSize.brotliBytes)} |`,
   `| Common web codecs | ${formatKibibytes(webCodecSize.minifiedJsBytes)} | ${formatKibibytes(webCodecSize.gzipBytes)} | ${formatKibibytes(webCodecSize.brotliBytes)} |`,
@@ -1165,15 +1161,43 @@ const summaryBlock = [
   `| Geo raster platform | ${formatKibibytes(geoSize.minifiedJsBytes)} | ${formatKibibytes(geoSize.gzipBytes)} | ${formatKibibytes(geoSize.brotliBytes)} |`,
   `| All Geo readers | ${formatKibibytes(allGeoReaderSize.minifiedJsBytes)} | ${formatKibibytes(allGeoReaderSize.gzipBytes)} | ${formatKibibytes(allGeoReaderSize.brotliBytes)} |`,
   '',
-  `The extracted npm package is ${formatMebibytes(installedSize.unpackedPackageBytes)} with ${installedSize.productionPackageCount} production package. This is unpacked size, not the compressed npm tarball.`,
+  `The extracted npm package is ${formatMebibytes(installedSize.unpackedPackageBytes)} with ${installedSize.productionPackageCount} production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.`,
+].join('\n')
+
+const speedExamples = [
+  { workflow: 'jpeg-resize-1200', label: '12 MP JPEG → 1200 px wide JPEG (quality 80)' },
+  { workflow: 'png-resize-1000', label: '12 MP RGBA PNG → 1000 px wide PNG' },
+  { workflow: 'webp-large-resize-jpeg', label: '3.2 MP WebP → 800 px wide JPEG (quality 80)' },
+]
+const exampleTime = (workflow: string, engine: string): string => {
+  const result = ordinary.results.find((row) => row.workflow === workflow && row.engine === engine)
+  if (result === undefined) return 'Not measured'
+  if (result.status !== 'pass' || result.wallMilliseconds === null) return 'Unsupported'
+  return `${Math.round(result.wallMilliseconds)} ms`
+}
+const speedGuideBlock = [
+  '### How fast is it?',
+  '',
+  'These examples time the whole decode, resize and encode operation. Median time in milliseconds; lower is faster. WASM does not improve every operation.',
+  '',
+  '| Example operation | TypeScript | With optional WASM |',
+  '| --- | ---: | ---: |',
+  ...speedExamples.map(
+    ({ workflow, label }) =>
+      `| ${label} | ${exampleTime(workflow, 'purejsimage')} | ${exampleTime(workflow, 'purejsimage-wasm')} |`,
+  ),
+  '',
+  `Recorded ${ordinary.createdAt.slice(0, 10)} with PureJsImage ${ordinary.startup.find(({ id }) => id === 'purejsimage')?.version ?? '(version unavailable)'}, Node ${ordinary.environment.node}, ${ordinary.environment.os}/${ordinary.environment.architecture}, ${ordinary.environment.cpu}. These are Node results; browser and device speeds differ. The WASM configuration can also use TypeScript for steps without an accelerator.`,
+  '',
+  `[Full report, settings and results for other libraries](${portablePath(ordinaryPath)}). Other formats have different costs; see the [benchmark charts](#current-benchmark-snapshots) for more operations.`,
 ].join('\n')
 
 const benchmarkBlock = [
   '## Current benchmark snapshots',
   '',
-  `**Web codec benchmarks (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} validated passes, ${ordinaryCounts.unsupported ?? 0} explicit unsupported rows, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
+  `**Web codec benchmarks (${ordinary.createdAt.slice(0, 10)}):** ${ordinaryCounts.pass ?? 0} passing cases, ${ordinaryCounts.unsupported ?? 0} unsupported cases, and no invalid outputs or errors across JPEG, PNG, WebP, TIFF, and AVIF workflows. On the ${documentation.ordinary.headline.workflow.replace('northstar ', '')}, the TypeScript path used ${(memoryReduction * 100).toFixed(1)}% less absolute peak RSS than Jimp (${formatMebibytes(northstarPure.peakRssBytes ?? 0)} versus ${formatMebibytes(northstarJimp.peakRssBytes ?? 0)}).`,
   '',
-  `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup workflows passed across ${new Set(scientific.results.map(({ readerId }) => readerId)).size} readers in that snapshot. The separate medium/large scaling profile validated ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} met the under-10% CV publication threshold and the remaining rows stay visible as noisy. Results report first usable block, selected-operation time, absolute peak RSS, source requests and bytes, overfetch, import/initialization, and emitted-block correctness without collapsing formats into one winner score.`,
+  `**Scientific readers (${scientificScaling.createdAt.slice(0, 10)}):** ${scientificCounts.supported ?? 0} correctness and startup checks passed across ${new Set(scientific.results.map(({ readerId }) => readerId)).size} readers in that snapshot. Separate tests of medium and large datasets checked ${scientificScaling.results.length} representative workloads; ${scientificScaling.results.filter(({ eligibleForCharts }) => eligibleForCharts).length} had a coefficient of variation below 10%; the rest are marked noisy in the report. Results include time to first data, operation time, peak memory, requests and bytes read, extra data fetched, startup time and output checks.`,
   '',
   crossEnvironmentDisclaimer === null ? '' : `> ${crossEnvironmentDisclaimer}`,
   '',
@@ -1182,14 +1206,14 @@ const benchmarkBlock = [
   '    <img src="docs-astro/public/assets/readme/web-codec-speed.svg" alt="Web codec benchmark speed chart. Lower wall time is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
   '  </a>',
   '</p>',
-  '<p align="center"><em>Median wall time from the current validated web codec benchmark snapshot.</em></p>',
+  '<p align="center"><em>Median wall time in milliseconds; lower is better. Native Sharp/libvips results are not WASM measurements.</em></p>',
   '',
   '<p align="center">',
   '  <a href="https://purejsimage.com/performance/#web-codec-benchmarks">',
   '    <img src="docs-astro/public/assets/readme/web-codec-memory.svg" alt="Web codec benchmark peak RSS chart. Lower peak RSS is better. The chart includes validated shared JPEG, PNG, WebP, TIFF, and AVIF workloads. Sharp is native libvips and is not presented as pure JavaScript." width="100%">',
   '  </a>',
   '</p>',
-  '<p align="center"><em>Absolute process peak RSS from the current validated web codec benchmark snapshot.</em></p>',
+  '<p align="center"><em>Absolute process peak RSS in MiB; lower is better. This includes runtime overhead, not just codec-managed buffers.</em></p>',
   '',
   `[Web codec benchmarks](https://purejsimage.com/performance/#web-codec-benchmarks) · [Scientific methodology and report](https://purejsimage.com/performance/#scientific-readers) · [Benchmark harness](benchmark/README.md) · [Generated result index](${portablePath(resultIndex.path)})`,
 ]
@@ -1199,7 +1223,11 @@ const benchmarkBlock = [
 const readmePath = join(repositoryDirectory, 'README.md')
 const currentReadme = await readFile(readmePath, 'utf8')
 const expectedReadme = replaceRegion(
-  replaceRegion(currentReadme, 'summary', summaryBlock),
+  replaceRegion(
+    replaceRegion(currentReadme, 'summary', summaryBlock),
+    'speed-guide',
+    speedGuideBlock,
+  ),
   'benchmarks',
   benchmarkBlock,
 )

@@ -1,0 +1,34 @@
+{
+  "startedAt": "2026-09-29T03:18:23.039Z",
+  "finishedAt": "2026-09-29T03:25:40.737Z",
+  "policy": {
+    "memoryMaxBytes": 8589934592,
+    "memoryHighBytes": 8053063680,
+    "minimumAvailableBytes": 19327352832,
+    "swapMaxBytes": 0,
+    "maximumTasks": 256,
+    "cpuQuotaPercent": 800,
+    "oomScoreAdjust": 1000,
+    "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+    "runtime": "v24.16.0",
+    "unit": "purejsimage-m7-bounded",
+    "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+  },
+  "availableBytes": 19878006784,
+  "executable": "env",
+  "args": [
+    "PUREJSIMAGE_M7_LOSSY_RUN=visual-contrast-final-resumed-20260929",
+    "PUREJSIMAGE_M7_LOSSY_SPLIT=holdout",
+    "PUREJSIMAGE_M7_QUALITY_RESOLUTION=2mp",
+    "PUREJSIMAGE_M7_LOSSY_WORKERS=8",
+    "PUREJSIMAGE_M7_OWN_CACHE=visual-contrast-final-20260929",
+    "PUREJSIMAGE_M7_COMPARATOR_CACHE=visual-defects-fast-resumed-20260928",
+    "PUREJSIMAGE_M7_COMPARATOR_FALLBACK_CACHE=visual-final-capped-20260928",
+    "node",
+    "benchmark/jpegxl/evaluate-m7-lossy-development.ts"
+  ],
+  "code": 0,
+  "signal": null,
+  "status": "completed",
+  "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 00ec00f5ab004dcfb4e7af2a13e4388a\nFinished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\nService runtime: 7min 17.671s\nCPU time consumed: 54min 45.609s\nMemory peak: 4.5G (swap: 0B)\n"
+}

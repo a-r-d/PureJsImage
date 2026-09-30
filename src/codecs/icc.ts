@@ -255,8 +255,10 @@ const curveValue = (profile: Uint8Array, tag: IccTag, input: number): number => 
   return c * input + (functionType === 4 ? parameter(6) : 0)
 }
 
-const curveLut = (profile: Uint8Array, tag: IccTag): Float32Array =>
-  Float32Array.from({ length: 256 }, (_, value) => curveValue(profile, tag, value / 255))
+const curveLut = (profile: Uint8Array, tag: IccTag, entries = 256): Float32Array =>
+  Float32Array.from({ length: entries }, (_, value) =>
+    curveValue(profile, tag, value / (entries - 1)),
+  )
 
 const curveAt = (
   profile: Uint8Array,
@@ -426,6 +428,7 @@ const rgbLutTransform = (
   profile: Uint8Array,
   tag: IccTag,
   pcs: 'Lab ' | 'XYZ ',
+  inputEntries = 256,
 ): RgbIccTransform => {
   if (tag.size < 32 || signature(profile, tag.offset) !== 'mAB ') {
     throw unsupportedOperation('RGB ICC A2B0 must use a supported mAB transform')
@@ -470,7 +473,7 @@ const rgbLutTransform = (
   return {
     kind: 'rgb',
     method: 'lut',
-    inputCurves: curveSet(profile, tag, inputCurveOffset, 3, 256),
+    inputCurves: curveSet(profile, tag, inputCurveOffset, 3, inputEntries),
     gridPoints,
     clut,
     middleCurves: curveSet(profile, tag, middleCurveOffset, 3, SRGB_ENCODE_STEPS + 1),
@@ -485,6 +488,7 @@ const rgbTransform = (
   profile: Uint8Array,
   allTags: ReadonlyMap<string, IccTag>,
   pcs: 'Lab ' | 'XYZ ',
+  inputEntries = 256,
 ): RgbIccTransform => {
   const matrixAndCurves =
     allTags.has('rXYZ') &&
@@ -494,7 +498,7 @@ const rgbTransform = (
     allTags.has('gTRC') &&
     allTags.has('bTRC')
   if (!matrixAndCurves) {
-    return rgbLutTransform(profile, requiredTag(allTags, 'A2B0'), pcs)
+    return rgbLutTransform(profile, requiredTag(allTags, 'A2B0'), pcs, inputEntries)
   }
   const red = xyzTag(profile, requiredTag(allTags, 'rXYZ'))
   const green = xyzTag(profile, requiredTag(allTags, 'gXYZ'))
@@ -522,9 +526,9 @@ const rgbTransform = (
     1.3299098,
   )
   const matrix = multiply3x3(xyzToSrgb, multiply3x3(d50ToD65, colorants))
-  const redCurve = curveLut(profile, requiredTag(allTags, 'rTRC'))
-  const greenCurve = curveLut(profile, requiredTag(allTags, 'gTRC'))
-  const blueCurve = curveLut(profile, requiredTag(allTags, 'bTRC'))
+  const redCurve = curveLut(profile, requiredTag(allTags, 'rTRC'), inputEntries)
+  const greenCurve = curveLut(profile, requiredTag(allTags, 'gTRC'), inputEntries)
+  const blueCurve = curveLut(profile, requiredTag(allTags, 'bTRC'), inputEntries)
   return transformFromMatrixAndCurves(matrix, redCurve, greenCurve, blueCurve)
 }
 
@@ -965,11 +969,13 @@ const cmykInputAxis = (
   tableOffset: number,
   entries: number,
   gridPoints: number,
+  samples = 256,
 ): CmykInputAxis => {
-  const low = new Uint8Array(256)
-  const fraction = new Float32Array(256)
-  for (let value = 0; value < 256; value += 1) {
-    const position = sampledTable(profile, tableOffset, entries, value / 255) * (gridPoints - 1)
+  const low = new Uint8Array(samples)
+  const fraction = new Float32Array(samples)
+  for (let value = 0; value < samples; value += 1) {
+    const position =
+      sampledTable(profile, tableOffset, entries, value / (samples - 1)) * (gridPoints - 1)
     low[value] = Math.min(gridPoints - 2, Math.floor(position))
     fraction[value] = position - (low[value] ?? 0)
   }
@@ -980,6 +986,7 @@ const cmykTransform = (
   profile: Uint8Array,
   allTags: ReadonlyMap<string, IccTag>,
   pcs: 'Lab ' | 'XYZ ',
+  inputSamples = 256,
 ): CmykIccTransform => {
   const tag = requiredTag(allTags, 'A2B0')
   if (signature(profile, tag.offset) !== 'mft2' || tag.size < 52) {
@@ -1021,10 +1028,28 @@ const cmykTransform = (
   return {
     kind: 'cmyk',
     gridPoints,
-    cyan: cmykInputAxis(profile, inputOffset, inputEntries, gridPoints),
-    magenta: cmykInputAxis(profile, inputOffset + inputEntries * 2, inputEntries, gridPoints),
-    yellow: cmykInputAxis(profile, inputOffset + inputEntries * 4, inputEntries, gridPoints),
-    black: cmykInputAxis(profile, inputOffset + inputEntries * 6, inputEntries, gridPoints),
+    cyan: cmykInputAxis(profile, inputOffset, inputEntries, gridPoints, inputSamples),
+    magenta: cmykInputAxis(
+      profile,
+      inputOffset + inputEntries * 2,
+      inputEntries,
+      gridPoints,
+      inputSamples,
+    ),
+    yellow: cmykInputAxis(
+      profile,
+      inputOffset + inputEntries * 4,
+      inputEntries,
+      gridPoints,
+      inputSamples,
+    ),
+    black: cmykInputAxis(
+      profile,
+      inputOffset + inputEntries * 6,
+      inputEntries,
+      gridPoints,
+      inputSamples,
+    ),
     clut,
     outputTables,
     outputEntries,
@@ -1049,6 +1074,37 @@ export const parseRgbIccTransform = (profile: Uint8Array): RgbIccTransform => {
     throw invalidInput('Embedded ICC profile must use the RGB input color space')
   }
   return transform
+}
+
+/** Parse the same supported RGB profile families with 16-bit input curves. */
+export const parseRgbIccTransform16 = (profile: Uint8Array): RgbIccTransform => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'RGB ')
+    throw invalidInput('Embedded ICC profile must use RGB input')
+  const pcs = signature(profile, 20)
+  if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
+  return rgbTransform(profile, allTags, pcs, 65_536)
+}
+
+export const parseGrayIccTransform16 = (profile: Uint8Array): Uint16Array => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'GRAY')
+    throw invalidInput('Embedded ICC profile must use grayscale input')
+  const curve = requiredTag(allTags, 'kTRC')
+  return Uint16Array.from({ length: 65_536 }, (_, value) =>
+    Math.round(
+      Math.max(0, Math.min(1, linearToSrgb(curveValue(profile, curve, value / 65_535)))) * 65_535,
+    ),
+  )
+}
+
+export const parseCmykIccTransform16 = (profile: Uint8Array): CmykIccTransform => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'CMYK')
+    throw invalidInput('Embedded ICC profile must use CMYK input')
+  const pcs = signature(profile, 20)
+  if (pcs !== 'Lab ' && pcs !== 'XYZ ') throw invalidInput(`ICC PCS ${pcs} is unsupported`)
+  return cmykTransform(profile, allTags, pcs, 65_536)
 }
 
 export const parseGrayIccTransform = (profile: Uint8Array): Uint8Array => {
@@ -1470,4 +1526,181 @@ export const writeCmykIcc = (
     0.0556434 * d65X - 0.2040259 * d65Y + 1.0572252 * d65Z,
     transform.encode,
   )
+}
+
+const encodeLinear16 = (linear: number): number =>
+  Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * 65_535)
+
+/** Evaluates the supported ICC RGB families without an 8-bit sample intermediate. */
+export const writeRgbIcc16 = (
+  transform: RgbIccTransform,
+  red: number,
+  green: number,
+  blue: number,
+  output: Uint16Array,
+  offset: number,
+): void => {
+  if (transform.method === 'matrix') {
+    output[offset] = encodeLinear16(
+      (transform.redToRed[red] ?? 0) +
+        (transform.greenToRed[green] ?? 0) +
+        (transform.blueToRed[blue] ?? 0),
+    )
+    output[offset + 1] = encodeLinear16(
+      (transform.redToGreen[red] ?? 0) +
+        (transform.greenToGreen[green] ?? 0) +
+        (transform.blueToGreen[blue] ?? 0),
+    )
+    output[offset + 2] = encodeLinear16(
+      (transform.redToBlue[red] ?? 0) +
+        (transform.greenToBlue[green] ?? 0) +
+        (transform.blueToBlue[blue] ?? 0),
+    )
+    return
+  }
+  const input = transform.inputCurves
+  const middle = transform.middleCurves
+  const curves = transform.outputCurves
+  const grids = transform.gridPoints
+  if (
+    !input[0] ||
+    !input[1] ||
+    !input[2] ||
+    !middle[0] ||
+    !middle[1] ||
+    !middle[2] ||
+    !curves[0] ||
+    !curves[1] ||
+    !curves[2] ||
+    !grids[0] ||
+    !grids[1] ||
+    !grids[2]
+  )
+    throw invalidInput('RGB ICC mAB transform storage is incomplete')
+  const rp = (input[0][red] ?? 0) * (grids[0] - 1)
+  const gp = (input[1][green] ?? 0) * (grids[1] - 1)
+  const bp = (input[2][blue] ?? 0) * (grids[2] - 1)
+  const r0 = Math.min(grids[0] - 2, Math.max(0, Math.floor(rp)))
+  const g0 = Math.min(grids[1] - 2, Math.max(0, Math.floor(gp)))
+  const b0 = Math.min(grids[2] - 2, Math.max(0, Math.floor(bp)))
+  const rf = rp - r0
+  const gf = gp - g0
+  const bf = bp - b0
+  let first = 0
+  let second = 0
+  let third = 0
+  for (let mask = 0; mask < 8; mask++) {
+    const vr = mask & 1
+    const vg = (mask >>> 1) & 1
+    const vb = (mask >>> 2) & 1
+    const weight = (vr ? rf : 1 - rf) * (vg ? gf : 1 - gf) * (vb ? bf : 1 - bf)
+    const position = (((r0 + vr) * grids[1] + g0 + vg) * grids[2] + b0 + vb) * 3
+    first += (transform.clut[position] ?? 0) * weight
+    second += (transform.clut[position + 1] ?? 0) * weight
+    third += (transform.clut[position + 2] ?? 0) * weight
+  }
+  const m0 = sampleCurveLut(middle[0], first / 65_535)
+  const m1 = sampleCurveLut(middle[1], second / 65_535)
+  const m2 = sampleCurveLut(middle[2], third / 65_535)
+  const matrix = transform.matrix
+  first = sampleCurveLut(
+    curves[0],
+    (matrix[0] ?? 0) * m0 + (matrix[1] ?? 0) * m1 + (matrix[2] ?? 0) * m2 + (matrix[9] ?? 0),
+  )
+  second = sampleCurveLut(
+    curves[1],
+    (matrix[3] ?? 0) * m0 + (matrix[4] ?? 0) * m1 + (matrix[5] ?? 0) * m2 + (matrix[10] ?? 0),
+  )
+  third = sampleCurveLut(
+    curves[2],
+    (matrix[6] ?? 0) * m0 + (matrix[7] ?? 0) * m1 + (matrix[8] ?? 0) * m2 + (matrix[11] ?? 0),
+  )
+  let x: number
+  let y: number
+  let z: number
+  if (transform.pcs === 'Lab ') {
+    const fy = (Math.min(1, first * (65_535 / 65_280)) * 100) / 116 + 16 / 116
+    const fx = fy + (Math.min(1, second * (65_535 / 65_280)) * 255 - 128) / 500
+    const fz = fy - (Math.min(1, third * (65_535 / 65_280)) * 255 - 128) / 200
+    const e = 216 / 24_389
+    const k = 27 / 24_389
+    x = 0.9642 * (fx ** 3 > e ? fx ** 3 : (116 * fx - 16) * k)
+    y = fy ** 3 > e ? fy ** 3 : (116 * fy - 16) * k
+    z = 0.8249 * (fz ** 3 > e ? fz ** 3 : (116 * fz - 16) * k)
+  } else {
+    x = first * (65_535 / 32_768)
+    y = second * (65_535 / 32_768)
+    z = third * (65_535 / 32_768)
+  }
+  const d65x = 0.9555766 * x - 0.0230393 * y + 0.0631636 * z
+  const d65y = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z
+  const d65z = 0.0122982 * x - 0.020483 * y + 1.3299098 * z
+  output[offset] = encodeLinear16(3.2404542 * d65x - 1.5371385 * d65y - 0.4985314 * d65z)
+  output[offset + 1] = encodeLinear16(-0.969266 * d65x + 1.8760108 * d65y + 0.041556 * d65z)
+  output[offset + 2] = encodeLinear16(0.0556434 * d65x - 0.2040259 * d65y + 1.0572252 * d65z)
+}
+
+/** Evaluates the supported lut16 CMYK family at 16-bit input and output precision. */
+export const writeCmykIcc16 = (
+  transform: CmykIccTransform,
+  cyan: number,
+  magenta: number,
+  yellow: number,
+  black: number,
+  output: Uint16Array,
+  offset: number,
+): void => {
+  const c0 = transform.cyan.low[cyan] ?? 0
+  const m0 = transform.magenta.low[magenta] ?? 0
+  const y0 = transform.yellow.low[yellow] ?? 0
+  const k0 = transform.black.low[black] ?? 0
+  const cf = transform.cyan.fraction[cyan] ?? 0
+  const mf = transform.magenta.fraction[magenta] ?? 0
+  const yf = transform.yellow.fraction[yellow] ?? 0
+  const kf = transform.black.fraction[black] ?? 0
+  const grid = transform.gridPoints
+  let first = 0
+  let second = 0
+  let third = 0
+  for (let mask = 0; mask < 16; mask++) {
+    const c = mask & 1
+    const m = (mask >>> 1) & 1
+    const y = (mask >>> 2) & 1
+    const k = (mask >>> 3) & 1
+    const weight = (c ? cf : 1 - cf) * (m ? mf : 1 - mf) * (y ? yf : 1 - yf) * (k ? kf : 1 - kf)
+    const position = ((((c0 + c) * grid + m0 + m) * grid + y0 + y) * grid + k0 + k) * 3
+    first += (transform.clut[position] ?? 0) * weight
+    second += (transform.clut[position + 1] ?? 0) * weight
+    third += (transform.clut[position + 2] ?? 0) * weight
+  }
+  first = outputCurve(transform, 0, first)
+  second = outputCurve(transform, 1, second)
+  third = outputCurve(transform, 2, third)
+  let x: number
+  let y: number
+  let z: number
+  if (transform.pcs === 'Lab ') {
+    const legacy = 65_535 / 65_280
+    first = Math.min(1, first * legacy)
+    second = Math.min(1, second * legacy)
+    third = Math.min(1, third * legacy)
+    const fy = (first * 100 + 16) / 116
+    const fx = fy + (second * 255 - 128) / 500
+    const fz = fy - (third * 255 - 128) / 200
+    const e = 216 / 24_389
+    const k = 27 / 24_389
+    x = 0.9642 * (fx ** 3 > e ? fx ** 3 : (116 * fx - 16) * k)
+    y = fy ** 3 > e ? fy ** 3 : (116 * fy - 16) * k
+    z = 0.8249 * (fz ** 3 > e ? fz ** 3 : (116 * fz - 16) * k)
+  } else {
+    x = first * (65_535 / 32_768)
+    y = second * (65_535 / 32_768)
+    z = third * (65_535 / 32_768)
+  }
+  const d65x = 0.9555766 * x - 0.0230393 * y + 0.0631636 * z
+  const d65y = -0.0282895 * x + 1.0099416 * y + 0.0210077 * z
+  const d65z = 0.0122982 * x - 0.020483 * y + 1.3299098 * z
+  output[offset] = encodeLinear16(3.2404542 * d65x - 1.5371385 * d65y - 0.4985314 * d65z)
+  output[offset + 1] = encodeLinear16(-0.969266 * d65x + 1.8760108 * d65y + 0.041556 * d65z)
+  output[offset + 2] = encodeLinear16(0.0556434 * d65x - 0.2040259 * d65y + 1.0572252 * d65z)
 }

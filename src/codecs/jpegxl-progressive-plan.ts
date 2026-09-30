@@ -124,8 +124,8 @@ export const planJpegXlProgressive = (
   })
   const fallbackReasons: string[] = []
   if (frame.encoding !== 'vardct') fallbackReasons.push('Modular requires its final decode path')
-  if (frame.bitDepth !== 8 || jpegXlXybOutputIsLinear(frame))
-    fallbackReasons.push('High-depth and linear-light samples require their native static decoder')
+  if (frame.bitDepth > 16)
+    fallbackReasons.push('More than 16-bit VarDCT samples require their native static decoder')
   if (
     dependencies.length > 1 ||
     dependencies.some(
@@ -137,7 +137,19 @@ export const planJpegXlProgressive = (
   )
     fallbackReasons.push('Internal frame dependencies require their complete static decode path')
   if (frame.colorTransform !== 'xyb') fallbackReasons.push('This selective path requires XYB')
-  if (frame.extraChannels.length !== 0)
+  const selectiveAlpha =
+    frame.extraChannels.length === 1 &&
+    frame.extraChannels[0]?.type === 0 &&
+    frame.selectedAlphaChannel === 0 &&
+    Math.ceil(
+      frame.codedWidth /
+        ((frame.extraChannelUpsampling[0] ?? 1) * 2 ** frame.extraChannels[0].dimShift),
+    ) <= frame.groupDimension &&
+    Math.ceil(
+      frame.codedHeight /
+        ((frame.extraChannelUpsampling[0] ?? 1) * 2 ** frame.extraChannels[0].dimShift),
+    ) <= frame.groupDimension
+  if (frame.extraChannels.length !== 0 && !selectiveAlpha)
     fallbackReasons.push('Extra channels require their complete dependencies')
   if (frame.upsampling !== 1)
     fallbackReasons.push('Frame upsampling requires its complete dependencies')
@@ -154,10 +166,11 @@ export const planJpegXlProgressive = (
   }
   const reducedOrRegion =
     scale !== 1 || encodedRegion.width !== frame.width || encodedRegion.height !== frame.height
+  const highDepthWorkingPlanes = frame.bitDepth > 8 || jpegXlXybOutputIsLinear(frame)
   const fullFrameFallback = fallbackReasons.length
     ? 'static-decoder'
     : passes > 0 && reducedOrRegion
-      ? dependencies.length === 0 && frame.groupsDown > 1
+      ? !highDepthWorkingPlanes && dependencies.length === 0 && frame.groupsDown > 1
         ? 'output-only'
         : 'working-planes'
       : 'none'
@@ -215,7 +228,7 @@ export const planJpegXlProgressive = (
       ? 'static-fallback'
       : passes === 0
         ? 'bounded-dc-restoration'
-        : dependencies.length === 0 && frame.groupsDown > 1
+        : !highDepthWorkingPlanes && dependencies.length === 0 && frame.groupsDown > 1
           ? 'full-output-with-restoration-bands'
           : 'full-output-and-working-planes',
     restorationHalo: halo,

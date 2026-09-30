@@ -1,0 +1,64 @@
+{
+  "source": {
+    "path": "src/codecs/jpegxl-vardct-encode.ts",
+    "sha256": "50f0f8a109c6eedf9bfa3e31f37c2a1dcbb0bcfbe93429cd7fb5fea2c6dee8c0"
+  },
+  "tools": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ],
+  "results": [
+    {
+      "progressive": false,
+      "width": 129,
+      "height": 65,
+      "settings": {
+        "mode": "lossy",
+        "effort": 7,
+        "distance": 3
+      },
+      "bytes": 1890,
+      "sourceSha256": "c34366bbc97d67747b3a881e4f7d4053e72b6c029fab6432160b62ad42c15f35",
+      "encodedSha256": "4910bf784fd03e206ece21b409db74633912e261ab739a4b6a276c0f8880163c",
+      "nativeDecodedSha256": "68a8d7390ca4ab59e216af4fcc0a4c0eb538567a862199bf72722e6b567d3a41",
+      "rustDecodedSha256": "5f0dc25334d12631607e80a955c46243dfa4fb28f04cfa366bae89f9f6c40d26",
+      "independentMaximum": 1,
+      "rmse": 2.8139556238913888,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4972594342406824,
+        "samples": 25155,
+        "rows": 65
+      }
+    },
+    {
+      "progressive": true,
+      "width": 129,
+      "height": 65,
+      "settings": {
+        "mode": "lossy",
+        "effort": 7,
+        "distance": 3
+      },
+      "bytes": 2291,
+      "sourceSha256": "c34366bbc97d67747b3a881e4f7d4053e72b6c029fab6432160b62ad42c15f35",
+      "encodedSha256": "c52b272686a48d962b015b0446a0619c5ecd261c5b9629b7b584c9c1a3687bf7",
+      "nativeDecodedSha256": "68a8d7390ca4ab59e216af4fcc0a4c0eb538567a862199bf72722e6b567d3a41",
+      "rustDecodedSha256": "5f0dc25334d12631607e80a955c46243dfa4fb28f04cfa366bae89f9f6c40d26",
+      "independentMaximum": 1,
+      "rmse": 2.8139556238913888,
+      "ownVerification": {
+        "maximum": 1,
+        "rmse": 0.4972594342406824,
+        "samples": 25155,
+        "rows": 65
+      }
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import {
   validateEvidenceReport,
 } from '../benchmark/jpegxl/evidence-validation.ts'
 import { hashM8PortablePlanes } from '../benchmark/jpegxl/m8-output-digest.ts'
+import { bundleSizeBudgets } from '../scripts/bundle-size-budgets.ts'
 import conformanceManifest from '../benchmark/jpegxl/production-program/corpora/conformance.json' with {
   type: 'json',
 }
@@ -558,8 +559,10 @@ describe('JPEG XL evidence admission', () => {
             milliseconds: 1,
             ...(id === 'entry-size-and-cold-start'
               ? {
-                  codecMinifiedBytes: 441_001,
-                  specializedMinifiedBytes: 519_001,
+                  codecMinifiedBytes:
+                    (bundleSizeBudgets['codec-jpegxl']?.maxMinifiedBytes ?? 0) + 1,
+                  specializedMinifiedBytes:
+                    (bundleSizeBudgets['jpegxl-specialized']?.maxMinifiedBytes ?? 0) + 1,
                   coldImportMilliseconds: 1,
                   firstDecodeMilliseconds: 1,
                 }

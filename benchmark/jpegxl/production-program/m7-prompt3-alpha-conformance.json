@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "failures": 0,
+  "results": [
+    {
+      "id": "17x13-d0.25",
+      "width": 17,
+      "height": 13,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 584,
+      "sourceSha256": "5baa24c849b82e630541d13c2ec4448ae7282e3ec6047063a9b6c382811b11b4",
+      "encodedSha256": "192d6b69720f4c7a19e792f9dd36f93436609e2e041fc7ad61d2fc773ed823d8",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "f2243878309e43a07b6a3d287e1237d6c7a3fd85f5d72c50df2ac943606fa1e3",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "2b36b2b2de7eb10c26ded63cd9248ced84754ef3e613cbb2f39186fa00532e20",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "17x13-d1",
+      "width": 17,
+      "height": 13,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 421,
+      "sourceSha256": "5baa24c849b82e630541d13c2ec4448ae7282e3ec6047063a9b6c382811b11b4",
+      "encodedSha256": "05305359a50c825a0fec6c18f1efa9c3152516336efcf450a015a61f95076ca5",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "eeed6f49f6e217f18fd46fd23db633a40dbaf75da25c7462b4dc76f40ad32f4d",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "c9f091496c62753dfd3fd0116760ae375a52610d36fdf5e919260d15b55dd656",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "17x13-d3",
+      "width": 17,
+      "height": 13,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 327,
+      "sourceSha256": "5baa24c849b82e630541d13c2ec4448ae7282e3ec6047063a9b6c382811b11b4",
+      "encodedSha256": "07017ca587f576f8c0eacd15efb4eec77240ca42ee88db86f488bbd21cafccaa",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "dd727b5c775983a1672f7b546b10eb84ea591aae3b669d6a0e99da3398282aba",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "5d0745ae8247400194867b4a736495cb13799fda16176566c2fa1fe356dd022f",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "257x33-d0.25",
+      "width": 257,
+      "height": 33,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 2835,
+      "sourceSha256": "65f8af126b2d2e9d723322016af4ca180123957894c9d12e19e07ca333c3a9bb",
+      "encodedSha256": "c3b510fb4e0c1c973f75da81e4815dde6cacdbbb7976ea4a76bc3786b69f09b4",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "e9f6b8a7c42e9511a073efd9d0144ffa6ddc21baf985d6af272df6c06da405e3",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "73f1642b194856f2532f623087ffb32cf5b8a415a608c81fa791751b4570cd4c",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "257x33-d1",
+      "width": 257,
+      "height": 33,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 1662,
+      "sourceSha256": "65f8af126b2d2e9d723322016af4ca180123957894c9d12e19e07ca333c3a9bb",
+      "encodedSha256": "87a393afc56a81d85d2b579e41853ac43a9cb2143671e08158b23edc575b98fd",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "6a900f9c7ec4b8aeda908d37f52f67b0ef96d27bed6312f89aeb29b6a1a64d4a",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "4b4bfbf94ab91ae3b29ea52f928109d748b50ceb6c3f303cf76d21ca12d205c0",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "257x33-d3",
+      "width": 257,
+      "height": 33,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 1107,
+      "sourceSha256": "65f8af126b2d2e9d723322016af4ca180123957894c9d12e19e07ca333c3a9bb",
+      "encodedSha256": "339d34bc93160bf2990c6db8152cf3c226d1c8cada6708a2bc983f0c2a9009ca",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "05d40d97eb5478754e4eef6c06c038acbbed9c82745927963e2ffef0b248af8f",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "9f88fe20adbec571fd48690ccfd253ec64f004999fcf0b40ed0fbf676a8efd30",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "33x257-d0.25",
+      "width": 33,
+      "height": 257,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 3866,
+      "sourceSha256": "e3b827fd76fe402a3a4cc6f09ec87781cfd537a5911bccc5068283e9d8eff2f7",
+      "encodedSha256": "635bcb4b82e6fd237f4b795e96b21f41a869a385596cf0c342de3d77f39f2bad",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "0e7b328efd84b236b81a88e7b33126c999e5f47b5e025e773503e1b9cbb75841",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "1c5924a8091f4d219ca8b800880a58161701f1cd3e6a393568572f3a2d9dc578",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "33x257-d1",
+      "width": 33,
+      "height": 257,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 2611,
+      "sourceSha256": "e3b827fd76fe402a3a4cc6f09ec87781cfd537a5911bccc5068283e9d8eff2f7",
+      "encodedSha256": "4755209fceaf310838b60a0af6e62d99f37c54e88f08cd2f1ad1bd2b2571df90",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "dc816b70fcbd472d2812abec24a9b1d2e07c81246558af18c22174b6ddcfc122",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "45997836566050ca23c53d7288d127e03b9ead3cb91c0572267bdf04b7fec4c4",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "33x257-d3",
+      "width": 33,
+      "height": 257,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 2096,
+      "sourceSha256": "e3b827fd76fe402a3a4cc6f09ec87781cfd537a5911bccc5068283e9d8eff2f7",
+      "encodedSha256": "533b74319eced5a9a8dce3862a049b0296f3c72d1611f60548945b69927f3df0",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "5d0d725fad50bbc90e28e1e6e284b36fd61a07bcd31ae203f594fc0754541ea6",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "73276e456df87665ebe759bfd8f319deb77fcc2a7f82475ae8aea08de2170386",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "513x517-d0.25",
+      "width": 513,
+      "height": 517,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 19478,
+      "sourceSha256": "7dfb767668b5fb9348806e8997261903808799ca11d8a3109ba6874443da394e",
+      "encodedSha256": "5afa963171400a11a75a1f4d01915f58757e599d408e3bf98210249d14ce8682",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "2fe332cff27df891727698ed2f8b4c2cec115d8665f5d66603a5cc1d963af024",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "7fdba30ba18ac726887f82e6f77ddb194ff1c770e6be885bf8e76cf27cf553a9",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "513x517-d1",
+      "width": 513,
+      "height": 517,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 11340,
+      "sourceSha256": "7dfb767668b5fb9348806e8997261903808799ca11d8a3109ba6874443da394e",
+      "encodedSha256": "119c65ba37418f4ce15c380755c94cf3be374d4d32e767962c4ba33553e4b6b3",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "5ea97a2155229e2f7d819d36a2c0edcf71680f1fe34e3f8bc5ed38a99717f9d4",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "d54ca1523959c6180f271334b83d504e66a6e9802cc90bce1cdd410b74c06a18",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "513x517-d3",
+      "width": 513,
+      "height": 517,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 8553,
+      "sourceSha256": "7dfb767668b5fb9348806e8997261903808799ca11d8a3109ba6874443da394e",
+      "encodedSha256": "f613c412cd8036e152267e659d621560e8dd852f6743f65dbd5237286b45660a",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "df25006e988f7b93f1579bbdba32723cc99876471feb58b0ac31f313dc67d099",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "3bf643fe81a621c3ab4bf003ea714915392d823ffd766d4ebbb6d586062c72de",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x257-d0.25",
+      "width": 2051,
+      "height": 257,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 39842,
+      "sourceSha256": "870854d5571a0ec52b340a9de007b23efb2413d907b10b8b52d9731deadfca6d",
+      "encodedSha256": "2b9854216c86e43309233b15216f3fa3ac8dbebbab780ca541100f43a19e0f4b",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "eeb4a309b60c2ce42987ff8a98ac239b4c7de02566f8e964f45d1e6166791917",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "55cc7632bbce4d3f9c20547b0c1009e6ee9da6f74c7749da0595fe4f0765db4e",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x257-d1",
+      "width": 2051,
+      "height": 257,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 29675,
+      "sourceSha256": "870854d5571a0ec52b340a9de007b23efb2413d907b10b8b52d9731deadfca6d",
+      "encodedSha256": "c124d6aac80d0e39928f10b5d35b552773170b556f60ba3afdda23f2f38e0cb6",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "7655dd7e3254fc7e1c093613d8ed7cb904036408b105eb6b8f97f715efb1786e",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "110371d06b9f58d4ce6ddebd944eec27a75b5c155829d157361e1f4f928d15ba",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x257-d3",
+      "width": 2051,
+      "height": 257,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 22108,
+      "sourceSha256": "870854d5571a0ec52b340a9de007b23efb2413d907b10b8b52d9731deadfca6d",
+      "encodedSha256": "fcf79a6d629e3c8fb11e7bf64cd2f285afbe0adff6f2b533c7e0e4dd4bea54ea",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "3230889f38f1f57f390e98b7831f85488d3271d9f01dd438f3138b3379e4bad4",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "3d1c705973a09b3e556fc650ed4ecdd56a77834944cb7400fc2b646ae8ca8822",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x9-d0.25",
+      "width": 2051,
+      "height": 9,
+      "distance": 0.25,
+      "status": "verified",
+      "bytes": 8835,
+      "sourceSha256": "0009bed5636f46a305354bad715c5935f17df2b03462e89b0410c1208e7ef194",
+      "encodedSha256": "ff48ce559f1f2b63d057225560d8ad725dcff24b8d6cf17c1830ab456e2de3f8",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "5eb93d27ccf55ab4d51db045b9e2466929d9225b2ad7bfe3d159806ef9050b3c",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "5579bbff09f12c7a9d65bce58c302d9a89ca0ae95d614ff792518cbb6cbbaca3",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x9-d1",
+      "width": 2051,
+      "height": 9,
+      "distance": 1,
+      "status": "verified",
+      "bytes": 5363,
+      "sourceSha256": "0009bed5636f46a305354bad715c5935f17df2b03462e89b0410c1208e7ef194",
+      "encodedSha256": "3ece96708cf0f0cdb079c88b4e5dfd5abd32195ce86d9ad2d2733b6711d96842",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "ea31996c10303dcff5a25f02114e562e28409396e9d5a0cc8cde9cb776d64fd4",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "6d69b93ff24e45cc2fec6bb10c9beeec47966d21a9076ee4bba1e2754dc24256",
+          "maximumRgbDifference": 1
+        }
+      ]
+    },
+    {
+      "id": "2051x9-d3",
+      "width": 2051,
+      "height": 9,
+      "distance": 3,
+      "status": "verified",
+      "bytes": 3608,
+      "sourceSha256": "0009bed5636f46a305354bad715c5935f17df2b03462e89b0410c1208e7ef194",
+      "encodedSha256": "20eb34574f6497e5760d1b0fa47e14a0833e1561687b9c676328e260a4fd9743",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "status": "exact-alpha",
+          "decodedSha256": "defc11d6df499b2637cc2884c102f2e25406b8ee535feedd191c133458975159",
+          "maximumRgbDifference": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "status": "exact-alpha",
+          "decodedSha256": "52165571731e25b9b498d6cd4793815a6ab75054e4a4a01c6b0a1070748a1858",
+          "maximumRgbDifference": 1
+        }
+      ]
+    }
+  ],
+  "scope": "Procedural alpha conformance, excluded from real-asset quality gates."
+}

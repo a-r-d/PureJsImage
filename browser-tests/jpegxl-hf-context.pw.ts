@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('workbench decodes a real 12 MP effort-1 stream with a large HF context map', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/convert/')
   await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
   await page
     .locator('#jxl-file')

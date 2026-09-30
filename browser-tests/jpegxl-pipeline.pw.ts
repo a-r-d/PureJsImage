@@ -3,11 +3,106 @@ import { expect, test } from '@playwright/test'
 import {
   runJpegXlPipelines,
   verifyFloatJpegXl,
+  verifyJpegXlLargeDocumentSelection,
+  verifyJpegXlLocalContrast,
+  verifyJpegXlRateDistortionSelection,
+  verifyJpegXlScreenshotPatch,
   verifyLazyJpegXl,
   verifyLevelTenJpegXl,
+  verifyLosslessPaletteRgba,
   verifyM7EffortOneGroups,
+  verifyM7EffortSevenAlpha,
+  verifyM7EffortSevenPq,
+  verifyM7ExactRgbaFallback,
   verifyM7ForwardJpegXl,
+  verifyM7ScalarPalettes,
 } from './jpegxl-pipeline-harness.ts'
+
+for (const progressive of [false, true]) {
+  test(`JPEG XL local contrast transition agrees in Node and browser, progressive=${progressive}`, async ({
+    page,
+  }) => {
+    const expected = []
+    for (const distance of [1.99, 2.01, 3.99, 4.01])
+      expected.push(await verifyJpegXlLocalContrast(progressive, distance))
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (progressive) => {
+      const path = '/jpegxl-pipeline.js'
+      const { verifyJpegXlLocalContrast } = await import(path)
+      const results = []
+      for (const distance of [1.99, 2.01, 3.99, 4.01])
+        results.push(await verifyJpegXlLocalContrast(progressive, distance))
+      return results
+    }, progressive)
+    expect(actual).toEqual(expected)
+  })
+
+  test(`JPEG XL local contrast agrees in Node and browser, progressive=${progressive}`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlLocalContrast(progressive)
+    expect(expected.rmse).toBeLessThan(3)
+    expect(expected.contrast).toBeGreaterThan(0.8)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (progressive) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlLocalContrast(progressive)
+    }, progressive)
+    expect(actual).toEqual(expected)
+  })
+}
+
+test('JPEG XL rate-distortion selection agrees in Node and browser', async ({ page }) => {
+  const expected = await verifyJpegXlRateDistortionSelection()
+  expect(expected.selectedBytes).toBeLessThan(expected.conservativeBytes * 0.75)
+  expect(expected.frames).toEqual([['regular', 'vardct']])
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlRateDistortionSelection()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('repeated screenshot JPEG XL patches agree in Node and Chromium', async ({ page }) => {
+  const expected = await verifyJpegXlScreenshotPatch()
+  expect(expected.frames).toEqual([
+    ['reference', 'vardct', 128],
+    ['regular', 'vardct', 130],
+  ])
+  expect(expected.samples).toBe(512 * 512 * 3)
+  expect(expected.rmse).toBeLessThan(3)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlScreenshotPatch()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('large-document JPEG XL lossy selector agrees in Node and browser', async ({ page }) => {
+  const expected = verifyJpegXlLargeDocumentSelection()
+  expect(expected).toEqual({ eligible: true, darkExcluded: true })
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyJpegXlLargeDocumentSelection()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('lossless palette RGBA samples match in Node and browser', async ({ page }) => {
+  const expected = await verifyLosslessPaletteRgba()
+  expect(expected.rows).toBe(64)
+  await page.goto('/compatibility.html')
+  const actual = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyLosslessPaletteRgba()
+  })
+  expect(actual).toEqual(expected)
+})
 
 test('Level 10 binary32 native decode and writer signaling agree with Node', async ({ page }) => {
   const input = new Uint8Array(await readFile('tests/fixtures/jpegxl/m10-level10/lossless-pfm.jxl'))
@@ -96,7 +191,7 @@ test('JPEG XL M5 output workflows agree with Node for all fits, color, depth and
 
 for (const id of ['srgb-12', 'p3-8', 'pq-10', 'vardct-linear-12']) {
   test(`workbench opens, inspects, resizes and exports ${id}`, async ({ page }) => {
-    await page.goto('/jpeg-xl/')
+    await page.goto('/jpeg-xl/convert/')
     await expect(page.locator('#jxl-status')).toContainText('inspected and decoded locally')
     await page.locator('#jxl-file').setInputFiles(`tests/fixtures/jpegxl/m4-color/${id}.jxl`)
     await expect(page.locator('#jxl-status')).toContainText(
@@ -222,56 +317,105 @@ test('progressive stages, viewport selection, cache reuse and timer cancellation
   expect(actual).toEqual(expected)
 })
 
-test('Range explorer shows stages, byte counters and cached viewport reuse', async ({ page }) => {
-  await page.goto('/jpeg-xl/')
-  await page.locator('#jxl-progressive-url').fill('/fixtures/jpegxl-multi-group-progressive.jxl')
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
-  const first = await page.locator('#jxl-progressive-metrics').textContent()
-  expect(first).toContain('physicalReadBytes')
+test('Range explorer shows stages, byte counters and bounded fresh sessions', async ({ page }) => {
+  let sourceRequests = 0
+  page.on('request', (request) => {
+    if (request.url().endsWith('/fixtures/jpegxl-multi-group-progressive.jxl')) sourceRequests++
+  })
+  await page.goto('/jpeg-xl/progressive/')
+  await page
+    .locator('#tool-url')
+    .fill(new URL('/fixtures/jpegxl-multi-group-progressive.jxl', page.url()).href)
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-stages li').last()).toContainText('dc complete')
+  const first = await page.locator('#tool-details').textContent()
+  expect(first).toContain('sourceReadBytes')
   const firstMetrics: unknown = JSON.parse(first ?? '{}')
   if (
     typeof firstMetrics !== 'object' ||
     firstMetrics === null ||
-    !('physicalReadBytes' in firstMetrics) ||
-    typeof firstMetrics.physicalReadBytes !== 'number'
+    !('sourceReadBytes' in firstMetrics) ||
+    typeof firstMetrics.sourceReadBytes !== 'number'
   )
-    throw new Error('Missing physical read measurement')
-  expect(firstMetrics.physicalReadBytes).toBeLessThan(148_917 / 4)
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('dc complete')
-  const repeated: unknown = JSON.parse(
-    (await page.locator('#jxl-progressive-metrics').textContent()) ?? '{}',
-  )
-  if (typeof repeated !== 'object' || repeated === null || !('physicalReadBytes' in repeated))
+    throw new Error('Missing source read measurement')
+  expect(firstMetrics.sourceReadBytes).toBeLessThan(148_917 / 4)
+  const firstRequests = sourceRequests
+  expect(firstRequests).toBeGreaterThan(0)
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  const repeated: unknown = JSON.parse((await page.locator('#tool-details').textContent()) ?? '{}')
+  if (typeof repeated !== 'object' || repeated === null || !('sourceReadBytes' in repeated))
     throw new Error('Missing repeated measurement')
-  expect(repeated.physicalReadBytes).toBe(firstMetrics.physicalReadBytes)
-  await page.locator('#jxl-run-viewport').click()
+  expect(repeated.sourceReadBytes).toBe(firstMetrics.sourceReadBytes)
+  expect(sourceRequests).toBeGreaterThan(firstRequests)
+  await expect(page.locator('#tool-zoom')).toHaveValue('4')
+  await page.locator('#tool-viewport').click()
   // This action reconstructs all four stages; shared CI runners can exceed the
   // default five-second assertion budget while still making valid progress.
-  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete', {
+  await expect(page.locator('#tool-status')).toContainText('operation complete', {
     timeout: 30_000,
   })
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '16')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '16')
 })
 
 test('an independent embedded preview remains visible when a requested native stage is unavailable', async ({
   page,
 }) => {
-  await page.goto('/jpeg-xl/')
+  await page.goto('/jpeg-xl/progressive/')
   await page
-    .locator('#jxl-progressive-file')
+    .locator('#tool-file')
     .setInputFiles('tests/fixtures/jpegxl/m6-preview-modular/embedded-preview.jxl')
-  await page.locator('#jxl-run-native').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText(
-    'cannot substitute final output',
-  )
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '333')
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('height', '77')
-  await expect(page.locator('#jxl-progressive-metrics')).toContainText('embedded-preview')
-  await page.locator('#jxl-run-progressive').click()
-  await expect(page.locator('#jxl-progressive-status')).toContainText('final complete')
-  await expect(page.locator('#jxl-progressive-canvas')).toHaveAttribute('width', '1')
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await page.locator('#tool-native-stage').click()
+  await expect(page.locator('#tool-status')).toContainText('cannot substitute final output')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '333')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('height', '77')
+  await expect(page.locator('#tool-stages')).toContainText('embedded-preview')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-status')).toContainText('operation complete')
+  await expect(page.locator('#tool-canvas')).toHaveAttribute('width', '1')
+})
+
+test('M7 effort-7 lossy RGBA8 preserves alpha and agrees in Node and browser', async ({ page }) => {
+  const expected = await verifyM7EffortSevenAlpha()
+  expect(expected.alphaMaximumError).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7EffortSevenAlpha()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('M7 compact transparent artwork has exact visible color and alpha in Node and browser', async ({
+  page,
+}) => {
+  const expected = await verifyM7ExactRgbaFallback()
+  expect(expected.encoding).toBe('modular')
+  expect(expected.visibleMaximumError).toBe(0)
+  expect(expected.alphaMaximumError).toBe(0)
+  expect(expected.invisibleRgbMaximum).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7ExactRgbaFallback()
+  })
+  expect(actual).toEqual(expected)
+})
+
+test('M7 effort-7 lossy PQ16 preserves native output in Node and browser', async ({ page }) => {
+  const expected = await verifyM7EffortSevenPq()
+  expect(expected.decoded).toHaveLength(17 * 9 * 3)
+  await page.goto('/compatibility.html')
+  const actual: typeof expected = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const module = await import(path)
+    return module.verifyM7EffortSevenPq()
+  })
+  expect(actual).toEqual(expected)
 })
 
 test('M7 lossy and progressive re-encode preserve Node/browser color and precision behavior', async ({
@@ -336,12 +480,10 @@ for (const [width, height] of [
   [1025, 17],
   [1, 1031],
 ] as const) {
-  test(`M7 scalar palettes preserve independently verified RGB16 ${width}x${height}`, async ({
+  test(`M7 scalar palettes preserve exact RGB16 in Node and browser ${width}x${height}`, async ({
     page,
   }) => {
-    const expected = await readFile(
-      `tests/fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`,
-    )
+    const expected = await verifyM7ScalarPalettes(width, height)
     await page.goto('/compatibility.html')
     const actual = await page.evaluate(
       async ({ width, height }) => {
@@ -351,6 +493,6 @@ for (const [width, height] of [
       },
       { width, height },
     )
-    expect(actual).toEqual(Array.from(expected))
+    expect(actual).toEqual(expected)
   })
 }

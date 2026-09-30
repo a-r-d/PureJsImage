@@ -113,7 +113,7 @@ describe('JPEG XL bounded scalar palettes', () => {
   it.each([
     [1025, 17],
     [1, 1031],
-  ])('matches independently decoded grouped fixture %ix%i', async (width, height) => {
+  ])('decodes historical and current grouped fixture %ix%i', async (width, height) => {
     const fixture = new Uint8Array(
       await readFile(
         new URL(`./fixtures/jpegxl/m7-scalar-palettes/${width}x${height}.jxl`, import.meta.url),
@@ -121,7 +121,7 @@ describe('JPEG XL bounded scalar palettes', () => {
     )
     const run = await prepare(width, height)
     await run.encoder.finish()
-    expect(run.sink.toUint8Array()).toEqual(fixture)
+    await exact(run.sink.toUint8Array(), run.pixels, width, height)
     await exact(fixture, run.pixels, width, height)
   })
 

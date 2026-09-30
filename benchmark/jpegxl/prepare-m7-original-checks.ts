@@ -4,8 +4,10 @@ import sharp from 'sharp'
 import plan from './production-program/m7-bounded-quality-protocol.json' with { type: 'json' }
 import corpus from './production-program/m7-corpus-selection.json' with { type: 'json' }
 
-const root = '.tmp/jpegxl-m7/original052-snapshot'
-const fixtures = '.tmp/jpegxl-m7/original052-fixtures'
+const runPrefix = process.argv[2] ?? 'original052'
+if (!/^[a-z0-9-]+$/u.test(runPrefix)) throw new Error('Invalid original-size run prefix')
+const root = `.tmp/jpegxl-m7/${runPrefix}-snapshot`
+const fixtures = `.tmp/jpegxl-m7/${runPrefix}-fixtures`
 await mkdir(root)
 await mkdir(`${root}/benchmark/jpegxl/production-program`, { recursive: true })
 await cp('src', `${root}/src`, { recursive: true })
@@ -24,7 +26,7 @@ await writeFile(
 )
 let script = await readFile('benchmark/jpegxl/run-m7-diagnostic.ts', 'utf8')
 const diagnosticOutput = `\`.tmp/jpegxl-m7/diagnostic-\${runId}\``
-const originalOutput = `\`.tmp/jpegxl-m7/original052-\${runId}\``
+const originalOutput = `\`.tmp/jpegxl-m7/${runPrefix}-\${runId}\``
 // Reuse the diagnostic measurement loop in an isolated first-party snapshot.
 // Assert its frozen shape before adapting only selection, dimensions and distances.
 for (const [fragment, count] of [

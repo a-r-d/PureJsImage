@@ -4,6 +4,47 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Fetch the pinned tundra JPEG from its byte-identical Wikimedia copy after Flickr
+  began returning HTTP 403 to the browser CI jobs. Keep the existing checksum.
+
+- Update JPEG XL browser checks for the separate tool pages and committed fixtures.
+  Allow the existing two-encode quality regression test enough time on shared CI runners.
+
+- Clarify README API choices, browser examples and JPEG XL tool links. Keep the
+  whole-slide showcase near the opening and retain the benchmark results. Move format support near the top, with
+  concise format notes, optional WASM coverage and dated speed examples.
+
+- Improve JPEG XL effort-7 lossy grain, text edges and PQ texture with bounded
+  local quantizer refinement before transform selection. Small sRGB RGBA artwork can use a smaller Modular stream
+  that preserves visible RGB and every alpha sample. Lossy mode may normalize
+  RGB under zero alpha. Native HDR precision is preserved. Lossy encoding
+  is Stable for the documented static integer subset. Lossy animation remains
+  Experimental. Missing quality comparisons stay unscored.
+- Reduce JPEG XL effort-1 RGB8 encoding work with fixed AC quantization scales
+  and an aligned-block color path. Independently decoded output stays unchanged
+  on the 12 MP runtime case and the approved 2 MP quality matrix.
+- Record completed lossless compression qualification and preserve missing
+  lossy quality brackets as unresolved comparisons.
+
+- Add explicit JPEG XL binary16/binary32 gray and RGB display conversion with
+  mixed integer or IEEE alpha, straightening before range mapping. Preserve
+  native samples and source color meaning. Write shifted native planes across
+  multiple Modular groups, including shift-3 DC sections. Add explicit direct
+  16-bit ICC conversion for supported GRAY, RGB, and CMYK native layers with
+  gray-alpha expansion and straight RGBA16 output.
+- Pin libjxl float-plane and RGBA16 references for 17 mixed gray/RGB
+  color and alpha cases, including integer, IEEE, associated and shifted alpha.
+- Pin independently decoded native alpha, black, and binary16 depth grids for
+  odd JPEG XL multi-group shifted output.
+- Extend selective JPEG XL VarDCT DC and pass sessions to supported SDR alpha,
+  SDR16, linear16, and PQ16 cases, including associated shifted alpha. Add
+  exact one-component 8-bit Huffman JPEG transcode and reconstruction for
+  baseline and progressive scans.
+- Verify early linear 16-bit JPEG XL RGBA stages against a pinned partial
+  jxl-oxide pass image and final pixels against pinned libjxl color and alpha.
+- Pin partial jxl-oxide first-pass alpha references for SDR8 and PQ16 JPEG XL,
+  before the complete encoded payload is available.
+
 ### 2026-09-19 UTC
 
 - Add bounded JPEG XL Level 10 native decode and lossless writing for unsigned

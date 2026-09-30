@@ -1,0 +1,49 @@
+---
+interface Props {
+  tool: 'convert' | 'exact'
+}
+const { tool } = Astro.props
+---
+<section class="workbench" data-tool={tool} aria-labelledby="jxl-workbench-heading">
+      <div class="workbench-heading"><div><p class="eyebrow">Interactive workbench</p><h2 id="jxl-workbench-heading">Encode pixels, inspect JPEG XL, or transcode JPEG</h2></div><p id="jxl-status" role="status">Loading a deterministic JPEG sample…</p></div>
+      <div class="jxl-grid">
+        <aside class="jxl-card controls">
+          <h3>Open</h3>
+          <button hidden={tool !== 'exact'} id="jxl-open-gray" type="button">Open grayscale JPEG sample</button>
+          <button id="jxl-open-jpeg" type="button">Open eligible JPEG sample</button>
+          <button id="jxl-open-jxl" type="button">Open reconstructed JPEG XL sample</button>
+          <button hidden={tool === 'exact'} id="jxl-open-png" type="button">Open pixel-lossless PNG sample</button>
+          <label>{tool === 'exact' ? 'Local JPEG or JPEG XL' : 'Local JPEG, JPEG XL, PNG, or TIFF'}<input id="jxl-file" type="file" accept={tool === 'exact' ? '.jpg,.jpeg,.jxl' : '.jpg,.jpeg,.jxl,.png,.tif,.tiff'} /></label>
+          <div hidden={tool === 'exact'} class="controls"><h3>Encode pixels</h3>
+          <label>Pixel encoding <select id="jxl-encode-mode"><option value="lossless">Lossless</option><option value="lossy">Lossy</option></select></label>
+          <label>Effort <select id="jxl-effort"><option value="1">1 (fast)</option><option value="3">3</option><option value="5">5</option><option value="7">7 (more search)</option></select></label>
+          <label>Distance <input id="jxl-distance" type="number" min="0.25" max="25" step="0.25" value="1" /></label>
+          <label class="check"><input id="jxl-progressive-output" type="checkbox" /> Progressive lossy output</label>
+          <button id="jxl-encode" type="button" disabled>Encode pixels</button>
+          </div><button id="jxl-cancel" type="button">Cancel current operation</button>
+          <p hidden={tool === 'exact'}>Lower distance requests finer quantization. It is not a guaranteed perceptual score. The lossy comparison accepts supported sRGB JPEG, PNG, TIFF and JXL integer samples. Alpha stays exact.</p>
+          <div hidden={tool !== 'exact'} class="controls"><label class="check"><input id="jxl-only-if-smaller" type="checkbox" /> Require JPEG XL output to be smaller</label>
+          <button id="jxl-transcode" type="button" disabled>Exact JPEG to JPEG XL <span class="badge">Stable</span></button>
+          <button id="jxl-reconstruct" type="button" disabled>Reconstruct original JPEG</button>
+          </div><div hidden={tool === 'exact'} class="controls"><h3>Display resize and export</h3><label>Width <input id="jxl-width" type="number" min="1" max="4096" value="320" /></label>
+          <label>Height <input id="jxl-height" type="number" min="1" max="4096" value="240" /></label>
+          <label>Fit <select id="jxl-fit"><option value="contain">Contain</option><option value="cover">Cover</option><option value="fill">Fill</option></select></label>
+          <label>Export <select id="jxl-format"><option value="png">PNG</option><option value="jpeg">JPEG</option></select></label>
+          <button id="jxl-transform" type="button" disabled>Resize and export sRGB</button>
+          <p>Previews show stored geometry with straight alpha and supported HDR tone mapping. Display export normalizes orientation. Display exports convert high-depth samples to 8-bit. Encoding uses the original decoded samples, never this bounded preview. Non-pixel metadata preservation is a separate contract.</p>
+          </div><button id="jxl-reopen" type="button" disabled>Reopen latest JPEG XL</button>
+          <button id="jxl-download" type="button" disabled>Download latest output</button>
+          <p class="note">Pixel-lossless encode preserves supported decoded samples. The exact JPEG path transfers quantized DCT coefficients and reconstruction metadata without decoding RGB first. The size requirement is off unless you select it.</p>
+        </aside>
+        <div class="results">
+          <label>Synchronized preview zoom <select id="jxl-zoom"><option value="fit">Fit</option><option value="1">1:1 preview pixels</option><option value="2">2× preview pixels</option><option value="4">4× preview pixels</option></select></label>
+          <article class="jxl-card preview" style="overflow:auto"><h3>Source</h3><canvas id="jxl-source-preview" aria-label="Source preview"></canvas></article>
+          <article class="jxl-card preview" style="overflow:auto"><h3>Decoded preview</h3><canvas id="jxl-preview" aria-label="Decoded JPEG or JPEG XL preview"></canvas></article>
+          <article class="jxl-card"><h3>Result summary</h3><dl id="jxl-summary"><div><dt>Status</dt><dd>Waiting</dd></div></dl></article>
+          <details class="jxl-card"><summary>Inspection and execution evidence</summary><pre id="jxl-details">Waiting for local inspection.</pre></details>
+        </div>
+      </div>
+    </section>
+
+
+<script type="module" src="/assets/jpegxl-workbench.js"></script>

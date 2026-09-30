@@ -1,0 +1,1413 @@
+{
+  "baselineImplementationCommit": "1b7e2df0263612a98ee527ee1e91b5fe408ff4c1",
+  "status": "No codec candidate retained; the approved qualification artifacts are unchanged",
+  "hdr": [
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-0.25/report.json",
+      "reportSha256": "d1f0d0fe878dc23a1452d3c658c820aa738e07cea0fdabf81edf8a2a9b19950a",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 0.25,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "734241eb299a29d450ac0f172136ede79e2ca68abf2e3daf05b2de5cb3f8edc1",
+      "nativeReferenceSha256": "c177b7659852f791552e01939c0bc230956fa18483af58efc99cd79122c7569a",
+      "maximumIndependentDifference": 1.8775463104248047e-6,
+      "maximumOwnDifference": 4.450035095304727e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-0.5/report.json",
+      "reportSha256": "9c3490f04c92259337cdeb059674d5ae8caeb7056673175bc1a626654480032b",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 0.5,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "e93f7cfd686d5d0b9b46e123930a2ba5ebc9ea3521ca57e614f6da471959d200",
+      "nativeReferenceSha256": "46252c4aa4ac54cc02eed5def6d8466dd7410cf59d49ab4439ffb641b531d199",
+      "maximumIndependentDifference": 4.806555807590485e-6,
+      "maximumOwnDifference": 4.260826110824567e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-1/report.json",
+      "reportSha256": "4afaa6db63bab386ed9a8e9c9e61a973ffed53a55f52695abbd477bf4744e9a1",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 1,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "5a1630b422445b039f1ec00411fb2d1c3ff504ca8bdfc89a870588dcf478a8c1",
+      "nativeReferenceSha256": "ced5cdb0564acccbafc1de487e48d3afacfac059c28006a82952b2f63e6694c7",
+      "maximumIndependentDifference": 4.1940249502658844e-5,
+      "maximumOwnDifference": 4.2192459106527025e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-2/report.json",
+      "reportSha256": "2df4e7fa1dcfe7681e205a50e86e376e6b6aa7e80770eabbd69096c78b461a2f",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 2,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "24a995bcf421c3ebd3f288367caf126e89e6e9df2b88cfca41f00f3b4dc5a74d",
+      "nativeReferenceSha256": "70e87c5d061671dae6b102a427735a17d24146b40635c52e4c67a5551b5026c2",
+      "maximumIndependentDifference": 2.380087971687317e-5,
+      "maximumOwnDifference": 4.909229278537985e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-3/report.json",
+      "reportSha256": "37e114738cb19d9c253d8fa6c47b564104f2ecd0af93ad92d8894394590711b2",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 3,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "520b07ea9fc409669aaab552bae84c06acc0ae6336dd5c6c94113615a7fc803e",
+      "nativeReferenceSha256": "3d2639a3eafcefbd3a5aa6f44ef3a4d0136f289ff84dba67ca1758ba3c256024",
+      "maximumIndependentDifference": 5.779974162578583e-5,
+      "maximumOwnDifference": 5.685520172105107e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-abandoned_tiled_room/distance-5/report.json",
+      "reportSha256": "08be9066675e0466f38a00994303bc91f77c3bb7f8cdb4c1256ac3911662a35e",
+      "id": "polyhaven-abandoned_tiled_room",
+      "distance": 5,
+      "sourceSha256": "7f4ec19c89376b7de06312b59f9903dec5e4235e425dd9146a00992fa13f7e6a",
+      "inputSha256": "2f0beb99071e6ec9092628915fc3c4d6b1d43301de095642a52113d7e06b0fc8",
+      "encodedSha256": "01f13b58afc2c9ee073adcce7cb5cd26018ddf842b0421bd3ab7fd6d3ce96807",
+      "nativeReferenceSha256": "8a7261c818d766b0e62c2487e89c53606396f1127529e04f0bc50bc6d3534dd2",
+      "maximumIndependentDifference": 5.5653974413871765e-5,
+      "maximumOwnDifference": 6.01091384888619e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-0.25/report.json",
+      "reportSha256": "6a03008d8062c1a8236d7f8ba4666fa369aa1d4048a39fc62753df5611a0d82c",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 0.25,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "9ecc5450e675a63a4079b4431be07fd00f64ec72e99a398ea3860db1dc499e45",
+      "nativeReferenceSha256": "f5533616ac16a1e8f56670391e99126975d2b75a34282f9692cd4f2fdbc080fa",
+      "maximumIndependentDifference": 1.4603137969970703e-6,
+      "maximumOwnDifference": 1.5857219696213676e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-0.5/report.json",
+      "reportSha256": "1a69bf327b0fc44f0ae02462dcb57de9f9bcdb79ecd2c226b8e6e1fbb4b157ff",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 0.5,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "3895d8ccc4b7a095a6c78426a617e15a1e392db1fada015fdc4c61370e69d591",
+      "nativeReferenceSha256": "f4ecd32ec022f0c37fa091cc6d58bbff19a44c250b0c70f2d4d473cdd8342f91",
+      "maximumIndependentDifference": 1.4603137969970703e-6,
+      "maximumOwnDifference": 1.6109466552949314e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-1/report.json",
+      "reportSha256": "8ebb914ae3ed3e1246892065dde611c4e0a8de6db2c3e788fec9ce9506ccf811",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 1,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "2c189e6f024a3af104900a341c4857e042cfb4e0ae45c78468ce68b7814a8ce4",
+      "nativeReferenceSha256": "350a8197725b46e155042a3071972a1e8f878d813fa01e7126d518aedc370bce",
+      "maximumIndependentDifference": 2.5853514671325684e-6,
+      "maximumOwnDifference": 1.4762878418062009e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-2/report.json",
+      "reportSha256": "0977e5c377879c4159cd20f42018ebf0af7859f91f58e0832b0fb7c412470bdb",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 2,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "05d70d7a64196db4191ddd29576ffaa11199dfa149fa79d16062b0a8f42dc5f5",
+      "nativeReferenceSha256": "b7e02562d4fc37df2e0cee06fc6626c302b85cadf3392c2e5c607b16748778e7",
+      "maximumIndependentDifference": 2.627447247505188e-5,
+      "maximumOwnDifference": 1.3486862182610082e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-3/report.json",
+      "reportSha256": "cc46fc3a789e50e02ba2079fec4aa9e318f709923417a5d954e7c78ddc74ab6c",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 3,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "07ddf3b2e7f81756b10f3fbf33dcc80b119464e9e9be9a41eef0546dcea1676f",
+      "nativeReferenceSha256": "773be55465499d50283602d54a25314c3efcd3cd054b23b46600421479206e0f",
+      "maximumIndependentDifference": 1.7715618014335632e-5,
+      "maximumOwnDifference": 1.8889427184920482e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-cobblestone_parish_road/distance-5/report.json",
+      "reportSha256": "e608783245836ef1bace9bb5fd24bf17c4cc6d006e9b216586668dc30c12edf9",
+      "id": "polyhaven-cobblestone_parish_road",
+      "distance": 5,
+      "sourceSha256": "a0ef1c11f2116c8c88ef5ad480e43c50b8ec9c04e95bb148c3df888b9ed06f63",
+      "inputSha256": "5378bcf5a35f49d2622292bfc4d14ba3a9696c86e19c1367736f4b592d29c8e6",
+      "encodedSha256": "c62fba0d2125635f8f454f6c238db78630aa8ed1502c6f52204cce088cc21984",
+      "nativeReferenceSha256": "d58e0b2602336f5bcc28e7f9c83f31eb685d872d8094b762df5d68447753ddfc",
+      "maximumIndependentDifference": 2.6563182473182678e-5,
+      "maximumOwnDifference": 1.691675186155095e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-0.25/report.json",
+      "reportSha256": "1560250f5ce2b076044a50c677de6ccc505b7ce51e18e2dd52e0ae2a400de790",
+      "id": "polyhaven-emmarentia",
+      "distance": 0.25,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "58c57f54a9526203cf6aec579e70ba3b1946369b3c54ca2ab6d811c74625e995",
+      "nativeReferenceSha256": "37336d054fc9fc7cf8ffd2eac9d16caaf97216960e995f24393300713c5e2c21",
+      "maximumIndependentDifference": 1.8053222447633743e-5,
+      "maximumOwnDifference": 4.071998596089088e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-0.5/report.json",
+      "reportSha256": "e911060ae024324ccf86b960e6b35781209f631346f7caeb9a0c09472f160b1a",
+      "id": "polyhaven-emmarentia",
+      "distance": 0.5,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "48a36da90617ef88857f44df1e172b2868ce0f00b7f1c0e237d51a991a7a83b5",
+      "nativeReferenceSha256": "efdb18aeee7251aa5441aebfe09a7aa060caf519401f93d3b711584503a398b6",
+      "maximumIndependentDifference": 0.00013334897812455893,
+      "maximumOwnDifference": 4.051876068111859e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-1/report.json",
+      "reportSha256": "fc64680aebe4cd9fcc370ad3d9c80dcd34ae230216f3c06f26932432724c9d7c",
+      "id": "polyhaven-emmarentia",
+      "distance": 1,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "a04c488dc46399b136e3096b0f29f7860c5c84643bd89d0977e254dc29aef379",
+      "nativeReferenceSha256": "373e27c9a44e8f2b29302258588d484cd017b6ba2c5306c0f17e15ec56a55494",
+      "maximumIndependentDifference": 0.00046405459579546005,
+      "maximumOwnDifference": 3.924179077241519e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-2/report.json",
+      "reportSha256": "cb2939b15eedaad8eb5eea97bcea8b5f08f850044944fceb544712be26f73e6a",
+      "id": "polyhaven-emmarentia",
+      "distance": 2,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "9a91c0a2d77277d3f2e0ffa026ad5c0761a859b29bc017103b1566ab4850ac49",
+      "nativeReferenceSha256": "b118d0242478750206ab56c055579a254897fde9492041c961e6bdc66764c69e",
+      "maximumIndependentDifference": 0.00037544571387115866,
+      "maximumOwnDifference": 4.065704345745935e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-3/report.json",
+      "reportSha256": "2606bc1fde23b8b9fa6079c449009fa573dfb8a8c35a8d1083cc0274ed092296",
+      "id": "polyhaven-emmarentia",
+      "distance": 3,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "3f3ba349688f8d3bbbe00b6c76113fdb5d707c22cc63dcb32fbb57a60c33f3fe",
+      "nativeReferenceSha256": "6aa52edf91f89d1591d4282f1087e1d3f4681bbaa4a4e143b0f0f7cabce02ff9",
+      "maximumIndependentDifference": 0.00014380726497620344,
+      "maximumOwnDifference": 5.2169799804602235e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-emmarentia/distance-5/report.json",
+      "reportSha256": "6fb2d65f4c29beefb1a1325166267dc419e468d96033d8f9e9e9e869ea6e9cbe",
+      "id": "polyhaven-emmarentia",
+      "distance": 5,
+      "sourceSha256": "85f03eb86cba591554dd20b3791c392e4394c1700a7625ff22e12069114ee8e7",
+      "inputSha256": "1683f95826b040b4e4c5e94722f9e43f477af1b0842b169bafe83b20a9ed77c1",
+      "encodedSha256": "ae202db408e3529639489f2829d91d2ea9a0bbe44095a2c5dfcbb1bd0beb6805",
+      "nativeReferenceSha256": "6d9c3732ceb8d7473996acb5c04812763fad6a902d3569e0311f634d84686774",
+      "maximumIndependentDifference": 0.0002950542839244008,
+      "maximumOwnDifference": 6.315994262706681e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-0.25/report.json",
+      "reportSha256": "7b7a5039b61d67173080b11dd7212e83d60fab8a0843d4d64c4f930e7e7c441c",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 0.25,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "c85656f900e3bb13e8666ed5a0103eaaf8b41c5c5c3e1ea333346067ee0e48a2",
+      "nativeReferenceSha256": "7ec75c08563245d1d3a098bb95c70bdfeacbf03ffbe5ca1960bbdf63756133b7",
+      "maximumIndependentDifference": 8.021295070648193e-5,
+      "maximumOwnDifference": 3.6304473876036525e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-0.5/report.json",
+      "reportSha256": "f89b1860753aaabdcfe470a60ead7db86535724b8bf87dbbacbb894f0d9421fe",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 0.5,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "639d2d1d4c8fe7c8df649f4d1cea0fb380649ead9f591616c9a88b939de927b5",
+      "nativeReferenceSha256": "bb3483c01bd8c9d595bce398cf9de76ab12d11b123078c75b2a3df6cbd3f4350",
+      "maximumIndependentDifference": 0.0001671314239501953,
+      "maximumOwnDifference": 2.9557228088394893e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-1/report.json",
+      "reportSha256": "8e276c3f1447afd0f43250b4272211aac8141a695727cbf9c5567d85f00b161a",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 1,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "7835fc10c271a605f59abe342c076c30cbbf2da2ad03adc8a72e1e3d03f4a60e",
+      "nativeReferenceSha256": "fd3d673172d6b73479b356e41cae9f49a4800c0b67365e69a3d3fd7cdb91469c",
+      "maximumIndependentDifference": 6.42240047454834e-5,
+      "maximumOwnDifference": 4.848766326892573e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-2/report.json",
+      "reportSha256": "7de07af7b2f80a5503eb34176957f456c93aa6cb0cbc2157ac0cbc2b0f369047",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 2,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "8c5f12867b315e68d6e731d2c1edaf3cec57fd60e7977f227cb8d5e03638137f",
+      "nativeReferenceSha256": "99169d1ce1f8c2c074f29be0b52e6962db441a4cf9ef8cead642fda6586f1d55",
+      "maximumIndependentDifference": 9.217485785484314e-5,
+      "maximumOwnDifference": 4.078006744401286e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-3/report.json",
+      "reportSha256": "c3ae0b2831555f58f2f165c4dc12b115ad374a5898a3abc45f8d44621be1d0a7",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 3,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "5e29ec2b24b231dd54c19aafac8fe7ae94d7c973a7a4704397a775e65aa52c11",
+      "nativeReferenceSha256": "566f78a6a8a73b39b2f9934db3daccf282e0cc91c84e94dbd0a6fae95d2ef948",
+      "maximumIndependentDifference": 0.00019372999668121338,
+      "maximumOwnDifference": 5.913734435925022e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-pond_bridge_night/distance-5/report.json",
+      "reportSha256": "e8baf79e06dd0268463630b3f825a8848a8f4dd906d6e7d9923efb14cc1413c9",
+      "id": "polyhaven-pond_bridge_night",
+      "distance": 5,
+      "sourceSha256": "81063832732fbb739681091f8d01941645a9598846e72c7e9092f1d39a68b8c6",
+      "inputSha256": "0afc088d3ce867ec5755f1c953658e4e261609d08ed4cf48fffe72ecd0ad2624",
+      "encodedSha256": "fc65b28e5d17d3702794f1d98a34aa15fc0388049e9381ceb154cbb857d11d08",
+      "nativeReferenceSha256": "e2d635e7dea4e93384ae6bd5677e5eb0ac9f120a763528507911d3f83d35834c",
+      "maximumIndependentDifference": 4.6059489250183105e-5,
+      "maximumOwnDifference": 9.082221984924033e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-0.25/report.json",
+      "reportSha256": "060e2d300bfcc6200b3153f7e04cd63609a56c608956683ca3f89de256157967",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 0.25,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "a88f551617f85111a23c88ad6239ba53a06627ebecd20295a343f31eac0c5b20",
+      "nativeReferenceSha256": "766ac20a6040052c59b1e092bb5404e6303229a834869b29497406b50d19c6a1",
+      "maximumIndependentDifference": 1.1324882507324219e-6,
+      "maximumOwnDifference": 3.6756515502389675e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-0.5/report.json",
+      "reportSha256": "1bcd0075f8d187d8515a2fe44af24adbb0c008c4853cfcf5276b8503228d5940",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 0.5,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "f4cb6d057dc77a99ae160239bc75286d905fa9c56d97d588da0c23a045fbaef3",
+      "nativeReferenceSha256": "6b5d1218f2ccfdb0118b87253db47e8a86db24743d94582faa2038dfac1bc411",
+      "maximumIndependentDifference": 1.0728836059570312e-6,
+      "maximumOwnDifference": 3.827476501516713e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-1/report.json",
+      "reportSha256": "238a9e5d3a3c6fcb1b576f169f494dbfd4242602e9ebc94bacf920e67ccbcacf",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 1,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "1092f129e71d522f818aa1c96bc533bb2de715d9244ef205642d3fbc1a788e40",
+      "nativeReferenceSha256": "e54a89d7b1f2b9030e52f8426c0066af1eabc755a0358b65707655a8b037e778",
+      "maximumIndependentDifference": 1.3113021850585938e-6,
+      "maximumOwnDifference": 4.282474517780521e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-2/report.json",
+      "reportSha256": "b04445c08477e64156d9f92195d8f9c8d5c6cc602f9a0471d46f30f365733b14",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 2,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "a63b90d20c5011ae24b76832762e532d4433266293d0ce5647e98c90db94dd87",
+      "nativeReferenceSha256": "ec5337ab5910a5aa3187d76534d9b2247aba2e98525d72241b70e7943c7e1314",
+      "maximumIndependentDifference": 3.546476364135742e-6,
+      "maximumOwnDifference": 4.3478965758847465e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-3/report.json",
+      "reportSha256": "8f0eb23c6079856bcc4f49d1e65fdd12f4613ca8a92731bc30fda29511de7c59",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 3,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "74e3bf35871fd97956e752df4a9e02cbb5b93722e63afb9c12047d3a822459eb",
+      "nativeReferenceSha256": "a1fffa7d9bc823f5dcf14869f61382173e5ddcc62a2582aa2903422866735f86",
+      "maximumIndependentDifference": 1.4250632375478745e-5,
+      "maximumOwnDifference": 4.336357116718759e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-qwantani_moon_noon/distance-5/report.json",
+      "reportSha256": "e7cf61b0ea3f32c2a38ec4045d156d76307fdc8e139f4cec9e6be070cb454ac7",
+      "id": "polyhaven-qwantani_moon_noon",
+      "distance": 5,
+      "sourceSha256": "e7da0ca211e554327b873de4871e7c9bae780e70b152a9a472d5e6ae7d0cb4dd",
+      "inputSha256": "d5e780aa46940a1693a768d04ad5e74122795636272aa92fbbea860b5c1231ca",
+      "encodedSha256": "d74c63e81fabf21c63863ad2caf2275667c7d70c12636b221acb7bb099156486",
+      "nativeReferenceSha256": "63e371e117e956c558a44bdbc13797dc69592ace792df8913f23ff54bc4abede",
+      "maximumIndependentDifference": 2.4588778614997864e-5,
+      "maximumOwnDifference": 6.542205810533552e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-0.25/report.json",
+      "reportSha256": "7e8342ce1680708dff488fea4005dc190d8c0016d2abbf52b9967ee009808cb5",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 0.25,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "9db29695b00d3c54afe45087605264d19efa3dbfd3aef14d1fabe2619693eb2b",
+      "nativeReferenceSha256": "12f2318dd1232be76cfb9d1f749d5612b76a46a5863bb2d0bdf1612e03849e9c",
+      "maximumIndependentDifference": 7.385388016700745e-6,
+      "maximumOwnDifference": 4.269409179635808e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-0.5/report.json",
+      "reportSha256": "54834518bc3aa85dac168e07712caed1bc7ec6f66f7553893cb03a3de144b595",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 0.5,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "370e17cd90251536386f5438a16f07d1182a9049324487786bab71d5f5f9c1e9",
+      "nativeReferenceSha256": "41e6b719e00381ca1bfa342f9a4973c333065fd00ebc800d3a41673f98bb1e63",
+      "maximumIndependentDifference": 1.961737871170044e-5,
+      "maximumOwnDifference": 4.178333282478519e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-1/report.json",
+      "reportSha256": "cef0c4878d6b8fe271e6f96c460786f7b15480fc224057c4ce5fb5c2c433ccd8",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 1,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "3b6bdcf21ab962d5ad89136631f6faed38bf0cf0cd0c198025793fc0eb2cd9cb",
+      "nativeReferenceSha256": "46157b4890164d41fda65f8137544ec2dafb06a4eb77a697e94cabd984e2103a",
+      "maximumIndependentDifference": 2.618972212076187e-5,
+      "maximumOwnDifference": 5.139350891081307e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-2/report.json",
+      "reportSha256": "6dbb0e5c5a0d852ec3ae87f22d6e3d405ac4886150f85f29211da3bae4eb09a2",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 2,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "03e25fdb0f88fdac3a8c79d8c694ca09a72bcff94aa12c74a36e509c845cd8c0",
+      "nativeReferenceSha256": "b3732f59fc465b166fcd78101da7f25213f4af5ca40098a0538f44f5ed90cc55",
+      "maximumIndependentDifference": 0.00010389520321041346,
+      "maximumOwnDifference": 4.957771301272729e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-3/report.json",
+      "reportSha256": "a23c133c52d9b912de2ebca7decd1bd3aa56433cc751c537b513ee66ada3d78d",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 3,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "75d4ac2eea01f8539b6f7957311f5c60f4105f3311d7d8580767b879a1e35791",
+      "nativeReferenceSha256": "a6e22db6b3e6b536655bc9ed06f5da43d181e68111d5400c378427c04987b4ff",
+      "maximumIndependentDifference": 9.01510939002037e-5,
+      "maximumOwnDifference": 4.684448242198158e-6,
+      "failures": 0
+    },
+    {
+      "split": "development",
+      "path": ".tmp/jpegxl-m7/hdr-development-prompt7-hdr-epf-development/polyhaven-sepulchral_chapel_rotunda/distance-5/report.json",
+      "reportSha256": "96b9f85417b41ad8752e1a992d7670eb312d357ce9beed4ce8168f7dc5d4d9c6",
+      "id": "polyhaven-sepulchral_chapel_rotunda",
+      "distance": 5,
+      "sourceSha256": "530010d08e28098d02ad44ac26cc281312041aef2d23bfc77e81d8a1cb9f94d0",
+      "inputSha256": "af42e344017dfe176191496f028c5f0e1bc817fcd2e64108aaf24ccc8ae4c0d2",
+      "encodedSha256": "15fd3fc8d3da60fc7263b615a1868a13c3fa466ef7d0ac7cd21fe5d85850bc25",
+      "nativeReferenceSha256": "be4727ac09dd6cf96f871c2752c3a776225a4aa019dab52620bc1d63e9964d8c",
+      "maximumIndependentDifference": 0.00012684869579970837,
+      "maximumOwnDifference": 5.9143066406530664e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-0.25/report.json",
+      "reportSha256": "b25cc6af956ba173d8c6c81f2daa1e47f0ead8dd61079c843e4f1929061889e2",
+      "id": "polyhaven-glass_passage",
+      "distance": 0.25,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "ffbbee71c061dce501ad609d5503b6687039aca88cc603329e2455cddbd48e9b",
+      "nativeReferenceSha256": "f1adda859e9882a9c5cfcb51faccf8937904def85ebcb1c32d48a32ff3a774a9",
+      "maximumIndependentDifference": 0.00020587188191711903,
+      "maximumOwnDifference": 4.322052001959342e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-0.5/report.json",
+      "reportSha256": "f959899a97a4debcca9f838ff6c494d40f7b0264074d0030586744dcf46bc7a3",
+      "id": "polyhaven-glass_passage",
+      "distance": 0.5,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "967710f8591afab146a13c3d87f1e3f6c78226c2d6a58626471298d335dd67c3",
+      "nativeReferenceSha256": "74caab9f07f9c295cbb1fc2647350aac22234938ab051e06185d321ba57d3f82",
+      "maximumIndependentDifference": 5.6590884923934937e-5,
+      "maximumOwnDifference": 4.250717163145623e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-1/report.json",
+      "reportSha256": "df09ef731d702c43e0cee8ae428d7326a0bc4913ad059b4b2b9e4ab6812e88e3",
+      "id": "polyhaven-glass_passage",
+      "distance": 1,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "2d4701f4568d8080b31602521b0e8220ee6324f074b29b318f024051ff8ee98d",
+      "nativeReferenceSha256": "2808955f3728d25368346efca3bb7cea92b163ab37d99cb418fe0610e7813230",
+      "maximumIndependentDifference": 9.126914665102959e-5,
+      "maximumOwnDifference": 4.670143127549764e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-2/report.json",
+      "reportSha256": "95ece49fa7e714a7b6db2bff9c2b96a7150eaf43a65c1d19aab13d76dc091b5a",
+      "id": "polyhaven-glass_passage",
+      "distance": 2,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "21544e1543c72808323fc5fda32c6c1319c1e4cd02a30c59b73b484f091d4077",
+      "nativeReferenceSha256": "700150c2842666bf2ed19b77bbce6e25e7ee553931b5793d6aa1e02c96c1352e",
+      "maximumIndependentDifference": 5.415081977844238e-5,
+      "maximumOwnDifference": 4.343986511168296e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-3/report.json",
+      "reportSha256": "8e1532527426d94ce64c3a71c001c775d4bacdd6b958cab3c8eef67d8e823132",
+      "id": "polyhaven-glass_passage",
+      "distance": 3,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "1c65a72b2a0453ae924acd9fe137ac098ad42a1a5f14b4d23c2fc178a5d0300e",
+      "nativeReferenceSha256": "c03faf184d5537ef7db72a407f05318cb402bb01c879512dcb9eb9bfadad97fe",
+      "maximumIndependentDifference": 0.0002501439303159714,
+      "maximumOwnDifference": 6.1172485350535766e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-glass_passage/distance-5/report.json",
+      "reportSha256": "391e861e289ab3e4a7a2e516ed46b656b9fc0d3130a579383b601b163c1b3c5b",
+      "id": "polyhaven-glass_passage",
+      "distance": 5,
+      "sourceSha256": "451fc561481df856c4eca9d2acf96d3062e60132fd5b24c0fb6d4d15ed882745",
+      "inputSha256": "ddd6fa4d88152ec302f7d4852c7563c2afcc4623e11b408db69d70aa7155239c",
+      "encodedSha256": "c17a4ea0a81ddd000cfced2b8bbd9ea6bbda4cc678af8761c8e1a071f409feb4",
+      "nativeReferenceSha256": "9b05c48fdfc7c9c81c6c0c65464a7aa4c3faa882092182e451c502c5305318f1",
+      "maximumIndependentDifference": 0.0003150989214191213,
+      "maximumOwnDifference": 4.632091522238646e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-0.25/report.json",
+      "reportSha256": "c15d64ae1ab27a332cd6e87f135f124256b23f6fb97807d470e01c9df524d717",
+      "id": "polyhaven-hikers_cave",
+      "distance": 0.25,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "f005fc8624cd5259767c923e4e674f3dcfcbfe24763b0bffe9e537b6eccf528b",
+      "nativeReferenceSha256": "6507bb088f4806f8008daf7a40b2b9135bfce4dd0c6ada9694a3c69bbea9b383",
+      "maximumIndependentDifference": 0.000104561448097229,
+      "maximumOwnDifference": 4.21428680419389e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-0.5/report.json",
+      "reportSha256": "7e4667a985ac3f8812bd4ec19daba8ad9e3bf5277dcbf581bb7dcd1a84fd4416",
+      "id": "polyhaven-hikers_cave",
+      "distance": 0.5,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "b5b19706720561bc9fb3aa04f2e2f2d140adbe0eac0248cf409dfa2f3ef548b5",
+      "nativeReferenceSha256": "c7583ebeedaca8aa2dfdfe02d509e25d5b6a1298059b30305fb87fe41c6e1473",
+      "maximumIndependentDifference": 0.000990249216556549,
+      "maximumOwnDifference": 4.448318481342639e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-1/report.json",
+      "reportSha256": "8ea4da3178a0d6f2251cfac76cedc923b34d5c8898b058bb0dcbc6974c0504db",
+      "id": "polyhaven-hikers_cave",
+      "distance": 1,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "a4e707db43c2483db1889c6ebcd2294dcc91d4418ac530ed3ad146668f0d60f4",
+      "nativeReferenceSha256": "0073b5b95c65298f5da2421c0a0a3207c1854854832000d651fab5ea55964523",
+      "maximumIndependentDifference": 0.00022019818425178528,
+      "maximumOwnDifference": 4.1616439818703554e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-2/report.json",
+      "reportSha256": "5240220d9bb97568a82627198024f288ed2a77ec92e513c6d41153c5de51bfc3",
+      "id": "polyhaven-hikers_cave",
+      "distance": 2,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "693330a0d2037aff30d005a57d2983b322e88ea72bb3d37f210f5623d408d7f0",
+      "nativeReferenceSha256": "f7ac692387451d5db038d6032b8e87f09a5abc5bbc90102f76962354df4f26c3",
+      "maximumIndependentDifference": 0.00016143172979354858,
+      "maximumOwnDifference": 4.50286865238958e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-3/report.json",
+      "reportSha256": "7444eb19742c6d42da9d9b87e99a96f9e86c1df76ec6dfb300bff32e31c3a035",
+      "id": "polyhaven-hikers_cave",
+      "distance": 3,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "c133d799804de4f81959ee8b550566cee9dcf4ab46c979d81e193c8cd9d19dfb",
+      "nativeReferenceSha256": "33734d4e9ffd30139807d308b844888f910c6f98d55e7cdcd226054a3ffbca2e",
+      "maximumIndependentDifference": 0.0004436299204826355,
+      "maximumOwnDifference": 4.1187286377031285e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-hikers_cave/distance-5/report.json",
+      "reportSha256": "0538ece0a89227fd8c634e5dc769dac21a9b15c547ef5f3656bf298499bea1e3",
+      "id": "polyhaven-hikers_cave",
+      "distance": 5,
+      "sourceSha256": "73b39879d1c7f17fd2808510c1940297f8b071bad1809a13e5af2ad3f511deaf",
+      "inputSha256": "fc9761f5b47d4e87e849b28f10d51b72574b8f43e196632b7362e4b6c20d25ed",
+      "encodedSha256": "663b6e145090e6884d9af096dd2afed700475e0d6bf825c9445ff90095488794",
+      "nativeReferenceSha256": "b9026780b31d78ae0812a65e6471634697663143a2e96574ef7b23bda5787d73",
+      "maximumIndependentDifference": 0.0001715049147605896,
+      "maximumOwnDifference": 6.074142456014009e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-0.25/report.json",
+      "reportSha256": "b5811882af84282a754f8d0cfb1321ef721139d5476609e5ee281b1a0f45ddc4",
+      "id": "polyhaven-lakeside",
+      "distance": 0.25,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "c7d5d5c7f47c884d28b80e0dc4cbecdba6caee7364b5b7803a09dc76d3436e31",
+      "nativeReferenceSha256": "cd970364bb0e9f9f72ef40222be5c4c49a4160107466821d79492c945d669d57",
+      "maximumIndependentDifference": 1.2516975402832031e-6,
+      "maximumOwnDifference": 3.868865966705215e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-0.5/report.json",
+      "reportSha256": "f52d5b0c4d9f92eaf5093ebbdf61c0d10b4a7af4d10f51c1c93415a19f542e9d",
+      "id": "polyhaven-lakeside",
+      "distance": 0.5,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "edcf117b188071ce609c1ef9f353e8f8d759faf3a8cbbe11e9c052f260cb161d",
+      "nativeReferenceSha256": "2ee3a44c45afcbf88ca2fe7db6087236674d44dff85e47c4daa414441101fa16",
+      "maximumIndependentDifference": 1.1920928955078125e-6,
+      "maximumOwnDifference": 3.367996215919433e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-1/report.json",
+      "reportSha256": "90cbdcb9bed173806d1d18460f73f020ee384a513471857bf8739c0aa2f66d94",
+      "id": "polyhaven-lakeside",
+      "distance": 1,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "6b135306b06120505ea4266fd288b614419839cfd356e426d1fcef01144314bb",
+      "nativeReferenceSha256": "ba0106cd2e66614add8e75274d6ccebbbfe4dda9a0b634e11f5f9781f139246a",
+      "maximumIndependentDifference": 3.248453140258789e-6,
+      "maximumOwnDifference": 3.5231590270745627e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-2/report.json",
+      "reportSha256": "9d3a67cdcea7bc39967cce13ce313938089eab70edbd89877ae8bc454a1280f8",
+      "id": "polyhaven-lakeside",
+      "distance": 2,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "5cc7c71f986cffdc168aabe877762b93a016621ca08ac14b5819cace39e77d80",
+      "nativeReferenceSha256": "fbfb2b397ae79416a0e0c74fac74fb295c0a34309a05ff24c37845e2edd1e678",
+      "maximumIndependentDifference": 7.964670658111572e-6,
+      "maximumOwnDifference": 3.77578735344386e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-3/report.json",
+      "reportSha256": "b9bf1f19e3574dc2e219f669b99effb44dfb59982b2a1ce445531706e86bfbee",
+      "id": "polyhaven-lakeside",
+      "distance": 3,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "bf51915ed44d29ce4b568e4fc69df8cbf9a6ee2e22dee1c3748527db6ea700dc",
+      "nativeReferenceSha256": "52788c166e4359bdcb6e39de430d3d077aa05e87f1ccd9b78205decbc40a817b",
+      "maximumIndependentDifference": 2.9247719794511795e-5,
+      "maximumOwnDifference": 3.3485412598288633e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-lakeside/distance-5/report.json",
+      "reportSha256": "13865f760a3bc78f555aa4719c367eb0386949b502a970f26a6579d115f60962",
+      "id": "polyhaven-lakeside",
+      "distance": 5,
+      "sourceSha256": "9d8abff0b80a446b92af29cf99894babd87d07b22fb2090188cb80c1c398a962",
+      "inputSha256": "65abc245106c984cc66855f57db5d6ab14325b2b17463ea508acfc3973d40502",
+      "encodedSha256": "559023076f911fe6de13eab5c08699f2ae823069fc385710ef779516364eb55a",
+      "nativeReferenceSha256": "4cf6fc1f535b19ca3381c0fd894e6f5a7c8fcfdb866b5291a4e156c737fb1368",
+      "maximumIndependentDifference": 4.404829815030098e-5,
+      "maximumOwnDifference": 4.309749603303992e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-0.25/report.json",
+      "reportSha256": "0106465916cb50c759aa2f047ac9eed386e3ebf0cafefdf7eacad70f884db56a",
+      "id": "polyhaven-metro_noord",
+      "distance": 0.25,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "bf9073705329b0a8bb8872bbd0c32968a1fc528dcf4cd668cc88f9cc4a92f62a",
+      "nativeReferenceSha256": "cca881a87360fbb117dcdaa9591689d591e9a953f345bec2c0e477d9c6e78e06",
+      "maximumIndependentDifference": 0.0025438033044338226,
+      "maximumOwnDifference": 4.6543121337006e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-0.5/report.json",
+      "reportSha256": "bd3ee288b018d1b8086c1209cef67aff86e078211730317d561f11541f69a126",
+      "id": "polyhaven-metro_noord",
+      "distance": 0.5,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "07936f20b19e8e14c7720cc83a7bd67dea07be16fc25b633c374e0f46464b65e",
+      "nativeReferenceSha256": "e841d375c5cc8cf6e9061a2fbec18b290786e80276bd0b6b6819fc99dc2b0c76",
+      "maximumIndependentDifference": 0.000545799732208252,
+      "maximumOwnDifference": 4.578399658283772e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-1/report.json",
+      "reportSha256": "2933f6235f227e962f13f28177a36e4db1fe85b709e3db0be5fd9c160f3cd129",
+      "id": "polyhaven-metro_noord",
+      "distance": 1,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "e6e07f3dfadf9d3e1782d6b930adf03f1bfd9ae790337f04abeeba463c45bc01",
+      "nativeReferenceSha256": "f429c13fdd0d92e76d3400d1c4687f0cb299f3269b14e46a59549598155d044f",
+      "maximumIndependentDifference": 0.0008155591785907745,
+      "maximumOwnDifference": 5.306625366241491e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-2/report.json",
+      "reportSha256": "6a615a6e3d41aab624c292b4b441e2613a05811f5731190f24c55ae8d8ea8c69",
+      "id": "polyhaven-metro_noord",
+      "distance": 2,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "3e298acc7547fd8952528da076622eb5b17a2cc5b17ea4568d43deebb475da24",
+      "nativeReferenceSha256": "7a14994126097553e9c37525a9bbcf5a4a20ce4173d9da8dd8311752d2006ff2",
+      "maximumIndependentDifference": 0.0031913965940475464,
+      "maximumOwnDifference": 5.166435241621414e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-3/report.json",
+      "reportSha256": "938d75e79dabf54dfad42ec15b218abf4ce2fa4b8b544bef05c135ba3cc0799f",
+      "id": "polyhaven-metro_noord",
+      "distance": 3,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "6a05c9d07e69209a2c121247268f6adeff368290b94826179b08b85c92668842",
+      "nativeReferenceSha256": "2cd32abc7f5520aff23c4eda6de35720519159a90c4ee1f444f05308dbd966c7",
+      "maximumIndependentDifference": 0.0002893209457397461,
+      "maximumOwnDifference": 5.69896697988348e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-metro_noord/distance-5/report.json",
+      "reportSha256": "067267d9bfc9396a95d927cc77ba8be3e61f004b2fd7923aafc6be790afc0ebf",
+      "id": "polyhaven-metro_noord",
+      "distance": 5,
+      "sourceSha256": "e662181d58ff296c05f94c00d2cbbbc5eec5314155b3f7b074d6e56644b83729",
+      "inputSha256": "4d35f6754691807b5abf8939446ac73ebc4ac103a608480e6461bf57dcd5b939",
+      "encodedSha256": "51f0cdbd5c80c2a4199372afbf5a544bd4854a419d53b85621993268de964032",
+      "nativeReferenceSha256": "9adeebbcdd39fd64bee8a9492e8eb855749ea28473b19b4e67b1a739572a0a0f",
+      "maximumIndependentDifference": 0.0003636591136455536,
+      "maximumOwnDifference": 8.05234909062591e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-0.25/report.json",
+      "reportSha256": "2be5a18f603754c617ce5c0980173f1125817fa9454bea61d2a071027461db20",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 0.25,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "f36bf435c7201c23f2f33d9efacc45d76ef15922784a56e5e00bddeb56675c79",
+      "nativeReferenceSha256": "422ec50f9f051a5b31510670b30ea6dfe0503d9dac96f68341d82b5c3ca7dc7e",
+      "maximumIndependentDifference": 7.298588752746582e-5,
+      "maximumOwnDifference": 4.5515060425049825e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-0.5/report.json",
+      "reportSha256": "b0414b211f212bc2042e0a09ef8c5d35435ed0e4f456158df1167348af089164",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 0.5,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "3579d8059695d0f7012140a364e9421e5c0a378041b7bb3a238243241856e94e",
+      "nativeReferenceSha256": "662eae32e5bfe1f7eacb37b9224e5a4099db44277e5c70b173f580d87d44e2f0",
+      "maximumIndependentDifference": 0.00014256499707698822,
+      "maximumOwnDifference": 4.801177978519533e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-1/report.json",
+      "reportSha256": "816ec26995782f72e42780cb0e8eb802bc7d468345d8fb7103d8ae30c865d3e1",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 1,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "3635905eab50df6318a5bae154a0e74024550f9d0218cf27fed94fd0687e66fe",
+      "nativeReferenceSha256": "0f68cb9438f9ded7554645c199273040e5407b092084a3bca5ee877b01c23478",
+      "maximumIndependentDifference": 0.0007483847439289093,
+      "maximumOwnDifference": 4.880142211893812e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-2/report.json",
+      "reportSha256": "630de102faa5e30aa33c25364dda0125c2dde46bee7da1b90d09a60e7e7287a8",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 2,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "1e1c478b01165b9824d01b782db709f39f9e903b08e826cca9745f609114bb99",
+      "nativeReferenceSha256": "5842f3a5e2435f56752f91051ce9e6400faed4554567d5a6e50a9b566c3a3c3a",
+      "maximumIndependentDifference": 0.00043992698192596436,
+      "maximumOwnDifference": 5.404758453342318e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-3/report.json",
+      "reportSha256": "e172b33534184d16764fe92c4c2f875eba5356fdca7bc73f473615a05086865a",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 3,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "15208b3462b386136b22ed1b7f03a13a51fcdf16f3f5e560433b3819275264c6",
+      "nativeReferenceSha256": "b6efa3324be6b1ba668c33cd74181a4e75a29468fab03bdc9f597b86d8682bcd",
+      "maximumIndependentDifference": 0.00029650330543518066,
+      "maximumOwnDifference": 6.688117980990782e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-modern_buildings_night/distance-5/report.json",
+      "reportSha256": "64ec7cf3b688ad1a0d24d3df2fa2fada2553e7ff581b30b3148c04a72a64a448",
+      "id": "polyhaven-modern_buildings_night",
+      "distance": 5,
+      "sourceSha256": "631e7179f5719100336770a13c5f1398d3bdf43b9c6d96ee3970737568b4ddcd",
+      "inputSha256": "ef38e6dbe757a32aef8f703d6574da3e3ed2e51137b88423c6d0883464c9acf5",
+      "encodedSha256": "1b292c3c48d569fb3f1ff4eb7ac870bdcd1540d19cdcc16954897bf9f6819fa3",
+      "nativeReferenceSha256": "c6b9753fa254d88c71b6128f12f1aa31d65cfc1da129dcf8f268a0e8261be54f",
+      "maximumIndependentDifference": 0.00024084746837615967,
+      "maximumOwnDifference": 9.028434753366454e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-0.25/report.json",
+      "reportSha256": "0620a03e0b466f9bde65df75ef22359175d4298a76d5ebfc63fe982721af5b56",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 0.25,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "f54d2e0c9e2d528e14be2f628c64e1407686d2318a971e5b29162920da7558fb",
+      "nativeReferenceSha256": "86c087d6b4c665f5621f6c233d92c58d8a87e3fdbf62845fd29be8472a2a1be4",
+      "maximumIndependentDifference": 4.200916737318039e-5,
+      "maximumOwnDifference": 3.294754028271285e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-0.5/report.json",
+      "reportSha256": "f65efb8fd2fa70c41f56ee6380cd86f0212939f3430ed9b71df309416f686a78",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 0.5,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "da5a1182bef9384bbef64266262cef250d6f745f2da3977c7fc484d4c2646097",
+      "nativeReferenceSha256": "3c8ffda461eeb09be36fcb2f1312c8ed48c75180018dc0e2302f086ce658f098",
+      "maximumIndependentDifference": 5.8193691074848175e-5,
+      "maximumOwnDifference": 3.5976409911153695e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-1/report.json",
+      "reportSha256": "1e329c055889f72bc4f5f73697c302a560084a234c89e8812384a1c026d26786",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 1,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "c3d1e4f06592fdff6aa68bd2719b30ce31591643a08a68e3191badc320c124f4",
+      "nativeReferenceSha256": "0d03f84e1798441d70add5e3cab0b851df41036be34c7f66b9006846c4c5df2b",
+      "maximumIndependentDifference": 4.906440153717995e-5,
+      "maximumOwnDifference": 3.246498107900564e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-2/report.json",
+      "reportSha256": "a7fa6a661958c0450376698edbf85822b2dd5ca7205a20cdda9c72059793be9a",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 2,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "b536f063afab2df7940b2fb27ec50d3a71a545441c3c74923593b0bfa75d5942",
+      "nativeReferenceSha256": "e2e2b3b4cf0aef1878b18e95fa1dedd6be458aadfbf25c69cdd6d20a6e080b00",
+      "maximumIndependentDifference": 0.0003139752661809325,
+      "maximumOwnDifference": 3.7015914917670756e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-3/report.json",
+      "reportSha256": "740c6e4e967293294eb75ad4dd85e7573030f596e042a58c4fc5ff62cd5357a0",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 3,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "e30db16b1141bd39341c84cedf79a1a03d1dbfb77bdae4ef18cfe8685a0ba2ad",
+      "nativeReferenceSha256": "6bcbe91a807ea51dbf6ca8d642c365ad2c419c682f74bb0944d94484c71af206",
+      "maximumIndependentDifference": 6.858247797936201e-5,
+      "maximumOwnDifference": 3.688430786130681e-6,
+      "failures": 0
+    },
+    {
+      "split": "observed-holdout",
+      "path": ".tmp/jpegxl-m7/hdr-holdout-prompt7-hdr-epf-holdout/polyhaven-pedestrian_overpass/distance-5/report.json",
+      "reportSha256": "4f74cf7644763b1c3f6e65fb5dac937e3924f5e310ee6a722bf96f427bdf9a69",
+      "id": "polyhaven-pedestrian_overpass",
+      "distance": 5,
+      "sourceSha256": "24a058449eddc84ce6af4bbb33b5fde6fceefc9213f13379785b277c381954f5",
+      "inputSha256": "da26775ece96e06c1f655ce090e35773ab002bed14c388254dfa182298bb65fd",
+      "encodedSha256": "07b12204f458a17c11cd2a433bafdcf5dfb8988297248ddefaf93ef7ee4eac3b",
+      "nativeReferenceSha256": "4500e6faf9a5d72a4ce9978654077e18770ccab1545b96422121fe9ef0c55739",
+      "maximumIndependentDifference": 9.913742542266846e-5,
+      "maximumOwnDifference": 5.531883239706659e-6,
+      "failures": 0
+    }
+  ],
+  "diagnostics": [
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt6-base/report.json",
+      "reportSha256": "aee66ca95a5863b74ec02d3112d8bc7727bfcfa67265da9ddb7fdd08fe8b6346"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-wide-distance/report.json",
+      "reportSha256": "7a06ad619202a88af1600fd643381c3b957efa5515549fe63c1ebdf39318b244"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-narrow-distance/report.json",
+      "reportSha256": "744d17c415a2200736c5c86ddd9c950222641bb37e06130cc351c57022fb943e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-block-profile/report.json",
+      "reportSha256": "feaa8a1d9fe99d9e79f55579013a5cf4989844fbf642ba5c355a24ecbb9d5cb1"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-document-modular-v2/report.json",
+      "reportSha256": "b9e67dd2ed63448877373ed3a27652a7e3c08da0e6cf371632ee8f4e3ad8955e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-document-public-v2/report.json",
+      "reportSha256": "897d6d73e1ab2520eb86e4b844b58f49cc104543695b0308bcd5fb2857628da9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-capped-pale-dev-v2/report.json",
+      "reportSha256": "7131184cfc8475c4b5324a11189b583e6acf25566554655f683cc41e0a4f29ee"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-flat-deadzone-060/report.json",
+      "reportSha256": "50f0c10f9caca2fa05f891239e0263397e11b6eb130d379d83b2abd0d2159ece"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-text-edge-deadzone-060/report.json",
+      "reportSha256": "1516552d93937ba9efb7a650bdb1813c6b40b2aa232849e8bd988f13a83f90c8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-hist32/report.json",
+      "reportSha256": "0defc342e00f1e38ba6c8a839b8923b6b18174f1a7f8364c4898595d017f4cd5"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-prompt7-hist192/report.json",
+      "reportSha256": "d75d25d24015778b5c750a8fd77797267d07aa6114303cf7cc63092ef546f943"
+    }
+  ],
+  "originalBrochureTrials": [
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-baseline/im26-5034/distance-3/report.json",
+      "reportSha256": "45f18368c3a44088c0abde45ffdfbb01b851cabc6ea5bd765a0752178c461658",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "bd8af4e364c3913f19957adb1f11264a2dc537f163d878523e54d70f1a259386",
+      "bytes": 481225,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "f344cc9e8d1b8d4ad007f2b22b5b7eefe13b24a82a9a8abc69c1293f485c8e61"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-edgebucket8/im26-5034/distance-3/report.json",
+      "reportSha256": "2b306666b3fa1bd4c6d1d2aa1ea42cda2a7133c5796bbe2a04694ede5fcd7c8c",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "83060b564f83c3aa07332bd4ed8731312854a50766b1a740f0ac2abad9602664",
+      "bytes": 481925,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "11a362d4f92ff1fb207db4be9deb393301310a93e131dfdf6866767d02c73dc0"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-groups/im26-5034/distance-3/report.json",
+      "reportSha256": "42296cdffae83418c3843287826f82368723098f04387c535ed4617a71ff7798",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "bd8af4e364c3913f19957adb1f11264a2dc537f163d878523e54d70f1a259386",
+      "bytes": 481225,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "f344cc9e8d1b8d4ad007f2b22b5b7eefe13b24a82a9a8abc69c1293f485c8e61"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-groups2/im26-5034/distance-3/report.json",
+      "reportSha256": "685aa7be90ea57bda7a44336416345fcef4293dede508bf6380f3e9a2372cd3e",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "bd8af4e364c3913f19957adb1f11264a2dc537f163d878523e54d70f1a259386",
+      "bytes": 481225,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "309322377b33f1475f5b17aa321eef2d7c39acfdef963e40cad45cdb144edffc"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lossless/im26-5034/distance-3/report.json",
+      "reportSha256": "9c4c63384e7ec9f5e1db5ed0ce02fd385e115dc1019ddb9de9049ec89e0e7d10",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "5231eda250bff74fcf9d2830107c2dda7ceb9fd08406ea5da79d92a2e3458f87",
+      "bytes": 518417,
+      "ssimulacra2": 100,
+      "butteraugli": 0,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "46479d446c825cc3f7a808311dc4b3762c9c5b13f39b792d42fee1d2a730bdff"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lossless-5052/im26-5052/distance-3/report.json",
+      "reportSha256": "ccc18f60281d73ec7285b1d42a62102b772954df33145376baa5f25775831924",
+      "id": "im26-5052",
+      "distance": 3,
+      "inputSha256": "0e3a346f1077bf449f8771c65abc94910ae5eeec0d96ad994de5d93fe6f1f190",
+      "encodedSha256": "155abf93896304ebd8f02fb52633b09be62512c03e9b8390ad129d5ccde8baeb",
+      "bytes": 429212,
+      "ssimulacra2": 100,
+      "butteraugli": 0,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "46479d446c825cc3f7a808311dc4b3762c9c5b13f39b792d42fee1d2a730bdff"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-luma/im26-5034/distance-3/report.json",
+      "reportSha256": "0f5ca935a730d173d221b4567d2bb453882e38258a7cdf74d9c5594e79106725",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "52448b2b56780091e5abebddd610287ef532631d21c2855746bb312f4aaa26e9",
+      "bytes": 472847,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "552bac2d70ec56a70eae7ab2c6bbca8c215d8ea68b8a612cb93bd20eca33ac9f"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lz16/im26-5034/distance-3/report.json",
+      "reportSha256": "1f3212f983e4f1051477c0297b3b46a2532c481828b2bf0b5a30f51e030111b2",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "c9baadd8775176b85f0e747212cd5a969d67483baf7a83d7b0d0823236b2d078",
+      "bytes": 465905,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "b9f601ad31b6090c4b3f286322f7d20f6d8113411dc7a68de28f6201aa1f280a"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lz8/im26-5034/distance-3/report.json",
+      "reportSha256": "f1e27774e129b0d045d6727aadb54fbb283813cabed0847f2da574a1cc8eab84",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "8d5d7b6376ae61318d489ed9979fe59ff239a9742b99264def35719cf8a2ef01",
+      "bytes": 472679,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "b309f7eb836ad7141d5f3078ce54ece60b1134de91694c40fe1eeca98e37f658"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lzhash/im26-5034/distance-3/report.json",
+      "reportSha256": "bc2fb6146b1f1df69799c71e0ceaf16b9c51107d9434ef470f67e99801d0e8d7",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "2ae72599ed2931adb7aafa6efe0d12ebe827a27afef932e79507d357768873fd",
+      "bytes": 472539,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "1fedd052bf14a27af81fe9dc8022818a78ab282ac00426bbdca83761f1de9de7"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lzlong/im26-5034/distance-3/report.json",
+      "reportSha256": "d9c6beb6b32bdf4d610e095ed7e067077e51efda6ea1fd60b2d4a7392eaa8c52",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "537993a6127a9dfec9e7ce598e34b8c174c79166a88e7c06a1fa7e686d815e0c",
+      "bytes": 460547,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "66ba1ab39fb3def0b37e889140c5050fd1dec7807063038f3c733b56385b26b3"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-lzwider/im26-5034/distance-3/report.json",
+      "reportSha256": "5241ad96834f25b26d1acb25a5888f3f4790c24316abfb8f58a71323af12dcaa",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "aa07a497d148e73e43c89b6c4324a0d868a3b5e1e6b5827db63df1197bef7b39",
+      "bytes": 471969,
+      "ssimulacra2": 88.49979737,
+      "butteraugli": 0.9191455245,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "9274b24ce56d7e7ae91f1c38001ae6730d4b1398c95686e47153faac3eeb6be6"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    },
+    {
+      "path": ".tmp/jpegxl-m7/prompt7-public-step16/im26-5034/distance-3/report.json",
+      "reportSha256": "f74d3f43b6d51374d65690083119751fd195b70a0287cd29ae86b0ad75cbe5c6",
+      "id": "im26-5034",
+      "distance": 3,
+      "inputSha256": "2abbde1bb7e69eb97660b41bf71c560429aeb6b97b1565cbcfbe8c6daa6fad34",
+      "encodedSha256": "0d1a51293cacea1b0e4a9477f21800d6a820ece789af85712c800450ce2b71ef",
+      "bytes": 431604,
+      "ssimulacra2": 86.75578457,
+      "butteraugli": 6.157327652,
+      "maximumIndependentDifference": 0,
+      "maximumOwnDifference": 0,
+      "sourceHashes": [
+        {
+          "path": "src/codecs/jpegxl-modular-encode.ts",
+          "sha256": "46479d446c825cc3f7a808311dc4b3762c9c5b13f39b792d42fee1d2a730bdff"
+        },
+        {
+          "path": "src/codecs/jpegxl-vardct-encode.ts",
+          "sha256": "3faa02009cc543dc2674866bfd98e3257a85120e407caaf00304219f0728ac43"
+        },
+        {
+          "path": "src/codecs/jpegxl-jpeg-encode.ts",
+          "sha256": "5e0fb2e634ea5da0b1ebbe4e4134a1e068dd23624a7a3f2f1793fdb992bfb92a"
+        }
+      ]
+    }
+  ]
+}
