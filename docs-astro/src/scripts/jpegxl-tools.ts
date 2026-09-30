@@ -224,6 +224,9 @@ const open = async (selected: File) => {
   reset()
   file = selected
   input('tool-frame').value = '0'
+  select('tool-plane').replaceChildren(new Option('0', '0'))
+  input('tool-sample-x').value = '0'
+  input('tool-sample-y').value = '0'
   input('tool-url').value = ''
   status.textContent = `Opening ${selected.name} locally…`
   run(tool === 'progressive' ? 'progressive' : 'open')

@@ -11,15 +11,20 @@ export class JxlWorkerClient {
   }
   post(value: object, transfer: Transferable[] = []): void {
     if (!this.#worker) {
-      this.#worker = new Worker(new URL('./jpegxl-workbench-worker.js', import.meta.url), {
+      const worker = new Worker(new URL('./jpegxl-workbench-worker.js', import.meta.url), {
         type: 'module',
       })
-      this.#worker.onmessage = (event) => this.receive(event.data)
-      this.#worker.onerror = (event) => {
+      this.#worker = worker
+      worker.onmessage = (event) => {
+        if (this.#worker === worker) this.receive(event.data)
+      }
+      worker.onerror = (event) => {
+        if (this.#worker !== worker) return
         this.reset()
         this.failed(event.message || 'Worker failed. Retry or open another input.')
       }
-      this.#worker.onmessageerror = () => {
+      worker.onmessageerror = () => {
+        if (this.#worker !== worker) return
         this.reset()
         this.failed('Worker response could not be read. Retry the operation.')
       }

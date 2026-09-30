@@ -131,6 +131,83 @@ const errorAgainstFloat = (
 }
 
 describe('JPEG XL selective high-depth color sessions', () => {
+  it.each([65_536, 1_048_576])('bounds retained alpha state to a %i-byte cache', async (budget) => {
+    const bytes = await encoded(
+      'linear-rgba16-small',
+      '1b69f4b7535b826672b973bad21cad23ff7ad92daac529fe1f5bc626f5d431b2',
+    )
+    const session = await openJpegXlSession(bytes, { maxCachedBytes: budget })
+    const digests: string[] = []
+    const sectionBytes: number[] = []
+    try {
+      for (let run = 0; run < 2; run++) {
+        const digest = createHash('sha256')
+        let outputBytes = 0
+        for await (const event of session.decode({ until: 'dc', scaleDenominator: 8 })) {
+          if (event.type !== 'block') continue
+          try {
+            expect(event.block.format).toBe('rgbaf32')
+            digest.update(event.block.data)
+            outputBytes += event.block.data.byteLength
+          } finally {
+            event.block.release?.()
+          }
+        }
+        expect(outputBytes).toBe(25 * 23 * 16)
+        digests.push(digest.digest('hex'))
+        sectionBytes.push(session.sourceSectionBytes)
+        expect(session.managedLiveBytes).toBeLessThanOrEqual(budget)
+        expect(session.stages.find(({ kind }) => kind === 'dc')?.status).toBe(
+          budget === 65_536 ? 'requires-validation' : 'available',
+        )
+      }
+      expect(digests[1]).toBe(digests[0])
+      expect(sectionBytes[1]).toBe(sectionBytes[0])
+    } finally {
+      await session.close()
+    }
+    expect(session.managedLiveBytes).toBe(0)
+  })
+
+  it('reports full working planes for selective SDR alpha across color groups', async () => {
+    // Pinned libjxl 0.12.0, 300x270 RGB_ALPHA PAM: [x % 256, y % 256, (x + y) % 256, 128].
+    // cjxl -d 1 -e 7 --progressive --progressive_dc=0 --ec_resampling=2 --num_threads=1
+    const bytes = await encoded(
+      'sdr-rgba8-shift1',
+      '0ea81069864e4e36fda159a6db8b417b8dddf9f40e1bd9af6bf90326f4792d98',
+    )
+    const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+    const region = { x: 10, y: 10, width: 17, height: 19 }
+    try {
+      for (const until of [1, 'final'] as const) {
+        const plan = session.plan({ region, until })
+        expect(plan.fallbackReasons).toEqual([])
+        expect(plan.groupIds).toEqual([0])
+        expect(plan.fullFrameFallback).toBe('working-planes')
+        expect(plan.workingMemoryClass).toBe('full-output-and-working-planes')
+      }
+      expect(session.plan({ region, until: 'dc' }).workingMemoryClass).toBe(
+        'bounded-dc-restoration',
+      )
+      let outputPixels = 0
+      for await (const event of session.decode({ region, until: 1 })) {
+        if (event.type !== 'block') continue
+        try {
+          expect(event.block.format).toBe('rgba8')
+          for (let offset = 3; offset < event.block.data.length; offset += 4)
+            expect(event.block.data[offset]).toBe(128)
+          outputPixels += event.block.width * event.block.height
+        } finally {
+          event.block.release?.()
+        }
+      }
+      expect(outputPixels).toBe(region.width * region.height)
+    } finally {
+      await session.close()
+    }
+    expect(session.managedLiveBytes).toBe(0)
+  })
+
   it('matches pinned libjxl 0.12.0 DC and pass flushes for SDR16 across four groups', async () => {
     const bytes = await encoded(
       'sdr-rgb16',

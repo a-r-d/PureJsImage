@@ -44,5 +44,12 @@ describe('JPEG XL showcase messages', () => {
         image: { width: 9000, height: 9000, rgba: new ArrayBuffer(16) },
       }),
     ).toBe(false)
+    expect(
+      isJxlToolResponse({
+        ...response,
+        image: { width: 0.5, height: 8, rgba: new ArrayBuffer(16) },
+      }),
+    ).toBe(false)
+    expect(isJxlToolResponse({ ...response, state: ['stage'] })).toBe(false)
   })
 })

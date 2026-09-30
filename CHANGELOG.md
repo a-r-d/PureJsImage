@@ -4,6 +4,12 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Count retained alpha planes when enforcing JPEG XL session cache limits. Evicted
+  previews can be decoded again with the same pixels. Report full working planes
+  for selective SDR alpha passes across color groups.
+- Reset native sample controls when opening a new JPEG XL input, ignore errors
+  from replaced browser workers, and reject malformed preview messages.
+
 - Fetch the pinned tundra JPEG from its byte-identical Wikimedia copy after Flickr
   began returning HTTP 403 to the browser CI jobs. Keep the existing checksum.
 

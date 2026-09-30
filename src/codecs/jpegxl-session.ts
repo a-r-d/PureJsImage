@@ -16,7 +16,6 @@ import {
   type JpegXlFrameStructure,
   jpegXlDecodedPixelFormat,
   jpegXlPixelColorSemantics,
-  jpegXlXybOutputIsLinear,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -26,11 +25,7 @@ import {
   jpegXlEncodedPoint,
   planJpegXlProgressive,
 } from './jpegxl-progressive-plan.ts'
-import {
-  type JpegXlVarDctMemoryLease,
-  JpegXlVarDctMemoryLedger,
-  retainedTypedArrayBytes,
-} from './jpegxl-vardct-memory.ts'
+import { type JpegXlVarDctMemoryLease, JpegXlVarDctMemoryLedger } from './jpegxl-vardct-memory.ts'
 import {
   decodeJpegXlDct8SectionCancellable,
   type JpegXlVarDctLowFrequencyState,
@@ -512,12 +507,7 @@ export class JpegXlSession {
       for (const lease of this.#temporaryLeases) lease.release()
       this.#temporaryLeases.length = 0
       if (!succeeded || this.#maxCachedBytes === 0) this.#clear()
-      else if (
-        this.#state &&
-        retainedTypedArrayBytes([this.#state.lfGlobal, this.#state.dcGroup, this.#state.dcPlanes]) +
-          this.#cachedSectionBytes >
-          this.#maxCachedBytes
-      ) {
+      else if (this.#state && this.#memory.liveBytes > this.#maxCachedBytes) {
         this.#state.release()
         this.#state = undefined
         this.#dcLease?.release()

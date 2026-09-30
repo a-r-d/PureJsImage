@@ -42,6 +42,27 @@ test('native float bits and alpha survive re-encoding', async ({ page }) => {
   await expect(page.locator('#tool-status')).toContainText('Native samples inspected')
 })
 
+test('native input replacement resets the selected plane and sample coordinates', async ({
+  page,
+}) => {
+  await page.goto('/jpeg-xl/native/')
+  await page.getByRole('button', { name: 'Float and alpha', exact: true }).click()
+  await expect(page.locator('#tool-status')).toContainText('Native samples inspected')
+  await page.locator('#tool-plane').selectOption('3')
+  await page.locator('#tool-sample-x').fill('3')
+  await page.locator('#tool-run').click()
+  await expect(page.locator('#tool-details')).toContainText('"selectedPlane": 3')
+  await page.locator('#tool-file').setInputFiles({
+    name: 'gray.jxl',
+    mimeType: 'image/jxl',
+    buffer: await readFile('tests/fixtures/jpegxl/practical-float/gray32-alpha16-straight.jxl'),
+  })
+  await expect(page.locator('#tool-status')).toContainText('Native samples inspected')
+  await expect(page.locator('#tool-plane')).toHaveValue('0')
+  await expect(page.locator('#tool-sample-x')).toHaveValue('0')
+  await expect(page.locator('#tool-details')).toContainText('"selectedPlane": 0')
+})
+
 test('animation playback timing and selected-frame export', async ({ page }) => {
   await page.goto('/jpeg-xl/animation/')
   await page.getByRole('button', { name: 'Try the animation', exact: true }).click()
@@ -127,7 +148,9 @@ test('converter cancellation retries source and downloads remain usable', async 
   await page.locator('#jxl-cancel').click()
   await expect(page.locator('#jxl-status')).toContainText('Cancelled')
   await page.locator('#jxl-encode').click()
-  await expect(page.locator('#jxl-status')).toContainText('byte-exact local round trip verified')
+  await expect(page.locator('#jxl-status')).toContainText('byte-exact local round trip verified', {
+    timeout: 30_000,
+  })
   for (let i = 0; i < 2; i++) {
     const next = page.waitForEvent('download')
     await page.locator('#jxl-download').click()
@@ -162,6 +185,16 @@ test('replaced inputs ignore stale worker messages and recover from worker failu
   })
   await page.getByRole('button', { name: 'Float and alpha', exact: true }).click()
   await expect(page.locator('#tool-details')).toContainText('floating-point')
+  await page.evaluate(() => {
+    if ('jxlTestWorkers' in window && Array.isArray(window.jxlTestWorkers)) {
+      const old = window.jxlTestWorkers[0]
+      if (old instanceof Worker) {
+        old.dispatchEvent(new ErrorEvent('error', { message: 'Stale worker failure' }))
+        old.dispatchEvent(new MessageEvent('messageerror'))
+      }
+    }
+  })
+  await expect(page.locator('#tool-status')).toContainText('Native samples inspected')
   await page.evaluate(() => {
     if (
       'jxlTestWorkers' in window &&

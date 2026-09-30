@@ -166,11 +166,17 @@ export const planJpegXlProgressive = (
   }
   const reducedOrRegion =
     scale !== 1 || encodedRegion.width !== frame.width || encodedRegion.height !== frame.height
-  const highDepthWorkingPlanes = frame.bitDepth > 8 || jpegXlXybOutputIsLinear(frame)
+  const highDepthWorkingPlanes =
+    Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8 || jpegXlXybOutputIsLinear(frame)
+  const usesRestorationBands =
+    !highDepthWorkingPlanes &&
+    frame.extraChannels.length === 0 &&
+    dependencies.length === 0 &&
+    frame.groupsDown > 1
   const fullFrameFallback = fallbackReasons.length
     ? 'static-decoder'
     : passes > 0 && reducedOrRegion
-      ? !highDepthWorkingPlanes && dependencies.length === 0 && frame.groupsDown > 1
+      ? usesRestorationBands
         ? 'output-only'
         : 'working-planes'
       : 'none'
@@ -228,7 +234,7 @@ export const planJpegXlProgressive = (
       ? 'static-fallback'
       : passes === 0
         ? 'bounded-dc-restoration'
-        : !highDepthWorkingPlanes && dependencies.length === 0 && frame.groupsDown > 1
+        : usesRestorationBands
           ? 'full-output-with-restoration-bands'
           : 'full-output-and-working-planes',
     restorationHalo: halo,

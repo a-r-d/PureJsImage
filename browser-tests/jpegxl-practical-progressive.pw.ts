@@ -1,6 +1,28 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 
+test('JPEG XL alpha cache eviction preserves repeated float previews', async ({ page }) => {
+  const bytes = await readFile(
+    'tests/fixtures/jpegxl/practical-progressive/linear-rgba16-small.jxl',
+  )
+  await page.goto('/compatibility.html')
+  const result = await page.evaluate(async (input) => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlAlphaCacheBudget(new Uint8Array(input))
+  }, Array.from(bytes))
+  expect(result).toBe(true)
+})
+
+test('JPEG XL SDR alpha plan reports full working planes', async ({ page }) => {
+  const bytes = await readFile('tests/fixtures/jpegxl/practical-progressive/sdr-rgba8-shift1.jxl')
+  await page.goto('/compatibility.html')
+  const result = await page.evaluate(async (input) => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlSdrAlphaMemoryPlan(new Uint8Array(input))
+  }, Array.from(bytes))
+  expect(result).toBe(true)
+})
+
 test('JPEG XL selective PQ16 DC preview runs in Chromium before final sections', async ({
   page,
 }) => {

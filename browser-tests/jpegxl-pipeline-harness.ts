@@ -1378,6 +1378,69 @@ export const verifyJpegXlSelectiveHdr = async (bytes: Uint8Array): Promise<boole
   return valid
 }
 
+export const verifyJpegXlAlphaCacheBudget = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const budget = 65_536
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: budget })
+  let previous: Uint8Array | undefined
+  try {
+    for (let run = 0; run < 2; run++) {
+      const pixels = new Uint8Array(
+        Math.ceil(session.width / 8) * Math.ceil(session.height / 8) * 16,
+      )
+      let written = 0
+      for await (const event of session.decode({ until: 'dc', scaleDenominator: 8 })) {
+        if (event.type !== 'block') continue
+        try {
+          if (event.block.format !== 'rgbaf32') throw new Error('Expected float RGBA preview')
+          pixels.set(event.block.data, event.block.y * event.block.stride)
+          written += event.block.data.byteLength
+        } finally {
+          event.block.release?.()
+        }
+      }
+      if (written !== pixels.length) throw new Error('Incomplete float RGBA preview')
+      if (session.managedLiveBytes > budget) throw new Error('Alpha state exceeded cache budget')
+      if (previous && pixels.some((value, index) => value !== previous?.[index]))
+        throw new Error('Cache eviction changed preview pixels')
+      previous = pixels
+    }
+  } finally {
+    await session.close()
+  }
+  return session.managedLiveBytes === 0
+}
+
+export const verifyJpegXlSdrAlphaMemoryPlan = async (bytes: Uint8Array): Promise<boolean> => {
+  const { openJpegXlSession } = await import('../src/jpegxl.ts')
+  const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })
+  const region = { x: 10, y: 10, width: 17, height: 19 }
+  try {
+    const plan = session.plan({ region, until: 1 })
+    if (
+      plan.fullFrameFallback !== 'working-planes' ||
+      plan.workingMemoryClass !== 'full-output-and-working-planes'
+    )
+      throw new Error('SDR alpha memory plan omitted full working planes')
+    let pixels = 0
+    for await (const event of session.decode({ region, until: 1 })) {
+      if (event.type !== 'block') continue
+      try {
+        if (event.block.format !== 'rgba8') throw new Error('Expected SDR alpha preview')
+        for (let offset = 3; offset < event.block.data.length; offset += 4)
+          if (event.block.data[offset] !== 128) throw new Error('Preview changed constant alpha')
+        pixels += event.block.width * event.block.height
+      } finally {
+        event.block.release?.()
+      }
+    }
+    if (pixels !== region.width * region.height) throw new Error('Incomplete SDR alpha region')
+  } finally {
+    await session.close()
+  }
+  return session.managedLiveBytes === 0
+}
+
 export const verifyJpegXlSelectiveHdrAlpha = async (bytes: Uint8Array): Promise<boolean> => {
   const { openJpegXlSession } = await import('../src/jpegxl.ts')
   const session = await openJpegXlSession(bytes, { maxCachedBytes: 0 })

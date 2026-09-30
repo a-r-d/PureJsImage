@@ -40,7 +40,7 @@ export const isJxlToolResponse = (v: unknown): v is JxlToolResponse =>
   v.type === 'tool-event' &&
   Number.isSafeInteger(v.requestId) &&
   Number.isSafeInteger(v.generation) &&
-  ['opened', 'stage', 'done', 'output'].includes(String(v.state)) &&
+  (v.state === 'opened' || v.state === 'stage' || v.state === 'done' || v.state === 'output') &&
   typeof v.message === 'string' &&
   record(v.info) &&
   (v.bytes === undefined || v.bytes instanceof ArrayBuffer) &&
@@ -49,6 +49,8 @@ export const isJxlToolResponse = (v: unknown): v is JxlToolResponse =>
     (record(v.image) &&
       typeof v.image.width === 'number' &&
       typeof v.image.height === 'number' &&
+      Number.isSafeInteger(v.image.width) &&
+      Number.isSafeInteger(v.image.height) &&
       v.image.width > 0 &&
       v.image.height > 0 &&
       v.image.width * v.image.height <= 4194304 &&
