@@ -46,7 +46,9 @@
         "tests/metadata-preservation.test.ts",
         "tests/wasm-png.test.ts",
         "tests/jpegxl-m5-pipeline.test.ts",
-        "browser-tests/jpegxl-pipeline.pw.ts"
+        "browser-tests/jpegxl-pipeline.pw.ts",
+        "tests/jpegxl-profile-pipeline.test.ts",
+        "browser-tests/jpegxl-profile-pipeline.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "not-applicable",
@@ -297,12 +299,20 @@
         "tests/jpegxl-document-patches.test.ts",
         "browser-tests/jpegxl-document-patches.pw.ts",
         "tests/jpegxl-grouped-transforms.test.ts",
-        "browser-tests/jpegxl-grouped-transforms.pw.ts"
+        "browser-tests/jpegxl-grouped-transforms.pw.ts",
+        "tests/jpegxl-global-modular.test.ts",
+        "tests/jpegxl-transform-gaps.test.ts",
+        "tests/jpegxl-inspection-support.test.ts",
+        "browser-tests/jpegxl-transform-gaps.pw.ts",
+        "tests/jpegxl-grouped-alpha.test.ts",
+        "browser-tests/jpegxl-grouped-alpha.pw.ts",
+        "tests/jpegxl-profile-pipeline.test.ts",
+        "browser-tests/jpegxl-profile-pipeline.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
-        "oracle": "Pinned libjxl djxl 0.12.0 fixtures plus source-JPEG coefficient pixels; first-party forward streams decoded by pinned libjxl 0.12.0 and jxl-rs",
-        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact. Forward native-depth checks require exact alpha on the native grid (at most one normalized 16-bit level) and independent RGB agreement within 514/65535. Structured-color float checks compare the same declared color domain within 1/255. Generated first-pass checks require maximum error at most two RGB8 levels and RMSE at most 0.55.",
+        "oracle": "Pinned libjxl djxl 0.12.0 fixtures, libjxl 0.12.0 C API alpha references and source-JPEG coefficient pixels; first-party forward streams decoded by pinned libjxl 0.12.0 and jxl-rs; ordinary ICC conversion checked against pinned LittleCMS 2.17 C API output",
+        "tolerance": "The generated fixtures and 300-file matrix from 100 resized or upscaled COCO photographs stay within one 8-bit sample on supported outputs. RMSE 0.55 is the independently justified VarDCT/djxl rounding exception to the original 0.25 target. Pinned jxl-oxide reaches RMSE 0.517758 on the threshold probe. JPEG-derived fixtures retain their own recorded limits; native lossless samples remain exact. Forward native-depth checks require exact alpha on the native grid (at most one normalized 16-bit level) and independent RGB agreement within 514/65535. Structured-color float checks compare the same declared color domain within 1/255. Generated first-pass checks require maximum error at most two RGB8 levels and RMSE at most 0.55. Grouped-alpha fixtures require final color agreement within one RGB8 level, four RGB16 levels or 0.00012 in the declared float domain. Independent alpha stays exact for integer output and within 0.000001 for float output at every stage. Ordinary ICC fixtures require exact normalized alpha; checked GRAY probes stay within one output level, full-range sampled GRAY within eight 16-bit levels, matrix RGB within 180 levels and the native API's mAB interpolation probe within 1300 levels. These profile-specific bounds do not qualify arbitrary profiles.",
         "evidence": [
           "tests/jpegxl-corpus.test.ts",
           "tests/jpegxl-jpeg-reconstruction.test.ts",
@@ -316,7 +326,10 @@
           "tests/jpegxl-practical-progressive.test.ts",
           "tests/jpegxl-grayscale-exact.test.ts",
           "tests/jpegxl-document-patches.test.ts",
-          "benchmark/jpegxl/verify-m7-local-contrast.ts"
+          "benchmark/jpegxl/verify-m7-local-contrast.ts",
+          "tests/jpegxl-transform-gaps.test.ts",
+          "tests/jpegxl-grouped-alpha.test.ts",
+          "tests/jpegxl-profile-pipeline.test.ts"
         ]
       }
     },

@@ -14,14 +14,26 @@ progressive and range-aware work; general lossy encoding belongs to M7. M10 adds
 bounded native Level 10 samples, CMYK profile conversion and exact 31-bit integer
 and floating workflows.
 
+The static decoder implements all VarDCT transform IDs from 0 through 26,
+including rectangular 8 by 32 and 32 by 8 blocks and transforms up to 256 by 256.
+Large-transform scratch and default weights are allocated only when needed and
+remain subject to the decoder's working-memory limit.
+
+Grouped Modular decoding handles the checked global Palette and Squeeze streams
+at native 8- and 16-bit RGB precision. Palettes without spatial prediction retain
+their global tables and intersecting group bands. Global Squeeze and other
+spatial dependencies use compact full-frame channel planes; `explainImage()`
+reports that fallback. Other transform combinations still need qualification.
+
 ## Native precision and color
 
 The decoder separates the source description from emitted pixels. For example,
 a gray image with alpha has two source channels. The pixel API expands it to
 RGBA with RGB color semantics and retains the independent alpha depth and
-association. Source metadata still describes gray plus alpha. Gray ICC plus
-alpha currently requires an unavailable profile-aware RGB expansion and fails
-explicitly.
+association. Source metadata still describes gray plus alpha. Supported GRAY
+ICC profiles can render that layout to straight sRGB RGBA. Preserving a GRAY
+profile on expanded RGBA output still fails explicitly; use native channels
+to retain that source layout.
 
 Modular integer samples retain their native precision. Supported crop,
 orientation and resize operations preserve sample meaning. A JPEG XL re-encode
@@ -178,9 +190,19 @@ const profiled = await images.open(profiledJxl, { colorOutput: 'preserve' })
 const png = await profiled.autoOrient().keepIcc().png().toUint8Array()
 ```
 
-The profile must describe the emitted samples. Supported 8-bit profiles can be
-preserved into compatible PNG output. Arbitrary ICC encoding into JPEG XL and
-unavailable high-depth profile conversions remain unsupported. Use `keepExif()`
+The profile must describe the emitted samples. Supported profiles can be
+preserved into compatible PNG output. With `colorOutput: 'srgb'`, ordinary
+decoding converts supported GRAY and RGB ICC integer samples through 16 bits.
+High-depth input emits full-range sRGB16 and straight alpha, including mixed
+integer color/alpha depths and associated alpha. The checked shifted-alpha
+case uses a constant 2x grid. The converter modifies emitted rows and reserves
+bounded profile tables from `maxDecodedBytes`; it adds no full-frame bitmap.
+Source metadata still describes the original profile and depths. PNG output
+and JPEG XL re-encoding use the converted meaning and full output precision.
+
+Arbitrary ICC encoding into JPEG XL, ordinary floating input, non-alpha extra
+channels and high-depth structured color conversion remain unsupported.
+The explicit native APIs cover additional profile and sample layouts. Use `keepExif()`
 for explicit Exif preservation; Exif orientation must be normalized before JXL
 encoding. Exif, XMP and JUMBF preservation is bounded and opt-in.
 
@@ -348,18 +370,31 @@ exactly once. The output origin is zero, its dimensions are rounded up after
 scaling, and sample centers use the requested grid. Embedded previews have a
 separate coordinate system and are not cropped to the main image's viewport.
 
-Selective 8-bit SDR XYB requests read LF dependencies, intersecting groups and
-an eight-pixel restoration halo. DC does not read main-frame HF sections.
-Native pass requests omit later passes. Internal Modular DC frames can require
-all of their progressive groups; their bytes belong to the dependency cost.
-Patches, splines, noise, other internal references, alpha, image upsampling,
-Modular main images and high-depth output use their established complete static
+Selective XYB requests support SDR8/16, linear16 and PQ16, including one integer
+alpha channel through 16 bits with straight or associated alpha. They read LF
+dependencies, intersecting color groups and an eight-pixel restoration halo.
+Opaque DC does not read main-frame HF sections. Grouped alpha can require HF
+global data and later AC passes before an early color stage. Its plan includes
+those sections. Global Squeeze requires every alpha group, even for a color
+viewport. Complete transparency is retained at every emitted stage, including
+the checked 2x shifted associated-alpha case. Native pass requests omit later
+color passes unless those sections contain required alpha data. Internal
+Modular DC frames can require all of their progressive groups; their bytes
+belong to the dependency cost.
+
+Patches, splines, noise, other internal references, multiple or floating alpha,
+image upsampling and Modular main images use their established complete static
 paths. Their plans list the reason. `fallback: 'reject'` rejects those dependency
 fallbacks and required full-resolution output or working storage for reduced or
 region requests. Partial-stage requests cannot silently become final output.
 
-Plans also state the working-memory class and explicit full-frame storage fallback. DC uses compact LF state and
-restoration bands without a full-resolution output bitmap. Pass and final
+Plans also state the working-memory class and explicit full-frame storage fallback.
+DC samples the requested output grid from compact LF state and restoration
+bands. Grouped alpha retains a complete native alpha plane and reports
+`full-native-alpha-and-dc-restoration`, including for small viewports. Reading
+its AC trailers also needs HF metadata and one temporary color coefficient
+group. Spatial alpha transforms can require every alpha section.
+Pass and final
 stages still retain a full-resolution output; some dependencies also require
 full working planes. Selective group decoding reduces compressed and
 coefficient work without promising viewport-sized memory. Static session

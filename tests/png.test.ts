@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { deflateSync, inflateSync } from 'node:zlib'
+import { deflateSync, gunzipSync, inflateSync } from 'node:zlib'
 import { PNG } from 'pngjs'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -111,6 +111,33 @@ const displayP3IccChunk = (): Buffer =>
   ])
 
 describe('PNG pixel pipeline', () => {
+  it('converts an opaque GRAY iCCP profile with independently checked samples', async () => {
+    const profile = await readFile(new URL('./fixtures/jpegxl/m8-native/gray.icc', import.meta.url))
+    const reference = gunzipSync(
+      await readFile(
+        new URL('./fixtures/jpegxl/profile-pipeline/gray8-alpha8.bin.gz', import.meta.url),
+      ),
+    )
+    const input = specializedPng(4, 1, 8, 0, Uint8Array.of(0, 0, 64, 128, 255), undefined, [
+      pngChunk(
+        'iCCP',
+        Buffer.concat([Buffer.from('Gray\0', 'latin1'), Buffer.from([0]), deflateSync(profile)]),
+      ),
+    ])
+    const output = await (await Image.open(input)).png().toBuffer()
+    const gray = unfilteredSinglePngRow(output, 1)
+    expect(Array.from(gray)).toEqual([reference[0], reference[4], reference[8], reference[12]])
+  })
+
+  it('rejects an RGB ICC profile on opaque grayscale samples', async () => {
+    const input = specializedPng(1, 1, 8, 0, Uint8Array.of(0, 64), undefined, [
+      pngChunk('iCCP', displayP3IccChunk()),
+    ])
+    await expect((await Image.open(input)).png().toBuffer()).rejects.toMatchObject({
+      code: 'INVALID_INPUT',
+    })
+  })
+
   it('converts a Display-P3 iCCP profile to sRGB without changing alpha', async () => {
     const profileData = Buffer.concat([
       Buffer.from('Display P3\0', 'latin1'),

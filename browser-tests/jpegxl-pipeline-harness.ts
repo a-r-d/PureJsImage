@@ -1,15 +1,18 @@
+export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.ts'
 export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
+export { verifyJpegXlTransformFixture } from '../tests/helpers/jpegxl-transform-gaps.ts'
+
 import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
-import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
 import {
   encodeJpegXlDocumentPatchCandidate,
   useLargeDocumentModularCandidate,
 } from '../src/codecs/jpegxl-modular-encode.ts'
+import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
 import { createEvidenceSession } from '../src/evidence.ts'
 import { explainImage } from '../src/explain.ts'

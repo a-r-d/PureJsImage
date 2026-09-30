@@ -1360,6 +1360,7 @@ const readWeightedPredictor = (reader: JpegXlBitReader): WeightedPredictorParame
 }
 
 interface ModularProgram {
+  readonly globalInverse?: Readonly<ModularProgram>
   readonly globalCode?: JpegXlModularGlobalCode
   readonly frameFeatures?: JpegXlFrameFeatures
   readonly dcQuantization?: readonly [number, number, number]
@@ -1666,7 +1667,11 @@ const readJpegXlModularProgram = (
   const channelLayouts: ModularChannelLayout[] =
     initialLayouts?.map((layout) => ({ ...layout })) ??
     Array.from({ length: channelCount }, () => ({ width, height }))
-  const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
+  const { transforms, metaChannelCount, inverseTransformBytes } = readModularTransforms(
+    reader,
+    channelLayouts,
+    0,
+  )
   const tree = useGlobalTree ? globalTree : readTree(reader)
   if (!tree) throw invalidInput('JPEG XL Modular tree is missing')
   const pixelCode = useGlobalTree ? globalPixelCode : readJpegXlEntropyCode(reader, tree.leaves)
@@ -1695,6 +1700,7 @@ const readJpegXlModularProgram = (
     usesWeightedPrediction,
     channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
     transforms: Object.freeze(transforms),
+    inverseTransformBytes,
     metaChannelCount,
     prefixPlanes: Object.freeze([]),
     groupId: 0,
@@ -1820,10 +1826,23 @@ export class JpegXlGroupedModularPlanes {
   readonly #firstGroup: number
   readonly #globalCode: Readonly<JpegXlModularGlobalCode> | undefined
   readonly #bitDepth: number
+  #finishedPlanes: readonly Int32Array[] | undefined
   readonly endingBitPosition: number
   readonly transformedLayouts: readonly Readonly<ModularChannelLayout>[]
   get hasGroups(): boolean {
     return this.#firstGroup < this.transformedLayouts.length
+  }
+  get groupedShifts(): readonly number[] {
+    return this.transformedLayouts
+      .slice(this.#firstGroup)
+      .map((layout) => Math.min(layout.hshift ?? 0, layout.vshift ?? 0))
+  }
+  get supportsSelectiveGroups(): boolean {
+    return this.#program.transforms.every(
+      (transform) =>
+        transform.kind !== 'squeeze' &&
+        (transform.kind !== 'palette' || (transform.deltaCount === 0 && transform.predictor === 0)),
+    )
   }
   constructor(
     section: Uint8Array,
@@ -1834,7 +1853,9 @@ export class JpegXlGroupedModularPlanes {
     bitDepth: number,
     globalCode?: Readonly<JpegXlModularGlobalCode>,
   ) {
-    this.#program = readStandaloneModularProgram(section, position, layouts, 0, globalCode)
+    const program = readStandaloneModularProgram(section, position, layouts, 0, globalCode)
+    // Subsequent groups use their own streams. Retain inverse metadata, not the global payload.
+    this.#program = { ...program, section: new Uint8Array() }
     this.#globalCode = globalCode
     this.#bitDepth = bitDepth
     this.transformedLayouts = this.#program.channelLayouts
@@ -1852,7 +1873,7 @@ export class JpegXlGroupedModularPlanes {
     if (first < 0) first = this.transformedLayouts.length
     this.#firstGroup = first
     const prefix = decodeModularPlanesWithPosition(
-      { ...this.#program, channelLayouts: this.transformedLayouts.slice(0, first) },
+      { ...program, channelLayouts: this.transformedLayouts.slice(0, first) },
       0,
       undefined,
       false,
@@ -1906,6 +1927,7 @@ export class JpegXlGroupedModularPlanes {
         layout = this.transformedLayouts[region.channel]
       if (!destination || !layout || source.length !== region.width * region.height)
         throw invalidInput('JPEG XL grouped channel output has invalid dimensions')
+      this.#finishedPlanes = undefined
       for (let row = 0; row < region.height; row++)
         destination.set(
           source.subarray(row * region.width, (row + 1) * region.width),
@@ -1917,8 +1939,35 @@ export class JpegXlGroupedModularPlanes {
     return decoded.endingBitPosition
   }
   finish(): readonly Int32Array[] {
-    return inverseModularTransforms(this.#planes, this.#program, this.#bitDepth)
+    if (!this.#finishedPlanes) {
+      // Inverse Squeeze changes the plane list; inverse RCT also changes samples.
+      const planes = this.#program.transforms.some((transform) => transform.kind === 'rct')
+        ? this.#planes.map((plane) => new Int32Array(plane))
+        : [...this.#planes]
+      this.#finishedPlanes = inverseModularTransforms(planes, this.#program, this.#bitDepth)
+    }
+    return this.#finishedPlanes
   }
+}
+
+/** Shifts at least three belong to DC groups; finer grids belong to one AC pass. */
+export const jpegXlExtraChannelPass = (
+  frame: Readonly<JpegXlFrameStructure>,
+  shift: number,
+): number | undefined => {
+  let previousMinimum = 3
+  for (let pass = 0; pass < frame.passCount; pass++) {
+    const boundary = frame.progressiveResolutions.find((entry) => entry.lastPass === pass)
+    const minimum =
+      pass === frame.passCount - 1
+        ? 0
+        : boundary
+          ? Math.log2(boundary.downsampling)
+          : previousMinimum
+    if (shift >= minimum && shift < previousMinimum) return pass
+    previousMinimum = minimum
+  }
+  return undefined
 }
 
 interface ModularGroup {
@@ -1931,6 +1980,7 @@ interface ModularGroup {
 }
 
 interface ModularGroupFoundation {
+  readonly kind: 'grouped'
   readonly globalProgram: ModularProgram
   readonly firstGroupedChannel: number
   readonly groupedLayouts: readonly ModularChannelLayout[]
@@ -1942,8 +1992,12 @@ interface ModularGroupFoundation {
 const readMultiGroupFoundation = (
   globalData: Uint8Array,
   header: JpegXlHeader,
-): ModularGroupFoundation => {
-  const expectedSections = 2 + header.dcGroupCount + header.groupsAcross * header.groupsDown
+  limits: Readonly<ImageLimits>,
+):
+  | ModularGroupFoundation
+  | { readonly kind: 'full-frame'; readonly globalProgram: ModularProgram } => {
+  const expectedSections =
+    2 + header.dcGroupCount + header.groupsAcross * header.groupsDown * header.passCount
   if (header.sections.length !== expectedSections) {
     throw invalidInput('JPEG XL multi-group section count is inconsistent')
   }
@@ -1973,19 +2027,24 @@ const readMultiGroupFoundation = (
     header.bitDepth === 8
       ? palette
       : undefined
+  const fullFrame = Object.freeze({ kind: 'full-frame' as const, globalProgram })
   if (
-    !globalImplicitPalette &&
-    globalProgram.transforms.some((transform) => transform.kind !== 'rct')
-  ) {
-    throw unsupportedOperation(
-      'JPEG XL multi-group global Palette and Squeeze transforms are not supported',
-    )
-  }
+    header.passCount > 1 ||
+    (!globalImplicitPalette &&
+      globalProgram.transforms.some(
+        (transform) =>
+          transform.kind === 'squeeze' ||
+          (transform.kind === 'palette' && (transform.deltaCount > 0 || transform.predictor !== 0)),
+      ))
+  )
+    return fullFrame
   const firstGroupedChannel = globalProgram.channelLayouts.findIndex(
-    (layout) => layout.width > header.groupDimension || layout.height > header.groupDimension,
+    (layout, index) =>
+      index >= globalProgram.metaChannelCount &&
+      (layout.width > header.groupDimension || layout.height > header.groupDimension),
   )
   if (firstGroupedChannel < 0) {
-    throw unsupportedOperation('JPEG XL multi-group image has no group-sized Modular channels')
+    return fullFrame
   }
   const groupedLayouts = globalProgram.channelLayouts.slice(firstGroupedChannel)
   if (
@@ -1993,26 +2052,33 @@ const readMultiGroupFoundation = (
       (layout) => layout.width !== header.width || layout.height !== header.height,
     )
   ) {
-    throw unsupportedOperation('JPEG XL shifted multi-group Modular channels are not supported')
+    return fullFrame
   }
   const prefixProgram = Object.freeze({
     ...globalProgram,
     channelLayouts: Object.freeze(globalProgram.channelLayouts.slice(0, firstGroupedChannel)),
   })
+  const prefixBytes = prefixProgram.channelLayouts.reduce(
+    (sum, layout) => sum + BigInt(layout.width) * BigInt(layout.height) * 4n,
+    0n,
+  )
+  if (prefixBytes > BigInt(limits.maxDecodedBytes))
+    throw limitExceeded('JPEG XL global Modular prefix planes exceed maxDecodedBytes')
   const prefixPlanes =
     firstGroupedChannel === 0
       ? Object.freeze([])
       : Object.freeze(decodeModularPlanes(prefixProgram, 0))
-  const acGlobal = header.sections[1]
+  const acGlobal = header.sections[1 + header.dcGroupCount]
   if (acGlobal?.length !== 0) {
     throw unsupportedOperation('JPEG XL Modular AC global data is not supported')
   }
   for (let index = 0; index < header.dcGroupCount; index += 1) {
-    if ((header.sections[2 + index]?.length ?? -1) !== 0) {
-      throw unsupportedOperation('JPEG XL shifted Modular DC group channels are not supported')
+    if ((header.sections[1 + index]?.length ?? -1) !== 0) {
+      return fullFrame
     }
   }
   return Object.freeze({
+    kind: 'grouped',
     globalProgram,
     firstGroupedChannel,
     groupedLayouts: Object.freeze(groupedLayouts),
@@ -2041,10 +2107,13 @@ const readModularGroup = (
   const y = groupY * header.groupDimension
   const width = Math.min(header.groupDimension, header.width - x)
   const height = Math.min(header.groupDimension, header.height - y)
+  const implicit = foundation.globalImplicitPalette !== undefined
+  const prefixLayouts = foundation.globalProgram.channelLayouts.slice(
+    0,
+    foundation.firstGroupedChannel,
+  )
   const channelLayouts = [
-    ...foundation.globalProgram.channelLayouts
-      .slice(0, foundation.firstGroupedChannel)
-      .map((layout) => ({ ...layout })),
+    ...(implicit ? prefixLayouts.map((layout) => ({ ...layout })) : []),
     ...foundation.groupedLayouts.map(() => ({ width, height })),
   ]
   const reader = new JpegXlBitReader(groupData)
@@ -2053,12 +2122,9 @@ const readModularGroup = (
   const { transforms, metaChannelCount, inverseTransformBytes } = readModularTransforms(
     reader,
     channelLayouts,
-    foundation.globalProgram.metaChannelCount,
+    implicit ? foundation.globalProgram.metaChannelCount : 0,
   )
-  // Local transform headers validate their channel ranges and dimensions. The
-  // inverse kernels replay the complete chain in reverse, including palettes
-  // before RCT. Global prefix planes cannot yet be transformed per group.
-  if (transforms.length > 0 && foundation.prefixPlanes.length > 0) {
+  if (transforms.length > 0 && implicit) {
     throw unsupportedOperation(
       'JPEG XL grouped Modular transformed prefix channels are not supported',
     )
@@ -2093,33 +2159,34 @@ const readModularGroup = (
       weightedPredictor,
       usesWeightedPrediction,
       channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
-      transforms: Object.freeze([...foundation.globalProgram.transforms, ...transforms]),
-      inverseTransformBytes,
+      transforms: Object.freeze(
+        implicit ? [...foundation.globalProgram.transforms, ...transforms] : transforms,
+      ),
+      inverseTransformBytes:
+        inverseTransformBytes +
+        (implicit
+          ? 0n
+          : ((foundation.globalProgram.inverseTransformBytes ?? 0n) *
+              BigInt(width) *
+              BigInt(height)) /
+            (BigInt(header.width) * BigInt(header.height))),
       metaChannelCount,
       groupId: 1 + 3 * header.dcGroupCount + JPEG_XL_QUANT_TABLES + groupId,
-      prefixPlanes: foundation.prefixPlanes,
+      prefixPlanes: implicit ? foundation.prefixPlanes : Object.freeze([]),
+      ...(implicit
+        ? {}
+        : {
+            globalInverse: Object.freeze({
+              ...foundation.globalProgram,
+              prefixPlanes: foundation.prefixPlanes,
+              channelLayouts: Object.freeze([
+                ...prefixLayouts,
+                ...foundation.groupedLayouts.map(() => ({ width, height })),
+              ]),
+            }),
+          }),
     }),
   })
-}
-
-const readMultiGroupPrograms = (
-  sectionData: readonly Uint8Array[],
-  header: JpegXlHeader,
-): readonly ModularGroup[] => {
-  const globalSection = header.sections[0]
-  if (!globalSection) throw invalidInput('JPEG XL global section is missing')
-  const globalData = sectionData[0]
-  if (!globalData || globalData.byteLength !== globalSection.length) {
-    throw invalidInput('JPEG XL global section data is missing')
-  }
-  const foundation = readMultiGroupFoundation(globalData, header)
-  return Object.freeze(
-    Array.from({ length: header.groupsAcross * header.groupsDown }, (_, groupId) => {
-      const groupData = sectionData[foundation.firstGroupSection + groupId]
-      if (!groupData) throw invalidInput(`JPEG XL Modular group ${groupId} section data is missing`)
-      return readModularGroup(groupData, header, foundation, groupId)
-    }),
-  )
 }
 
 const treeLeaf = (nodes: readonly ModularNode[], properties: Int32Array): ModularLeaf => {
@@ -3002,6 +3069,13 @@ const inverseModularTransforms = (
   if (metaChannelCount !== 0) {
     throw invalidInput('JPEG XL Modular transforms leave unresolved meta channels')
   }
+  if (program.globalInverse) {
+    return inverseModularTransforms(
+      [...program.globalInverse.prefixPlanes, ...planes],
+      program.globalInverse,
+      bitDepth,
+    )
+  }
   return planes
 }
 
@@ -3365,9 +3439,15 @@ class JpegXlModularDecoder implements ImageDecoder {
   readonly #signal: AbortSignal | undefined
   readonly #header: JpegXlHeader
   readonly #program: ModularProgram
+  readonly #loadPlanes: ((signal?: AbortSignal) => Promise<readonly Int32Array[]>) | undefined
   readonly #displayRanges: readonly PixelSampleDisplayRange[] | undefined
 
-  constructor(header: JpegXlHeader, program: ModularProgram, signal?: AbortSignal) {
+  constructor(
+    header: JpegXlHeader,
+    program: ModularProgram,
+    signal?: AbortSignal,
+    loadPlanes?: (signal?: AbortSignal) => Promise<readonly Int32Array[]>,
+  ) {
     this.#signal = signal
     this.width = header.width
     this.height = header.height
@@ -3388,6 +3468,7 @@ class JpegXlModularDecoder implements ImageDecoder {
     this.colorSemantics = jpegXlPixelColorSemantics(header)
     this.#header = header
     this.#program = program
+    this.#loadPlanes = loadPlanes
     const colorMaximum = 2 ** header.bitDepth - 1
     if (this.pixelFormat === 'gray8' || this.pixelFormat === 'gray16') {
       this.#displayRanges = Object.freeze([Object.freeze({ black: 0, white: colorMaximum })])
@@ -3432,11 +3513,13 @@ class JpegXlModularDecoder implements ImageDecoder {
     ) {
       throw invalidInput('JPEG XL decode region is invalid')
     }
-    const planes = inverseModularTransforms(
-      decodeModularPlanes(this.#program, this.#program.prefixPlanes.length, request.signal),
-      this.#program,
-      this.#header.bitDepth,
-    )
+    const planes = this.#loadPlanes
+      ? await this.#loadPlanes(request.signal)
+      : inverseModularTransforms(
+          decodeModularPlanes(this.#program, this.#program.prefixPlanes.length, request.signal),
+          this.#program,
+          this.#header.bitDepth,
+        )
 
     const splines = this.#program.frameFeatures?.splines ?? []
     if (splines.length > 0) {
@@ -3821,7 +3904,10 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
           ),
         )
       }
-      const prefixPlanes = activeGroups[0]?.program.prefixPlanes ?? []
+      const prefixPlanes =
+        activeGroups[0]?.program.globalInverse?.prefixPlanes ??
+        activeGroups[0]?.program.prefixPlanes ??
+        []
       const workingBytes =
         prefixPlanes.reduce((sum, plane) => sum + BigInt(plane.byteLength), 0n) +
         activeGroups.reduce(
@@ -4323,6 +4409,7 @@ export const configureJpegXlDecoderOutput = (
 export interface JpegXlDecodedDescription {
   readonly metadata: ImageMetadata
   readonly decoder: ImageDecoder
+  readonly fullFrameFallback?: true
 }
 
 export const jpegXlXybOutputIsLinear = (header: Readonly<JpegXlFrameStructure>): boolean =>
@@ -4379,9 +4466,14 @@ export const jpegXlDecodedPixelFormat = (
 export const jpegXlPixelColorSemantics = (header: JpegXlFrameStructure): PixelColorSemantics => {
   const semantics = jpegXlSourceColorSemantics(header)
   if (semantics.family !== 'gray' || header.alphaBitDepth === undefined) return semantics
-  if (header.colorProvenance === 'icc')
-    throw unsupportedOperation('JPEG XL gray ICC plus alpha requires a profile-aware RGB expansion')
-  return Object.freeze({ ...semantics, family: 'rgb', provenance: 'decoder-converted' })
+  return Object.freeze({
+    ...semantics,
+    family: 'rgb',
+    provenance: header.colorProvenance === 'icc' ? 'icc' : 'decoder-converted',
+    ...(header.colorProvenance === 'icc'
+      ? { icc: Object.freeze({ relevance: 'source' as const }) }
+      : {}),
+  })
 }
 
 const metadataForHeader = (header: JpegXlHeader): ImageMetadata =>
@@ -4687,7 +4779,43 @@ export const decodeJpegXlFrameSource = async (
   const globalSection = header.sections[0]
   if (!globalSection) throw invalidInput('JPEG XL global section is missing')
   const globalData = await readExactly(source, globalSection.offset, globalSection.length, options)
-  const foundation = readMultiGroupFoundation(globalData, header)
+  const foundation = readMultiGroupFoundation(globalData, header, limits)
+  if (foundation.kind === 'full-frame') {
+    const compressedBytes = header.sections.reduce(
+      (sum, section) => sum + BigInt(section.length),
+      0n,
+    )
+    if (compressedBytes > BigInt(limits.maxDecodedBytes))
+      throw limitExceeded('JPEG XL full-frame Modular sections exceed maxDecodedBytes')
+    return Object.freeze({
+      metadata: metadataForHeader(header),
+      fullFrameFallback: true,
+      decoder: new JpegXlModularDecoder(
+        header,
+        foundation.globalProgram,
+        options.signal,
+        async (signal) => {
+          const sections: Uint8Array[] = []
+          for (const [index, section] of header.sections.entries()) {
+            throwIfAborted(signal)
+            sections.push(
+              index === 0
+                ? globalData
+                : await readExactly(
+                    source,
+                    section.offset,
+                    section.length,
+                    signal ? { signal } : {},
+                  ),
+            )
+          }
+          return (
+            await decodeJpegXlNativeModularPlanesCancellable(sections, header, limits, signal)
+          ).planes
+        },
+      ),
+    })
+  }
   const loadGroup: ModularGroupLoader = async (groupId, readOptions = {}) => {
     if (
       !Number.isSafeInteger(groupId) ||
@@ -4744,12 +4872,30 @@ export const decodeJpegXlCodestream = (
       decoder: new JpegXlModularDecoder(header, program),
     })
   }
-  const groups = readMultiGroupPrograms(
-    header.sections.map((section) =>
-      codestream.subarray(section.offset, section.offset + section.length),
-    ),
-    header,
+  const sections = header.sections.map((section) =>
+    codestream.subarray(section.offset, section.offset + section.length),
   )
+  const global = sections[0]
+  if (!global) throw invalidInput('JPEG XL global section is missing')
+  const foundation = readMultiGroupFoundation(global, header, limits)
+  if (foundation.kind === 'full-frame')
+    return Object.freeze({
+      metadata: metadataForHeader(header),
+      fullFrameFallback: true,
+      decoder: new JpegXlModularDecoder(
+        header,
+        foundation.globalProgram,
+        undefined,
+        async (signal) =>
+          (await decodeJpegXlNativeModularPlanesCancellable(sections, header, limits, signal))
+            .planes,
+      ),
+    })
+  const groups = Array.from({ length: header.groupsAcross * header.groupsDown }, (_, groupId) => {
+    const data = sections[foundation.firstGroupSection + groupId]
+    if (!data) throw invalidInput('JPEG XL Modular group section is missing')
+    return readModularGroup(data, header, foundation, groupId)
+  })
   const loadGroup: ModularGroupLoader = async (groupId, options = {}) => {
     throwIfAborted(options.signal)
     const group = groups[groupId]

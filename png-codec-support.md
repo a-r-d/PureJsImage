@@ -53,6 +53,7 @@ have focused fixture or benchmark coverage.
   the PNG color type
 - [x] Alpha-presence reporting from the color type or `tRNS`
 - [x] Embedded ICC profile (`iCCP`) parsing and color-managed conversion
+- [x] Parse opaque GRAY profiles separately from RGB; convert checked 8-bit gray samples and preserve compatible 16-bit gray profile samples into PNG
 - [x] `sRGB`, `gAMA`, and `cHRM` parsing with defined color-conversion behavior
 - [x] Common full-range RGB `cICP` signaling for sRGB and Display P3
 - [x] EXIF (`eXIf`) metadata parsing for opt-in preservation and orientation

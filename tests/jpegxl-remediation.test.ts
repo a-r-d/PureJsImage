@@ -54,17 +54,28 @@ describe('PR 35 independently generated metadata and gray-alpha regressions', ()
       )
     })
     if (entry.id === 'gray-icc-alpha-8-8') {
-      it('keeps gray ICC inspection available and rejects unsupported RGB expansion explicitly', async () => {
+      it('converts gray ICC alpha to sRGB and rejects preserving the gray profile on RGBA', async () => {
         const bytes = fixture(entry.id)
         const metadata = await jpegxlCodec.metadata(new MemorySource(bytes), defaultImageLimits)
         expect(metadata.colorSemantics).toMatchObject({ family: 'gray', provenance: 'icc' })
         expect(metadata.components).toBe(2)
-        for (const colorOutput of ['preserve', 'srgb'] as const)
-          await expect(
-            (await Image.open(bytes, { colorOutput })).jpegxl().toBuffer(),
-          ).rejects.toMatchObject({
-            code: 'UNSUPPORTED_OPERATION',
-          })
+        await expect(
+          (await Image.open(bytes, { colorOutput: 'preserve' })).jpegxl().toBuffer(),
+        ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+        const converted = await decode(bytes, { colorOutput: 'srgb' })
+        expect(converted.formats).toEqual(['rgba8'])
+        expect(converted.decoder.colorSemantics).toMatchObject({
+          family: 'rgb',
+          primaries: 'srgb',
+          provenance: 'decoder-converted',
+        })
+        expect(
+          (
+            await inspectJpegXl(
+              await (await Image.open(bytes, { colorOutput: 'srgb' })).jpegxl().toBuffer(),
+            )
+          ).colorChannels,
+        ).toBe(3)
       })
       continue
     }

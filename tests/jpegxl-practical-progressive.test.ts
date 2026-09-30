@@ -577,17 +577,20 @@ describe('JPEG XL selective high-depth color sessions', () => {
     expect(result.liveBytes).toBe(0)
   })
 
-  it('keeps grouped alpha stages behind the declared static fallback', async () => {
+  it('plans grouped alpha dependencies for DC output', async () => {
     const bytes = await encoded(
       'pq-rgba16-grouped',
       '53a18d6184cad7bab485cc68607ed7cfa937af006204faf842c23f9c60410bbf',
     )
     const session = await openJpegXlSession(bytes)
     try {
-      expect(session.stages.find((stage) => stage.kind === 'dc')?.status).toBe('unavailable')
-      expect(() => session.plan({ until: 'dc', fallback: 'reject' })).toThrow(
-        'selective decode rejected',
+      expect(session.stages.find((stage) => stage.kind === 'dc')?.status).toBe(
+        'requires-validation',
       )
+      const plan = session.plan({ until: 'dc', fallback: 'reject' })
+      expect(plan.fallbackReasons).toEqual([])
+      expect(plan.sectionIds.length).toBeGreaterThan(2)
+      expect(plan.workingMemoryClass).toBe('full-native-alpha-and-dc-restoration')
     } finally {
       await session.close()
     }

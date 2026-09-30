@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "width": 513,
+  "height": 259,
+  "oracle": "libjxl 0.12.0 8cb67e2; unmodified djxl",
+  "sourceSha256": "fcaa32e80f56e0d1b6e9bf93c3e9f3e1542d208ce119686d86b671420713f469",
+  "forcedEncoderSourceSha256": "ab86ba85ad49a7e5c8d2995b95aaa28328f772592ba657300f89323a1983ad79",
+  "inputSha256": "e619f714e1559f58df4a4d4a54691341ac71baa231998d165630920cb906a0f7",
+  "fixtures": [
+    {
+      "strategy": 8,
+      "file": "strategy-8.jxl",
+      "sha256": "f83f0d1e5a9d6cbf688acc44389a8339a51c0c86b1c332082ca6903fd8eaea9f",
+      "referenceSha256": "632c5f5f3d27a8ddac4a35654c649c7d92c26845f36c62aea0dc4b9150420378",
+      "bytes": 2981
+    },
+    {
+      "strategy": 9,
+      "file": "strategy-9.jxl",
+      "sha256": "267a2fb686d8ca9275ff37a60eb03490229c45c6018d3a97a8c3d6a7954ef2e9",
+      "referenceSha256": "37a74ecc2af8e379dc012656aa4674a75e6bbb0f783a1c3e216e21311ad1267a",
+      "bytes": 3100
+    },
+    {
+      "strategy": 21,
+      "file": "strategy-21.jxl",
+      "sha256": "8abe7833c0b122dedd4e8db3f181c648411fc19df71dd00886a429c36a9064e2",
+      "referenceSha256": "20f027b7b87d1578461c426a4a7466486e5c7ca1ef6ea69dfba286716cf6bd61",
+      "bytes": 3106
+    },
+    {
+      "strategy": 22,
+      "file": "strategy-22.jxl",
+      "sha256": "50bb00d9a17de400fbf62d3b245b698aeb015185599434893db0bc52ff4a7555",
+      "referenceSha256": "3e522db71d2bdbded88515c75d644592f8db48ae22ac86739a833d5e9e8b737f",
+      "bytes": 3120
+    },
+    {
+      "strategy": 23,
+      "file": "strategy-23.jxl",
+      "sha256": "86bbd65c4ec5b775578cc24afa02210560dc051bd0daade9606b1be29a986cc5",
+      "referenceSha256": "becff547d5472358174e0d77a7e21fa5b7de10a36224b108d1177cdf54f159e8",
+      "bytes": 3109
+    },
+    {
+      "strategy": 24,
+      "file": "strategy-24.jxl",
+      "sha256": "8049bb3fd301be68610adab503ba7b883b9f4635ff03faec71d95eb5a220878e",
+      "referenceSha256": "9be00b526e09d8b9fdb6ae4f2e73fcb6cc286cd9928cf24db038adda585785f4",
+      "bytes": 3073
+    },
+    {
+      "strategy": 25,
+      "file": "strategy-25.jxl",
+      "sha256": "120368e1ffddbf260f3902cdc1fce49d1a67eb99e70e11c5daa39ad784ab24a8",
+      "referenceSha256": "4c26a8b0b9613fea37aec6374a34146bacc2d672389e59a69a92be068330a688",
+      "bytes": 3102
+    },
+    {
+      "strategy": 26,
+      "file": "strategy-26.jxl",
+      "sha256": "e8e9caf7e2f7de3167c8ee6d085241db05237ee9e3009a205a2f59b114e54c3b",
+      "referenceSha256": "e6bb3f9c682f050f0204beef71e1e64e35505b6e13674de726f52d11221d20db",
+      "bytes": 3086
+    }
+  ]
+}

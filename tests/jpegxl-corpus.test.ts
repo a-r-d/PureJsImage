@@ -20,6 +20,7 @@ import { createEvidenceSession } from '../src/evidence.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
+import transformGaps from './fixtures/jpegxl/transform-gaps/manifest.json' with { type: 'json' }
 
 const sha256 = (data: Uint8Array): string => createHash('sha256').update(data).digest('hex')
 
@@ -64,12 +65,19 @@ const comparePixels = (
 }
 
 describe('JPEG XL corpus and development-oracle manifest', () => {
-  it('keeps the VarDCT strategy manifest aligned with independently checked renderers', () => {
+  it('covers supported VarDCT strategies with original and follow-up oracle fixtures', () => {
     expect(jpegXlSupportedVarDctStrategyIds).toEqual([
-      0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+      26,
     ])
-    expect(generatedVarDct.implementedStrategyIds).toEqual(jpegXlSupportedVarDctStrategyIds)
-    expect(generatedVarDct.unsupportedStrategyIds).toEqual([8, 9, 21, 22, 23, 24, 25, 26])
+    // Preserve the original qualification snapshot and add the new fixture evidence.
+    const verified = new Set([
+      ...generatedVarDct.implementedStrategyIds,
+      ...transformGaps.fixtures.map((fixture) => fixture.strategy),
+    ])
+    expect([...verified].sort((a, b) => a - b)).toEqual(jpegXlSupportedVarDctStrategyIds)
+    for (const strategy of generatedVarDct.unsupportedStrategyIds)
+      expect(supportsJpegXlVarDctStrategy(strategy)).toBe(true)
     expect(supportsJpegXlVarDctStrategy(1)).toBe(true)
     expect(supportsJpegXlVarDctStrategy(3)).toBe(true)
   })

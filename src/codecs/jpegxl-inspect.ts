@@ -1,10 +1,10 @@
 import type { AbortOptions } from '../abort.ts'
 import type { ImageMetadata } from '../codec.ts'
-import { pixelBytesPerPixel } from '../pixel.ts'
 import type { PixelRenderingIntent } from '../color.ts'
 import { invalidInput } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
+import { pixelBytesPerPixel } from '../pixel.ts'
 import { createImageSource, type ImageInput, readExactly } from '../source.ts'
 import {
   inspectJpegXlSource,
@@ -58,9 +58,9 @@ export interface JpegXlInspection {
   readonly intrinsicHeight: number | undefined
   readonly icc: Readonly<{ readonly present: boolean; readonly decodedBytes: number | undefined }>
   readonly encoding: 'modular' | 'vardct'
-  readonly imageKind: 'static'
+  readonly imageKind: 'static' | 'animation'
   readonly preview: boolean
-  readonly frameCount: 1
+  readonly frameCount: number
   readonly level: 5 | 10 | undefined
   readonly progressivePasses: number
   readonly jpegReconstruction: 'unavailable' | 'metadata-valid'
@@ -170,9 +170,9 @@ export const inspectJpegXl = async (
       decodedBytes: frame.iccProfile?.byteLength,
     }),
     encoding: header.encoding,
-    imageKind: 'static',
+    imageKind: frame.animation === undefined ? 'static' : 'animation',
     preview: frame.previewSize !== undefined,
-    frameCount: 1,
+    frameCount: metadata.frames ?? 1,
     level: structure.level,
     progressivePasses: header.progressivePasses,
     jpegReconstruction: reconstructionBox ? 'metadata-valid' : 'unavailable',
@@ -186,8 +186,20 @@ export const inspectJpegXl = async (
       nativeSampleBytes,
     }),
     unsupportedFeatures: Object.freeze([
-      'animation',
-      'Level 10 pixel decode',
+      ...(frame.sampleFormat === 'floating-point' ||
+      frame.extraChannels.some((channel) => channel.bitDepth.sampleFormat === 'floating-point')
+        ? ['floating-point pixels require native channel extraction']
+        : []),
+      ...((frame.bitDepth > 16 && frame.sampleFormat === 'unsigned-integer') ||
+      frame.extraChannels.some(
+        (channel) =>
+          channel.bitDepth.bits > 16 && channel.bitDepth.sampleFormat === 'unsigned-integer',
+      )
+        ? ['integer pixels above 16 bits require native channel extraction']
+        : []),
+      ...(frame.extraChannels.some((channel) => channel.type !== 0)
+        ? ['non-alpha extra channels require native channel extraction']
+        : []),
       ...(reconstructionBox ? [] : ['exact JPEG reconstruction']),
     ]),
   })

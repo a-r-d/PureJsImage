@@ -480,9 +480,10 @@ const manifest = Object.freeze({
   sourceArchiveSha256: '818398895831069902e3677d285054a7d1255b11b221e94c6aaa1cb83b0a3f29',
   license: 'BSD-3-Clause development oracle; generated pixel patterns are CC0',
   implementedStrategyIds: Object.freeze([
-    0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+    26,
   ]),
-  unsupportedStrategyIds: Object.freeze([8, 9, 21, 22, 23, 24, 25, 26]),
+  unsupportedStrategyIds: Object.freeze([]),
   fixtures: Object.freeze(entries),
 })
 

@@ -5,7 +5,7 @@ import type {
   ImageDecoder,
   MetadataPreservationOptions,
 } from '../codec.ts'
-import { ImageError, unsupportedOperation } from '../errors.ts'
+import { ImageError, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimitOptions, ImageLimits } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
 import type { PixelBlock } from '../pixel.ts'
@@ -19,6 +19,7 @@ import {
   parseGrayIccTransform,
   parseRgbIccTransform,
 } from './icc.ts'
+import { createJpegXlProfileDecoder, jpegXlProfileWorkingBytes } from './jpegxl-color.ts'
 import {
   inspectJpegXlSource,
   JpegXlCodestreamSource,
@@ -134,6 +135,7 @@ const colorManagedJpegXlDecoder = (
   decoder: ImageDecoder,
   frame: Readonly<JpegXlFrameStructure>,
   options: Readonly<DecoderOptions>,
+  limits: Readonly<ImageLimits>,
 ): ImageDecoder => {
   if (
     options.colorOutput !== undefined &&
@@ -170,14 +172,28 @@ const colorManagedJpegXlDecoder = (
       frame.colorSemanticsPrimaries !== 'srgb' ||
       frame.colorSemanticsTransfer.kind !== 'srgb')
   if (!iccConversion && !structuredConversion) {
+    if (frame.iccProfile && frame.colorChannels === 1 && frame.alphaBitDepth !== undefined)
+      throw unsupportedOperation(
+        'JPEG XL gray ICC cannot describe expanded RGBA samples; request sRGB or use native channel extraction',
+      )
     return configureJpegXlDecoderOutput(decoder, frame, options)
   }
+  const profile16 = iccConversion && decoder.pixelFormat.endsWith('16')
   const alphaConfigured = configureJpegXlDecoderOutput(
     decoder,
     frame,
-    frame.alphaAssociated ? { ...options, alphaOutput: 'straight' } : options,
+    profile16
+      ? { ...options, alphaOutput: 'preserve' }
+      : frame.alphaAssociated
+        ? { ...options, alphaOutput: 'straight' }
+        : options,
   )
   try {
+    if (
+      iccConversion &&
+      (profile16 || (frame.colorChannels === 1 && frame.alphaBitDepth !== undefined))
+    )
+      return createJpegXlProfileDecoder(alphaConfigured, frame, limits)
     if (frame.chromaticities !== undefined)
       throw unsupportedOperation(
         'JPEG XL custom chromaticity conversion requires a color transform',
@@ -201,6 +217,7 @@ const colorManagedJpegXlDecoder = (
   } catch (error) {
     if (
       !explicitConversion &&
+      !(frame.iccProfile && frame.colorChannels === 1 && frame.alphaBitDepth !== undefined) &&
       error instanceof ImageError &&
       error.code === 'UNSUPPORTED_OPERATION'
     ) {
@@ -215,12 +232,22 @@ const describeJpegXlDecoder = (
   frame: Readonly<JpegXlFrameStructure>,
   options: Readonly<DecoderOptions>,
   encoding: 'modular' | 'vardct' | 'sequence',
+  fullFrameFallback?: true,
 ): ImageDecoder => {
-  const converted = options.hdrOutput === 'tone-map-srgb' || options.colorOutput === 'srgb'
+  const profileConverted =
+    frame.iccProfile !== undefined &&
+    frame.colorTransform !== 'xyb' &&
+    decoder.colorSemantics?.provenance === 'decoder-converted' &&
+    decoder.colorSemantics.primaries === 'srgb' &&
+    decoder.colorSemantics.transfer.kind === 'srgb'
+  const converted =
+    profileConverted || options.hdrOutput === 'tone-map-srgb' || options.colorOutput === 'srgb'
   const depth = decoder.pixelFormat.endsWith('f32')
     ? 32
     : decoder.pixelFormat.endsWith('16')
-      ? frame.bitDepth
+      ? profileConverted
+        ? 16
+        : frame.bitDepth
       : 8
   const channels = decoder.pixelFormat.startsWith('gray')
     ? 1
@@ -229,7 +256,9 @@ const describeJpegXlDecoder = (
       : 3
   const sampleBitDepths = Object.freeze(
     Array.from({ length: channels }, (_, c) =>
-      c === 3 && decoder.pixelFormat.endsWith('16') ? (frame.alphaBitDepth ?? depth) : depth,
+      c === 3 && decoder.pixelFormat.endsWith('16') && !profileConverted
+        ? (frame.alphaBitDepth ?? depth)
+        : depth,
     ),
   )
   const nativeHigh = Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8
@@ -250,6 +279,10 @@ const describeJpegXlDecoder = (
           : 'rgb8'
   const inputColorSemantics = jpegXlSourceColorSemantics(frame)
   const expandedGray = frame.colorChannels === 1 && frame.alphaBitDepth !== undefined
+  const profileExtraBytes =
+    profileConverted && (decoder.pixelFormat.endsWith('16') || expandedGray)
+      ? jpegXlProfileWorkingBytes(frame)
+      : 0
   const execution = Object.freeze({
     nativePixelFormat,
     sourceSampleBitDepths: Object.freeze(
@@ -262,34 +295,42 @@ const describeJpegXlDecoder = (
       nativePixelFormat !== decoder.pixelFormat ||
       (decoder.colorSemantics?.provenance === 'decoder-converted' &&
         inputColorSemantics.provenance !== 'decoder-converted' &&
-        !expandedGray) ||
+        (!expandedGray || profileConverted)) ||
       (frame.alphaAssociated && decoder.colorSemantics?.alpha === 'straight'),
     orientation: frame.orientation,
     sampleBitDepths,
     decodeDuringOpen: encoding === 'vardct' && decoder.capabilities.scaledDecode,
     fullFrameFallbackReasons: Object.freeze(
-      encoding === 'sequence'
+      fullFrameFallback
         ? [
-            'Sequence replay retains native frame planes, a full composition canvas and up to four reference slots; it does not cache the decoded sequence',
+            'Global Modular spatial transforms or shifted prefix layouts require full native channel planes',
           ]
-        : encoding === 'vardct'
+        : encoding === 'sequence'
           ? [
-              decoder.capabilities.scaledDecode
-                ? 'JPEG-derived coefficients retained for the whole image; pixels use bounded rows'
-                : 'VarDCT retains a full output frame; eligible 8-bit images use bounded restoration bands',
+              'Sequence replay retains native frame planes, a full composition canvas and up to four reference slots; it does not cache the decoded sequence',
             ]
-          : frame.sections.length === 1
-            ? ['Single-group Modular retains its complete channel planes']
-            : [],
+          : encoding === 'vardct'
+            ? [
+                decoder.capabilities.scaledDecode
+                  ? 'JPEG-derived coefficients retained for the whole image; pixels use bounded rows'
+                  : 'VarDCT retains a full output frame; eligible 8-bit images use bounded restoration bands',
+              ]
+            : frame.sections.length === 1
+              ? ['Single-group Modular retains its complete channel planes']
+              : [],
     ),
     estimatedWorkingBytes:
-      encoding === 'sequence'
-        ? frame.width * frame.height * frame.channelCount * 96 +
+      profileExtraBytes +
+      (fullFrameFallback
+        ? frame.width * frame.height * frame.channelCount * 32 +
           frame.sections.reduce((sum, part) => sum + part.length, 0)
-        : encoding === 'vardct'
-          ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
-          : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
-            frame.sections.reduce((sum, part) => sum + part.length, 0),
+        : encoding === 'sequence'
+          ? frame.width * frame.height * frame.channelCount * 96 +
+            frame.sections.reduce((sum, part) => sum + part.length, 0)
+          : encoding === 'vardct'
+            ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
+            : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
+              frame.sections.reduce((sum, part) => sum + part.length, 0)),
     conversions: Object.freeze([
       ...(expandedGray ? ['gray-to-rgb'] : []),
       ...(decoder.colorSemantics?.alpha === 'straight' && frame.alphaAssociated
@@ -403,6 +444,17 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
       logical.limits.maxHeaderBytes,
       logical.limits,
     )
+    const profileConversion =
+      inspection.frame.iccProfile !== undefined &&
+      inspection.frame.colorTransform === 'none' &&
+      options.preserveIcc !== true &&
+      options.colorOutput !== 'preserve' &&
+      (Math.max(inspection.frame.bitDepth, inspection.frame.alphaBitDepth ?? 0) > 8 ||
+        (inspection.frame.colorChannels === 1 && inspection.frame.alphaBitDepth !== undefined))
+    const profileBytes = profileConversion ? jpegXlProfileWorkingBytes(inspection.frame) : 0
+    if (profileBytes > limits.maxDecodedBytes)
+      throw limitExceeded('JPEG XL profile tables exceed maxDecodedBytes')
+    const pixelLimits = { ...limits, maxDecodedBytes: limits.maxDecodedBytes - profileBytes }
     if (
       (inspection.frame.sampleFormat === 'unsigned-integer' && inspection.frame.bitDepth > 16) ||
       inspection.frame.extraChannels.some(
@@ -419,9 +471,10 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
         throw unsupportedOperation('JPEG XL animation requires explicit displayed-frame selection')
       return describeJpegXlDecoder(
         colorManagedJpegXlDecoder(
-          await createJpegXlSequenceFrameDecoder(source, limits, options, inspection.frame),
+          await createJpegXlSequenceFrameDecoder(source, pixelLimits, options, inspection.frame),
           inspection.frame,
           options,
+          limits,
         ),
         inspection.frame,
         options,
@@ -448,12 +501,13 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
         colorManagedJpegXlDecoder(
           await createJpegXlSequenceFrameDecoder(
             source,
-            limits,
+            pixelLimits,
             { ...options, frame: options.frame ?? 0 },
             inspection.frame,
           ),
           inspection.frame,
           options,
+          limits,
         ),
         inspection.frame,
         options,
@@ -480,9 +534,10 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
     if (inspection.encoding === 'vardct') {
       return describeJpegXlDecoder(
         colorManagedJpegXlDecoder(
-          await createJpegXlVarDctDecoder(source, limits, options),
+          await createJpegXlVarDctDecoder(source, pixelLimits, options),
           inspection.frame,
           options,
+          limits,
         ),
         inspection.frame,
         options,
@@ -491,16 +546,17 @@ export const jpegxlCodec: ImageCodec = Object.freeze({
     }
     const decoded = await decodeJpegXlSource(
       logical.source,
-      limits,
+      pixelLimits,
       options,
       logical.limits.maxHeaderBytes,
       logical.limits,
     )
     return describeJpegXlDecoder(
-      colorManagedJpegXlDecoder(decoded.decoder, inspection.frame, options),
+      colorManagedJpegXlDecoder(decoded.decoder, inspection.frame, options, limits),
       inspection.frame,
       options,
       'modular',
+      decoded.fullFrameFallback,
     )
   },
   createEncoder: createJpegXlModularEncoder,

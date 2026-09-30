@@ -5,6 +5,9 @@ import { resolve } from 'node:path'
 
 const inputPath = process.argv[2]
 const outputDirectory = process.argv[3]
+const linearFloat = process.argv[4] === 'linear-float32'
+if (process.argv[4] !== undefined && !linearFloat)
+  throw new Error('The optional output mode must be linear-float32')
 if (!inputPath || !outputDirectory)
   throw new Error('Usage: bun benchmark/jpegxl/flush-progressive-oracle.ts INPUT OUTPUT_DIRECTORY')
 if (process.platform !== 'linux' || process.arch !== 'x64')
@@ -35,6 +38,8 @@ const definitions = {
   JxlDecoderImageOutBufferSize: { args: ['ptr', 'ptr', 'ptr'], returns: 'u32' },
   JxlDecoderSetImageOutBuffer: { args: ['ptr', 'ptr', 'ptr', 'u64'], returns: 'u32' },
   JxlDecoderSetImageOutBitDepth: { args: ['ptr', 'ptr'], returns: 'u32' },
+  JxlColorEncodingSetToLinearSRGB: { args: ['ptr', 'i32'], returns: 'void' },
+  JxlDecoderSetPreferredColorProfile: { args: ['ptr', 'ptr'], returns: 'u32' },
   JxlDecoderGetIntendedDownsamplingRatio: { args: ['ptr'], returns: 'u64' },
   JxlDecoderFlushImage: { args: ['ptr'], returns: 'u32' },
 } as const
@@ -88,7 +93,11 @@ const format = new Uint8Array(24)
 const pixelFormat = new DataView(format.buffer)
 try {
   // kPasses includes complete DC and every AC pass. Preserve encoded coordinates.
-  ok('JxlDecoderSubscribeEvents', decoder, 0x40 | 0x200 | 0x400 | 0x1000 | 0x8000)
+  ok(
+    'JxlDecoderSubscribeEvents',
+    decoder,
+    0x40 | (linearFloat ? 0x100 : 0) | 0x200 | 0x400 | 0x1000 | 0x8000,
+  )
   ok('JxlDecoderSetProgressiveDetail', decoder, 3)
   ok('JxlDecoderSetKeepOrientation', decoder, 1)
   ok('JxlDecoderSetInput', decoder, input, input.length)
@@ -118,8 +127,16 @@ try {
         throw new Error('This oracle output contract requires integer samples up to 16 bits')
       channels = basic.getUint32(52, true) + (basic.getUint32(60, true) > 0 ? 1 : 0)
       pixelFormat.setUint32(0, channels, true)
-      pixelFormat.setUint32(4, Math.max(bitDepth, alphaBitDepth) > 8 ? 3 : 2, true)
+      pixelFormat.setUint32(
+        4,
+        linearFloat ? 0 : Math.max(bitDepth, alphaBitDepth) > 8 ? 3 : 2,
+        true,
+      )
       pixelFormat.setUint32(8, 2, true) // JXL_BIG_ENDIAN, matching native sample blocks.
+    } else if (status === 0x100 && linearFloat) {
+      const color = new Uint8Array(256)
+      call('JxlColorEncodingSetToLinearSRGB', color, channels < 3 ? 1 : 0)
+      ok('JxlDecoderSetPreferredColorProfile', decoder, color)
     } else if (status === 3) {
       const size = new BigUint64Array(1)
       ok('JxlDecoderPreviewOutBufferSize', decoder, format, size)
@@ -140,7 +157,7 @@ try {
       pixels = new Uint8Array(Number(bytes))
       ok('JxlDecoderSetImageOutBuffer', decoder, format, pixels, pixels.length)
       const depth = new Uint8Array(12)
-      new DataView(depth.buffer).setUint32(0, 1, true) // JXL_BIT_DEPTH_FROM_CODESTREAM.
+      new DataView(depth.buffer).setUint32(0, linearFloat ? 0 : 1, true)
       ok('JxlDecoderSetImageOutBitDepth', decoder, depth)
     } else if (status === 0x8000 || status === 0x1000) {
       if (!pixels) throw new Error('Native stage has no output buffer')
@@ -186,8 +203,9 @@ try {
         channels,
         bitDepth,
         alphaBitDepth,
-        output:
-          'encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions',
+        output: linearFloat
+          ? 'encoded-coordinate linear-sRGB float32 samples, big endian; flush stages retain full dimensions'
+          : 'encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions',
         preview: previewPixels
           ? {
               width: previewWidth,

@@ -6,6 +6,7 @@ import {
   decodeJpegXlStandaloneModular,
   type JpegXlFrameStructure,
   JpegXlGroupedModularPlanes,
+  jpegXlExtraChannelPass,
   jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
 import { applyJpegXlPatch } from './jpegxl-patch-blend.ts'
@@ -31,6 +32,7 @@ import {
 import {
   type JpegXlVarDctMemoryLease,
   type JpegXlVarDctMemoryLedger,
+  jpegXlHfCoefficientOrderBytesPerPass,
   retainedTypedArrayBytes,
 } from './jpegxl-vardct-memory.ts'
 
@@ -575,7 +577,7 @@ const strategyQuantizationTable = Object.freeze([
 ])
 
 export const jpegXlSupportedVarDctStrategyIds = Object.freeze([
-  0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
 ] as const)
 
 export const supportsJpegXlVarDctStrategy = (strategy: number): boolean =>
@@ -1075,7 +1077,7 @@ const lowFrequencyResampleScales = (size: number): Float64Array => {
 }
 
 const lowFrequencyResampleScaleCache = Object.freeze(
-  Array.from({ length: 9 }, (_, size) =>
+  Array.from({ length: 33 }, (_, size) =>
     size === 0 ? new Float64Array() : lowFrequencyResampleScales(size),
   ),
 )
@@ -3026,7 +3028,9 @@ export interface JpegXlVarDctLowFrequencyState {
   readonly lfGlobal: Readonly<JpegXlJpegLfGlobal>
   readonly dcGroup: Readonly<JpegXlJpegDcGroup>
   readonly dcPlanes: readonly [Float64Array, Float64Array, Float64Array]
-  readonly nativeExtraPlanes?: readonly Int32Array[]
+  readonly nativeExtraPlanes: readonly Int32Array[] | undefined
+  readonly extraChannels?: JpegXlGroupedModularPlanes
+  readonly decodedExtraGroups: Set<number>
   readonly released: boolean
   release(): void
 }
@@ -3084,8 +3088,6 @@ export const prepareJpegXlVarDctLowFrequency = (
             lfGlobal.globalModularCode,
           )
         : undefined
-    if (extraChannels?.hasGroups)
-      throw unsupportedOperation('JPEG XL selective alpha requires complete early extra planes')
     const decoded = decodeJpegXlVarDctDcGroups(
       sections,
       frame,
@@ -3108,7 +3110,11 @@ export const prepareJpegXlVarDctLowFrequency = (
       lfGlobal,
       dcGroup: decoded.group,
       dcPlanes: prepared.planes,
-      ...(extraChannels ? { nativeExtraPlanes: extraChannels.finish() } : {}),
+      ...(extraChannels ? { extraChannels } : {}),
+      get nativeExtraPlanes(): readonly Int32Array[] | undefined {
+        return extraChannels?.finish()
+      },
+      decodedExtraGroups: new Set<number>(),
       get released(): boolean {
         return released
       },
@@ -3128,6 +3134,113 @@ export const prepareJpegXlVarDctLowFrequency = (
     lfLease.release()
     rollback()
     throw error
+  }
+}
+
+/** Read alpha trailers without reconstructing the color coefficients that precede them. */
+export const prepareJpegXlVarDctAlphaGroups = async (
+  state: JpegXlVarDctLowFrequencyState,
+  sections: readonly Uint8Array[],
+  sectionIds: readonly number[],
+  signal: AbortSignal,
+): Promise<void> => {
+  const extra = state.extraChannels
+  if (!extra?.hasGroups) return
+  const { frame, memory, lfGlobal, dcGroup } = state
+  const firstAcSection = 2 + frame.dcGroupCount
+  const pending = sectionIds.filter(
+    (id) => id >= firstAcSection && !state.decodedExtraGroups.has(id),
+  )
+  if (pending.length === 0) return
+  const hfSection = sections[1 + frame.dcGroupCount]
+  if (!hfSection) throw invalidInput('JPEG XL alpha dependency lacks HF global data')
+  const groupCount = frame.groupsAcross * frame.groupsDown
+  // The parser constructs every pass's coefficient orders even for a DC-only request.
+  const orderLease = memory.retain(
+    'jpegxl-selective-alpha-hf-order-preflight',
+    frame.passCount * jpegXlHfCoefficientOrderBytesPerPass,
+  )
+  let hfGlobal: JpegXlJpegHfGlobal
+  try {
+    hfGlobal = decodeJpegXlJpegHfGlobal(
+      hfSection,
+      { dcGroupCount: frame.dcGroupCount, groupCount, passCount: frame.passCount },
+      lfGlobal,
+      0,
+      true,
+    )
+  } finally {
+    orderLease.release()
+  }
+  const hfLease = memory.retain(
+    'jpegxl-selective-alpha-hf-metadata',
+    retainedTypedArrayBytes(hfGlobal),
+  )
+  let deadline = performance.now() + 8
+  try {
+    for (const id of pending) {
+      throwIfAborted(signal)
+      const passIndex = Math.floor((id - firstAcSection) / groupCount)
+      const groupId = (id - firstAcSection) % groupCount
+      const shifts = extra.groupedShifts.filter(
+        (shift) => jpegXlExtraChannelPass(frame, shift) === passIndex,
+      )
+      if (shifts.length === 0) continue
+      const pass = hfGlobal.passes[passIndex]
+      const section = sections[id]
+      if (!pass || !section) throw invalidInput('JPEG XL alpha dependency section is missing')
+      const blockDimension = frame.groupDimension / 8
+      const blockX = (groupId % frame.groupsAcross) * blockDimension
+      const blockY = Math.floor(groupId / frame.groupsAcross) * blockDimension
+      const blockWidth = Math.min(blockDimension, Math.ceil(frame.codedWidth / 8) - blockX)
+      const blockHeight = Math.min(blockDimension, Math.ceil(frame.codedHeight / 8) - blockY)
+      // Three coefficient arenas, offsets, nonzero counters and full DC context scratch.
+      const coefficientLease = memory.retain(
+        'jpegxl-selective-alpha-coefficient-scratch',
+        blockWidth * blockHeight * (3 * 64 + 4) * 4 + dcGroup.blockWidth * dcGroup.blockHeight,
+      )
+      try {
+        const decoded = decodeJpegXlJpegAcGroup(
+          section,
+          {
+            blockX,
+            blockY,
+            blockWidth,
+            blockHeight,
+            chromaSubsampling: frame.chromaSubsampling,
+            histogramCount: hfGlobal.histogramCount,
+            colorTransform: 'none',
+          },
+          lfGlobal,
+          pass,
+          dcGroup,
+          0,
+          false,
+          false,
+          frame.passShifts[passIndex] ?? 0,
+        )
+        extra.decodeGroup(
+          section,
+          decoded.endingBitPosition,
+          1 + 3 * frame.dcGroupCount + 17 + passIndex * groupCount + groupId,
+          blockX * 8,
+          blockY * 8,
+          frame.groupDimension,
+          Math.min(...shifts),
+          Math.max(...shifts),
+        )
+        state.decodedExtraGroups.add(id)
+      } finally {
+        coefficientLease.release()
+      }
+      if (performance.now() >= deadline) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+        deadline = performance.now() + 8
+      }
+    }
+    throwIfAborted(signal)
+  } finally {
+    hfLease.release()
   }
 }
 
@@ -3449,6 +3562,73 @@ interface JpegXlVarDctBand {
   readonly lease: JpegXlVarDctMemoryLease
 }
 
+/** Large transforms allocate only when their strategy map requires them. */
+const prepareTransformScratch = (strategies: Uint8Array, memory: JpegXlVarDctMemoryLedger) => {
+  let samples = 4_096
+  let dimension = 64
+  let tableBytes = 0
+  const largeStrategies = new Set<number>()
+  for (let index = 0; index < strategies.length; index++) {
+    const strategy = strategies[index] ?? 0
+    const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
+    const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
+    samples = Math.max(samples, width * height)
+    dimension = Math.max(dimension, width, height)
+    if (strategy >= 21 && strategy <= 26 && !largeStrategies.has(strategy)) {
+      largeStrategies.add(strategy)
+      tableBytes += width * height * 3 * 8
+    }
+  }
+  const blocks = samples / 64
+  const lease = memory.retain(
+    'jpegxl-vardct-transform-scratch',
+    4 * samples * 8 +
+      4 * blocks * 8 +
+      dimension * 2 +
+      tableBytes +
+      (largeStrategies.size === 0 ? 0 : dimension * dimension * 2 * 8),
+  )
+  const dequantization =
+    largeStrategies.size === 0 ? strategyDequantization : new Map(strategyDequantization)
+  if (dequantization instanceof Map) {
+    for (const strategy of largeStrategies) {
+      const square = strategy === 21 || strategy === 24
+      const factor = strategy >= 24 ? (square ? 3.6 : 2.6) : square ? 1.8 : 1.3
+      const bands = commonLargeDctBands(
+        Math.fround(factor * (square ? 26629.073922049844 : 23629.073922049844)),
+        Math.fround(factor * (square ? 9311.323871001005 : 8611.323871001005)),
+        Math.fround(factor * (square ? 4992.248644553864 : 4492.248644553864)),
+      )
+      const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
+      const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
+      dequantization.set(
+        strategy,
+        Object.freeze(
+          bands.map((parameters) =>
+            Float64Array.from(
+              distanceWeights(Math.min(width, height), Math.max(width, height), parameters),
+              (weight) => 1 / weight,
+            ),
+          ),
+        ),
+      )
+    }
+  }
+  return {
+    lease,
+    dequantization,
+    coefficients: [
+      new Float64Array(samples),
+      new Float64Array(samples),
+      new Float64Array(samples),
+    ] as const,
+    intermediate: new Float64Array(samples),
+    dc: [new Float64Array(blocks), new Float64Array(blocks), new Float64Array(blocks)] as const,
+    frequencies: new Float64Array(blocks),
+    activeVertical: new Uint16Array(dimension),
+  }
+}
+
 const decodeJpegXlDct8Striped = function* (
   allSections: readonly Uint8Array[],
   frame: Readonly<JpegXlFrameStructure>,
@@ -3477,19 +3657,13 @@ const decodeJpegXlDct8Striped = function* (
     frame.width * frame.height * outputChannels,
   )
   const output = new Uint8Array(frame.width * frame.height * outputChannels)
-  const transformScratchLease = memory.retain(
-    'jpegxl-vardct-transform-scratch',
-    4 * 4_096 * 8 + 3 * 64 * 8 + 64 * 2,
-  )
-  const blockCoefficients = [
-    new Float64Array(4_096),
-    new Float64Array(4_096),
-    new Float64Array(4_096),
-  ] as const
-  const transformIntermediate = new Float64Array(4_096)
-  const dcSamples = [new Float64Array(64), new Float64Array(64), new Float64Array(64)] as const
-  const dcFrequencyScratch = new Float64Array(64)
-  const activeVerticalScratch = new Uint16Array(64)
+  const scratch = prepareTransformScratch(dcGroup.strategies, memory)
+  const transformScratchLease = scratch.lease
+  const blockCoefficients = scratch.coefficients
+  const transformIntermediate = scratch.intermediate
+  const dcSamples = scratch.dc
+  const dcFrequencyScratch = scratch.frequencies
+  const activeVerticalScratch = scratch.activeVertical
   const inverseSigmas = makeEpfInverseSigmas(
     frame,
     dcGroup.quantization,
@@ -3590,7 +3764,7 @@ const decodeJpegXlDct8Striped = function* (
             const dequantization =
               table === undefined
                 ? undefined
-                : (hfGlobal.quantizationTables[table] ?? strategyDequantization.get(strategy ?? -1))
+                : (hfGlobal.quantizationTables[table] ?? scratch.dequantization.get(strategy ?? -1))
             if (
               strategy === undefined ||
               firstBlock === undefined ||
@@ -3708,7 +3882,7 @@ const decodeJpegXlDct8Striped = function* (
                   blockX * 8,
                   destinationY,
                 )
-              } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 20)) {
+              } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 26)) {
                 inverseDctRectangle(
                   values,
                   strategyBlockWidth * 8,
@@ -3981,10 +4155,12 @@ const decodeJpegXlDct8Steps = function* (
   }
 
   const alphaWorkingBytes = alphaLayouts.reduce(
-    (total, layout) => total + layout.width * layout.height * 12,
+    (total, layout) => total + layout.width * layout.height * 16,
     0,
   )
-  const alphaLease = memory.retain('jpegxl-alpha-working-planes', alphaWorkingBytes)
+  const alphaLease = preparedLowFrequency?.extraChannels
+    ? borrowedLowFrequencyLease
+    : memory.retain('jpegxl-alpha-working-planes', alphaWorkingBytes)
   const allSections = separatedSections ? [section, ...continuationSections] : [section]
   const lfGlobal =
     preparedLowFrequency?.lfGlobal ??
@@ -4016,23 +4192,29 @@ const decodeJpegXlDct8Steps = function* (
   let nativeExtraPlanes: readonly Int32Array[] | undefined
   let groupedAlpha = false
   if (frame.extraChannels.length > 0) {
-    groupedAlphaPlanes = new JpegXlGroupedModularPlanes(
-      section,
-      globalSectionEnd,
-      alphaLayouts.map((layout) => ({
-        width: layout.width,
-        height: layout.height,
-        hshift: Math.log2(layout.factor / frame.upsampling),
-        vshift: Math.log2(layout.factor / frame.upsampling),
-      })),
-      frame.groupDimension,
-      limits.maxDecodedBytes - memory.liveBytes + alphaWorkingBytes,
-      Math.max(...frame.extraChannels.map((channel) => channel.bitDepth.bits)),
-      lfGlobal.globalModularCode,
-    )
+    groupedAlphaPlanes =
+      preparedLowFrequency?.extraChannels ??
+      new JpegXlGroupedModularPlanes(
+        section,
+        globalSectionEnd,
+        alphaLayouts.map((layout) => ({
+          width: layout.width,
+          height: layout.height,
+          hshift: Math.log2(layout.factor / frame.upsampling),
+          vshift: Math.log2(layout.factor / frame.upsampling),
+        })),
+        frame.groupDimension,
+        limits.maxDecodedBytes - memory.liveBytes + alphaWorkingBytes,
+        Math.max(...frame.extraChannels.map((channel) => channel.bitDepth.bits)),
+        lfGlobal.globalModularCode,
+      )
     globalSectionEnd = groupedAlphaPlanes.endingBitPosition
     groupedAlpha = groupedAlphaPlanes.hasGroups
-    if ((maximumPasses !== frame.passCount || selectedGroups) && groupedAlpha)
+    if (
+      (maximumPasses !== frame.passCount || selectedGroups) &&
+      groupedAlpha &&
+      !preparedLowFrequency
+    )
       throw unsupportedOperation('JPEG XL selective passes require complete early alpha planes')
   }
   const { group: dcGroup, lease: dcGroupLease } = preparedLowFrequency
@@ -4106,19 +4288,13 @@ const decodeJpegXlDct8Steps = function* (
     new Float32Array(paddedWidth * paddedHeight),
     new Float32Array(paddedWidth * paddedHeight),
   ] as const
-  const transformScratchLease = memory.retain(
-    'jpegxl-vardct-transform-scratch',
-    4 * 4_096 * 8 + 3 * 64 * 8,
-  )
-  const blockCoefficients = [
-    new Float64Array(4_096),
-    new Float64Array(4_096),
-    new Float64Array(4_096),
-  ] as const
-  const transformIntermediate = new Float64Array(4_096)
-  const dcSamples = [new Float64Array(64), new Float64Array(64), new Float64Array(64)] as const
-  const dcFrequencyScratch = new Float64Array(64)
-  const activeVerticalScratch = new Uint16Array(64)
+  const scratch = prepareTransformScratch(dcGroup.strategies, memory)
+  const transformScratchLease = scratch.lease
+  const blockCoefficients = scratch.coefficients
+  const transformIntermediate = scratch.intermediate
+  const dcSamples = scratch.dc
+  const dcFrequencyScratch = scratch.frequencies
+  const activeVerticalScratch = scratch.activeVertical
   const inverseGlobalScale = 65_536 / lfGlobal.globalScale
   const channelMultipliers = [
     (1 / 1.25) ** (frame.xQuantizationScale - 2),
@@ -4131,18 +4307,13 @@ const decodeJpegXlDct8Steps = function* (
 
   const alphaPassMinimum = new Int8Array(frame.passCount),
     alphaPassMaximum = new Int8Array(frame.passCount)
-  let previousAlphaMinimum = 3
-  for (let pass = 0; pass < frame.passCount; pass++) {
-    const boundary = frame.progressiveResolutions.find((entry) => entry.lastPass === pass)
-    const minimum =
-      pass === frame.passCount - 1
-        ? 0
-        : boundary
-          ? Math.log2(boundary.downsampling)
-          : previousAlphaMinimum
-    alphaPassMinimum[pass] = minimum
-    alphaPassMaximum[pass] = previousAlphaMinimum - 1
-    previousAlphaMinimum = minimum
+  alphaPassMinimum.fill(3)
+  alphaPassMaximum.fill(-1)
+  for (let shift = 0; shift < 3; shift++) {
+    const pass = jpegXlExtraChannelPass(frame, shift)
+    if (pass === undefined) continue
+    alphaPassMinimum[pass] = Math.min(alphaPassMinimum[pass] ?? 3, shift)
+    alphaPassMaximum[pass] = Math.max(alphaPassMaximum[pass] ?? -1, shift)
   }
   const groupCount = frame.groupsAcross * frame.groupsDown
   const groupBlockDimension = frame.groupDimension / 8
@@ -4179,7 +4350,12 @@ const decodeJpegXlDct8Steps = function* (
         false,
         frame.passShifts[passIndex] ?? 0,
       )
-      if (groupedAlpha) {
+      if (
+        groupedAlpha &&
+        !preparedLowFrequency?.decodedExtraGroups.has(
+          2 + frame.dcGroupCount + passIndex * groupCount + groupId,
+        )
+      ) {
         if (!groupedAlphaPlanes) throw invalidInput('JPEG XL grouped alpha state is missing')
         groupedAlphaPlanes.decodeGroup(
           acSection,
@@ -4219,7 +4395,7 @@ const decodeJpegXlDct8Steps = function* (
           quantizationTable === undefined
             ? undefined
             : (hfGlobal.quantizationTables[quantizationTable] ??
-              strategyDequantization.get(strategy ?? -1))
+              scratch.dequantization.get(strategy ?? -1))
         if (
           strategy === undefined ||
           firstBlock === undefined ||
@@ -4341,7 +4517,7 @@ const decodeJpegXlDct8Steps = function* (
               blockX * 8,
               blockY * 8,
             )
-          } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 20)) {
+          } else if ((strategy >= 4 && strategy <= 11) || (strategy >= 18 && strategy <= 26)) {
             inverseDctRectangle(
               values,
               strategyBlockWidth * 8,

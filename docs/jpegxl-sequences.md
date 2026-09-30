@@ -94,9 +94,9 @@ planes and up to 256 typed extra channels. It accepts unsigned 1–31-bit sample
 in matching unsigned typed arrays, binary16 bit patterns in `Uint16Array`, or
 binary32 bit patterns in `Uint32Array`.
 Extra channels may have dimension shifts from zero through three. Every plane
-must have exactly its declared dimensions and sample count. Unshifted planes use
-as many 1024-pixel Modular groups as the image needs. Shifted native planes are
-currently limited to a single group.
+must have exactly its declared dimensions and sample count. Unshifted and shifted
+planes use as many 1024-pixel Modular groups as the image needs. Shift-3 planes
+use DC group sections. Group sections preserve the declared native sample grids.
 
 Pass `iccProfile` to preserve source-profile samples and original ICC bytes.
 The profile must describe GRAY for one color plane, RGB for three color planes,

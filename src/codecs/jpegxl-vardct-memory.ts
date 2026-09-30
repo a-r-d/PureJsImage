@@ -1,7 +1,11 @@
 import { limitExceeded } from '../errors.ts'
 import type { EvidenceContext, EvidenceManagedLease } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
-import { jpegXlXybOutputIsLinear, type JpegXlFrameStructure } from './jpegxl-decode.ts'
+import { type JpegXlFrameStructure, jpegXlXybOutputIsLinear } from './jpegxl-decode.ts'
+import {
+  jpegXlVarDctStrategyBlockHeights,
+  jpegXlVarDctStrategyBlockWidths,
+} from './jpegxl-vardct-jpeg.ts'
 
 export interface JpegXlVarDctWorkingMemoryEstimate {
   readonly retainedCompressedSectionsBytes: bigint
@@ -110,8 +114,29 @@ export const retainedTypedArrayBytes = (value: unknown): number => {
 }
 
 // The selected decoder materializes every order for all 13 VarDCT strategy families.
-const hfCoefficientOrderBytesPerPass = 1_563_648n
-const transformScratchBytes = 132_608n
+export const jpegXlHfCoefficientOrderBytesPerPass = 1_563_648
+const estimateTransformScratchBytes = (frame: Readonly<JpegXlFrameStructure>): bigint => {
+  const width = Math.min(Math.ceil(frame.codedWidth / 8), frame.groupDimension / 8)
+  const height = Math.min(Math.ceil(frame.codedHeight / 8), frame.groupDimension / 8)
+  let samples = 4_096
+  let dimension = 64
+  let tables = 0
+  for (let strategy = 21; strategy <= 26; strategy++) {
+    const w = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+    const h = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+    if (w > width || h > height) continue
+    samples = Math.max(samples, w * h * 64)
+    dimension = Math.max(dimension, w * 8, h * 8)
+    tables += w * h * 64 * 3 * 8
+  }
+  return BigInt(
+    4 * samples * 8 +
+      4 * (samples / 64) * 8 +
+      dimension * 2 +
+      tables +
+      (tables === 0 ? 0 : dimension * dimension * 2 * 8),
+  )
+}
 
 /**
  * Conservative selected-VarDCT preflight. Every item is derived from parsed frame geometry or
@@ -151,7 +176,7 @@ export const estimateJpegXlVarDctWorkingMemory = (
   const correlationTiles = ((blockWidth + 7n) / 8n) * ((blockHeight + 7n) / 8n)
   const lfAndHfMetadataBytes =
     retainedCompressedSectionsBytes * 8n +
-    BigInt(frame.passCount) * hfCoefficientOrderBytesPerPass +
+    BigInt(frame.passCount * jpegXlHfCoefficientOrderBytesPerPass) +
     blockCount * 64n +
     correlationTiles * 8n
 
@@ -170,10 +195,13 @@ export const estimateJpegXlVarDctWorkingMemory = (
     const factor = (frame.extraChannelUpsampling[index] ?? frame.upsampling) * 2 ** channel.dimShift
     return (
       total +
-      BigInt(Math.ceil(frame.width / factor)) * BigInt(Math.ceil(frame.height / factor)) * 12n
+      BigInt(Math.ceil(frame.width / factor)) * BigInt(Math.ceil(frame.height / factor)) * 16n
     )
   }, 0n)
   const rowBlockCopyBytes = BigInt(frame.width) * channels
+  // Strategies live in DC data. Until that data is decoded, reserve every legal
+  // large-transform table that fits this geometry. Rendering admits only actual strategies.
+  const transformScratchBytes = estimateTransformScratchBytes(frame)
   const retainedFrameState =
     retainedCompressedSectionsBytes +
     dcPlanesBytes +

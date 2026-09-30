@@ -1,5 +1,9 @@
 import { invalidInput, unsupportedOperation } from '../errors.ts'
-import { type JpegXlFrameStructure, jpegXlXybOutputIsLinear } from './jpegxl-decode.ts'
+import {
+  type JpegXlFrameStructure,
+  jpegXlExtraChannelPass,
+  jpegXlXybOutputIsLinear,
+} from './jpegxl-decode.ts'
 import type { JpegXlVarDctLowFrequencyState } from './jpegxl-vardct-render.ts'
 
 export interface JpegXlRegion {
@@ -32,6 +36,7 @@ export interface JpegXlProgressivePlan {
   readonly fullFrameFallback: 'none' | 'output-only' | 'working-planes' | 'static-decoder'
   readonly workingMemoryClass:
     | 'bounded-dc-restoration'
+    | 'full-native-alpha-and-dc-restoration'
     | 'full-output-with-restoration-bands'
     | 'full-output-and-working-planes'
     | 'static-fallback'
@@ -141,14 +146,11 @@ export const planJpegXlProgressive = (
     frame.extraChannels.length === 1 &&
     frame.extraChannels[0]?.type === 0 &&
     frame.selectedAlphaChannel === 0 &&
-    Math.ceil(
-      frame.codedWidth /
-        ((frame.extraChannelUpsampling[0] ?? 1) * 2 ** frame.extraChannels[0].dimShift),
-    ) <= frame.groupDimension &&
-    Math.ceil(
-      frame.codedHeight /
-        ((frame.extraChannelUpsampling[0] ?? 1) * 2 ** frame.extraChannels[0].dimShift),
-    ) <= frame.groupDimension
+    frame.extraChannels[0].bitDepth.sampleFormat === 'unsigned-integer' &&
+    frame.extraChannels[0].bitDepth.bits <= 16 &&
+    [1, 2, 4, 8].includes(
+      (frame.extraChannelUpsampling[0] ?? 1) * 2 ** frame.extraChannels[0].dimShift,
+    )
   if (frame.extraChannels.length !== 0 && !selectiveAlpha)
     fallbackReasons.push('Extra channels require their complete dependencies')
   if (frame.upsampling !== 1)
@@ -166,6 +168,13 @@ export const planJpegXlProgressive = (
   }
   const reducedOrRegion =
     scale !== 1 || encodedRegion.width !== frame.width || encodedRegion.height !== frame.height
+  const alphaFactor =
+    (frame.extraChannelUpsampling[0] ?? 1) * 2 ** (frame.extraChannels[0]?.dimShift ?? 0)
+  const groupedAlpha =
+    state?.extraChannels?.hasGroups ??
+    (selectiveAlpha &&
+      (Math.ceil(frame.codedWidth / alphaFactor) > frame.groupDimension ||
+        Math.ceil(frame.codedHeight / alphaFactor) > frame.groupDimension))
   const highDepthWorkingPlanes =
     Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) > 8 || jpegXlXybOutputIsLinear(frame)
   const usesRestorationBands =
@@ -175,7 +184,7 @@ export const planJpegXlProgressive = (
     frame.groupsDown > 1
   const fullFrameFallback = fallbackReasons.length
     ? 'static-decoder'
-    : passes > 0 && reducedOrRegion
+    : (passes > 0 || groupedAlpha) && reducedOrRegion
       ? usesRestorationBands
         ? 'output-only'
         : 'working-planes'
@@ -216,6 +225,28 @@ export const planJpegXlProgressive = (
           )
     }
   }
+  if (selectiveAlpha && fallbackReasons.length === 0 && frame.sections.length > 1) {
+    const channel = frame.extraChannels[0]
+    if (!channel) throw invalidInput('JPEG XL selective alpha descriptor is missing')
+    const factor = (frame.extraChannelUpsampling[0] ?? 1) * 2 ** channel.dimShift
+    const groupedShifts = state?.extraChannels
+      ? state.extraChannels.groupedShifts
+      : Math.ceil(frame.codedWidth / factor) > frame.groupDimension ||
+          Math.ceil(frame.codedHeight / factor) > frame.groupDimension
+        ? [Math.log2(factor)]
+        : []
+    for (const shift of groupedShifts) {
+      const pass = jpegXlExtraChannelPass(frame, shift)
+      if (pass === undefined) continue
+      sections.push(1 + frame.dcGroupCount)
+      const alphaGroups =
+        state?.extraChannels?.supportsSelectiveGroups === false
+          ? Array.from({ length: frame.groupsAcross * frame.groupsDown }, (_, id) => id)
+          : groups
+      for (const group of alphaGroups)
+        sections.push(2 + frame.dcGroupCount + pass * frame.groupsAcross * frame.groupsDown + group)
+    }
+  }
   return Object.freeze({
     encodedRegion,
     outputRegion: Object.freeze({ ...region }),
@@ -223,7 +254,7 @@ export const planJpegXlProgressive = (
     scaleDenominator: scale,
     passes,
     groupIds: Object.freeze(groups),
-    sectionIds: Object.freeze(sections),
+    sectionIds: Object.freeze([...new Set(sections)].sort((left, right) => left - right)),
     internalFrameSections: Object.freeze(
       dependencies.flatMap((dependency, frameIndex) =>
         dependency.sections.map((_, sectionId) => Object.freeze({ frameIndex, sectionId })),
@@ -233,7 +264,9 @@ export const planJpegXlProgressive = (
     workingMemoryClass: fallbackReasons.length
       ? 'static-fallback'
       : passes === 0
-        ? 'bounded-dc-restoration'
+        ? groupedAlpha
+          ? 'full-native-alpha-and-dc-restoration'
+          : 'bounded-dc-restoration'
         : usesRestorationBands
           ? 'full-output-with-restoration-bands'
           : 'full-output-and-working-planes',

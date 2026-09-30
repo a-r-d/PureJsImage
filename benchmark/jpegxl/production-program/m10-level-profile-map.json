@@ -73,7 +73,7 @@
     },
     "limits": {
       "nativeEncodeDimensions": "caller-configurable-image-limits",
-      "nativeEncodeGrouping": "multiple-1024-pixel-groups-for-unshifted-channels",
+      "nativeEncodeGrouping": "multiple-1024-pixel-groups-for-unshifted-and-shifted-channels",
       "nativeEncodeMaximumExtraChannels": 256,
       "decodeImageLimits": "caller-configurable-and-preflighted"
     }

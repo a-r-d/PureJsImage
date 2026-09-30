@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "width": 513,
+  "height": 259,
+  "oracle": "libjxl 0.12.0 8cb67e2; unmodified cjxl and djxl",
+  "fixtures": [
+    {
+      "id": "palette-8",
+      "bitDepth": 8,
+      "options": ["-X", "100", "-Y", "100", "--modular_palette_colors=256"],
+      "inputSha256": "024c92f290c1f31a595567923e709f386c00078608325ad50c92c6418a99ba6d",
+      "sha256": "ccd41664e5e3be7406cc64e431244aea36649c841afbef476be08296fbd88068",
+      "referenceSha256": "afd0820099c76db1ff01d28f8a8d8ac9732392a0c42aa2c3ea41e289b1c9243f"
+    },
+    {
+      "id": "palette-16",
+      "bitDepth": 16,
+      "options": ["-X", "100", "-Y", "100", "--modular_palette_colors=256"],
+      "inputSha256": "ada9174dbdabe334dc5b7a5339a93c37d41e9a6eb9ab60869474c15c61f20349",
+      "sha256": "1596857c59af8ad1ffb5ff907da8a39b311bf9ba614247295df3b1f93f2eb8a8",
+      "referenceSha256": "6f081005531ee6efe8326b6e90707a4a191f634d5611e26ae13643147db77d45"
+    },
+    {
+      "id": "squeeze-8",
+      "bitDepth": 8,
+      "options": ["--responsive=1"],
+      "inputSha256": "2ec51dd0674dd677ebf31b0698b76b3c25b1e440e1adada75d8d39c8cde63693",
+      "sha256": "005cba37e96db632df1e726d125b290459490c6275b9c27be49a8dbd71f148b6",
+      "referenceSha256": "9b8134e4011325a52d0f085671b338b32d64d47cf094ccd20b2b14f56fc71b39"
+    },
+    {
+      "id": "squeeze-16",
+      "bitDepth": 16,
+      "options": ["--responsive=1"],
+      "inputSha256": "0c413a34719b50849c51e2253c6e55e3c9f076d24e5268a3231c2767f0784625",
+      "sha256": "ed4232c3163af47daa7f8a07fc76be762707cfa06b545edff8e4a593ee716e52",
+      "referenceSha256": "c207d043f984e40cfc074328c36f337d3d5854c323b838a01b9ada314420cd65"
+    }
+  ]
+}

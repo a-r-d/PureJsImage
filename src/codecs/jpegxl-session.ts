@@ -15,6 +15,7 @@ import {
   decodeJpegXlMultiGroupModularDcFrameSections,
   type JpegXlFrameStructure,
   jpegXlDecodedPixelFormat,
+  jpegXlExtraChannelPass,
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
@@ -30,6 +31,7 @@ import {
   decodeJpegXlDct8SectionCancellable,
   type JpegXlVarDctLowFrequencyState,
   type JpegXlVarDctPixels,
+  prepareJpegXlVarDctAlphaGroups,
   prepareJpegXlVarDctLowFrequency,
   renderJpegXlVarDctLowFrequencyCancellable,
 } from './jpegxl-vardct-render.ts'
@@ -430,6 +432,30 @@ export class JpegXlSession {
         succeeded = true
         return
       }
+      if (state.extraChannels?.hasGroups) {
+        const groupCount = frame.groupsAcross * frame.groupsDown
+        const alphaPasses = state.extraChannels.groupedShifts.map((shift) =>
+          jpegXlExtraChannelPass(frame, shift),
+        )
+        const firstAcSection = 2 + frame.dcGroupCount
+        const alphaSectionIds = target.sectionIds.filter(
+          (id) =>
+            id >= firstAcSection &&
+            alphaPasses.includes(Math.floor((id - firstAcSection) / groupCount)) &&
+            !state.decodedExtraGroups.has(id),
+        )
+        if (alphaSectionIds.length > 0) {
+          const sections: Uint8Array[] = Array.from(
+            { length: frame.sections.length },
+            () => new Uint8Array(),
+          )
+          for (const id of [1 + frame.dcGroupCount, ...alphaSectionIds])
+            sections[id] = await this.#section(this.#frames.length - 1, id, signal)
+          await prepareJpegXlVarDctAlphaGroups(state, sections, alphaSectionIds, signal)
+          for (const lease of this.#temporaryLeases) lease.release()
+          this.#temporaryLeases.length = 0
+        }
+      }
       for (
         let passes = mode === 'target' ? target.passes : 0;
         passes <= target.passes;
@@ -462,11 +488,20 @@ export class JpegXlSession {
             request,
           )
         else {
+          const selectedGroups = new Set(plan.groupIds)
           const sections: Uint8Array[] = Array.from(
             { length: frame.sections.length },
             () => new Uint8Array(),
           )
           for (const id of plan.sectionIds) {
+            const groupOffset = id - 2 - frame.dcGroupCount
+            const groupCount = frame.groupsAcross * frame.groupsDown
+            if (
+              groupOffset >= 0 &&
+              (Math.floor(groupOffset / groupCount) >= passes ||
+                !selectedGroups.has(groupOffset % groupCount))
+            )
+              continue
             if (
               frame.sections.length > 1 &&
               id <= frame.dcGroupCount &&
@@ -489,7 +524,7 @@ export class JpegXlSession {
             new Map(),
             state,
             passes,
-            plan.fallbackReasons.length ? undefined : new Set(plan.groupIds),
+            plan.fallbackReasons.length ? undefined : selectedGroups,
           )
         }
         for (const lease of this.#temporaryLeases) lease.release()

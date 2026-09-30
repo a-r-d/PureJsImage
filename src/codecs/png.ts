@@ -33,6 +33,7 @@ import {
   createPngGrayTransform,
   GrayColorManagedDecoder,
   MAX_ICC_PROFILE_BYTES,
+  parseGrayIccTransform,
   parseRgbIccTransform,
   type RgbChromaticities,
   type RgbIccTransform,
@@ -657,7 +658,8 @@ const parsePng = async (
   if (cicp) {
     colorTransform = cicpColorTransform(cicp, rawColorType)
   } else if (iccProfile) {
-    colorTransform = parseRgbIccTransform(iccProfile)
+    if (rawColorType === 0 && !hasAlpha) grayTransform = parseGrayIccTransform(iccProfile)
+    else colorTransform = parseRgbIccTransform(iccProfile)
   } else if (!foundSrgb && gamma !== undefined) {
     if (rawColorType === 0 && !hasAlpha) {
       grayTransform = createPngGrayTransform(gamma)

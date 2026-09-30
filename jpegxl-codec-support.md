@@ -56,7 +56,7 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Lazy header indexing, aggregate header budgets and no pixel decode at session open
 - [x] Explicit session close, one active iterator, bounded caches and source identity checks
 - [x] Separate embedded preview, complete DC, completed pass and requested final events
-- [x] Native denominators 2 and 4 use signaled pass boundaries; denominator 8 omits main-frame HF data
+- [x] Native denominators 2 and 4 use signaled pass boundaries; opaque denominator 8 omits main-frame HF data
 - [x] Shared execution/explanation planner with all eight coordinate orientations and restoration halos
 - [x] Selective group reads and declared static dependency fallbacks with strict rejection
 - [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure
@@ -65,11 +65,11 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels
 - [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning
 - [x] Compare SDR8 and linear16 first-pass RGBA plus PQ16 first-pass alpha with pinned independent jxl-oxide partial renders before final payload
-- [ ] Selective alpha whose native grid needs group-local AC payloads
+- [x] Selective SDR8/16 and linear/PQ16 stages with group-local integer alpha, global Squeeze dependencies, associated 2x shifted alpha, cross-group crops, replay, cancellation and memory limits
 
 Use `openJpegXlSession` from `purejsimage/jpegxl`. `preview()` emits the separately encoded embedded image. `native()` rejects unavailable native boundaries. `progressive()` emits complete stages, and `decode()` defaults to final output. A final event validates the requested region and its dependencies, not unread unrelated groups.
 
-DC reconstruction uses compact LF state and restoration bands. The supported global alpha plane is retained with LF state. Pass and final output retain a full-resolution output; high-depth and HDR passes retain full working planes. Group-local alpha, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
+DC reconstruction uses compact LF state and restoration bands. Alpha retains its full native plane; grouped alpha can require HF global data and later AC sections before DC output. Global Squeeze requires every alpha group, while color reconstruction remains selective. Plans report this storage and include every alpha dependency section. Pass and final output retain a full-resolution output; high-depth and HDR passes retain full working planes. Multiple or floating alpha, Modular main images, patches, splines, noise and other reference dependencies use their checked static paths; a plan states the fallback. The ordinary pipeline retains final-image semantics and the JPEG-derived reduced-IDCT path remains separate.
 
 The session does not add generic read-ahead over a caller-provided source. HTTP transfer bytes still depend on that source's explicit block and cache policy. Its section-byte counter excludes metadata probes and transport overfetch. See `docs/jpeg-xl.md` for ownership, cache budgets, stage availability and memory accounting.
 
@@ -98,7 +98,7 @@ and range; it does not change transfer functions or primaries.
 
 Open supported P3 input with `colorOutput: "srgb"` for explicit sRGB conversion.
 Open PQ or HLG with `hdrOutput: "tone-map-srgb"` for explicit SDR rendering.
-Ordinary high-depth ICC, custom-chromaticity and structured integer color transforms
+Ordinary GRAY/RGB ICC conversion supports integer samples through 16 bits. Custom-chromaticity and structured high-depth color transforms
 remain errors. Float-encoded input and float JPEG XL encoding remain unsupported.
 
 VarDCT retains a full output frame. Eligible ordinary 8-bit photographs use bounded
@@ -112,9 +112,11 @@ Progressive range-aware processing is M6 and is outside the M5 static boundary.
 - [x] Accept the bounded local three-scalar-palette transform chain with optional index RCT
 - [x] Decode group-local Modular transform chains, including one or more scalar palettes before RCT; verify RGB8/RGB16 samples, odd partial groups, cross-group crops, replay, cancellation and inverse allocation limits
 - [x] Decode all 16 pinned public-comparison lossless inputs exactly, including the seven previously rejected native-libjxl streams
-- [ ] Decode local transforms that modify global prefix planes and general multi-group global Palette/Squeeze transforms
+- [x] Decode group-local transforms separately from retained global Palette prefix planes
+- [x] Decode pinned multi-group global Palette and Squeeze streams with exact RGB8/RGB16 samples, cross-group crops, replay, cancellation and memory-limit checks
+- [ ] Qualify remaining global delta Palette combinations and transformed prefix layouts across native formats and depths
 
-Grouped Modular inverse allocations are bounded before group pixel decoding. Groups keep their existing band-based memory behavior. Transform chains that touch global prefix planes remain unsupported; the global implicit delta-palette exception keeps its separate checked path.
+Grouped Modular inverse allocations are bounded before group pixel decoding. Global palettes without spatial prediction retain their prefix tables and intersecting group bands. Global Squeeze, spatial Palette prediction, progressive passes and shifted prefix layouts use compact full-frame native channel planes; the planner reports that fallback. The global implicit delta-palette exception keeps its separate bounded path. Local group streams exclude the already-decoded global prefix planes and invert their own transforms before the global chain.
 
 ## M7 static forward encoding
 
@@ -130,7 +132,7 @@ The [static lossy qualification](benchmark/jpegxl/production-program/m7-visual-c
 
 - [x] Preserve nondefault PQ and HLG luminance fields through storage-only conversion
 - [x] Keep gray-alpha source descriptors separate from expanded RGBA pixel semantics
-- [x] Reject unavailable gray ICC plus alpha expansion without weakening encoder validation
+- [x] Render supported gray ICC plus alpha to sRGB; reject preserving the GRAY profile on expanded RGBA without weakening encoder validation
 - [x] Check actual encoder allocations before construction and release all ownership on failure
 - [x] Validate maxWorkingBytes and maxOutputBytes; keep caller/sink memory and process RSS separate
 
@@ -139,6 +141,8 @@ The nine original holdout assets retain source dimensions and checksums. Every e
 See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection rules, rounding exception and exact-revision evidence.
 
 ## M4 color and metadata
+
+- [x] Convert ordinary GRAY/RGB ICC integer samples through 16 bits without an 8-bit intermediate; check mixed and associated alpha, constant 2x shifted alpha, group-boundary crops, PNG output, re-encode, cancellation and combined profile/decoder limits
 
 - [x] Exact Modular RGB and gray samples in sRGB, linear sRGB, Display P3, Rec. 2020, PQ, HLG, bounded gamma, and custom chromaticities at 8, 10, 12, and 16 bits
 - [x] All eight codestream orientations through `autoOrient()`, display dimensions, and normalized copied Exif orientation
@@ -149,7 +153,7 @@ See `docs/architecture/jpegxl-pr35-remediation.md` for the raw gates, selection 
 
 The checked matrix contains 56 structured color cases, 40 independent-alpha cases, 18 high-depth VarDCT color cases, eight VarDCT alpha-upsample cases, and a two-alpha fixture. Pinned libjxl provides independent native or float references. At the M4 checkpoint, official conformance had 13 passes, 25 explicit unsupported cases, no incorrect outputs, and the separately recorded delta_palette failure. M10 later advances all 39 official cases to exact passes. ICC validation records source-profile warnings, including the cafe profile checksum mismatch; extracted profile bytes match djxl exactly.
 
-Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported 8-bit conversions can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. The explicit native-layer ICC API converts supported high-depth GRAY/RGB/CMYK profiles to sRGB16. Ordinary high-depth ICC display conversion and custom-chromaticity conversion still throw `UNSUPPORTED_OPERATION`.
+Use `Image.open(input, { colorOutput: "preserve" })` to retain source-profile or structured Modular samples. Supported GRAY/RGB ICC conversions through 16-bit integer precision can request `colorOutput: "srgb"`. PQ and HLG Modular samples remain encoded unless `hdrOutput: "linear-float"` or `hdrOutput: "tone-map-srgb"` is selected. HDR and wide-gamut XYB reconstruction emits linear sRGB float samples, including negative gamut values and highlights above one. Float HDR uses 203 cd/m2 as reference white. The explicit native-layer ICC API converts supported high-depth GRAY/RGB/CMYK profiles to sRGB16. Ordinary high-depth ICC conversion emits sRGB16 with normalized straight integer alpha; source metadata retains native precision and profile meaning. Profile-preserving gray-alpha expansion, custom-chromaticity and structured high-depth conversion still throw `UNSUPPORTED_OPERATION`.
 
 `alphaOutput: "preserve"` retains associated samples. `alphaOutput: "straight"` unpremultiplies and sets zero-alpha color to zero. HDR conversions produce straight alpha. `alphaChannel` is a zero-based index and is required when more than one alpha channel is present. Alpha display range is independent of color.
 
@@ -334,8 +338,8 @@ losslessly transcoded JPEG files.
   groups
 - [x] Decode progressive high-frequency passes and accumulate coefficients in
   the correct order
-- [x] Implement raw strategy IDs 0 through 7 and 10 through 20,
-  with full-image fixtures covering Hornuss, square DCT, rectangular DCT, large transforms, and AFV combinations
+- [x] Implement all raw VarDCT strategy IDs 0 through 26,
+  with independent full-image fixtures for the previously missing 8x32/32x8, 128x128, 128x64/64x128, 256x256 and 256x128/128x256 transforms; verify odd edges, cross-group crops and bounded scratch admission
 - [x] Implement raw strategy 1 Hornuss with pinned independent fixture evidence
 - [x] Apply inverse transforms, coefficient scaling, quantization bias, and
   block placement with defined numeric precision

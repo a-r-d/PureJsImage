@@ -1,26 +1,31 @@
-import alphaManifest from '../tests/fixtures/jpegxl/m4-color/alpha-manifest.json' with {
-  type: 'json',
-}
-import manifest from '../tests/fixtures/jpegxl/m4-color/manifest.json' with { type: 'json' }
-import vardctManifest from '../tests/fixtures/jpegxl/m4-color/vardct-manifest.json' with {
-  type: 'json',
-}
-import vardctAlphaManifest from '../tests/fixtures/jpegxl/m4-color/vardct-alpha-manifest.json' with {
-  type: 'json',
-}
 import { createImageLibrary } from '../src/browser.ts'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { pngCodec } from '../src/codecs/png.ts'
 import {
   convertJpegXlFloatLayerToRgba16,
   convertJpegXlIccLayerToRgba16,
   encodeJpegXlNative,
   openJpegXlSequence,
 } from '../src/jpegxl.ts'
-import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
-import { pngCodec } from '../src/codecs/png.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { pixelStorage } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
-import { pixelStorage } from '../src/pixel.ts'
+import alphaManifest from '../tests/fixtures/jpegxl/m4-color/alpha-manifest.json' with {
+  type: 'json',
+}
+import manifest from '../tests/fixtures/jpegxl/m4-color/manifest.json' with { type: 'json' }
+import vardctAlphaManifest from '../tests/fixtures/jpegxl/m4-color/vardct-alpha-manifest.json' with {
+  type: 'json',
+}
+import vardctManifest from '../tests/fixtures/jpegxl/m4-color/vardct-manifest.json' with {
+  type: 'json',
+}
+
+export {
+  verifyJpegXlProfilePipeline,
+  verifyJpegXlProfilePreservation,
+} from '../tests/helpers/jpegxl-profile-pipeline.ts'
 
 const bytes = async (name: string): Promise<Uint8Array> => {
   const response = await fetch(`/fixtures/jpegxl-m4-${name}`)

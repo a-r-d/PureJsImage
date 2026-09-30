@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "encoder": "unmodified cjxl 0.12.0 8cb67e2",
+  "encoderSha256": "5c9dd3d879b81545b77947f9a6f1f7a4e58bbe2e4f3c2a52ca70365544939762",
+  "oracle": "unmodified libjxl 0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df C API; full-image output",
+  "librarySha256": "29eea9f83a05f1851e18fc5f414916ca6c28e278f68622969bea68d7516ecdc5",
+  "fixtures": [
+    {
+      "id": "sdr8",
+      "file": "sdr8.jxl",
+      "width": 513,
+      "height": 259,
+      "format": "rgba8",
+      "encoder": "unmodified cjxl 0.12.0 8cb67e2",
+      "referenceColorScale": 1,
+      "sha256": "cf335f842f8a9dd11c885f2d5f95dd9203c9b8f57d0e5a71feb9ffbba2fa2cf0",
+      "referenceSha256": "4d453e3a924eb352fdc9fd94df2143ca2875e63291f7485ac448fa22e1744b17",
+      "options": ["--responsive=0"],
+      "inputSha256": "0f35444de359edde683f6ee19dd5578a04455ddbc86b96d872de929bc66ad38c"
+    },
+    {
+      "id": "sdr8-direct",
+      "file": "sdr8-direct.jxl",
+      "width": 513,
+      "height": 259,
+      "format": "rgba8",
+      "encoder": "PureJsImage first-party forward VarDCT, effort 3, two passes",
+      "referenceColorScale": 1,
+      "sha256": "5ceb114c45aedae7993c679e6b14169220357f762bdee0ecc30d10b5729fe195",
+      "referenceSha256": "fc5a523d17f0f26bbd6643deea47b3e0ba40fca16a235f3bab18fbe36925de1f",
+      "options": [],
+      "inputSha256": "0f35444de359edde683f6ee19dd5578a04455ddbc86b96d872de929bc66ad38c"
+    },
+    {
+      "id": "sdr16-squeeze",
+      "file": "sdr16-squeeze.jxl",
+      "width": 513,
+      "height": 259,
+      "format": "rgba16",
+      "encoder": "unmodified cjxl 0.12.0 8cb67e2",
+      "referenceColorScale": 1,
+      "sha256": "9399ca84af38326b02099bee460ebc84640f3150132467d069628fa608269da8",
+      "referenceSha256": "5a5febd37179f6f328d5eaf6612f75808eac352e3db01aed4dd16df9a524b1bb",
+      "options": ["--responsive=1"],
+      "inputSha256": "ecf1cdf3b993e0751d13aeff9ac3052ac24cf27ee2443d46fa599624a0d0bd18"
+    },
+    {
+      "id": "linear16-shift1-associated",
+      "file": "linear16-shift1-associated.jxl",
+      "width": 1025,
+      "height": 259,
+      "format": "rgbaf32",
+      "encoder": "unmodified cjxl 0.12.0 8cb67e2",
+      "referenceColorScale": 1,
+      "sha256": "7e292b55bbd841e018c25ffa13ea8519ce62cee823ce63b2dc7e080c96f29df6",
+      "referenceSha256": "af905ae0b029a640b3e9b334cdc99272cbd886eea37ce6f52ef302c1fd7378f0",
+      "options": [
+        "--responsive=0",
+        "--premultiply=1",
+        "--ec_resampling=2",
+        "-x",
+        "color_space=RGB_D65_SRG_Rel_Lin"
+      ],
+      "inputSha256": "5629681fb9adc03f6575d0d874fea0479c5deb19dd1957ed3adb6cce75b97af0"
+    },
+    {
+      "id": "pq16-squeeze",
+      "file": "../practical-progressive/pq-rgba16-grouped.jxl",
+      "width": 300,
+      "height": 270,
+      "format": "rgbaf32",
+      "encoder": "unmodified cjxl 0.12.0 8cb67e2",
+      "referenceColorScale": 49.26108374384236,
+      "sha256": "53a18d6184cad7bab485cc68607ed7cfa937af006204faf842c23f9c60410bbf",
+      "referenceSha256": "9de70f1d984d7a6f001793e74dbd16977dc61d6c43516ed31535029638f06e65",
+      "options": []
+    }
+  ]
+}

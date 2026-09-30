@@ -4,6 +4,22 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Render supported JPEG XL GRAY/RGB ICC integer input through 16 bits in the
+  ordinary pipeline. Support gray alpha and mixed or associated integer alpha
+  without an 8-bit intermediate. Preserve converted ranges through PNG output
+  and JPEG XL re-encoding, reserve profile-table memory before native decode,
+  and keep incompatible GRAY profile preservation an explicit error. Fix
+  opaque grayscale PNG reopening with a preserved GRAY profile.
+
+- Decode all 27 JPEG XL VarDCT transform types, including rectangular and
+  256x256 transforms, with scratch sized for the transforms present. Verify
+  grouped global Palette and Squeeze RGB8/RGB16 streams. Report the complete
+  native-plane fallback required by spatial Modular transforms.
+- Emit JPEG XL DC and progressive color stages with group-local integer alpha,
+  including global Squeeze and associated 2x shifted alpha. Plans include
+  required later-pass alpha sections and retained native alpha storage.
+  Verify independent samples, partial groups, cache reuse, cancellation and limits.
+
 - Decode grouped lossless JPEG XL streams with scalar palettes before reversible
   color transforms. All 16 pinned comparison inputs now decode exactly, including
   seven previously rejected files. Bound inverse-transform allocations before

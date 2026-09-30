@@ -6,16 +6,18 @@ The explicit JPEG XL native APIs now map binary16 and binary32 gray or RGB
 samples with mixed alpha to straight RGBA16. They also write shifted native
 planes across multiple Modular groups. The explicit ICC native-layer API now
 converts supported GRAY, RGB, and CMYK profiles to straight sRGB16. Selective
-VarDCT sessions emit early SDR alpha and 16-bit SDR, linear, and PQ stages
+VarDCT sessions emit grouped integer alpha and 16-bit SDR, linear, and PQ stages
 for the supported XYB cases. Exact one-component Huffman JPEG transcoding
-reconstructs the original bytes.
+reconstructs the original bytes. The ordinary pipeline now converts supported
+GRAY/RGB ICC integer samples through 16 bits, including gray plus alpha.
 
 | Requested feature | Supported input | Public API and result | Test or independent reference | Remaining boundary |
 | --- | --- | --- | --- | --- |
 | Float and alpha display | Modular binary16 or binary32 gray/RGB; integer, binary16, or binary32 alpha; straight or associated; alpha shift 0–3 | `convertJpegXlFloatLayerToRgba16()` returns straight RGBA16, the display range, source color meaning, and output meaning. `jpegXlNativeUnsignedPlanes()` retains bit patterns. | `tests/jpegxl-float-display.test.ts`, `tests/jpegxl-m10-level10.test.ts`, Chromium color test, 17 pinned libjxl 0.12.0 float color/alpha PFM references, including 8-bit integer alpha and a shifted case | Wider integer alpha depths and other shifted combinations lack independent rendered references. Non-IEEE float layouts are unsupported. |
-| High-depth ICC and gray plus alpha | Modular 8- through 16-bit integer GRAY/RGB/CMYK with a supported profile; integer or IEEE alpha, straight or associated | `convertJpegXlIccLayerToRgba16()` evaluates source curves at 16-bit precision and returns straight sRGB16 and source/output color meaning. Gray plus alpha expands to RGBA16. | `tests/jpegxl-icc16.test.ts` pins profile hashes and LittleCMS 2.16 perceptual sRGB16 samples; Chromium color test | The ordinary pixel pipeline still rejects high-depth ICC conversion. Unrecognized profile families stay unsupported. This API retains full output and input planes. |
+| Native high-depth ICC and gray plus alpha | Modular 8- through 16-bit integer GRAY/RGB/CMYK with a supported profile; integer or IEEE alpha, straight or associated | `convertJpegXlIccLayerToRgba16()` evaluates source curves at 16-bit precision and returns straight sRGB16 and source/output color meaning. Gray plus alpha expands to RGBA16. | `tests/jpegxl-icc16.test.ts` pins profile hashes and LittleCMS 2.16 perceptual sRGB16 samples; Chromium color test | Unrecognized profile families stay unsupported. This API retains full output and input planes. |
+| Ordinary ICC conversion | GRAY/RGB integer color through 16 bits, mixed integer alpha, straight or associated, including a checked constant 2x alpha grid | `Image.open(input, { colorOutput: 'srgb' })` emits gray/RGB/RGBA sRGB rows. High-depth output uses full 16-bit color and straight alpha through PNG output and JPEG XL re-encode. | `tests/jpegxl-profile-pipeline.test.ts`, Chromium/Firefox/WebKit tests, twelve pinned LittleCMS 2.17 references and thirty isolated cold/warm resource cases | Preserving a GRAY profile on expanded RGBA is unsupported. CMYK, floating alpha and arbitrary profile families require the explicit native APIs or remain unsupported. Source decoder full-frame fallbacks still apply. |
 | Shifted native writing | Integer or IEEE binary16/binary32 extra planes with shift 0–3; odd multi-group images | `encodeJpegXlNative()` writes native group sections and `openJpegXlSequence().layers()` returns each native grid. | Two-direction 1025×1027 test; `benchmark/jpegxl/verify-practical-shifted.ts` pins libjxl 0.12.0 display output and jxl-oxide pre-upsampling native alpha, black and depth grids | The native-grid oracle uses a temporary instrumented decoder build; the ordinary jxl-oxide CLI exposes only rendered planes. |
-| Progressive alpha and HDR | Static XYB VarDCT, 8- or 16-bit SDR RGB, 16-bit linear/PQ RGB, and single global alpha planes, including associated alpha with a 2x shift | `openJpegXlSession().progressive()` emits DC, available passes, and final RGB/RGBA blocks. The DC stage reads only LF sections. | `tests/jpegxl-practical-progressive.test.ts`, Chromium test, pinned libjxl 0.12.0 DC/pass or `djxl` final pixels | Alpha that needs AC-group Modular data, non-XYB gray and color, patches, references, noise, and splines keep declared static fallbacks. Pinned jxl-oxide partial decodes independently check SDR8 and linear16 first-pass RGBA and PQ16 first-pass alpha. Group-local alpha still needs its complete AC payload. |
+| Progressive alpha and HDR | Static XYB VarDCT, 8- or 16-bit SDR RGB, 16-bit linear/PQ RGB, and global or grouped integer alpha through 16 bits, including global Squeeze and associated 2x shifted alpha | `openJpegXlSession().progressive()` emits DC, available passes, and final RGB/RGBA blocks. Grouped alpha reads its required DC or AC sections, including later passes when needed. | `tests/jpegxl-practical-progressive.test.ts`, `tests/jpegxl-grouped-alpha.test.ts`, browser tests, pinned libjxl 0.12.0 DC/pass alpha or `djxl` final pixels | Non-XYB gray and color, patches, references, noise, and splines keep declared static fallbacks. Group-local alpha retains its complete native plane. Global Squeeze requires every alpha group even for a color viewport. |
 | Exact grayscale JPEG reconstruction | One-component 8-bit Huffman baseline or progressive JPEG, including odd dimensions, restart markers, optimized tables, and checked display metadata | `transcodeJpegToJpegXl()` writes an exact grayscale JXL container; `reconstructJpegFromJpegXl()` restores every JPEG byte. `inspectJpegReconstructionEligibility()` reports support. | `tests/jpegxl-grayscale-exact.test.ts`, Chromium test, pinned libjxl 0.12.0 `cjxl` and `djxl` reconstruction and PGM pixels | Arithmetic, 12-bit, lossless, and unsupported orientation or color metadata remain ineligible. A temporary zero coefficient plane adds one grayscale coefficient-plane allocation during transcode. |
 
 The shifted native-grid references come from jxl-oxide commit
@@ -54,7 +56,20 @@ the profile, clips out-of-range samples, and sets associated zero-alpha color
 to zero. The returned RGB values have straight alpha. It allocates a full
 RGBA16 output and, when needed, an expanded Float64 alpha or black plane.
 
+Ordinary ICC conversion modifies emitted rows in place. It reserves 128 KiB
+for a high-depth GRAY table or a conservative 3 MiB plus bounded profile copies
+for RGB tables before allocating the decoder's working storage. The planner
+includes that reservation. The twelve ordinary-pipeline references cover
+mixed alpha depths, associated color, adjacent 16-bit values, group-boundary
+crops and replay. Normalized integer alpha matches exactly. Full-range sampled
+GRAY references allow eight 16-bit codes because LittleCMS rounds its linear
+curve result; the RGB bounds match the native evaluator's profile-specific
+matrix and mAB limits. These fixtures do not qualify arbitrary ICC profiles.
+
 ## Selective stage inventory and memory
+
+The following measurements record the original selective-stage qualification.
+Grouped-alpha decoding now adds the section dependencies described above.
 
 The targeted static files encode three completed AC passes. The previous
 selective planner sent all high-depth, linear, PQ, and alpha cases to the
@@ -85,7 +100,8 @@ after the DC stage. DC output retains compact LF and restoration data.
 High-depth pass and final output retain full working planes. The
 associated shifted PQ alpha fixture uses four color groups and one
 global 150x135 alpha plane. The 300x270 full-resolution alpha fixture
-needs group-local alpha sections and uses the existing static fallback.
+needs group-local alpha sections. It now emits selective stages; the original
+measurements above predate that support.
 
 The 200×180 linear RGBA16 fixture came from a 16-bit PAM with a
 horizontal red ramp, vertical green ramp, constant blue value 32,768, and
