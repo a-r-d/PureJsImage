@@ -10,6 +10,7 @@ import {
   string,
   subjects,
   summarize,
+  validateImplementationIdentity,
 } from './model.ts'
 
 function rows(value: unknown): Record<string, unknown>[] {
@@ -117,6 +118,9 @@ for (const runtime of ['chromium', 'node'])
     }
 const manifest = object(JSON.parse(await readFile(`${root}/subjects.json`, 'utf8'))),
   assets = manifest.files
+for (const report of rawReports)
+  if (/\/(main|repair|compat|cold|specialized|preview)-|\/quality\.json$/.test(report.path))
+    validateImplementationIdentity(report.data, manifest)
 if (!Array.isArray(assets)) throw new Error('Missing asset inventory')
 const assetRows = assets.map(object),
   footprints = []
@@ -445,6 +449,8 @@ const dataset = {
   scope: 'Among these pinned public JavaScript APIs on the declared host; no overall winner score',
   sourceReports: rawReports.map(({ data, ...source }) => source),
   implementationRevision: manifest.implementationRevision,
+  implementationSourceSha256: manifest.implementationSourceSha256,
+  implementationDirty: manifest.implementationDirty,
   subjectsManifest: 'subjects.json',
   fixturesManifest: 'fixtures.json',
   survey: 'survey.json',

@@ -4,6 +4,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Decode grouped lossless JPEG XL streams with scalar palettes before reversible
+  color transforms. All 16 pinned comparison inputs now decode exactly, including
+  seven previously rejected files. Bound inverse-transform allocations before
+  decoding each group band.
+
 - Count retained alpha planes when enforcing JPEG XL session cache limits. Evicted
   previews can be decoded again with the same pixels. Report full working planes
   for selective SDR alpha passes across color groups.

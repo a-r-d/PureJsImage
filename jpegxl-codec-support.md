@@ -110,6 +110,11 @@ Progressive range-aware processing is M6 and is outside the M5 static boundary.
 
 - [x] Encode sparse RGB16 effort-7 groups with sorted per-channel palettes and optional index RCT; verify native samples, partial groups and allocation limits
 - [x] Accept the bounded local three-scalar-palette transform chain with optional index RCT
+- [x] Decode group-local Modular transform chains, including one or more scalar palettes before RCT; verify RGB8/RGB16 samples, odd partial groups, cross-group crops, replay, cancellation and inverse allocation limits
+- [x] Decode all 16 pinned public-comparison lossless inputs exactly, including the seven previously rejected native-libjxl streams
+- [ ] Decode local transforms that modify global prefix planes and general multi-group global Palette/Squeeze transforms
+
+Grouped Modular inverse allocations are bounded before group pixel decoding. Groups keep their existing band-based memory behavior. Transform chains that touch global prefix planes remain unsupported; the global implicit delta-palette exception keeps its separate checked path.
 
 ## M7 static forward encoding
 

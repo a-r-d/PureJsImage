@@ -1,7 +1,9 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29T15:23:50.020Z",
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "date": "2026-09-30T03:40:38.097Z",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
   "packages": [
     {
       "name": "@jsquash/jxl",
@@ -165,10 +167,10 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
-      "sha256": "ba86d1aa4ab17c0a85458aeea1ef67e6d9cf765ae2ee84204ac49b4fa15c1193",
+      "sha256": "c0ba6386c0ad2fb08a62539f75fdde2709f2cca287e880d7cc3cc1e4cef5b3c2",
       "bytes": 6806,
-      "gzipBytes": 2733,
-      "brotliBytes": 2424
+      "gzipBytes": 2734,
+      "brotliBytes": 2426
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
@@ -225,6 +227,13 @@
       "bytes": 362269,
       "gzipBytes": 120628,
       "brotliBytes": 97572
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-XOFU7KHQ.js",
+      "sha256": "e31567214252684cb336aad56d1d623769a27c68c6dd6b97e409ed047ff5c264",
+      "bytes": 362102,
+      "gzipBytes": 120551,
+      "brotliBytes": 97379
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc-O5JHJYUX.js",

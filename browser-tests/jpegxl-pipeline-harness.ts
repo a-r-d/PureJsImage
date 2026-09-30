@@ -1378,6 +1378,56 @@ export const verifyJpegXlSelectiveHdr = async (bytes: Uint8Array): Promise<boole
   return valid
 }
 
+export const verifyJpegXlGroupedTransforms = async (
+  bytes: Uint8Array,
+  depth: 8 | 16,
+): Promise<boolean> => {
+  const { jpegxlCodec } = await import('../src/codecs/jpegxl.ts')
+  const { MemorySource } = await import('../src/source.ts')
+  const { defaultImageLimits } = await import('../src/limits.ts')
+  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (
+    !decoder ||
+    decoder.width !== 513 ||
+    decoder.height !== 259 ||
+    decoder.pixelFormat !== `rgb${depth}`
+  )
+    throw new Error('Unexpected grouped Modular output')
+  for (const region of [
+    { x: 0, y: 0, width: 513, height: 259 },
+    { x: 250, y: 250, width: 20, height: 9 },
+    { x: 500, y: 250, width: 13, height: 9 },
+  ]) {
+    let rows = 0
+    for await (const block of decoder.decode(region)) {
+      try {
+        if (block.x !== 0 || block.y !== rows || block.width !== region.width || block.height !== 1)
+          throw new Error('Unexpected grouped Modular row')
+        for (let x = 0; x < region.width; x++)
+          for (let c = 0; c < 3; c++) {
+            const sample =
+              c === 0
+                ? ((region.x + x) * 13 + (region.y + rows) * 7) % 256
+                : c === 1
+                  ? ((region.x + x) % 17) * 11
+                  : ((region.y + rows) % 7) * 31
+            const offset = (x * 3 + c) * (depth / 8)
+            if (
+              block.data[offset] !== sample ||
+              (depth === 16 && block.data[offset + 1] !== (sample * 37) % 256)
+            )
+              throw new Error('Grouped Modular sample mismatch')
+          }
+        rows++
+      } finally {
+        block.release?.()
+      }
+    }
+    if (rows !== region.height) throw new Error('Incomplete grouped Modular output')
+  }
+  return true
+}
+
 export const verifyJpegXlAlphaCacheBudget = async (bytes: Uint8Array): Promise<boolean> => {
   const { openJpegXlSession } = await import('../src/jpegxl.ts')
   const budget = 65_536

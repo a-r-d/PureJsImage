@@ -1,7 +1,7 @@
 import { access, copyFile, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib'
 import { build } from 'esbuild'
-import { hash, json, root, run, work } from './io.ts'
+import { hash, implementationIdentity, json, root, work } from './io.ts'
 import { number, object, string } from './model.ts'
 
 let priorAssets: Record<string, unknown>[] = []
@@ -81,7 +81,7 @@ for (const directory of [`${work}/web`, `${work}/assets`, `${work}/assets/vips`]
 await json(`${root}/subjects.json`, {
   schemaVersion: 1,
   date: new Date().toISOString(),
-  implementationRevision: run('git', ['rev-parse', 'HEAD']).trim(),
+  ...(await implementationIdentity()),
   packages,
   files,
   build: {

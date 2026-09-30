@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
 
 test('converter and exact grayscale JPEG round trip stay local', async ({ page }) => {
   const requests: string[] = []
@@ -238,10 +239,25 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
       `https://purejsimage.com/jpeg-xl/${path}`,
     )
   }
-  await expect(page.locator('main')).toContainText('1 of 24')
-  await expect(page.locator('main')).toContainText('1.212')
+  const adequate = comparison.qualityComparisons.filter(
+    (row) => row.status === 'measured with adequate brackets',
+  )
+  await expect(page.locator('main')).toContainText(
+    `${adequate.length} of ${comparison.qualityComparisons.length}`,
+  )
+  for (const row of adequate)
+    if (typeof row.pureToOtherBytesRatio === 'number')
+      await expect(page.locator('main')).toContainText(row.pureToOtherBytesRatio.toFixed(3))
+  await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)
+  await expect(page.locator('main')).toContainText('all 16 pinned lossless inputs exactly')
   const response = await page.request.get('/jpeg-xl/evidence/website-data.json')
   expect(response.ok()).toBe(true)
+  const downloaded: unknown = await response.json()
+  expect(downloaded).toMatchObject({
+    implementationRevision: comparison.implementationRevision,
+    implementationSourceSha256: comparison.implementationSourceSha256,
+    implementationDirty: comparison.implementationDirty,
+  })
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,

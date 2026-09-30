@@ -295,7 +295,9 @@
         "tests/jpegxl-grayscale-exact.test.ts",
         "browser-tests/jpegxl-practical-progressive.pw.ts",
         "tests/jpegxl-document-patches.test.ts",
-        "browser-tests/jpegxl-document-patches.pw.ts"
+        "browser-tests/jpegxl-document-patches.pw.ts",
+        "tests/jpegxl-grouped-transforms.test.ts",
+        "browser-tests/jpegxl-grouped-transforms.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

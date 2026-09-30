@@ -1,6 +1,9 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29T15:46:09.934Z",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "date": "2026-09-30T04:23:39.877Z",
   "runtime": "v24.16.0",
   "vipsConfiguration": {
     "configuration": "enable debug: false\nenable deprecated: false\nenable modules: true\nenable C++ binding: false\nenable RAD load/save: true\nenable Analyze7 load: true\nenable PPM load/save: true\nenable GIF load: true\nFFTs with fftw: false\nSIMD support with libhwy: true\nICC profile support with lcms2: true\ndeflate compression with zlib: true\ntext rendering with pangocairo: false\nfont file support with fontconfig: false\nEXIF metadata support with libexif: true\nJPEG load/save with libjpeg: true\nUHDR load/save with libuhdr: true\nJXL load/save with libjxl: true (dynamic module: true)\nJPEG2000 load/save with OpenJPEG: false\nPNG load/save with libpng: true\nimage quantisation with imagequant: true\nTIFF load/save with libtiff-4: true\nimage pyramid save with libarchive: false\nHEIC/AVIF load/save with libheif: true (dynamic module: true)\nWebP load/save with libwebp: true\nPDF load with PDFium or Poppler: false (dynamic module: false)\nSVG load with librsvg or resvg: true (dynamic module: true)\nEXR load with OpenEXR: false\nWSI load with OpenSlide: false (dynamic module: false)\nMatlab load with Matio: false\nNIfTI load/save with libnifti: false\nFITS load/save with cfitsio: false\nGIF save with cgif: true\nRAW load with libraw: false\nMagick load/save with MagickCore: false (dynamic module: false)",
@@ -244,7 +247,7 @@
       "status": "verified",
       "detail": "All declared assertions passed",
       "evidence": {
-        "firstUsefulMs": 46.85137899999998,
+        "firstUsefulMs": 51.252857000000006,
         "requestedAtFirst": 20544,
         "requestedTotal": 67431,
         "inputBytes": 148917,
@@ -349,7 +352,7 @@
       "status": "verified",
       "detail": "All declared assertions passed",
       "evidence": {
-        "firstUsefulMs": 31.348656000000005,
+        "firstUsefulMs": 31.874767999999904,
         "delivered": 4096,
         "inputBytes": 148917,
         "beforeComplete": true,

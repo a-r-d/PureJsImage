@@ -8,7 +8,18 @@ import {
   recoveryMonotonicityViolations,
 } from '../m7-recovery-curves.ts'
 import { initialize } from './adapters.ts'
-import { fixtures, hash, json, metrics, oracle, raw, root, run, work } from './io.ts'
+import {
+  fixtures,
+  hash,
+  implementationIdentity,
+  json,
+  metrics,
+  oracle,
+  raw,
+  root,
+  run,
+  work,
+} from './io.ts'
 import { classifyError } from './model.ts'
 
 if (!('ImageData' in globalThis))
@@ -198,7 +209,7 @@ for (const fixture of selected) {
     await json(`${root}/results/quality.json`, {
       schemaVersion: 1,
       date: new Date().toISOString(),
-      implementationRevision: run('git', ['rev-parse', 'HEAD']).trim(),
+      ...(await implementationIdentity()),
       toolHashes,
       decoderSha256: hash(await readFile(`${oracle}/djxl`)),
       primaryTarget: 80,

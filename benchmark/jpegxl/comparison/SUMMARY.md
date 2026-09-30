@@ -6,10 +6,10 @@ Generated from the raw reports. See `REPORT.md` for methods and limits.
 
 | Runtime | Subject | Operation | Verified | API absent | Unsupported | Incorrect | Failed |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| chromium | purejsimage | decode-lossless | 9 | 0 | 7 | 0 | 0 |
+| chromium | purejsimage | decode-lossless | 16 | 0 | 0 | 0 | 0 |
 | chromium | purejsimage | decode-lossy | 13 | 0 | 0 | 0 | 0 |
 | chromium | purejsimage | encode | 45 | 0 | 0 | 0 | 0 |
-| chromium | purejsimage | roundtrip | 0 | 0 | 1 | 0 | 0 |
+| chromium | purejsimage | roundtrip | 1 | 0 | 0 | 0 | 0 |
 | chromium | jsquash | decode-lossless | 12 | 3 | 0 | 1 | 0 |
 | chromium | jsquash | decode-lossy | 4 | 0 | 0 | 9 | 0 |
 | chromium | jsquash | encode | 42 | 3 | 0 | 0 | 0 |
@@ -22,10 +22,10 @@ Generated from the raw reports. See `REPORT.md` for methods and limits.
 | chromium | vips | decode-lossy | 13 | 0 | 0 | 0 | 0 |
 | chromium | vips | encode | 45 | 0 | 0 | 0 | 0 |
 | chromium | vips | roundtrip | 1 | 0 | 0 | 0 | 0 |
-| node | purejsimage | decode-lossless | 9 | 0 | 7 | 0 | 0 |
+| node | purejsimage | decode-lossless | 16 | 0 | 0 | 0 | 0 |
 | node | purejsimage | decode-lossy | 13 | 0 | 0 | 0 | 0 |
 | node | purejsimage | encode | 45 | 0 | 0 | 0 | 0 |
-| node | purejsimage | roundtrip | 0 | 0 | 1 | 0 | 0 |
+| node | purejsimage | roundtrip | 1 | 0 | 0 | 0 | 0 |
 | node | jsquash | decode-lossless | 12 | 3 | 0 | 1 | 0 |
 | node | jsquash | decode-lossy | 4 | 0 | 0 | 9 | 0 |
 | node | jsquash | encode | 42 | 3 | 0 | 0 | 0 |
@@ -45,38 +45,38 @@ Fixture im26-1030-diagnostic. Times in milliseconds; warm median [minimum, maxim
 
 | Runtime | Subject | Workflow | Warm ms [range] | Cold ms [range]; n | Peak RSS MiB |
 | --- | --- | --- | --- | --- | ---: |
-| chromium | purejsimage | decode-lossless | unsupported input | unsupported input | unavailable |
-| chromium | purejsimage | decode-lossy | 486.0 [482.0, 632.2] | 607.2 [607.2, 607.2]; 1 | unavailable |
-| chromium | purejsimage | lossless encode, effort 1 | 655.0 [622.9, 665.6] | 680.9 [669.0, 691.5]; 3 | unavailable |
-| chromium | purejsimage | roundtrip | unsupported input | unsupported input | unavailable |
-| chromium | jsquash | decode-lossless | 268.5 [266.8, 269.1] | 347.5 [344.5, 348.5]; 3 | unavailable |
+| chromium | purejsimage | decode-lossless | 1346.7 [1312.6, 1355.8] | 1404.3 [1399.8, 1449.8]; 3 | unavailable |
+| chromium | purejsimage | decode-lossy | 548.0 [510.1, 658.5] | 579.8 [579.8, 579.8]; 1 | unavailable |
+| chromium | purejsimage | lossless encode, effort 1 | 670.3 [636.4, 680.6] | 691.0 [672.4, 692.9]; 3 | unavailable |
+| chromium | purejsimage | roundtrip | 1973.5 [1970.9, 1982.1] | 2058.9 [2058.9, 2058.9]; 1 | unavailable |
+| chromium | jsquash | decode-lossless | 269.6 [266.5, 269.7] | 360.0 [350.3, 362.1]; 3 | unavailable |
 | chromium | jsquash | decode-lossy | incorrect output | incorrect output | unavailable |
-| chromium | jsquash | lossless encode, effort 1 | 55.8 [54.8, 58.2] | 132.9 [132.4, 136.0]; 3 | unavailable |
-| chromium | jsquash | roundtrip | 322.3 [320.7, 323.8] | 476.4 [476.4, 476.4]; 1 | unavailable |
-| chromium | oxide | decode-lossless | 387.6 [387.5, 388.4] | 461.2 [461.1, 465.0]; 3 | unavailable |
-| chromium | oxide | decode-lossy | 294.2 [293.8, 297.7] | 390.7 [390.7, 390.7]; 1 | unavailable |
+| chromium | jsquash | lossless encode, effort 1 | 57.4 [56.1, 58.9] | 137.3 [134.1, 138.4]; 3 | unavailable |
+| chromium | jsquash | roundtrip | 326.7 [326.4, 328.9] | 501.8 [501.8, 501.8]; 1 | unavailable |
+| chromium | oxide | decode-lossless | 392.7 [389.0, 393.6] | 469.7 [467.0, 485.0]; 3 | unavailable |
+| chromium | oxide | decode-lossy | 296.5 [294.8, 300.4] | 409.8 [409.8, 409.8]; 1 | unavailable |
 | chromium | oxide | lossless encode, effort 1 | API not exposed | API not exposed | unavailable |
 | chromium | oxide | roundtrip | API not exposed | API not exposed | unavailable |
-| chromium | vips | decode-lossless | 176.8 [173.6, 178.9] | 373.2 [363.8, 381.6]; 3 | unavailable |
-| chromium | vips | decode-lossy | 43.8 [41.4, 44.6] | 224.8 [224.8, 224.8]; 1 | unavailable |
-| chromium | vips | lossless encode, effort 1 | 30.3 [27.3, 30.5] | 211.4 [210.2, 218.8]; 3 | unavailable |
-| chromium | vips | roundtrip | 203.3 [201.0, 203.9] | 419.2 [419.2, 419.2]; 1 | unavailable |
-| node | purejsimage | decode-lossless | unsupported input | unsupported input | unavailable |
-| node | purejsimage | decode-lossy | 405.4 [400.7, 409.8] | 521.6 [521.6, 521.6]; 1 | 231.1 |
-| node | purejsimage | lossless encode, effort 1 | 704.6 [688.3, 705.1] | 752.6 [749.8, 752.9]; 3 | 222.8 |
-| node | purejsimage | roundtrip | unsupported input | unsupported input | unavailable |
-| node | jsquash | decode-lossless | 261.8 [260.9, 262.6] | 327.5 [327.4, 330.5]; 3 | 171.3 |
+| chromium | vips | decode-lossless | 181.2 [177.9, 194.9] | 377.3 [376.5, 394.9]; 3 | unavailable |
+| chromium | vips | decode-lossy | 46.1 [45.8, 47.3] | 287.4 [287.4, 287.4]; 1 | unavailable |
+| chromium | vips | lossless encode, effort 1 | 31.1 [29.4, 32.0] | 227.4 [219.8, 233.8]; 3 | unavailable |
+| chromium | vips | roundtrip | 208.2 [207.0, 209.8] | 431.9 [431.9, 431.9]; 1 | unavailable |
+| node | purejsimage | decode-lossless | 1393.2 [1371.9, 1394.6] | 1502.7 [1491.9, 1506.8]; 3 | 154.9 |
+| node | purejsimage | decode-lossy | 408.2 [401.0, 410.2] | 518.4 [518.4, 518.4]; 1 | 236.8 |
+| node | purejsimage | lossless encode, effort 1 | 692.0 [690.2, 719.3] | 756.6 [753.6, 771.9]; 3 | 238.7 |
+| node | purejsimage | roundtrip | 2077.3 [2068.7, 2093.2] | 2225.3 [2225.3, 2225.3]; 1 | 225.8 |
+| node | jsquash | decode-lossless | 262.7 [262.5, 263.1] | 334.9 [331.8, 335.6]; 3 | 177.2 |
 | node | jsquash | decode-lossy | incorrect output | incorrect output | unavailable |
-| node | jsquash | lossless encode, effort 1 | 52.3 [51.4, 54.0] | 123.3 [122.5, 124.3]; 3 | 179.5 |
-| node | jsquash | roundtrip | 313.6 [313.0, 317.5] | 434.2 [434.2, 434.2]; 1 | 255.5 |
-| node | oxide | decode-lossless | 388.1 [386.8, 391.7] | 457.3 [456.2, 465.6]; 3 | 124.6 |
-| node | oxide | decode-lossy | 290.7 [289.3, 290.8] | 393.4 [393.4, 393.4]; 1 | 147.9 |
+| node | jsquash | lossless encode, effort 1 | 52.7 [52.5, 53.6] | 126.1 [125.5, 127.4]; 3 | 185.7 |
+| node | jsquash | roundtrip | 322.2 [321.2, 327.1] | 446.1 [446.1, 446.1]; 1 | 253.5 |
+| node | oxide | decode-lossless | 384.0 [382.5, 384.5] | 470.3 [469.8, 479.8]; 3 | 117.8 |
+| node | oxide | decode-lossy | 292.5 [292.4, 293.9] | 391.1 [391.1, 391.1]; 1 | 150.6 |
 | node | oxide | lossless encode, effort 1 | API not exposed | API not exposed | unavailable |
 | node | oxide | roundtrip | API not exposed | API not exposed | unavailable |
-| node | vips | decode-lossless | 170.4 [167.6, 175.8] | 401.4 [394.2, 427.3]; 3 | 236.7 |
-| node | vips | decode-lossy | 42.6 [40.9, 44.7] | 265.0 [265.0, 265.0]; 1 | 237.7 |
-| node | vips | lossless encode, effort 1 | 26.7 [26.3, 27.5] | 194.5 [193.3, 195.3]; 3 | 176.2 |
-| node | vips | roundtrip | 200.0 [197.6, 200.3] | 446.6 [446.6, 446.6]; 1 | 240.4 |
+| node | vips | decode-lossless | 172.2 [168.7, 174.7] | 412.3 [404.0, 415.2]; 3 | 234.3 |
+| node | vips | decode-lossy | 42.0 [41.1, 44.5] | 274.8 [274.8, 274.8]; 1 | 240.4 |
+| node | vips | lossless encode, effort 1 | 26.8 [25.7, 27.5] | 198.6 [197.4, 199.6]; 3 | 178.5 |
+| node | vips | roundtrip | 201.8 [199.9, 203.2] | 456.1 [456.1, 456.1]; 1 | 238.4 |
 
 ## Loaded toolkit assets
 
@@ -84,10 +84,10 @@ Includes required JS, WASM, and worker assets once each. Compression sizes are o
 
 | Subject | Deployed bytes | gzip | Brotli | Observed cold transfer |
 | --- | ---: | ---: | ---: | ---: |
-| purejsimage | 419805 | 139790 | 114723 | 419805 |
-| jsquash | 2268276 | 855809 | 638868 | 2268276 |
-| oxide | 1714326 | 615293 | 432861 | 1714326 |
-| vips | 7469166 | 2856343 | 2254865 | 8809406 |
+| purejsimage | 419638 | 139714 | 114532 | 419638 |
+| jsquash | 2268276 | 855810 | 638870 | 2268276 |
+| oxide | 1714326 | 615294 | 432863 | 1714326 |
+| vips | 7469166 | 2856344 | 2254867 | 8809406 |
 
 ## Specialized public API probes
 
@@ -117,20 +117,20 @@ PureJsImage divided by each comparator. Only pairs that passed exact validation 
 
 | Runtime | Comparator | Scope | Effort | Pairs | Median bytes ratio | Median warm time ratio |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
-| chromium | jsquash | capped | 1 | 8 | 1.047 | 11.696 |
-| chromium | jsquash | capped | 7 | 8 | 1.242 | 5.789 |
-| chromium | jsquash | original | 1 | 5 | 0.993 | 2.891 |
-| chromium | vips | capped | 1 | 8 | 1.151 | 24.471 |
-| chromium | vips | capped | 7 | 8 | 1.131 | 9.793 |
-| chromium | vips | original | 1 | 5 | 1.018 | 6.687 |
-| chromium | vips | specialized | 1 | 3 | 0.708 | 1.088 |
-| node | jsquash | capped | 1 | 8 | 1.047 | 13.227 |
-| node | jsquash | capped | 7 | 8 | 1.242 | 7.097 |
-| node | jsquash | original | 1 | 5 | 0.993 | 3.183 |
-| node | vips | capped | 1 | 8 | 1.151 | 27.649 |
-| node | vips | capped | 7 | 8 | 1.131 | 11.468 |
-| node | vips | original | 1 | 5 | 1.018 | 7.771 |
-| node | vips | specialized | 1 | 3 | 0.708 | 1.361 |
+| chromium | jsquash | capped | 1 | 8 | 1.047 | 11.587 |
+| chromium | jsquash | capped | 7 | 8 | 1.242 | 5.752 |
+| chromium | jsquash | original | 1 | 5 | 0.993 | 2.872 |
+| chromium | vips | capped | 1 | 8 | 1.151 | 24.964 |
+| chromium | vips | capped | 7 | 8 | 1.131 | 9.614 |
+| chromium | vips | original | 1 | 5 | 1.018 | 6.420 |
+| chromium | vips | specialized | 1 | 3 | 0.708 | 1.397 |
+| node | jsquash | capped | 1 | 8 | 1.047 | 13.125 |
+| node | jsquash | capped | 7 | 8 | 1.242 | 6.889 |
+| node | jsquash | original | 1 | 5 | 0.993 | 3.140 |
+| node | vips | capped | 1 | 8 | 1.151 | 28.892 |
+| node | vips | capped | 7 | 8 | 1.131 | 11.422 |
+| node | vips | original | 1 | 5 | 1.018 | 7.642 |
+| node | vips | specialized | 1 | 3 | 0.708 | 1.256 |
 
 ## Matched lossy quality
 

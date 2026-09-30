@@ -8,6 +8,7 @@ import {
   rgba8,
   summarize,
   validatePixels,
+  validateImplementationIdentity,
 } from '../benchmark/jpegxl/comparison/model.ts'
 import { nextRecoverySetting, recoveryBracket } from '../benchmark/jpegxl/m7-recovery-curves.ts'
 
@@ -19,6 +20,31 @@ const p: Pixels = {
   interpretation: 'srgb',
 }
 describe('JPEG XL public-wrapper comparison', () => {
+  it('rejects comparison reports from different revisions or codec sources', () => {
+    const identity = {
+      implementationRevision: 'revision',
+      implementationSourceSha256: 'source',
+      implementationDirty: true,
+    }
+    expect(() => validateImplementationIdentity(identity, identity)).not.toThrow()
+    expect(() =>
+      validateImplementationIdentity(
+        { ...identity, implementationSourceSha256: 'older-source' },
+        identity,
+      ),
+    ).toThrow('implementationSourceSha256')
+    expect(() =>
+      validateImplementationIdentity(
+        { ...identity, implementationRevision: 'older-revision' },
+        identity,
+      ),
+    ).toThrow('implementationRevision')
+    expect(() =>
+      validateImplementationIdentity({ ...identity, implementationDirty: false }, identity),
+    ).toThrow('implementationDirty')
+    expect(() => validateImplementationIdentity({}, identity)).toThrow('mismatch')
+    expect(() => validateImplementationIdentity({}, {})).toThrow('Missing')
+  })
   it('checks hidden color exactly for lossless alpha', () => {
     expect(validatePixels({ ...p, data: Uint8Array.of(0, 0, 0, 0) }, p, 0).status).toBe(
       'incorrect output',

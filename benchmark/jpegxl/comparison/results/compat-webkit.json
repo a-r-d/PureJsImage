@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-29T15:45:40.100Z",
-  "updated": "2026-09-29T15:46:08.637Z",
+  "started": "2026-09-30T04:21:43.091Z",
+  "updated": "2026-09-30T04:22:15.842Z",
   "mode": "compat",
   "runtime": "webkit",
   "environment": {
@@ -15,8 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "subjectsSha256": "9b81356ae905fcd84071604e717a27bd81c2817fc67a5a66717e8d244340524d",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -33,12 +35,21 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
-      "status": "unsupported input",
-      "detail": "ImageError: JPEG XL grouped Modular transform chains and transformed prefix channels are not supported",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [2278],
+      "coldMs": 2103,
+      "initializationMs": 46,
+      "output": {
+        "width": 1024,
+        "height": 768,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "bytes": 3145728
+      },
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
       "requests": [
@@ -71,16 +82,28 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
           "bytes": 1317
+        },
+        {
+          "url": "/output",
+          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
+      }
     },
     {
       "key": "im26-1030-diagnostic-purejsimage-encode-ll-e1",
@@ -98,9 +121,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [508],
-      "coldMs": 584,
-      "initializationMs": 30,
+      "times": [510],
+      "coldMs": 600,
+      "initializationMs": 34,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -138,8 +161,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -177,9 +200,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-jsquash-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [283],
-      "coldMs": 386,
-      "initializationMs": 28,
+      "times": [287],
+      "coldMs": 407,
+      "initializationMs": 50,
       "output": {
         "width": 1024,
         "height": 768,
@@ -265,8 +288,8 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [60],
-      "coldMs": 157,
+      "times": [61],
+      "coldMs": 162,
       "initializationMs": 29,
       "output": {
         "kind": "jxl",
@@ -348,9 +371,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [401],
-      "coldMs": 507,
-      "initializationMs": 15,
+      "times": [447],
+      "coldMs": 562,
+      "initializationMs": 16,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -417,7 +440,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 16,
+      "initializationMs": 17,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
@@ -466,9 +489,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [187.56],
-      "coldMs": 408.02,
-      "initializationMs": 154.1,
+      "times": [199],
+      "coldMs": 409.52000000000004,
+      "initializationMs": 153.72,
       "output": {
         "width": 1024,
         "height": 768,
@@ -546,9 +569,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [29.059999999999974],
-      "coldMs": 235.8,
-      "initializationMs": 151.86,
+      "times": [31.200000000000017],
+      "coldMs": 238,
+      "initializationMs": 155.08,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -621,9 +644,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [2374],
-      "coldMs": 2577,
-      "initializationMs": 28,
+      "times": [2372],
+      "coldMs": 2583,
+      "initializationMs": 30,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -666,8 +689,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -705,9 +728,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-purejsimage-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [660],
-      "coldMs": 727,
-      "initializationMs": 28,
+      "times": [626],
+      "coldMs": 716,
+      "initializationMs": 29,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -745,8 +768,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -784,9 +807,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-jsquash-decode-lossless-ll-e1.bin",
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
-      "times": [379],
-      "coldMs": 472,
-      "initializationMs": 27,
+      "times": [375],
+      "coldMs": 470,
+      "initializationMs": 29,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -872,9 +895,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [75],
-      "coldMs": 182,
-      "initializationMs": 28,
+      "times": [76],
+      "coldMs": 181,
+      "initializationMs": 27,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -955,9 +978,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [327],
-      "coldMs": 459,
-      "initializationMs": 14,
+      "times": [331],
+      "coldMs": 449,
+      "initializationMs": 16,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -1024,7 +1047,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13,
+      "initializationMs": 15,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
@@ -1073,9 +1096,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [252.16000000000003],
-      "coldMs": 468.03999999999996,
-      "initializationMs": 160.3,
+      "times": [248.74000000000007],
+      "coldMs": 467.38,
+      "initializationMs": 149.14,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1153,9 +1176,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/alpha_triangles-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [43.68000000000001],
-      "coldMs": 258.68,
-      "initializationMs": 162.58,
+      "times": [39.5],
+      "coldMs": 249.92,
+      "initializationMs": 156.62,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -1229,8 +1252,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [5],
-      "coldMs": 51,
-      "initializationMs": 31,
+      "coldMs": 55,
+      "initializationMs": 35,
       "output": {
         "width": 47,
         "height": 39,
@@ -1273,8 +1296,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -1312,9 +1335,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/rgb16-default-purejsimage-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [6],
-      "coldMs": 44,
-      "initializationMs": 29,
+      "times": [11],
+      "coldMs": 45,
+      "initializationMs": 30,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -1352,8 +1375,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -1393,7 +1416,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 29,
+      "initializationMs": 30,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
@@ -1460,7 +1483,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 29,
+      "initializationMs": 30,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
@@ -1525,9 +1548,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/rgb16-default-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [1],
-      "coldMs": 22,
-      "initializationMs": 15,
+      "times": [3],
+      "coldMs": 23,
+      "initializationMs": 16,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -1594,7 +1617,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 16,
+      "initializationMs": 13,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 8,
@@ -1643,9 +1666,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/rgb16-default-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [6.179999999999978],
-      "coldMs": 177.86,
-      "initializationMs": 149.48000000000002,
+      "times": [9.879999999999995],
+      "coldMs": 189.04,
+      "initializationMs": 160.24,
       "output": {
         "width": 47,
         "height": 39,
@@ -1723,9 +1746,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/rgb16-default-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [13.919999999999987],
-      "coldMs": 189.36,
-      "initializationMs": 160.86,
+      "times": [12.840000000000003],
+      "coldMs": 196.42,
+      "initializationMs": 163.5,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",

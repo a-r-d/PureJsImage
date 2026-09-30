@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-29T15:00:47.975Z",
-  "updated": "2026-09-29T15:01:04.062Z",
+  "started": "2026-09-30T03:40:58.216Z",
+  "updated": "2026-09-30T03:41:20.684Z",
   "mode": "smoke",
   "runtime": "chromium",
   "environment": {
@@ -15,8 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "subjectsSha256": "c967d59767d62aefd705d70220b3619e5cf7ce13cdeed6974786ffd78154eabc",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -33,137 +35,11 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
-      "status": "unsupported input",
-      "detail": "ImageError: JPEG XL grouped Modular transform chains and transformed prefix channels are not supported",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
-      "crossOriginIsolated": false,
-      "hardwareConcurrency": 16,
-      "requests": [
-        {
-          "url": "/plain",
-          "bytes": 55
-        },
-        {
-          "url": "/fixtures/im26-1030-diagnostic-lossless.jxl",
-          "bytes": 515690
-        },
-        {
-          "url": "/fixtures/im26-1030-diagnostic.raw",
-          "bytes": 3145728
-        },
-        {
-          "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/web/browser-7T2DSXMK.js",
-          "bytes": 18621
-        },
-        {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
-        },
-        {
-          "url": "/web/chunk-6J3OTJNT.js",
-          "bytes": 14797
-        },
-        {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
-        },
-        {
-          "url": "/web/chunk-EXMCXZWG.js",
-          "bytes": 1317
-        }
-      ],
-      "errors": [],
-      "memory": null
-    },
-    {
-      "key": "im26-1030-diagnostic-purejsimage-encode-ll-e1",
-      "subject": "purejsimage",
-      "fixture": "im26-1030-diagnostic",
-      "scope": "capped",
-      "category": "photo",
-      "operation": "encode",
-      "settings": {
-        "lossless": true,
-        "effort": 1,
-        "value": 1
-      },
-      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
-      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
-      "crossOriginIsolated": false,
-      "hardwareConcurrency": 16,
-      "requests": [
-        {
-          "url": "/plain",
-          "bytes": 55
-        },
-        {
-          "url": "/fixtures/im26-1030-diagnostic-lossless.jxl",
-          "bytes": 515690
-        },
-        {
-          "url": "/fixtures/im26-1030-diagnostic.raw",
-          "bytes": 3145728
-        },
-        {
-          "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/web/browser-7T2DSXMK.js",
-          "bytes": 18621
-        },
-        {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
-        },
-        {
-          "url": "/web/chunk-6J3OTJNT.js",
-          "bytes": 14797
-        },
-        {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
-        },
-        {
-          "url": "/web/chunk-EXMCXZWG.js",
-          "bytes": 1317
-        }
-      ],
-      "errors": [],
-      "memory": null
-    },
-    {
-      "key": "im26-1030-diagnostic-jsquash-decode-lossless-ll-e1",
-      "subject": "jsquash",
-      "fixture": "im26-1030-diagnostic",
-      "scope": "capped",
-      "category": "photo",
-      "operation": "decode-lossless",
-      "settings": {
-        "lossless": true,
-        "effort": 1,
-        "value": 100
-      },
-      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
-      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-jsquash-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [267.70000000018626],
-      "coldMs": 378.89999999990687,
-      "initializationMs": 35.89999999990687,
+      "times": [1377.2999999970198],
+      "coldMs": 1502.8000000044703,
+      "initializationMs": 57.70000000298023,
       "output": {
         "width": 1024,
         "height": 768,
@@ -191,7 +67,170 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
+        },
+        {
+          "url": "/web/browser-7T2DSXMK.js",
+          "bytes": 18621
+        },
+        {
+          "url": "/web/chunk-SIPYYJJH.js",
+          "bytes": 15995
+        },
+        {
+          "url": "/web/chunk-6J3OTJNT.js",
+          "bytes": 14797
+        },
+        {
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
+        },
+        {
+          "url": "/web/chunk-EXMCXZWG.js",
+          "bytes": 1317
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-purejsimage-encode-ll-e1",
+      "subject": "purejsimage",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "encode",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 1
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [640.2000000029802],
+      "coldMs": 684.3999999985099,
+      "initializationMs": 34.29999999701977,
+      "output": {
+        "kind": "jxl",
+        "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
+        "bytes": 759672
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/im26-1030-diagnostic-lossless.jxl",
+          "bytes": 515690
+        },
+        {
+          "url": "/fixtures/im26-1030-diagnostic.raw",
+          "bytes": 3145728
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/browser-7T2DSXMK.js",
+          "bytes": 18621
+        },
+        {
+          "url": "/web/chunk-SIPYYJJH.js",
+          "bytes": 15995
+        },
+        {
+          "url": "/web/chunk-6J3OTJNT.js",
+          "bytes": 14797
+        },
+        {
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
+        },
+        {
+          "url": "/web/chunk-EXMCXZWG.js",
+          "bytes": 1317
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "im26-1030-diagnostic-jsquash-decode-lossless-ll-e1",
+      "subject": "jsquash",
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "category": "photo",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-jsquash-decode-lossless-ll-e1.bin",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [278.90000000596046],
+      "coldMs": 377.79999999701977,
+      "initializationMs": 35.399999998509884,
+      "output": {
+        "width": 1024,
+        "height": 768,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "bytes": 3145728
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/im26-1030-diagnostic-lossless.jxl",
+          "bytes": 515690
+        },
+        {
+          "url": "/fixtures/im26-1030-diagnostic.raw",
+          "bytes": 3145728
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -249,9 +288,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [56.60000000009313],
-      "coldMs": 132.60000000009313,
-      "initializationMs": 26.700000000186265,
+      "times": [60.5],
+      "coldMs": 137.10000000149012,
+      "initializationMs": 26.69999999552965,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -274,7 +313,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -330,12 +369,16 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [392.09999999403954],
+      "coldMs": 489.30000000447035,
+      "initializationMs": 18.5,
+      "output": {
+        "kind": "png",
+        "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
+        "bytes": 937913
+      },
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
       "requests": [
@@ -353,7 +396,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -362,10 +405,22 @@
         {
           "url": "/assets/oxide.wasm",
           "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
+      }
     },
     {
       "key": "im26-1030-diagnostic-oxide-encode-ll-e1",
@@ -385,7 +440,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.599999999627471,
+      "initializationMs": 13.300000004470348,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -404,7 +459,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -434,9 +489,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [177.19500000029802],
-      "coldMs": 379.3100000000559,
-      "initializationMs": 155.07000000029802,
+      "times": [199.13499999791384],
+      "coldMs": 372.89000000059605,
+      "initializationMs": 151.7199999988079,
       "output": {
         "width": 1024,
         "height": 768,
@@ -464,11 +519,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -525,6 +576,10 @@
         {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -574,9 +629,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [37.59500000020489],
-      "coldMs": 224.89999999990687,
-      "initializationMs": 147.89500000001863,
+      "times": [30.71000000089407],
+      "coldMs": 224.86499999463558,
+      "initializationMs": 153.29999999701977,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -599,7 +654,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -642,20 +697,20 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -709,9 +764,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [1832.3000000002794],
-      "coldMs": 2100.5,
-      "initializationMs": 38.5,
+      "times": [1839.6000000014901],
+      "coldMs": 1918.7000000029802,
+      "initializationMs": 34,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -739,7 +794,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/browser-7T2DSXMK.js",
@@ -754,8 +809,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -791,12 +846,16 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [731.7000000029802],
+      "coldMs": 792.1999999955297,
+      "initializationMs": 37.29999999701977,
+      "output": {
+        "kind": "jxl",
+        "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
+        "bytes": 463599
+      },
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
       "requests": [
@@ -814,7 +873,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/browser-7T2DSXMK.js",
@@ -829,16 +888,28 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
           "bytes": 1317
+        },
+        {
+          "url": "/output",
+          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
     },
     {
       "key": "alpha_triangles-jsquash-decode-lossless-ll-e1",
@@ -856,9 +927,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-jsquash-decode-lossless-ll-e1.bin",
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
-      "times": [348.5],
-      "coldMs": 429.20000000018626,
-      "initializationMs": 24.5,
+      "times": [361.69999999552965],
+      "coldMs": 452,
+      "initializationMs": 26.599999994039536,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -886,7 +957,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -944,9 +1015,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [70.3000000002794],
-      "coldMs": 152.39999999990687,
-      "initializationMs": 24.899999999906868,
+      "times": [70.59999999403954],
+      "coldMs": 159,
+      "initializationMs": 26,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -969,7 +1040,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -1025,12 +1096,16 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [317.6000000014901],
+      "coldMs": 409.20000000298023,
+      "initializationMs": 13.800000004470348,
+      "output": {
+        "kind": "png",
+        "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
+        "bytes": 53017
+      },
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
       "requests": [
@@ -1048,7 +1123,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -1057,10 +1132,22 @@
         {
           "url": "/assets/oxide.wasm",
           "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "prepared source / sharp PNG reader"
+      }
     },
     {
       "key": "alpha_triangles-oxide-encode-ll-e1",
@@ -1080,7 +1167,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.899999999906868,
+      "initializationMs": 13.399999998509884,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1099,7 +1186,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -1129,9 +1216,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [228.39000000013039],
-      "coldMs": 430.125,
-      "initializationMs": 163.72500000009313,
+      "times": [232.72500000149012],
+      "coldMs": 429.27000000327826,
+      "initializationMs": 157.4400000050664,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1159,11 +1246,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1214,20 +1297,24 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1269,9 +1356,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [37.16500000003725],
-      "coldMs": 238.02499999990687,
-      "initializationMs": 156.95999999996275,
+      "times": [37.27999999374151],
+      "coldMs": 227.98000000417233,
+      "initializationMs": 147.77499999850988,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -1294,11 +1381,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1357,12 +1440,16 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
+        },
+        {
           "url": "/assets/vips/vips-es6.js",
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-jxl.wasm",
-          "bytes": 2224543
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1404,9 +1491,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [5.099999999627471],
-      "coldMs": 52.60000000009313,
-      "initializationMs": 37.89999999990687,
+      "times": [4.9000000059604645],
+      "coldMs": 52.29999999701977,
+      "initializationMs": 37.29999999701977,
       "output": {
         "width": 47,
         "height": 39,
@@ -1434,7 +1521,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/browser-7T2DSXMK.js",
@@ -1449,8 +1536,8 @@
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -1486,11 +1573,90 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [3.5],
+      "coldMs": 48.29999999701977,
+      "initializationMs": 34.19999999552965,
+      "output": {
+        "kind": "jxl",
+        "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
+        "bytes": 2185
+      },
+      "crossOriginIsolated": false,
+      "hardwareConcurrency": 16,
+      "requests": [
+        {
+          "url": "/plain",
+          "bytes": 55
+        },
+        {
+          "url": "/fixtures/rgb16-default-lossless.jxl",
+          "bytes": 581
+        },
+        {
+          "url": "/fixtures/rgb16-default.raw",
+          "bytes": 10998
+        },
+        {
+          "url": "/web/browser-worker.js",
+          "bytes": 6806
+        },
+        {
+          "url": "/web/browser-7T2DSXMK.js",
+          "bytes": 18621
+        },
+        {
+          "url": "/web/chunk-SIPYYJJH.js",
+          "bytes": 15995
+        },
+        {
+          "url": "/web/chunk-6J3OTJNT.js",
+          "bytes": 14797
+        },
+        {
+          "url": "/web/jpegxl-XOFU7KHQ.js",
+          "bytes": 362102
+        },
+        {
+          "url": "/web/chunk-EXMCXZWG.js",
+          "bytes": 1317
+        },
+        {
+          "url": "/output",
+          "bytes": 2
+        }
+      ],
+      "errors": [],
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "pinned native libjxl v0.12.0"
+      }
+    },
+    {
+      "key": "rgb16-default-jsquash-decode-lossless-ll-e1",
+      "subject": "jsquash",
+      "fixture": "rgb16-default",
+      "scope": "specialized",
+      "category": "rgb16",
+      "operation": "decode-lossless",
+      "settings": {
+        "lossless": true,
+        "effort": 1,
+        "value": 100
+      },
+      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-jsquash-decode-lossless-ll-e1.bin",
+      "status": "API not exposed",
+      "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": null,
+      "initializationMs": 26.200000002980232,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1509,79 +1675,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/web/browser-7T2DSXMK.js",
-          "bytes": 18621
-        },
-        {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
-        },
-        {
-          "url": "/web/chunk-6J3OTJNT.js",
-          "bytes": 14797
-        },
-        {
-          "url": "/web/jpegxl-6XT2CMLU.js",
-          "bytes": 362269
-        },
-        {
-          "url": "/web/chunk-EXMCXZWG.js",
-          "bytes": 1317
-        }
-      ],
-      "errors": [],
-      "memory": null
-    },
-    {
-      "key": "rgb16-default-jsquash-decode-lossless-ll-e1",
-      "subject": "jsquash",
-      "fixture": "rgb16-default",
-      "scope": "specialized",
-      "category": "rgb16",
-      "operation": "decode-lossless",
-      "settings": {
-        "lossless": true,
-        "effort": 1,
-        "value": 100
-      },
-      "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
-      "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-jsquash-decode-lossless-ll-e1.bin",
-      "status": "incorrect output",
-      "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
-      "times": [1.1000000000931323],
-      "coldMs": 56.89999999990687,
-      "initializationMs": 26.399999999906868,
-      "output": {
-        "width": 47,
-        "height": 39,
-        "channels": 4,
-        "interpretation": "srgb",
-        "sampleType": "uint8",
-        "kind": "pixels",
-        "sha256": "1ea9342e7178aebb8dce1562d05daf387691ea5859d22bf208de5e91da1e04a0",
-        "bytes": 7332
-      },
-      "crossOriginIsolated": false,
-      "hardwareConcurrency": 16,
-      "requests": [
-        {
-          "url": "/plain",
-          "bytes": 55
-        },
-        {
-          "url": "/fixtures/rgb16-default-lossless.jxl",
-          "bytes": 581
-        },
-        {
-          "url": "/fixtures/rgb16-default.raw",
-          "bytes": 10998
-        },
-        {
-          "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -1606,22 +1700,10 @@
         {
           "url": "/web/jxl_enc-O5JHJYUX.js",
           "bytes": 26274
-        },
-        {
-          "url": "/output",
-          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null,
-      "maximumError": null,
-      "validation": {
-        "status": "incorrect output",
-        "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
-        "maximumError": null,
-        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
-        "oracle": "prepared source / sharp PNG reader"
-      }
+      "memory": null
     },
     {
       "key": "rgb16-default-jsquash-encode-ll-e1",
@@ -1638,10 +1720,10 @@
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-jsquash-encode-ll-e1.bin",
       "status": "API not exposed",
-      "detail": "ImageData encoder accepts RGBA8 only; no silent native precision conversion",
+      "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 26.700000000186265,
+      "initializationMs": 26.19999999552965,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1660,7 +1742,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/decode-BZOCFKIT.js",
@@ -1704,12 +1786,16 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [1.2000000029802322],
+      "coldMs": 31.899999998509884,
+      "initializationMs": 14,
+      "output": {
+        "kind": "png",
+        "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
+        "bytes": 961
+      },
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
       "requests": [
@@ -1727,7 +1813,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -1736,10 +1822,22 @@
         {
           "url": "/assets/oxide.wasm",
           "bytes": 1698491
+        },
+        {
+          "url": "/output",
+          "bytes": 2
         }
       ],
       "errors": [],
-      "memory": null
+      "memory": null,
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
+      }
     },
     {
       "key": "rgb16-default-oxide-encode-ll-e1",
@@ -1759,7 +1857,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.399999999906868,
+      "initializationMs": 13.600000001490116,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1778,7 +1876,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/web/jxl_oxide_wasm-NH5ML3RN.js",
@@ -1808,9 +1906,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [2.0300000002607703],
-      "coldMs": 193.62999999988824,
-      "initializationMs": 167.18500000005588,
+      "times": [1.8500000014901161],
+      "coldMs": 180.1199999973178,
+      "initializationMs": 153.2800000011921,
       "output": {
         "width": 47,
         "height": 39,
@@ -1838,23 +1936,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1915,6 +1997,22 @@
         {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/output",
@@ -1948,9 +2046,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [2.665000000037253],
-      "coldMs": 178.44500000029802,
-      "initializationMs": 142.93500000005588,
+      "times": [2.725000001490116],
+      "coldMs": 186.35999999940395,
+      "initializationMs": 151.04999999701977,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -1973,7 +2071,7 @@
         },
         {
           "url": "/web/browser-worker.js",
-          "bytes": 6722
+          "bytes": 6806
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -2024,12 +2122,12 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",

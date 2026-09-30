@@ -1,0 +1,160 @@
+{
+  "scope": "Exact samples for all 16 original pinned public comparison lossless inputs and the formerly rejected roundtrip; no timing claims",
+  "implementationSourceSha256": "d2d4e90e66be5c934514e4f26bae534be121f47ae85de1a570e56f79ee711d93",
+  "fixtureManifestSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "rows": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "d21ab9700c8b6629174a4a2da274124d69b5c148edcb298a38b30eab17bcac0d",
+      "rawSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "operation": "roundtrip",
+      "encodedSha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
+      "rawSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "3f7c27b0fbc81a85684c75b16bd4a401ffb96596e2f414b1d66c2e51eadc5bfd",
+      "rawSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "7797efaf73adf49e209af9f00ffd6988fbbe8275eef0e05d7178254bf983a25f",
+      "rawSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-2400-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "5aa7fc833315837430f88fc74d0d67dce3b1ea744b87f12bf909976c99c199f8",
+      "rawSha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207",
+      "status": "verified",
+      "detail": "All 3137536 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "1ad10334a45fcfcbc36705d008ca994008edd0e6e8be3b127667ee12de13016a",
+      "rawSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "4f62bab0921640d3d477a8683ade50b3c9952518ae302db81e12067f56e40e5c",
+      "rawSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "d9a715d8272b1fa1735a39f5611be57982497852257494278b64f4e363cbafab",
+      "rawSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "operation": "decode-lossless",
+      "encodedSha256": "94273a5e3ffa641117eb71b9a7c861c1b67bae39e4578363d7cc07031c358ca5",
+      "rawSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-1416-original",
+      "operation": "decode-lossless",
+      "encodedSha256": "832c88c66ae609469042703a2b61b71413ac6480dbcbc74554fc730ce7950ae6",
+      "rawSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "status": "verified",
+      "detail": "All 48000000 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "operation": "decode-lossless",
+      "encodedSha256": "45813069886a56af0c106dddc80b9f2daea4525c73f6bdb20d9c7144e0c1c702",
+      "rawSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "status": "verified",
+      "detail": "All 8294400 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "operation": "decode-lossless",
+      "encodedSha256": "a7db2f733234e1b7e84f7e6efacc0fc8a82a1e94e0743afc8bc2113dd95d20b3",
+      "rawSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "sunset_logo",
+      "operation": "decode-lossless",
+      "encodedSha256": "7111ce44431c02eeb280a6997d8faf689c6ebae88f64f11243eaa08e892ef5c4",
+      "rawSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "status": "verified",
+      "detail": "All 5122656 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "gray16-default",
+      "operation": "decode-lossless",
+      "encodedSha256": "b73ad3f9628107598dd898ff85e09ee9f252af2fd59f8a5b7d202add7fd4eab7",
+      "rawSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+      "status": "verified",
+      "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "rgb16-default",
+      "operation": "decode-lossless",
+      "encodedSha256": "5d0aa89658c464e5305fafb62d122dd7ca626efd8e5f2407ad297ed74e29ae27",
+      "rawSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "rgba16-straight",
+      "operation": "decode-lossless",
+      "encodedSha256": "06f4db5c507810c7f5c867cb64f61d9e1abb4e89a5cc73a732afef58187c89c7",
+      "rawSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+      "status": "verified",
+      "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    },
+    {
+      "fixture": "gray8",
+      "operation": "decode-lossless",
+      "encodedSha256": "fbcc2b2d73831131440aa867f65d8b9c3ee8e43f31eb7404fe903017a4d2feac",
+      "rawSha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798",
+      "status": "verified",
+      "detail": "All 160000 samples compared, maximum error 0, tolerance 0",
+      "maximumError": 0
+    }
+  ]
+}

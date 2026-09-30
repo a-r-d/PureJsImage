@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises'
-import { hash, json, root, run, work } from './io.ts'
+import { hash, implementationIdentity, json, root, run, work } from './io.ts'
 
 const files: { path: string; bytes: number; sha256: string }[] = []
 async function walk(directory: string) {
@@ -23,7 +23,8 @@ for (const entry of await readdir(root)) {
 await json(`${root}/results/artifact-index.json`, {
   schemaVersion: 1,
   date: new Date().toISOString(),
-  implementationRevision: '564a4d2d3e1c318f64821322c67329550df6da6b',
+  ...(await implementationIdentity()),
+  comparisonBaselineRevision: '564a4d2d3e1c318f64821322c67329550df6da6b',
   harnessParentRevision: run('git', ['rev-parse', 'HEAD']).trim(),
   codecChangeCheck: run('git', [
     'diff',

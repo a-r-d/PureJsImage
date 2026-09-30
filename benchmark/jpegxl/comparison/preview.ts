@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { chromium } from '@playwright/test'
 import { build } from 'esbuild'
-import { hash, json, root, work } from './io.ts'
+import { hash, implementationIdentity, json, root, work } from './io.ts'
 
 await build({
   entryPoints: [`${root}/preview-worker.ts`],
@@ -87,6 +87,7 @@ try {
 }
 await json(`${root}/results/preview-chromium.json`, {
   schemaVersion: 1,
+  ...(await implementationIdentity()),
   date: new Date().toISOString(),
   browser: browser.version(),
   fixture: { path, sha256: hash(input), bytes: input.length },

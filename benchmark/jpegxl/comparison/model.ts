@@ -62,6 +62,24 @@ export function number(value: unknown): number {
     throw new Error('Expected finite number')
   return value
 }
+export function validateImplementationIdentity(report: unknown, manifest: unknown): void {
+  const measured = object(report),
+    expected = object(manifest)
+  for (const field of [
+    'implementationRevision',
+    'implementationSourceSha256',
+    'implementationDirty',
+  ]) {
+    const value = expected[field]
+    if (
+      field === 'implementationDirty'
+        ? typeof value !== 'boolean'
+        : typeof value !== 'string' || value.length === 0
+    )
+      throw new Error(`Missing ${field}`)
+    if (measured[field] !== value) throw new Error(`Comparison implementation mismatch: ${field}`)
+  }
+}
 export function parseFixture(value: unknown): Fixture {
   const v = object(value),
     scope = v.scope,

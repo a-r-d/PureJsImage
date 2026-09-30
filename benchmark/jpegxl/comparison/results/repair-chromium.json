@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-29T15:44:51.124Z",
-  "updated": "2026-09-29T15:44:53.122Z",
+  "started": "2026-09-30T04:20:50.453Z",
+  "updated": "2026-09-30T04:20:52.557Z",
   "mode": "repair",
   "runtime": "chromium",
   "environment": {
@@ -15,8 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "subjectsSha256": "9b81356ae905fcd84071604e717a27bd81c2817fc67a5a66717e8d244340524d",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -35,9 +37,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
-      "times": [0.40000000037252903, 0.39999999944120646, 0.40000000037252903],
-      "coldMs": 29.299999999813735,
-      "initializationMs": 13.900000000372529,
+      "times": [0.5, 0.29999999701976776, 0.3999999985098839],
+      "coldMs": 30.400000005960464,
+      "initializationMs": 14.600000001490116,
       "output": {
         "kind": "png",
         "sha256": "c8ed4fef7fe5689511f6f4669b9840f6614d1e495c0066542a5371b1ce3b0c4d",
@@ -104,7 +106,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 12.799999999813735,
+      "initializationMs": 14.5,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -153,9 +155,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
-      "times": [1.3799999998882413, 1.3450000006705523, 1.3649999992921948],
-      "coldMs": 169.9550000000745,
-      "initializationMs": 146.4199999999255,
+      "times": [1.4149999991059303, 1.8999999985098839, 1.594999998807907],
+      "coldMs": 180.47999999672174,
+      "initializationMs": 155.48499999940395,
       "output": {
         "width": 41,
         "height": 31,
@@ -202,6 +204,10 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -244,10 +250,6 @@
         {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -293,9 +295,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/gray16-default-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 1271 samples compared, maximum error 0, tolerance 0",
-      "times": [2.650000000372529, 2.3999999994412065, 2.235000000335276],
-      "coldMs": 179.16500000003725,
-      "initializationMs": 145.60500000044703,
+      "times": [2.560000002384186, 2.434999994933605, 2.285000003874302],
+      "coldMs": 190.70500000566244,
+      "initializationMs": 156.0350000038743,
       "output": {
         "kind": "jxl",
         "sha256": "e963d3f8b949ca29a55b53c3f8c44ab68ef7d9c986ebdd0c948f04c36d8cbc6b",
@@ -319,14 +321,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -381,20 +375,28 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/output",
@@ -428,9 +430,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [1, 1.099999999627471, 0.7999999998137355],
-      "coldMs": 30.300000000745058,
-      "initializationMs": 12.700000000186265,
+      "times": [1, 1.3000000044703484, 1.3999999985098839],
+      "coldMs": 34.100000001490116,
+      "initializationMs": 14.5,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -497,7 +499,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 12.600000000558794,
+      "initializationMs": 13.800000004470348,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -546,9 +548,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [1.7199999997392297, 1.6349999997764826, 1.8250000001862645],
-      "coldMs": 168.56500000040978,
-      "initializationMs": 143.82500000018626,
+      "times": [2.565000005066395, 1.9900000020861626, 1.994999997317791],
+      "coldMs": 178.80499999970198,
+      "initializationMs": 153.1300000026822,
       "output": {
         "width": 47,
         "height": 39,
@@ -595,20 +597,24 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -651,10 +657,6 @@
           "bytes": 2224543
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/output",
           "bytes": 2
         }
@@ -686,9 +688,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgb16-default-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [3.159999999217689, 3.010000000707805, 2.4100000001490116],
-      "coldMs": 181.34999999962747,
-      "initializationMs": 144.48000000044703,
+      "times": [3.285000003874302, 2.9149999991059303, 2.4550000056624413],
+      "coldMs": 192.17499999701977,
+      "initializationMs": 154.22999999672174,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -730,6 +732,18 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -750,44 +764,32 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/output",
@@ -821,9 +823,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-oxide-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
-      "times": [1.199999999254942, 1, 1],
-      "coldMs": 30.100000000558794,
-      "initializationMs": 12.799999999813735,
+      "times": [1.5, 1.0999999940395355, 1.2000000029802322],
+      "coldMs": 32.30000000447035,
+      "initializationMs": 13.899999998509884,
       "output": {
         "kind": "png",
         "sha256": "1ba8f3409b59ea6dc65506049bbf9eac33c2dbe3949052ac0d2d00911e14e583",
@@ -890,7 +892,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 12.399999999441206,
+      "initializationMs": 13.399999998509884,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -939,9 +941,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
-      "times": [2, 1.8149999994784594, 1.7599999997764826],
-      "coldMs": 165.0100000007078,
-      "initializationMs": 140.3400000007823,
+      "times": [2.059999994933605, 1.8000000044703484, 1.8149999976158142],
+      "coldMs": 182.87000000476837,
+      "initializationMs": 156.6600000038743,
       "output": {
         "width": 35,
         "height": 33,
@@ -1036,16 +1038,16 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/output",
@@ -1079,9 +1081,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/repair-chromium/rgba16-straight-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4620 samples compared, maximum error 0, tolerance 0",
-      "times": [2.8399999998509884, 2.3900000005960464, 2.2850000001490116],
-      "coldMs": 176.34999999962747,
-      "initializationMs": 142.3300000000745,
+      "times": [2.665000006556511, 2.2899999991059303, 2.285000003874302],
+      "coldMs": 189.9599999934435,
+      "initializationMs": 154.10999999940395,
       "output": {
         "kind": "jxl",
         "sha256": "882811a8312dd607d39f4fd94ea6b5d7120cddfb667be289a658b23417ce8107",
@@ -1105,10 +1107,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1165,6 +1163,10 @@
         {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",

@@ -11,7 +11,7 @@ import {
   reconstructJpegFromJpegXl,
   transcodeJpegToJpegXl,
 } from 'purejsimage/jpegxl'
-import { hash, json, oracle, root, run, work } from './io.ts'
+import { hash, implementationIdentity, json, oracle, root, run, work } from './io.ts'
 import { classifyError, OutputMismatch, type Status, type Subject } from './model.ts'
 import { pngPixels } from './validate.ts'
 
@@ -632,6 +632,7 @@ for (const file of files.filter((f) => f.path.startsWith(directory) && f.path.en
 }
 await json(`${root}/results/specialized-node.json`, {
   schemaVersion: 1,
+  ...(await implementationIdentity()),
   date: new Date().toISOString(),
   runtime: process.version,
   vipsConfiguration,

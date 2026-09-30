@@ -4,10 +4,12 @@
 
 This is a manual comparison of PureJsImage, `@jsquash/jxl` 1.3.0,
 `jxl-oxide-wasm` 0.12.6 and `wasm-vips` 0.0.19 on one Linux host.
-PureJsImage is the local public-API build of
-`564a4d2d3e1c318f64821322c67329550df6da6b`. This is not a measurement of the
-published 0.17.0 tarball. The encoder implementation and capability decisions
-have not changed in this comparison.
+The comparison measured a local public-API build based on
+`fea5943a86a191cd29ee526119595b1ac77a0c82`. The grouped lossless decoder changes
+were uncommitted during measurement. The codec source SHA-256 is
+`f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e`.
+The reports retain both identities and the dirty-build flag. These measurements
+cover the local repository build rather than the published 0.17.0 tarball.
 
 [Generated summary](SUMMARY.md), [website dataset](website-data.json),
 [subject/assets manifest](subjects.json), [fixture manifest](fixtures.json), and
@@ -19,12 +21,31 @@ those reports. No overall winner score is calculated.
 
 ## Supported conclusions
 
+The grouped-Modular correction decodes all 16 original lossless inputs with
+zero sample error, including the seven rejected by the original comparison.
+The previously rejected photo roundtrip also matches every sample. The full
+comparison was rerun with the same pinned inputs and comparator versions.
+The separate [pinned follow-up results](results/grouped-lossless-followup.json)
+provide a shorter exact-sample verification. Reproduce that check after
+restoring the pinned comparison inputs:
+
+```sh
+npm run build
+node benchmark/jpegxl/verify-grouped-lossless.ts
+```
+
+Small first-party RGB8 and RGB16 fixtures pin libjxl 0.12.0 palette-before-RCT
+output. Node and browser regressions check exact samples, odd partial groups and
+cross-group crops. Local transforms that touch global prefix planes and general
+multi-group global Palette/Squeeze transforms remain unsupported.
+
 - The tested PureJsImage toolkit has the smallest loaded asset footprint among
   these four adapters. This includes the benchmark worker and both encode and
   decode entry points; it is not a survey of every possible JPEG XL bundle.
-- The WASM alternatives decode several native-libjxl lossless streams rejected
-  by this PureJsImage revision's grouped Modular transform support. Those cases
-  remain visible, including the failed PureJsImage roundtrip workload.
+- PureJsImage decodes all 16 shared native-libjxl lossless streams exactly.
+  This closes the observed grouped Modular failures. General multi-group global
+  Palette/Squeeze transforms and local transforms touching global prefix planes
+  remain outside the supported scope.
 - The three encoders expose different speed/compression tradeoffs. See the
   generated paired lossless table; the WASM encoders are substantially faster
   on several measured workloads. Exact validation is required before a row
@@ -241,6 +262,7 @@ Commands after `env node`:
 
 ```text
 benchmark/jpegxl/comparison/run.ts main node
+benchmark/jpegxl/comparison/run.ts repair chromium
 benchmark/jpegxl/comparison/run.ts compat firefox
 benchmark/jpegxl/comparison/run.ts compat webkit
 benchmark/jpegxl/comparison/run.ts cold chromium
@@ -255,6 +277,11 @@ Choose a unique bounded-run ID for each command. `run.ts smoke node` and
 can select a comma-separated subject list for diagnostics. Reports are written
 after each row; rerunning a command makes new timings rather than treating an
 old timing as a fresh sample. Preserve an old report before replacing it.
+The native-precision repair phase uses `JXL_COMPARE_SUBJECTS=oxide,vips` and
+supersedes its matching main Chromium cells. Rerun it with the main measurements
+so an old repair report cannot enter a new comparison. Generation rejects
+measurement reports whose revision, codec source hash or dirty-build flag differs
+from the current subject manifest.
 
 ```sh
 node benchmark/jpegxl/comparison/validate-quality.ts
@@ -277,22 +304,29 @@ index are versioned. Keep that cache for inspecting exact measured bytes.
 
 ## Handoff checks
 
-The 11 comparison tests passed. The complete repository gate passed with
-`VITEST_MAX_WORKERS=4 npm run check`: 3,236 tests passed and three were skipped.
-The initial default-worker run timed out in an existing encoder test at five
-seconds. That test passed in isolation in 2.7 seconds; the complete four-worker
-rerun preserved its assertions and timeout. All non-test repository gates passed.
+The 12 comparison tests passed. The full repository handoff gate passed with
+`VITEST_MAX_WORKERS=4 npm run check`: 3,253 tests passed and three were skipped.
+All non-test gates passed, including the browser build. Repository tests do not
+refresh benchmark timings.
 
-The Chromium/Node main runs, repeated cold subset, Firefox/WebKit compatibility
-checks, preview probes, specialized probes and 87 independently decoded quality
+The refreshed Chromium/Node main runs each verify all 75 PureJsImage workflows:
+16 lossless decodes, 13 lossy decodes, 45 encodes and one roundtrip. Repeated cold
+subsets, Firefox/WebKit compatibility checks, preview probes, specialized probes
+and 87 independently decoded quality
 artifacts are recorded above. The final input-normalization verification reproduced
 all ten selected imazen inputs exactly. No benchmark timing was refreshed by a
 repository test run.
 
-## Prompt 2 boundary
+The refreshed comparison page passed focused Chromium, Firefox and WebKit tests,
+including downloaded data identities and mobile width. These page tests ran
+separately from measurements. Firefox passed with a 512-task limit and the same
+8 GiB memory cap after failing under the benchmark runner's 256-task limit.
 
-Use this report and the generated data for a later comparison page. Publish
+## Publication scope
+
+Use this report and the generated data for the comparison page. Publish
 only claims supported by the measured scope, include competitor advantages,
 and keep original-size results separate from diagnostics. Do not turn missing
-brackets, wrapper limitations or untested features into wins. No production
-codec change, Stable decision, version bump or release is part of this work.
+brackets, wrapper limitations or untested features into wins. This rerun measures
+the grouped decoder correction. It adds no new Stable decision, version bump or
+release.

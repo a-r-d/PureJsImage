@@ -1,31 +1,31 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29T15:56:47.753Z",
+  "date": "2026-09-30T04:27:38.574Z",
   "decision": "Comparison uses each public lossy default, including its alpha behavior. Exact default alpha is a PureJsImage guarantee; do not call another wrapper incorrect merely for lossy alpha it does not promise to preserve. Preserve every measured alpha error and black/white score. Historical timing values and original statuses are retained.",
   "reports": [
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/cold-chromium.json",
-      "sourceReportSha256": "7496bae947d76eb5d621f4e4f00488e2b865ebf42aefcce5059c7984a8abc316",
+      "sourceReportSha256": "fbc7b8339f7882d47d0dab24e668e48f48971d4dc5ccfc162c7e7658f22a5822",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/cold-node.json",
-      "sourceReportSha256": "f484c964cd73a5e6be3a33e322f1abba008150ef2b735108143cadfe31690c97",
+      "sourceReportSha256": "bc5b9523d129becb77fd0281662c1ead5242bfde228682ae5c6decd85c81a56d",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/compat-firefox.json",
-      "sourceReportSha256": "f5a469b3c07f9e9e79ab75626698862ea3e66ae8b985df7432c9757b50600d25",
+      "sourceReportSha256": "3dc6af646515f20557bc3699a89c1ad81d010444c7c43c8cfc022134df692277",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/compat-webkit.json",
-      "sourceReportSha256": "3f27604e4ef5af0d6d8b6df777b055188843e244cdf237b9247c5d907739ccaf",
+      "sourceReportSha256": "94520f22e63815d1ed01178e583279bfe0a4d990e7ae07d05cb6eb122ff34dd8",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/main-chromium.json",
-      "sourceReportSha256": "176fe882497b31cde2190a85df6a7e7a78a5eff52845950668a047fd424d8528",
+      "sourceReportSha256": "0e2a1ee6024c86bcc1295771e6d8a1d839925a47c792ce2173091878128f57c3",
       "amendments": [
         {
           "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
@@ -469,7 +469,7 @@
         },
         {
           "key": "alpha_triangles-jsquash-encode-ly-e1",
-          "originalStatus": "incorrect output",
+          "originalStatus": "verified",
           "status": "verified",
           "maximumAlphaError": 6,
           "exactAlphaRequired": false,
@@ -535,7 +535,7 @@
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/main-node.json",
-      "sourceReportSha256": "6bf24a5e074353f58775d81bdc404e5cbdad057cbcbe23ebaf3aa6b7a876bd03",
+      "sourceReportSha256": "c531db73d8b8c9f3e504c7372d0c42517053419db339d4153f0d8c9d03f0eb33",
       "amendments": [
         {
           "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
@@ -979,7 +979,7 @@
         },
         {
           "key": "alpha_triangles-jsquash-encode-ly-e1",
-          "originalStatus": "incorrect output",
+          "originalStatus": "verified",
           "status": "verified",
           "maximumAlphaError": 6,
           "exactAlphaRequired": false,
@@ -1045,7 +1045,7 @@
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/repair-chromium.json",
-      "sourceReportSha256": "ffde2b7974c526200eec97b0d54bae2d4541806b1e40d188538cbd1b3d98b604",
+      "sourceReportSha256": "98ce3e59975f2782e477d8590572f2de0bef427b06739dc2ce89761e94507dde",
       "amendments": []
     }
   ]

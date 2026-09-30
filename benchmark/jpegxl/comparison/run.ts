@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { cpus, platform, release, totalmem } from 'node:os'
 import { type BrowserType, chromium, firefox, webkit } from '@playwright/test'
 import type { execute, Job } from './execute.ts'
-import { fixtures, hash, json, root, run, work } from './io.ts'
+import { fixtures, hash, implementationIdentity, json, root, work } from './io.ts'
 import { type Settings, subjects } from './model.ts'
 import { validate } from './validate.ts'
 
@@ -29,7 +29,8 @@ const selected = subjects.filter((s) => selection.includes(s)),
 const out = `${work}/runs/${mode}-${runtime}`
 await mkdir(out, { recursive: true })
 const rows: unknown[] = [],
-  started = new Date().toISOString()
+  started = new Date().toISOString(),
+  implementation = await implementationIdentity()
 let server: ReturnType<typeof createServer> | undefined,
   origin = ''
 if (runtime !== 'node') {
@@ -113,7 +114,7 @@ const report = async () =>
       browserMemory: 'unavailable: no consistent cross-browser measurement API',
       singleThread: true,
     },
-    implementationRevision: run('git', ['rev-parse', 'HEAD']).trim(),
+    ...implementation,
     subjectsSha256: hash(await readFile(`${root}/subjects.json`)),
     fixturesSha256: hash(await readFile(`${root}/fixtures.json`)),
     rows,

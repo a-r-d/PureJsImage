@@ -1371,6 +1371,7 @@ interface ModularProgram {
   readonly usesWeightedPrediction: boolean
   readonly channelLayouts: readonly ModularChannelLayout[]
   readonly transforms: readonly ModularTransform[]
+  readonly inverseTransformBytes?: bigint
   readonly metaChannelCount: number
   readonly groupId: number
   readonly prefixPlanes: readonly Int32Array<ArrayBufferLike>[]
@@ -1469,8 +1470,9 @@ const applySqueezeLayouts = (
   layouts: ModularChannelLayout[],
   initialMetaChannelCount: number,
   parameters: readonly ModularSqueezeParameters[],
-): number => {
+): Readonly<{ metaChannelCount: number; inverseTransformBytes: bigint }> => {
   let metaChannelCount = initialMetaChannelCount
+  let inverseTransformBytes = 0n
   for (const parameter of parameters) {
     validateTransformRange(
       layouts,
@@ -1492,6 +1494,7 @@ const applySqueezeLayouts = (
       if (!layout || layout.width < 1 || layout.height < 1) {
         throw invalidInput('JPEG XL Squeeze channel dimensions are invalid')
       }
+      inverseTransformBytes += BigInt(layout.width) * BigInt(layout.height) * 4n
       const hshift = (layout.hshift ?? 0) + (parameter.horizontal ? 1 : 0)
       const vshift = (layout.vshift ?? 0) + (parameter.horizontal ? 0 : 1)
       const average = Object.freeze({
@@ -1513,20 +1516,25 @@ const applySqueezeLayouts = (
       }
     }
   }
-  return metaChannelCount
+  return { metaChannelCount, inverseTransformBytes }
 }
 
 const readModularTransforms = (
   reader: JpegXlBitReader,
   channelLayouts: ModularChannelLayout[],
   initialMetaChannelCount: number,
-): Readonly<{ transforms: readonly ModularTransform[]; metaChannelCount: number }> => {
+): Readonly<{
+  transforms: readonly ModularTransform[]
+  metaChannelCount: number
+  inverseTransformBytes: bigint
+}> => {
   const transformCount = readU32(reader, [value(0), value(1), bits(4, 2), bits(8, 18)])
   if (transformCount > 256) {
     throw limitExceeded('JPEG XL Modular transform count exceeds 256')
   }
   const transforms: ModularTransform[] = []
   let metaChannelCount = initialMetaChannelCount
+  let inverseTransformBytes = 0n
   for (let transformIndex = 0; transformIndex < transformCount; transformIndex += 1) {
     const transform = readU32(reader, [value(0), value(1), value(2), value(3)])
     if (transform === 0) {
@@ -1571,6 +1579,8 @@ const readModularTransforms = (
       }
       if (beginChannel >= metaChannelCount) metaChannelCount += 1
       else metaChannelCount += 2 - paletteChannelCount
+      inverseTransformBytes +=
+        BigInt(firstLayout.width) * BigInt(firstLayout.height) * BigInt(paletteChannelCount) * 4n
       channelLayouts.splice(beginChannel + 1, paletteChannelCount - 1)
       channelLayouts.unshift({ width: colorCount + deltaCount, height: paletteChannelCount })
       transforms.push(
@@ -1603,13 +1613,19 @@ const readModularTransforms = (
         explicitParameters.length === 0
           ? defaultSqueezeParameters(channelLayouts, metaChannelCount)
           : Object.freeze(explicitParameters)
-      metaChannelCount = applySqueezeLayouts(channelLayouts, metaChannelCount, parameters)
+      const squeeze = applySqueezeLayouts(channelLayouts, metaChannelCount, parameters)
+      metaChannelCount = squeeze.metaChannelCount
+      inverseTransformBytes += squeeze.inverseTransformBytes
       transforms.push(Object.freeze({ kind: 'squeeze', parameters }))
     } else {
       throw invalidInput('JPEG XL Modular transform is invalid')
     }
   }
-  return Object.freeze({ transforms: Object.freeze(transforms), metaChannelCount })
+  return Object.freeze({
+    transforms: Object.freeze(transforms),
+    metaChannelCount,
+    inverseTransformBytes,
+  })
 }
 
 const readJpegXlModularProgram = (
@@ -2034,34 +2050,17 @@ const readModularGroup = (
   const reader = new JpegXlBitReader(groupData)
   const useGlobalTree = reader.readBits(1) !== 0
   const weightedPredictor = readWeightedPredictor(reader)
-  const { transforms, metaChannelCount } = readModularTransforms(
+  const { transforms, metaChannelCount, inverseTransformBytes } = readModularTransforms(
     reader,
     channelLayouts,
     foundation.globalProgram.metaChannelCount,
   )
-  const [first, second, third, fourth] = transforms
-  const localColorTransform =
-    transforms.length === 2 &&
-    first?.kind === 'rct' &&
-    first.beginChannel === 0 &&
-    (second?.kind === 'palette' || second?.kind === 'squeeze')
-  const scalarPalettes =
-    (transforms.length === 3 || transforms.length === 4) &&
-    [first, second, third].every(
-      (transform, channel) =>
-        transform?.kind === 'palette' &&
-        transform.beginChannel === channel * 2 &&
-        transform.channelCount === 1 &&
-        transform.deltaCount === 0 &&
-        transform.predictor === 0,
-    ) &&
-    (fourth === undefined || (fourth.kind === 'rct' && fourth.beginChannel === 3))
-  if (
-    (transforms.length > 1 && !localColorTransform && !scalarPalettes) ||
-    (transforms.length > 0 && foundation.prefixPlanes.length > 0)
-  ) {
+  // Local transform headers validate their channel ranges and dimensions. The
+  // inverse kernels replay the complete chain in reverse, including palettes
+  // before RCT. Global prefix planes cannot yet be transformed per group.
+  if (transforms.length > 0 && foundation.prefixPlanes.length > 0) {
     throw unsupportedOperation(
-      'JPEG XL grouped Modular transform chains and transformed prefix channels are not supported',
+      'JPEG XL grouped Modular transformed prefix channels are not supported',
     )
   }
   const tree = useGlobalTree ? foundation.globalProgram.nodes : readTree(reader).nodes
@@ -2095,6 +2094,7 @@ const readModularGroup = (
       usesWeightedPrediction,
       channelLayouts: Object.freeze(channelLayouts.map((layout) => Object.freeze(layout))),
       transforms: Object.freeze([...foundation.globalProgram.transforms, ...transforms]),
+      inverseTransformBytes,
       metaChannelCount,
       groupId: 1 + 3 * header.dcGroupCount + JPEG_XL_QUANT_TABLES + groupId,
       prefixPlanes: foundation.prefixPlanes,
@@ -3827,9 +3827,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
         activeGroups.reduce(
           (sum, group) =>
             sum +
-            (group.program.transforms.some((transform) => transform.kind !== 'rct')
-              ? BigInt(group.width) * BigInt(group.height) * BigInt(this.#header.channelCount) * 4n
-              : 0n) +
+            (group.program.inverseTransformBytes ?? 0n) +
             group.program.channelLayouts
               .slice(group.program.prefixPlanes.length)
               .reduce(

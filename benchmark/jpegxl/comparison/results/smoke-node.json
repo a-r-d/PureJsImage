@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-29T14:59:54.521Z",
-  "updated": "2026-09-29T15:00:07.641Z",
+  "started": "2026-09-30T03:40:38.496Z",
+  "updated": "2026-09-30T03:40:57.847Z",
   "mode": "smoke",
   "runtime": "node",
   "environment": {
@@ -15,8 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "subjectsSha256": "c14b47756e73693d28de8cda24ed8d954911c39abccd500d275e2984b08d5ba5",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -33,30 +35,47 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
-      "status": "unsupported input",
-      "detail": "ImageError: JPEG XL grouped Modular transform chains and transformed prefix channels are not supported",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [1385.2499630000002],
+      "coldMs": 1496.571231,
+      "initializationMs": 55.662942000000015,
+      "output": {
+        "width": 1024,
+        "height": 768,
+        "channels": 4,
+        "interpretation": "srgb",
+        "sampleType": "uint8",
+        "kind": "pixels",
+        "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "bytes": 3145728
+      },
       "memory": {
         "baseline": {
-          "rss": 85487616,
+          "rss": 86183936,
           "heapTotal": 14680064,
-          "heapUsed": 9725104,
+          "heapUsed": 9821368,
           "external": 15548464,
           "arrayBuffers": 6840433
         },
         "after": {
-          "rss": 128765952,
-          "heapTotal": 36446208,
-          "heapUsed": 19100312,
-          "external": 23873253,
-          "arrayBuffers": 15124738
+          "rss": 139411456,
+          "heapTotal": 49291264,
+          "heapUsed": 21766696,
+          "external": 31912737,
+          "arrayBuffers": 23164222
         },
-        "peakRssBytes": 128765952,
+        "peakRssBytes": 139411456,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
       }
     },
     {
@@ -73,30 +92,42 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [719.777503],
+      "coldMs": 777.614443,
+      "initializationMs": 62.66261300000001,
+      "output": {
+        "kind": "jxl",
+        "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
+        "bytes": 759672
+      },
       "memory": {
         "baseline": {
-          "rss": 85450752,
-          "heapTotal": 14942208,
-          "heapUsed": 9733048,
+          "rss": 86126592,
+          "heapTotal": 14680064,
+          "heapUsed": 9837296,
           "external": 15548446,
           "arrayBuffers": 6840415
         },
         "after": {
-          "rss": 106708992,
-          "heapTotal": 35135488,
-          "heapUsed": 19332408,
-          "external": 12775857,
-          "arrayBuffers": 4027342
+          "rss": 126660608,
+          "heapTotal": 26169344,
+          "heapUsed": 7144584,
+          "external": 13499189,
+          "arrayBuffers": 4750674
         },
-        "peakRssBytes": 106708992,
+        "peakRssBytes": 193204224,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "pinned native libjxl v0.12.0"
       }
     },
     {
@@ -115,9 +146,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-jsquash-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [266.09574299999997],
-      "coldMs": 332.983677,
-      "initializationMs": 17.645336,
+      "times": [267.919918],
+      "coldMs": 352.483716,
+      "initializationMs": 14.383610999999988,
       "output": {
         "width": 1024,
         "height": 768,
@@ -130,20 +161,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85639168,
-          "heapTotal": 14680064,
-          "heapUsed": 9749088,
+          "rss": 85037056,
+          "heapTotal": 14942208,
+          "heapUsed": 9858192,
           "external": 15548458,
           "arrayBuffers": 6840427
         },
         "after": {
-          "rss": 171728896,
-          "heapTotal": 15204352,
-          "heapUsed": 9891688,
-          "external": 88059677,
-          "arrayBuffers": 12196337
+          "rss": 169762816,
+          "heapTotal": 15466496,
+          "heapUsed": 9956360,
+          "external": 95382513,
+          "arrayBuffers": 19519173
         },
-        "peakRssBytes": 171728896,
+        "peakRssBytes": 169762816,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -172,9 +203,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [53.289604],
-      "coldMs": 124.016872,
-      "initializationMs": 14.009253000000001,
+      "times": [54.175127],
+      "coldMs": 126.307444,
+      "initializationMs": 14.572403999999992,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -182,20 +213,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85319680,
-          "heapTotal": 14680064,
-          "heapUsed": 9725008,
+          "rss": 85843968,
+          "heapTotal": 14942208,
+          "heapUsed": 9815200,
           "external": 15548440,
           "arrayBuffers": 6840409
         },
         "after": {
-          "rss": 179605504,
+          "rss": 179822592,
           "heapTotal": 15466496,
-          "heapUsed": 9879816,
+          "heapUsed": 9894672,
           "external": 126386947,
           "arrayBuffers": 13757911
         },
-        "peakRssBytes": 187912192,
+        "peakRssBytes": 187899904,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -222,30 +253,42 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+      "times": [391.664041],
+      "coldMs": 469.268947,
+      "initializationMs": 19.961675,
+      "output": {
+        "kind": "png",
+        "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
+        "bytes": 937913
+      },
       "memory": {
         "baseline": {
-          "rss": 84574208,
+          "rss": 85966848,
           "heapTotal": 14680064,
-          "heapUsed": 9736912,
+          "heapUsed": 9857112,
           "external": 15548452,
           "arrayBuffers": 6840421
         },
         "after": {
-          "rss": 130760704,
-          "heapTotal": 16515072,
-          "heapUsed": 12284032,
-          "external": 32690938,
-          "arrayBuffers": 6337929
+          "rss": 131530752,
+          "heapTotal": 16777216,
+          "heapUsed": 12402936,
+          "external": 33621283,
+          "arrayBuffers": 7268274
         },
-        "peakRssBytes": 130760704,
+        "peakRssBytes": 131530752,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+        "oracle": "prepared source / sharp PNG reader"
       }
     },
     {
@@ -266,24 +309,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.18262999999999,
+      "initializationMs": 21.067814,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 85229568,
-          "heapTotal": 14942208,
-          "heapUsed": 9723768,
+          "rss": 86036480,
+          "heapTotal": 14680064,
+          "heapUsed": 9834048,
           "external": 15548434,
           "arrayBuffers": 6840403
         },
         "after": {
-          "rss": 96161792,
+          "rss": 97312768,
           "heapTotal": 16252928,
-          "heapUsed": 12149192,
-          "external": 17007425,
-          "arrayBuffers": 5400016
+          "heapUsed": 12230856,
+          "external": 16999233,
+          "arrayBuffers": 5391824
         },
-        "peakRssBytes": 96161792,
+        "peakRssBytes": 97312768,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -304,9 +347,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [177.16430500000007],
-      "coldMs": 406.17244,
-      "initializationMs": 69.152519,
+      "times": [172.21749600000004],
+      "coldMs": 424.46938600000004,
+      "initializationMs": 67.551722,
       "output": {
         "width": 1024,
         "height": 768,
@@ -319,20 +362,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85184512,
+          "rss": 85852160,
           "heapTotal": 14680064,
-          "heapUsed": 9742264,
+          "heapUsed": 9842632,
           "external": 15548450,
           "arrayBuffers": 6840419
         },
         "after": {
-          "rss": 216260608,
-          "heapTotal": 33329152,
-          "heapUsed": 14501400,
-          "external": 15679257,
-          "arrayBuffers": 6840605
+          "rss": 219971584,
+          "heapTotal": 34639872,
+          "heapUsed": 14705648,
+          "external": 25116441,
+          "arrayBuffers": 16277789
         },
-        "peakRssBytes": 216477696,
+        "peakRssBytes": 220164096,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -361,9 +404,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
-      "times": [27.445560999999998],
-      "coldMs": 200.15562999999997,
-      "initializationMs": 66.18246099999999,
+      "times": [27.446630999999968],
+      "coldMs": 209.40282100000002,
+      "initializationMs": 69.821805,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -371,20 +414,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85594112,
+          "rss": 85942272,
           "heapTotal": 14680064,
-          "heapUsed": 9723688,
+          "heapUsed": 9808088,
           "external": 15548432,
           "arrayBuffers": 6840401
         },
         "after": {
-          "rss": 176013312,
-          "heapTotal": 35164160,
-          "heapUsed": 14959048,
-          "external": 15671325,
-          "arrayBuffers": 6832673
+          "rss": 181833728,
+          "heapTotal": 34377728,
+          "heapUsed": 14618144,
+          "external": 13317354,
+          "arrayBuffers": 4478702
         },
-        "peakRssBytes": 176013312,
+        "peakRssBytes": 182026240,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -413,9 +456,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [1905.534162],
-      "coldMs": 2043.743194,
-      "initializationMs": 59.213716000000005,
+      "times": [1935.6706339999996],
+      "coldMs": 2094.471011,
+      "initializationMs": 57.700430999999995,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -428,20 +471,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87691264,
-          "heapTotal": 14942208,
-          "heapUsed": 9725680,
+          "rss": 87875584,
+          "heapTotal": 14417920,
+          "heapUsed": 9829464,
           "external": 17139929,
           "arrayBuffers": 8431898
         },
         "after": {
-          "rss": 147804160,
+          "rss": 147333120,
           "heapTotal": 30941184,
-          "heapUsed": 12187056,
+          "heapUsed": 12193984,
           "external": 37546634,
           "arrayBuffers": 8729127
         },
-        "peakRssBytes": 147804160,
+        "peakRssBytes": 147333120,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -468,30 +511,42 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [835.467866],
+      "coldMs": 886.536164,
+      "initializationMs": 57.12035,
+      "output": {
+        "kind": "jxl",
+        "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
+        "bytes": 463599
+      },
       "memory": {
         "baseline": {
-          "rss": 87568384,
-          "heapTotal": 14680064,
-          "heapUsed": 9732000,
+          "rss": 88133632,
+          "heapTotal": 14942208,
+          "heapUsed": 9811600,
           "external": 17139911,
           "arrayBuffers": 8431880
         },
         "after": {
-          "rss": 108228608,
-          "heapTotal": 34873344,
-          "heapUsed": 20213128,
-          "external": 13334814,
-          "arrayBuffers": 4586299
+          "rss": 238489600,
+          "heapTotal": 30154752,
+          "heapUsed": 16103688,
+          "external": 109647219,
+          "arrayBuffers": 100898704
         },
-        "peakRssBytes": 108228608,
+        "peakRssBytes": 238489600,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "pinned native libjxl v0.12.0"
       }
     },
     {
@@ -510,9 +565,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-jsquash-decode-lossless-ll-e1.bin",
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
-      "times": [355.943975],
-      "coldMs": 412.62142600000004,
-      "initializationMs": 17.06675700000001,
+      "times": [351.31590300000005],
+      "coldMs": 414.16441499999996,
+      "initializationMs": 14.792001999999997,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -525,20 +580,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87879680,
+          "rss": 88068096,
           "heapTotal": 14680064,
-          "heapUsed": 9727144,
+          "heapUsed": 9835976,
           "external": 17139923,
           "arrayBuffers": 8431892
         },
         "after": {
-          "rss": 179212288,
-          "heapTotal": 14942208,
-          "heapUsed": 9876744,
-          "external": 102702593,
-          "arrayBuffers": 14846165
+          "rss": 183287808,
+          "heapTotal": 15466496,
+          "heapUsed": 9957848,
+          "external": 111100888,
+          "arrayBuffers": 23244460
         },
-        "peakRssBytes": 179372032,
+        "peakRssBytes": 183287808,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -567,9 +622,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-jsquash-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [67.777736],
-      "coldMs": 156.60301900000002,
-      "initializationMs": 14.432071000000008,
+      "times": [67.51558700000001],
+      "coldMs": 152.658524,
+      "initializationMs": 14.455869000000007,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -577,20 +632,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87379968,
+          "rss": 87887872,
           "heapTotal": 14680064,
-          "heapUsed": 9725960,
+          "heapUsed": 9858864,
           "external": 17139905,
           "arrayBuffers": 8431874
         },
         "after": {
-          "rss": 204386304,
+          "rss": 204935168,
           "heapTotal": 15466496,
-          "heapUsed": 9878272,
+          "heapUsed": 9894664,
           "external": 169554360,
           "arrayBuffers": 15834252
         },
-        "peakRssBytes": 212500480,
+        "peakRssBytes": 213274624,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -617,30 +672,42 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+      "times": [315.73836900000003],
+      "coldMs": 400.119169,
+      "initializationMs": 19.68394599999999,
+      "output": {
+        "kind": "png",
+        "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
+        "bytes": 53017
+      },
       "memory": {
         "baseline": {
-          "rss": 87744512,
+          "rss": 88080384,
           "heapTotal": 14680064,
-          "heapUsed": 9727136,
+          "heapUsed": 9837576,
           "external": 17139917,
           "arrayBuffers": 8431886
         },
         "after": {
-          "rss": 128643072,
-          "heapTotal": 16515072,
-          "heapUsed": 12288280,
-          "external": 34970055,
-          "arrayBuffers": 5995606
+          "rss": 138043392,
+          "heapTotal": 16777216,
+          "heapUsed": 12384032,
+          "external": 35015296,
+          "arrayBuffers": 6040847
         },
-        "peakRssBytes": 128643072,
+        "peakRssBytes": 138043392,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "oracle": "prepared source / sharp PNG reader"
       }
     },
     {
@@ -661,24 +728,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 20.268805,
+      "initializationMs": 19.663479999999993,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 87629824,
-          "heapTotal": 14417920,
-          "heapUsed": 9725504,
+          "rss": 87089152,
+          "heapTotal": 14942208,
+          "heapUsed": 9838144,
           "external": 17139899,
           "arrayBuffers": 8431868
         },
         "after": {
-          "rss": 98344960,
-          "heapTotal": 16252928,
-          "heapUsed": 12186672,
-          "external": 17549998,
-          "arrayBuffers": 5942589
+          "rss": 98172928,
+          "heapTotal": 16515072,
+          "heapUsed": 12280384,
+          "external": 17541806,
+          "arrayBuffers": 5934397
         },
-        "peakRssBytes": 98344960,
+        "peakRssBytes": 98172928,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -699,9 +766,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [219.6946250000001],
-      "coldMs": 456.4043449999999,
-      "initializationMs": 64.60279500000001,
+      "times": [230.756352],
+      "coldMs": 470.160949,
+      "initializationMs": 67.104778,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -714,20 +781,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87425024,
-          "heapTotal": 14942208,
-          "heapUsed": 9730296,
+          "rss": 86945792,
+          "heapTotal": 14417920,
+          "heapUsed": 9813880,
           "external": 17139915,
           "arrayBuffers": 8431884
         },
         "after": {
-          "rss": 223383552,
-          "heapTotal": 35426304,
-          "heapUsed": 14976392,
+          "rss": 232620032,
+          "heapTotal": 34902016,
+          "heapUsed": 14642072,
           "external": 29853734,
           "arrayBuffers": 21015082
         },
-        "peakRssBytes": 223612928,
+        "peakRssBytes": 232947712,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -756,9 +823,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
-      "times": [37.46793200000002],
-      "coldMs": 209.45003199999996,
-      "initializationMs": 67.158034,
+      "times": [34.20267299999995],
+      "coldMs": 206.10046,
+      "initializationMs": 67.085089,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -766,20 +833,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87592960,
-          "heapTotal": 14417920,
-          "heapUsed": 9744056,
+          "rss": 87183360,
+          "heapTotal": 14680064,
+          "heapUsed": 9823136,
           "external": 17139897,
           "arrayBuffers": 8431866
         },
         "after": {
-          "rss": 190611456,
+          "rss": 193527808,
           "heapTotal": 34639872,
-          "heapUsed": 14973512,
+          "heapUsed": 14700272,
           "external": 15109478,
           "arrayBuffers": 6270826
         },
-        "peakRssBytes": 190611456,
+        "peakRssBytes": 193527808,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -808,9 +875,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [6.115645000000001],
-      "coldMs": 75.745439,
-      "initializationMs": 58.663874,
+      "times": [6.225857000000019],
+      "coldMs": 72.085146,
+      "initializationMs": 54.842805,
       "output": {
         "width": 47,
         "height": 39,
@@ -823,20 +890,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79286272,
-          "heapTotal": 14680064,
-          "heapUsed": 9719816,
+          "rss": 79740928,
+          "heapTotal": 14942208,
+          "heapUsed": 9830128,
           "external": 8762601,
           "arrayBuffers": 54570
         },
         "after": {
-          "rss": 104271872,
-          "heapTotal": 35397632,
-          "heapUsed": 22977168,
+          "rss": 103022592,
+          "heapTotal": 34873344,
+          "heapUsed": 23243656,
           "external": 9357518,
           "arrayBuffers": 609003
         },
-        "peakRssBytes": 104271872,
+        "peakRssBytes": 103022592,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -863,30 +930,42 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-encode-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "ImageError: JPEG XL distance requires mode: lossy",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [3.4489799999999775],
+      "coldMs": 69.33560100000001,
+      "initializationMs": 54.120428000000004,
+      "output": {
+        "kind": "jxl",
+        "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
+        "bytes": 2185
+      },
       "memory": {
         "baseline": {
-          "rss": 79351808,
-          "heapTotal": 14680064,
-          "heapUsed": 9725400,
+          "rss": 79785984,
+          "heapTotal": 14942208,
+          "heapUsed": 9833856,
           "external": 8762583,
           "arrayBuffers": 54552
         },
         "after": {
-          "rss": 99749888,
-          "heapTotal": 34349056,
-          "heapUsed": 20071728,
-          "external": 9142402,
-          "arrayBuffers": 393887
+          "rss": 102604800,
+          "heapTotal": 35135488,
+          "heapUsed": 21496464,
+          "external": 9587584,
+          "arrayBuffers": 839069
         },
-        "peakRssBytes": 99749888,
+        "peakRssBytes": 102604800,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "pinned native libjxl v0.12.0"
       }
     },
     {
@@ -903,47 +982,30 @@
       },
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-jsquash-decode-lossless-ll-e1.bin",
-      "status": "incorrect output",
-      "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
-      "times": [1.340648999999999],
-      "coldMs": 43.42320299999999,
-      "initializationMs": 14.437286999999998,
-      "output": {
-        "width": 47,
-        "height": 39,
-        "channels": 4,
-        "interpretation": "srgb",
-        "sampleType": "uint8",
-        "kind": "pixels",
-        "sha256": "1ea9342e7178aebb8dce1562d05daf387691ea5859d22bf208de5e91da1e04a0",
-        "bytes": 7332
-      },
+      "status": "API not exposed",
+      "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
+      "times": [],
+      "coldMs": null,
+      "initializationMs": 14.322885000000007,
+      "output": null,
       "memory": {
         "baseline": {
-          "rss": 79216640,
+          "rss": 79872000,
           "heapTotal": 14417920,
-          "heapUsed": 9718136,
+          "heapUsed": 9802536,
           "external": 8762595,
           "arrayBuffers": 54564
         },
         "after": {
-          "rss": 105005056,
+          "rss": 86261760,
           "heapTotal": 15204352,
-          "heapUsed": 11027800,
-          "external": 46921942,
-          "arrayBuffers": 4613034
+          "heapUsed": 10962536,
+          "external": 46891036,
+          "arrayBuffers": 4582128
         },
-        "peakRssBytes": 105005056,
+        "peakRssBytes": 86261760,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
-      },
-      "maximumError": null,
-      "validation": {
-        "status": "incorrect output",
-        "detail": "Shape/type/color mismatch: 47x39/4/Uint8Array/srgb; expected 47x39/3/Uint16Array/srgb16",
-        "maximumError": null,
-        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
-        "oracle": "prepared source / sharp PNG reader"
       }
     },
     {
@@ -961,27 +1023,27 @@
       "workflow": "materialized pixels (decode expands gray/RGB to RGBA8) or encoded bytes",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-jsquash-encode-ll-e1.bin",
       "status": "API not exposed",
-      "detail": "ImageData encoder accepts RGBA8 only; no silent native precision conversion",
+      "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.400816000000006,
+      "initializationMs": 14.244140999999999,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79286272,
-          "heapTotal": 14417920,
-          "heapUsed": 9718136,
+          "rss": 79708160,
+          "heapTotal": 14942208,
+          "heapUsed": 9809640,
           "external": 8762577,
           "arrayBuffers": 54546
         },
         "after": {
-          "rss": 85544960,
+          "rss": 86228992,
           "heapTotal": 15204352,
-          "heapUsed": 10907656,
+          "heapUsed": 10969800,
           "external": 46891018,
           "arrayBuffers": 4582110
         },
-        "peakRssBytes": 85544960,
+        "peakRssBytes": 86228992,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -1000,30 +1062,42 @@
       },
       "workflow": "decode + mandatory PNG export",
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-oxide-decode-lossless-ll-e1.bin",
-      "status": "execution failure",
-      "detail": "Error: null pointer passed to rust",
-      "times": [],
-      "coldMs": null,
-      "initializationMs": null,
-      "output": null,
+      "status": "verified",
+      "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+      "times": [1.099891999999997],
+      "coldMs": 35.582192,
+      "initializationMs": 19.806801,
+      "output": {
+        "kind": "png",
+        "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
+        "bytes": 961
+      },
       "memory": {
         "baseline": {
-          "rss": 78450688,
-          "heapTotal": 14680064,
-          "heapUsed": 9718264,
+          "rss": 79618048,
+          "heapTotal": 14417920,
+          "heapUsed": 9837144,
           "external": 8762589,
           "arrayBuffers": 54558
         },
         "after": {
-          "rss": 97816576,
+          "rss": 94957568,
           "heapTotal": 16252928,
-          "heapUsed": 12244088,
-          "external": 13817145,
-          "arrayBuffers": 1750984
+          "heapUsed": 12362704,
+          "external": 13810484,
+          "arrayBuffers": 1744323
         },
-        "peakRssBytes": 97816576,
+        "peakRssBytes": 94957568,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
+      },
+      "maximumError": 0,
+      "validation": {
+        "status": "verified",
+        "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
+        "maximumError": 0,
+        "expectedSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+        "oracle": "prepared source / sharp PNG reader"
       }
     },
     {
@@ -1044,24 +1118,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.470458,
+      "initializationMs": 20.04054099999999,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79216640,
-          "heapTotal": 14417920,
-          "heapUsed": 9718128,
+          "rss": 79474688,
+          "heapTotal": 14942208,
+          "heapUsed": 9871048,
           "external": 8762571,
           "arrayBuffers": 54540
         },
         "after": {
-          "rss": 89931776,
+          "rss": 90488832,
           "heapTotal": 16252928,
-          "heapUsed": 12161128,
-          "external": 13357586,
-          "arrayBuffers": 1750177
+          "heapUsed": 12251968,
+          "external": 13349394,
+          "arrayBuffers": 1741985
         },
-        "peakRssBytes": 89931776,
+        "peakRssBytes": 90488832,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -1082,9 +1156,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-vips-decode-lossless-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [1.6636470000000259],
-      "coldMs": 222.77970200000001,
-      "initializationMs": 66.229603,
+      "times": [1.8152999999999793],
+      "coldMs": 228.953301,
+      "initializationMs": 68.33832300000002,
       "output": {
         "width": 47,
         "height": 39,
@@ -1097,20 +1171,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79331328,
-          "heapTotal": 14942208,
-          "heapUsed": 9727120,
+          "rss": 78962688,
+          "heapTotal": 14680064,
+          "heapUsed": 9815696,
           "external": 8762587,
           "arrayBuffers": 54556
         },
         "after": {
-          "rss": 172122112,
-          "heapTotal": 34902016,
-          "heapUsed": 14597744,
+          "rss": 177000448,
+          "heapTotal": 34377728,
+          "heapUsed": 14651336,
           "external": 8893648,
           "arrayBuffers": 54996
         },
-        "peakRssBytes": 172122112,
+        "peakRssBytes": 177135616,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1139,9 +1213,9 @@
       "artifact": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-vips-encode-ll-e1.bin",
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
-      "times": [2.3488809999999773],
-      "coldMs": 163.56777900000003,
-      "initializationMs": 66.111957,
+      "times": [2.652737000000002],
+      "coldMs": 190.115566,
+      "initializationMs": 84.100682,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -1149,20 +1223,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79425536,
+          "rss": 79327232,
           "heapTotal": 14680064,
-          "heapUsed": 9736720,
+          "heapUsed": 9828424,
           "external": 8762569,
           "arrayBuffers": 54538
         },
         "after": {
-          "rss": 148074496,
+          "rss": 151166976,
           "heapTotal": 34639872,
-          "heapUsed": 14566480,
+          "heapUsed": 14615952,
           "external": 8885738,
           "arrayBuffers": 47086
         },
-        "peakRssBytes": 148328448,
+        "peakRssBytes": 151166976,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },

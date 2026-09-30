@@ -1,9 +1,12 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29T15:59:58.037Z",
-  "implementationRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "harnessParentRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "codecChangeCheck": "",
+  "date": "2026-09-30T04:27:45.173Z",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "comparisonBaselineRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
+  "harnessParentRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "codecChangeCheck": "src/codecs/jpegxl-decode.ts\nsrc/codecs/jpegxl-progressive-plan.ts\nsrc/codecs/jpegxl-session.ts\n",
   "harness": [
     {
       "path": "benchmark/jpegxl/comparison/adapters.ts",
@@ -27,7 +30,7 @@
     },
     {
       "path": "benchmark/jpegxl/comparison/build.ts",
-      "sha256": "648ec7bec42424d6ced8a5cf022c6756046d8888c697d64358beb6b7d8771274"
+      "sha256": "b92c6cafa224897691e76875c9dde280796ada1fc578604e770d0ce5643eca4c"
     },
     {
       "path": "benchmark/jpegxl/comparison/execute.ts",
@@ -39,19 +42,19 @@
     },
     {
       "path": "benchmark/jpegxl/comparison/generate.ts",
-      "sha256": "4bd062c53852bd5ed093a54624c1e4038ed90a203336e88546845f29ea817cd6"
+      "sha256": "8db51b0f401aa37d148cb338d9fc97fb452b01a5e69d1743b5b091741947c7eb"
     },
     {
       "path": "benchmark/jpegxl/comparison/index-evidence.ts",
-      "sha256": "13041b7d371adf9ab42490f9d7e3a014a2150a1270e85500fa9402f86aa13ab0"
+      "sha256": "76f44e8ad776786f07a2611c8f7a7ae6184d4be541806cd1b5e89f4148ed0893"
     },
     {
       "path": "benchmark/jpegxl/comparison/io.ts",
-      "sha256": "f894753718f4a0bf1b42b366bfab2ba50e2bda87abbac81c9db82c1f1ac59445"
+      "sha256": "14fd1de073f7151e9a79338dff23d0f5b3541a4bb98092c52043132f16396725"
     },
     {
       "path": "benchmark/jpegxl/comparison/model.ts",
-      "sha256": "7e83ffce6625a55c9d3863eb02bb861d6c778dd2091467d1d60dca7c00931d12"
+      "sha256": "5909ffc0714e7aacacd4324c00648e70460e49f56d1f0b216a20ba330da0bc3e"
     },
     {
       "path": "benchmark/jpegxl/comparison/node-worker.ts",
@@ -67,11 +70,11 @@
     },
     {
       "path": "benchmark/jpegxl/comparison/preview.ts",
-      "sha256": "fd91a263d1c4d223ca6f37565890097f685a8a17a2866e7531728f0276b7f0d4"
+      "sha256": "58835d88e26e6fc15ddf06a9d45ea6f6defd7c8bc3202362a1060ecd74142183"
     },
     {
       "path": "benchmark/jpegxl/comparison/quality.ts",
-      "sha256": "2ff7c8bdb928e83fedf2c86b4b3ee4d341361baca733ac67e72bfc0ed9992494"
+      "sha256": "681a10bc6e4efb8f7e0c3da272e72ab37d2218976e677821fba060420d868cc1"
     },
     {
       "path": "benchmark/jpegxl/comparison/restore-inputs.ts",
@@ -79,11 +82,11 @@
     },
     {
       "path": "benchmark/jpegxl/comparison/run.ts",
-      "sha256": "562995fbf244028bbab729a640665c57b591fc870bc16f9c69d96a7c449276b3"
+      "sha256": "b6e7ee157c7493db1174fd403c6261665287fe0f6c89fbb4ff4ec3464fa91d63"
     },
     {
       "path": "benchmark/jpegxl/comparison/specialized.ts",
-      "sha256": "3f1e7ae45ce979033fcafa35f09bb5057779350037a3470a7628aa56970b21c4"
+      "sha256": "8b4912ac7693c2037e9158ef2abece6d926c3c8ac3b358b425df05380940a12e"
     },
     {
       "path": "benchmark/jpegxl/comparison/validate-quality.ts",
@@ -162,6 +165,76 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/asset-history/3819b5e062480e4d8fc323c2636cb51a7fe5eeed892e3620baddf97a795eca1b/web/jxl_oxide_wasm-NH5ML3RN.js",
+      "bytes": 9029,
+      "sha256": "a94cb667f54e73fb6db1ba132df95c4ddfe18ea17603cdb8931318fefa140d8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/browser-7T2DSXMK.js",
+      "bytes": 18621,
+      "sha256": "e3be69df422d13800676d15b0eba79eed81b79fef38715335ba134cc4e00dc49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/browser-worker.js",
+      "bytes": 6806,
+      "sha256": "ba86d1aa4ab17c0a85458aeea1ef67e6d9cf765ae2ee84204ac49b4fa15c1193"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/chunk-4LFTYATI.js",
+      "bytes": 168,
+      "sha256": "dc9edfa935e755397197df8eaab980cd30e9deb828189f678a4ed053d019c9ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/chunk-6J3OTJNT.js",
+      "bytes": 14797,
+      "sha256": "c025f5a74a5b43d7deb7adac1dd7b43b848ff04f19e92fcdd8c16491e42d33e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/chunk-EXMCXZWG.js",
+      "bytes": 1317,
+      "sha256": "03003830b4c7804dabaffde95d9b718061dd57e6cae0be5504c69720489e335e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/chunk-SIPYYJJH.js",
+      "bytes": 15995,
+      "sha256": "307b7301f444b2c5da9e075d4b4bc83c1ad347964d6cd863541105aa028ce48d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/decode-BZOCFKIT.js",
+      "bytes": 20176,
+      "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/encode-IGAQVTBR.js",
+      "bytes": 1788,
+      "sha256": "5436db29b9e13bc20c854f894a294c4332b2c138a3ce4875304fe606c2456098"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/executor-4V6RSNQI.js",
+      "bytes": 42302,
+      "sha256": "191614f689b7d61f1e88dd9a808cef7c0cbe753d62e5df400617b11aeb7c9afd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jpegxl-6XT2CMLU.js",
+      "bytes": 362269,
+      "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jxl_enc-O5JHJYUX.js",
+      "bytes": 26274,
+      "sha256": "4ba09a64ade049c67ed371111fa5ab1985cb612571a7bf4684a57ef5b8ff44f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jxl_enc_mt-TVP6DHGU.js",
+      "bytes": 34095,
+      "sha256": "c686761a7473942688c154f4f3e33be62019becf2300575b10febb36d900c0da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jxl_enc_mt_simd-YYJQ5EU7.js",
+      "bytes": 34085,
+      "sha256": "5398536155e7b7c9c2f48a7d2ca580054d32756ce8fa643b2ffef05e43db2675"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jxl_oxide_wasm-NH5ML3RN.js",
       "bytes": 9029,
       "sha256": "a94cb667f54e73fb6db1ba132df95c4ddfe18ea17603cdb8931318fefa140d8b"
     },
@@ -557,8 +630,8 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/preview-worker.js",
-      "bytes": 404694,
-      "sha256": "9e18b56f8c096a5fcb81a26ab39d69a01f86ec9b94f06a4588b7593974bd007b"
+      "bytes": 404509,
+      "sha256": "b1740441f79bdea62ba70fad84a2d03b08660bcc1980c8e64bcf1244a43a5a0d"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-black-source.png",
@@ -2211,6 +2284,21 @@
       "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold0.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold2.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/cold-chromium/im26-1030-diagnostic-purejsimage-encode-ll-e1-cold0.bin",
       "bytes": 759672,
       "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
@@ -2601,6 +2689,21 @@
       "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold0.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/cold-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1-cold2.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/cold-node/im26-1030-diagnostic-purejsimage-encode-ll-e1-cold0.bin",
       "bytes": 759672,
       "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
@@ -2856,6 +2959,11 @@
       "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/compat-firefox/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/compat-firefox/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
       "bytes": 759672,
       "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
@@ -2989,6 +3097,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
       "bytes": 937913,
       "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/compat-webkit/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
@@ -3177,8 +3290,8 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/gray16-default-oxide-decode-lossless-ll-e1.bin",
-      "bytes": 243,
-      "sha256": "d3ed166ae6e69c6b4e8583cbcbcd4d959fb8ac5392b921424255c6918770ce12"
+      "bytes": 300,
+      "sha256": "c8ed4fef7fe5689511f6f4669b9840f6614d1e495c0066542a5371b1ce3b0c4d"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/gray16-default-purejsimage-decode-lossless-ll-e1.bin",
@@ -3411,6 +3524,11 @@
       "sha256": "750354ead2e65a06f8264dda41530e867c4e3f9ff519c75dcf12027c63ac890e"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 3145728,
       "sha256": "da99c313abf4c9f93fc6657cfe2470f70d7f4f7e6a809e6382ecabbfacd15fea"
@@ -3459,6 +3577,16 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-purejsimage-encode-ly-e7.decoded.png",
       "bytes": 1297885,
       "sha256": "841988bc6039071d3ded7df3f558f65ea9c5411b3d504e032e4bcbaab194447f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-purejsimage-roundtrip-ll-e1.bin",
+      "bytes": 759672,
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-purejsimage-roundtrip-ll-e1.decoded.png",
+      "bytes": 1088782,
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
@@ -3594,6 +3722,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-diagnostic-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 1110963,
       "sha256": "fdb1ef383f69b6b786b23784d13999f09da8ec354dca96eec95c22c6b8643f2d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
@@ -3749,6 +3882,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-original-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 16996079,
       "sha256": "e9f2597722db23c87918fc3b7943c33aee3c0eee7984a1d457bb71842782a45d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-original-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 48000000,
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-1416-original-purejsimage-decode-lossy-ll-e1.bin",
@@ -4066,6 +4204,11 @@
       "sha256": "635c9b509c1fbc46633800bb8e453a6aad5a549b115680d3a4dc78f3cd17f5a4"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-2400-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3137536,
+      "sha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-2400-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 3137536,
       "sha256": "ef6e8e418577efd2bd72cbd3ea585f2ed0a6153ed65b10ce2e2a4882c742970b"
@@ -4239,6 +4382,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-5032-diagnostic-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 1079302,
       "sha256": "d5b9cb1904936924044fbc589aff39853a6108f25c426c434e53f31ac24b74a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-5032-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 4194304,
+      "sha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-5032-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
@@ -4936,6 +5084,11 @@
       "sha256": "22c46f22e1f8859fca1dbd01c7781c5ea414c83a4d64deafc8044b934c9b59d8"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-8160-original-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 8294400,
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/im26-8160-original-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 8294400,
       "sha256": "384944071b300e87d45a95a1991bfb610f9f611c25cd82c00f4f29e91ab76691"
@@ -5002,8 +5155,8 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/rgb16-default-oxide-decode-lossless-ll-e1.bin",
-      "bytes": 807,
-      "sha256": "64e8b6b254ee89dfc4a5ec1051c04d758bcee26f160526403557464353c8d631"
+      "bytes": 961,
+      "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
@@ -5037,8 +5190,8 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/rgba16-straight-oxide-decode-lossless-ll-e1.bin",
-      "bytes": 1168,
-      "sha256": "4457b40a3ffa0e59a7101a216b52034f6011c5d8173989635fb36f8ed9cda317"
+      "bytes": 1996,
+      "sha256": "1ba8f3409b59ea6dc65506049bbf9eac33c2dbe3949052ac0d2d00911e14e583"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/rgba16-straight-purejsimage-decode-lossless-ll-e1.bin",
@@ -5119,6 +5272,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/sunset_logo-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 1440776,
       "sha256": "79d3c95b2268a970c69a2f0f39d18b63a79c9ceaa05b187507546dc8f4369dbb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/sunset_logo-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 5122656,
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-chromium/sunset_logo-purejsimage-decode-lossy-ll-e1.bin",
@@ -5541,6 +5699,11 @@
       "sha256": "750354ead2e65a06f8264dda41530e867c4e3f9ff519c75dcf12027c63ac890e"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 3145728,
       "sha256": "da99c313abf4c9f93fc6657cfe2470f70d7f4f7e6a809e6382ecabbfacd15fea"
@@ -5589,6 +5752,16 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-purejsimage-encode-ly-e7.decoded.png",
       "bytes": 1297885,
       "sha256": "841988bc6039071d3ded7df3f558f65ea9c5411b3d504e032e4bcbaab194447f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-purejsimage-roundtrip-ll-e1.bin",
+      "bytes": 759672,
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-purejsimage-roundtrip-ll-e1.decoded.png",
+      "bytes": 1088782,
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
@@ -5724,6 +5897,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 1110963,
       "sha256": "fdb1ef383f69b6b786b23784d13999f09da8ec354dca96eec95c22c6b8643f2d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
@@ -5879,6 +6057,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-original-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 16996079,
       "sha256": "e9f2597722db23c87918fc3b7943c33aee3c0eee7984a1d457bb71842782a45d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-original-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 48000000,
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-original-purejsimage-decode-lossy-ll-e1.bin",
@@ -6196,6 +6379,11 @@
       "sha256": "635c9b509c1fbc46633800bb8e453a6aad5a549b115680d3a4dc78f3cd17f5a4"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3137536,
+      "sha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 3137536,
       "sha256": "ef6e8e418577efd2bd72cbd3ea585f2ed0a6153ed65b10ce2e2a4882c742970b"
@@ -6369,6 +6557,11 @@
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-oxide-decode-lossy-ll-e1.reference.png",
       "bytes": 1079302,
       "sha256": "d5b9cb1904936924044fbc589aff39853a6108f25c426c434e53f31ac24b74a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 4194304,
+      "sha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-purejsimage-decode-lossy-ll-e1.bin",
@@ -7066,6 +7259,11 @@
       "sha256": "22c46f22e1f8859fca1dbd01c7781c5ea414c83a4d64deafc8044b934c9b59d8"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-8160-original-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 8294400,
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-8160-original-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 8294400,
       "sha256": "ea26ba00635c22021c1f02be6fd020a8955c8021059b764df0b4ce4b90b06080"
@@ -7251,6 +7449,11 @@
       "sha256": "79d3c95b2268a970c69a2f0f39d18b63a79c9ceaa05b187507546dc8f4369dbb"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/sunset_logo-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 5122656,
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/main-node/sunset_logo-purejsimage-decode-lossy-ll-e1.bin",
       "bytes": 5122656,
       "sha256": "84bcf4fecb9a0c6469683405b9ef7f0c0e800d560f1a90fe22880b57ca8ab04a"
@@ -7396,9 +7599,24 @@
       "sha256": "827c52e0b05e5542b07caaa66966ca7373b52f51a212efd6b225065d66ec93b8"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 53017,
+      "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
       "bytes": 4194304,
       "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-purejsimage-encode-ll-e1.bin",
+      "bytes": 463599,
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 131464,
+      "sha256": "827c52e0b05e5542b07caaa66966ca7373b52f51a212efd6b225065d66ec93b8"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/alpha_triangles-vips-decode-lossless-ll-e1.bin",
@@ -7436,6 +7654,26 @@
       "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 937913,
+      "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
+      "bytes": 759672,
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 1088782,
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
       "bytes": 3145728,
       "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
@@ -7456,9 +7694,24 @@
       "sha256": "1ea9342e7178aebb8dce1562d05daf387691ea5859d22bf208de5e91da1e04a0"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 961,
+      "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
       "bytes": 10998,
       "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-purejsimage-encode-ll-e1.bin",
+      "bytes": 2185,
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 1814,
+      "sha256": "17c68f1e97c55eec9dcacab8f8d8d4073db1ef18c5a3c9b9d59bd99861ac8b5a"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-chromium/rgb16-default-vips-decode-lossless-ll-e1.bin",
@@ -7491,9 +7744,24 @@
       "sha256": "827c52e0b05e5542b07caaa66966ca7373b52f51a212efd6b225065d66ec93b8"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 53017,
+      "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-decode-lossless-ll-e1.bin",
       "bytes": 4194304,
       "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-encode-ll-e1.bin",
+      "bytes": 463599,
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 131464,
+      "sha256": "827c52e0b05e5542b07caaa66966ca7373b52f51a212efd6b225065d66ec93b8"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/alpha_triangles-vips-decode-lossless-ll-e1.bin",
@@ -7526,6 +7794,26 @@
       "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 937913,
+      "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-decode-lossless-ll-e1.bin",
+      "bytes": 3145728,
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-encode-ll-e1.bin",
+      "bytes": 759672,
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 1088782,
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/im26-1030-diagnostic-vips-decode-lossless-ll-e1.bin",
       "bytes": 3145728,
       "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
@@ -7546,9 +7834,24 @@
       "sha256": "1ea9342e7178aebb8dce1562d05daf387691ea5859d22bf208de5e91da1e04a0"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-oxide-decode-lossless-ll-e1.bin",
+      "bytes": 961,
+      "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-decode-lossless-ll-e1.bin",
       "bytes": 10998,
       "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-encode-ll-e1.bin",
+      "bytes": 2185,
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-purejsimage-encode-ll-e1.decoded.png",
+      "bytes": 1814,
+      "sha256": "17c68f1e97c55eec9dcacab8f8d8d4073db1ef18c5a3c9b9d59bd99861ac8b5a"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/runs/smoke-node/rgb16-default-vips-decode-lossless-ll-e1.bin",
@@ -7673,7 +7976,7 @@
     {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
       "bytes": 6806,
-      "sha256": "ba86d1aa4ab17c0a85458aeea1ef67e6d9cf765ae2ee84204ac49b4fa15c1193"
+      "sha256": "c0ba6386c0ad2fb08a62539f75fdde2709f2cca287e880d7cc3cc1e4cef5b3c2"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
@@ -7714,6 +8017,11 @@
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-6XT2CMLU.js",
       "bytes": 362269,
       "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-XOFU7KHQ.js",
+      "bytes": 362102,
+      "sha256": "e31567214252684cb336aad56d1d623769a27c68c6dd6b97e409ed047ff5c264"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/jxl_enc-O5JHJYUX.js",

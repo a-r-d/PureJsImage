@@ -1,6 +1,9 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-29T15:23:20.017Z",
+  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
+  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationDirty": true,
+  "date": "2026-09-30T04:23:42.984Z",
   "browser": "151.0.7922.34",
   "fixture": {
     "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl",
@@ -13,7 +16,7 @@
       "repeat": 0,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 62,
+        "firstUsefulMs": 61.100000001490116,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -102,7 +105,7 @@
       "repeat": 1,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 56.40000000037253,
+        "firstUsefulMs": 58.20000000298023,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -191,7 +194,7 @@
       "repeat": 2,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 56.59999999962747,
+        "firstUsefulMs": 59,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -280,7 +283,7 @@
       "repeat": 0,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 60.89999999944121,
+        "firstUsefulMs": 62.79999999701977,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,
@@ -301,7 +304,7 @@
       "repeat": 1,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 61.5,
+        "firstUsefulMs": 62.899999998509884,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,
@@ -322,7 +325,7 @@
       "repeat": 2,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 68.5,
+        "firstUsefulMs": 61.80000000447035,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,

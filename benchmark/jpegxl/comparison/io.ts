@@ -2,11 +2,28 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
+import { hashM8Sources } from '../m8-output-digest.ts'
 import { type Fixture, object, type Pixels, parseFixture } from './model.ts'
 export const root = 'benchmark/jpegxl/comparison'
 export const work = '.tmp/jpegxl-comparison-v1'
 export const oracle = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools'
 export const metrics = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools'
+export async function implementationIdentity() {
+  return {
+    implementationRevision: run('git', ['rev-parse', 'HEAD']).trim(),
+    implementationSourceSha256: await hashM8Sources(),
+    implementationDirty:
+      run('git', [
+        'status',
+        '--porcelain',
+        '--untracked-files=all',
+        '--',
+        'src',
+        'package.json',
+        'package-lock.json',
+      ]).trim().length > 0,
+  }
+}
 export const hash = (bytes: Uint8Array | string): string =>
   createHash('sha256').update(bytes).digest('hex')
 export async function json(path: string, value: unknown) {
