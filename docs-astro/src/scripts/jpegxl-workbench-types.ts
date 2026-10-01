@@ -5,6 +5,7 @@ import type {
   JpegXlInspection,
 } from '../../../src/jpegxl.ts'
 
+export const jpegXlWorkbenchWorkerReady = 'jpegxl-workbench-ready'
 export const jpegXlWorkbenchMaximumInputBytes = 64 * 1024 * 1024
 export const jpegXlWorkbenchMaximumOutputBytes = 128 * 1024 * 1024
 export const jpegXlWorkbenchMaximumPreviewPixels = 4_194_304

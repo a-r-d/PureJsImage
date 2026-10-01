@@ -29,6 +29,7 @@ import {
   type JpegXlWorkbenchPreview,
   type JpegXlWorkbenchResponse,
   jpegXlWorkbenchMaximumOutputBytes,
+  jpegXlWorkbenchWorkerReady,
   planJpegXlWorkbenchNativeMemory,
   planJpegXlWorkbenchPreview,
 } from './jpegxl-workbench-types.ts'
@@ -591,3 +592,6 @@ self.addEventListener('message', (event: MessageEvent<unknown>) => {
     }
   })()
 })
+
+// Module dependencies must finish evaluating before the first input is transferred.
+self.postMessage(jpegXlWorkbenchWorkerReady)

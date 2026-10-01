@@ -92,3 +92,12 @@ jobs:
 
       - name: Run browser compatibility gate
         run: npm run browser:test -- --project=${{ matrix.browser }}
+
+      - name: Upload browser failure traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-${{ matrix.browser }}-failure-traces
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7

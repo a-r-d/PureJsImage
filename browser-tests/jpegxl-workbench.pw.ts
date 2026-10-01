@@ -1,5 +1,5 @@
 import { deflateSync } from 'node:zlib'
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
 import { crc32 } from '../src/codecs/crc32.ts'
 
 const pngChunk = (type: string, payload: Uint8Array): Buffer => {
@@ -23,6 +23,45 @@ const oversizedPng = (): Buffer => {
     pngChunk('IEND', new Uint8Array()),
   ])
 }
+
+const delayWorkerInitialization = async (page: Page, milliseconds: number): Promise<void> => {
+  await page.route('**/jpegxl-workbench-worker.js', async (route) => {
+    const response = await route.fetch()
+    await route.fulfill({
+      response,
+      body: `await new Promise(resolve => setTimeout(resolve, ${milliseconds}));\n${await response.text()}`,
+    })
+  })
+}
+
+test('JPEG XL workbench waits for asynchronous worker initialization before opening input', async ({
+  page,
+}) => {
+  await delayWorkerInitialization(page, 300)
+  await page.goto('/jpeg-xl/convert/')
+  await expect(page.locator('#jxl-status')).toContainText(
+    'jpegxl-pixel-lossless.png inspected and decoded locally',
+  )
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('width', '17')
+  await expect(page.locator('#jxl-preview')).toHaveAttribute('height', '11')
+})
+
+test('JPEG XL workbench cancels queued startup input and opens a replacement', async ({ page }) => {
+  await delayWorkerInitialization(page, 1_500)
+  await page.goto('/jpeg-xl/convert/')
+  await expect(page.locator('#jxl-status')).toContainText('Working locally')
+  await page.locator('#jxl-cancel').click()
+  await expect(page.locator('#jxl-status')).toContainText('Cancelled')
+  await page.locator('#jxl-file').setInputFiles('tests/fixtures/jpegxl/m4-color/p3-8.jxl')
+  await expect(page.locator('#jxl-status')).toContainText(
+    'p3-8.jxl inspected and decoded locally',
+    {
+      timeout: 30_000,
+    },
+  )
+  await expect(page.locator('#jxl-summary')).toContainText('p3-8.jxl')
+  await expect(page.locator('#jxl-summary')).not.toContainText('jpegxl-pixel-lossless.png')
+})
 
 test('JPEG XL progressive explorer cancels a stalled header fetch and can run again', async ({
   page,
