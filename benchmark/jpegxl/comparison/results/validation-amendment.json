@@ -1,31 +1,31 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30T04:27:38.574Z",
+  "date": "2026-10-01T14:30:25.425Z",
   "decision": "Comparison uses each public lossy default, including its alpha behavior. Exact default alpha is a PureJsImage guarantee; do not call another wrapper incorrect merely for lossy alpha it does not promise to preserve. Preserve every measured alpha error and black/white score. Historical timing values and original statuses are retained.",
   "reports": [
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/cold-chromium.json",
-      "sourceReportSha256": "fbc7b8339f7882d47d0dab24e668e48f48971d4dc5ccfc162c7e7658f22a5822",
+      "sourceReportSha256": "b937d29f42c19fcbc4c0babbfd20e00f9005a714c9d3565bc30456ef09b384fd",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/cold-node.json",
-      "sourceReportSha256": "bc5b9523d129becb77fd0281662c1ead5242bfde228682ae5c6decd85c81a56d",
+      "sourceReportSha256": "c45ac0b8a33ac9f1972eddae6660174bb1d52f1acd2a5f8c62bdda1246d93014",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/compat-firefox.json",
-      "sourceReportSha256": "3dc6af646515f20557bc3699a89c1ad81d010444c7c43c8cfc022134df692277",
+      "sourceReportSha256": "caf79f37c7a770a5d7eb12fb7bd14f6b319204b55dcff73963cc1486e1053e49",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/compat-webkit.json",
-      "sourceReportSha256": "94520f22e63815d1ed01178e583279bfe0a4d990e7ae07d05cb6eb122ff34dd8",
+      "sourceReportSha256": "08706e549e5a07462c7475b6cbbb097fd51c2c6db5f7183ddf2667b3a66dde61",
       "amendments": []
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/main-chromium.json",
-      "sourceReportSha256": "0e2a1ee6024c86bcc1295771e6d8a1d839925a47c792ce2173091878128f57c3",
+      "sourceReportSha256": "224cc5b585f649b096a23e820e7584d87a865f36f23687c4eaa5de54980349af",
       "amendments": [
         {
           "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
@@ -535,7 +535,7 @@
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/main-node.json",
-      "sourceReportSha256": "c531db73d8b8c9f3e504c7372d0c42517053419db339d4153f0d8c9d03f0eb33",
+      "sourceReportSha256": "57f25253f045b1898751bf00c7f706d23c471a911e960dd7da75b943573b5b03",
       "amendments": [
         {
           "key": "im26-1030-diagnostic-purejsimage-encode-ly-e1",
@@ -1045,7 +1045,7 @@
     },
     {
       "sourceReport": "benchmark/jpegxl/comparison/results/repair-chromium.json",
-      "sourceReportSha256": "98ce3e59975f2782e477d8590572f2de0bef427b06739dc2ce89761e94507dde",
+      "sourceReportSha256": "aecd6766900053ec1793efa95dadd9efa94d79599027915803ffe8e583476abc",
       "amendments": []
     }
   ]

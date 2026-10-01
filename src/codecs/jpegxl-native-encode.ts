@@ -4,6 +4,7 @@ import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '../limits.ts'
 import { inspectIccProfile } from './icc.ts'
 import { jpegXlContainerSignature } from './jpegxl-container.ts'
+import type { JpegXlAnimationHeader, JpegXlFrameStructure } from './jpegxl-decode.ts'
 import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
@@ -22,8 +23,9 @@ import {
 export interface JpegXlNativePlaneInput {
   readonly data: Uint8Array | Uint16Array | Uint32Array
   readonly bitDepth: number
-  /** IEEE binary16/binary32 bit patterns use matching unsigned storage. */
-  readonly sampleFormat?: 'unsigned-integer' | 'binary16' | 'binary32'
+  /** Floating samples are unsigned bit patterns; custom layouts require exponentBits. */
+  readonly sampleFormat?: 'unsigned-integer' | 'binary16' | 'binary32' | 'floating-point'
+  readonly exponentBits?: number
 }
 export interface JpegXlNativeExtraInput extends JpegXlNativePlaneInput {
   readonly type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 16
@@ -43,6 +45,8 @@ export interface EncodeJpegXlNativeOptions {
   readonly colorSemantics?: PixelColorSemantics
   readonly iccProfile?: Uint8Array
   readonly orientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+  readonly intrinsicSize?: Readonly<{ width: number; height: number }>
+  readonly toneMapping?: JpegXlFrameStructure['toneMapping']
   readonly limits?: Readonly<ImageLimitOptions & JpegXlLimitOptions>
   readonly maxOutputBytes?: number
   /** Select the minimum valid level by default. Level 10 always uses a container with jxll. */
@@ -58,7 +62,10 @@ const enumValues = [
   { bits: 6, offset: 18 },
 ] as const
 const writeDepth = (writer: JpegXlBitWriter, plane: Readonly<JpegXlNativePlaneInput>): void => {
-  const floating = plane.sampleFormat === 'binary16' || plane.sampleFormat === 'binary32'
+  const floating =
+    plane.sampleFormat === 'binary16' ||
+    plane.sampleFormat === 'binary32' ||
+    plane.sampleFormat === 'floating-point'
   writer.writeBits(floating ? 1 : 0, 1)
   writeU32(
     writer,
@@ -67,7 +74,15 @@ const writeDepth = (writer: JpegXlBitWriter, plane: Readonly<JpegXlNativePlaneIn
       ? [{ value: 32 }, { value: 16 }, { value: 24 }, { bits: 6, offset: 1 }]
       : [{ value: 8 }, { value: 10 }, { value: 12 }, { bits: 6, offset: 1 }],
   )
-  if (floating) writer.writeBits(plane.sampleFormat === 'binary16' ? 4 : 7, 4)
+  if (floating)
+    writer.writeBits(
+      plane.sampleFormat === 'floating-point'
+        ? (plane.exponentBits ?? 8) - 1
+        : plane.sampleFormat === 'binary16'
+          ? 4
+          : 7,
+      4,
+    )
 }
 
 const writeBox = (type: string, payload: Uint8Array): Uint8Array => {
@@ -98,7 +113,11 @@ const levelTenContainer = (codestream: Uint8Array): Uint8Array => {
 }
 
 const encodedSample = (plane: Readonly<JpegXlNativePlaneInput>, sample: number): number =>
-  plane.sampleFormat === 'binary32' && sample >= 2 ** 31 ? sample - 2 ** 32 : sample
+  (plane.sampleFormat === 'binary32' ||
+    (plane.sampleFormat === 'floating-point' && plane.bitDepth === 32)) &&
+  sample >= 2 ** 31
+    ? sample - 2 ** 32
+    : sample
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
   if (value === 0) writer.writeBits(0, 2)
   else if (value <= 16) {
@@ -119,6 +138,151 @@ const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
     writer.writeBits(0, 1)
   }
 }
+export const writeJpegXlNativeImageHeader = (
+  writer: JpegXlBitWriter,
+  options: Readonly<
+    Pick<
+      EncodeJpegXlNativeOptions,
+      'width' | 'height' | 'orientation' | 'intrinsicSize' | 'iccProfile' | 'color'
+    >
+  >,
+  first: Readonly<JpegXlNativePlaneInput>,
+  extra: readonly JpegXlNativeExtraInput[],
+  colorSemantics: PixelColorSemantics,
+  tone: JpegXlFrameStructure['toneMapping'],
+  level: 5 | 10,
+  jpegLimits: ReturnType<typeof resolveJpegXlLimits>,
+  animation?: Readonly<JpegXlAnimationHeader>,
+): void => {
+  const profile = options.iccProfile
+  writer.writeBits(0xff, 8)
+  writer.writeBits(0x0a, 8)
+  const dimensions = [
+    { bits: 9, offset: 1 },
+    { bits: 13, offset: 1 },
+    { bits: 18, offset: 1 },
+    { bits: 30, offset: 1 },
+  ] as const
+  writer.writeBits(0, 1)
+  writeU32(writer, options.height, dimensions)
+  writer.writeBits(0, 3)
+  writeU32(writer, options.width, dimensions)
+  writer.writeBits(0, 1)
+  const orientation = options.orientation ?? 1
+  const defaultTone =
+    tone.intensityTarget === 255 &&
+    tone.minNits === 0 &&
+    !tone.relativeToMaxDisplay &&
+    tone.linearBelow === 0
+  const extraFields = orientation !== 1 || !!options.intrinsicSize || !defaultTone || !!animation
+  writer.writeBits(extraFields ? 1 : 0, 1)
+  if (extraFields) {
+    writer.writeBits(orientation - 1, 3)
+    writer.writeBits(options.intrinsicSize ? 1 : 0, 1)
+    if (options.intrinsicSize) {
+      writer.writeBits(0, 1)
+      writeU32(writer, options.intrinsicSize.height, dimensions)
+      writer.writeBits(0, 3)
+      writeU32(writer, options.intrinsicSize.width, dimensions)
+    }
+    writer.writeBits(0, 1) // No embedded preview.
+    writer.writeBits(animation ? 1 : 0, 1)
+    if (animation) {
+      writeU32(writer, animation.ticksPerSecondNumerator, [
+        { value: 100 },
+        { value: 1000 },
+        { bits: 10, offset: 1 },
+        { bits: 30, offset: 1 },
+      ])
+      writeU32(writer, animation.ticksPerSecondDenominator, [
+        { value: 1 },
+        { value: 1001 },
+        { bits: 8, offset: 1 },
+        { bits: 10, offset: 1 },
+      ])
+      writeU32(writer, animation.loops, [
+        { value: 0 },
+        { bits: 3, offset: 0 },
+        { bits: 16, offset: 0 },
+        { bits: 32, offset: 0 },
+      ])
+      writer.writeBits(animation.haveTimecodes ? 1 : 0, 1)
+    }
+  }
+  writeDepth(writer, first)
+  writer.writeBits(level === 5 ? 1 : 0, 1)
+  writeU32(writer, extra.length, [
+    { value: 0 },
+    { value: 1 },
+    { bits: 4, offset: 2 },
+    { bits: 12, offset: 1 },
+  ])
+  for (const channel of extra) {
+    writer.writeBits(0, 1)
+    writeU32(writer, channel.type, enumValues)
+    writeDepth(writer, channel)
+    writeU32(writer, channel.dimShift ?? 0, [
+      { value: 0 },
+      { value: 3 },
+      { value: 4 },
+      { bits: 3, offset: 1 },
+    ])
+    const name = new TextEncoder().encode(channel.name ?? '')
+    if (name.length > 1071) throw limitExceeded('JPEG XL channel name is too long')
+    writeU32(writer, name.length, [
+      { value: 0 },
+      { bits: 4, offset: 0 },
+      { bits: 5, offset: 16 },
+      { bits: 10, offset: 48 },
+    ])
+    for (const byte of name) writer.writeBits(byte, 8)
+    if (channel.type === 0) writer.writeBits(channel.associatedAlpha ? 1 : 0, 1)
+    if (channel.type === 2) {
+      if (
+        !channel.spotColor ||
+        channel.spotColor.some((value) => !Number.isFinite(value) || value < 0 || value > 1)
+      )
+        throw invalidInput('JPEG XL spot color requires four finite unit-range components')
+      for (const value of channel.spotColor) writePositiveF16(writer, value)
+    }
+    if (channel.type === 5)
+      writeU32(writer, channel.cfaChannel ?? 1, [
+        { value: 1 },
+        { bits: 2, offset: 0 },
+        { bits: 4, offset: 3 },
+        { bits: 8, offset: 19 },
+      ])
+  }
+  writer.writeBits(0, 1)
+  if (profile) {
+    writer.writeBits(0, 1)
+    writer.writeBits(1, 1)
+    writeU32(writer, options.color.length === 1 ? 1 : 0, enumValues)
+  } else writeColorEncoding(writer, colorSemantics)
+  if (extraFields) {
+    writer.writeBits(defaultTone ? 1 : 0, 1)
+    if (!defaultTone) {
+      writePositiveF16(writer, tone.intensityTarget)
+      writePositiveF16(writer, tone.minNits)
+      writer.writeBits(tone.relativeToMaxDisplay ? 1 : 0, 1)
+      writePositiveF16(writer, tone.linearBelow)
+    }
+  }
+  writeU64(writer, 0)
+  writer.writeBits(1, 1)
+  if (profile) {
+    const commands = encodeJpegXlIccCommands(profile, jpegLimits.maxIccBytes)
+    if (commands.length > jpegLimits.maxIccCompressedBytes)
+      throw limitExceeded('JPEG XL literal ICC representation exceeds maxIccCompressedBytes')
+    writeU64(writer, commands.length)
+    const counts = new Uint32Array(256)
+    for (const byte of commands) counts[byte] = (counts[byte] ?? 0) + 1
+    const encoding = writePrefixCode(writer, 41, counts)
+    for (const byte of commands) writeHybridUint(writer, byte, encoding)
+  }
+  writer.alignToByte()
+}
+
 const defaultColor = (gray: boolean): PixelColorSemantics => ({
   family: gray ? 'gray' : 'rgb',
   primaries: 'srgb',
@@ -153,7 +317,8 @@ export const encodeJpegXlNative = async (
       (plane) =>
         plane.bitDepth > 12 ||
         plane.sampleFormat === 'binary16' ||
-        plane.sampleFormat === 'binary32',
+        plane.sampleFormat === 'binary32' ||
+        plane.sampleFormat === 'floating-point',
     ) ||
     extra.length > 4 ||
     extra.some((channel) => channel.type === 4) ||
@@ -179,6 +344,24 @@ export const encodeJpegXlNative = async (
     options.colorSemantics === undefined
       ? defaultColor(options.color.length === 1)
       : normalizePixelColorSemantics(options.colorSemantics)
+  const tone = options.toneMapping ?? {
+    intensityTarget: 255,
+    minNits: 0,
+    relativeToMaxDisplay: false,
+    linearBelow: 0,
+  }
+  if (
+    ![tone.intensityTarget, tone.minNits, tone.linearBelow].every(
+      (value) => Number.isFinite(value) && value >= 0 && value <= 65504,
+    ) ||
+    tone.intensityTarget <= 0 ||
+    tone.minNits > tone.intensityTarget ||
+    typeof tone.relativeToMaxDisplay !== 'boolean' ||
+    (tone.relativeToMaxDisplay && tone.linearBelow > 1)
+  )
+    throw invalidInput('JPEG XL native toneMapping is invalid')
+  if (options.intrinsicSize)
+    validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
   if (extra.some((channel) => channel.type === 4) && !options.iccProfile)
     throw invalidInput('JPEG XL CMYK requires an ICC profile')
   if (!options.iccProfile && !acceptsJpegXlColorSemantics(colorSemantics))
@@ -245,24 +428,36 @@ export const encodeJpegXlNative = async (
       plane.sampleFormat !== undefined &&
       plane.sampleFormat !== 'unsigned-integer' &&
       plane.sampleFormat !== 'binary16' &&
-      plane.sampleFormat !== 'binary32'
+      plane.sampleFormat !== 'binary32' &&
+      plane.sampleFormat !== 'floating-point'
     )
       throw invalidInput('Sample format is invalid')
     if (
       !Number.isSafeInteger(plane.bitDepth) ||
       plane.bitDepth < 1 ||
-      (plane.sampleFormat !== 'binary32' && plane.bitDepth > 31) ||
+      (plane.sampleFormat !== 'binary32' &&
+        plane.sampleFormat !== 'floating-point' &&
+        plane.bitDepth > 31) ||
       plane.bitDepth > 32 ||
+      (plane.exponentBits !== undefined && plane.sampleFormat !== 'floating-point') ||
       (plane.sampleFormat === 'binary16' &&
         (plane.bitDepth !== 16 || !(plane.data instanceof Uint16Array))) ||
       (plane.sampleFormat === 'binary32' &&
         (plane.bitDepth !== 32 || !(plane.data instanceof Uint32Array))) ||
+      (plane.sampleFormat === 'floating-point' &&
+        (!Number.isInteger(plane.exponentBits) ||
+          (plane.exponentBits ?? 0) < 2 ||
+          (plane.exponentBits ?? 0) > 8 ||
+          plane.bitDepth - (plane.exponentBits ?? 0) < 3 ||
+          plane.bitDepth - (plane.exponentBits ?? 0) > 24)) ||
       (plane.bitDepth > 16 && !(plane.data instanceof Uint32Array))
     )
       throw invalidInput('Sample storage and depth do not agree')
     if (
       c < options.color.length &&
-      (plane.bitDepth !== first.bitDepth || plane.sampleFormat !== first.sampleFormat)
+      (plane.bitDepth !== first.bitDepth ||
+        plane.sampleFormat !== first.sampleFormat ||
+        plane.exponentBits !== first.exponentBits)
     )
       throw invalidInput('Color channels need the same sample representation')
     const shift = c < options.color.length ? 0 : (extra[c - options.color.length]?.dimShift ?? 0)
@@ -416,89 +611,16 @@ export const encodeJpegXlNative = async (
   }
   const payloadBytes = sections.reduce((sum, section) => sum + section.length, 0)
   const writer = new JpegXlBitWriter(undefined, maximum)
-  writer.writeBits(0xff, 8)
-  writer.writeBits(0x0a, 8)
-  const dimensions = [
-    { bits: 9, offset: 1 },
-    { bits: 13, offset: 1 },
-    { bits: 18, offset: 1 },
-    { bits: 30, offset: 1 },
-  ] as const
-  writer.writeBits(0, 1)
-  writeU32(writer, options.height, dimensions)
-  writer.writeBits(0, 3)
-  writeU32(writer, options.width, dimensions)
-  writer.writeBits(0, 1)
-  const orientation = options.orientation ?? 1
-  writer.writeBits(orientation === 1 ? 0 : 1, 1)
-  if (orientation !== 1) {
-    writer.writeBits(orientation - 1, 3)
-    writer.writeBits(0, 3)
-  }
-  writeDepth(writer, first)
-  writer.writeBits(level === 5 ? 1 : 0, 1)
-  writeU32(writer, extra.length, [
-    { value: 0 },
-    { value: 1 },
-    { bits: 4, offset: 2 },
-    { bits: 12, offset: 1 },
-  ])
-  for (const channel of extra) {
-    writer.writeBits(0, 1)
-    writeU32(writer, channel.type, enumValues)
-    writeDepth(writer, channel)
-    writeU32(writer, channel.dimShift ?? 0, [
-      { value: 0 },
-      { value: 3 },
-      { value: 4 },
-      { bits: 3, offset: 1 },
-    ])
-    const name = new TextEncoder().encode(channel.name ?? '')
-    if (name.length > 1071) throw limitExceeded('JPEG XL channel name is too long')
-    writeU32(writer, name.length, [
-      { value: 0 },
-      { bits: 4, offset: 0 },
-      { bits: 5, offset: 16 },
-      { bits: 10, offset: 48 },
-    ])
-    for (const byte of name) writer.writeBits(byte, 8)
-    if (channel.type === 0) writer.writeBits(channel.associatedAlpha ? 1 : 0, 1)
-    if (channel.type === 2) {
-      if (
-        !channel.spotColor ||
-        channel.spotColor.some((value) => !Number.isFinite(value) || value < 0 || value > 1)
-      )
-        throw invalidInput('JPEG XL spot color requires four finite unit-range components')
-      for (const value of channel.spotColor) writePositiveF16(writer, value)
-    }
-    if (channel.type === 5)
-      writeU32(writer, channel.cfaChannel ?? 1, [
-        { value: 1 },
-        { bits: 2, offset: 0 },
-        { bits: 4, offset: 3 },
-        { bits: 8, offset: 19 },
-      ])
-  }
-  writer.writeBits(0, 1)
-  if (profile) {
-    writer.writeBits(0, 1)
-    writer.writeBits(1, 1)
-    writeU32(writer, options.color.length === 1 ? 1 : 0, enumValues)
-  } else writeColorEncoding(writer, colorSemantics)
-  if (orientation !== 1) writer.writeBits(1, 1)
-  writeU64(writer, 0)
-  writer.writeBits(1, 1)
-  if (profile) {
-    const commands = encodeJpegXlIccCommands(profile, jpegLimits.maxIccBytes)
-    if (commands.length > jpegLimits.maxIccCompressedBytes)
-      throw limitExceeded('JPEG XL literal ICC representation exceeds maxIccCompressedBytes')
-    writeU64(writer, commands.length)
-    const counts = new Uint32Array(256)
-    for (const byte of commands) counts[byte] = (counts[byte] ?? 0) + 1
-    const encoding = writePrefixCode(writer, 41, counts)
-    for (const byte of commands) writeHybridUint(writer, byte, encoding)
-  }
-  writer.alignToByte()
+  writeJpegXlNativeImageHeader(
+    writer,
+    options,
+    first,
+    extra,
+    colorSemantics,
+    tone,
+    level,
+    jpegLimits,
+  )
   writer.writeBits(0, 1)
   writer.writeBits(0, 2)
   writer.writeBits(1, 1)

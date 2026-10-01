@@ -656,16 +656,16 @@ describe('JPEG XL M7 explicit encoding modes', () => {
     expect(session.managedLiveBytes).toBe(0)
   })
 
-  it('rejects source color that the forward path cannot preserve', async () => {
-    await expect(
-      jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
-        width,
-        height,
-        pixelFormat: 'rgba8',
-        colorSemantics: { ...semantics, primaries: 'display-p3', transfer: { kind: 'hlg' } },
-        options: { mode: 'lossy' },
-        limits: defaultImageLimits,
-      }),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+  it('accepts HLG Display P3 forward encoding', async () => {
+    const encoder = await jpegxlCodec.createEncoder?.(new Uint8ArraySink(), {
+      width,
+      height,
+      pixelFormat: 'rgba8',
+      colorSemantics: { ...semantics, primaries: 'display-p3', transfer: { kind: 'hlg' } },
+      options: { mode: 'lossy' },
+      limits: defaultImageLimits,
+    })
+    expect(encoder).toBeDefined()
+    await encoder?.abort?.(new Error('Finished option negotiation'))
   })
 })

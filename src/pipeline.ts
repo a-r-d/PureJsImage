@@ -69,10 +69,60 @@ interface JpegXlEncodeBaseOptions {
   container?: boolean
   /** Select the minimum valid codestream level by default. Level 10 requires container output. */
   codestreamLevel?: 'auto' | 5 | 10
-  /** Intended native color sample depth. Required for 9 through 15-bit data in 16-bit blocks. */
-  sampleBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
-  /** Intended alpha depth when it differs from the color sample depth. */
-  alphaBitDepth?: 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
+  /** Integer depth through 16 bits, or 32 for lossless Float32 rows. Required for 9 through 15-bit integer data. */
+  sampleBitDepth?:
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17
+    | 18
+    | 19
+    | 20
+    | 21
+    | 22
+    | 23
+    | 24
+    | 25
+    | 26
+    | 27
+    | 28
+    | 29
+    | 30
+    | 31
+    | 32
+  /** Intended alpha depth when it differs from color, including 32 for Float32 alpha. */
+  alphaBitDepth?:
+    | 8
+    | 9
+    | 10
+    | 11
+    | 12
+    | 13
+    | 14
+    | 15
+    | 16
+    | 17
+    | 18
+    | 19
+    | 20
+    | 21
+    | 22
+    | 23
+    | 24
+    | 25
+    | 26
+    | 27
+    | 28
+    | 29
+    | 30
+    | 31
+    | 32
   /** EXIF-compatible display orientation stored in the JPEG XL image header. */
   orientation?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
   /** Source intrinsic dimensions, independent of stored pixel dimensions. */
@@ -452,8 +502,10 @@ export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): Pipel
     ['sampleBitDepth', options.sampleBitDepth],
     ['alphaBitDepth', options.alphaBitDepth],
   ] as const) {
-    if (depth !== undefined && (!Number.isInteger(depth) || depth < 8 || depth > 16)) {
-      throw invalidInput(`JPEG XL ${name} must be an integer from 8 to 16`)
+    if (depth !== undefined && (!Number.isInteger(depth) || depth < 8 || depth > 32)) {
+      throw invalidInput(
+        `JPEG XL ${name} must be an integer from 8 to 32; integer samples stop at 31`,
+      )
     }
   }
   return Object.freeze({ type: 'encode', format: 'jpegxl', options: Object.freeze({ ...options }) })

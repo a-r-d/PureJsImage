@@ -4,6 +4,42 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Extend JPEG XL ordinary Modular input to mixed floating alpha, wide integer
+  samples and legal custom floating layouts. Preserve matching integer ICC
+  profiles, convert RGB LUT8/LUT16 XYZ profiles and relative custom HDR color,
+  accept floating CMYK black, decode VarDCT floating color and alpha, write Float32
+  animations and render selected HDR VarDCT frames. Retain luminance metadata on
+  Float32 re-encode. Add explicit Modular float mantissa rounding with exact alpha.
+  Support HLG/custom/associated-alpha forward writing and crop independent native
+  groups in bands. Verify pinned libjxl/LittleCMS output, browser behavior and
+  isolated memory use. Keep unsupported profile and progressive layouts explicit.
+
+- Complete ordinary JPEG XL float ICC/HDR conversion, float-preserving lossless
+  binary32 encoding and source-domain composed float/CMYK frames. Preserve
+  matching ICC, associated alpha, orientation, intrinsic size and luminance
+  metadata. Require explicit animated-frame selection. Validate against libjxl,
+  LittleCMS and exact-gamma FFmpeg/zimg references in Node and three browsers,
+  including budget, cancellation, sink failure and isolated resource checks.
+
+- Convert ordinary static Modular IEEE binary16/binary32 structured SDR input
+  to straight sRGB16 through `colorOutput: 'srgb'`. Support gray/RGB, integer
+  or IEEE alpha, linear, gamma, BT.709, sRGB, P3, Rec. 2020 and relative custom
+  chromaticities. Straighten before explicit SDR clipping and evaluate floats
+  without integer input rounding. Pin 17 libjxl/LittleCMS references and test
+  crop, resize, PNG and JPEG XL output in Node and three browsers.
+
+- Read static Modular JPEG XL IEEE binary16 and binary32 gray/RGB input through
+  the ordinary pipeline. Preserve finite signed samples and highlights in float32
+  rows, including mixed and associated alpha. Support crop, resize and explicit
+  range conversion for integer output. Render supported static CMYK ICC input
+  through 16 bits to straight sRGB rows, including integer or IEEE alpha.
+  Reserve native planes, normalized extras, output rows and profile tables.
+
+- Convert structured JPEG XL SDR color through 16-bit integer precision in the
+  ordinary pipeline, including linear, gamma, BT.709, P3, Rec. 2020 and relative
+  custom chromaticities. Support gray alpha, independent and associated alpha,
+  group-boundary crops and full-depth PNG/JPEG XL output with bounded color tables.
+
 - Render supported JPEG XL GRAY/RGB ICC integer input through 16 bits in the
   ordinary pipeline. Support gray alpha and mixed or associated integer alpha
   without an 8-bit intermediate. Preserve converted ranges through PNG output

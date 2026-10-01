@@ -1,6 +1,5 @@
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { jpegXlSourceColorSemantics } from './jpegxl-decode.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import {
   parseCmykIccTransform,
   parseCmykIccTransform16,
@@ -10,8 +9,9 @@ import {
   writeCmykIcc16,
   writeRgbIcc16,
 } from './icc.ts'
+import { jpegXlSourceColorSemantics } from './jpegxl-decode.ts'
+import { floatSample, integerPlane, normalizedExtraPlane } from './jpegxl-native-samples.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
-import { upsampleJpegXlNativePlane } from './jpegxl-vardct-render.ts'
 
 export interface JpegXlRgba8Image {
   readonly width: number
@@ -29,80 +29,6 @@ export interface JpegXlRgba16Image {
   readonly colorSemantics: PixelColorSemantics
   readonly sourceColorSemantics: PixelColorSemantics
   readonly displayRange?: Readonly<{ black: number; white: number }>
-}
-
-const integerPlane = (layer: Readonly<JpegXlNativeLayer>, index: number): Int32Array => {
-  const plane = layer.planes[index]
-  if (!(plane instanceof Int32Array)) throw unsupportedOperation('Integer plane unavailable')
-  return plane
-}
-
-const binary16 = (bits: number): number => {
-  const sign = (bits & 0x8000) === 0 ? 1 : -1
-  const exponent = (bits >>> 10) & 0x1f
-  const fraction = bits & 0x03ff
-  if (exponent === 0) return sign * 2 ** -14 * (fraction / 1024)
-  if (exponent === 0x1f) return fraction === 0 ? sign * Number.POSITIVE_INFINITY : Number.NaN
-  return sign * 2 ** (exponent - 15) * (1 + fraction / 1024)
-}
-
-const binary32 = new Float32Array(1)
-const binary32Bits = new Uint32Array(binary32.buffer)
-const floatSample = (bits: number, depth: 16 | 32): number => {
-  if (depth === 16) return binary16(bits)
-  binary32Bits[0] = bits >>> 0
-  return binary32[0] ?? 0
-}
-
-const normalizedExtraPlane = (
-  layer: Readonly<JpegXlNativeLayer>,
-  descriptorIndex: number,
-): Float64Array => {
-  const descriptor = layer.header.extraChannels[descriptorIndex]
-  const planeIndex = layer.header.colorChannels + descriptorIndex
-  const layout = layer.layouts[planeIndex]
-  const source = integerPlane(layer, planeIndex)
-  const width = layer.layouts[0]?.width ?? 0
-  const height = layer.layouts[0]?.height ?? 0
-  if (!descriptor || !layout || width < 1 || height < 1)
-    throw invalidInput('JPEG XL extra-channel layout is missing')
-  const factor =
-    (layer.header.extraChannelUpsampling[descriptorIndex] ?? 1) * 2 ** descriptor.dimShift
-  if (
-    layout.width !== Math.ceil(width / factor) ||
-    layout.height !== Math.ceil(height / factor) ||
-    source.length !== layout.width * layout.height
-  )
-    throw invalidInput('JPEG XL extra-channel plane size disagrees with its layout')
-  const normalized = new Float64Array(source.length)
-  if (descriptor.bitDepth.sampleFormat === 'unsigned-integer') {
-    const maximum = 2 ** descriptor.bitDepth.bits - 1
-    for (let index = 0; index < source.length; index++)
-      normalized[index] = (source[index] ?? 0) / maximum
-  } else if (
-    (descriptor.bitDepth.bits === 16 && descriptor.bitDepth.exponentBits === 5) ||
-    (descriptor.bitDepth.bits === 32 && descriptor.bitDepth.exponentBits === 8)
-  ) {
-    const depth = descriptor.bitDepth.bits === 16 ? 16 : 32
-    for (let index = 0; index < source.length; index++)
-      normalized[index] = floatSample(source[index] ?? 0, depth)
-  } else {
-    throw unsupportedOperation('JPEG XL display conversion requires integer or IEEE alpha')
-  }
-  for (let index = 0; index < normalized.length; index++)
-    if (!Number.isFinite(normalized[index]))
-      throw invalidInput('Float display rejects NaN and infinity')
-  return factor === 1
-    ? normalized
-    : upsampleJpegXlNativePlane(
-        normalized,
-        layout.width,
-        layout.height,
-        factor,
-        width,
-        height,
-        layer.header,
-      )
 }
 
 const displayAlpha = (
@@ -159,7 +85,7 @@ export const jpegXlNativeFloat32ColorPlanes = (
   )
 }
 
-/** Maps IEEE binary16/32 native color to straight RGBA16. Non-finite input is rejected. */
+/** Maps native floating color to straight RGBA16. Non-finite input is rejected. */
 export const convertJpegXlFloatLayerToRgba16 = (
   layer: Readonly<JpegXlNativeLayer>,
   range: Readonly<{ black: number; white: number }>,
@@ -168,14 +94,8 @@ export const convertJpegXlFloatLayerToRgba16 = (
     throw invalidInput('Float range must be finite and increasing')
   const header = layer.header
   if (layer.domain !== 'modular' || header.sampleFormat !== 'floating-point')
-    throw invalidInput('Not IEEE floating-point color')
-  const depth =
-    header.bitDepth === 16 && header.exponentBits === 5
-      ? 16
-      : header.bitDepth === 32 && header.exponentBits === 8
-        ? 32
-        : undefined
-  if (!depth) throw unsupportedOperation('Float display needs IEEE binary16 or binary32 color')
+    throw invalidInput('Not native floating-point color')
+  const depth = header.bitDepth
   if (header.colorChannels !== 1 && header.colorChannels !== 3)
     throw unsupportedOperation('Float display needs gray or RGB')
   const width = layer.layouts[0]?.width ?? 0
@@ -197,7 +117,7 @@ export const convertJpegXlFloatLayerToRgba16 = (
     const unitAlpha = Math.max(0, Math.min(1, alphaValue))
     for (let channel = 0; channel < 3; channel++) {
       const source = planes[planes.length === 1 ? 0 : channel]
-      const value = floatSample(source?.[index] ?? 0, depth)
+      const value = floatSample(source?.[index] ?? 0, depth, header.exponentBits)
       if (!Number.isFinite(value)) throw invalidInput('Float display rejects NaN and infinity')
       // Associated samples must be straightened in the native domain. Applying the
       // nonzero display black point first would change their color meaning.

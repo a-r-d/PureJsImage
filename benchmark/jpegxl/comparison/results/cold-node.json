@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-30T04:23:01.559Z",
-  "updated": "2026-09-30T04:23:38.559Z",
+  "started": "2026-10-01T14:26:50.845Z",
+  "updated": "2026-10-01T14:27:28.172Z",
   "mode": "cold",
   "runtime": "node",
   "environment": {
@@ -15,10 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
-  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
+  "subjectsSha256": "bc9c914bd8fe1fdac48da74a5c661b7202fc858d5e22fececbab874c0b1a324d",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -38,8 +38,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1506.818613,
-      "initializationMs": 55.071478,
+      "coldMs": 1542.93597,
+      "initializationMs": 72.68161799999999,
       "output": {
         "width": 1024,
         "height": 768,
@@ -52,20 +52,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85868544,
-          "heapTotal": 14680064,
-          "heapUsed": 9822144,
+          "rss": 86065152,
+          "heapTotal": 14942208,
+          "heapUsed": 9849664,
           "external": 15548469,
           "arrayBuffers": 6840438
         },
         "after": {
-          "rss": 131563520,
-          "heapTotal": 31203328,
-          "heapUsed": 12223984,
-          "external": 15886077,
-          "arrayBuffers": 7137562
+          "rss": 146841600,
+          "heapTotal": 56123392,
+          "heapUsed": 22626320,
+          "external": 24564869,
+          "arrayBuffers": 15816354
         },
-        "peakRssBytes": 131563520,
+        "peakRssBytes": 146841600,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -95,8 +95,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1491.945664,
-      "initializationMs": 55.980985000000004,
+      "coldMs": 1551.833907,
+      "initializationMs": 63.72348600000001,
       "output": {
         "width": 1024,
         "height": 768,
@@ -109,20 +109,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 86179840,
-          "heapTotal": 14680064,
-          "heapUsed": 9853784,
+          "rss": 85663744,
+          "heapTotal": 14942208,
+          "heapUsed": 9851456,
           "external": 15548469,
           "arrayBuffers": 6840438
         },
         "after": {
-          "rss": 133771264,
-          "heapTotal": 36970496,
-          "heapUsed": 19926928,
-          "external": 24546849,
-          "arrayBuffers": 15798334
+          "rss": 159416320,
+          "heapTotal": 54550528,
+          "heapUsed": 15174624,
+          "external": 22318177,
+          "arrayBuffers": 13569662
         },
-        "peakRssBytes": 133771264,
+        "peakRssBytes": 159416320,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -152,8 +152,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1502.69535,
-      "initializationMs": 58.72479100000001,
+      "coldMs": 1566.084063,
+      "initializationMs": 69.192508,
       "output": {
         "width": 1024,
         "height": 768,
@@ -166,20 +166,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 86036480,
+          "rss": 86044672,
           "heapTotal": 14942208,
-          "heapUsed": 9837232,
+          "heapUsed": 9878168,
           "external": 15548469,
           "arrayBuffers": 6840438
         },
         "after": {
-          "rss": 133959680,
-          "heapTotal": 37756928,
-          "heapUsed": 13613664,
-          "external": 17761101,
-          "arrayBuffers": 9012586
+          "rss": 151539712,
+          "heapTotal": 54026240,
+          "heapUsed": 13956768,
+          "external": 16470113,
+          "arrayBuffers": 7721598
         },
-        "peakRssBytes": 133959680,
+        "peakRssBytes": 151539712,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -209,8 +209,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 753.555673,
-      "initializationMs": 57.111982999999995,
+      "coldMs": 774.928626,
+      "initializationMs": 65.83107100000001,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -218,20 +218,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85987328,
-          "heapTotal": 14942208,
-          "heapUsed": 9822008,
+          "rss": 85667840,
+          "heapTotal": 14680064,
+          "heapUsed": 9834808,
           "external": 15548451,
           "arrayBuffers": 6840420
         },
         "after": {
-          "rss": 186404864,
-          "heapTotal": 30154752,
-          "heapUsed": 16428592,
-          "external": 87586745,
-          "arrayBuffers": 78838230
+          "rss": 170098688,
+          "heapTotal": 47734784,
+          "heapUsed": 12225480,
+          "external": 104373604,
+          "arrayBuffers": 26384390
         },
-        "peakRssBytes": 186404864,
+        "peakRssBytes": 220368896,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -261,8 +261,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 771.871699,
-      "initializationMs": 59.76336300000001,
+      "coldMs": 773.440407,
+      "initializationMs": 69.918872,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -270,20 +270,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85778432,
+          "rss": 85602304,
           "heapTotal": 14942208,
-          "heapUsed": 9851392,
+          "heapUsed": 9838584,
           "external": 15548451,
           "arrayBuffers": 6840420
         },
         "after": {
-          "rss": 186109952,
-          "heapTotal": 30416896,
-          "heapUsed": 16433848,
-          "external": 87586745,
-          "arrayBuffers": 78838230
+          "rss": 185819136,
+          "heapTotal": 30695424,
+          "heapUsed": 16631808,
+          "external": 87590685,
+          "arrayBuffers": 78842170
         },
-        "peakRssBytes": 186109952,
+        "peakRssBytes": 185819136,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -313,8 +313,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 756.6154670000001,
-      "initializationMs": 55.705095000000014,
+      "coldMs": 763.779258,
+      "initializationMs": 62.614957000000004,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -322,20 +322,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85770240,
-          "heapTotal": 14942208,
-          "heapUsed": 9843304,
+          "rss": 85934080,
+          "heapTotal": 14680064,
+          "heapUsed": 9843984,
           "external": 15548451,
           "arrayBuffers": 6840420
         },
         "after": {
-          "rss": 185638912,
-          "heapTotal": 30154752,
-          "heapUsed": 16346504,
-          "external": 87586745,
-          "arrayBuffers": 78838230
+          "rss": 172314624,
+          "heapTotal": 47472640,
+          "heapUsed": 12174624,
+          "external": 104373604,
+          "arrayBuffers": 26384390
         },
-        "peakRssBytes": 185638912,
+        "peakRssBytes": 222601216,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -365,8 +365,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 335.611553,
-      "initializationMs": 14.450952000000001,
+      "coldMs": 335.599762,
+      "initializationMs": 14.742192000000003,
       "output": {
         "width": 1024,
         "height": 768,
@@ -379,20 +379,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85770240,
-          "heapTotal": 14417920,
-          "heapUsed": 9811832,
+          "rss": 85667840,
+          "heapTotal": 14942208,
+          "heapUsed": 9877640,
           "external": 15548463,
           "arrayBuffers": 6840432
         },
         "after": {
-          "rss": 163635200,
+          "rss": 164204544,
           "heapTotal": 15204352,
-          "heapUsed": 9893936,
+          "heapUsed": 9892280,
           "external": 88575367,
           "arrayBuffers": 12712027
         },
-        "peakRssBytes": 163635200,
+        "peakRssBytes": 164204544,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -422,8 +422,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 331.839758,
-      "initializationMs": 14.330474999999993,
+      "coldMs": 333.373607,
+      "initializationMs": 13.956052999999997,
       "output": {
         "width": 1024,
         "height": 768,
@@ -436,20 +436,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85934080,
+          "rss": 85729280,
           "heapTotal": 14942208,
-          "heapUsed": 9877832,
+          "heapUsed": 9836984,
           "external": 15548463,
           "arrayBuffers": 6840432
         },
         "after": {
-          "rss": 163487744,
+          "rss": 163610624,
           "heapTotal": 15466496,
-          "heapUsed": 9905464,
+          "heapUsed": 9945936,
           "external": 88575367,
           "arrayBuffers": 12712027
         },
-        "peakRssBytes": 163487744,
+        "peakRssBytes": 163610624,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -479,8 +479,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 334.885476,
-      "initializationMs": 14.359881000000001,
+      "coldMs": 343.94693299999994,
+      "initializationMs": 21.033913999999996,
       "output": {
         "width": 1024,
         "height": 768,
@@ -493,20 +493,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85729280,
+          "rss": 85762048,
           "heapTotal": 14942208,
-          "heapUsed": 9814880,
+          "heapUsed": 9820976,
           "external": 15548463,
           "arrayBuffers": 6840432
         },
         "after": {
-          "rss": 163696640,
+          "rss": 162902016,
           "heapTotal": 15466496,
-          "heapUsed": 9945176,
+          "heapUsed": 9946192,
           "external": 88575367,
           "arrayBuffers": 12712027
         },
-        "peakRssBytes": 163696640,
+        "peakRssBytes": 162902016,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -536,8 +536,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 127.4202,
-      "initializationMs": 14.265052999999995,
+      "coldMs": 123.98620899999999,
+      "initializationMs": 14.41079599999999,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -545,20 +545,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85999616,
-          "heapTotal": 14680064,
-          "heapUsed": 9836808,
+          "rss": 86192128,
+          "heapTotal": 14942208,
+          "heapUsed": 9835536,
           "external": 15548445,
           "arrayBuffers": 6840414
         },
         "after": {
-          "rss": 178987008,
+          "rss": 179187712,
           "heapTotal": 15466496,
-          "heapUsed": 9907016,
+          "heapUsed": 9904848,
           "external": 122460016,
           "arrayBuffers": 9830980
         },
-        "peakRssBytes": 188248064,
+        "peakRssBytes": 188387328,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -588,8 +588,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 125.539782,
-      "initializationMs": 14.259057999999996,
+      "coldMs": 130.959877,
+      "initializationMs": 14.666393,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -597,20 +597,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 86056960,
-          "heapTotal": 14417920,
-          "heapUsed": 9822040,
+          "rss": 85803008,
+          "heapTotal": 14942208,
+          "heapUsed": 9877576,
           "external": 15548445,
           "arrayBuffers": 6840414
         },
         "after": {
-          "rss": 178425856,
+          "rss": 179118080,
           "heapTotal": 15466496,
-          "heapUsed": 9909424,
+          "heapUsed": 9894400,
           "external": 122460016,
           "arrayBuffers": 9830980
         },
-        "peakRssBytes": 188112896,
+        "peakRssBytes": 188452864,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -640,8 +640,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 126.14425899999999,
-      "initializationMs": 14.453874999999996,
+      "coldMs": 143.467605,
+      "initializationMs": 16.235142999999994,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -649,20 +649,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85770240,
-          "heapTotal": 14942208,
-          "heapUsed": 9834696,
+          "rss": 85798912,
+          "heapTotal": 14680064,
+          "heapUsed": 9836504,
           "external": 15548445,
           "arrayBuffers": 6840414
         },
         "after": {
-          "rss": 189661184,
+          "rss": 178741248,
           "heapTotal": 15466496,
-          "heapUsed": 9910248,
+          "heapUsed": 9911456,
           "external": 122460016,
           "arrayBuffers": 9830980
         },
-        "peakRssBytes": 189661184,
+        "peakRssBytes": 188313600,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -692,8 +692,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 469.79896199999996,
-      "initializationMs": 19.656402,
+      "coldMs": 477.299586,
+      "initializationMs": 20.90877499999999,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -701,20 +701,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85700608,
+          "rss": 85684224,
           "heapTotal": 14942208,
-          "heapUsed": 9834136,
+          "heapUsed": 9879464,
           "external": 15548457,
           "arrayBuffers": 6840426
         },
         "after": {
-          "rss": 121491456,
+          "rss": 122732544,
           "heapTotal": 16515072,
-          "heapUsed": 12351440,
+          "heapUsed": 12392952,
           "external": 32683370,
           "arrayBuffers": 6330361
         },
-        "peakRssBytes": 123322368,
+        "peakRssBytes": 124346368,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -744,8 +744,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 470.31419500000004,
-      "initializationMs": 22.804417,
+      "coldMs": 484.396388,
+      "initializationMs": 26.344226000000006,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -753,20 +753,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85872640,
-          "heapTotal": 14417920,
-          "heapUsed": 9822016,
+          "rss": 86081536,
+          "heapTotal": 14942208,
+          "heapUsed": 9877688,
           "external": 15548457,
           "arrayBuffers": 6840426
         },
         "after": {
-          "rss": 131092480,
-          "heapTotal": 16777216,
-          "heapUsed": 12405008,
+          "rss": 130355200,
+          "heapTotal": 16515072,
+          "heapUsed": 12360280,
           "external": 32683370,
           "arrayBuffers": 6330361
         },
-        "peakRssBytes": 131092480,
+        "peakRssBytes": 130355200,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -796,8 +796,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 479.76892300000003,
-      "initializationMs": 19.695375,
+      "coldMs": 468.26961099999994,
+      "initializationMs": 20.864458999999997,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -805,20 +805,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85737472,
+          "rss": 86073344,
           "heapTotal": 14942208,
-          "heapUsed": 9820752,
+          "heapUsed": 9808792,
           "external": 15548457,
           "arrayBuffers": 6840426
         },
         "after": {
-          "rss": 131055616,
-          "heapTotal": 16515072,
-          "heapUsed": 12330976,
+          "rss": 122593280,
+          "heapTotal": 16777216,
+          "heapUsed": 12416920,
           "external": 32683370,
           "arrayBuffers": 6330361
         },
-        "peakRssBytes": 131055616,
+        "peakRssBytes": 123572224,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -849,24 +849,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.711203999999995,
+      "initializationMs": 20.272301999999996,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 86069248,
-          "heapTotal": 14942208,
-          "heapUsed": 9836240,
+          "rss": 85671936,
+          "heapTotal": 14680064,
+          "heapUsed": 9877832,
           "external": 15548439,
           "arrayBuffers": 6840408
         },
         "after": {
-          "rss": 97214464,
+          "rss": 96825344,
           "heapTotal": 16515072,
-          "heapUsed": 12258776,
+          "heapUsed": 12262536,
           "external": 16999233,
           "arrayBuffers": 5391824
         },
-        "peakRssBytes": 97214464,
+        "peakRssBytes": 96825344,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -889,24 +889,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.37925299999999,
+      "initializationMs": 19.273797000000002,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 85696512,
-          "heapTotal": 14680064,
-          "heapUsed": 9852936,
+          "rss": 86056960,
+          "heapTotal": 14942208,
+          "heapUsed": 9849952,
           "external": 15548439,
           "arrayBuffers": 6840408
         },
         "after": {
-          "rss": 96841728,
-          "heapTotal": 16252928,
-          "heapUsed": 12229504,
+          "rss": 97079296,
+          "heapTotal": 16515072,
+          "heapUsed": 12235320,
           "external": 16999233,
           "arrayBuffers": 5391824
         },
-        "peakRssBytes": 96841728,
+        "peakRssBytes": 97079296,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -929,24 +929,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.903022000000007,
+      "initializationMs": 19.376423000000003,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 85278720,
-          "heapTotal": 14680064,
-          "heapUsed": 9836648,
+          "rss": 85934080,
+          "heapTotal": 14942208,
+          "heapUsed": 9814928,
           "external": 15548439,
           "arrayBuffers": 6840408
         },
         "after": {
-          "rss": 96423936,
+          "rss": 96825344,
           "heapTotal": 16252928,
-          "heapUsed": 12257200,
+          "heapUsed": 12246216,
           "external": 16999233,
           "arrayBuffers": 5391824
         },
-        "peakRssBytes": 96423936,
+        "peakRssBytes": 96825344,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -968,8 +968,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 412.32489899999996,
-      "initializationMs": 68.01700999999998,
+      "coldMs": 406.563511,
+      "initializationMs": 67.83529800000001,
       "output": {
         "width": 1024,
         "height": 768,
@@ -982,20 +982,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85970944,
-          "heapTotal": 14417920,
-          "heapUsed": 9822016,
+          "rss": 85938176,
+          "heapTotal": 14680064,
+          "heapUsed": 9836968,
           "external": 15548455,
           "arrayBuffers": 6840424
         },
         "after": {
-          "rss": 209264640,
+          "rss": 209588224,
           "heapTotal": 34639872,
-          "heapUsed": 14597456,
+          "heapUsed": 14567856,
           "external": 15679257,
           "arrayBuffers": 6840605
         },
-        "peakRssBytes": 209403904,
+        "peakRssBytes": 209842176,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1025,8 +1025,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 404.045107,
-      "initializationMs": 66.283174,
+      "coldMs": 410.038102,
+      "initializationMs": 64.98733,
       "output": {
         "width": 1024,
         "height": 768,
@@ -1039,20 +1039,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85712896,
-          "heapTotal": 14680064,
-          "heapUsed": 9822016,
+          "rss": 85909504,
+          "heapTotal": 14417920,
+          "heapUsed": 9841800,
           "external": 15548455,
           "arrayBuffers": 6840424
         },
         "after": {
-          "rss": 208588800,
+          "rss": 206028800,
           "heapTotal": 34377728,
-          "heapUsed": 14584448,
-          "external": 15679257,
-          "arrayBuffers": 6840605
+          "heapUsed": 14712424,
+          "external": 18824985,
+          "arrayBuffers": 9986333
         },
-        "peakRssBytes": 208769024,
+        "peakRssBytes": 206028800,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1082,8 +1082,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 415.171956,
-      "initializationMs": 68.926142,
+      "coldMs": 406.14336,
+      "initializationMs": 66.673538,
       "output": {
         "width": 1024,
         "height": 768,
@@ -1096,20 +1096,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85962752,
-          "heapTotal": 14680064,
-          "heapUsed": 9836640,
+          "rss": 85917696,
+          "heapTotal": 14417920,
+          "heapUsed": 9826216,
           "external": 15548455,
           "arrayBuffers": 6840424
         },
         "after": {
-          "rss": 208695296,
-          "heapTotal": 34377728,
-          "heapUsed": 14593288,
+          "rss": 209715200,
+          "heapTotal": 35164160,
+          "heapUsed": 14577904,
           "external": 15679257,
           "arrayBuffers": 6840605
         },
-        "peakRssBytes": 209080320,
+        "peakRssBytes": 209932288,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1139,8 +1139,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 198.617164,
-      "initializationMs": 65.67869999999999,
+      "coldMs": 200.04981699999996,
+      "initializationMs": 67.874081,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -1148,20 +1148,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85778432,
+          "rss": 85864448,
           "heapTotal": 14680064,
-          "heapUsed": 9821976,
+          "heapUsed": 9877760,
           "external": 15548437,
           "arrayBuffers": 6840406
         },
         "after": {
-          "rss": 178536448,
+          "rss": 176361472,
           "heapTotal": 35164160,
-          "heapUsed": 14609504,
-          "external": 13317354,
-          "arrayBuffers": 4478702
+          "heapUsed": 15018544,
+          "external": 14102011,
+          "arrayBuffers": 5263359
         },
-        "peakRssBytes": 178683904,
+        "peakRssBytes": 176361472,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1191,8 +1191,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 197.44867799999997,
-      "initializationMs": 66.874621,
+      "coldMs": 203.661315,
+      "initializationMs": 64.93416200000001,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -1200,20 +1200,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 86040576,
-          "heapTotal": 14680064,
-          "heapUsed": 9821904,
+          "rss": 85934080,
+          "heapTotal": 14942208,
+          "heapUsed": 9855440,
           "external": 15548437,
           "arrayBuffers": 6840406
         },
         "after": {
-          "rss": 178098176,
-          "heapTotal": 34115584,
-          "heapUsed": 14605944,
-          "external": 13317354,
-          "arrayBuffers": 4478702
+          "rss": 175611904,
+          "heapTotal": 34639872,
+          "heapUsed": 14736872,
+          "external": 14102011,
+          "arrayBuffers": 5263359
         },
-        "peakRssBytes": 178307072,
+        "peakRssBytes": 175611904,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1243,8 +1243,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 199.56685100000004,
-      "initializationMs": 67.552341,
+      "coldMs": 197.177478,
+      "initializationMs": 65.967552,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -1252,20 +1252,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 85966848,
+          "rss": 85925888,
           "heapTotal": 14942208,
-          "heapUsed": 9813928,
+          "heapUsed": 9848056,
           "external": 15548437,
           "arrayBuffers": 6840406
         },
         "after": {
-          "rss": 178208768,
-          "heapTotal": 34115584,
-          "heapUsed": 14597968,
+          "rss": 178241536,
+          "heapTotal": 34902016,
+          "heapUsed": 14609672,
           "external": 13317354,
           "arrayBuffers": 4478702
         },
-        "peakRssBytes": 178458624,
+        "peakRssBytes": 178388992,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1295,8 +1295,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 2028.0495339999998,
-      "initializationMs": 58.635687000000004,
+      "coldMs": 2049.62617,
+      "initializationMs": 63.170986,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1309,20 +1309,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88129536,
-          "heapTotal": 14680064,
-          "heapUsed": 9815040,
+          "rss": 87896064,
+          "heapTotal": 14942208,
+          "heapUsed": 9858832,
           "external": 17139934,
           "arrayBuffers": 8431903
         },
         "after": {
-          "rss": 141688832,
-          "heapTotal": 37232640,
-          "heapUsed": 18997976,
-          "external": 36626298,
-          "arrayBuffers": 27877783
+          "rss": 147230720,
+          "heapTotal": 55599104,
+          "heapUsed": 21577744,
+          "external": 39745470,
+          "arrayBuffers": 30996955
         },
-        "peakRssBytes": 141688832,
+        "peakRssBytes": 147230720,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1352,8 +1352,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 2022.042142,
-      "initializationMs": 59.00761800000001,
+      "coldMs": 2027.220903,
+      "initializationMs": 64.91329599999999,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1366,20 +1366,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87965696,
-          "heapTotal": 14417920,
-          "heapUsed": 9823816,
+          "rss": 87928832,
+          "heapTotal": 14680064,
+          "heapUsed": 9814968,
           "external": 17139934,
           "arrayBuffers": 8431903
         },
         "after": {
-          "rss": 139427840,
-          "heapTotal": 30941184,
-          "heapUsed": 12202144,
-          "external": 19919882,
-          "arrayBuffers": 8729127
+          "rss": 159191040,
+          "heapTotal": 48521216,
+          "heapUsed": 14580584,
+          "external": 24808158,
+          "arrayBuffers": 16059643
         },
-        "peakRssBytes": 139427840,
+        "peakRssBytes": 159191040,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1409,8 +1409,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 2021.124307,
-      "initializationMs": 55.55631600000001,
+      "coldMs": 2027.4595940000002,
+      "initializationMs": 62.696653999999995,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1423,20 +1423,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87867392,
-          "heapTotal": 14942208,
-          "heapUsed": 9822688,
+          "rss": 88023040,
+          "heapTotal": 14417920,
+          "heapUsed": 9830976,
           "external": 17139934,
           "arrayBuffers": 8431903
         },
         "after": {
-          "rss": 141295616,
-          "heapTotal": 36446208,
-          "heapUsed": 17501432,
-          "external": 35851818,
-          "arrayBuffers": 27103303
+          "rss": 160669696,
+          "heapTotal": 48259072,
+          "heapUsed": 13134344,
+          "external": 22821742,
+          "arrayBuffers": 14073227
         },
-        "peakRssBytes": 141295616,
+        "peakRssBytes": 160669696,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1466,8 +1466,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 889.978287,
-      "initializationMs": 62.22418499999999,
+      "coldMs": 873.89086,
+      "initializationMs": 61.87928500000001,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -1475,20 +1475,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87887872,
+          "rss": 88154112,
           "heapTotal": 14680064,
-          "heapUsed": 9831152,
+          "heapUsed": 9823904,
           "external": 17139916,
           "arrayBuffers": 8431885
         },
         "after": {
-          "rss": 184131584,
-          "heapTotal": 29892608,
-          "heapUsed": 16002688,
-          "external": 84006989,
-          "arrayBuffers": 75258474
+          "rss": 182575104,
+          "heapTotal": 30171136,
+          "heapUsed": 16317024,
+          "external": 84010929,
+          "arrayBuffers": 75262414
         },
-        "peakRssBytes": 209264640,
+        "peakRssBytes": 207314944,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1518,8 +1518,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 889.016679,
-      "initializationMs": 55.12700000000001,
+      "coldMs": 877.7320159999999,
+      "initializationMs": 61.20293500000001,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -1527,20 +1527,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 86990848,
-          "heapTotal": 14942208,
-          "heapUsed": 9879744,
+          "rss": 88027136,
+          "heapTotal": 14417920,
+          "heapUsed": 9836368,
           "external": 17139916,
           "arrayBuffers": 8431885
         },
         "after": {
-          "rss": 183955456,
-          "heapTotal": 30679040,
-          "heapUsed": 16179336,
-          "external": 84006989,
-          "arrayBuffers": 75258474
+          "rss": 183226368,
+          "heapTotal": 30171136,
+          "heapUsed": 16250312,
+          "external": 84010929,
+          "arrayBuffers": 75262414
         },
-        "peakRssBytes": 208707584,
+        "peakRssBytes": 207785984,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1570,8 +1570,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 875.27664,
-      "initializationMs": 54.638475,
+      "coldMs": 883.560138,
+      "initializationMs": 62.628302000000005,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -1579,20 +1579,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87871488,
-          "heapTotal": 14942208,
-          "heapUsed": 9840888,
+          "rss": 87924736,
+          "heapTotal": 14680064,
+          "heapUsed": 9854016,
           "external": 17139916,
           "arrayBuffers": 8431885
         },
         "after": {
-          "rss": 184553472,
-          "heapTotal": 30154752,
-          "heapUsed": 16031320,
-          "external": 84006989,
-          "arrayBuffers": 75258474
+          "rss": 221614080,
+          "heapTotal": 47734784,
+          "heapUsed": 16336376,
+          "external": 84010929,
+          "arrayBuffers": 75262414
         },
-        "peakRssBytes": 209719296,
+        "peakRssBytes": 246673408,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1622,8 +1622,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 413.199137,
-      "initializationMs": 15.109960000000001,
+      "coldMs": 410.794865,
+      "initializationMs": 14.190628000000004,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1636,20 +1636,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87707648,
-          "heapTotal": 14942208,
-          "heapUsed": 9879560,
+          "rss": 87896064,
+          "heapTotal": 14680064,
+          "heapUsed": 9855672,
           "external": 17139928,
           "arrayBuffers": 8431897
         },
         "after": {
-          "rss": 172400640,
+          "rss": 174661632,
           "heapTotal": 15466496,
-          "heapUsed": 9911240,
+          "heapUsed": 9910392,
           "external": 102702593,
           "arrayBuffers": 14846165
         },
-        "peakRssBytes": 172400640,
+        "peakRssBytes": 174661632,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1679,8 +1679,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 410.305647,
-      "initializationMs": 14.18824099999999,
+      "coldMs": 406.692898,
+      "initializationMs": 13.959738000000002,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1693,20 +1693,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88072192,
+          "rss": 88076288,
           "heapTotal": 14942208,
-          "heapUsed": 9837096,
+          "heapUsed": 9840280,
           "external": 17139928,
           "arrayBuffers": 8431897
         },
         "after": {
-          "rss": 172261376,
+          "rss": 171483136,
           "heapTotal": 15466496,
-          "heapUsed": 9951728,
+          "heapUsed": 9910296,
           "external": 102702593,
           "arrayBuffers": 14846165
         },
-        "peakRssBytes": 172261376,
+        "peakRssBytes": 171483136,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1736,8 +1736,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 406.634719,
-      "initializationMs": 15.024649999999994,
+      "coldMs": 413.08450100000005,
+      "initializationMs": 16.648252,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -1750,20 +1750,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88027136,
-          "heapTotal": 14680064,
-          "heapUsed": 9813504,
+          "rss": 87764992,
+          "heapTotal": 14942208,
+          "heapUsed": 9853600,
           "external": 17139928,
           "arrayBuffers": 8431897
         },
         "after": {
-          "rss": 174698496,
+          "rss": 174649344,
           "heapTotal": 15466496,
-          "heapUsed": 9911920,
+          "heapUsed": 9951648,
           "external": 102702593,
           "arrayBuffers": 14846165
         },
-        "peakRssBytes": 174698496,
+        "peakRssBytes": 174649344,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1793,8 +1793,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 147.86991,
-      "initializationMs": 14.403696999999994,
+      "coldMs": 147.324487,
+      "initializationMs": 14.423410000000004,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -1802,20 +1802,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88072192,
-          "heapTotal": 14942208,
-          "heapUsed": 9824328,
+          "rss": 88055808,
+          "heapTotal": 14680064,
+          "heapUsed": 9848864,
           "external": 17139910,
           "arrayBuffers": 8431879
         },
         "after": {
-          "rss": 200638464,
+          "rss": 203161600,
           "heapTotal": 15204352,
           "heapUsed": 9877168,
           "external": 164860441,
           "arrayBuffers": 11140333
         },
-        "peakRssBytes": 209788928,
+        "peakRssBytes": 212271104,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1845,8 +1845,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 144.692979,
-      "initializationMs": 13.904828000000009,
+      "coldMs": 144.137331,
+      "initializationMs": 13.752056999999994,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -1854,20 +1854,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87883776,
+          "rss": 87896064,
           "heapTotal": 14680064,
-          "heapUsed": 9836712,
+          "heapUsed": 9823920,
           "external": 17139910,
           "arrayBuffers": 8431879
         },
         "after": {
-          "rss": 203661312,
+          "rss": 203300864,
           "heapTotal": 15204352,
-          "heapUsed": 9877240,
+          "heapUsed": 9877408,
           "external": 164860441,
           "arrayBuffers": 11140333
         },
-        "peakRssBytes": 213270528,
+        "peakRssBytes": 212373504,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1897,8 +1897,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 149.823006,
-      "initializationMs": 13.991089000000002,
+      "coldMs": 145.858976,
+      "initializationMs": 14.859658999999994,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -1906,20 +1906,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88002560,
+          "rss": 88035328,
           "heapTotal": 14942208,
-          "heapUsed": 9830824,
+          "heapUsed": 9858736,
           "external": 17139910,
           "arrayBuffers": 8431879
         },
         "after": {
-          "rss": 202502144,
+          "rss": 203165696,
           "heapTotal": 15204352,
           "heapUsed": 9877168,
           "external": 164860441,
           "arrayBuffers": 11140333
         },
-        "peakRssBytes": 212602880,
+        "peakRssBytes": 212905984,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -1949,8 +1949,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 397.66941099999997,
-      "initializationMs": 19.446134999999998,
+      "coldMs": 403.43221300000005,
+      "initializationMs": 19.841008000000002,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -1958,20 +1958,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88064000,
+          "rss": 88158208,
           "heapTotal": 14942208,
-          "heapUsed": 9852280,
+          "heapUsed": 9819240,
           "external": 17139922,
           "arrayBuffers": 8431891
         },
         "after": {
-          "rss": 129212416,
-          "heapTotal": 15990784,
-          "heapUsed": 12327880,
+          "rss": 129105920,
+          "heapTotal": 16252928,
+          "heapUsed": 12364448,
           "external": 34962279,
           "arrayBuffers": 5987830
         },
-        "peakRssBytes": 129212416,
+        "peakRssBytes": 129273856,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2001,8 +2001,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 394.10966899999994,
-      "initializationMs": 20.28923499999999,
+      "coldMs": 401.051514,
+      "initializationMs": 23.584557000000004,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -2010,20 +2010,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88072192,
+          "rss": 87859200,
           "heapTotal": 14942208,
-          "heapUsed": 9853528,
+          "heapUsed": 9841944,
           "external": 17139922,
           "arrayBuffers": 8431891
         },
         "after": {
-          "rss": 137560064,
+          "rss": 128671744,
           "heapTotal": 16252928,
-          "heapUsed": 12367008,
+          "heapUsed": 12348448,
           "external": 34962279,
           "arrayBuffers": 5987830
         },
-        "peakRssBytes": 137560064,
+        "peakRssBytes": 128856064,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2053,8 +2053,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 395.965072,
-      "initializationMs": 19.448963000000006,
+      "coldMs": 425.391307,
+      "initializationMs": 20.676475999999994,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -2062,20 +2062,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87945216,
+          "rss": 88100864,
           "heapTotal": 14942208,
-          "heapUsed": 9822568,
+          "heapUsed": 9879440,
           "external": 17139922,
           "arrayBuffers": 8431891
         },
         "after": {
-          "rss": 129056768,
-          "heapTotal": 16252928,
-          "heapUsed": 12345608,
+          "rss": 128819200,
+          "heapTotal": 15990784,
+          "heapUsed": 12327880,
           "external": 34962279,
           "arrayBuffers": 5987830
         },
-        "peakRssBytes": 129064960,
+        "peakRssBytes": 128819200,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2106,24 +2106,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 20.128127000000006,
+      "initializationMs": 19.490055999999996,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 88039424,
-          "heapTotal": 14680064,
-          "heapUsed": 9815600,
+          "rss": 87846912,
+          "heapTotal": 14942208,
+          "heapUsed": 9851808,
           "external": 17139904,
           "arrayBuffers": 8431873
         },
         "after": {
-          "rss": 98856960,
+          "rss": 99000320,
           "heapTotal": 16515072,
-          "heapUsed": 12295712,
+          "heapUsed": 12285088,
           "external": 17541806,
           "arrayBuffers": 5934397
         },
-        "peakRssBytes": 98856960,
+        "peakRssBytes": 99000320,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -2146,24 +2146,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 20.81837,
+      "initializationMs": 19.441375000000008,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 88137728,
-          "heapTotal": 14417920,
-          "heapUsed": 9823784,
+          "rss": 88162304,
+          "heapTotal": 14680064,
+          "heapUsed": 9845296,
           "external": 17139904,
           "arrayBuffers": 8431873
         },
         "after": {
-          "rss": 99151872,
-          "heapTotal": 16515072,
-          "heapUsed": 12267368,
+          "rss": 99053568,
+          "heapTotal": 16252928,
+          "heapUsed": 12251008,
           "external": 17541806,
           "arrayBuffers": 5934397
         },
-        "peakRssBytes": 99151872,
+        "peakRssBytes": 99053568,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -2186,24 +2186,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 20.08105900000001,
+      "initializationMs": 19.437866,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 87941120,
+          "rss": 87896064,
           "heapTotal": 14680064,
-          "heapUsed": 9839240,
+          "heapUsed": 9854968,
           "external": 17139904,
           "arrayBuffers": 8431873
         },
         "after": {
-          "rss": 99217408,
-          "heapTotal": 16515072,
-          "heapUsed": 12256216,
+          "rss": 99180544,
+          "heapTotal": 15990784,
+          "heapUsed": 12215376,
           "external": 17541806,
           "arrayBuffers": 5934397
         },
-        "peakRssBytes": 99217408,
+        "peakRssBytes": 99180544,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -2225,8 +2225,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 459.469498,
-      "initializationMs": 66.23009499999999,
+      "coldMs": 484.677076,
+      "initializationMs": 66.03790199999999,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2239,20 +2239,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87879680,
-          "heapTotal": 14680064,
-          "heapUsed": 9814616,
+          "rss": 87986176,
+          "heapTotal": 14417920,
+          "heapUsed": 9810544,
           "external": 17139920,
           "arrayBuffers": 8431889
         },
         "after": {
-          "rss": 208134144,
-          "heapTotal": 34639872,
-          "heapUsed": 14575696,
+          "rss": 208584704,
+          "heapTotal": 34377728,
+          "heapUsed": 14595312,
           "external": 17270822,
           "arrayBuffers": 8432170
         },
-        "peakRssBytes": 208367616,
+        "peakRssBytes": 208859136,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2282,8 +2282,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 467.73579199999995,
-      "initializationMs": 65.238808,
+      "coldMs": 505.702488,
+      "initializationMs": 72.881309,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2296,20 +2296,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87687168,
-          "heapTotal": 14680064,
-          "heapUsed": 9879232,
+          "rss": 87760896,
+          "heapTotal": 14942208,
+          "heapUsed": 9824448,
           "external": 17139920,
           "arrayBuffers": 8431889
         },
         "after": {
-          "rss": 204070912,
-          "heapTotal": 34377728,
-          "heapUsed": 14716888,
+          "rss": 208449536,
+          "heapTotal": 34639872,
+          "heapUsed": 14657496,
           "external": 21465126,
           "arrayBuffers": 12626474
         },
-        "peakRssBytes": 204070912,
+        "peakRssBytes": 208703488,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2339,8 +2339,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 467.13827800000007,
-      "initializationMs": 69.65371800000001,
+      "coldMs": 462.732592,
+      "initializationMs": 65.53426599999999,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2353,20 +2353,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88076288,
-          "heapTotal": 14417920,
-          "heapUsed": 9823824,
+          "rss": 88027136,
+          "heapTotal": 14680064,
+          "heapUsed": 9823912,
           "external": 17139920,
           "arrayBuffers": 8431889
         },
         "after": {
-          "rss": 208482304,
-          "heapTotal": 34377728,
-          "heapUsed": 14592288,
+          "rss": 207663104,
+          "heapTotal": 34639872,
+          "heapUsed": 14599792,
           "external": 17270822,
           "arrayBuffers": 8432170
         },
-        "peakRssBytes": 208666624,
+        "peakRssBytes": 207851520,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2396,8 +2396,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 205.350554,
-      "initializationMs": 64.823726,
+      "coldMs": 202.318997,
+      "initializationMs": 64.777402,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -2405,20 +2405,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 88264704,
-          "heapTotal": 14942208,
-          "heapUsed": 9816640,
+          "rss": 88027136,
+          "heapTotal": 14680064,
+          "heapUsed": 9817280,
           "external": 17139902,
           "arrayBuffers": 8431871
         },
         "after": {
-          "rss": 183255040,
-          "heapTotal": 34639872,
-          "heapUsed": 14737768,
-          "external": 14092270,
-          "arrayBuffers": 5253618
+          "rss": 184479744,
+          "heapTotal": 34902016,
+          "heapUsed": 14591824,
+          "external": 13583666,
+          "arrayBuffers": 4745014
         },
-        "peakRssBytes": 183255040,
+        "peakRssBytes": 184651776,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2448,8 +2448,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 210.231153,
-      "initializationMs": 69.575873,
+      "coldMs": 202.69095199999998,
+      "initializationMs": 64.12291999999998,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -2457,20 +2457,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87748608,
+          "rss": 87842816,
           "heapTotal": 14942208,
-          "heapUsed": 9879368,
+          "heapUsed": 9823776,
           "external": 17139902,
           "arrayBuffers": 8431871
         },
         "after": {
-          "rss": 182243328,
-          "heapTotal": 34902016,
-          "heapUsed": 15031848,
-          "external": 14092270,
-          "arrayBuffers": 5253618
+          "rss": 184373248,
+          "heapTotal": 34377728,
+          "heapUsed": 14603680,
+          "external": 13583666,
+          "arrayBuffers": 4745014
         },
-        "peakRssBytes": 182243328,
+        "peakRssBytes": 184504320,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2500,8 +2500,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 206.255529,
-      "initializationMs": 67.396425,
+      "coldMs": 205.43598400000002,
+      "initializationMs": 67.66293800000001,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -2509,20 +2509,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 87875584,
-          "heapTotal": 14942208,
-          "heapUsed": 9834888,
+          "rss": 88289280,
+          "heapTotal": 14417920,
+          "heapUsed": 9836488,
           "external": 17139902,
           "arrayBuffers": 8431871
         },
         "after": {
-          "rss": 184811520,
-          "heapTotal": 34377728,
-          "heapUsed": 14611904,
+          "rss": 184455168,
+          "heapTotal": 34639872,
+          "heapUsed": 14607712,
           "external": 13583666,
           "arrayBuffers": 4745014
         },
-        "peakRssBytes": 185024512,
+        "peakRssBytes": 184684544,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2552,8 +2552,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 72.34417600000002,
-      "initializationMs": 55.043653000000006,
+      "coldMs": 82.806213,
+      "initializationMs": 62.93495700000001,
       "output": {
         "width": 47,
         "height": 39,
@@ -2566,20 +2566,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79503360,
-          "heapTotal": 14942208,
-          "heapUsed": 9831656,
+          "rss": 79380480,
+          "heapTotal": 14680064,
+          "heapUsed": 9848984,
           "external": 8762606,
           "arrayBuffers": 54575
         },
         "after": {
-          "rss": 102785024,
-          "heapTotal": 35659776,
-          "heapUsed": 22253856,
-          "external": 9250174,
-          "arrayBuffers": 501659
+          "rss": 109617152,
+          "heapTotal": 39608320,
+          "heapUsed": 22009856,
+          "external": 9217442,
+          "arrayBuffers": 468927
         },
-        "peakRssBytes": 102785024,
+        "peakRssBytes": 109617152,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2609,8 +2609,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 74.627046,
-      "initializationMs": 57.504374999999996,
+      "coldMs": 79.61310500000002,
+      "initializationMs": 61.089228000000006,
       "output": {
         "width": 47,
         "height": 39,
@@ -2623,20 +2623,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79806464,
+          "rss": 79704064,
           "heapTotal": 14680064,
-          "heapUsed": 9832400,
+          "heapUsed": 9816392,
           "external": 8762606,
           "arrayBuffers": 54575
         },
         "after": {
-          "rss": 102199296,
-          "heapTotal": 34873344,
-          "heapUsed": 22457464,
-          "external": 9250174,
-          "arrayBuffers": 501659
+          "rss": 110002176,
+          "heapTotal": 56123392,
+          "heapUsed": 23015256,
+          "external": 9225634,
+          "arrayBuffers": 477119
         },
-        "peakRssBytes": 102199296,
+        "peakRssBytes": 110002176,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2666,8 +2666,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 75.40241,
-      "initializationMs": 58.334037,
+      "coldMs": 83.779383,
+      "initializationMs": 65.55783399999999,
       "output": {
         "width": 47,
         "height": 39,
@@ -2680,20 +2680,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79691776,
-          "heapTotal": 14680064,
-          "heapUsed": 9830584,
+          "rss": 79704064,
+          "heapTotal": 14942208,
+          "heapUsed": 9833264,
           "external": 8762606,
           "arrayBuffers": 54575
         },
         "after": {
-          "rss": 102449152,
-          "heapTotal": 35397632,
-          "heapUsed": 22422952,
-          "external": 9250174,
-          "arrayBuffers": 501659
+          "rss": 109547520,
+          "heapTotal": 39346176,
+          "heapUsed": 21731848,
+          "external": 9217442,
+          "arrayBuffers": 468927
         },
-        "peakRssBytes": 102449152,
+        "peakRssBytes": 109547520,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2723,8 +2723,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 73.83910600000002,
-      "initializationMs": 58.575857000000006,
+      "coldMs": 77.50009399999999,
+      "initializationMs": 62.253370000000004,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -2732,20 +2732,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79872000,
-          "heapTotal": 14680064,
-          "heapUsed": 9808392,
+          "rss": 79638528,
+          "heapTotal": 14417920,
+          "heapUsed": 9816392,
           "external": 8762588,
           "arrayBuffers": 54557
         },
         "after": {
-          "rss": 101974016,
-          "heapTotal": 35659776,
-          "heapUsed": 21214392,
-          "external": 9348817,
-          "arrayBuffers": 600302
+          "rss": 108564480,
+          "heapTotal": 38559744,
+          "heapUsed": 21032752,
+          "external": 9229665,
+          "arrayBuffers": 481150
         },
-        "peakRssBytes": 101974016,
+        "peakRssBytes": 108564480,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2775,8 +2775,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 71.34172799999999,
-      "initializationMs": 55.285567,
+      "coldMs": 79.693158,
+      "initializationMs": 62.508944,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -2784,20 +2784,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79880192,
-          "heapTotal": 14942208,
-          "heapUsed": 9829912,
+          "rss": 79900672,
+          "heapTotal": 14680064,
+          "heapUsed": 9816336,
           "external": 8762588,
           "arrayBuffers": 54557
         },
         "after": {
-          "rss": 102113280,
-          "heapTotal": 34873344,
-          "heapUsed": 21565136,
-          "external": 9365201,
-          "arrayBuffers": 616686
+          "rss": 109875200,
+          "heapTotal": 55861248,
+          "heapUsed": 21703200,
+          "external": 9307948,
+          "arrayBuffers": 559433
         },
-        "peakRssBytes": 102113280,
+        "peakRssBytes": 109875200,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2827,8 +2827,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 72.876792,
-      "initializationMs": 56.46687500000001,
+      "coldMs": 77.00867600000001,
+      "initializationMs": 61.710805,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -2836,20 +2836,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79626240,
-          "heapTotal": 14417920,
-          "heapUsed": 9853744,
+          "rss": 79343616,
+          "heapTotal": 14680064,
+          "heapUsed": 9847728,
           "external": 8762588,
           "arrayBuffers": 54557
         },
         "after": {
-          "rss": 101203968,
-          "heapTotal": 35135488,
-          "heapUsed": 21307088,
-          "external": 9365201,
-          "arrayBuffers": 616686
+          "rss": 109248512,
+          "heapTotal": 38559744,
+          "heapUsed": 21018304,
+          "external": 9229665,
+          "arrayBuffers": 481150
         },
-        "peakRssBytes": 101203968,
+        "peakRssBytes": 109248512,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -2880,24 +2880,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.432047999999995,
+      "initializationMs": 14.179272999999995,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79618048,
-          "heapTotal": 14417920,
-          "heapUsed": 9834560,
+          "rss": 79704064,
+          "heapTotal": 14942208,
+          "heapUsed": 9844416,
           "external": 8762600,
           "arrayBuffers": 54569
         },
         "after": {
-          "rss": 86007808,
+          "rss": 86102016,
           "heapTotal": 14942208,
-          "heapUsed": 10994688,
+          "heapUsed": 11014992,
           "external": 46891041,
           "arrayBuffers": 4582133
         },
-        "peakRssBytes": 86007808,
+        "peakRssBytes": 86102016,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -2920,24 +2920,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.408389,
+      "initializationMs": 13.830567000000002,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79388672,
-          "heapTotal": 14942208,
-          "heapUsed": 9829904,
+          "rss": 79704064,
+          "heapTotal": 14680064,
+          "heapUsed": 9871760,
           "external": 8762600,
           "arrayBuffers": 54569
         },
         "after": {
-          "rss": 85778432,
-          "heapTotal": 14942208,
-          "heapUsed": 10990008,
+          "rss": 86233088,
+          "heapTotal": 15204352,
+          "heapUsed": 11033296,
           "external": 46891041,
           "arrayBuffers": 4582133
         },
-        "peakRssBytes": 85778432,
+        "peakRssBytes": 86233088,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -2960,24 +2960,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.807474999999997,
+      "initializationMs": 13.659850000000006,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79417344,
-          "heapTotal": 14680064,
-          "heapUsed": 9841992,
+          "rss": 79695872,
+          "heapTotal": 14942208,
+          "heapUsed": 9831240,
           "external": 8762600,
           "arrayBuffers": 54569
         },
         "after": {
-          "rss": 85938176,
+          "rss": 86093824,
           "heapTotal": 15204352,
-          "heapUsed": 11014848,
+          "heapUsed": 10991264,
           "external": 46891041,
           "arrayBuffers": 4582133
         },
-        "peakRssBytes": 85938176,
+        "peakRssBytes": 86093824,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3000,24 +3000,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.957440999999989,
+      "initializationMs": 15.211044999999999,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79200256,
-          "heapTotal": 14942208,
-          "heapUsed": 9831656,
+          "rss": 79642624,
+          "heapTotal": 14680064,
+          "heapUsed": 9820408,
           "external": 8762582,
           "arrayBuffers": 54551
         },
         "after": {
-          "rss": 85721088,
-          "heapTotal": 14942208,
-          "heapUsed": 10991736,
+          "rss": 85778432,
+          "heapTotal": 15204352,
+          "heapUsed": 10980440,
           "external": 46891023,
           "arrayBuffers": 4582115
         },
-        "peakRssBytes": 85721088,
+        "peakRssBytes": 85778432,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3040,24 +3040,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.193640000000002,
+      "initializationMs": 16.848722000000002,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 78962688,
-          "heapTotal": 14942208,
-          "heapUsed": 9837448,
+          "rss": 79835136,
+          "heapTotal": 14680064,
+          "heapUsed": 9813248,
           "external": 8762582,
           "arrayBuffers": 54551
         },
         "after": {
-          "rss": 85483520,
-          "heapTotal": 15204352,
-          "heapUsed": 10997480,
+          "rss": 86102016,
+          "heapTotal": 14942208,
+          "heapUsed": 10973880,
           "external": 46891023,
           "arrayBuffers": 4582115
         },
-        "peakRssBytes": 85483520,
+        "peakRssBytes": 86102016,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3080,24 +3080,24 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.121122,
+      "initializationMs": 14.168101000000007,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79618048,
-          "heapTotal": 14942208,
-          "heapUsed": 9830648,
+          "rss": 79515648,
+          "heapTotal": 14417920,
+          "heapUsed": 9829208,
           "external": 8762582,
           "arrayBuffers": 54551
         },
         "after": {
-          "rss": 86138880,
+          "rss": 85782528,
           "heapTotal": 15204352,
-          "heapUsed": 10991040,
+          "heapUsed": 10989344,
           "external": 46891023,
           "arrayBuffers": 4582115
         },
-        "peakRssBytes": 86138880,
+        "peakRssBytes": 85782528,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3119,8 +3119,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 35.909572,
-      "initializationMs": 20.087244,
+      "coldMs": 34.971284,
+      "initializationMs": 19.18805499999999,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -3128,20 +3128,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79622144,
-          "heapTotal": 14942208,
-          "heapUsed": 9806240,
+          "rss": 79708160,
+          "heapTotal": 14680064,
+          "heapUsed": 9806376,
           "external": 8762594,
           "arrayBuffers": 54563
         },
         "after": {
-          "rss": 94961664,
-          "heapTotal": 16252928,
-          "heapUsed": 12333816,
+          "rss": 94953472,
+          "heapTotal": 16515072,
+          "heapUsed": 12378376,
           "external": 13809523,
           "arrayBuffers": 1743362
         },
-        "peakRssBytes": 94961664,
+        "peakRssBytes": 94953472,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3171,8 +3171,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 36.327139,
-      "initializationMs": 19.957768,
+      "coldMs": 36.798241000000004,
+      "initializationMs": 19.969948000000002,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -3180,20 +3180,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79814656,
-          "heapTotal": 14680064,
-          "heapUsed": 9827568,
+          "rss": 79642624,
+          "heapTotal": 14942208,
+          "heapUsed": 9816552,
           "external": 8762594,
           "arrayBuffers": 54563
         },
         "after": {
-          "rss": 95092736,
+          "rss": 95252480,
           "heapTotal": 16515072,
-          "heapUsed": 12375736,
+          "heapUsed": 12333104,
           "external": 13809523,
           "arrayBuffers": 1743362
         },
-        "peakRssBytes": 95092736,
+        "peakRssBytes": 95252480,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3223,8 +3223,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 35.46963899999999,
-      "initializationMs": 19.44807499999999,
+      "coldMs": 34.92302500000001,
+      "initializationMs": 19.114917000000005,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -3232,20 +3232,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79753216,
-          "heapTotal": 14942208,
-          "heapUsed": 9824912,
+          "rss": 79568896,
+          "heapTotal": 14680064,
+          "heapUsed": 9833208,
           "external": 8762594,
           "arrayBuffers": 54563
         },
         "after": {
-          "rss": 95617024,
+          "rss": 94916608,
           "heapTotal": 16252928,
-          "heapUsed": 12355288,
+          "heapUsed": 12329368,
           "external": 13809523,
           "arrayBuffers": 1743362
         },
-        "peakRssBytes": 95617024,
+        "peakRssBytes": 94916608,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3276,24 +3276,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 20.02771700000001,
+      "initializationMs": 23.844391,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79716352,
+          "rss": 79560704,
           "heapTotal": 14680064,
-          "heapUsed": 9816352,
+          "heapUsed": 9831032,
           "external": 8762576,
           "arrayBuffers": 54545
         },
         "after": {
-          "rss": 90599424,
+          "rss": 90714112,
           "heapTotal": 16252928,
-          "heapUsed": 12224672,
+          "heapUsed": 12228024,
           "external": 13349394,
           "arrayBuffers": 1741985
         },
-        "peakRssBytes": 90599424,
+        "peakRssBytes": 90714112,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3316,24 +3316,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.900008999999997,
+      "initializationMs": 21.412278999999998,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79855616,
+          "rss": 79572992,
           "heapTotal": 14942208,
-          "heapUsed": 9816280,
+          "heapUsed": 9832416,
           "external": 8762576,
           "arrayBuffers": 54545
         },
         "after": {
-          "rss": 90476544,
+          "rss": 90726400,
           "heapTotal": 16515072,
-          "heapUsed": 12254960,
+          "heapUsed": 12272328,
           "external": 13349394,
           "arrayBuffers": 1741985
         },
-        "peakRssBytes": 90476544,
+        "peakRssBytes": 90726400,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3356,24 +3356,24 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 19.694134000000005,
+      "initializationMs": 19.524615999999995,
       "output": null,
       "memory": {
         "baseline": {
-          "rss": 79552512,
-          "heapTotal": 14417920,
-          "heapUsed": 9816352,
+          "rss": 79638528,
+          "heapTotal": 14680064,
+          "heapUsed": 9824248,
           "external": 8762576,
           "arrayBuffers": 54545
         },
         "after": {
-          "rss": 90828800,
+          "rss": 90791936,
           "heapTotal": 16515072,
-          "heapUsed": 12256704,
+          "heapUsed": 12257968,
           "external": 13349394,
           "arrayBuffers": 1741985
         },
-        "peakRssBytes": 90828800,
+        "peakRssBytes": 90791936,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       }
@@ -3395,8 +3395,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 223.39730000000003,
-      "initializationMs": 69.82978099999998,
+      "coldMs": 220.585343,
+      "initializationMs": 66.64526000000001,
       "output": {
         "width": 47,
         "height": 39,
@@ -3409,20 +3409,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79548416,
+          "rss": 79896576,
           "heapTotal": 14942208,
-          "heapUsed": 9829120,
+          "heapUsed": 9815224,
           "external": 8762592,
           "arrayBuffers": 54561
         },
         "after": {
-          "rss": 169836544,
-          "heapTotal": 34115584,
-          "heapUsed": 14583800,
+          "rss": 169287680,
+          "heapTotal": 34377728,
+          "heapUsed": 14580416,
           "external": 8893648,
           "arrayBuffers": 54996
         },
-        "peakRssBytes": 170192896,
+        "peakRssBytes": 169529344,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3452,8 +3452,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 218.59963299999998,
-      "initializationMs": 66.293428,
+      "coldMs": 223.96071,
+      "initializationMs": 69.436434,
       "output": {
         "width": 47,
         "height": 39,
@@ -3466,20 +3466,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79609856,
-          "heapTotal": 14942208,
-          "heapUsed": 9829728,
+          "rss": 79585280,
+          "heapTotal": 14417920,
+          "heapUsed": 9807416,
           "external": 8762592,
           "arrayBuffers": 54561
         },
         "after": {
-          "rss": 168501248,
-          "heapTotal": 34115584,
-          "heapUsed": 14578328,
+          "rss": 169480192,
+          "heapTotal": 34902016,
+          "heapUsed": 14570056,
           "external": 8893648,
           "arrayBuffers": 54996
         },
-        "peakRssBytes": 168882176,
+        "peakRssBytes": 169480192,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3509,8 +3509,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 217.246319,
-      "initializationMs": 64.78445199999999,
+      "coldMs": 221.06012899999996,
+      "initializationMs": 66.54723299999999,
       "output": {
         "width": 47,
         "height": 39,
@@ -3523,20 +3523,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79704064,
-          "heapTotal": 14942208,
-          "heapUsed": 9823888,
+          "rss": 79835136,
+          "heapTotal": 14417920,
+          "heapUsed": 9816408,
           "external": 8762592,
           "arrayBuffers": 54561
         },
         "after": {
-          "rss": 168321024,
-          "heapTotal": 34377728,
-          "heapUsed": 14578792,
+          "rss": 169562112,
+          "heapTotal": 34639872,
+          "heapUsed": 14575080,
           "external": 8893648,
           "arrayBuffers": 54996
         },
-        "peakRssBytes": 168452096,
+        "peakRssBytes": 169562112,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3566,8 +3566,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 164.98406699999998,
-      "initializationMs": 66.27325699999999,
+      "coldMs": 165.250575,
+      "initializationMs": 68.416649,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -3575,20 +3575,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79855616,
+          "rss": 79765504,
           "heapTotal": 14942208,
-          "heapUsed": 9816336,
+          "heapUsed": 9820464,
           "external": 8762574,
           "arrayBuffers": 54543
         },
         "after": {
-          "rss": 151150592,
+          "rss": 150470656,
           "heapTotal": 34639872,
-          "heapUsed": 14607328,
+          "heapUsed": 14612136,
           "external": 8885738,
           "arrayBuffers": 47086
         },
-        "peakRssBytes": 151285760,
+        "peakRssBytes": 150601728,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3618,8 +3618,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 166.283889,
-      "initializationMs": 66.058506,
+      "coldMs": 174.87093000000002,
+      "initializationMs": 72.97795200000002,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -3627,20 +3627,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79757312,
+          "rss": 79781888,
           "heapTotal": 14942208,
-          "heapUsed": 9831376,
+          "heapUsed": 9816688,
           "external": 8762574,
           "arrayBuffers": 54543
         },
         "after": {
-          "rss": 149848064,
+          "rss": 150745088,
           "heapTotal": 34639872,
-          "heapUsed": 14605328,
+          "heapUsed": 14600464,
           "external": 8885738,
           "arrayBuffers": 47086
         },
-        "peakRssBytes": 150110208,
+        "peakRssBytes": 150986752,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },
@@ -3670,8 +3670,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 163.87260799999999,
-      "initializationMs": 66.244594,
+      "coldMs": 163.57971,
+      "initializationMs": 66.233801,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -3679,20 +3679,20 @@
       },
       "memory": {
         "baseline": {
-          "rss": 79695872,
+          "rss": 79826944,
           "heapTotal": 14942208,
-          "heapUsed": 9849104,
+          "heapUsed": 9810560,
           "external": 8762574,
           "arrayBuffers": 54543
         },
         "after": {
-          "rss": 150241280,
-          "heapTotal": 34902016,
-          "heapUsed": 14610272,
+          "rss": 150401024,
+          "heapTotal": 34377728,
+          "heapUsed": 14607896,
           "external": 8885738,
           "arrayBuffers": 47086
         },
-        "peakRssBytes": 150380544,
+        "peakRssBytes": 150401024,
         "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
         "wasmLinearMemoryBytes": null
       },

@@ -7,19 +7,54 @@ import { gunzipSync } from 'node:zlib'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
+import cmykManifest from '../../tests/fixtures/jpegxl/cmyk-pipeline/manifest.json' with {
+  type: 'json',
+}
+import floatColorManifest from '../../tests/fixtures/jpegxl/float-color/manifest.json' with {
+  type: 'json',
+}
 import manifest from '../../tests/fixtures/jpegxl/profile-pipeline/manifest.json' with {
   type: 'json',
 }
+import structuredManifest from '../../tests/fixtures/jpegxl/structured-pipeline/manifest.json' with {
+  type: 'json',
+}
 
-const root = new URL('../../tests/fixtures/jpegxl/profile-pipeline/', import.meta.url)
+const cmyk = process.argv.includes('--cmyk')
+const structured = process.argv.includes('--structured')
+const floatColor = process.argv.includes('--float-color')
+const fixtures = floatColor
+  ? floatColorManifest.fixtures
+  : cmyk
+    ? cmykManifest.fixtures
+    : structured
+      ? structuredManifest.fixtures
+      : manifest.fixtures
+const root = new URL(
+  floatColor
+    ? '../../tests/fixtures/jpegxl/float-color/'
+    : cmyk
+      ? '../../tests/fixtures/jpegxl/cmyk-pipeline/'
+      : structured
+        ? '../../tests/fixtures/jpegxl/structured-pipeline/'
+        : '../../tests/fixtures/jpegxl/profile-pipeline/',
+  import.meta.url,
+)
 const digest = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 if (process.argv[2] === '--worker') {
-  const fixture = manifest.fixtures.find((item) => item.id === process.argv[3])
+  const fixture = fixtures.find((item) => item.id === process.argv[3])
   if (!fixture) throw new Error('Unknown profile fixture')
   const warm = process.argv[4] === 'warm'
   const cropped = process.argv[5] === 'crop'
   if (!globalThis.gc) throw new Error('Run resource workers with --expose-gc')
-  const input = new Uint8Array(await readFile(new URL(`${fixture.id}.jxl`, root)))
+  const input = new Uint8Array(
+    await readFile(
+      new URL(
+        'file' in fixture && typeof fixture.file === 'string' ? fixture.file : `${fixture.id}.jxl`,
+        root,
+      ),
+    ),
+  )
   const reference = gunzipSync(await readFile(new URL(`${fixture.id}.bin.gz`, root)))
   if (digest(input) !== fixture.sha256 || digest(reference) !== fixture.referenceSha256)
     throw new Error('Pinned resource input differs')
@@ -103,13 +138,23 @@ if (process.argv[2] === '--worker') {
 } else {
   const output = resolve(process.argv[2] ?? '.tmp/jpegxl-profile-pipeline-resource.json')
   const rows: unknown[] = []
-  for (const fixture of manifest.fixtures)
+  for (const fixture of fixtures)
     for (const temperature of ['cold', 'warm'])
       for (const region of fixture.width > 1024 ? ['full', 'crop'] : ['full']) {
         const row: unknown = JSON.parse(
           execFileSync(
             process.execPath,
-            ['--expose-gc', import.meta.filename, '--worker', fixture.id, temperature, region],
+            [
+              '--expose-gc',
+              import.meta.filename,
+              '--worker',
+              fixture.id,
+              temperature,
+              region,
+              ...(structured ? ['--structured'] : []),
+              ...(cmyk ? ['--cmyk'] : []),
+              ...(floatColor ? ['--float-color'] : []),
+            ],
             { encoding: 'utf8', timeout: 60_000 },
           ),
         )

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
-  "date": "2026-09-30T04:23:39.877Z",
+  "date": "2026-10-01T14:30:04.438Z",
   "runtime": "v24.16.0",
   "vipsConfiguration": {
     "configuration": "enable debug: false\nenable deprecated: false\nenable modules: true\nenable C++ binding: false\nenable RAD load/save: true\nenable Analyze7 load: true\nenable PPM load/save: true\nenable GIF load: true\nFFTs with fftw: false\nSIMD support with libhwy: true\nICC profile support with lcms2: true\ndeflate compression with zlib: true\ntext rendering with pangocairo: false\nfont file support with fontconfig: false\nEXIF metadata support with libexif: true\nJPEG load/save with libjpeg: true\nUHDR load/save with libuhdr: true\nJXL load/save with libjxl: true (dynamic module: true)\nJPEG2000 load/save with OpenJPEG: false\nPNG load/save with libpng: true\nimage quantisation with imagequant: true\nTIFF load/save with libtiff-4: true\nimage pyramid save with libarchive: false\nHEIC/AVIF load/save with libheif: true (dynamic module: true)\nWebP load/save with libwebp: true\nPDF load with PDFium or Poppler: false (dynamic module: false)\nSVG load with librsvg or resvg: true (dynamic module: true)\nEXR load with OpenEXR: false\nWSI load with OpenSlide: false (dynamic module: false)\nMatlab load with Matio: false\nNIfTI load/save with libnifti: false\nFITS load/save with cfitsio: false\nGIF save with cgif: true\nRAW load with libraw: false\nMagick load/save with MagickCore: false (dynamic module: false)",
@@ -49,6 +49,108 @@
       "license": "Repository generated fixture, MIT"
     },
     {
+      "id": "ordinary-rgb31",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31.jxl",
+      "sha256": "96fc76ee26e33319c56fe6a7fc81ea2a44256652eba6bae3006380c89b68c58f",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "ordinary-rgb31-reencoded",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31-reencoded.jxl",
+      "sha256": "96fc76ee26e33319c56fe6a7fc81ea2a44256652eba6bae3006380c89b68c58f",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "ordinary-mixed-alpha",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-mixed-alpha.jxl",
+      "sha256": "ce1c4d71d696c1f466d93825b6849d77bebda74463bd2a5b4420f6e75eb590f6",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "ordinary-float-preserved",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-float-preserved.jxl",
+      "sha256": "91f6c95435e0d25332feee1355639bd099616c44a96d1b70d3ebae1532588d47",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "ordinary-gray-icc",
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-gray-icc.jxl",
+      "sha256": "e726123f06e6219673ac91d77a8c8411bc071aeddf4edf1d6939816b2a33fdfd",
+      "license": "MIT repository synthetic fixture; generated through public API"
+    },
+    {
+      "id": "vardct-alpha-32-8-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-alpha-32-8-straight.jxl",
+      "sha256": "8ca0869951c789fc0d10cd2d7fbdc05e2fdc4dd5f451bcdc2aeea2d00c16ed0d",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-alpha-32-8-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-alpha-32-8-associated.jxl",
+      "sha256": "36965b0a1adf1cf0142809671692475ad0ec8d2089771d8e9c25669bc2846c98",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-alpha-16-4-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-alpha-16-4-straight.jxl",
+      "sha256": "ffd1144431710844c861eb441c493bcb494b5498d78ebecf1d536ed481cd509d",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-alpha-16-4-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-alpha-16-4-associated.jxl",
+      "sha256": "79a52f281bbad8f6533a40419f2cac4c66dc09cbf07e22027e63c347b36e3e35",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-32-8-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-32-8-straight.jxl",
+      "sha256": "330478c518e3628a9ce29e05bcdc535b35b99fce0d9a06e68306669298363709",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-32-8-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-32-8-associated.jxl",
+      "sha256": "afca9901abcf08b0b82daa61707f900ce3b21cb5ac42f16c18d5c424d7532e77",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-16-5-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-16-5-straight.jxl",
+      "sha256": "388e2f13cf803425d62cd8b97da615bd61b767312efe589c8a2af213f7f2485f",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-16-5-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-16-5-associated.jxl",
+      "sha256": "290bac861f919065282fd703d5ab5561e1e1a2b28b7f0bb47c98e6c0b21ebf2b",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-24-8-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-24-8-straight.jxl",
+      "sha256": "a10a4394399d0457c115401e64bbd2e82de7598a22c0928b1f55ddf7fad4088c",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-color-24-8-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-color-24-8-associated.jxl",
+      "sha256": "be9bc1f0d05a0ea0eb826342d9892c891352ccca77e38203a4244fd72ada40f0",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-linear-blend-straight",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-linear-blend-straight.jxl",
+      "sha256": "63e626c9bc54d117e400bf676104e46bbab7413a1f0a96f1dcf1624ba2c9c9e3",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
+      "id": "vardct-linear-blend-associated",
+      "path": "tests/fixtures/jpegxl/gap-alpha/vardct-linear-blend-associated.jxl",
+      "sha256": "89cf5eb2068cead939941d029eec7e6e2298321d3c6a4971be1582e89ee404a2",
+      "license": "CC0-1.0 generated synthetic gradients"
+    },
+    {
       "id": "jpeg-recompressed",
       "path": ".tmp/jpegxl-comparison-v1/specialized/jpeg-recompressed.jxl",
       "sha256": "6afe79b40354bfbb2fc98d121f4852c15aca5100a8394fc199fce2f6b56bde9d",
@@ -68,6 +170,159 @@
     }
   ],
   "rows": [
+    {
+      "subject": "purejsimage",
+      "feature": "ordinary wide integer preservation",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "bitDepth": 31,
+        "pixelFormat": "rgb32",
+        "outputSha256": "f1f14b60a7ec3f40308f1c5f10441a7643eb77313d9350b4eb88adbd8134cc61",
+        "exact": true
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "ordinary integer color with floating alpha",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "pixelFormat": "rgbaf32",
+        "outputSha256": "e8c1a77c6180d8abb745df58f0912f8202a55f11d4b4bd85548531404d841d74",
+        "alphaExact": true
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "ordinary Float32 lossless encoding",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "pixelFormat": "rgbf32",
+        "outputSha256": "c187aa1334b4da13939633ab03ce6cd6da10078832e1ffaef17052bbde02e539",
+        "exactSampleBits": true
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "ordinary integer ICC preservation",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "profileSha256": "3f62598dfd40d6642ca5fd962559bb6615af15448a57a3972a4089c109e62fbd",
+        "outputSha256": "8dbec0101d8081067248ab9c1b2314ef8cb2d09f962ee2391b626ef57b0b41e5",
+        "samplesExact": true
+      }
+    },
+    {
+      "subject": "purejsimage",
+      "feature": "floating VarDCT and linear HDR reference blends",
+      "status": "verified",
+      "detail": "All declared assertions passed",
+      "evidence": {
+        "oracle": "libjxl 0.12.0 mixed integer/floating color and alpha, including linear reference blends, preferred linear sRGB float decode",
+        "librarySha256": "29eea9f83a05f1851e18fc5f414916ca6c28e278f68622969bea68d7516ecdc5",
+        "cases": [
+          {
+            "id": "vardct-alpha-32-8-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 0,
+            "inputSha256": "8ca0869951c789fc0d10cd2d7fbdc05e2fdc4dd5f451bcdc2aeea2d00c16ed0d",
+            "referenceSha256": "0c2c1273d932273d23241929d6d668af5278e614d2afc163dea5b3aaccb71d3e",
+            "outputSha256": "69e7f6492a11c4b620f63668e2a969546e7a0a3d336f6eecef85794a236c12cd"
+          },
+          {
+            "id": "vardct-alpha-32-8-associated",
+            "maximumColor": 0.000002086162567138672,
+            "maximumAlpha": 0,
+            "inputSha256": "36965b0a1adf1cf0142809671692475ad0ec8d2089771d8e9c25669bc2846c98",
+            "referenceSha256": "84e610eb481cd34a4afb3315c9798c8fcc449315adeb01552d1a1098893fdad9",
+            "outputSha256": "d59a65ea58b8f0a06c605686411ca6cf14a205e25927aa841d26d95e380b1d11"
+          },
+          {
+            "id": "vardct-alpha-16-4-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 0,
+            "inputSha256": "ffd1144431710844c861eb441c493bcb494b5498d78ebecf1d536ed481cd509d",
+            "referenceSha256": "0c2c1273d932273d23241929d6d668af5278e614d2afc163dea5b3aaccb71d3e",
+            "outputSha256": "69e7f6492a11c4b620f63668e2a969546e7a0a3d336f6eecef85794a236c12cd"
+          },
+          {
+            "id": "vardct-alpha-16-4-associated",
+            "maximumColor": 0.000002086162567138672,
+            "maximumAlpha": 0,
+            "inputSha256": "79a52f281bbad8f6533a40419f2cac4c66dc09cbf07e22027e63c347b36e3e35",
+            "referenceSha256": "84e610eb481cd34a4afb3315c9798c8fcc449315adeb01552d1a1098893fdad9",
+            "outputSha256": "d59a65ea58b8f0a06c605686411ca6cf14a205e25927aa841d26d95e380b1d11"
+          },
+          {
+            "id": "vardct-color-32-8-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 0,
+            "inputSha256": "330478c518e3628a9ce29e05bcdc535b35b99fce0d9a06e68306669298363709",
+            "referenceSha256": "daecccf6758e8c49fb73922ac8518e7b50f5cf801f991751ea0d77a0d6472af9",
+            "outputSha256": "ea1b9b121edaeebefbfbbd0cca7bb9dcb7a21f4d780a37fd0d7a72409c8bea4f"
+          },
+          {
+            "id": "vardct-color-32-8-associated",
+            "maximumColor": 0.000002086162567138672,
+            "maximumAlpha": 0,
+            "inputSha256": "afca9901abcf08b0b82daa61707f900ce3b21cb5ac42f16c18d5c424d7532e77",
+            "referenceSha256": "0b41cccf1dc62ab976dc8cd409a1769d9b44de954457e61493c3f3f30797d931",
+            "outputSha256": "e08d4380eb4ec78dd679e818a4d093e0d772889633f125f4ae9dabfdded9f3ad"
+          },
+          {
+            "id": "vardct-color-16-5-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 0,
+            "inputSha256": "388e2f13cf803425d62cd8b97da615bd61b767312efe589c8a2af213f7f2485f",
+            "referenceSha256": "daecccf6758e8c49fb73922ac8518e7b50f5cf801f991751ea0d77a0d6472af9",
+            "outputSha256": "ea1b9b121edaeebefbfbbd0cca7bb9dcb7a21f4d780a37fd0d7a72409c8bea4f"
+          },
+          {
+            "id": "vardct-color-16-5-associated",
+            "maximumColor": 0.000002086162567138672,
+            "maximumAlpha": 0,
+            "inputSha256": "290bac861f919065282fd703d5ab5561e1e1a2b28b7f0bb47c98e6c0b21ebf2b",
+            "referenceSha256": "0b41cccf1dc62ab976dc8cd409a1769d9b44de954457e61493c3f3f30797d931",
+            "outputSha256": "e08d4380eb4ec78dd679e818a4d093e0d772889633f125f4ae9dabfdded9f3ad"
+          },
+          {
+            "id": "vardct-color-24-8-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 0,
+            "inputSha256": "a10a4394399d0457c115401e64bbd2e82de7598a22c0928b1f55ddf7fad4088c",
+            "referenceSha256": "daecccf6758e8c49fb73922ac8518e7b50f5cf801f991751ea0d77a0d6472af9",
+            "outputSha256": "ea1b9b121edaeebefbfbbd0cca7bb9dcb7a21f4d780a37fd0d7a72409c8bea4f"
+          },
+          {
+            "id": "vardct-color-24-8-associated",
+            "maximumColor": 0.000002086162567138672,
+            "maximumAlpha": 0,
+            "inputSha256": "be9bc1f0d05a0ea0eb826342d9892c891352ccca77e38203a4244fd72ada40f0",
+            "referenceSha256": "0b41cccf1dc62ab976dc8cd409a1769d9b44de954457e61493c3f3f30797d931",
+            "outputSha256": "e08d4380eb4ec78dd679e818a4d093e0d772889633f125f4ae9dabfdded9f3ad"
+          },
+          {
+            "id": "vardct-linear-blend-straight",
+            "maximumColor": 0.000003516674041748047,
+            "maximumAlpha": 5.960464477539063e-8,
+            "inputSha256": "63e626c9bc54d117e400bf676104e46bbab7413a1f0a96f1dcf1624ba2c9c9e3",
+            "referenceSha256": "492a9b0cbdb2bdf1a90bdc6e46c21c06047cc0814c9f7eacfac80a3d4925203c",
+            "outputSha256": "05f8605a354eaaebe571e8119382f8a2479aec3a2093578354ad5bb9fdfa79e1"
+          },
+          {
+            "id": "vardct-linear-blend-associated",
+            "maximumColor": 0.0000027418136596679688,
+            "maximumAlpha": 5.960464477539063e-8,
+            "inputSha256": "89cf5eb2068cead939941d029eec7e6e2298321d3c6a4971be1582e89ee404a2",
+            "referenceSha256": "7795c7325ec8fd4e218a6604be82e6bc81538a37bdd232bcbd9201f6c50cb301",
+            "outputSha256": "ccd2f1e71f51fcb6ef4dfa4b50db722640c3fecd20a4614102e1e14690634153"
+          }
+        ]
+      }
+    },
     {
       "subject": "purejsimage",
       "feature": "native float and HDR headroom",
@@ -198,7 +453,7 @@
             "metadataBytes": 0,
             "nativeSampleBytes": 64
           },
-          "unsupportedFeatures": ["animation", "Level 10 pixel decode", "exact JPEG reconstruction"]
+          "unsupportedFeatures": ["exact JPEG reconstruction"]
         }
       }
     },
@@ -247,7 +502,7 @@
       "status": "verified",
       "detail": "All declared assertions passed",
       "evidence": {
-        "firstUsefulMs": 51.252857000000006,
+        "firstUsefulMs": 44.481313,
         "requestedAtFirst": 20544,
         "requestedTotal": 67431,
         "inputBytes": 148917,
@@ -352,7 +607,7 @@
       "status": "verified",
       "detail": "All declared assertions passed",
       "evidence": {
-        "firstUsefulMs": 31.874767999999904,
+        "firstUsefulMs": 31.74586199999999,
         "delivered": 4096,
         "inputBytes": 148917,
         "beforeComplete": true,
@@ -470,6 +725,36 @@
     },
     {
       "id": "animation",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "ordinary-rgb31",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "ordinary-rgb31-reencoded",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "ordinary-mixed-alpha",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "ordinary-float-preserved",
+      "status": "decoded",
+      "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "output": ""
+    },
+    {
+      "id": "ordinary-gray-icc",
       "status": "decoded",
       "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
       "output": ""

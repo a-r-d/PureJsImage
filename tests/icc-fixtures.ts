@@ -159,6 +159,40 @@ export const rgbLutOnlyProfile = (
   return profile
 }
 
+export const rgbLegacyLutProfile = (precision: 1 | 2): Uint8Array => {
+  const original = rgbLutOnlyProfile()
+  const tableEntries = 256
+  const headerBytes = precision === 1 ? 48 : 52
+  const tagBytes = headerBytes + tableEntries * precision * 6 + 24 * precision
+  const profile = new Uint8Array(144 + tagBytes)
+  profile.set(original.subarray(0, 144))
+  profile[8] = 2
+  const view = new DataView(profile.buffer)
+  view.setUint32(0, profile.length, false)
+  view.setUint32(140, tagBytes, false)
+  writeSignature(profile, 144, precision === 1 ? 'mft1' : 'mft2')
+  profile.set([3, 3, 2], 152)
+  for (let index = 0; index < 9; index++) writeFixed(view, 156 + index * 4, index % 4 === 0 ? 1 : 0)
+  if (precision === 2) {
+    view.setUint16(192, tableEntries, false)
+    view.setUint16(194, tableEntries, false)
+  }
+  let offset = 144 + headerBytes
+  const value = (code: number): void => {
+    if (precision === 1) profile[offset] = Math.round(code / 257)
+    else view.setUint16(offset, code, false)
+    offset += precision
+  }
+  for (let channel = 0; channel < 3; channel++)
+    for (let entry = 0; entry < tableEntries; entry++) value(entry * 257)
+  const source = new DataView(original.buffer)
+  for (let entry = 0; entry < 24; entry++)
+    value(source.getUint16(144 + 152 + 20 + entry * 2, false))
+  for (let channel = 0; channel < 3; channel++)
+    for (let entry = 0; entry < tableEntries; entry++) value(entry * 257)
+  return profile
+}
+
 export const constantGrayCmykProfile = (pcs: 'XYZ ' | 'Lab ' = 'XYZ '): Uint8Array => {
   const tagOffset = 144
   const tagBytes = 176

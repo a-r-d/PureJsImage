@@ -1,5 +1,5 @@
 import type { DecodeRequest, DecoderCapabilities, ImageDecoder } from '../codec.ts'
-import type { PixelColorSemantics } from '../color.ts'
+import type { PixelChromaticities, PixelColorSemantics } from '../color.ts'
 import { invalidInput, truncatedInput, unsupportedOperation } from '../errors.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
 
@@ -38,6 +38,7 @@ interface RgbLutIccTransform {
   readonly outputCurves: readonly Float32Array[]
   readonly pcs: 'Lab ' | 'XYZ '
   readonly encode: Uint8Array
+  readonly labMaximum?: number
 }
 
 export type RgbIccTransform = RgbLutIccTransform | RgbMatrixIccTransform
@@ -430,6 +431,9 @@ const rgbLutTransform = (
   pcs: 'Lab ' | 'XYZ ',
   inputEntries = 256,
 ): RgbIccTransform => {
+  const type = signature(profile, tag.offset)
+  if (type === 'mft1' || type === 'mft2')
+    return rgbLegacyLutTransform(profile, tag, pcs, inputEntries, type === 'mft1' ? 1 : 2)
   if (tag.size < 32 || signature(profile, tag.offset) !== 'mAB ') {
     throw unsupportedOperation('RGB ICC A2B0 must use a supported mAB transform')
   }
@@ -481,6 +485,65 @@ const rgbLutTransform = (
     outputCurves: curveSet(profile, tag, outputCurveOffset, 3, SRGB_ENCODE_STEPS + 1),
     pcs,
     encode: srgbEncodeLut(),
+  }
+}
+
+/** RGB lut8/lut16 matrices apply only to XYZ input, so RGB uses the table stages. */
+const rgbLegacyLutTransform = (
+  profile: Uint8Array,
+  tag: IccTag,
+  pcs: 'Lab ' | 'XYZ ',
+  samples: number,
+  bytes: 1 | 2,
+): RgbLutIccTransform => {
+  const header = bytes === 1 ? 48 : 52
+  if (tag.size < header) throw truncatedInput('RGB ICC LUT header is truncated')
+  const grid = byte(profile, tag.offset + 10)
+  if (
+    byte(profile, tag.offset + 8) !== 3 ||
+    byte(profile, tag.offset + 9) !== 3 ||
+    grid < 2 ||
+    grid > 33
+  )
+    throw unsupportedOperation('RGB ICC LUT requires three channels and a grid from 2 to 33')
+  const inputEntries = bytes === 1 ? 256 : uint16(profile, tag.offset + 48)
+  const outputEntries = bytes === 1 ? 256 : uint16(profile, tag.offset + 50)
+  if (inputEntries < 2 || outputEntries < 2)
+    throw invalidInput('RGB ICC LUT tables need at least two entries')
+  const inputOffset = tag.offset + header
+  const clutOffset = inputOffset + 3 * inputEntries * bytes
+  const values = grid ** 3 * 3
+  const outputOffset = clutOffset + values * bytes
+  if (outputOffset + 3 * outputEntries * bytes > tag.offset + tag.size)
+    throw truncatedInput('RGB ICC LUT tables are truncated')
+  const value = (offset: number): number =>
+    bytes === 1 ? byte(profile, offset) * 257 : uint16(profile, offset)
+  const tables = (offset: number, entries: number, count: number): readonly Float32Array[] =>
+    Array.from({ length: 3 }, (_, channel) =>
+      Float32Array.from({ length: count }, (_, index) => {
+        const position = (index / (count - 1)) * (entries - 1)
+        const low = Math.floor(position)
+        const a = value(offset + (channel * entries + low) * bytes)
+        const b = value(offset + (channel * entries + Math.min(entries - 1, low + 1)) * bytes)
+        return (a + (b - a) * (position - low)) / 65535
+      }),
+    )
+  const identity = Float32Array.from(
+    { length: SRGB_ENCODE_STEPS + 1 },
+    (_, index) => index / SRGB_ENCODE_STEPS,
+  )
+  return {
+    kind: 'rgb',
+    method: 'lut',
+    inputCurves: tables(inputOffset, inputEntries, samples),
+    gridPoints: [grid, grid, grid],
+    clut: Uint16Array.from({ length: values }, (_, index) => value(clutOffset + index * bytes)),
+    middleCurves: [identity, identity, identity],
+    matrix: Float64Array.of(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0),
+    outputCurves: tables(outputOffset, outputEntries, SRGB_ENCODE_STEPS + 1),
+    pcs,
+    encode: srgbEncodeLut(),
+    labMaximum: bytes === 1 ? 65535 : 65280,
   }
 }
 
@@ -916,25 +979,36 @@ export const createStructuredGrayTransform = (
   })
 }
 
+export const createStructuredGrayTransform16 = (
+  transfer: PixelColorSemantics['transfer'],
+): Uint16Array => {
+  if (
+    transfer.kind !== 'gamma' &&
+    transfer.kind !== 'linear' &&
+    transfer.kind !== 'srgb' &&
+    transfer.kind !== 'bt709'
+  )
+    throw unsupportedOperation('Structured gray conversion requires an SDR transfer')
+  return Uint16Array.from({ length: 65_536 }, (_, value) => {
+    const encoded = value / 65_535
+    const linear =
+      transfer.kind === 'gamma'
+        ? encoded ** transfer.exponent
+        : nclxToLinear(transfer.kind === 'linear' ? 8 : transfer.kind === 'srgb' ? 13 : 1, encoded)
+    return Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * 65_535)
+  })
+}
+
 export const createStructuredRgbTransform = (
   primaries: PixelColorSemantics['primaries'],
   transfer: PixelColorSemantics['transfer'],
+  chromaticities?: PixelChromaticities,
+  inputDepth: 8 | 16 = 8,
 ): RgbIccTransform => {
   const code =
     primaries === 'srgb' ? 1 : primaries === 'rec2020' ? 9 : primaries === 'display-p3' ? 12 : 0
-  if (code === 0) throw unsupportedOperation('Structured RGB conversion requires known primaries')
-  if (transfer.kind === 'gamma') {
-    const curve = Float32Array.from(
-      { length: 256 },
-      (_, value) => (value / 255) ** transfer.exponent,
-    )
-    return transformFromMatrixAndCurves(
-      chromaticityMatrix(nclxChromaticities(code)),
-      curve,
-      curve,
-      curve,
-    )
-  }
+  if (code === 0 && !chromaticities?.primaries)
+    throw unsupportedOperation('Structured RGB conversion requires known or explicit primaries')
   const transferCode =
     transfer.kind === 'linear'
       ? 8
@@ -943,10 +1017,43 @@ export const createStructuredRgbTransform = (
         : transfer.kind === 'bt709'
           ? 1
           : 0
-  if (transferCode === 0) {
+  if (transferCode === 0 && transfer.kind !== 'gamma') {
     throw unsupportedOperation('PQ and HLG require explicit JPEG XL HDR output selection')
   }
-  return createNclxSrgbTransform(code, transferCode)
+  if (inputDepth === 8 && !chromaticities && transfer.kind !== 'gamma')
+    return createNclxSrgbTransform(code, transferCode)
+  const matrix = createStructuredRgbMatrix(primaries, chromaticities)
+  const maximum = 2 ** inputDepth - 1
+  const curve = Float32Array.from({ length: maximum + 1 }, (_, value) =>
+    transfer.kind === 'gamma'
+      ? (value / maximum) ** transfer.exponent
+      : nclxToLinear(transferCode, value / maximum),
+  )
+  return transformFromMatrixAndCurves(matrix, curve, curve, curve)
+}
+
+/** Shared validated matrix for integer and floating structured SDR color. */
+export const createStructuredRgbMatrix = (
+  primaries: PixelColorSemantics['primaries'],
+  chromaticities?: PixelChromaticities,
+): Float64Array => {
+  const code =
+    primaries === 'srgb' ? 1 : primaries === 'rec2020' ? 9 : primaries === 'display-p3' ? 12 : 0
+  if (code === 0 && !chromaticities?.primaries)
+    throw unsupportedOperation('Structured RGB conversion requires known or explicit primaries')
+  const known = code === 0 ? undefined : nclxChromaticities(code)
+  const [red, green, blue] = chromaticities?.primaries ?? []
+  const points: RgbChromaticities = {
+    whiteX: chromaticities?.whitePoint.x ?? known?.whiteX ?? 0,
+    whiteY: chromaticities?.whitePoint.y ?? known?.whiteY ?? 0,
+    redX: red?.x ?? known?.redX ?? 0,
+    redY: red?.y ?? known?.redY ?? 0,
+    greenX: green?.x ?? known?.greenX ?? 0,
+    greenY: green?.y ?? known?.greenY ?? 0,
+    blueX: blue?.x ?? known?.blueX ?? 0,
+    blueY: blue?.y ?? known?.blueY ?? 0,
+  }
+  return chromaticityMatrix(points)
 }
 
 const sampledTable = (
@@ -1096,6 +1203,17 @@ export const parseGrayIccTransform16 = (profile: Uint8Array): Uint16Array => {
       Math.max(0, Math.min(1, linearToSrgb(curveValue(profile, curve, value / 65_535)))) * 65_535,
     ),
   )
+}
+
+/** Float source values evaluate the declared gray curve before final display quantization. */
+export const parseGrayIccFloatTransform16 = (profile: Uint8Array): ((sample: number) => number) => {
+  const { allTags } = validatedProfile(profile)
+  if (signature(profile, 16) !== 'GRAY' || signature(profile, 20) !== 'XYZ ')
+    throw unsupportedOperation('Floating gray ICC conversion requires a GRAY XYZ profile')
+  const curve = requiredTag(allTags, 'kTRC')
+  // Validate extents and the curve family before entering output loops.
+  curveAt(profile, curve.offset, curve.offset + curve.size)
+  return (sample) => encodeLinear16(curveValue(profile, curve, Math.max(0, Math.min(1, sample))))
 }
 
 export const parseCmykIccTransform16 = (profile: Uint8Array): CmykIccTransform => {
@@ -1254,7 +1372,7 @@ const applyRgbLutPixels = (
       let y: number
       let z: number
       if (transform.pcs === 'Lab ') {
-        const legacyScale = 65_535 / 65_280
+        const legacyScale = 65_535 / (transform.labMaximum ?? 65_280)
         first = Math.min(1, first * legacyScale)
         second = Math.min(1, second * legacyScale)
         third = Math.min(1, third * legacyScale)
@@ -1528,8 +1646,69 @@ export const writeCmykIcc = (
   )
 }
 
-const encodeLinear16 = (linear: number): number =>
-  Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * 65_535)
+const encodeLinear16 = (linear: number): number => {
+  if (!Number.isFinite(linear)) throw invalidInput('ICC conversion produced nonfinite color')
+  return Math.round(Math.max(0, Math.min(1, linearToSrgb(linear))) * 65_535)
+}
+
+/** Barycentric weights along the tetrahedron selected by sorted cell fractions. */
+const tetrahedralSample = (
+  values: Uint16Array,
+  base: number,
+  xStep: number,
+  yStep: number,
+  zStep: number,
+  x: number,
+  y: number,
+  z: number,
+): number => {
+  let first: number, second: number, high: number, middle: number, low: number
+  if (x >= y) {
+    if (y >= z) {
+      first = xStep
+      second = yStep
+      high = x
+      middle = y
+      low = z
+    } else if (x >= z) {
+      first = xStep
+      second = zStep
+      high = x
+      middle = z
+      low = y
+    } else {
+      first = zStep
+      second = xStep
+      high = z
+      middle = x
+      low = y
+    }
+  } else if (x >= z) {
+    first = yStep
+    second = xStep
+    high = y
+    middle = x
+    low = z
+  } else if (y >= z) {
+    first = yStep
+    second = zStep
+    high = y
+    middle = z
+    low = x
+  } else {
+    first = zStep
+    second = yStep
+    high = z
+    middle = y
+    low = x
+  }
+  return (
+    (values[base] ?? 0) * (1 - high) +
+    (values[base + first] ?? 0) * (high - middle) +
+    (values[base + first + second] ?? 0) * (middle - low) +
+    (values[base + xStep + yStep + zStep] ?? 0) * low
+  )
+}
 
 /** Evaluates the supported ICC RGB families without an 8-bit sample intermediate. */
 export const writeRgbIcc16 = (
@@ -1539,22 +1718,35 @@ export const writeRgbIcc16 = (
   blue: number,
   output: Uint16Array,
   offset: number,
+  floatingInput = false,
 ): void => {
   if (transform.method === 'matrix') {
     output[offset] = encodeLinear16(
-      (transform.redToRed[red] ?? 0) +
-        (transform.greenToRed[green] ?? 0) +
-        (transform.blueToRed[blue] ?? 0),
+      floatingInput
+        ? sampleCurveLut(transform.redToRed, red) +
+            sampleCurveLut(transform.greenToRed, green) +
+            sampleCurveLut(transform.blueToRed, blue)
+        : (transform.redToRed[red] ?? 0) +
+            (transform.greenToRed[green] ?? 0) +
+            (transform.blueToRed[blue] ?? 0),
     )
     output[offset + 1] = encodeLinear16(
-      (transform.redToGreen[red] ?? 0) +
-        (transform.greenToGreen[green] ?? 0) +
-        (transform.blueToGreen[blue] ?? 0),
+      floatingInput
+        ? sampleCurveLut(transform.redToGreen, red) +
+            sampleCurveLut(transform.greenToGreen, green) +
+            sampleCurveLut(transform.blueToGreen, blue)
+        : (transform.redToGreen[red] ?? 0) +
+            (transform.greenToGreen[green] ?? 0) +
+            (transform.blueToGreen[blue] ?? 0),
     )
     output[offset + 2] = encodeLinear16(
-      (transform.redToBlue[red] ?? 0) +
-        (transform.greenToBlue[green] ?? 0) +
-        (transform.blueToBlue[blue] ?? 0),
+      floatingInput
+        ? sampleCurveLut(transform.redToBlue, red) +
+            sampleCurveLut(transform.greenToBlue, green) +
+            sampleCurveLut(transform.blueToBlue, blue)
+        : (transform.redToBlue[red] ?? 0) +
+            (transform.greenToBlue[green] ?? 0) +
+            (transform.blueToBlue[blue] ?? 0),
     )
     return
   }
@@ -1577,28 +1769,23 @@ export const writeRgbIcc16 = (
     !grids[2]
   )
     throw invalidInput('RGB ICC mAB transform storage is incomplete')
-  const rp = (input[0][red] ?? 0) * (grids[0] - 1)
-  const gp = (input[1][green] ?? 0) * (grids[1] - 1)
-  const bp = (input[2][blue] ?? 0) * (grids[2] - 1)
+  const rp = (floatingInput ? sampleCurveLut(input[0], red) : (input[0][red] ?? 0)) * (grids[0] - 1)
+  const gp =
+    (floatingInput ? sampleCurveLut(input[1], green) : (input[1][green] ?? 0)) * (grids[1] - 1)
+  const bp =
+    (floatingInput ? sampleCurveLut(input[2], blue) : (input[2][blue] ?? 0)) * (grids[2] - 1)
   const r0 = Math.min(grids[0] - 2, Math.max(0, Math.floor(rp)))
   const g0 = Math.min(grids[1] - 2, Math.max(0, Math.floor(gp)))
   const b0 = Math.min(grids[2] - 2, Math.max(0, Math.floor(bp)))
   const rf = rp - r0
   const gf = gp - g0
   const bf = bp - b0
-  let first = 0
-  let second = 0
-  let third = 0
-  for (let mask = 0; mask < 8; mask++) {
-    const vr = mask & 1
-    const vg = (mask >>> 1) & 1
-    const vb = (mask >>> 2) & 1
-    const weight = (vr ? rf : 1 - rf) * (vg ? gf : 1 - gf) * (vb ? bf : 1 - bf)
-    const position = (((r0 + vr) * grids[1] + g0 + vg) * grids[2] + b0 + vb) * 3
-    first += (transform.clut[position] ?? 0) * weight
-    second += (transform.clut[position + 1] ?? 0) * weight
-    third += (transform.clut[position + 2] ?? 0) * weight
-  }
+  const position = ((r0 * grids[1] + g0) * grids[2] + b0) * 3
+  const xStep = grids[1] * grids[2] * 3,
+    yStep = grids[2] * 3
+  let first = tetrahedralSample(transform.clut, position, xStep, yStep, 3, rf, gf, bf)
+  let second = tetrahedralSample(transform.clut, position + 1, xStep, yStep, 3, rf, gf, bf)
+  let third = tetrahedralSample(transform.clut, position + 2, xStep, yStep, 3, rf, gf, bf)
   const m0 = sampleCurveLut(middle[0], first / 65_535)
   const m1 = sampleCurveLut(middle[1], second / 65_535)
   const m2 = sampleCurveLut(middle[2], third / 65_535)
@@ -1619,9 +1806,12 @@ export const writeRgbIcc16 = (
   let y: number
   let z: number
   if (transform.pcs === 'Lab ') {
-    const fy = (Math.min(1, first * (65_535 / 65_280)) * 100) / 116 + 16 / 116
-    const fx = fy + (Math.min(1, second * (65_535 / 65_280)) * 255 - 128) / 500
-    const fz = fy - (Math.min(1, third * (65_535 / 65_280)) * 255 - 128) / 200
+    const fy =
+      (Math.min(1, first * (65_535 / (transform.labMaximum ?? 65_280))) * 100) / 116 + 16 / 116
+    const fx =
+      fy + (Math.min(1, second * (65_535 / (transform.labMaximum ?? 65_280))) * 255 - 128) / 500
+    const fz =
+      fy - (Math.min(1, third * (65_535 / (transform.labMaximum ?? 65_280))) * 255 - 128) / 200
     const e = 216 / 24_389
     const k = 27 / 24_389
     x = 0.9642 * (fx ** 3 > e ? fx ** 3 : (116 * fx - 16) * k)
@@ -1659,20 +1849,19 @@ export const writeCmykIcc16 = (
   const yf = transform.yellow.fraction[yellow] ?? 0
   const kf = transform.black.fraction[black] ?? 0
   const grid = transform.gridPoints
-  let first = 0
-  let second = 0
-  let third = 0
-  for (let mask = 0; mask < 16; mask++) {
-    const c = mask & 1
-    const m = (mask >>> 1) & 1
-    const y = (mask >>> 2) & 1
-    const k = (mask >>> 3) & 1
-    const weight = (c ? cf : 1 - cf) * (m ? mf : 1 - mf) * (y ? yf : 1 - yf) * (k ? kf : 1 - kf)
-    const position = ((((c0 + c) * grid + m0 + m) * grid + y0 + y) * grid + k0 + k) * 3
-    first += (transform.clut[position] ?? 0) * weight
-    second += (transform.clut[position + 1] ?? 0) * weight
-    third += (transform.clut[position + 2] ?? 0) * weight
-  }
+  const position = (((c0 * grid + m0) * grid + y0) * grid + k0) * 3
+  const cStep = grid ** 3 * 3,
+    mStep = grid * grid * 3,
+    yStep = grid * 3
+  let first =
+    tetrahedralSample(transform.clut, position, mStep, yStep, 3, mf, yf, kf) * (1 - cf) +
+    tetrahedralSample(transform.clut, position + cStep, mStep, yStep, 3, mf, yf, kf) * cf
+  let second =
+    tetrahedralSample(transform.clut, position + 1, mStep, yStep, 3, mf, yf, kf) * (1 - cf) +
+    tetrahedralSample(transform.clut, position + cStep + 1, mStep, yStep, 3, mf, yf, kf) * cf
+  let third =
+    tetrahedralSample(transform.clut, position + 2, mStep, yStep, 3, mf, yf, kf) * (1 - cf) +
+    tetrahedralSample(transform.clut, position + cStep + 2, mStep, yStep, 3, mf, yf, kf) * cf
   first = outputCurve(transform, 0, first)
   second = outputCurve(transform, 1, second)
   third = outputCurve(transform, 2, third)

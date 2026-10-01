@@ -279,6 +279,11 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
       'rgb16',
       'rgba8',
       'rgba16',
+      'grayf32',
+      'rgbf32',
+      'rgbaf32',
+      'gray32',
+      'rgb32',
     ])
     expect(jpegxlCodec.detect(Uint8Array.of(0xff, 0x0a))).toBe(true)
     expect(jpegxlCodec.detect(signature)).toBe(true)
@@ -484,7 +489,16 @@ describe('JPEG XL probing and lossless Modular decoding', () => {
         provenance: 'icc',
         icc: { relevance: 'emitted-pixels' },
       }),
-    ).toBe(false)
+    ).toBe(true)
+    expect(
+      jpegxlCodec.acceptsColorSemantics?.({
+        ...straight,
+        primaries: 'source-profile',
+        transfer: { kind: 'source-profile' },
+        provenance: 'icc',
+        icc: { relevance: 'source' },
+      }),
+    ).toBe(true)
     expect(
       jpegxlCodec.acceptsColorSemantics?.({
         ...withoutRenderingIntent,

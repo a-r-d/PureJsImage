@@ -6,8 +6,19 @@ import { resolve } from 'node:path'
 const inputPath = process.argv[2]
 const outputDirectory = process.argv[3]
 const linearFloat = process.argv[4] === 'linear-float32'
-if (process.argv[4] !== undefined && !linearFloat)
-  throw new Error('The optional output mode must be linear-float32')
+const normalizedInteger = process.argv[4] === 'normalized-integer'
+const nativeFloat = process.argv[4] === 'native-float32'
+const nativePlanes = process.argv[4] === 'native-planes-float32'
+if (
+  process.argv[4] !== undefined &&
+  !linearFloat &&
+  !normalizedInteger &&
+  !nativeFloat &&
+  !nativePlanes
+)
+  throw new Error(
+    'The optional output mode must be linear-float32, native-float32, native-planes-float32 or normalized-integer',
+  )
 if (!inputPath || !outputDirectory)
   throw new Error('Usage: bun benchmark/jpegxl/flush-progressive-oracle.ts INPUT OUTPUT_DIRECTORY')
 if (process.platform !== 'linux' || process.arch !== 'x64')
@@ -38,8 +49,13 @@ const definitions = {
   JxlDecoderImageOutBufferSize: { args: ['ptr', 'ptr', 'ptr'], returns: 'u32' },
   JxlDecoderSetImageOutBuffer: { args: ['ptr', 'ptr', 'ptr', 'u64'], returns: 'u32' },
   JxlDecoderSetImageOutBitDepth: { args: ['ptr', 'ptr'], returns: 'u32' },
+  JxlDecoderGetExtraChannelInfo: { args: ['ptr', 'u64', 'ptr'], returns: 'u32' },
+  JxlDecoderExtraChannelBufferSize: { args: ['ptr', 'ptr', 'ptr', 'u32'], returns: 'u32' },
+  JxlDecoderSetExtraChannelBuffer: { args: ['ptr', 'ptr', 'ptr', 'u64', 'u32'], returns: 'u32' },
   JxlColorEncodingSetToLinearSRGB: { args: ['ptr', 'i32'], returns: 'void' },
   JxlDecoderSetPreferredColorProfile: { args: ['ptr', 'ptr'], returns: 'u32' },
+  JxlDecoderGetICCProfileSize: { args: ['ptr', 'u32', 'ptr'], returns: 'u32' },
+  JxlDecoderGetColorAsICCProfile: { args: ['ptr', 'u32', 'ptr', 'u64'], returns: 'u32' },
   JxlDecoderGetIntendedDownsamplingRatio: { args: ['ptr'], returns: 'u64' },
   JxlDecoderFlushImage: { args: ['ptr'], returns: 'u32' },
 } as const
@@ -79,7 +95,10 @@ const stages: {
   consumedBytes: number
   file: string
   sha256: string
+  extras?: readonly { type: number; file: string; sha256: string }[]
 }[] = []
+const extras: { type: number; pixels: Uint8Array }[] = []
+let extraCount = 0
 let previewPixels: Uint8Array | undefined
 let previewWidth = 0
 let previewHeight = 0
@@ -89,15 +108,14 @@ let height = 0
 let channels = 0
 let bitDepth = 0
 let alphaBitDepth = 0
+let exponentBits = 0
+let alphaExponentBits = 0
 const format = new Uint8Array(24)
 const pixelFormat = new DataView(format.buffer)
+let sourceProfileSha256: string | undefined
 try {
   // kPasses includes complete DC and every AC pass. Preserve encoded coordinates.
-  ok(
-    'JxlDecoderSubscribeEvents',
-    decoder,
-    0x40 | (linearFloat ? 0x100 : 0) | 0x200 | 0x400 | 0x1000 | 0x8000,
-  )
+  ok('JxlDecoderSubscribeEvents', decoder, 0x40 | 0x100 | 0x200 | 0x400 | 0x1000 | 0x8000)
   ok('JxlDecoderSetProgressiveDetail', decoder, 3)
   ok('JxlDecoderSetKeepOrientation', decoder, 1)
   ok('JxlDecoderSetInput', decoder, input, input.length)
@@ -118,25 +136,54 @@ try {
       height = basic.getUint32(8, true)
       bitDepth = basic.getUint32(12, true)
       alphaBitDepth = basic.getUint32(60, true)
+      exponentBits = basic.getUint32(16, true)
+      alphaExponentBits = basic.getUint32(64, true)
+      const ieee = (bits: number, exponent: number): boolean =>
+        nativePlanes || linearFloat
+          ? exponent >= 2 && exponent <= 8 && bits - exponent >= 3 && bits - exponent <= 24
+          : (bits === 16 && exponent === 5) || (bits === 32 && exponent === 8)
       if (
-        basic.getUint32(16, true) !== 0 ||
-        basic.getUint32(64, true) !== 0 ||
-        bitDepth > 16 ||
-        alphaBitDepth > 16
+        nativeFloat || nativePlanes
+          ? (nativePlanes && exponentBits === 0 ? bitDepth > 31 : !ieee(bitDepth, exponentBits)) ||
+            (alphaExponentBits !== 0
+              ? !ieee(alphaBitDepth, alphaExponentBits)
+              : alphaBitDepth > (nativePlanes ? 31 : 16))
+          : linearFloat
+            ? (exponentBits !== 0 ? !ieee(bitDepth, exponentBits) : bitDepth > 16) ||
+              (alphaExponentBits !== 0
+                ? !ieee(alphaBitDepth, alphaExponentBits)
+                : alphaBitDepth > 31)
+            : exponentBits !== 0 || alphaExponentBits !== 0 || bitDepth > 16 || alphaBitDepth > 16
       )
-        throw new Error('This oracle output contract requires integer samples up to 16 bits')
+        throw new Error('Source sample layout exceeds the selected oracle output contract')
       channels = basic.getUint32(52, true) + (basic.getUint32(60, true) > 0 ? 1 : 0)
+      extraCount = basic.getUint32(56, true)
       pixelFormat.setUint32(0, channels, true)
       pixelFormat.setUint32(
         4,
-        linearFloat ? 0 : Math.max(bitDepth, alphaBitDepth) > 8 ? 3 : 2,
+        linearFloat || nativeFloat || nativePlanes
+          ? 0
+          : Math.max(bitDepth, alphaBitDepth) > 8
+            ? 3
+            : 2,
         true,
       )
       pixelFormat.setUint32(8, 2, true) // JXL_BIG_ENDIAN, matching native sample blocks.
-    } else if (status === 0x100 && linearFloat) {
-      const color = new Uint8Array(256)
-      call('JxlColorEncodingSetToLinearSRGB', color, channels < 3 ? 1 : 0)
-      ok('JxlDecoderSetPreferredColorProfile', decoder, color)
+    } else if (status === 0x100) {
+      const profileSize = new BigUint64Array(1)
+      ok('JxlDecoderGetICCProfileSize', decoder, 0, profileSize)
+      const bytes = profileSize[0]
+      if (bytes === undefined || bytes === 0n || bytes > 16_777_216n)
+        throw new Error('Source profile exceeds oracle bounds')
+      const profile = new Uint8Array(Number(bytes))
+      ok('JxlDecoderGetColorAsICCProfile', decoder, 0, profile, profile.length)
+      sourceProfileSha256 = sha256(profile)
+      await writeFile(resolve(outputDirectory, 'source.icc'), profile)
+      if (linearFloat) {
+        const color = new Uint8Array(256)
+        call('JxlColorEncodingSetToLinearSRGB', color, channels < 3 ? 1 : 0)
+        ok('JxlDecoderSetPreferredColorProfile', decoder, color)
+      }
     } else if (status === 3) {
       const size = new BigUint64Array(1)
       ok('JxlDecoderPreviewOutBufferSize', decoder, format, size)
@@ -157,8 +204,27 @@ try {
       pixels = new Uint8Array(Number(bytes))
       ok('JxlDecoderSetImageOutBuffer', decoder, format, pixels, pixels.length)
       const depth = new Uint8Array(12)
-      new DataView(depth.buffer).setUint32(0, linearFloat ? 0 : 1, true)
+      new DataView(depth.buffer).setUint32(
+        0,
+        linearFloat || normalizedInteger || nativeFloat || nativePlanes ? 0 : 1,
+        true,
+      )
       ok('JxlDecoderSetImageOutBitDepth', decoder, depth)
+      if (nativePlanes) {
+        extras.length = 0
+        for (let index = 0; index < extraCount; index++) {
+          const info = new Uint8Array(64)
+          ok('JxlDecoderGetExtraChannelInfo', decoder, index, info)
+          const size = new BigUint64Array(1)
+          ok('JxlDecoderExtraChannelBufferSize', decoder, format, size, index)
+          const bytes = size[0]
+          if (bytes === undefined || bytes > 536_870_912n)
+            throw new Error('Extra plane exceeds oracle bounds')
+          const output = new Uint8Array(Number(bytes))
+          ok('JxlDecoderSetExtraChannelBuffer', decoder, format, output, output.length, index)
+          extras.push({ type: new DataView(info.buffer).getUint32(0, true), pixels: output })
+        }
+      }
     } else if (status === 0x8000 || status === 0x1000) {
       if (!pixels) throw new Error('Native stage has no output buffer')
       if (status === 0x8000) ok('JxlDecoderFlushImage', decoder)
@@ -170,6 +236,15 @@ try {
         throw new Error('Native input offset is invalid')
       const file = `stage-${stages.length}.bin`
       await writeFile(resolve(outputDirectory, file), pixels)
+      const extraFiles = []
+      if (status === 0x1000)
+        for (let index = 0; index < extras.length; index++) {
+          const extra = extras[index]
+          if (!extra) throw new Error('Missing extra plane')
+          const extraFile = `stage-${stages.length}-extra-${index}.bin`
+          await writeFile(resolve(outputDirectory, extraFile), extra.pixels)
+          extraFiles.push({ type: extra.type, file: extraFile, sha256: sha256(extra.pixels) })
+        }
       stages.push({
         stage: stages.length,
         kind: status === 0x1000 ? 'final' : 'flush',
@@ -177,6 +252,7 @@ try {
         consumedBytes,
         file,
         sha256: sha256(pixels),
+        ...(nativePlanes ? { extras: extraFiles } : {}),
       })
       if (remaining) ok('JxlDecoderSetInput', decoder, input.subarray(consumedBytes), remaining)
     } else if (status !== 0x400) throw new Error(`Unexpected native event ${status}`)
@@ -190,6 +266,7 @@ try {
         schemaVersion: 1,
         sourceRevision: 'a7a9c787341cf703dede03c2009fa460cae5e5df',
         librarySha256,
+        sourceProfileSha256,
         api: [
           'JxlDecoderSetProgressiveDetail(kPasses)',
           'JxlDecoderFlushImage',
@@ -203,9 +280,16 @@ try {
         channels,
         bitDepth,
         alphaBitDepth,
-        output: linearFloat
-          ? 'encoded-coordinate linear-sRGB float32 samples, big endian; flush stages retain full dimensions'
-          : 'encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions',
+        exponentBits,
+        alphaExponentBits,
+        output:
+          nativeFloat || nativePlanes
+            ? 'encoded-coordinate source-color float32 samples, big endian, with normalized alpha'
+            : linearFloat
+              ? 'encoded-coordinate linear-sRGB float32 samples, big endian; flush stages retain full dimensions'
+              : normalizedInteger
+                ? 'encoded-coordinate integers normalized to the pixel storage range; 16-bit samples use big endian'
+                : 'encoded-coordinate integer samples; 16-bit samples use big endian; flush stages retain full dimensions',
         preview: previewPixels
           ? {
               width: previewWidth,

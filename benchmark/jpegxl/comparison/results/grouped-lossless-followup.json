@@ -1,6 +1,6 @@
 {
   "scope": "Exact samples for all 16 original pinned public comparison lossless inputs and the formerly rejected roundtrip; no timing claims",
-  "implementationSourceSha256": "d2d4e90e66be5c934514e4f26bae534be121f47ae85de1a570e56f79ee711d93",
+  "implementationSourceSha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70",
   "fixtureManifestSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {

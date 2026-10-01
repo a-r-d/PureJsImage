@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "started": "2026-09-30T04:22:16.216Z",
-  "updated": "2026-09-30T04:23:01.176Z",
+  "started": "2026-10-01T14:26:05.115Z",
+  "updated": "2026-10-01T14:26:50.366Z",
   "mode": "cold",
   "runtime": "chromium",
   "environment": {
@@ -15,10 +15,10 @@
     "browserMemory": "unavailable: no consistent cross-browser measurement API",
     "singleThread": true
   },
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
-  "subjectsSha256": "190c35f7f5c0cf6e03367503c17eed9a76bc936e193e9c0fa138c5b9dbd7f686",
+  "subjectsSha256": "bc9c914bd8fe1fdac48da74a5c661b7202fc858d5e22fececbab874c0b1a324d",
   "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
   "rows": [
     {
@@ -38,8 +38,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1399.7999999970198,
-      "initializationMs": 36.899999998509884,
+      "coldMs": 1428.9000000059605,
+      "initializationMs": 43.19999998807907,
       "output": {
         "width": 1024,
         "height": 768,
@@ -70,20 +70,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -122,8 +122,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1449.7999999970198,
-      "initializationMs": 35.399999998509884,
+      "coldMs": 1403.699999988079,
+      "initializationMs": 35.19999998807907,
       "output": {
         "width": 1024,
         "height": 768,
@@ -154,20 +154,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -206,8 +206,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1404.2999999970198,
-      "initializationMs": 33.100000001490116,
+      "coldMs": 1425.800000011921,
+      "initializationMs": 36.5,
       "output": {
         "width": 1024,
         "height": 768,
@@ -238,20 +238,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -290,8 +290,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 692.8999999985099,
-      "initializationMs": 34.5,
+      "coldMs": 720.7000000178814,
+      "initializationMs": 39.400000005960464,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -317,20 +317,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -369,8 +369,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 691,
-      "initializationMs": 34.29999999701977,
+      "coldMs": 705.1999999880791,
+      "initializationMs": 37,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -396,20 +396,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -448,8 +448,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 672.4000000059605,
-      "initializationMs": 33.80000000447035,
+      "coldMs": 690.5,
+      "initializationMs": 39.19999998807907,
       "output": {
         "kind": "jxl",
         "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
@@ -475,20 +475,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
+        },
+        {
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
-        },
-        {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -527,8 +527,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 350.30000000447035,
-      "initializationMs": 25.900000005960464,
+      "coldMs": 385.5,
+      "initializationMs": 34.400000005960464,
       "output": {
         "width": 1024,
         "height": 768,
@@ -615,8 +615,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 362.1000000014901,
-      "initializationMs": 26.600000001490116,
+      "coldMs": 373.19999998807907,
+      "initializationMs": 25.599999994039536,
       "output": {
         "width": 1024,
         "height": 768,
@@ -703,8 +703,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 360,
-      "initializationMs": 30.200000002980232,
+      "coldMs": 379.90000000596046,
+      "initializationMs": 25.900000005960464,
       "output": {
         "width": 1024,
         "height": 768,
@@ -791,8 +791,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 134.10000000149012,
-      "initializationMs": 25.69999999552965,
+      "coldMs": 136.30000001192093,
+      "initializationMs": 25.80000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -874,8 +874,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 138.39999999850988,
-      "initializationMs": 27.100000001490116,
+      "coldMs": 136.5,
+      "initializationMs": 26.400000005960464,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -957,8 +957,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 137.30000000447035,
-      "initializationMs": 26.399999998509884,
+      "coldMs": 136.7999999821186,
+      "initializationMs": 27,
       "output": {
         "kind": "jxl",
         "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56",
@@ -1040,8 +1040,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 467,
-      "initializationMs": 13.5,
+      "coldMs": 490.80000001192093,
+      "initializationMs": 14.5,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -1107,8 +1107,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 469.69999999552965,
-      "initializationMs": 12.899999998509884,
+      "coldMs": 466.30000001192093,
+      "initializationMs": 12.700000017881393,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -1174,8 +1174,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 485,
-      "initializationMs": 14.100000001490116,
+      "coldMs": 469.09999999403954,
+      "initializationMs": 13.099999994039536,
       "output": {
         "kind": "png",
         "sha256": "a283c18baca0abfaeb3987046074e1e2f33a1dc8634e5566ea854e832f956f8f",
@@ -1242,7 +1242,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.100000001490116,
+      "initializationMs": 13.300000011920929,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1293,7 +1293,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 15.5,
+      "initializationMs": 13.800000011920929,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1344,7 +1344,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.399999998509884,
+      "initializationMs": 14.300000011920929,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -1394,8 +1394,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 394.8850000053644,
-      "initializationMs": 159.5650000050664,
+      "coldMs": 400.24000000953674,
+      "initializationMs": 172.78999999165535,
       "output": {
         "width": 1024,
         "height": 768,
@@ -1424,6 +1424,10 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1486,20 +1490,16 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/output",
@@ -1534,8 +1534,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 377.3399999961257,
-      "initializationMs": 154.67999999970198,
+      "coldMs": 381.44999998807907,
+      "initializationMs": 159.33000001311302,
       "output": {
         "width": 1024,
         "height": 768,
@@ -1610,16 +1610,16 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1674,8 +1674,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 376.4699999988079,
-      "initializationMs": 151.22999999672174,
+      "coldMs": 372.0949999988079,
+      "initializationMs": 148.35499998927116,
       "output": {
         "width": 1024,
         "height": 768,
@@ -1750,32 +1750,32 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -1814,8 +1814,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 219.80000000447035,
-      "initializationMs": 147.3100000023842,
+      "coldMs": 233.4350000023842,
+      "initializationMs": 153.7800000011921,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -1949,8 +1949,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 233.76500000059605,
-      "initializationMs": 159.97999999672174,
+      "coldMs": 237.83000001311302,
+      "initializationMs": 163.3550000190735,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -1974,18 +1974,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -2036,20 +2024,32 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/output",
@@ -2084,8 +2084,8 @@
       "status": "verified",
       "detail": "All 3145728 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 227.42000000178814,
-      "initializationMs": 154.02499999850988,
+      "coldMs": 229.52000001072884,
+      "initializationMs": 155.49000000953674,
       "output": {
         "kind": "jxl",
         "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f",
@@ -2123,18 +2123,6 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -2155,20 +2143,32 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -2219,8 +2219,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1898.2000000029802,
-      "initializationMs": 35.100000001490116,
+      "coldMs": 1930,
+      "initializationMs": 37,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2251,20 +2251,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2303,8 +2303,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1959.3999999985099,
-      "initializationMs": 36.100000001490116,
+      "coldMs": 1950.300000011921,
+      "initializationMs": 39.599999994039536,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2335,20 +2335,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2387,8 +2387,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 1941.6000000014901,
-      "initializationMs": 35.29999999701977,
+      "coldMs": 1911.199999988079,
+      "initializationMs": 36.5,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2419,20 +2419,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2471,8 +2471,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 792.2000000029802,
-      "initializationMs": 34.30000000447035,
+      "coldMs": 788.0999999940395,
+      "initializationMs": 36.80000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -2498,20 +2498,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2550,8 +2550,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 788.2999999970198,
-      "initializationMs": 34.899999998509884,
+      "coldMs": 788,
+      "initializationMs": 37.099999994039536,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -2577,20 +2577,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2629,8 +2629,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 789.7999999970198,
-      "initializationMs": 34.79999999701977,
+      "coldMs": 808.4000000059605,
+      "initializationMs": 36.80000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b",
@@ -2656,20 +2656,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -2708,8 +2708,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 439.09999999403954,
-      "initializationMs": 26.899999998509884,
+      "coldMs": 431.89999997615814,
+      "initializationMs": 27,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2796,8 +2796,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 437.69999999552965,
-      "initializationMs": 26.5,
+      "coldMs": 453.80000001192093,
+      "initializationMs": 29.099999994039536,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2884,8 +2884,8 @@
       "status": "incorrect output",
       "detail": "All 4194304 samples compared, maximum error 1, tolerance 0",
       "times": [],
-      "coldMs": 440.5,
-      "initializationMs": 25.899999998509884,
+      "coldMs": 444.7999999821186,
+      "initializationMs": 26,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -2972,8 +2972,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 164,
-      "initializationMs": 26.799999997019768,
+      "coldMs": 156.19999998807907,
+      "initializationMs": 26.099999994039536,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -3055,8 +3055,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 159,
-      "initializationMs": 26.5,
+      "coldMs": 153.59999999403954,
+      "initializationMs": 26.200000017881393,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -3138,8 +3138,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 155.89999999850988,
-      "initializationMs": 25.899999998509884,
+      "coldMs": 157,
+      "initializationMs": 27.100000023841858,
       "output": {
         "kind": "jxl",
         "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd",
@@ -3221,8 +3221,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 409.70000000298023,
-      "initializationMs": 13,
+      "coldMs": 414.5,
+      "initializationMs": 16.5,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -3288,8 +3288,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 405,
-      "initializationMs": 12.600000001490116,
+      "coldMs": 404.5,
+      "initializationMs": 14,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -3355,8 +3355,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 408.30000000447035,
-      "initializationMs": 13.399999998509884,
+      "coldMs": 408.5,
+      "initializationMs": 14.600000023841858,
       "output": {
         "kind": "png",
         "sha256": "49f82a2042f422a4793497ad94592328d89d6c0f548dd722e43dee355cadd1fb",
@@ -3423,7 +3423,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.399999998509884,
+      "initializationMs": 12.900000005960464,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -3474,7 +3474,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 16.799999997019768,
+      "initializationMs": 14.900000005960464,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -3525,7 +3525,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.199999995529652,
+      "initializationMs": 14.300000011920929,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -3575,8 +3575,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 428.04999999701977,
-      "initializationMs": 147.25,
+      "coldMs": 422.1299999952316,
+      "initializationMs": 154.1099999845028,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -3619,10 +3619,6 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -3647,20 +3643,24 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -3715,8 +3715,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 416.57500000298023,
-      "initializationMs": 149.64999999850988,
+      "coldMs": 420.4399999976158,
+      "initializationMs": 150.17999997735023,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -3745,6 +3745,14 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -3795,24 +3803,16 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -3855,8 +3855,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 430.0900000035763,
-      "initializationMs": 151.67499999701977,
+      "coldMs": 427.82499998807907,
+      "initializationMs": 154.69499999284744,
       "output": {
         "width": 1024,
         "height": 1024,
@@ -3885,10 +3885,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -3939,20 +3935,24 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -3995,8 +3995,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 232.29500000178814,
-      "initializationMs": 147.87999999523163,
+      "coldMs": 228.61999997496605,
+      "initializationMs": 148.58999997377396,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -4020,10 +4020,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4072,6 +4068,10 @@
         {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4130,8 +4130,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 234.22500000149012,
-      "initializationMs": 153.82000000029802,
+      "coldMs": 233.33000001311302,
+      "initializationMs": 153.86500000953674,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -4155,10 +4155,6 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4221,12 +4217,16 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-jxl.wasm",
-          "bytes": 2224543
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
           "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-jxl.wasm",
+          "bytes": 2224543
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4265,8 +4265,8 @@
       "status": "verified",
       "detail": "All 4194304 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 233.46000000089407,
-      "initializationMs": 152.89999999850988,
+      "coldMs": 235.02500000596046,
+      "initializationMs": 152.55000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd",
@@ -4290,6 +4290,14 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4340,20 +4348,12 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -4400,8 +4400,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 53,
-      "initializationMs": 34.100000001490116,
+      "coldMs": 51,
+      "initializationMs": 36,
       "output": {
         "width": 47,
         "height": 39,
@@ -4432,20 +4432,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4484,8 +4484,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 48.70000000298023,
-      "initializationMs": 34.100000001490116,
+      "coldMs": 49.900000005960464,
+      "initializationMs": 35.400000005960464,
       "output": {
         "width": 47,
         "height": 39,
@@ -4516,20 +4516,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4568,8 +4568,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 49.79999999701977,
-      "initializationMs": 35,
+      "coldMs": 54.900000005960464,
+      "initializationMs": 35.70000001788139,
       "output": {
         "width": 47,
         "height": 39,
@@ -4600,20 +4600,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4652,8 +4652,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 52.20000000298023,
-      "initializationMs": 37.70000000298023,
+      "coldMs": 49.099999994039536,
+      "initializationMs": 34.80000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -4679,20 +4679,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4731,8 +4731,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 49.399999998509884,
-      "initializationMs": 35.29999999701977,
+      "coldMs": 50.900000005960464,
+      "initializationMs": 36.80000001192093,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -4758,20 +4758,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4810,8 +4810,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 49.29999999701977,
-      "initializationMs": 35,
+      "coldMs": 57.19999998807907,
+      "initializationMs": 35.79999998211861,
       "output": {
         "kind": "jxl",
         "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f",
@@ -4837,20 +4837,20 @@
           "bytes": 6806
         },
         {
-          "url": "/web/browser-7T2DSXMK.js",
+          "url": "/web/browser-VHAPBV5D.js",
           "bytes": 18621
         },
         {
-          "url": "/web/chunk-SIPYYJJH.js",
-          "bytes": 15995
+          "url": "/web/chunk-VXPPMNTS.js",
+          "bytes": 16023
         },
         {
           "url": "/web/chunk-6J3OTJNT.js",
           "bytes": 14797
         },
         {
-          "url": "/web/jpegxl-XOFU7KHQ.js",
-          "bytes": 362102
+          "url": "/web/jpegxl-LJF2WERC.js",
+          "bytes": 417642
         },
         {
           "url": "/web/chunk-EXMCXZWG.js",
@@ -4890,7 +4890,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 25.899999998509884,
+      "initializationMs": 26.799999982118607,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -4957,7 +4957,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 31,
+      "initializationMs": 27.900000005960464,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5024,7 +5024,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 27.299999997019768,
+      "initializationMs": 26.799999982118607,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5091,7 +5091,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 26.600000001490116,
+      "initializationMs": 27.099999994039536,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5158,7 +5158,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 26.799999997019768,
+      "initializationMs": 25.80000001192093,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5225,7 +5225,7 @@
       "detail": "ImageData API exposes RGBA8 only; no silent native precision conversion",
       "times": [],
       "coldMs": null,
-      "initializationMs": 27.400000005960464,
+      "initializationMs": 26.30000001192093,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5291,8 +5291,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 30.899999998509884,
-      "initializationMs": 13.100000001490116,
+      "coldMs": 32.5,
+      "initializationMs": 14,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -5358,8 +5358,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 32.30000000447035,
-      "initializationMs": 13.600000001490116,
+      "coldMs": 31.80000001192093,
+      "initializationMs": 12.5,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -5425,8 +5425,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 36.899999998509884,
-      "initializationMs": 13.300000004470348,
+      "coldMs": 32.30000001192093,
+      "initializationMs": 14.300000011920929,
       "output": {
         "kind": "png",
         "sha256": "0756594e701dddb245d4346c926e5aec010abc71a7c0e826bfe43a0d96ea21c5",
@@ -5493,7 +5493,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 15.299999997019768,
+      "initializationMs": 12.800000011920929,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5544,7 +5544,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 14.199999995529652,
+      "initializationMs": 14,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5595,7 +5595,7 @@
       "detail": "Published binding has no encoder",
       "times": [],
       "coldMs": null,
-      "initializationMs": 13.700000002980232,
+      "initializationMs": 13.099999994039536,
       "output": null,
       "crossOriginIsolated": false,
       "hardwareConcurrency": 16,
@@ -5645,8 +5645,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 174.24000000208616,
-      "initializationMs": 149.00999999791384,
+      "coldMs": 183.0949999988079,
+      "initializationMs": 157.34000000357628,
       "output": {
         "width": 47,
         "height": 39,
@@ -5725,32 +5725,32 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/output",
@@ -5785,8 +5785,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 175.69999999552965,
-      "initializationMs": 149.07000000029802,
+      "coldMs": 176.27000001072884,
+      "initializationMs": 151.0300000011921,
       "output": {
         "width": 47,
         "height": 39,
@@ -5825,6 +5825,18 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -5849,40 +5861,28 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -5925,8 +5925,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 179.72999999672174,
-      "initializationMs": 154.41499999910593,
+      "coldMs": 185.2300000190735,
+      "initializationMs": 159.6050000190735,
       "output": {
         "width": 47,
         "height": 39,
@@ -5973,8 +5973,28 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -6013,26 +6033,6 @@
           "bytes": 2224543
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/output",
           "bytes": 2
         }
@@ -6065,8 +6065,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 187.26999999582767,
-      "initializationMs": 151.75999999791384,
+      "coldMs": 194.50499999523163,
+      "initializationMs": 157.66500002145767,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -6104,6 +6104,14 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -6132,20 +6140,12 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -6200,8 +6200,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 187.2800000011921,
-      "initializationMs": 149.0050000026822,
+      "coldMs": 195.88500002026558,
+      "initializationMs": 160.18000000715256,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -6243,6 +6243,14 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips.wasm",
           "bytes": 5154052
         },
@@ -6255,52 +6263,44 @@
           "bytes": 83765
         },
         {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/output",
@@ -6335,8 +6335,8 @@
       "status": "verified",
       "detail": "All 5499 samples compared, maximum error 0, tolerance 0",
       "times": [],
-      "coldMs": 187.2199999988079,
-      "initializationMs": 152.42000000178814,
+      "coldMs": 183.16499999165535,
+      "initializationMs": 149.09999999403954,
       "output": {
         "kind": "jxl",
         "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60",
@@ -6360,6 +6360,14 @@
         {
           "url": "/web/browser-worker.js",
           "bytes": 6806
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",
@@ -6406,32 +6414,24 @@
           "bytes": 83765
         },
         {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
+          "url": "/assets/vips/vips-es6.js",
+          "bytes": 83765
+        },
+        {
           "url": "/assets/vips/vips-jxl.wasm",
           "bytes": 2224543
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
-        },
-        {
-          "url": "/assets/vips/vips-es6.js",
-          "bytes": 83765
         },
         {
           "url": "/assets/vips/vips-es6.js",

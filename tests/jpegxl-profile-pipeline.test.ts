@@ -42,19 +42,27 @@ describe('JPEG XL ordinary profile conversion', () => {
     expect(view.getUint16(0, false)).toBe(28632)
     expect(view.getUint16(2, false)).toBe(28634)
   })
-  it('rejects attaching a gray source profile to expanded RGBA output', async () => {
+  it('preserves gray ICC and expanded alpha through JPEG XL encoding', async () => {
     const bytes = await read('gray8-alpha8')
     const Image = createImageLibrary([jpegxlCodec])
-    for (const options of [{ colorOutput: 'preserve' }, { preserveIcc: true }] as const)
-      await expect(
-        jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits, options),
-      ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
-    await expect((await Image.open(bytes)).keepIcc().jpegxl().toBuffer()).rejects.toMatchObject({
-      code: 'UNSUPPORTED_OPERATION',
-    })
-    await expect(
-      (await Image.open(bytes, { colorOutput: 'srgb' })).keepIcc().jpegxl().toBuffer(),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    for (const options of [{ colorOutput: 'preserve' }, { preserveIcc: true }] as const) {
+      const decoder = await jpegxlCodec.createDecoder?.(
+        new MemorySource(bytes),
+        defaultImageLimits,
+        options,
+      )
+      if (!decoder) throw new Error('Missing preserved gray decoder')
+      const encoded = await (await Image.open(bytes, options)).keepIcc().jpegxl().toUint8Array()
+      const reopened = await jpegxlCodec.createDecoder?.(
+        new MemorySource(encoded),
+        defaultImageLimits,
+        options,
+      )
+      if (!reopened) throw new Error('Missing preserved gray roundtrip')
+      expect(await collectJpegXlProfileRows(reopened)).toEqual(
+        await collectJpegXlProfileRows(decoder),
+      )
+    }
   })
   it.each(['gray16-adjacent', 'rgb16'])(
     'reserves profile tables before decoding %s under a small budget',

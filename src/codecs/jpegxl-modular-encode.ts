@@ -3315,7 +3315,7 @@ const containerPrefix = (
     ),
   )
 
-const encodedMetadataBoxes = (
+export const encodedJpegXlMetadataBoxes = (
   request: EncodeRequest,
   container: boolean,
   memory?: JpegXlEncoderMemory,
@@ -3502,7 +3502,7 @@ export const encodeJpegXlAnimationImageHeader = (
   if (!supportedFormat(request.pixelFormat) || !request.colorSemantics)
     throw unsupportedOperation('JPEG XL sequence input requires integer color samples')
   validateColorSemantics(request)
-  const options = readOptions(
+  const options = resolveJpegXlEncodeOptions(
     request.options,
     request.pixelFormat,
     request.colorSemantics,
@@ -4086,6 +4086,8 @@ const encodeLossyCodestream = (
     const forwardColor = {
       ...options.colorSemantics,
       storageBytes: format.endsWith('16') ? 2 : 1,
+      intensityTarget: options.toneMapping.intensityTarget,
+      ...(options.alphaBitDepth === undefined ? {} : { alphaBitDepth: options.alphaBitDepth }),
     } as const
     const parts = await encodeJpegXlVarDct8Async(
       pixels,
@@ -4355,7 +4357,7 @@ const sampleBitDepth = (name: string, value: unknown): JpegXlSampleBitDepth | un
   return value as JpegXlSampleBitDepth
 }
 
-const readOptions = (
+export const resolveJpegXlEncodeOptions = (
   value: unknown,
   format: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16',
   colorSemantics: PixelColorSemantics,
@@ -4786,7 +4788,7 @@ class JpegXlModularEncoder implements ImageEncoder {
       const prefix = this.#options.container
         ? containerPrefix(codestream.byteLength, this.#options.codestreamLevel, this.#memory)
         : undefined
-      const metadataBoxes = encodedMetadataBoxes(
+      const metadataBoxes = encodedJpegXlMetadataBoxes(
         this.#request,
         this.#options.container,
         this.#memory,
@@ -4868,28 +4870,13 @@ export const createJpegXlModularEncoder = async (
   }
   const semantics = request.colorSemantics
   if (!semantics) throw unsupportedOperation('JPEG XL encoding requires color semantics')
-  const options = readOptions(
+  const options = resolveJpegXlEncodeOptions(
     request.options,
     request.pixelFormat,
     semantics,
     request.width,
     request.height,
   )
-  if (options.mode === 'lossy') {
-    if (
-      (semantics.family !== 'gray' &&
-        semantics.primaries !== 'srgb' &&
-        semantics.primaries !== 'display-p3' &&
-        semantics.primaries !== 'rec2020') ||
-      !['srgb', 'linear', 'gamma', 'pq'].includes(semantics.transfer.kind) ||
-      semantics.chromaticities !== undefined ||
-      semantics.alpha === 'premultiplied' ||
-      options.toneMapping.intensityTarget !== (semantics.transfer.kind === 'pq' ? 10000 : 255)
-    )
-      throw unsupportedOperation(
-        'JPEG XL forward lossy encoding requires straight known-primary sRGB, linear, gamma, or PQ samples with the default intensity target',
-      )
-  }
   if (limits && options.intrinsicSize)
     validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
   return new JpegXlModularEncoder(sink, request, options)

@@ -1,4 +1,17 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { gunzipSync } from 'node:zlib'
+import {
+  createImageLibrary,
+  defaultImageLimits,
+  type DecoderOptions,
+  type ImageDecoder,
+  MemorySource,
+  pixelBytesPerPixel,
+} from 'purejsimage/browser'
+import { jpegxlCodec } from 'purejsimage/codecs/jpegxl'
+import floatingFixtures from '../../../tests/fixtures/jpegxl/gap-alpha/manifest.json' with {
+  type: 'json',
+}
 import {
   convertJpegXlFloat32LayerToRgba16,
   encodeJpegXlAnimation,
@@ -156,6 +169,188 @@ async function requireEqual(actual: unknown, expected: unknown) {
       `Semantic mismatch: ${JSON.stringify(actual)} vs ${JSON.stringify(expected)}`,
     )
 }
+const images = createImageLibrary({ codecs: [jpegxlCodec] })
+async function ordinaryDecoder(
+  input: Uint8Array,
+  options: DecoderOptions = {},
+): Promise<ImageDecoder> {
+  const decoder = await jpegxlCodec.createDecoder?.(
+    new MemorySource(input),
+    defaultImageLimits,
+    options,
+  )
+  if (!decoder) throw new Error('Ordinary JPEG XL decoder unavailable')
+  return decoder
+}
+async function ordinaryRows(decoder: ImageDecoder): Promise<Uint8Array> {
+  const stride = decoder.width * pixelBytesPerPixel(decoder.pixelFormat)
+  const output = new Uint8Array(stride * decoder.height)
+  let rows = 0
+  for await (const block of decoder.decode({})) {
+    try {
+      if (
+        block.x !== 0 ||
+        block.y !== rows ||
+        block.width !== decoder.width ||
+        block.format !== decoder.pixelFormat
+      )
+        throw new OutputMismatch('Ordinary output layout changed')
+      for (let y = 0; y < block.height; y++)
+        output.set(
+          block.data.subarray(y * block.stride, y * block.stride + stride),
+          (rows + y) * stride,
+        )
+      rows += block.height
+    } finally {
+      block.release?.()
+    }
+  }
+  if (rows !== decoder.height) throw new OutputMismatch('Ordinary output rows missing')
+  return output
+}
+await probe('purejsimage', 'ordinary wide integer preservation', async () => {
+  const samples = Uint32Array.of(0, 1, 123456789, 2147483647)
+  const input = await save(
+    'ordinary-rgb31',
+    await encodeJpegXlNative({
+      width: 4,
+      height: 1,
+      color: [
+        { data: samples, bitDepth: 31 },
+        { data: samples, bitDepth: 31 },
+        { data: samples, bitDepth: 31 },
+      ],
+    }),
+  )
+  const encoded = await save(
+    'ordinary-rgb31-reencoded',
+    await (await images.open(input)).jpegxl().toUint8Array(),
+  )
+  const decoder = await ordinaryDecoder(encoded)
+  if (decoder.pixelFormat !== 'rgb32' || decoder.execution?.sourceSampleBitDepths[0] !== 31)
+    throw new OutputMismatch('Wide integer precision changed')
+  const bytes = await ordinaryRows(decoder),
+    view = new DataView(bytes.buffer)
+  for (let i = 0; i < samples.length; i++)
+    for (let c = 0; c < 3; c++)
+      if (view.getUint32((i * 3 + c) * 4, false) !== samples[i])
+        throw new OutputMismatch('Wide integer sample changed')
+  return { bitDepth: 31, pixelFormat: decoder.pixelFormat, outputSha256: hash(bytes), exact: true }
+})
+await probe('purejsimage', 'ordinary integer color with floating alpha', async () => {
+  const color = Uint8Array.of(0, 17, 128, 255),
+    alpha = Float32Array.of(0, 0.25, 0.5, 1)
+  const input = await save(
+    'ordinary-mixed-alpha',
+    await encodeJpegXlNative({
+      width: 4,
+      height: 1,
+      color: [
+        { data: color, bitDepth: 8 },
+        { data: color, bitDepth: 8 },
+        { data: color, bitDepth: 8 },
+      ],
+      extraChannels: [
+        { type: 0, bitDepth: 32, sampleFormat: 'binary32', data: new Uint32Array(alpha.buffer) },
+      ],
+    }),
+  )
+  const decoder = await ordinaryDecoder(input)
+  if (decoder.pixelFormat !== 'rgbaf32') throw new OutputMismatch('Mixed alpha format changed')
+  const bytes = await ordinaryRows(decoder),
+    view = new DataView(bytes.buffer)
+  for (let i = 0; i < color.length; i++) {
+    for (let c = 0; c < 3; c++)
+      if (view.getFloat32((i * 4 + c) * 4, false) !== Math.fround((color[i] ?? 0) / 255))
+        throw new OutputMismatch('Mixed color changed')
+    if (view.getFloat32((i * 4 + 3) * 4, false) !== alpha[i])
+      throw new OutputMismatch('Floating alpha changed')
+  }
+  return { pixelFormat: decoder.pixelFormat, outputSha256: hash(bytes), alphaExact: true }
+})
+await probe('purejsimage', 'ordinary Float32 lossless encoding', async () => {
+  const encoded = await save(
+    'ordinary-float-preserved',
+    await (await images.open(float)).jpegxl().toUint8Array(),
+  )
+  const decoder = await ordinaryDecoder(encoded)
+  if (decoder.pixelFormat !== 'rgbf32') throw new OutputMismatch('Float storage changed')
+  const bytes = await ordinaryRows(decoder),
+    view = new DataView(bytes.buffer)
+  for (let i = 0; i < values.length; i++)
+    for (let c = 0; c < 3; c++)
+      if (view.getUint32((i * 3 + c) * 4, false) !== bits[i])
+        throw new OutputMismatch('Float sample bits changed')
+  return { pixelFormat: decoder.pixelFormat, outputSha256: hash(bytes), exactSampleBits: true }
+})
+await probe('purejsimage', 'ordinary integer ICC preservation', async () => {
+  const encoded = await save(
+    'ordinary-gray-icc',
+    await (await images.open(iccImage, { colorOutput: 'preserve' }))
+      .keepIcc()
+      .jpegxl()
+      .toUint8Array(),
+  )
+  const inspection = await inspectJpegXl(encoded)
+  await requireEqual(inspection.icc, { present: true, decodedBytes: icc.length })
+  const sequence = await openJpegXlSequence(encoded)
+  try {
+    for await (const header of sequence.headers()) {
+      await requireEqual(hash(header.iccProfile ?? new Uint8Array()), hash(icc))
+      break
+    }
+  } finally {
+    await sequence.close()
+  }
+  const decoder = await ordinaryDecoder(encoded, { colorOutput: 'preserve' }),
+    bytes = await ordinaryRows(decoder),
+    view = new DataView(bytes.buffer)
+  if (decoder.pixelFormat !== 'gray16') throw new OutputMismatch('Source-profile samples converted')
+  for (let i = 0; i < gray.length; i++)
+    if (view.getUint16(i * 2, false) !== gray[i]) throw new OutputMismatch('ICC sample changed')
+  return { profileSha256: hash(icc), outputSha256: hash(bytes), samplesExact: true }
+})
+await probe('purejsimage', 'floating VarDCT and linear HDR reference blends', async () => {
+  const cases = []
+  for (const fixture of floatingFixtures.fixtures) {
+    const path = `tests/fixtures/jpegxl/gap-alpha/${fixture.file}`,
+      input = new Uint8Array(await readFile(path)),
+      reference = new Uint8Array(
+        gunzipSync(await readFile(`tests/fixtures/jpegxl/gap-alpha/${fixture.id}.bin.gz`)),
+      )
+    await requireEqual(hash(input), fixture.sha256)
+    await requireEqual(hash(reference), fixture.referenceSha256)
+    const decoder = await ordinaryDecoder(input)
+    if (decoder.pixelFormat !== 'rgbaf32')
+      throw new OutputMismatch('Floating VarDCT storage changed')
+    const bytes = await ordinaryRows(decoder)
+    if (bytes.length !== reference.length) throw new OutputMismatch('Floating output size changed')
+    const own = new DataView(bytes.buffer),
+      expected = new DataView(reference.buffer)
+    let maximumColor = 0,
+      maximumAlpha = 0
+    for (let offset = 0; offset < bytes.length; offset += 4) {
+      const difference = Math.abs(
+        own.getFloat32(offset, false) - expected.getFloat32(offset, false),
+      )
+      if (!Number.isFinite(difference)) throw new OutputMismatch('Nonfinite output')
+      if (offset % 16 === 12) maximumAlpha = Math.max(maximumAlpha, difference)
+      else maximumColor = Math.max(maximumColor, difference)
+    }
+    if (maximumColor > 1 / 255 || maximumAlpha > (fixture.blend ? 1.2e-7 : 0))
+      throw new OutputMismatch('Independent floating output differs')
+    files.push({ id: fixture.id, path, sha256: hash(input), license: floatingFixtures.license })
+    cases.push({
+      id: fixture.id,
+      maximumColor,
+      maximumAlpha,
+      inputSha256: hash(input),
+      referenceSha256: hash(reference),
+      outputSha256: hash(bytes),
+    })
+  }
+  return { oracle: floatingFixtures.oracle, librarySha256: floatingFixtures.librarySha256, cases }
+})
 await probe('purejsimage', 'native float and HDR headroom', async () => {
   const seq = await openJpegXlSequence(float)
   try {

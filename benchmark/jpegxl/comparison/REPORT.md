@@ -5,9 +5,10 @@
 This is a manual comparison of PureJsImage, `@jsquash/jxl` 1.3.0,
 `jxl-oxide-wasm` 0.12.6 and `wasm-vips` 0.0.19 on one Linux host.
 The comparison measured a local public-API build based on
-`fea5943a86a191cd29ee526119595b1ac77a0c82`. The grouped lossless decoder changes
-were uncommitted during measurement. The codec source SHA-256 is
-`f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e`.
+`590bbf08968f0f12c32bb4aa5c84627ba5dbeab4`. The floating-point, ICC/HDR,
+animation and native crop changes were uncommitted during measurement.
+The codec source SHA-256 is
+`088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca`.
 The reports retain both identities and the dirty-build flag. These measurements
 cover the local repository build rather than the published 0.17.0 tarball.
 
@@ -36,29 +37,36 @@ node benchmark/jpegxl/verify-grouped-lossless.ts
 
 Small first-party RGB8 and RGB16 fixtures pin libjxl 0.12.0 palette-before-RCT
 output. Node and browser regressions check exact samples, odd partial groups and
-cross-group crops. Local transforms that touch global prefix planes and general
-multi-group global Palette/Squeeze transforms remain unsupported.
+cross-group crops. Checked multi-group global Palette/Squeeze streams now decode. Implicit
+Palette prefixes combined with unsupported group-local transforms remain
+explicitly guarded.
 
 - The tested PureJsImage toolkit has the smallest loaded asset footprint among
   these four adapters. This includes the benchmark worker and both encode and
   decode entry points; it is not a survey of every possible JPEG XL bundle.
 - PureJsImage decodes all 16 shared native-libjxl lossless streams exactly.
-  This closes the observed grouped Modular failures. General multi-group global
-  Palette/Squeeze transforms and local transforms touching global prefix planes
-  remain outside the supported scope.
+  This closes the observed grouped Modular failures. Checked global Palette
+  and Squeeze layouts have additional fixture evidence. Transformed implicit
+  Palette prefix layouts remain outside the supported scope.
 - The three encoders expose different speed/compression tradeoffs. See the
   generated paired lossless table; the WASM encoders are substantially faster
   on several measured workloads. Exact validation is required before a row
   enters a ratio.
-- At SSIMULACRA2 80 on the capped photo, PureJsImage's interpolated size is about
-  1.212 times wasm-vips, with adequate brackets on both sides. This one result
-  does not establish a corpus-wide lossy ranking. Other targets remain wide or
-  missing under the finite search budget.
+- Matched lossy size ratios are reported only for targets with adequate
+  measured brackets on both sides. The generated table retains the actual
+  ratios and unresolved targets. The finite photo and alpha subset does not
+  establish a corpus-wide lossy ranking.
 - Oxide preserves the tested 16-bit integer images through its native-depth PNG
   path. It does not expose raw sample planes or encoding. Its PNG export cost
   remains part of the measured operation.
 - Specialized APIs have separate results: PureJsImage's native float, extra
-  channel, ICC and exact JPEG reconstruction probes pass; wasm-vips' native
+  channel, ICC and exact JPEG reconstruction probes pass. New ordinary public
+  API probes check 31-bit integer preservation, mixed floating alpha, bit-exact
+  Float32 output, integer ICC preservation and twelve independently encoded
+  floating VarDCT inputs, including linear HDR reference blends. Static alpha
+  is exact; blended alpha allows 0.00000012 error, and linear color allows
+  1/255 error. These additional probes do not infer untested comparator
+  capabilities. wasm-vips' native
   float and ICC probes pass. Animation timing has additional limits described
   below. Exposed APIs that were not tested are not treated as unsupported.
 
@@ -304,23 +312,28 @@ index are versioned. Keep that cache for inspecting exact measured bytes.
 
 ## Handoff checks
 
-The 12 comparison tests passed. The full repository handoff gate passed with
-`VITEST_MAX_WORKERS=4 npm run check`: 3,253 tests passed and three were skipped.
-All non-test gates passed, including the browser build. Repository tests do not
-refresh benchmark timings.
+All 214 focused tests passed, including the 12 comparison tests. The full
+repository handoff gate passed with `VITEST_MAX_WORKERS=4 npm run check`:
+3,490 tests passed and three existing tests were skipped. All non-test gates
+passed, including the browser build. The official conformance corpus passed
+all 39 cases. Independent checks passed 24 sample layouts, 17 color/animation
+cases and 66 bit-exact Float32 encodings. Repository tests do not refresh
+benchmark timings.
 
 The refreshed Chromium/Node main runs each verify all 75 PureJsImage workflows:
 16 lossless decodes, 13 lossy decodes, 45 encodes and one roundtrip. Repeated cold
 subsets, Firefox/WebKit compatibility checks, preview probes, specialized probes
 and 87 independently decoded quality
-artifacts are recorded above. The final input-normalization verification reproduced
-all ten selected imazen inputs exactly. No benchmark timing was refreshed by a
-repository test run.
+artifacts are recorded above. All 61 pinned source, raw and encoded input hashes
+were checked before measurement. The ten selected imazen inputs retain their
+original normalized bytes. No benchmark timing was refreshed by a repository
+test run.
 
-The refreshed comparison page passed focused Chromium, Firefox and WebKit tests,
-including downloaded data identities and mobile width. These page tests ran
-separately from measurements. Firefox passed with a 512-task limit and the same
-8 GiB memory cap after failing under the benchmark runner's 256-task limit.
+All 426 codec browser tests passed across Chromium, Firefox and WebKit. The
+browser tests used a 512-task limit and an 8 GiB memory cap; comparison
+measurements used the benchmark runner's 256-task limit. All three comparison
+page tests also passed, including downloaded data identities and mobile width.
+Those page tests ran separately from measurements.
 
 ## Publication scope
 
@@ -328,5 +341,7 @@ Use this report and the generated data for the comparison page. Publish
 only claims supported by the measured scope, include competitor advantages,
 and keep original-size results separate from diagnostics. Do not turn missing
 brackets, wrapper limitations or untested features into wins. This rerun measures
-the grouped decoder correction. It adds no new Stable decision, version bump or
-release.
+the current source with the same shared inputs and comparator versions. The
+[additional gap evidence](../gap-completion/README.md) records wider sample,
+ICC/HDR, animation and cropped-group qualification separately. It adds no
+version bump or release.

@@ -2189,6 +2189,108 @@ const readModularGroup = (
   })
 }
 
+/** Independent native groups retain one cropped group band instead of source-sized planes. */
+export const openJpegXlNativeGroupBands = async (
+  source: ImageSource,
+  frame: Readonly<JpegXlFrameStructure>,
+  limits: Readonly<ImageLimits>,
+  region: Readonly<{ x: number; y: number; width: number; height: number }>,
+  signal?: AbortSignal,
+): Promise<
+  | AsyncGenerator<{
+      readonly planes: readonly Int32Array[]
+      readonly width: number
+      readonly height: number
+      readonly y: number
+    }>
+  | undefined
+> => {
+  if (
+    frame.groupsAcross * frame.groupsDown <= 1 ||
+    frame.passCount !== 1 ||
+    frame.extraChannels.some((extra) => extra.dimShift !== 0) ||
+    frame.extraChannelUpsampling.some((factor) => factor !== 1)
+  )
+    return undefined
+  const section = frame.sections[0]
+  if (!section) throw invalidInput('JPEG XL native global section is missing')
+  const global = await readExactly(source, section.offset, section.length, signal ? { signal } : {})
+  const foundation = readMultiGroupFoundation(global, frame, limits)
+  if (
+    foundation.kind !== 'grouped' ||
+    foundation.globalProgram.transforms.length !== 0 ||
+    foundation.firstGroupedChannel !== 0
+  )
+    return undefined
+  const groupedFoundation = foundation
+  const globalLength = section.length
+  async function* bands() {
+    const bottom = region.y + region.height
+    for (
+      let groupY = Math.floor(region.y / frame.groupDimension);
+      groupY * frame.groupDimension < bottom;
+      groupY++
+    ) {
+      throwIfAborted(signal)
+      const top = Math.max(region.y, groupY * frame.groupDimension)
+      const height = Math.min(bottom, (groupY + 1) * frame.groupDimension) - top
+      const bandBytes = region.width * height * frame.channelCount * 4
+      const groupBytes =
+        Math.min(frame.groupDimension, frame.width) *
+          Math.min(frame.groupDimension, frame.height - groupY * frame.groupDimension) *
+          frame.channelCount *
+          48 +
+        globalLength * 4
+      if (bandBytes + groupBytes > limits.maxDecodedBytes)
+        throw limitExceeded('JPEG XL native group band exceeds maxDecodedBytes')
+      const planes = Array.from(
+        { length: frame.channelCount },
+        () => new Int32Array(region.width * height),
+      )
+      for (
+        let groupX = Math.floor(region.x / frame.groupDimension);
+        groupX * frame.groupDimension < region.x + region.width;
+        groupX++
+      ) {
+        const id = groupY * frame.groupsAcross + groupX
+        const entry = frame.sections[groupedFoundation.firstGroupSection + id]
+        if (!entry) throw invalidInput('JPEG XL native group section is missing')
+        if (bandBytes + groupBytes + entry.length * 4 > limits.maxDecodedBytes)
+          throw limitExceeded('JPEG XL native group section exceeds maxDecodedBytes')
+        const data = await readExactly(source, entry.offset, entry.length, signal ? { signal } : {})
+        const group = readModularGroup(data, frame, groupedFoundation, id)
+        const coded = decodeModularPlanesWithPosition(
+          group.program,
+          0,
+          signal,
+          true,
+          frame.sampleFormat === 'floating-point',
+        ).planes
+        const decoded = inverseModularTransforms(coded, group.program, frame.bitDepth)
+        if (decoded.length !== planes.length)
+          throw invalidInput('JPEG XL native group channel count differs')
+        const left = Math.max(region.x, group.x),
+          right = Math.min(region.x + region.width, group.x + group.width)
+        for (let channel = 0; channel < planes.length; channel++) {
+          const input = decoded[channel],
+            output = planes[channel]
+          if (!input || !output) throw invalidInput('JPEG XL native group plane is missing')
+          for (let row = 0; row < height; row++)
+            output.set(
+              input.subarray(
+                (top - group.y + row) * group.width + left - group.x,
+                (top - group.y + row) * group.width + right - group.x,
+              ),
+              row * region.width + left - region.x,
+            )
+        }
+      }
+      yield { planes, width: region.width, height, y: top - region.y }
+    }
+  }
+  return bands()
+}
+
 const treeLeaf = (nodes: readonly ModularNode[], properties: Int32Array): ModularLeaf => {
   let index = 0
   for (let depth = 0; depth < 4_096; depth += 1) {

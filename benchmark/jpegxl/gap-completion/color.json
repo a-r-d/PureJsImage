@@ -1,0 +1,123 @@
+{
+  "cases": [
+    {
+      "id": "custom-float-24-8",
+      "inputSha256": "dc4ccc33b915f61c5bca63a29a7ef9cec5f54ec7b48cb483585f9cde6cacf242",
+      "maximumError": 0,
+      "tolerance": 0,
+      "oracle": "Pinned libjxl 0.12.0"
+    },
+    {
+      "id": "custom-float-16-4",
+      "inputSha256": "11a8882657bd67e6fd9cf54e043c6dbe9b4088a843d4df7239296806b7b815e3",
+      "maximumError": 0,
+      "tolerance": 0,
+      "oracle": "Pinned libjxl 0.12.0"
+    },
+    {
+      "id": "icc-lut8",
+      "inputSha256": "b37520561cdfe1c0ec247d99613771faaa4635b5cbff9c3f2cc852acbc2083af",
+      "maximumError": 12,
+      "tolerance": 16,
+      "oracle": "LittleCMS 2.17 float source and float64 output"
+    },
+    {
+      "id": "icc-lut16",
+      "inputSha256": "765aefee4bb6501f41fea0881360b56a810c7315fc63f5659ff213fa69ce0d1f",
+      "maximumError": 11,
+      "tolerance": 16,
+      "oracle": "LittleCMS 2.17 float source and float64 output"
+    },
+    {
+      "id": "cmyk-24-float-black",
+      "inputSha256": "950371438ab92c5b7072a28db5f865015dce1fca05806eb0a0412707bd0a5937",
+      "maximumError": 16,
+      "tolerance": 350,
+      "oracle": "LittleCMS 2.17 unsigned16 CMYK input after source-domain straightening"
+    },
+    {
+      "id": "cmyk-31-float-black",
+      "inputSha256": "e89a9a647769c562ff465f5d39959330c4514b4ade009697044a3b377fe021a0",
+      "maximumError": 16,
+      "tolerance": 350,
+      "oracle": "LittleCMS 2.17 unsigned16 CMYK input after source-domain straightening"
+    },
+    {
+      "id": "cmyk-32-float-black",
+      "inputSha256": "d70e664b3bba5679b05e5643e8aca79f85e602eced2dc30029da6ef7124879c9",
+      "maximumError": 16,
+      "tolerance": 350,
+      "oracle": "LittleCMS 2.17 unsigned16 CMYK input after source-domain straightening"
+    },
+    {
+      "id": "lossy-hlg-straight",
+      "inputSha256": "f40b79bae74daacb94f632c52ac38d55247e9ba5c4cd1fb07faa62e5c04608ca",
+      "maximumError": 2.3440519968109808e-7,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "lossy-hlg-associated",
+      "inputSha256": "09874bea0fa82cf78e9d64758b9c3af328384cb274f80d657498ddb0fcf9fd65",
+      "maximumError": 2.1217359850804994e-7,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "lossy-srgb-straight",
+      "inputSha256": "e814d47c2c45856d04ddbecc4cfbcd6dfed0eea9632492b7157bf1c870ce4150",
+      "maximumError": 0.0000011265277862493317,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "lossy-srgb-associated",
+      "inputSha256": "d975eb2791de4bbd2de23c819496105a19cbed796d42e2f17ffb1661056c4a1b",
+      "maximumError": 7.429160177700733e-7,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "lossy-pq-straight",
+      "inputSha256": "eb58a231e79f94a7b8c8ea28f81c21eb0bcf02e56d8389b70261021b31c8fa70",
+      "maximumError": 2.165734767911598e-7,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "lossy-pq-associated",
+      "inputSha256": "a0ed9780d2321eac4f3136d8b7687a1fe846fa4cdc2633939942333387b33132",
+      "maximumError": 1.8389523029349597e-7,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl linear-sRGB output; linear output normalized by source intensity target"
+    },
+    {
+      "id": "float-animation",
+      "inputSha256": "509f537586be2097e37c7dc9ca28d134b77fe50b87a683c121209c5c74cd5d2b",
+      "maximumError": 0,
+      "tolerance": 0,
+      "oracle": "Pinned libjxl 0.12.0"
+    },
+    {
+      "id": "pq-animation",
+      "inputSha256": "fee99b8de49716e7e7c028ba1325dcae8c910a14c0aa560a2c09da863e5a1548",
+      "maximumError": 9.690970182579806e-9,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl 0.12.0"
+    },
+    {
+      "id": "hlg-animation",
+      "inputSha256": "1d54a3551175b57fa2e1ea7f95abac2bff6c9ba6ec0faf13bd18ec82da6d3092",
+      "maximumError": 8.136034011785309e-8,
+      "tolerance": 0.00392156862745098,
+      "oracle": "Pinned libjxl 0.12.0"
+    },
+    {
+      "id": "float-lossy-modular",
+      "inputSha256": "970860c4fa8105b07b807cf8e805ab0a66432317691a269b0b3a4795dc039407",
+      "maximumError": 0,
+      "tolerance": 0,
+      "oracle": "Pinned libjxl 0.12.0"
+    }
+  ]
+}

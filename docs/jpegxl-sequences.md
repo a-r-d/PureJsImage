@@ -92,7 +92,9 @@ The native layer API still exposes those channels without relabeling them.
 `encodeJpegXlNative` writes a bounded Modular image from one or three color
 planes and up to 256 typed extra channels. It accepts unsigned 1–31-bit samples
 in matching unsigned typed arrays, binary16 bit patterns in `Uint16Array`, or
-binary32 bit patterns in `Uint32Array`.
+binary32 bit patterns in `Uint32Array`. Custom `floating-point` layouts supply
+`exponentBits` from 2 through 8 and 2 through 23 mantissa bits. The declared
+layout and sample storage must agree; color planes must share the same layout.
 Extra channels may have dimension shifts from zero through three. Every plane
 must have exactly its declared dimensions and sample count. Unshifted and shifted
 planes use as many 1024-pixel Modular groups as the image needs. Shift-3 planes
@@ -117,8 +119,16 @@ linear target profile, including unchanged alpha.
 `encodeJpegXlAnimation(frames, options)` consumes an async iterable and yields
 encoded byte chunks. Options specify canvas dimensions, pixel format, color
 semantics and the exact animation header. `encoding.mode` selects `lossless` or
-`lossy`; lossy uses the M7 encoder and retains exact alpha by default. This is
+`lossy`; integer lossy uses the M7 encoder and retains exact alpha by default.
+`grayf32`, `rgbf32` and `rgbaf32` write binary32 Modular animation in Level 10
+containers. Float lossless output is bit exact; explicit float lossy mode rounds
+color mantissas and keeps alpha exact. HDR XYB VarDCT frames can be selected
+through the ordinary decoder for linear Float32 or tone-mapped sRGB output. This is
 pixel/timing encoding, not reconstruction of a source GIF or video file.
+
+HDR XYB references compose in linear color before applying the output transfer
+curve. Pinned straight and associated-alpha blends match libjxl color within
+1/255; blended alpha allows 0.00000012 error from intermediate Float32 rounding.
 
 Each input frame supplies `data`, `width`, `height` and `durationTicks`. Optional
 fields include `x`, `y`, `timecode`, `blend`, `source` and `saveAsReference`.
@@ -144,7 +154,7 @@ constraints; they are not a complete bitstream conformance validator:
 | Feature | Level 5 | Level 10 or additional constraint |
 | --- | --- | --- |
 | Image dimensions | Each axis at most 2^18; at most 2^28 pixels | Larger images require Level 10 |
-| Sample depth | Up to 16 bits when the emitted Modular stream is 16-bit-buffer sufficient | The native writer uses Level 10 above 12 integer bits and for binary16/binary32 |
+| Sample depth | Up to 16 bits when the emitted Modular stream is 16-bit-buffer sufficient | The native writer uses Level 10 above 12 integer bits and for floating layouts |
 | Extra channels | At most four; BLACK excluded | CMYK/BLACK requires Level 10 |
 | ICC profile | At most 4 MiB | Larger profiles require Level 10 |
 | Animation rate | At most 120 frames per second | Higher rates require Level 10 |
@@ -154,7 +164,7 @@ See the [official encoder level API](https://libjxl.github.io/libjxl/api_encoder
 and the pinned source's `VerifyLevelSettings` in `lib/jxl/encode.cc`. Application
 resource limits may be tighter. The machine-readable map is
 `benchmark/jpegxl/production-program/m10-level-profile-map.json`. The checked
-corpus retains all 39 original valid cases and all now pass. CMYK and binary32
-use explicit native workflows because the ordinary interleaved display API
-cannot preserve those layouts. This does not advertise every possible Level 10
+corpus retains all 39 original valid cases and all now pass. Source CMYK preservation uses explicit native workflows. The ordinary
+pipeline converts supported CMYK to sRGB and preserves finite float sources
+as Float32 rows. This does not advertise every possible Level 10
 feature combination.

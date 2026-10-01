@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
-  "date": "2026-09-30T04:23:42.984Z",
+  "date": "2026-10-01T14:27:33.046Z",
   "browser": "151.0.7922.34",
   "fixture": {
     "path": "benchmark/fixtures/jpegxl/generated-vardct-v0.12.0/rgb8-distance1-multi-group-progressive.jxl",
@@ -16,7 +16,7 @@
       "repeat": 0,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 61.100000001490116,
+        "firstUsefulMs": 59.80000001192093,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -105,7 +105,7 @@
       "repeat": 1,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 58.20000000298023,
+        "firstUsefulMs": 59.89999997615814,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -194,7 +194,7 @@
       "repeat": 2,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 59,
+        "firstUsefulMs": 60.599999994039536,
         "firstTransferred": 20544,
         "transferredTotal": 67431,
         "reads": [
@@ -283,7 +283,7 @@
       "repeat": 0,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 62.79999999701977,
+        "firstUsefulMs": 59.099999994039536,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,
@@ -304,7 +304,7 @@
       "repeat": 1,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 62.899999998509884,
+        "firstUsefulMs": 66.90000000596046,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,
@@ -325,7 +325,7 @@
       "repeat": 2,
       "result": {
         "status": "verified",
-        "firstUsefulMs": 61.80000000447035,
+        "firstUsefulMs": 61.89999997615814,
         "firstTransferred": 4096,
         "delivered": 4096,
         "inputBytes": 148917,

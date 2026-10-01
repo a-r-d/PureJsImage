@@ -22,6 +22,14 @@ import vardctManifest from '../tests/fixtures/jpegxl/m4-color/vardct-manifest.js
   type: 'json',
 }
 
+export { verifyJpegXlFloatCompletion } from '../tests/helpers/jpegxl-float-completion.ts'
+export {
+  verifyJpegXlSampleGaps,
+  verifyJpegXlAnimationGaps,
+  verifyJpegXlExtendedColorGaps,
+  verifyJpegXlVarDctFloatAlpha,
+} from '../tests/helpers/jpegxl-gap-completion.ts'
+export { verifyJpegXlFloatPipeline } from '../tests/helpers/jpegxl-float-pipeline.ts'
 export {
   verifyJpegXlProfilePipeline,
   verifyJpegXlProfilePreservation,

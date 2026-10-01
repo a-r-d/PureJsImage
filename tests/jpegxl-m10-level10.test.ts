@@ -96,9 +96,11 @@ describe('JPEG XL M10 Level 10 native workflows', () => {
     expect(Array.from(jpegXlNativeUnsignedPlanes(integerLayer)[0] ?? [])).toEqual(
       Array.from(integers),
     )
-    await expect(
-      jpegxlCodec.createDecoder?.(new MemorySource(integerEncoded), defaultImageLimits),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+    const ordinary = await jpegxlCodec.createDecoder?.(
+      new MemorySource(integerEncoded),
+      defaultImageLimits,
+    )
+    expect(ordinary?.pixelFormat).toBe('gray32')
   })
 
   it('preserves integer and floating alpha during display conversion', async () => {

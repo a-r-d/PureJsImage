@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30T04:27:45.173Z",
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "date": "2026-10-01T14:30:32.856Z",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
   "comparisonBaselineRevision": "564a4d2d3e1c318f64821322c67329550df6da6b",
-  "harnessParentRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "codecChangeCheck": "src/codecs/jpegxl-decode.ts\nsrc/codecs/jpegxl-progressive-plan.ts\nsrc/codecs/jpegxl-session.ts\n",
+  "harnessParentRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "codecChangeCheck": "src/codecs/icc.ts\nsrc/codecs/jpegxl-color.ts\nsrc/codecs/jpegxl-decode.ts\nsrc/codecs/jpegxl-inspect.ts\nsrc/codecs/jpegxl-level10.ts\nsrc/codecs/jpegxl-modular-encode.ts\nsrc/codecs/jpegxl-native-encode.ts\nsrc/codecs/jpegxl-progressive-plan.ts\nsrc/codecs/jpegxl-sequence-encode.ts\nsrc/codecs/jpegxl-sequence.ts\nsrc/codecs/jpegxl-session.ts\nsrc/codecs/jpegxl-vardct-encode.ts\nsrc/codecs/jpegxl-vardct-memory.ts\nsrc/codecs/jpegxl-vardct-render.ts\nsrc/codecs/jpegxl.ts\nsrc/codecs/png.ts\nsrc/pipeline.ts\n",
   "harness": [
     {
       "path": "benchmark/jpegxl/comparison/adapters.ts",
@@ -86,7 +86,7 @@
     },
     {
       "path": "benchmark/jpegxl/comparison/specialized.ts",
-      "sha256": "8b4912ac7693c2037e9158ef2abece6d926c3c8ac3b358b425df05380940a12e"
+      "sha256": "757a9f98ca9c2cfb12524e8f6149d97f8ed6e275b60c61aa780c7231ebb4499a"
     },
     {
       "path": "benchmark/jpegxl/comparison/validate-quality.ts",
@@ -235,6 +235,81 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/asset-history/4086505ffcfbecb52c8a130339b01a39f60c124b8cb42283098c13c47e33f23b/web/jxl_oxide_wasm-NH5ML3RN.js",
+      "bytes": 9029,
+      "sha256": "a94cb667f54e73fb6db1ba132df95c4ddfe18ea17603cdb8931318fefa140d8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/browser-7T2DSXMK.js",
+      "bytes": 18621,
+      "sha256": "e3be69df422d13800676d15b0eba79eed81b79fef38715335ba134cc4e00dc49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/browser-worker.js",
+      "bytes": 6806,
+      "sha256": "c0ba6386c0ad2fb08a62539f75fdde2709f2cca287e880d7cc3cc1e4cef5b3c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/chunk-4LFTYATI.js",
+      "bytes": 168,
+      "sha256": "dc9edfa935e755397197df8eaab980cd30e9deb828189f678a4ed053d019c9ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/chunk-6J3OTJNT.js",
+      "bytes": 14797,
+      "sha256": "c025f5a74a5b43d7deb7adac1dd7b43b848ff04f19e92fcdd8c16491e42d33e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/chunk-EXMCXZWG.js",
+      "bytes": 1317,
+      "sha256": "03003830b4c7804dabaffde95d9b718061dd57e6cae0be5504c69720489e335e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/chunk-SIPYYJJH.js",
+      "bytes": 15995,
+      "sha256": "307b7301f444b2c5da9e075d4b4bc83c1ad347964d6cd863541105aa028ce48d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/decode-BZOCFKIT.js",
+      "bytes": 20176,
+      "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/encode-IGAQVTBR.js",
+      "bytes": 1788,
+      "sha256": "5436db29b9e13bc20c854f894a294c4332b2c138a3ce4875304fe606c2456098"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/executor-4V6RSNQI.js",
+      "bytes": 42302,
+      "sha256": "191614f689b7d61f1e88dd9a808cef7c0cbe753d62e5df400617b11aeb7c9afd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jpegxl-6XT2CMLU.js",
+      "bytes": 362269,
+      "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jpegxl-XOFU7KHQ.js",
+      "bytes": 362102,
+      "sha256": "e31567214252684cb336aad56d1d623769a27c68c6dd6b97e409ed047ff5c264"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jxl_enc-O5JHJYUX.js",
+      "bytes": 26274,
+      "sha256": "4ba09a64ade049c67ed371111fa5ab1985cb612571a7bf4684a57ef5b8ff44f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jxl_enc_mt-TVP6DHGU.js",
+      "bytes": 34095,
+      "sha256": "c686761a7473942688c154f4f3e33be62019becf2300575b10febb36d900c0da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jxl_enc_mt_simd-YYJQ5EU7.js",
+      "bytes": 34085,
+      "sha256": "5398536155e7b7c9c2f48a7d2ca580054d32756ce8fa643b2ffef05e43db2675"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/asset-history/c5f8e3ca457b306c53e30bf7e253e6c69621d61183e17f7831d3e070cdffd771/web/jxl_oxide_wasm-NH5ML3RN.js",
       "bytes": 9029,
       "sha256": "a94cb667f54e73fb6db1ba132df95c4ddfe18ea17603cdb8931318fefa140d8b"
     },
@@ -630,8 +705,8 @@
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/preview-worker.js",
-      "bytes": 404509,
-      "sha256": "b1740441f79bdea62ba70fad84a2d03b08660bcc1980c8e64bcf1244a43a5a0d"
+      "bytes": 462931,
+      "sha256": "17b4f5ef53c8d76122a47d2d6f11cdeb11d70424f565a3e863b14a99cc57590e"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/quality/alpha_triangles-black-source.png",
@@ -7919,6 +7994,56 @@
       "sha256": "fbe5a411ad4c62a49a13f478d3802d011d6ec08c558acbbb95b063d6f4c45553"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-float-preserved.jxl",
+      "bytes": 415,
+      "sha256": "91f6c95435e0d25332feee1355639bd099616c44a96d1b70d3ebae1532588d47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-float-preserved.jxl.png",
+      "bytes": 502,
+      "sha256": "fbe5a411ad4c62a49a13f478d3802d011d6ec08c558acbbb95b063d6f4c45553"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-gray-icc.jxl",
+      "bytes": 1140,
+      "sha256": "e726123f06e6219673ac91d77a8c8411bc071aeddf4edf1d6939816b2a33fdfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-gray-icc.jxl.png",
+      "bytes": 851,
+      "sha256": "96e165af31851a394195327721cf893e88647c453928e935c1e13bc47f6b2317"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-mixed-alpha.jxl",
+      "bytes": 97,
+      "sha256": "ce1c4d71d696c1f466d93825b6849d77bebda74463bd2a5b4420f6e75eb590f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-mixed-alpha.jxl.png",
+      "bytes": 150,
+      "sha256": "4d7070c88aa061fd62d17a551e7ad2ce3f5baf2768f2ed4ba0088c9b97689aad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31-reencoded.jxl",
+      "bytes": 100,
+      "sha256": "96fc76ee26e33319c56fe6a7fc81ea2a44256652eba6bae3006380c89b68c58f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31-reencoded.jxl.png",
+      "bytes": 148,
+      "sha256": "e1322cacf5ca74bda12fec36ff17cc2fc6a2af578fd997908863c4eb4b2ca284"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31.jxl",
+      "bytes": 100,
+      "sha256": "96fc76ee26e33319c56fe6a7fc81ea2a44256652eba6bae3006380c89b68c58f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/specialized/ordinary-rgb31.jxl.png",
+      "bytes": 148,
+      "sha256": "e1322cacf5ca74bda12fec36ff17cc2fc6a2af578fd997908863c4eb4b2ca284"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/specialized/oxide-frame-0.png",
       "bytes": 96,
       "sha256": "dbd590fd91eb2ef52d879bea61a40404c4e006da28a482696ba25b5ad53490d0"
@@ -7974,9 +8099,14 @@
       "sha256": "e3be69df422d13800676d15b0eba79eed81b79fef38715335ba134cc4e00dc49"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/browser-VHAPBV5D.js",
+      "bytes": 18621,
+      "sha256": "dc688fa0ef647328e3fff03a6a71af4be426414c8d6fea492e18d5ece7c7f25f"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
       "bytes": 6806,
-      "sha256": "c0ba6386c0ad2fb08a62539f75fdde2709f2cca287e880d7cc3cc1e4cef5b3c2"
+      "sha256": "e3c3ed3afb089d9b517fab9f9489437de50ea4157ad73f022958ad000625cda3"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
@@ -7999,6 +8129,11 @@
       "sha256": "307b7301f444b2c5da9e075d4b4bc83c1ad347964d6cd863541105aa028ce48d"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-VXPPMNTS.js",
+      "bytes": 16023,
+      "sha256": "92fb3378c39b58b0ffd7dd266721cf2bc873e31b7c6aa0a89d08b756887e452f"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/decode-BZOCFKIT.js",
       "bytes": 20176,
       "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2"
@@ -8014,9 +8149,19 @@
       "sha256": "191614f689b7d61f1e88dd9a808cef7c0cbe753d62e5df400617b11aeb7c9afd"
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/executor-BKIWEOS2.js",
+      "bytes": 42302,
+      "sha256": "cd45d4d53ef6bf3e4c0e39d6fc857303dbc4f484482ebf463b56f348f0021b17"
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-6XT2CMLU.js",
       "bytes": 362269,
       "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-LJF2WERC.js",
+      "bytes": 417642,
+      "sha256": "5453339fe226b44fc43f71bedae6149c35e398cc9a318eacde783fd7131fa2f7"
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-XOFU7KHQ.js",

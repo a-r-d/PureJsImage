@@ -1,0 +1,150 @@
+{
+  "oracle": "Pinned libjxl 0.12.0 C API FLOAT output in source color space with separate native extras",
+  "tolerance": 1.2e-7,
+  "cases": [
+    {
+      "id": "gray8-alpha32-straight",
+      "inputSha256": "6ce420be280f9d50e208324365db88d37f9ba62ee35185cd5670ab9207436f2f",
+      "expectedSha256": "a644bc7f4e7c67723ae96c1c1ce3919e990ab731ba22844e37b1271940b45f68",
+      "oracleSha256": "2c580cfcbc857328ab8becb6603de43a334ad4699cdfdf8cfd7bd4b62c2f7b6c"
+    },
+    {
+      "id": "gray8-alpha32-associated",
+      "inputSha256": "e0b8be6bec84877b103c88bca12a974f663ddb21cf6ae2092757cc2899cbe89b",
+      "expectedSha256": "a644bc7f4e7c67723ae96c1c1ce3919e990ab731ba22844e37b1271940b45f68",
+      "oracleSha256": "2c580cfcbc857328ab8becb6603de43a334ad4699cdfdf8cfd7bd4b62c2f7b6c"
+    },
+    {
+      "id": "rgb8-alpha32-straight",
+      "inputSha256": "710639d43335560d4410b0892802a47efb04481af8dc730240dceb7ac3e0cdb5",
+      "expectedSha256": "a644bc7f4e7c67723ae96c1c1ce3919e990ab731ba22844e37b1271940b45f68",
+      "oracleSha256": "f81d92b0280ac03a4c55f37e461096ba2799a3e692418c1d6c00bb39c018bf20"
+    },
+    {
+      "id": "rgb8-alpha32-associated",
+      "inputSha256": "66d34eb7bee1c3434755faf57dab9ee62788bbf89f7af15dfe5d1dbe11e71166",
+      "expectedSha256": "a644bc7f4e7c67723ae96c1c1ce3919e990ab731ba22844e37b1271940b45f68",
+      "oracleSha256": "f81d92b0280ac03a4c55f37e461096ba2799a3e692418c1d6c00bb39c018bf20"
+    },
+    {
+      "id": "gray16-alpha32-straight",
+      "inputSha256": "e106e24f38ac998edfc6ad4803a5302aba5f8dba5642bc3fea18f2bd6c75e415",
+      "expectedSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a",
+      "oracleSha256": "cef2a9f3bfdc7c926845241a391b2a6c97c3fc71b96ab8db6a4ebb8f62f9a295"
+    },
+    {
+      "id": "gray16-alpha32-associated",
+      "inputSha256": "bad9155697b8ad202fe79e515bbbb684b6ec57d50d6017e7c5be11f9202c6167",
+      "expectedSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a",
+      "oracleSha256": "cef2a9f3bfdc7c926845241a391b2a6c97c3fc71b96ab8db6a4ebb8f62f9a295"
+    },
+    {
+      "id": "rgb16-alpha32-straight",
+      "inputSha256": "2da8e08066fc55e4e512a957fc82a3810724d34493b1d83a69850aa449454495",
+      "expectedSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a",
+      "oracleSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a"
+    },
+    {
+      "id": "rgb16-alpha32-associated",
+      "inputSha256": "0f308af9d9ef7b4d7b3caee64f4f5c1b8e6dc8bfeab10edc9afca5ea9c1f4e74",
+      "expectedSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a",
+      "oracleSha256": "ccd23d5874f2e22a30c8cc739ea3b33f90a47661d3b8a844f3a467ba6ee4211a"
+    },
+    {
+      "id": "gray24",
+      "inputSha256": "7c3d977f9b74d7c2d900b344b2274dfc0f6dd9291167862ac36a3bed8c76d97c",
+      "expectedSha256": "b05993fef101320a8959cd9dd7f98498df016397d1b20474b2727fe54536acec",
+      "oracleSha256": "b05993fef101320a8959cd9dd7f98498df016397d1b20474b2727fe54536acec"
+    },
+    {
+      "id": "gray24-alpha32-straight",
+      "inputSha256": "cad41eae98289e722bbd53cd93253d0a625704a8ce85d0ad3b9e521237a2b11b",
+      "expectedSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97",
+      "oracleSha256": "d4244abb557eacf4e50977541b526898dd1c0e22016e74e9d86567b6d97923ea"
+    },
+    {
+      "id": "gray24-alpha32-associated",
+      "inputSha256": "890ec8024efeae0a0b93add184457c5f1d2e5283cf348901c77e38cf3b36635e",
+      "expectedSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97",
+      "oracleSha256": "d4244abb557eacf4e50977541b526898dd1c0e22016e74e9d86567b6d97923ea"
+    },
+    {
+      "id": "rgb24",
+      "inputSha256": "19fabcbc6074b78945dbb60d1611bad3cbc2701877c8f0f274278291d00f5ac1",
+      "expectedSha256": "cc217da1ace6306345cf98c6746ae0fed83b9aacfc4073477dcca57338958a21",
+      "oracleSha256": "cc217da1ace6306345cf98c6746ae0fed83b9aacfc4073477dcca57338958a21"
+    },
+    {
+      "id": "rgb24-alpha32-straight",
+      "inputSha256": "963f22a8c3bc048b887423aade805965ef06581f3649b41182a60bf9cc348942",
+      "expectedSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97",
+      "oracleSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97"
+    },
+    {
+      "id": "rgb24-alpha32-associated",
+      "inputSha256": "526e858202e65d2aa9a613491a56b8f78df9ab12fd17c10a2b04feeeeb3d2bd8",
+      "expectedSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97",
+      "oracleSha256": "bf942dcddaf5db66e2b16d2716d0c6629a3ce45b747b25821e8437cbb26b1d97"
+    },
+    {
+      "id": "gray31",
+      "inputSha256": "6a87f6c292deee73592e474b80c8d75459f510a70f6f21a0489f57f0c27e1f9d",
+      "expectedSha256": "1369e2e7a575493199810ddaf959a08a80a349e944d759963491154d52803add",
+      "oracleSha256": "1369e2e7a575493199810ddaf959a08a80a349e944d759963491154d52803add"
+    },
+    {
+      "id": "gray31-alpha32-straight",
+      "inputSha256": "c56ab65af06957a800b7a141af49272896e5eff8ed2e9bafd12e25529156c28b",
+      "expectedSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd",
+      "oracleSha256": "1a220d66f0d235431d4c4c1d3baf4cdf0d13f05820e2d8b48a6d0b5928fae7c7"
+    },
+    {
+      "id": "gray31-alpha32-associated",
+      "inputSha256": "3ccdcb717698cde48bce84ff3fced4334b0dc23b9959909001cfba41b6d8314b",
+      "expectedSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd",
+      "oracleSha256": "1a220d66f0d235431d4c4c1d3baf4cdf0d13f05820e2d8b48a6d0b5928fae7c7"
+    },
+    {
+      "id": "rgb31",
+      "inputSha256": "b74bacb6c6bfb9e8ec5a12f02570ebf3530c29c6b0035cac497a7aa43dfee7e4",
+      "expectedSha256": "001f5ea088af4fdf4fac7964b85b397fdcd7032a1229d4fe94d812514c080f0c",
+      "oracleSha256": "001f5ea088af4fdf4fac7964b85b397fdcd7032a1229d4fe94d812514c080f0c"
+    },
+    {
+      "id": "rgb31-alpha32-straight",
+      "inputSha256": "c3cf8ae6ffc130ff5213bd6380574dcac34441cb02c5b13158c26ecb69a9a8c6",
+      "expectedSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd",
+      "oracleSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd"
+    },
+    {
+      "id": "rgb31-alpha32-associated",
+      "inputSha256": "6e2f2650b20119210c54ea8e35f0f00ca670382273ddac903ab026534f3320bd",
+      "expectedSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd",
+      "oracleSha256": "bc46e358162548e3f25d291a9cb2759bd59fd1c82db82890ae32eb15b9e0e0fd"
+    },
+    {
+      "id": "gray32-alpha24",
+      "inputSha256": "c2a847b28da84f8b69384ae90a0d114e059827a067ebc17a1b7c424f8229c658",
+      "expectedSha256": "1d208b7f6ec7f3fdde55e27cbcc1a9d75dacc6102e63d4da8f6f950d18710707",
+      "oracleSha256": "61992c4a616003ec2aab300ee942550c95bebe787714cd482c599bfad8221efd"
+    },
+    {
+      "id": "rgb32-alpha24",
+      "inputSha256": "f7e6ad5b5a8cf98464f7f79538d1ff22d40e07e3ac6cba49a9b09965af5d0090",
+      "expectedSha256": "1d208b7f6ec7f3fdde55e27cbcc1a9d75dacc6102e63d4da8f6f950d18710707",
+      "oracleSha256": "1d208b7f6ec7f3fdde55e27cbcc1a9d75dacc6102e63d4da8f6f950d18710707"
+    },
+    {
+      "id": "gray32-alpha31",
+      "inputSha256": "c26ad26bd18cf2fa8e27a7fce5fbcc8b7fc6371f171b3b810a9559bc1230bcf1",
+      "expectedSha256": "db01ab4a0f5a5051b84394fa4e0d26fa67f4d42c053368ce41c1edb3691fc8a1",
+      "oracleSha256": "798404f6b9b881d281a1bf766f6c6097cbd7ca6e2fb746c36376cc212ec09441"
+    },
+    {
+      "id": "rgb32-alpha31",
+      "inputSha256": "73b3bd296ba8940c48fdbadfbd6069455a6e36cc33241d23378871d0756c5220",
+      "expectedSha256": "db01ab4a0f5a5051b84394fa4e0d26fa67f4d42c053368ce41c1edb3691fc8a1",
+      "oracleSha256": "db01ab4a0f5a5051b84394fa4e0d26fa67f4d42c053368ce41c1edb3691fc8a1"
+    }
+  ]
+}

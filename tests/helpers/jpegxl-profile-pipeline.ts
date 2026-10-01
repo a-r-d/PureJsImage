@@ -3,6 +3,7 @@ import type { DecodeRequest, ImageDecoder } from '../../src/codec.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { pngCodec } from '../../src/codecs/png.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
+import { pixelBytesPerPixel } from '../../src/pixel.ts'
 import { MemorySource } from '../../src/source.ts'
 
 export interface JpegXlProfileFixture {
@@ -22,12 +23,7 @@ export const collectJpegXlProfileRows = async (
 ): Promise<Uint8Array> => {
   const width = request.width ?? decoder.width
   const height = request.height ?? decoder.height
-  const channels = decoder.pixelFormat.startsWith('gray')
-    ? 1
-    : decoder.pixelFormat.startsWith('rgba')
-      ? 4
-      : 3
-  const stride = width * channels * (decoder.pixelFormat.endsWith('16') ? 2 : 1)
+  const stride = width * pixelBytesPerPixel(decoder.pixelFormat)
   const output = new Uint8Array(height * stride)
   let rows = 0
   for await (const block of decoder.decode(request)) {
@@ -62,6 +58,7 @@ export const verifyJpegXlProfilePipeline = async (
   bytes: Uint8Array,
   reference: Uint8Array,
   fixture: JpegXlProfileFixture,
+  implicitConversion = true,
 ): Promise<{ maximumColor: number; maximumAlpha: number }> => {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits, {
     colorOutput: 'srgb',
@@ -104,7 +101,16 @@ export const verifyJpegXlProfilePipeline = async (
   equal(await collectJpegXlProfileRows(decoder), actual)
   const implicit = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
   if (!implicit) throw new Error('Implicit profile decoder missing')
-  equal(await collectJpegXlProfileRows(implicit), actual)
+  if (implicitConversion) equal(await collectJpegXlProfileRows(implicit), actual)
+  else {
+    const preserved = await jpegxlCodec.createDecoder?.(
+      new MemorySource(bytes),
+      defaultImageLimits,
+      { colorOutput: 'preserve' },
+    )
+    if (!preserved) throw new Error('Preserved structured decoder missing')
+    equal(await collectJpegXlProfileRows(implicit), await collectJpegXlProfileRows(preserved))
+  }
   if (fixture.width > 1024) {
     const x = 1018,
       width = 7
@@ -122,6 +128,24 @@ export const verifyJpegXlProfilePipeline = async (
   if (!pngDecoder || pngDecoder.pixelFormat !== fixture.format)
     throw new Error('PNG output format differs')
   equal(await collectJpegXlProfileRows(pngDecoder), actual)
+  const resized = await image
+    .crop({ x: 1, y: 0, width: 1, height: 1 })
+    .resize({ width: 2, height: 2, fit: 'fill' })
+    .png()
+    .toUint8Array()
+  const resizedDecoder = await pngCodec.createDecoder?.(
+    new MemorySource(resized),
+    defaultImageLimits,
+  )
+  if (resizedDecoder?.width !== 2 || resizedDecoder.height !== 2)
+    throw new Error('Profile resize geometry differs')
+  const resizedRows = await collectJpegXlProfileRows(resizedDecoder)
+  const pixelBytes = channels * (depth / 8)
+  for (let pixel = 0; pixel < 4; pixel++)
+    equal(
+      resizedRows.subarray(pixel * pixelBytes, (pixel + 1) * pixelBytes),
+      actual.subarray(pixelBytes, pixelBytes * 2),
+    )
   const encoded = await image.jpegxl().toUint8Array()
   const metadata = await jpegxlCodec.metadata(new MemorySource(encoded), defaultImageLimits)
   if (metadata.bitDepth !== depth || metadata.colorProfile !== undefined)

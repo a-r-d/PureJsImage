@@ -1,0 +1,67 @@
+{
+  "oracle": "LittleCMS 2.17 perceptual A2B0 to sRGB; NOOPTIMIZE, UInt16 CMYK input and float output; native complements and associated samples normalized before one UInt16 rounding. Shifted extra channels are constant.",
+  "profileSha256": "4855b8fabb96bdc6495d45d089bb8c8efb1ae18389e0dc9e75a5f701a9c0b662",
+  "littlecmsSha256": "046e89ccd894994728028a8f00c2424b79cff4e3d9832530f964edddf1078d1b",
+  "fixtures": [
+    {
+      "id": "cmyk8",
+      "width": 4,
+      "height": 1,
+      "format": "rgb8",
+      "depth": 8,
+      "alphaDepth": 0,
+      "associated": false,
+      "colorTolerance": 2,
+      "sha256": "91bf556f32b426a4521a0f463ef88a1de1bdb5760361bed8d8cdd22d063ebcaa",
+      "referenceSha256": "5ee4f25a6e4a25f35aa0a2ef49cb9fe98ed2ea2605cd5ee10412c50748ca2675"
+    },
+    {
+      "id": "cmyk10-alpha8",
+      "width": 4,
+      "height": 1,
+      "format": "rgba16",
+      "depth": 10,
+      "alphaDepth": 8,
+      "associated": false,
+      "colorTolerance": 350,
+      "sha256": "6f195f5076f8180097380d604183cc1a5ee0b0ad672e1fd5d1d5ec8582ef651a",
+      "referenceSha256": "7136983213188c60c6c39f65a0bf659eb4b4395d8a00d1756cc634598eb91967"
+    },
+    {
+      "id": "cmyk12-associated-alpha32",
+      "width": 4,
+      "height": 1,
+      "format": "rgba16",
+      "depth": 12,
+      "alphaDepth": 32,
+      "associated": true,
+      "colorTolerance": 350,
+      "sha256": "abda8558e141047813b10e65c293484abc9ee9e25f996e8f3ea7936284e51265",
+      "referenceSha256": "5e52018b39fed9b15c675fef1b535625fccaa54bbc703341bf39c1bf51245f05"
+    },
+    {
+      "id": "cmyk16-alpha16",
+      "width": 4,
+      "height": 1,
+      "format": "rgba16",
+      "depth": 16,
+      "alphaDepth": 16,
+      "associated": false,
+      "colorTolerance": 350,
+      "sha256": "0d12dc777e2b7746e4909db2ee0226fcd182a9344449cfbda3de0bc282e0613a",
+      "referenceSha256": "87885255af78184140669281f5fe8d852ab72cdd653b44b85e179a7e5c74651c"
+    },
+    {
+      "id": "cmyk16-shifted-grouped",
+      "width": 1025,
+      "height": 3,
+      "format": "rgba16",
+      "depth": 16,
+      "alphaDepth": 8,
+      "associated": false,
+      "colorTolerance": 350,
+      "sha256": "3ff5676bc1be91ad114a26ebee043e7452a4da9baf43bb8783d71082d21632ed",
+      "referenceSha256": "71799522079d3e52b43573805d943736533bfa12d52a5a63c17f0c3982441bca"
+    }
+  ]
+}

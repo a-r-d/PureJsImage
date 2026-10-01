@@ -1,7 +1,7 @@
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
-import { nclxToLinear, nclxToLinearSrgbMatrix } from './icc.ts'
+import { createStructuredRgbMatrix, nclxToLinear, nclxToLinearSrgbMatrix } from './icc.ts'
 import {
   allocateJpegXlArray,
   JpegXlEncoderMemory,
@@ -33,6 +33,10 @@ export interface JpegXlForwardColor {
   readonly primaries: PixelColorSemantics['primaries']
   readonly transfer: PixelColorSemantics['transfer']
   readonly storageBytes?: 1 | 2
+  readonly chromaticities?: PixelColorSemantics['chromaticities']
+  readonly alpha?: PixelColorSemantics['alpha']
+  readonly alphaBitDepth?: number
+  readonly intensityTarget?: number
 }
 const defaultForwardMatrix = Float32Array.of(
   0.3,
@@ -464,7 +468,16 @@ function* prepare8(
       : allocateJpegXlArray(memory, Float32Array, 2 ** sampleDepth)
   if (transfer !== linearSrgb) {
     const maximum = 2 ** sampleDepth - 1
-    const transferCode = colorTransfer.kind === 'linear' ? 8 : colorTransfer.kind === 'pq' ? 16 : 13
+    const transferCode =
+      colorTransfer.kind === 'linear'
+        ? 8
+        : colorTransfer.kind === 'pq'
+          ? 16
+          : colorTransfer.kind === 'hlg'
+            ? 18
+            : colorTransfer.kind === 'bt709'
+              ? 1
+              : 13
     for (let value = 0; value <= maximum; value++) {
       const encoded = value / maximum
       transfer[value] =
@@ -474,9 +487,13 @@ function* prepare8(
     }
   }
   const matrix =
-    primaryCode === 1 ? defaultForwardMatrix : allocateJpegXlArray(memory, Float32Array, 9)
+    primaryCode === 1 && !color?.chromaticities
+      ? defaultForwardMatrix
+      : allocateJpegXlArray(memory, Float32Array, 9)
   if (matrix !== defaultForwardMatrix) {
-    const sourceMatrix = nclxToLinearSrgbMatrix(primaryCode)
+    const sourceMatrix = color?.chromaticities
+      ? createStructuredRgbMatrix(color.primaries, color.chromaticities)
+      : nclxToLinearSrgbMatrix(primaryCode)
     for (let row = 0; row < 3; row++) {
       for (let column = 0; column < 3; column++) {
         let value = 0
@@ -502,7 +519,7 @@ function* prepare8(
       cubeRootTable[index] = Math.cbrt(index / 16_384 + bias) - biasRoot
   }
   // Select the storage kernel once. Grayscale never expands to an RGB bitmap.
-  const fillColor =
+  const defaultFillColor =
     channels === 1
       ? (blockX: number, blockY: number) => {
           xPlane.fill(0)
@@ -575,6 +592,105 @@ function* prepare8(
               transfer,
               matrix,
             )
+  const hlg = colorTransfer.kind === 'hlg'
+  const associated = color?.alpha === 'premultiplied'
+  const sourceMatrix = hlg
+    ? createStructuredRgbMatrix(color?.primaries ?? 'srgb', color?.chromaticities)
+    : undefined
+  const lumaRed = sourceMatrix
+    ? 0.2126 * (sourceMatrix[0] ?? 0) +
+      0.7152 * (sourceMatrix[3] ?? 0) +
+      0.0722 * (sourceMatrix[6] ?? 0)
+    : 0
+  const lumaGreen = sourceMatrix
+    ? 0.2126 * (sourceMatrix[1] ?? 0) +
+      0.7152 * (sourceMatrix[4] ?? 0) +
+      0.0722 * (sourceMatrix[7] ?? 0)
+    : 0
+  const lumaBlue = sourceMatrix
+    ? 0.2126 * (sourceMatrix[2] ?? 0) +
+      0.7152 * (sourceMatrix[5] ?? 0) +
+      0.0722 * (sourceMatrix[8] ?? 0)
+    : 0
+  const target = color?.intensityTarget ?? 1000
+  const hlgExponent = 1.2 * 1.111 ** Math.log2(target / 1000) - 1
+  const alphaMaximum = 2 ** (color?.alphaBitDepth ?? sampleDepth) - 1
+  const maximum = 2 ** sampleDepth - 1
+  const fillColor =
+    hlg || associated
+      ? (blockX: number, blockY: number) => {
+          for (let y = 0; y < 8; y++) {
+            const row = Math.min(height - 1, blockY * 8 + y) * width
+            for (let x = 0; x < 8; x++) {
+              const offset = (row + Math.min(width - 1, blockX * 8 + x)) * channels * sampleBytes
+              const r =
+                sampleBytes === 1
+                  ? (pixels[offset] ?? 0)
+                  : ((pixels[offset] ?? 0) << 8) | (pixels[offset + 1] ?? 0)
+              const go = offset + (channels === 1 ? 0 : sampleBytes)
+              const bo = offset + (channels === 1 ? 0 : sampleBytes * 2)
+              const g =
+                sampleBytes === 1
+                  ? (pixels[go] ?? 0)
+                  : ((pixels[go] ?? 0) << 8) | (pixels[go + 1] ?? 0)
+              const b =
+                sampleBytes === 1
+                  ? (pixels[bo] ?? 0)
+                  : ((pixels[bo] ?? 0) << 8) | (pixels[bo + 1] ?? 0)
+              const ao = offset + 3 * sampleBytes
+              const alpha = associated
+                ? (sampleBytes === 1
+                    ? (pixels[ao] ?? 0)
+                    : ((pixels[ao] ?? 0) << 8) | (pixels[ao + 1] ?? 0)) / alphaMaximum
+                : 1
+              // Interpolate only when straightening associated source codes.
+              const ri = alpha === 0 ? 0 : Math.min(maximum, r / alpha)
+              const gi = alpha === 0 ? 0 : Math.min(maximum, g / alpha)
+              const bi = alpha === 0 ? 0 : Math.min(maximum, b / alpha)
+              const rl = Math.floor(ri),
+                gl = Math.floor(gi),
+                bl = Math.floor(bi)
+              const red =
+                (transfer[rl] ?? 0) +
+                ((transfer[Math.min(maximum, rl + 1)] ?? 0) - (transfer[rl] ?? 0)) * (ri - rl)
+              const green =
+                (transfer[gl] ?? 0) +
+                ((transfer[Math.min(maximum, gl + 1)] ?? 0) - (transfer[gl] ?? 0)) * (gi - gl)
+              const blue =
+                (transfer[bl] ?? 0) +
+                ((transfer[Math.min(maximum, bl + 1)] ?? 0) - (transfer[bl] ?? 0)) * (bi - bl)
+              const luminance = hlg
+                ? Math.max(0, red * lumaRed + green * lumaGreen + blue * lumaBlue)
+                : 1
+              const scale =
+                (hlg ? (luminance === 0 ? 0 : (luminance ** hlgExponent * target) / 255) : 1) *
+                alpha
+              const first =
+                Math.cbrt(
+                  ((matrix[0] ?? 0) * red + (matrix[1] ?? 0) * green + (matrix[2] ?? 0) * blue) *
+                    scale +
+                    bias,
+                ) - biasRoot
+              const second =
+                Math.cbrt(
+                  ((matrix[3] ?? 0) * red + (matrix[4] ?? 0) * green + (matrix[5] ?? 0) * blue) *
+                    scale +
+                    bias,
+                ) - biasRoot
+              const third =
+                Math.cbrt(
+                  ((matrix[6] ?? 0) * red + (matrix[7] ?? 0) * green + (matrix[8] ?? 0) * blue) *
+                    scale +
+                    bias,
+                ) - biasRoot
+              const index = y * 8 + x
+              xPlane[index] = (first - second) / 2
+              yPlane[index] = (first + second) / 2
+              bPlane[index] = third - (first + second) / 2
+            }
+          }
+        }
+      : defaultFillColor
   const alphaMask =
     channels === 4 && effort > 1 ? allocateJpegXlArray(memory, Uint8Array, 64) : undefined
   const fill = alphaMask

@@ -1,20 +1,24 @@
 /** Development-only LittleCMS 2.17 float-evaluated display oracle. Run with Bun. */
 import { readFile, writeFile } from 'node:fs/promises'
 
-const [profilePath, inputPath, outputPath, channelsText, depthText] = process.argv.slice(2)
+const [profilePath, inputPath, outputPath, channelsText, depthText, inputMode] =
+  process.argv.slice(2)
+const floatInput = inputMode === 'float32'
 if (
   !profilePath ||
   !inputPath ||
   !outputPath ||
-  (channelsText !== '1' && channelsText !== '3') ||
-  (depthText !== '8' && depthText !== '16')
+  (channelsText !== '1' && channelsText !== '3' && channelsText !== '4') ||
+  (depthText !== '8' && depthText !== '16') ||
+  (inputMode !== undefined && !floatInput) ||
+  (floatInput && channelsText === '4')
 )
-  throw new Error('Expected profile, native UInt16 input, output, channels 1/3 and depth 8/16')
+  throw new Error('Expected profile, native UInt16 input, output, channels 1/3/4 and depth 8/16')
 const profile = new Uint8Array(await readFile(profilePath))
 const input = new Uint8Array(await readFile(inputPath))
 const channels = Number(channelsText)
 const depth = Number(depthText)
-const pixels = input.length / (channels * 2)
+const pixels = input.length / (channels * (floatInput ? 4 : 2))
 if (!Number.isSafeInteger(pixels) || pixels < 1) throw new Error('Invalid LittleCMS input')
 const floating = new Float64Array(pixels * 3)
 const output = new Uint8Array(pixels * 3 * (depth / 8))
@@ -59,8 +63,11 @@ if (integer(call('cmsGetEncodedCMMversion')) !== 2170)
 const source = integer(call('cmsOpenProfileFromMem', profile, profile.length))
 const target = integer(call('cmsCreate_sRGBProfile'))
 if (!source || !target) throw new Error('LittleCMS profile open failed')
-// PT_GRAY=3, PT_RGB=4; channel count starts at bit 3, byte count at bit 0.
-const inputFormat = ((channels === 1 ? 3 : 4) << 16) | (channels << 3) | 2
+// PT_GRAY=3, PT_RGB=4, PT_CMYK=6; channel count starts at bit 3, byte count at bit 0.
+const inputFormat =
+  ((channels === 1 ? 3 : channels === 4 ? 6 : 4) << 16) |
+  (channels << 3) |
+  (floatInput ? (1 << 22) | 4 : 2)
 // Floating samples avoid rounding the intermediate linear channel to UInt16.
 // FLOAT_SH=bit 22; a zero byte count denotes eight-byte samples.
 const outputFormat = (1 << 22) | (4 << 16) | (3 << 3)

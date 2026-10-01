@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-01",
+  "baseRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "workingTreeDirty": true,
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "kernel": "7.0.0-34-generic",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz"
+  },
+  "verification": {
+    "mixedAlphaWideSamples": 24,
+    "colorAnimationCases": 17,
+    "independentVarDctFloatingAlphaInputs": 12,
+    "independentlyDecodedFloatEncodings": 66,
+    "isolatedResourceCases": 72,
+    "officialConformance": {
+      "pass": 39,
+      "expected-unsupported": 0,
+      "malformed-safely-rejected": 0,
+      "incorrect-output": 0,
+      "unexpected-failure": 0
+    },
+    "browserCases": 168,
+    "browsers": ["chromium", "firefox", "webkit"],
+    "fullCheck": "passed"
+  },
+  "boundary": "Development evidence on the named dirty worktree. The library comparison reruns the current source with its original pinned inputs and comparator versions. Independent profiles and tolerances qualify these additional subsets; no universal compatibility or quality claim.",
+  "hashes": [
+    {
+      "path": "benchmark/jpegxl/flush-progressive-oracle.ts",
+      "sha256": "785d4cb2d902639ac9d5b77087c8c7a94b1fe099f1eb01d666dce09b63b07732"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/color.json",
+      "sha256": "e18098e84bd2ed0113ab9cc7503f4cdc28e47f49dcbd5853e713a64faa1b43f7"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/conformance.json",
+      "sha256": "7ad4915b76b5b27c1c81a09aec583bce18d7d7f463c0a7e16d06036355e9a0b6"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/encoding.json",
+      "sha256": "8f85b72b9b8cf135d63345ccc4fba6c782ac51f71eb2c39bb5cad1ac4ac14a9e"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/native-resources.json",
+      "sha256": "3466b2572313ac435eca26751825284546d965f2429b6c835c4531ff82d53e6b"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/resources.json",
+      "sha256": "eb8c13293f2dc6630a5e4faa20ef2e594ee07cf15b5fe0dc33f8e91dde60d562"
+    },
+    {
+      "path": "benchmark/jpegxl/gap-completion/samples.json",
+      "sha256": "9247582288db92a8df875c8b6c6cc3079dfbf1eda8455b0be0e2e1009bfd5858"
+    },
+    {
+      "path": "benchmark/jpegxl/generate-vardct-floating-alpha.ts",
+      "sha256": "91e4f61fe9ab548478c7018350638d2797ef705d1e4f3cf3df75625a8fca315c"
+    },
+    {
+      "path": "benchmark/jpegxl/littlecms-profile-oracle.ts",
+      "sha256": "f9e45164c84337934c9587e921a26c011ffdb71d37303a541101b685780158bc"
+    },
+    {
+      "path": "benchmark/jpegxl/run-gap-resources.ts",
+      "sha256": "88fd5c36f22b5cfda711ddb962ec13ae2f9790302f1fc1c1143aff95fa4b3d17"
+    },
+    {
+      "path": "benchmark/jpegxl/verify-gap-color.ts",
+      "sha256": "e6eb56fcd363ad492fd226804997cc2120b188d605191bd036996199f0c233d8"
+    },
+    {
+      "path": "benchmark/jpegxl/verify-gap-completion.ts",
+      "sha256": "7d292156b84b65ff23cd1809a5b6efbf5841a51db4e401fea0f2f2461687a501"
+    },
+    {
+      "path": "benchmark/jpegxl/write-gap-receipt.ts",
+      "sha256": "0823b7aa58f89f287b2c0204865dd310704e75632d69d7005063777ace8049b0"
+    },
+    {
+      "path": "browser-tests/jpegxl-gap-completion.pw.ts",
+      "sha256": "8ba2a88425d24bfc31d7ab79bee1e30c02b49c506dd238f86b8bb24b88a020c1"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "9be6e8acc9dc7ee8e053eaa9c584c7de51dd029a2181bee47ec2712241a65208"
+    },
+    {
+      "path": "src/codecs/icc.ts",
+      "sha256": "3aba9787e3ce7a682f8f32a4e6026a8815df782430837ba58df1e9941a0a507c"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "sha256": "ea6f9ee90d45252bfd81178879e4e3490d501566679785717fc4384c1ba5d208"
+    },
+    {
+      "path": "src/codecs/jpegxl-chroma.ts",
+      "sha256": "bc6d12084d4ae397ab9362321d0221e46e18607711bab89ba8140541298915fb"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "57099c16ca89ed6e23f69706983df97cf15574980a80dcfda1e6716b20ec1723"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "sha256": "bd86057eb8c909274482478e4c9dc1b95292bd14cd081eae91043142fe738a76"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "6f69b6323fd1164e7fbbadf92f94fa63d43e9eb0293aeb6be929ddd9c9d4a2f6"
+    },
+    {
+      "path": "src/codecs/jpegxl-exif.ts",
+      "sha256": "60d1f5be35ed8c1321ed62ffb16c8f3809158445d5e08f34ab6c1f7c49a60dad"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "a7b125aaab4640aef6491141dd201f778f9a6da1dfd17e50688c1c5b04b221a4"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-color.ts",
+      "sha256": "58051df0e321a3e1decf879be1b916e03e86ead75e2e7c524bb9438fecd66eac"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "b8e848196a9b481b5b63cd4a0f0bb8568f7267bc67b4c46956544d64ce588eda"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "5c033a40e7520a1478eb3b7a51e981debfff7c5962c70b118e746cfa2dfd3b67"
+    },
+    {
+      "path": "src/codecs/jpegxl-icc.ts",
+      "sha256": "faa3410a31a922dc2b9eec1f59b268874275e4bb5e93fd83b611c549637a9166"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "sha256": "218c694d25d2560ea246e8b0fce9e72b53c3e69546bc9ef43df248837b1cd40c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "sha256": "c4ed783b0824d6855b51cd506a1f0a06cb89529bc066663224e5695f0f7b1cc0"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "fece7df514d4fee90c9547ca8c50e7ed24878a8ed66e97201fc525163eb89387"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "29d5dcd6a00ad4fce0103799f2783b40ecfc233a759d55908c6f64bab0657984"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "c780f9c80e44d98d8f58470107c518208bc0164520495bd72ad5a44d5d6e2753"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "195e1fd5f8b29d70c0b756a4579d69d93805bf3b31983e9fe700f153dc0c012c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "84c5883b79b4abd4d92ad72f4788fdc771ed7aa3ca309402a6c272f61e1840ab"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50067f8a39524a318942811e83b7a22021254afed174ef26242da09080c1c195"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "d8dbfd83044b34e487ec3e8b097bf9e486d382e31e994e76a4068aacd966b23d"
+    },
+    {
+      "path": "src/codecs/jpegxl-limits.ts",
+      "sha256": "c2b8bf339c8ec40b9180ac999c105eb58eeba7651d812fc48fef0624bef7c2f7"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "2ca5a6c1a07f04f03a41841a16ddfc8329cbd77d7410478931538085daad2ce7"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "f79a6e093fb7015fb098b491d12809f27a9b2efaaf7241901d45e00d6c306e8e"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "32599fbe89f1d114d2e2be79927b6c70ffb473190df83ad20f20f0965ce653aa"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "ba2c37131d5fdd8bb47d67eea8851c0c7ab3c241fd512db894667c94e9ecf9d9"
+    },
+    {
+      "path": "src/codecs/jpegxl-patch-blend.ts",
+      "sha256": "72ed255fc24131acd09219648524a588f5cc67dbcdf2092c22515b0a0de5ff6f"
+    },
+    {
+      "path": "src/codecs/jpegxl-progressive-plan.ts",
+      "sha256": "ba192b7c38c6943779170b91ef70a2f8bc743ea0ee8c80ab40e7b0441a91b194"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence-encode.ts",
+      "sha256": "d9a429095cb03b4e679f0e9f5b7d0fac82243d67f736f937c66c76f2d123b4cc"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "53f5761d5eb565becfcdadf68013eb17a7a15e76cf2644a7678bcd2df53ce33a"
+    },
+    {
+      "path": "src/codecs/jpegxl-session.ts",
+      "sha256": "9c03e99023b475cf273d0d10a7c5cad2822f7135ef165e225e912c2a6b216bff"
+    },
+    {
+      "path": "src/codecs/jpegxl-splines.ts",
+      "sha256": "11f48d5aa3e071c301755c2673d341f8c6b128d59c61371ccced704ab25789ae"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "3f73e609c1cd156c1833cc08890428d0a05442fa4045c0a41782c5e51a70d092"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "eb460ffc022c9e9c27c9495208427494b91805aeb7e6973312b79f02457e7c1a"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "sha256": "cbc906121c669209a172e2ef3f35295080206cb0565c3c7deaf29dfe557a95d5"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "sha256": "66d6339f04a58c3a5be1683f20bbeddb09841cab480efe5602d64d59ed6dd17f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "sha256": "d3cac31180d273352f150402c2319c44ed3a8e5faa809160242c410ed4649b07"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "sha256": "66d49025d914fa4146fd53841944ba23144625142f222cf57160d6b5cd4804e6"
+    },
+    {
+      "path": "src/pipeline.ts",
+      "sha256": "b550e283e67c66ef2ffff0e62b92ca1cc931a305e2190bd65e21872d83d3db5b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/gap-alpha/manifest.json",
+      "sha256": "4a4f6aa40676b440da867565c8909afca1cd84da958c13f3cd95342a84623e18"
+    },
+    {
+      "path": "tests/helpers/jpegxl-gap-completion.ts",
+      "sha256": "019e173e16404ddb953b38376bbeb8f1d1a9a33b57b991c17fd038c8d96b2de9"
+    },
+    {
+      "path": "tests/jpegxl-gap-completion.test.ts",
+      "sha256": "5c18795c4e6f899196901353a002357488eca98cdd85428f5e6cb6730b315f9b"
+    }
+  ]
+}

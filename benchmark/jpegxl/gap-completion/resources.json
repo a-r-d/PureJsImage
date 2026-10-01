@@ -1,0 +1,2053 @@
+{
+  "schemaVersion": 1,
+  "node": "v24.16.0",
+  "methodology": "One isolated process per row. Warm runs follow two complete workflows and two GC calls before measurement. Absolute peak RSS includes warmup, while baseline and after include external and ArrayBuffer memory. Validate all output against pinned libjxl, LittleCMS or FFmpeg references before reporting timing. Grouped crops cross x=1024. Composition retains canvas/reference planes; encoder stages planar Float32 bits and native compressed output.",
+  "rows": [
+    {
+      "id": "rgb16-icc-mab",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 42.339680999999985,
+      "outputMegapixelsPerSecond": 0.00037789609232058235,
+      "absoluteProcessPeakRss": 131366912,
+      "baseline": {
+        "rss": 123793408,
+        "heapTotal": 46698496,
+        "heapUsed": 11755312,
+        "external": 13419967,
+        "arrayBuffers": 354677
+      },
+      "after": {
+        "rss": 131366912,
+        "heapTotal": 47484928,
+        "heapUsed": 27946696,
+        "external": 14372057,
+        "arrayBuffers": 1266350
+      },
+      "inputBytes": 2001,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3157522,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 676,
+      "maximumAlpha": 0,
+      "outputSha256": "e19de068ebdc269c77609a3f1f5137568c8cd3592735e0102aacaf803ce2599d"
+    },
+    {
+      "id": "rgb16-icc-mab",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 103.66260299999999,
+      "outputMegapixelsPerSecond": 0.00015434688631154673,
+      "absoluteProcessPeakRss": 139677696,
+      "baseline": {
+        "rss": 123977728,
+        "heapTotal": 47484928,
+        "heapUsed": 11755312,
+        "external": 13419967,
+        "arrayBuffers": 354677
+      },
+      "after": {
+        "rss": 139677696,
+        "heapTotal": 48271360,
+        "heapUsed": 27436720,
+        "external": 15307786,
+        "arrayBuffers": 2202079
+      },
+      "inputBytes": 2001,
+      "encodedBytes": 197,
+      "estimatedWorkingBytes": 3157522,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 676,
+      "maximumAlpha": 0,
+      "outputSha256": "e19de068ebdc269c77609a3f1f5137568c8cd3592735e0102aacaf803ce2599d"
+    },
+    {
+      "id": "rgb16-icc-mab",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 22.60739699999999,
+      "outputMegapixelsPerSecond": 0.0007077329601457437,
+      "absoluteProcessPeakRss": 130232320,
+      "baseline": {
+        "rss": 130232320,
+        "heapTotal": 48533504,
+        "heapUsed": 12356320,
+        "external": 13464492,
+        "arrayBuffers": 358785
+      },
+      "after": {
+        "rss": 130232320,
+        "heapTotal": 48533504,
+        "heapUsed": 25362600,
+        "external": 14372057,
+        "arrayBuffers": 1266350
+      },
+      "inputBytes": 2001,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3157522,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 676,
+      "maximumAlpha": 0,
+      "outputSha256": "e19de068ebdc269c77609a3f1f5137568c8cd3592735e0102aacaf803ce2599d"
+    },
+    {
+      "id": "rgb16-icc-mab",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 55.95468800000003,
+      "outputMegapixelsPerSecond": 0.0002859456565998543,
+      "absoluteProcessPeakRss": 140775424,
+      "baseline": {
+        "rss": 140775424,
+        "heapTotal": 48533504,
+        "heapUsed": 13179336,
+        "external": 13466540,
+        "arrayBuffers": 360833
+      },
+      "after": {
+        "rss": 140775424,
+        "heapTotal": 48533504,
+        "heapUsed": 22432936,
+        "external": 15307786,
+        "arrayBuffers": 2202079
+      },
+      "inputBytes": 2001,
+      "encodedBytes": 197,
+      "estimatedWorkingBytes": 3157522,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 676,
+      "maximumAlpha": 0,
+      "outputSha256": "e19de068ebdc269c77609a3f1f5137568c8cd3592735e0102aacaf803ce2599d"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 96.198826,
+      "outputMegapixelsPerSecond": 0.03196504705785079,
+      "absoluteProcessPeakRss": 141623296,
+      "baseline": {
+        "rss": 118378496,
+        "heapTotal": 29921280,
+        "heapUsed": 11755376,
+        "external": 13488871,
+        "arrayBuffers": 423496
+      },
+      "after": {
+        "rss": 138072064,
+        "heapTotal": 50835456,
+        "heapUsed": 22139856,
+        "external": 16868179,
+        "arrayBuffers": 3762472
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "3e24a0f8afa8df72fb6c387cf0a8c9ded9b3e650d0cbdbbff1547c6befe23a9a"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 235.06771700000002,
+      "outputMegapixelsPerSecond": 0.013081336898337256,
+      "absoluteProcessPeakRss": 152276992,
+      "baseline": {
+        "rss": 119816192,
+        "heapTotal": 30183424,
+        "heapUsed": 11755368,
+        "external": 13488871,
+        "arrayBuffers": 423496
+      },
+      "after": {
+        "rss": 147116032,
+        "heapTotal": 53137408,
+        "heapUsed": 19087208,
+        "external": 20281435,
+        "arrayBuffers": 6910505
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 22113,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "3e24a0f8afa8df72fb6c387cf0a8c9ded9b3e650d0cbdbbff1547c6befe23a9a"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 91.729266,
+      "outputMegapixelsPerSecond": 0.0002289345692573186,
+      "absoluteProcessPeakRss": 150814720,
+      "baseline": {
+        "rss": 125202432,
+        "heapTotal": 47747072,
+        "heapUsed": 11755328,
+        "external": 13464439,
+        "arrayBuffers": 399064
+      },
+      "after": {
+        "rss": 149762048,
+        "heapTotal": 55312384,
+        "heapUsed": 33492912,
+        "external": 16746019,
+        "arrayBuffers": 3640312
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "debe819b7ab2f24b72a8de41aaf5ae524c4ea98a040cc18fd71e072fc8f13baf"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 189.15828299999998,
+      "outputMegapixelsPerSecond": 0.00011101813606544526,
+      "absoluteProcessPeakRss": 154054656,
+      "baseline": {
+        "rss": 123863040,
+        "heapTotal": 47222784,
+        "heapUsed": 11755208,
+        "external": 13464439,
+        "arrayBuffers": 399064
+      },
+      "after": {
+        "rss": 152190976,
+        "heapTotal": 59600896,
+        "heapUsed": 33545248,
+        "external": 19967912,
+        "arrayBuffers": 6862205
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 308,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "debe819b7ab2f24b72a8de41aaf5ae524c4ea98a040cc18fd71e072fc8f13baf"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 78.3637,
+      "outputMegapixelsPerSecond": 0.03924010734562049,
+      "absoluteProcessPeakRss": 149880832,
+      "baseline": {
+        "rss": 143556608,
+        "heapTotal": 48271360,
+        "heapUsed": 12389016,
+        "external": 13533823,
+        "arrayBuffers": 428116
+      },
+      "after": {
+        "rss": 147378176,
+        "heapTotal": 51904512,
+        "heapUsed": 27185592,
+        "external": 16868179,
+        "arrayBuffers": 3762472
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "3e24a0f8afa8df72fb6c387cf0a8c9ded9b3e650d0cbdbbff1547c6befe23a9a"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 162.64448300000004,
+      "outputMegapixelsPerSecond": 0.01890626686673411,
+      "absoluteProcessPeakRss": 188002304,
+      "baseline": {
+        "rss": 175656960,
+        "heapTotal": 82612224,
+        "heapUsed": 13187104,
+        "external": 13535871,
+        "arrayBuffers": 430164
+      },
+      "after": {
+        "rss": 181596160,
+        "heapTotal": 88567808,
+        "heapUsed": 40779112,
+        "external": 19494787,
+        "arrayBuffers": 6389080
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 22113,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "3e24a0f8afa8df72fb6c387cf0a8c9ded9b3e650d0cbdbbff1547c6befe23a9a"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 74.71950999999996,
+      "outputMegapixelsPerSecond": 0.00028105109361664725,
+      "absoluteProcessPeakRss": 148447232,
+      "baseline": {
+        "rss": 142102528,
+        "heapTotal": 47747072,
+        "heapUsed": 12372496,
+        "external": 13509391,
+        "arrayBuffers": 403684
+      },
+      "after": {
+        "rss": 145813504,
+        "heapTotal": 51380224,
+        "heapUsed": 26027976,
+        "external": 16746019,
+        "arrayBuffers": 3640312
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "debe819b7ab2f24b72a8de41aaf5ae524c4ea98a040cc18fd71e072fc8f13baf"
+    },
+    {
+      "id": "rgb32-icc-associated-grouped",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 136.21717999999998,
+      "outputMegapixelsPerSecond": 0.00015416557588404049,
+      "absoluteProcessPeakRss": 189046784,
+      "baseline": {
+        "rss": 177086464,
+        "heapTotal": 82350080,
+        "heapUsed": 13318464,
+        "external": 13511439,
+        "arrayBuffers": 405732
+      },
+      "after": {
+        "rss": 183316480,
+        "heapTotal": 88432640,
+        "heapUsed": 35686648,
+        "external": 19181264,
+        "arrayBuffers": 6075557
+      },
+      "inputBytes": 38100,
+      "encodedBytes": 308,
+      "estimatedWorkingBytes": 3890296,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 48,
+      "maximumAlpha": 0,
+      "outputSha256": "debe819b7ab2f24b72a8de41aaf5ae524c4ea98a040cc18fd71e072fc8f13baf"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 11.436220999999989,
+      "outputMegapixelsPerSecond": 0.0013990635542982261,
+      "absoluteProcessPeakRss": 125431808,
+      "baseline": {
+        "rss": 124977152,
+        "heapTotal": 46960640,
+        "heapUsed": 11755448,
+        "external": 13418096,
+        "arrayBuffers": 352828
+      },
+      "after": {
+        "rss": 125431808,
+        "heapTotal": 47222784,
+        "heapUsed": 13200200,
+        "external": 13481039,
+        "arrayBuffers": 375332
+      },
+      "inputBytes": 248,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 36734,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "e5aff9cceb38bf456faa800e6e5e3f86576887ae803b667cf32d05c3fe4505fc"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 10.990185999999994,
+      "outputMegapixelsPerSecond": 0.0014558443323889156,
+      "absoluteProcessPeakRss": 125485056,
+      "baseline": {
+        "rss": 124727296,
+        "heapTotal": 47222784,
+        "heapUsed": 11755312,
+        "external": 13418318,
+        "arrayBuffers": 353020
+      },
+      "after": {
+        "rss": 125485056,
+        "heapTotal": 47484928,
+        "heapUsed": 13212944,
+        "external": 13481471,
+        "arrayBuffers": 375764
+      },
+      "inputBytes": 248,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 36806,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0.000016689300537109375,
+      "maximumAlpha": 0,
+      "outputSha256": "6e876392baa4951785ef72387e4dc43d566ea2bbe51657c81f29de2d804c26fc"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 44.33862799999997,
+      "outputMegapixelsPerSecond": 0.0003608591587452821,
+      "absoluteProcessPeakRss": 126140416,
+      "baseline": {
+        "rss": 125120512,
+        "heapTotal": 47222784,
+        "heapUsed": 11755376,
+        "external": 13418096,
+        "arrayBuffers": 352828
+      },
+      "after": {
+        "rss": 126140416,
+        "heapTotal": 47747072,
+        "heapUsed": 16436904,
+        "external": 13657952,
+        "arrayBuffers": 552245
+      },
+      "inputBytes": 248,
+      "encodedBytes": 168,
+      "estimatedWorkingBytes": 36734,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "e5aff9cceb38bf456faa800e6e5e3f86576887ae803b667cf32d05c3fe4505fc"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.3154900000000112,
+      "outputMegapixelsPerSecond": 0.012162768246052698,
+      "absoluteProcessPeakRss": 126279680,
+      "baseline": {
+        "rss": 126148608,
+        "heapTotal": 47222784,
+        "heapUsed": 12234848,
+        "external": 13479151,
+        "arrayBuffers": 373444
+      },
+      "after": {
+        "rss": 126279680,
+        "heapTotal": 47222784,
+        "heapUsed": 12619136,
+        "external": 13480391,
+        "arrayBuffers": 374684
+      },
+      "inputBytes": 248,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 36734,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "e5aff9cceb38bf456faa800e6e5e3f86576887ae803b667cf32d05c3fe4505fc"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 2.0864329999999995,
+      "outputMegapixelsPerSecond": 0.007668590364512066,
+      "absoluteProcessPeakRss": 123944960,
+      "baseline": {
+        "rss": 123944960,
+        "heapTotal": 47747072,
+        "heapUsed": 12228656,
+        "external": 13479295,
+        "arrayBuffers": 373588
+      },
+      "after": {
+        "rss": 123944960,
+        "heapTotal": 47747072,
+        "heapUsed": 12609296,
+        "external": 13480823,
+        "arrayBuffers": 375116
+      },
+      "inputBytes": 248,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 36806,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0.000016689300537109375,
+      "maximumAlpha": 0,
+      "outputSha256": "6e876392baa4951785ef72387e4dc43d566ea2bbe51657c81f29de2d804c26fc"
+    },
+    {
+      "id": "pq32-rec2020",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 4.479266999999993,
+      "outputMegapixelsPerSecond": 0.0035720130101643916,
+      "absoluteProcessPeakRss": 125792256,
+      "baseline": {
+        "rss": 125792256,
+        "heapTotal": 48009216,
+        "heapUsed": 13069960,
+        "external": 13481199,
+        "arrayBuffers": 375492
+      },
+      "after": {
+        "rss": 125923328,
+        "heapTotal": 48009216,
+        "heapUsed": 14346968,
+        "external": 13536633,
+        "arrayBuffers": 430926
+      },
+      "inputBytes": 248,
+      "encodedBytes": 168,
+      "estimatedWorkingBytes": 36734,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "e5aff9cceb38bf456faa800e6e5e3f86576887ae803b667cf32d05c3fe4505fc"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 12.740402999999958,
+      "outputMegapixelsPerSecond": 0.0012558472443925089,
+      "absoluteProcessPeakRss": 124968960,
+      "baseline": {
+        "rss": 124473344,
+        "heapTotal": 46960640,
+        "heapUsed": 11755544,
+        "external": 13418214,
+        "arrayBuffers": 352938
+      },
+      "after": {
+        "rss": 124968960,
+        "heapTotal": 47222784,
+        "heapUsed": 13093304,
+        "external": 13482263,
+        "arrayBuffers": 376556
+      },
+      "inputBytes": 358,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37470,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "b792840ed7db4906e8db23e5f88cd3648f39cffcce457a074e4eddb4feca4d61"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 11.653165999999999,
+      "outputMegapixelsPerSecond": 0.001373017427195322,
+      "absoluteProcessPeakRss": 124305408,
+      "baseline": {
+        "rss": 123678720,
+        "heapTotal": 47222784,
+        "heapUsed": 11755464,
+        "external": 13418546,
+        "arrayBuffers": 353194
+      },
+      "after": {
+        "rss": 124305408,
+        "heapTotal": 47484928,
+        "heapUsed": 13102544,
+        "external": 13482839,
+        "arrayBuffers": 377132
+      },
+      "inputBytes": 358,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37566,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0.000052928924560546875,
+      "maximumAlpha": 0,
+      "outputSha256": "4be476777a018e83649b1aaa267e1fdc1ca76d54f19880c76b924ee2d76d12a7"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 50.668499,
+      "outputMegapixelsPerSecond": 0.0003157780537370961,
+      "absoluteProcessPeakRss": 124878848,
+      "baseline": {
+        "rss": 123858944,
+        "heapTotal": 47484928,
+        "heapUsed": 11755616,
+        "external": 13418214,
+        "arrayBuffers": 352938
+      },
+      "after": {
+        "rss": 124878848,
+        "heapTotal": 47747072,
+        "heapUsed": 16661784,
+        "external": 13674237,
+        "arrayBuffers": 568530
+      },
+      "inputBytes": 358,
+      "encodedBytes": 200,
+      "estimatedWorkingBytes": 37470,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "b792840ed7db4906e8db23e5f88cd3648f39cffcce457a074e4eddb4feca4d61"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.696815000000015,
+      "outputMegapixelsPerSecond": 0.00942943102223864,
+      "absoluteProcessPeakRss": 125452288,
+      "baseline": {
+        "rss": 125452288,
+        "heapTotal": 48271360,
+        "heapUsed": 12254208,
+        "external": 13479277,
+        "arrayBuffers": 373570
+      },
+      "after": {
+        "rss": 125452288,
+        "heapTotal": 48271360,
+        "heapUsed": 12721048,
+        "external": 13480895,
+        "arrayBuffers": 375188
+      },
+      "inputBytes": 358,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37470,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "b792840ed7db4906e8db23e5f88cd3648f39cffcce457a074e4eddb4feca4d61"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.885654000000045,
+      "outputMegapixelsPerSecond": 0.00848511975155549,
+      "absoluteProcessPeakRss": 122818560,
+      "baseline": {
+        "rss": 122687488,
+        "heapTotal": 47484928,
+        "heapUsed": 12248016,
+        "external": 13479469,
+        "arrayBuffers": 373762
+      },
+      "after": {
+        "rss": 122818560,
+        "heapTotal": 47484928,
+        "heapUsed": 12710296,
+        "external": 13481471,
+        "arrayBuffers": 375764
+      },
+      "inputBytes": 358,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37566,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0.000052928924560546875,
+      "maximumAlpha": 0,
+      "outputSha256": "4be476777a018e83649b1aaa267e1fdc1ca76d54f19880c76b924ee2d76d12a7"
+    },
+    {
+      "id": "hlg16-p3-alpha",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 4.739420999999993,
+      "outputMegapixelsPerSecond": 0.0033759398036173668,
+      "absoluteProcessPeakRss": 125476864,
+      "baseline": {
+        "rss": 125083648,
+        "heapTotal": 48009216,
+        "heapUsed": 13135928,
+        "external": 13481325,
+        "arrayBuffers": 375618
+      },
+      "after": {
+        "rss": 125476864,
+        "heapTotal": 48009216,
+        "heapUsed": 14674512,
+        "external": 13552198,
+        "arrayBuffers": 446491
+      },
+      "inputBytes": 358,
+      "encodedBytes": 200,
+      "estimatedWorkingBytes": 37470,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "b792840ed7db4906e8db23e5f88cd3648f39cffcce457a074e4eddb4feca4d61"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 12.830085999999994,
+      "outputMegapixelsPerSecond": 0.0012470688037476917,
+      "absoluteProcessPeakRss": 125751296,
+      "baseline": {
+        "rss": 125296640,
+        "heapTotal": 47222784,
+        "heapUsed": 11755560,
+        "external": 13418160,
+        "arrayBuffers": 352881
+      },
+      "after": {
+        "rss": 125751296,
+        "heapTotal": 47484928,
+        "heapUsed": 13327616,
+        "external": 13481244,
+        "arrayBuffers": 375537
+      },
+      "inputBytes": 301,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37356,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "c619a2de9a2f8bf74dda16d23e2244c84ede4d363fefe04ccfd9549b5881f465"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 11.340604000000042,
+      "outputMegapixelsPerSecond": 0.0014108595979543893,
+      "absoluteProcessPeakRss": 118353920,
+      "baseline": {
+        "rss": 117727232,
+        "heapTotal": 30183424,
+        "heapUsed": 11755480,
+        "external": 13418443,
+        "arrayBuffers": 353137
+      },
+      "after": {
+        "rss": 118353920,
+        "heapTotal": 30445568,
+        "heapUsed": 13227504,
+        "external": 13481820,
+        "arrayBuffers": 376113
+      },
+      "inputBytes": 301,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37452,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "5bcd59e3763bfdd8a21b20aa690b794f36e6bf934dfede1d2ecc5788382c912d"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 41.35642999999999,
+      "outputMegapixelsPerSecond": 0.000386880589064385,
+      "absoluteProcessPeakRss": 123949056,
+      "baseline": {
+        "rss": 122929152,
+        "heapTotal": 47484928,
+        "heapUsed": 11755560,
+        "external": 13418160,
+        "arrayBuffers": 352881
+      },
+      "after": {
+        "rss": 123949056,
+        "heapTotal": 47747072,
+        "heapUsed": 16724584,
+        "external": 13673230,
+        "arrayBuffers": 567523
+      },
+      "inputBytes": 301,
+      "encodedBytes": 200,
+      "estimatedWorkingBytes": 37356,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "c619a2de9a2f8bf74dda16d23e2244c84ede4d363fefe04ccfd9549b5881f465"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.3122639999999706,
+      "outputMegapixelsPerSecond": 0.012192668548402119,
+      "absoluteProcessPeakRss": 125145088,
+      "baseline": {
+        "rss": 125145088,
+        "heapTotal": 46698496,
+        "heapUsed": 12240856,
+        "external": 13479220,
+        "arrayBuffers": 373513
+      },
+      "after": {
+        "rss": 125145088,
+        "heapTotal": 46698496,
+        "heapUsed": 12658952,
+        "external": 13480596,
+        "arrayBuffers": 374889
+      },
+      "inputBytes": 301,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37356,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "c619a2de9a2f8bf74dda16d23e2244c84ede4d363fefe04ccfd9549b5881f465"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.485036999999977,
+      "outputMegapixelsPerSecond": 0.010774142327767085,
+      "absoluteProcessPeakRss": 125997056,
+      "baseline": {
+        "rss": 125997056,
+        "heapTotal": 47222784,
+        "heapUsed": 12234552,
+        "external": 13479412,
+        "arrayBuffers": 373705
+      },
+      "after": {
+        "rss": 125997056,
+        "heapTotal": 47222784,
+        "heapUsed": 12645872,
+        "external": 13481172,
+        "arrayBuffers": 375465
+      },
+      "inputBytes": 301,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 37452,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "5bcd59e3763bfdd8a21b20aa690b794f36e6bf934dfede1d2ecc5788382c912d"
+    },
+    {
+      "id": "linear32-rec2020-headroom",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 5.408500000000004,
+      "outputMegapixelsPerSecond": 0.0029583063696034004,
+      "absoluteProcessPeakRss": 119521280,
+      "baseline": {
+        "rss": 119390208,
+        "heapTotal": 30707712,
+        "heapUsed": 13123768,
+        "external": 13481268,
+        "arrayBuffers": 375561
+      },
+      "after": {
+        "rss": 119521280,
+        "heapTotal": 30707712,
+        "heapUsed": 14591336,
+        "external": 13551911,
+        "arrayBuffers": 446204
+      },
+      "inputBytes": 301,
+      "encodedBytes": 200,
+      "estimatedWorkingBytes": 37356,
+      "fullFrameFallbackReasons": [
+        "Static native Modular decoding retains full channel planes; converted pixels use output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "c619a2de9a2f8bf74dda16d23e2244c84ede4d363fefe04ccfd9549b5881f465"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 45.54832499999998,
+      "outputMegapixelsPerSecond": 0.06751071526779527,
+      "absoluteProcessPeakRss": 127094784,
+      "baseline": {
+        "rss": 123846656,
+        "heapTotal": 46960640,
+        "heapUsed": 11755584,
+        "external": 13501538,
+        "arrayBuffers": 435691
+      },
+      "after": {
+        "rss": 127094784,
+        "heapTotal": 48009216,
+        "heapUsed": 21063752,
+        "external": 15043069,
+        "arrayBuffers": 1937362
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "3e2cdbf70d63f9915e2a253a998f34865335464c737eed32f747f529be5daa14"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 81.97614200000004,
+      "outputMegapixelsPerSecond": 0.03751091384612853,
+      "absoluteProcessPeakRss": 133169152,
+      "baseline": {
+        "rss": 121925632,
+        "heapTotal": 46960640,
+        "heapUsed": 11755624,
+        "external": 13501538,
+        "arrayBuffers": 435691
+      },
+      "after": {
+        "rss": 133169152,
+        "heapTotal": 48533504,
+        "heapUsed": 25582824,
+        "external": 15640060,
+        "arrayBuffers": 2534353
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 29713,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "3e2cdbf70d63f9915e2a253a998f34865335464c737eed32f747f529be5daa14"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 42.56778800000001,
+      "outputMegapixelsPerSecond": 0.0004933307786629645,
+      "absoluteProcessPeakRss": 127279104,
+      "baseline": {
+        "rss": 124293120,
+        "heapTotal": 46960640,
+        "heapUsed": 11755584,
+        "external": 13452674,
+        "arrayBuffers": 386827
+      },
+      "after": {
+        "rss": 127279104,
+        "heapTotal": 48009216,
+        "heapUsed": 20507688,
+        "external": 14896477,
+        "arrayBuffers": 1790770
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "ca7d8085caa9a30f171d06d1536416a20fc97f0272e300ee392a628bc5b68429"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 67.54357399999998,
+      "outputMegapixelsPerSecond": 0.00031091040577746167,
+      "absoluteProcessPeakRss": 128929792,
+      "baseline": {
+        "rss": 125460480,
+        "heapTotal": 46960640,
+        "heapUsed": 11755584,
+        "external": 13452674,
+        "arrayBuffers": 386827
+      },
+      "after": {
+        "rss": 128929792,
+        "heapTotal": 48009216,
+        "heapUsed": 23173616,
+        "external": 15026521,
+        "arrayBuffers": 1920814
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 298,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "ca7d8085caa9a30f171d06d1536416a20fc97f0272e300ee392a628bc5b68429"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 43.34555799999998,
+      "outputMegapixelsPerSecond": 0.07094152531154407,
+      "absoluteProcessPeakRss": 134606848,
+      "baseline": {
+        "rss": 127135744,
+        "heapTotal": 48533504,
+        "heapUsed": 12667504,
+        "external": 13541410,
+        "arrayBuffers": 435703
+      },
+      "after": {
+        "rss": 134606848,
+        "heapTotal": 48533504,
+        "heapUsed": 28309840,
+        "external": 15043069,
+        "arrayBuffers": 1937362
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "3e2cdbf70d63f9915e2a253a998f34865335464c737eed32f747f529be5daa14"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 73.10509400000001,
+      "outputMegapixelsPerSecond": 0.042062732317942164,
+      "absoluteProcessPeakRss": 123482112,
+      "baseline": {
+        "rss": 122433536,
+        "heapTotal": 31494144,
+        "heapUsed": 13243608,
+        "external": 13543458,
+        "arrayBuffers": 437751
+      },
+      "after": {
+        "rss": 123482112,
+        "heapTotal": 32018432,
+        "heapUsed": 18818408,
+        "external": 14509115,
+        "arrayBuffers": 1403408
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 29713,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "3e2cdbf70d63f9915e2a253a998f34865335464c737eed32f747f529be5daa14"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 42.28044799999998,
+      "outputMegapixelsPerSecond": 0.0004966834788505555,
+      "absoluteProcessPeakRss": 136290304,
+      "baseline": {
+        "rss": 129605632,
+        "heapTotal": 48271360,
+        "heapUsed": 12663016,
+        "external": 13492546,
+        "arrayBuffers": 386839
+      },
+      "after": {
+        "rss": 136290304,
+        "heapTotal": 48271360,
+        "heapUsed": 28238560,
+        "external": 14896477,
+        "arrayBuffers": 1790770
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "ca7d8085caa9a30f171d06d1536416a20fc97f0272e300ee392a628bc5b68429"
+    },
+    {
+      "id": "float32-multiply-grouped-0",
+      "category": "float",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 39.45345000000003,
+      "outputMegapixelsPerSecond": 0.0005322728430593517,
+      "absoluteProcessPeakRss": 135147520,
+      "baseline": {
+        "rss": 134885376,
+        "heapTotal": 48533504,
+        "heapUsed": 13427064,
+        "external": 13494594,
+        "arrayBuffers": 388887
+      },
+      "after": {
+        "rss": 135147520,
+        "heapTotal": 49319936,
+        "heapUsed": 28688072,
+        "external": 14905850,
+        "arrayBuffers": 1800143
+      },
+      "inputBytes": 1095,
+      "encodedBytes": 298,
+      "estimatedWorkingBytes": 1066602,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0,
+      "maximumAlpha": 0,
+      "outputSha256": "ca7d8085caa9a30f171d06d1536416a20fc97f0272e300ee392a628bc5b68429"
+    },
+    {
+      "id": "float32-icc-blend-animation-2",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 89.32865399999997,
+      "outputMegapixelsPerSecond": 0.0002015030921657009,
+      "absoluteProcessPeakRss": 150556672,
+      "baseline": {
+        "rss": 124915712,
+        "heapTotal": 47747072,
+        "heapUsed": 11755664,
+        "external": 13418865,
+        "arrayBuffers": 353527
+      },
+      "after": {
+        "rss": 149893120,
+        "heapTotal": 54337536,
+        "heapUsed": 32565776,
+        "external": 16654654,
+        "arrayBuffers": 3548947
+      },
+      "inputBytes": 803,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3161572,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 49,
+      "maximumAlpha": 0,
+      "outputSha256": "e05a74305b5e9ff229892ed1a3cf27bfdfafda426b58168ed76aa9776a9e516c"
+    },
+    {
+      "id": "float32-icc-blend-animation-2",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 186.325833,
+      "outputMegapixelsPerSecond": 0.00009660496191099815,
+      "absoluteProcessPeakRss": 154718208,
+      "baseline": {
+        "rss": 124977152,
+        "heapTotal": 47222784,
+        "heapUsed": 11755712,
+        "external": 13418865,
+        "arrayBuffers": 353527
+      },
+      "after": {
+        "rss": 152535040,
+        "heapTotal": 58277888,
+        "heapUsed": 32620320,
+        "external": 19876698,
+        "arrayBuffers": 6770991
+      },
+      "inputBytes": 803,
+      "encodedBytes": 318,
+      "estimatedWorkingBytes": 3161572,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 49,
+      "maximumAlpha": 0,
+      "outputSha256": "e05a74305b5e9ff229892ed1a3cf27bfdfafda426b58168ed76aa9776a9e516c"
+    },
+    {
+      "id": "float32-icc-blend-animation-2",
+      "category": "icc",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 63.460556999999994,
+      "outputMegapixelsPerSecond": 0.0002836407502694942,
+      "absoluteProcessPeakRss": 142225408,
+      "baseline": {
+        "rss": 135663616,
+        "heapTotal": 47747072,
+        "heapUsed": 12623984,
+        "external": 13463854,
+        "arrayBuffers": 358147
+      },
+      "after": {
+        "rss": 139366400,
+        "heapTotal": 51380224,
+        "heapUsed": 25782096,
+        "external": 16654654,
+        "arrayBuffers": 3548947
+      },
+      "inputBytes": 803,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3161572,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 49,
+      "maximumAlpha": 0,
+      "outputSha256": "e05a74305b5e9ff229892ed1a3cf27bfdfafda426b58168ed76aa9776a9e516c"
+    },
+    {
+      "id": "float32-icc-blend-animation-2",
+      "category": "icc",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 124.16529500000001,
+      "outputMegapixelsPerSecond": 0.0001449680444120879,
+      "absoluteProcessPeakRss": 186949632,
+      "baseline": {
+        "rss": 175263744,
+        "heapTotal": 82350080,
+        "heapUsed": 13439720,
+        "external": 13465902,
+        "arrayBuffers": 360195
+      },
+      "after": {
+        "rss": 181125120,
+        "heapTotal": 88305664,
+        "heapUsed": 35940312,
+        "external": 19090050,
+        "arrayBuffers": 5984343
+      },
+      "inputBytes": 803,
+      "encodedBytes": 318,
+      "estimatedWorkingBytes": 3161572,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 49,
+      "maximumAlpha": 0,
+      "outputSha256": "e05a74305b5e9ff229892ed1a3cf27bfdfafda426b58168ed76aa9776a9e516c"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 20.14552900000001,
+      "outputMegapixelsPerSecond": 0.0008934985028191611,
+      "absoluteProcessPeakRss": 125362176,
+      "baseline": {
+        "rss": 124596224,
+        "heapTotal": 46960640,
+        "heapUsed": 11755728,
+        "external": 13418291,
+        "arrayBuffers": 353002
+      },
+      "after": {
+        "rss": 125362176,
+        "heapTotal": 47222784,
+        "heapUsed": 13524328,
+        "external": 13487787,
+        "arrayBuffers": 382080
+      },
+      "inputBytes": 350,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39088,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "a8de0a9df347e6b9016f746618cbb6c7410e46c11623b64c500c381a4ea453f5"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 13.212759000000005,
+      "outputMegapixelsPerSecond": 0.0013623195579363849,
+      "absoluteProcessPeakRss": 123977728,
+      "baseline": {
+        "rss": 123219968,
+        "heapTotal": 46698496,
+        "heapUsed": 11755848,
+        "external": 13418579,
+        "arrayBuffers": 353218
+      },
+      "after": {
+        "rss": 123977728,
+        "heapTotal": 47484928,
+        "heapUsed": 13565232,
+        "external": 13488435,
+        "arrayBuffers": 382728
+      },
+      "inputBytes": 350,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39160,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0.00040531158447265625,
+      "maximumAlpha": 0,
+      "outputSha256": "d5fbe312139ac2fa97b6a5f1420cb752906346fdcc7a9b95f83b8258961ac750"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 38.877635999999995,
+      "outputMegapixelsPerSecond": 0.00046299111396588,
+      "absoluteProcessPeakRss": 120070144,
+      "baseline": {
+        "rss": 118788096,
+        "heapTotal": 29659136,
+        "heapUsed": 11755840,
+        "external": 13418291,
+        "arrayBuffers": 353002
+      },
+      "after": {
+        "rss": 120070144,
+        "heapTotal": 30707712,
+        "heapUsed": 17154112,
+        "external": 13680743,
+        "arrayBuffers": 575036
+      },
+      "inputBytes": 350,
+      "encodedBytes": 198,
+      "estimatedWorkingBytes": 39088,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "a8de0a9df347e6b9016f746618cbb6c7410e46c11623b64c500c381a4ea453f5"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 2.029674,
+      "outputMegapixelsPerSecond": 0.008868419263389096,
+      "absoluteProcessPeakRss": 119169024,
+      "baseline": {
+        "rss": 118906880,
+        "heapTotal": 30969856,
+        "heapUsed": 12534944,
+        "external": 13479277,
+        "arrayBuffers": 373570
+      },
+      "after": {
+        "rss": 119169024,
+        "heapTotal": 30969856,
+        "heapUsed": 13201736,
+        "external": 13487139,
+        "arrayBuffers": 381432
+      },
+      "inputBytes": 350,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39088,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "a8de0a9df347e6b9016f746618cbb6c7410e46c11623b64c500c381a4ea453f5"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.914212999999961,
+      "outputMegapixelsPerSecond": 0.009403342261284595,
+      "absoluteProcessPeakRss": 125775872,
+      "baseline": {
+        "rss": 125775872,
+        "heapTotal": 47484928,
+        "heapUsed": 12528568,
+        "external": 13479493,
+        "arrayBuffers": 373786
+      },
+      "after": {
+        "rss": 125775872,
+        "heapTotal": 47484928,
+        "heapUsed": 13190256,
+        "external": 13487787,
+        "arrayBuffers": 382080
+      },
+      "inputBytes": 350,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39160,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0.00040531158447265625,
+      "maximumAlpha": 0,
+      "outputSha256": "d5fbe312139ac2fa97b6a5f1420cb752906346fdcc7a9b95f83b8258961ac750"
+    },
+    {
+      "id": "pq32-associated-animation-2",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 5.915976999999998,
+      "outputMegapixelsPerSecond": 0.003042608177820841,
+      "absoluteProcessPeakRss": 120852480,
+      "baseline": {
+        "rss": 120721408,
+        "heapTotal": 31232000,
+        "heapUsed": 13345224,
+        "external": 13481325,
+        "arrayBuffers": 375618
+      },
+      "after": {
+        "rss": 120852480,
+        "heapTotal": 31232000,
+        "heapUsed": 15079968,
+        "external": 13559424,
+        "arrayBuffers": 453717
+      },
+      "inputBytes": 350,
+      "encodedBytes": 198,
+      "estimatedWorkingBytes": 39088,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "a8de0a9df347e6b9016f746618cbb6c7410e46c11623b64c500c381a4ea453f5"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 13.405077000000006,
+      "outputMegapixelsPerSecond": 0.0013427748307600167,
+      "absoluteProcessPeakRss": 119173120,
+      "baseline": {
+        "rss": 118808576,
+        "heapTotal": 29921280,
+        "heapUsed": 11755680,
+        "external": 13418273,
+        "arrayBuffers": 352975
+      },
+      "after": {
+        "rss": 119173120,
+        "heapTotal": 30445568,
+        "heapUsed": 13370624,
+        "external": 13488015,
+        "arrayBuffers": 382308
+      },
+      "inputBytes": 323,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39068,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "357d7934fa9fe1e568a499fc621cf9416a4d5aced533ab88a93b3c83190fc5eb"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 13.522199,
+      "outputMegapixelsPerSecond": 0.0013311444388593896,
+      "absoluteProcessPeakRss": 125620224,
+      "baseline": {
+        "rss": 124993536,
+        "heapTotal": 46698496,
+        "heapUsed": 11755792,
+        "external": 13418604,
+        "arrayBuffers": 353191
+      },
+      "after": {
+        "rss": 125620224,
+        "heapTotal": 47222784,
+        "heapUsed": 13358496,
+        "external": 13488663,
+        "arrayBuffers": 382956
+      },
+      "inputBytes": 323,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39140,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0.000091552734375,
+      "maximumAlpha": 0,
+      "outputSha256": "52d4e9cb333601a642b16e9b15ba256a52299103af957db65782175aa7821196"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 39.32403500000001,
+      "outputMegapixelsPerSecond": 0.00045773532649942956,
+      "absoluteProcessPeakRss": 125652992,
+      "baseline": {
+        "rss": 124370944,
+        "heapTotal": 46698496,
+        "heapUsed": 11755720,
+        "external": 13418273,
+        "arrayBuffers": 352975
+      },
+      "after": {
+        "rss": 125652992,
+        "heapTotal": 47747072,
+        "heapUsed": 17020192,
+        "external": 13681038,
+        "arrayBuffers": 575331
+      },
+      "inputBytes": 323,
+      "encodedBytes": 233,
+      "estimatedWorkingBytes": 39068,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "357d7934fa9fe1e568a499fc621cf9416a4d5aced533ab88a93b3c83190fc5eb"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 2.020241999999996,
+      "outputMegapixelsPerSecond": 0.008909823674589496,
+      "absoluteProcessPeakRss": 125734912,
+      "baseline": {
+        "rss": 125734912,
+        "heapTotal": 47747072,
+        "heapUsed": 12535784,
+        "external": 13479250,
+        "arrayBuffers": 373543
+      },
+      "after": {
+        "rss": 125734912,
+        "heapTotal": 47747072,
+        "heapUsed": 13200336,
+        "external": 13486647,
+        "arrayBuffers": 380940
+      },
+      "inputBytes": 323,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39068,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "357d7934fa9fe1e568a499fc621cf9416a4d5aced533ab88a93b3c83190fc5eb"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "linear",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 1.9080379999999764,
+      "outputMegapixelsPerSecond": 0.009433774379755656,
+      "absoluteProcessPeakRss": 120471552,
+      "baseline": {
+        "rss": 120340480,
+        "heapTotal": 30707712,
+        "heapUsed": 12529560,
+        "external": 13479466,
+        "arrayBuffers": 373759
+      },
+      "after": {
+        "rss": 120471552,
+        "heapTotal": 30707712,
+        "heapUsed": 13189232,
+        "external": 13487295,
+        "arrayBuffers": 381588
+      },
+      "inputBytes": 323,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 39140,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 0.000091552734375,
+      "maximumAlpha": 0,
+      "outputSha256": "52d4e9cb333601a642b16e9b15ba256a52299103af957db65782175aa7821196"
+    },
+    {
+      "id": "hlg32-blend-animation-2",
+      "category": "hdr",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 6.012134000000003,
+      "outputMegapixelsPerSecond": 0.0029939452447333994,
+      "absoluteProcessPeakRss": 125743104,
+      "baseline": {
+        "rss": 125612032,
+        "heapTotal": 48271360,
+        "heapUsed": 13346264,
+        "external": 13481298,
+        "arrayBuffers": 375591
+      },
+      "after": {
+        "rss": 125743104,
+        "heapTotal": 48271360,
+        "heapUsed": 15083824,
+        "external": 13558999,
+        "arrayBuffers": 453292
+      },
+      "inputBytes": 323,
+      "encodedBytes": 233,
+      "estimatedWorkingBytes": 39068,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 1,
+      "maximumAlpha": 0,
+      "outputSha256": "357d7934fa9fe1e568a499fc621cf9416a4d5aced533ab88a93b3c83190fc5eb"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 323.21067300000004,
+      "outputMegapixelsPerSecond": 0.009513918496125899,
+      "absoluteProcessPeakRss": 165384192,
+      "baseline": {
+        "rss": 125341696,
+        "heapTotal": 46960640,
+        "heapUsed": 11755424,
+        "external": 13837843,
+        "arrayBuffers": 771132
+      },
+      "after": {
+        "rss": 165384192,
+        "heapTotal": 48533504,
+        "heapUsed": 22109064,
+        "external": 37933951,
+        "arrayBuffers": 24828244
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 18,
+      "maximumAlpha": 0,
+      "outputSha256": "fe97a1996cfcd60f5ecff2c015e30dee6e731eeeb281db4b5d786fedd8a19bfb"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "full",
+      "milliseconds": 505.491628,
+      "outputMegapixelsPerSecond": 0.0060831868020571845,
+      "absoluteProcessPeakRss": 175996928,
+      "baseline": {
+        "rss": 124383232,
+        "heapTotal": 46698496,
+        "heapUsed": 11755424,
+        "external": 13837843,
+        "arrayBuffers": 771132
+      },
+      "after": {
+        "rss": 175996928,
+        "heapTotal": 49057792,
+        "heapUsed": 23830872,
+        "external": 26388792,
+        "arrayBuffers": 13283085
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 24226,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 18,
+      "maximumAlpha": 0,
+      "outputSha256": "fe97a1996cfcd60f5ecff2c015e30dee6e731eeeb281db4b5d786fedd8a19bfb"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "decode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 333.0486220000001,
+      "outputMegapixelsPerSecond": 0.00006305385644261874,
+      "absoluteProcessPeakRss": 162496512,
+      "baseline": {
+        "rss": 123727872,
+        "heapTotal": 47484928,
+        "heapUsed": 11755496,
+        "external": 13813411,
+        "arrayBuffers": 746700
+      },
+      "after": {
+        "rss": 162496512,
+        "heapTotal": 48533504,
+        "heapUsed": 18322968,
+        "external": 28893957,
+        "arrayBuffers": 15788250
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 9,
+      "maximumAlpha": 0,
+      "outputSha256": "bb7e01e0062373f6fff158acb20628cd012a5c1e3daf4ff22a380043fab674f0"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "encode",
+      "temperature": "cold",
+      "region": "crop",
+      "milliseconds": 490.2479,
+      "outputMegapixelsPerSecond": 0.000042835471605283775,
+      "absoluteProcessPeakRss": 171184128,
+      "baseline": {
+        "rss": 124346368,
+        "heapTotal": 46698496,
+        "heapUsed": 11755424,
+        "external": 13813411,
+        "arrayBuffers": 746700
+      },
+      "after": {
+        "rss": 171315200,
+        "heapTotal": 49057792,
+        "heapUsed": 20064224,
+        "external": 25467277,
+        "arrayBuffers": 12361570
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 337,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 9,
+      "maximumAlpha": 0,
+      "outputSha256": "bb7e01e0062373f6fff158acb20628cd012a5c1e3daf4ff22a380043fab674f0"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 302.22138900000004,
+      "outputMegapixelsPerSecond": 0.010174660404330283,
+      "absoluteProcessPeakRss": 172294144,
+      "baseline": {
+        "rss": 162451456,
+        "heapTotal": 48795648,
+        "heapUsed": 12914936,
+        "external": 13881459,
+        "arrayBuffers": 775752
+      },
+      "after": {
+        "rss": 160292864,
+        "heapTotal": 45596672,
+        "heapUsed": 17427568,
+        "external": 37932646,
+        "arrayBuffers": 24828244
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 18,
+      "maximumAlpha": 0,
+      "outputSha256": "fe97a1996cfcd60f5ecff2c015e30dee6e731eeeb281db4b5d786fedd8a19bfb"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "full",
+      "milliseconds": 470.855863,
+      "outputMegapixelsPerSecond": 0.006530660955155187,
+      "absoluteProcessPeakRss": 175431680,
+      "baseline": {
+        "rss": 161824768,
+        "heapTotal": 45334528,
+        "heapUsed": 8867720,
+        "external": 13880967,
+        "arrayBuffers": 777800
+      },
+      "after": {
+        "rss": 175431680,
+        "heapTotal": 45596672,
+        "heapUsed": 19564464,
+        "external": 20978123,
+        "arrayBuffers": 7874956
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 24226,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 18,
+      "maximumAlpha": 0,
+      "outputSha256": "fe97a1996cfcd60f5ecff2c015e30dee6e731eeeb281db4b5d786fedd8a19bfb"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "decode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 302.622849,
+      "outputMegapixelsPerSecond": 0.00006939330612144227,
+      "absoluteProcessPeakRss": 171601920,
+      "baseline": {
+        "rss": 161402880,
+        "heapTotal": 48533504,
+        "heapUsed": 12893496,
+        "external": 13857027,
+        "arrayBuffers": 751320
+      },
+      "after": {
+        "rss": 165007360,
+        "heapTotal": 45072384,
+        "heapUsed": 13400544,
+        "external": 18702721,
+        "arrayBuffers": 5598319
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 0,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 9,
+      "maximumAlpha": 0,
+      "outputSha256": "bb7e01e0062373f6fff158acb20628cd012a5c1e3daf4ff22a380043fab674f0"
+    },
+    {
+      "id": "cmyk16-associated-grouped-0",
+      "category": "cmyk",
+      "mode": "encode",
+      "temperature": "warm",
+      "region": "crop",
+      "milliseconds": 461.8400780000002,
+      "outputMegapixelsPerSecond": 0.00004547028506261423,
+      "absoluteProcessPeakRss": 177778688,
+      "baseline": {
+        "rss": 159838208,
+        "heapTotal": 45858816,
+        "heapUsed": 8916648,
+        "external": 13856535,
+        "arrayBuffers": 753368
+      },
+      "after": {
+        "rss": 169799680,
+        "heapTotal": 45858816,
+        "heapUsed": 15915960,
+        "external": 20702711,
+        "arrayBuffers": 7599544
+      },
+      "inputBytes": 385736,
+      "encodedBytes": 337,
+      "estimatedWorkingBytes": 3691526,
+      "fullFrameFallbackReasons": [
+        "Native Modular frame composition retains full canvas planes and reference frames; conversion uses output rows"
+      ],
+      "maximumColor": 9,
+      "maximumAlpha": 0,
+      "outputSha256": "bb7e01e0062373f6fff158acb20628cd012a5c1e3daf4ff22a380043fab674f0"
+    }
+  ]
+}

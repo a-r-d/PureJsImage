@@ -5,6 +5,8 @@ import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '
 import { pixelBytesPerPixel } from '../pixel.ts'
 import { Uint8ArraySink } from '../sink.ts'
 import { MemorySource } from '../source.ts'
+import { createJpegXlFloatEncoder } from './jpegxl-float-encode.ts'
+import { writeJpegXlNativeImageHeader } from './jpegxl-native-encode.ts'
 import { inspectJpegXlSource } from './jpegxl-container.ts'
 import {
   type JpegXlAnimationHeader,
@@ -37,7 +39,16 @@ export interface JpegXlAnimationInputFrame {
 export interface EncodeJpegXlAnimationOptions {
   readonly width: number
   readonly height: number
-  readonly pixelFormat: 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+  readonly pixelFormat:
+    | 'gray8'
+    | 'gray16'
+    | 'rgb8'
+    | 'rgb16'
+    | 'rgba8'
+    | 'rgba16'
+    | 'grayf32'
+    | 'rgbf32'
+    | 'rgbaf32'
   readonly colorSemantics: PixelColorSemantics
   readonly animation: Readonly<JpegXlAnimationHeader>
   readonly encoding?: Readonly<Record<string, unknown>>
@@ -172,7 +183,11 @@ export async function* encodeJpegXlAnimation(
   if (options.encoding?.progressive === true)
     throw unsupportedOperation('JPEG XL animation encoding does not yet accept progressive passes')
   const headerRequest = { ...options, options: options.encoding ?? {}, limits }
-  const image = encodeJpegXlAnimationImageHeader(headerRequest, options.animation)
+  const floating = options.pixelFormat.endsWith('f32')
+  const image = floating
+    ? { header: new Uint8Array(0), codestreamLevel: 10 as const }
+    : encodeJpegXlAnimationImageHeader(headerRequest, options.animation)
+  let imageHeader = image.header
   const encoding = { ...options.encoding, container: image.codestreamLevel === 10 }
   const request = { ...options, options: encoding, limits }
   const containerPrefix =
@@ -240,19 +255,22 @@ export async function* encodeJpegXlAnimation(
       )
         throw invalidInput('JPEG XL animation maxWorkingBytes is invalid')
       const sink = new Uint8ArraySink()
-      const encoder = await createJpegXlModularEncoder(sink, {
-        ...request,
-        width: frame.width,
-        height: frame.height,
-        options: {
-          ...encoding,
-          maxOutputBytes: frameOutputLimit,
-          maxWorkingBytes: Math.min(
-            availableWorkingBytes,
-            requestedWorkingBytes ?? availableWorkingBytes,
-          ),
+      const encoder = await (floating ? createJpegXlFloatEncoder : createJpegXlModularEncoder)(
+        sink,
+        {
+          ...request,
+          width: frame.width,
+          height: frame.height,
+          options: {
+            ...encoding,
+            maxOutputBytes: frameOutputLimit,
+            maxWorkingBytes: Math.min(
+              availableWorkingBytes,
+              requestedWorkingBytes ?? availableWorkingBytes,
+            ),
+          },
         },
-      })
+      )
       try {
         await encoder.write({
           x: 0,
@@ -284,9 +302,40 @@ export async function* encodeJpegXlAnimation(
       const next = await iterator.next()
       throwIfAborted(options.signal)
       const header = frameHeader(parsed, frame, options, next.done === true)
+      if (floating && count === 1) {
+        const writer = new JpegXlBitWriter()
+        const first = { data: new Uint32Array(0), bitDepth: 32, sampleFormat: 'binary32' as const }
+        writeJpegXlNativeImageHeader(
+          writer,
+          {
+            width: options.width,
+            height: options.height,
+            orientation:
+              parsed.orientation >= 1 && parsed.orientation <= 8
+                ? (parsed.orientation as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
+                : 1,
+            color: parsed.colorChannels === 1 ? [first] : [first, first, first],
+            ...(parsed.intrinsicWidth !== undefined && parsed.intrinsicHeight !== undefined
+              ? { intrinsicSize: { width: parsed.intrinsicWidth, height: parsed.intrinsicHeight } }
+              : {}),
+          },
+          first,
+          parsed.extraChannels.map((extra) => ({
+            ...first,
+            type: 0,
+            associatedAlpha: extra.associatedAlpha,
+          })),
+          options.colorSemantics,
+          parsed.toneMapping,
+          10,
+          resolveJpegXlLimits(),
+          options.animation,
+        )
+        imageHeader = writer.finish()
+      }
       const parts = [
         ...(count === 1
-          ? [...(containerPrefix === undefined ? [] : [containerPrefix]), image.header]
+          ? [...(containerPrefix === undefined ? [] : [containerPrefix]), imageHeader]
           : []),
         header,
         ...parsed.sections.map((section) =>

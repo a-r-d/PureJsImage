@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-01",
+  "baseRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "workingTreeDirty": true,
+  "environment": {
+    "node": "v24.16.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "kernel": "7.0.0-34-generic",
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz"
+  },
+  "verification": {
+    "independentlyDecodedFloatEncodings": 66,
+    "isolatedResourceCases": 62,
+    "officialConformancePassed": 39,
+    "browserCases": 123,
+    "browsers": ["chromium", "firefox", "webkit"]
+  },
+  "hashes": [
+    {
+      "path": "benchmark/jpegxl/float-completion/conformance.json",
+      "sha256": "4363d21a1b3d3427f1a4db55b6037b716a00c8ad5214168add8e0049d12cd40d"
+    },
+    {
+      "path": "benchmark/jpegxl/float-completion/encoding.json",
+      "sha256": "8f85b72b9b8cf135d63345ccc4fba6c782ac51f71eb2c39bb5cad1ac4ac14a9e"
+    },
+    {
+      "path": "benchmark/jpegxl/float-completion/resource.json",
+      "sha256": "94de214296259da89c059d140edf363d9bfc5936a09e6732482701c05ab9e5b7"
+    },
+    {
+      "path": "benchmark/jpegxl/flush-progressive-oracle.ts",
+      "sha256": "8bd2050ce098c21c19252e9d0132ff55f274b0454e274bd9bfd00f2d7b18a1bc"
+    },
+    {
+      "path": "benchmark/jpegxl/generate-composed-native-fixtures.ts",
+      "sha256": "efab6cde82304c6139a1bc57c7298a2efd793328724a2688602737595bb7f7b6"
+    },
+    {
+      "path": "benchmark/jpegxl/generate-float-completion-fixtures.ts",
+      "sha256": "66c5c29a12786c86df2c6ca2500f55434ba8c2a2c7862e8b510fb032d0d444ec"
+    },
+    {
+      "path": "benchmark/jpegxl/hdr-float-oracle.ts",
+      "sha256": "2733d18ff215955ad1b0faa4e829644932583ae0f9a749a961228d002ab4f138"
+    },
+    {
+      "path": "benchmark/jpegxl/littlecms-profile-oracle.ts",
+      "sha256": "f9e45164c84337934c9587e921a26c011ffdb71d37303a541101b685780158bc"
+    },
+    {
+      "path": "benchmark/jpegxl/run-float-completion.ts",
+      "sha256": "56120910261ce7a9e17aea0a9d3971a1cdaeadeb1f8ff4d530c1521d7e5177e1"
+    },
+    {
+      "path": "benchmark/jpegxl/verify-float-encoding.ts",
+      "sha256": "0b1e88c51aaba8fc9a20d0747e7e13a93a26ef6090c8950519388d6f4cba65dc"
+    },
+    {
+      "path": "browser-tests/jpegxl-float-completion.pw.ts",
+      "sha256": "6660e69f7e952472b41a6a08b61d7d3d51a89f1325e850d9ee212751fe1deb40"
+    },
+    {
+      "path": "src/codecs/icc.ts",
+      "sha256": "1341da5c4b1d052716cd351c23aef9c268b9e597b2e0f9a7385ec2976909e704"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "57099c16ca89ed6e23f69706983df97cf15574980a80dcfda1e6716b20ec1723"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "26eaed463109c4291d9d8cc57447996e9b8d69f3b44e05f92274981d84abd8a4"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-color.ts",
+      "sha256": "471ad48b0a6f2e27daae58250821e5b4db041a8eaf343af76577ccea2b6ddd98"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "33f39e428e2578211f94db3f9036473d4728917bd153002c2701d14b06b26645"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "1019fa58e5ecaefae8edebf50cf6310639c11cf81c4a0bcb2d7cd36f7a4e9f33"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "4d1f6a545907713119e8ecd4c95f56817d0d1265a7a06fd8085818eddf961c7a"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "74c3070141864158ff2a7ebe436a6a94df0e22442360d787399df157bb6108b4"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "1fd2d8e69ce19c3025122249ff3bd45ff9cbb16977f1f10bf734e3375e408605"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "5fa92fdc1d5c28a8d9e7824afc7819f101a51f0b7f34f0b536ea729b2c3be478"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "38819fd62baea483050356d9d35811ba04f18ce5ff44685e9ed71393bd6e19b1"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "sha256": "8dab9be41b91d3d5c8ca4124b2f430c2842153a4c7eaaf92587347ae017987bb"
+    },
+    {
+      "path": "src/pipeline.ts",
+      "sha256": "ecab138a9e12b68e7b121ade6622f8f740dfaa2cad2042279d0ecfa08abbfef5"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/composed-native/manifest.json",
+      "sha256": "3ff61493814e5333535b78bec92b0c2157b6a518d36cb91ac04b1aa89ebe3789"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/float-completion/manifest.json",
+      "sha256": "641d1820d2df02488559e3f42337cc35b8a35e07dc78a7477a36aa9106ce56e5"
+    },
+    {
+      "path": "tests/helpers/jpegxl-float-completion.ts",
+      "sha256": "306e695e13e5f39aca2acb538cb645fbc7e5b51986e00de9a7263ecddaff6a39"
+    },
+    {
+      "path": "tests/jpegxl-float-completion.test.ts",
+      "sha256": "4cc2a1aa1941941b933bedd1f9e1d002dd724d1cac9bdbc90121e7369e70f938"
+    },
+    {
+      "path": "tests/jpegxl.test.ts",
+      "sha256": "5cecfd2f30ffaccc880d0487f6bc28674ac53997626973ff20e32583006ce502"
+    }
+  ]
+}

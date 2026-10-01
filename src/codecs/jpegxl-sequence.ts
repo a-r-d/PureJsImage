@@ -6,6 +6,7 @@ import type { ImageLimits } from '../limits.ts'
 import { type ImageLimitOptions, resolveLimits } from '../limits.ts'
 import type { ImageSource } from '../source.ts'
 import { createImageSource, type ImageInput, readExactly } from '../source.ts'
+import { nclxToLinear } from './icc.ts'
 import { jpegXlYcbcrToRgb, reconstructJpegXlChroma } from './jpegxl-chroma.ts'
 import { inspectJpegXlSource, JpegXlCodestreamSource } from './jpegxl-container.ts'
 import {
@@ -18,21 +19,44 @@ import {
   jpegXlDecodedPixelFormat,
   jpegXlPixelColorSemantics,
   jpegXlSourceColorSemantics,
+  jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
 import type { JpegXlFrameFeatures } from './jpegxl-frame-features.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
+import { floatSample } from './jpegxl-native-samples.ts'
 import { applyJpegXlPatch } from './jpegxl-patch-blend.ts'
 import { jpegXlEncodedPoint } from './jpegxl-progressive-plan.ts'
 import { JpegXlVarDctMemoryLedger } from './jpegxl-vardct-memory.ts'
 import {
   applyJpegXlModularFeatures,
   convertJpegXlNativeXybPlanes,
+  convertJpegXlNativeXybPlanesToLinear,
   decodeJpegXlDct8SectionCancellable,
   filterJpegXlModularPlanes,
   type JpegXlVarDctReference,
   jpegXlLinearToSrgb,
   upsampleJpegXlNativePlane,
 } from './jpegxl-vardct-render.ts'
+
+const normalizedReferenceAlpha = (
+  source: Int32Array,
+  header: Readonly<JpegXlFrameStructure>,
+): Float64Array => {
+  const depth = header.extraChannels[header.selectedAlphaChannel ?? 0]?.bitDepth
+  if (!depth) throw invalidInput('JPEG XL reference alpha descriptor is missing')
+  const output = new Float64Array(source.length)
+  const maximum = 2 ** depth.bits - 1
+  for (let index = 0; index < source.length; index++) {
+    const sample =
+      depth.sampleFormat === 'floating-point'
+        ? floatSample(source[index] ?? 0, depth.bits, depth.exponentBits)
+        : (source[index] ?? 0) / maximum
+    if (!Number.isFinite(sample))
+      throw invalidInput('JPEG XL reference alpha rejects NaN and infinity')
+    output[index] = sample
+  }
+  return output
+}
 
 export interface OpenJpegXlSequenceOptions {
   /** Preserve encoded canvas coordinates by default; apply rotates displayed output only. */
@@ -51,7 +75,7 @@ export interface JpegXlSequenceFrame {
   readonly durationTicks: number
   readonly header: Readonly<JpegXlFrameStructure>
   readonly colorSemantics: PixelColorSemantics
-  /** Independent caller-owned, normalized native color and extra-channel planes. */
+  /** Caller-owned source planes: normalized integers or actual floating values. */
   readonly planes: readonly Float64Array[]
   readonly width: number
   readonly height: number
@@ -207,19 +231,19 @@ export const openJpegXlSequence = async (
       if (!Number.isSafeInteger(decodedPixels) || decodedPixels > maxDecodedPixels)
         throw limitExceeded('JPEG XL sequence replay exceeds maxDecodedPixels')
       if (
-        header.sampleFormat !== 'unsigned-integer' ||
-        header.extraChannels.some((channel) => channel.bitDepth.sampleFormat !== 'unsigned-integer')
+        header.sampleFormat === 'floating-point' &&
+        !(
+          (header.encoding === 'modular' && header.colorTransform === 'none') ||
+          (header.encoding === 'vardct' && header.colorTransform === 'xyb')
+        )
       )
         throw unsupportedOperation(
-          'JPEG XL sequence native conversion is not supported for this frame',
+          'JPEG XL float color requires native Modular or XYB VarDCT samples',
         )
       if (
         header.encoding === 'modular' &&
         header.colorTransform === 'xyb' &&
-        header.colorSemanticsTransfer.kind !== 'srgb' &&
-        header.colorSemanticsTransfer.kind !== 'bt709' &&
-        header.colorSemanticsTransfer.kind !== 'source-profile' &&
-        header.colorSemanticsTransfer.kind !== 'gamma'
+        !['srgb', 'bt709', 'source-profile', 'gamma'].includes(header.colorSemanticsTransfer.kind)
       )
         throw unsupportedOperation(
           'JPEG XL Modular XYB sequence rendering requires SDR sRGB output',
@@ -288,6 +312,10 @@ export const openJpegXlSequence = async (
           ),
         )
       }
+      const linearComposition = header.colorTransform === 'xyb' && jpegXlXybOutputIsLinear(header)
+      const convertXyb = linearComposition
+        ? convertJpegXlNativeXybPlanesToLinear
+        : convertJpegXlNativeXybPlanes
       let layer: readonly Float64Array[]
       if (header.frameType === 'dc') {
         const global = sections[0]
@@ -333,15 +361,11 @@ export const openJpegXlSequence = async (
       }
       if (header.encoding === 'vardct') {
         if (
-          (header.colorSemanticsTransfer.kind !== 'srgb' &&
-            header.colorSemanticsTransfer.kind !== 'bt709' &&
-            header.colorSemanticsTransfer.kind !== 'source-profile' &&
-            header.colorSemanticsTransfer.kind !== 'gamma') ||
           header.extraChannels.some((channel) => channel.type !== 0) ||
           header.extraChannels.length > 1
         )
           throw unsupportedOperation(
-            'JPEG XL sequence VarDCT native channels require SDR RGB and at most one alpha',
+            'JPEG XL sequence VarDCT native channels require RGB and at most one alpha',
           )
         const global = sections[0]
         if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
@@ -368,12 +392,9 @@ export const openJpegXlSequence = async (
               if (!decoded.dcPlanes)
                 throw invalidInput('JPEG XL native reference output is missing')
               const encodedAlpha = decoded.nativeExtraPlanes?.[header.selectedAlphaChannel ?? 0]
-              const alphaScale = 1 / (2 ** (header.alphaBitDepth ?? 8) - 1)
               const alpha =
                 decoded.referenceAlpha ??
-                (encodedAlpha
-                  ? Float64Array.from(encodedAlpha, (value) => value * alphaScale)
-                  : undefined)
+                (encodedAlpha ? normalizedReferenceAlpha(encodedAlpha, header) : undefined)
               xybReferences.set(header.saveAsReference, {
                 width: header.frameWidth,
                 height: header.frameHeight,
@@ -383,11 +404,7 @@ export const openJpegXlSequence = async (
               nativeReferences.delete(header.saveAsReference)
               references[header.saveAsReference] = undefined
               if (header.frameType === 'reference') continue
-              const rgb = convertJpegXlNativeXybPlanes(
-                decoded.dcPlanes,
-                header.opsinInverse,
-                active,
-              )
+              const rgb = convertXyb(decoded.dcPlanes, header.opsinInverse, active)
               layer = [...rgb.slice(0, header.colorChannels), ...(alpha ? [alpha] : [])]
             } else {
               const channels = header.alphaBitDepth === undefined ? 3 : 4
@@ -403,11 +420,15 @@ export const openJpegXlSequence = async (
               for (let channel = 0; channel < header.channelCount; channel++) {
                 const plane = output[channel]
                 if (!plane) throw invalidInput('JPEG XL VarDCT output channel is missing')
-                for (let i = 0; i < plane.length; i++) {
-                  const sourceChannel = channel < header.colorChannels ? channel : 3
-                  const value = view.getFloat32((i * channels + sourceChannel) * 4, false)
-                  plane[i] = channel >= header.colorChannels ? value : jpegXlLinearToSrgb(value)
-                }
+                const sourceChannel = channel < header.colorChannels ? channel : 3
+                if (channel < header.colorChannels && !linearComposition)
+                  for (let i = 0; i < plane.length; i++)
+                    plane[i] = jpegXlLinearToSrgb(
+                      view.getFloat32((i * channels + sourceChannel) * 4, false),
+                    )
+                else
+                  for (let i = 0; i < plane.length; i++)
+                    plane[i] = view.getFloat32((i * channels + sourceChannel) * 4, false)
               }
               layer = output
             }
@@ -451,8 +472,26 @@ export const openJpegXlSequence = async (
               : header.extraChannels[channel - colorCount]?.bitDepth.bits
           if (depth === undefined) throw invalidInput('JPEG XL native channel depth is missing')
           const scale = 1 / (2 ** depth - 1)
+          const floating =
+            channel < colorCount
+              ? header.sampleFormat === 'floating-point'
+              : header.extraChannels[channel - colorCount]?.bitDepth.sampleFormat ===
+                'floating-point'
           const output = new Float64Array(plane.length)
-          for (let i = 0; i < plane.length; i++) output[i] = plane[i]! * scale
+          for (let i = 0; i < plane.length; i++) {
+            const value = floating
+              ? floatSample(
+                  plane[i]!,
+                  depth,
+                  channel < colorCount
+                    ? header.exponentBits
+                    : (header.extraChannels[channel - colorCount]?.bitDepth.exponentBits ?? 8),
+                )
+              : plane[i]! * scale
+            if (!Number.isFinite(value))
+              throw invalidInput('JPEG XL composed planes reject NaN and infinity')
+            output[i] = value
+          }
           working.push(output)
         }
         if (header.colorTransform === 'ycbcr')
@@ -570,7 +609,7 @@ export const openJpegXlSequence = async (
             references[header.saveAsReference] = undefined
             if (header.frameType === 'reference') continue
           }
-          const rgb = convertJpegXlNativeXybPlanes(planes, header.opsinInverse, active)
+          const rgb = convertXyb(planes, header.opsinInverse, active)
           layer = [...rgb.slice(0, header.colorChannels), ...working.slice(3)]
         } else layer = header.colorTransform === 'ycbcr' ? jpegXlYcbcrToRgb(working) : working
       }
@@ -636,6 +675,16 @@ export const openJpegXlSequence = async (
             }
             return rotated
           })
+      // References retain linear HDR values; emitted XYB sequence planes keep the sRGB contract.
+      if (linearComposition)
+        for (let channel = 0; channel < header.colorChannels; channel++) {
+          const plane = output[channel]
+          if (!plane) throw invalidInput('JPEG XL composed color plane is missing')
+          for (let i = 0; i < plane.length; i++) {
+            if ((i & 65535) === 0) throwIfAborted(active)
+            plane[i] = jpegXlLinearToSrgb(plane[i] ?? 0)
+          }
+        }
       const sourceSemantics = jpegXlSourceColorSemantics(header)
       const colorSemantics: PixelColorSemantics =
         header.colorTransform === 'xyb'
@@ -728,12 +777,9 @@ export const openJpegXlSequence = async (
               if (header.frameType === 'dc') dcPlanes = copied
               else {
                 const encodedAlpha = decoded.nativeExtraPlanes?.[header.selectedAlphaChannel ?? 0]
-                const scale = 1 / (2 ** (header.alphaBitDepth ?? 8) - 1)
                 const alpha =
                   decoded.referenceAlpha?.slice() ??
-                  (encodedAlpha
-                    ? Float64Array.from(encodedAlpha, (value) => value * scale)
-                    : undefined)
+                  (encodedAlpha ? normalizedReferenceAlpha(encodedAlpha, header) : undefined)
                 references.set(header.saveAsReference, {
                   width: decoded.width,
                   height: decoded.height,
@@ -944,17 +990,33 @@ export const createJpegXlSequenceFrameDecoder = async (
   options: Readonly<DecoderOptions>,
   header: Readonly<JpegXlFrameStructure>,
 ): Promise<ImageDecoder> => {
+  if ((options.resolutionLevel ?? 0) !== 0)
+    throw unsupportedOperation(
+      'JPEG XL selected float or composed frames have only resolution level zero',
+    )
   const index = options.frame
   if (index === undefined || !Number.isSafeInteger(index) || index < 0)
     throw invalidInput('JPEG XL animation requires an explicit nonnegative displayed frame index')
   if (header.extraChannels.length > 1 || header.extraChannels.some((channel) => channel.type !== 0))
     throw unsupportedOperation('JPEG XL animation extra channels require the explicit sequence API')
-  const pixelFormat = jpegXlDecodedPixelFormat(header)
-  if (pixelFormat.endsWith('f32'))
-    throw unsupportedOperation('JPEG XL still animation HDR rendering is not supported')
+  const pixelFormat =
+    header.sampleFormat === 'floating-point' ||
+    header.extraChannels.some((extra) => extra.bitDepth.sampleFormat === 'floating-point')
+      ? header.extraChannels.some((extra) => extra.type === 0)
+        ? 'rgbaf32'
+        : header.colorChannels === 1 && !jpegXlXybOutputIsLinear(header)
+          ? 'grayf32'
+          : 'rgbf32'
+      : jpegXlDecodedPixelFormat(header)
+  const floating = pixelFormat.endsWith('f32')
+  const linear = jpegXlXybOutputIsLinear(header)
   const colorSemantics = jpegXlPixelColorSemantics(header)
   const channels = pixelFormat.startsWith('gray') ? 1 : pixelFormat.startsWith('rgba') ? 4 : 3
-  const bytes = pixelFormat.endsWith('16') ? 2 : 1
+  const bytes = floating ? 4 : pixelFormat.endsWith('16') ? 2 : 1
+  const linearScale =
+    header.colorSemanticsTransfer.kind === 'pq' || header.colorSemanticsTransfer.kind === 'hlg'
+      ? 255 / 203
+      : 1
   const ranges = Array.from({ length: channels }, (_, channel) => ({
     black: 0,
     white: 2 ** (channel === 3 ? (header.alphaBitDepth ?? header.bitDepth) : header.bitDepth) - 1,
@@ -1004,7 +1066,15 @@ export const createJpegXlSequenceFrameDecoder = async (
               const storageMaximum = bytes === 1 ? 255 : (ranges[channel]?.white ?? 65_535)
               const value = Math.round(Math.max(0, Math.min(1, normalized)) * storageMaximum)
               const offset = (column * channels + channel) * bytes
-              if (bytes === 2) view.setUint16(offset, value, false)
+              if (floating) {
+                const sample =
+                  linear && channel !== 3
+                    ? Math.sign(normalized) * nclxToLinear(13, Math.abs(normalized)) * linearScale
+                    : normalized
+                if (!Number.isFinite(Math.fround(sample)))
+                  throw invalidInput('JPEG XL sequence float samples overflow binary32')
+                view.setFloat32(offset, sample, false)
+              } else if (bytes === 2) view.setUint16(offset, value, false)
               else data[offset] = value
             }
           yield {

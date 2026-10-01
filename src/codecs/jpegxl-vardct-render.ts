@@ -9,6 +9,7 @@ import {
   jpegXlExtraChannelPass,
   jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
+import { floatSample } from './jpegxl-native-samples.ts'
 import { applyJpegXlPatch } from './jpegxl-patch-blend.ts'
 import {
   type JpegXlProgressiveRequest,
@@ -35,6 +36,29 @@ import {
   jpegXlHfCoefficientOrderBytesPerPass,
   retainedTypedArrayBytes,
 } from './jpegxl-vardct-memory.ts'
+
+const jpegXlAlphaMaximum = (frame: Readonly<JpegXlFrameStructure>): number =>
+  frame.extraChannels[frame.selectedAlphaChannel ?? 0]?.bitDepth.sampleFormat === 'floating-point'
+    ? 1
+    : 2 ** (frame.alphaBitDepth ?? frame.bitDepth) - 1
+
+const jpegXlAlphaSamples = (
+  plane: Int32Array | Float64Array,
+  frame: Readonly<JpegXlFrameStructure>,
+): Float32Array => {
+  const descriptor = frame.extraChannels[frame.selectedAlphaChannel ?? 0]
+  if (descriptor?.bitDepth.sampleFormat !== 'floating-point' || plane instanceof Float64Array)
+    return Float32Array.from(plane)
+  const bits = descriptor.bitDepth.bits
+  const samples = new Float32Array(plane.length)
+  for (let index = 0; index < plane.length; index++) {
+    const sample = floatSample(plane[index] ?? 0, bits, descriptor.bitDepth.exponentBits)
+    if (!Number.isFinite(sample))
+      throw invalidInput('JPEG XL VarDCT alpha rejects NaN and infinity')
+    samples[index] = sample
+  }
+  return samples
+}
 
 export interface JpegXlVarDctPixels {
   readonly width: number
@@ -3345,8 +3369,8 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
     const output = new Uint8Array(width * height * channels * bytesPerSample)
     const view = new DataView(output.buffer)
     const grayScratch = new Uint8Array(3)
-    const alphaFloat = alphaPlane ? Float32Array.from(alphaPlane) : undefined
-    const alphaMaximum = 2 ** (frame.alphaBitDepth ?? 8) - 1
+    const alphaFloat = alphaPlane ? jpegXlAlphaSamples(alphaPlane, frame) : undefined
+    const alphaMaximum = jpegXlAlphaMaximum(frame)
     const alphaKernels = alphaFloat ? frameUpsamplingKernels(frame) : undefined
     const colorMaximum = 2 ** frame.bitDepth - 1
     const linearScale =
@@ -4108,15 +4132,18 @@ const decodeJpegXlDct8Steps = function* (
   if (
     frame.encoding !== 'vardct' ||
     frame.colorTransform !== 'xyb' ||
-    frame.bitDepth > 16 ||
-    (frame.alphaBitDepth !== undefined && frame.alphaBitDepth > 16) ||
+    (frame.bitDepth > 16 && frame.sampleFormat !== 'floating-point') ||
+    (frame.alphaBitDepth !== undefined &&
+      frame.alphaBitDepth > 16 &&
+      frame.extraChannels[frame.selectedAlphaChannel ?? 0]?.bitDepth.sampleFormat !==
+        'floating-point') ||
     (separatedSections
       ? continuationSections.length + 1 !==
         2 + frame.dcGroupCount + frame.groupsAcross * frame.groupsDown * frame.passCount
       : frame.passCount !== 1 || frame.sections.length !== 1)
   ) {
     throw unsupportedOperation(
-      'Common VarDCT decode requires bounded integer XYB groups with up to 16-bit color and alpha',
+      'Common VarDCT decode requires bounded XYB groups with up to 16-bit integer or legal floating color and alpha',
     )
   }
   const alphaLayouts = frame.extraChannels.map((channel, index) => {
@@ -4633,7 +4660,7 @@ const decodeJpegXlDct8Steps = function* (
     : undefined
   let referenceAlpha: Float64Array | undefined
   if (lfGlobal.patches.length > 0) {
-    const alphaScale = 1 / (2 ** (frame.alphaBitDepth ?? 8) - 1)
+    const alphaScale = 1 / jpegXlAlphaMaximum(frame)
     const alpha = alphaPlane ? new Float64Array(paddedWidth * codedHeight) : undefined
     if (alpha && alphaPlane) {
       const factor = alphaWidth === codedWidth && alphaHeight === codedHeight ? 1 : alphaUpsampling
@@ -4641,7 +4668,7 @@ const decodeJpegXlDct8Steps = function* (
         throw unsupportedOperation(
           'JPEG XL patch channels need compatible reconstruction resolutions',
         )
-      const input = Float32Array.from(alphaPlane)
+      const input = jpegXlAlphaSamples(alphaPlane, frame)
       for (let y = 0; y < codedHeight; y++)
         for (let x = 0; x < codedWidth; x++)
           alpha[y * paddedWidth + x] =
@@ -4756,8 +4783,8 @@ const decodeJpegXlDct8Steps = function* (
         )
       : undefined
     if (alphaPlane) {
-      const input = Float32Array.from(alphaPlane)
-      const scale = 1 / (2 ** (frame.alphaBitDepth ?? 8) - 1)
+      const input = jpegXlAlphaSamples(alphaPlane, frame)
+      const scale = 1 / jpegXlAlphaMaximum(frame)
       referenceAlpha = new Float64Array(codedWidth * codedHeight)
       for (let y = 0; y < codedHeight; y++) {
         if ((y & 63) === 0) yield
@@ -4847,8 +4874,8 @@ const decodeJpegXlDct8Steps = function* (
       frame.colorSemanticsTransfer.kind === 'pq' || frame.colorSemanticsTransfer.kind === 'hlg'
         ? 255 / 203
         : 1
-    const alphaMaximum = 2 ** (frame.alphaBitDepth ?? frame.bitDepth) - 1
-    const alphaFloat = alphaPlane === undefined ? undefined : Float32Array.from(alphaPlane)
+    const alphaMaximum = jpegXlAlphaMaximum(frame)
+    const alphaFloat = alphaPlane === undefined ? undefined : jpegXlAlphaSamples(alphaPlane, frame)
     for (let y = 0; y < frame.height; y += 1) {
       for (let x = 0; x < frame.width; x += 1) {
         const index = y * paddedWidth + x
@@ -5068,7 +5095,7 @@ const decodeJpegXlDct8Steps = function* (
     }
   } else {
     if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
-    const alphaFloat = Float32Array.from(alphaPlane)
+    const alphaFloat = jpegXlAlphaSamples(alphaPlane, frame)
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 4
       for (let x = 0; x < frame.width; x += 1) {
@@ -5229,6 +5256,37 @@ export const renderJpegXlVarDctLowFrequencyCancellable = async (
 /** JPEG XL extends the sRGB transfer curve symmetrically outside its nominal gamut. */
 export const jpegXlLinearToSrgb = (value: number): number =>
   value < 0 ? -linearToSrgb(-value) : linearToSrgb(value)
+
+export const convertJpegXlNativeXybPlanesToLinear = (
+  planes: readonly [Float64Array, Float64Array, Float64Array],
+  custom: JpegXlFrameStructure['opsinInverse'],
+  signal?: AbortSignal,
+): readonly [Float64Array, Float64Array, Float64Array] => {
+  const opsin = resolveOpsin(custom)
+  const output = [
+    new Float64Array(planes[0].length),
+    new Float64Array(planes[0].length),
+    new Float64Array(planes[0].length),
+  ] as const
+  for (let i = 0; i < planes[0].length; i++) {
+    if ((i & 65535) === 0) throwIfAborted(signal)
+    const x = planes[0][i] ?? 0,
+      y = planes[1][i] ?? 0,
+      b = planes[2][i] ?? 0
+    const rGamma = y + x + (opsin.roots[0] ?? 0),
+      gGamma = y - x + (opsin.roots[1] ?? 0),
+      bGamma = b + (opsin.roots[2] ?? 0)
+    const rMix = rGamma ** 3 + (opsin.biases[0] ?? 0),
+      gMix = gGamma ** 3 + (opsin.biases[1] ?? 0),
+      bMix = bGamma ** 3 + (opsin.biases[2] ?? 0)
+    for (let c = 0; c < 3; c++)
+      output[c]![i] =
+        (opsin.matrix[c * 3] ?? 0) * rMix +
+        (opsin.matrix[c * 3 + 1] ?? 0) * gMix +
+        (opsin.matrix[c * 3 + 2] ?? 0) * bMix
+  }
+  return output
+}
 
 export const convertJpegXlNativeXybPlanes = (
   planes: readonly [Float64Array, Float64Array, Float64Array],

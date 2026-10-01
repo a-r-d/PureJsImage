@@ -1,23 +1,23 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import type { ImageDecoder } from '../src/codec.ts'
 import { ColorManagedDecoder, parseRgbIccTransform } from '../src/codecs/icc.ts'
+import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { summarizeJpegXlExif } from '../src/codecs/jpegxl-exif.ts'
 import { decodeJpegXlIccCommands } from '../src/codecs/jpegxl-icc.ts'
+import { convertPixelBlocks } from '../src/convert.ts'
 import { inspectJpegXl } from '../src/jpegxl.ts'
 import { defaultImageLimits } from '../src/limits.ts'
+import { normalizePixelBlocks, pixelStorage } from '../src/pixel.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
-import { pixelStorage, normalizePixelBlocks } from '../src/pixel.ts'
-import { convertPixelBlocks } from '../src/convert.ts'
 import alphaManifest from './fixtures/jpegxl/m4-color/alpha-manifest.json' with { type: 'json' }
 import manifest from './fixtures/jpegxl/m4-color/manifest.json' with { type: 'json' }
-import vardctManifest from './fixtures/jpegxl/m4-color/vardct-manifest.json' with { type: 'json' }
 import vardctAlphaManifest from './fixtures/jpegxl/m4-color/vardct-alpha-manifest.json' with {
   type: 'json',
 }
-import { summarizeJpegXlExif } from '../src/codecs/jpegxl-exif.ts'
+import vardctManifest from './fixtures/jpegxl/m4-color/vardct-manifest.json' with { type: 'json' }
 
 const hash = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 const fixture = (name: string): Uint8Array =>
@@ -397,12 +397,18 @@ describe('JPEG XL M4 independently validated color', () => {
       expect(converted.data).toEqual(Uint8Array.of(0, 128, 255, 128))
   })
 
-  it('does not silently skip an explicit high-depth sRGB conversion', async () => {
-    await expect(
-      jpegxlCodec.createDecoder?.(new MemorySource(fixture('p3-16.jxl')), defaultImageLimits, {
+  it('performs an explicit high-depth sRGB conversion with full output precision', async () => {
+    const decoder = await jpegxlCodec.createDecoder?.(
+      new MemorySource(fixture('p3-16.jxl')),
+      defaultImageLimits,
+      {
         colorOutput: 'srgb',
-      }),
-    ).rejects.toMatchObject({ code: 'UNSUPPORTED_OPERATION' })
+      },
+    )
+    expect(decoder?.pixelFormat).toBe('rgb16')
+    expect(decoder?.colorSemantics).toMatchObject({ primaries: 'srgb', transfer: { kind: 'srgb' } })
+    expect(decoder?.execution?.sampleBitDepths).toEqual([16, 16, 16])
+    expect(decoder?.execution?.precisionLoss).toBe(true)
   })
 
   it('requires explicit HDR tone mapping when sRGB output is selected', async () => {

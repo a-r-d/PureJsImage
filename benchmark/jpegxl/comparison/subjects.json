@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30T03:40:38.097Z",
-  "implementationRevision": "fea5943a86a191cd29ee526119595b1ac77a0c82",
-  "implementationSourceSha256": "f7b547359fcc881de010be4fa89c711e3e863226986243e924a9131192bbb54e",
+  "date": "2026-10-01T13:09:35.845Z",
+  "implementationRevision": "590bbf08968f0f12c32bb4aa5c84627ba5dbeab4",
+  "implementationSourceSha256": "088ba519315f3498cd388eaf0c7bef92c0a15c6702107e04219ed486760332ca",
   "implementationDirty": true,
   "packages": [
     {
@@ -166,11 +166,18 @@
       "brotliBytes": 5621
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/browser-VHAPBV5D.js",
+      "sha256": "dc688fa0ef647328e3fff03a6a71af4be426414c8d6fea492e18d5ece7c7f25f",
+      "bytes": 18621,
+      "gzipBytes": 6269,
+      "brotliBytes": 5609
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/browser-worker.js",
-      "sha256": "c0ba6386c0ad2fb08a62539f75fdde2709f2cca287e880d7cc3cc1e4cef5b3c2",
+      "sha256": "e3c3ed3afb089d9b517fab9f9489437de50ea4157ad73f022958ad000625cda3",
       "bytes": 6806,
-      "gzipBytes": 2734,
-      "brotliBytes": 2426
+      "gzipBytes": 2732,
+      "brotliBytes": 2424
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/chunk-4LFTYATI.js",
@@ -201,6 +208,13 @@
       "brotliBytes": 4277
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/chunk-VXPPMNTS.js",
+      "sha256": "92fb3378c39b58b0ffd7dd266721cf2bc873e31b7c6aa0a89d08b756887e452f",
+      "bytes": 16023,
+      "gzipBytes": 4765,
+      "brotliBytes": 4278
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/decode-BZOCFKIT.js",
       "sha256": "2032dc541a86fc2d806feff6ae144d41e2c908ed9a00fbf48e03d3b9196ecad2",
       "bytes": 20176,
@@ -222,11 +236,25 @@
       "brotliBytes": 11870
     },
     {
+      "path": ".tmp/jpegxl-comparison-v1/web/executor-BKIWEOS2.js",
+      "sha256": "cd45d4d53ef6bf3e4c0e39d6fc857303dbc4f484482ebf463b56f348f0021b17",
+      "bytes": 42302,
+      "gzipBytes": 13607,
+      "brotliBytes": 11898
+    },
+    {
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-6XT2CMLU.js",
       "sha256": "057a08d12345761eb679297b390cecc7f3d4e85fd47a31964afdc9b4f29f0e59",
       "bytes": 362269,
       "gzipBytes": 120628,
       "brotliBytes": 97572
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-LJF2WERC.js",
+      "sha256": "5453339fe226b44fc43f71bedae6149c35e398cc9a318eacde783fd7131fa2f7",
+      "bytes": 417642,
+      "gzipBytes": 137056,
+      "brotliBytes": 110162
     },
     {
       "path": ".tmp/jpegxl-comparison-v1/web/jpegxl-XOFU7KHQ.js",

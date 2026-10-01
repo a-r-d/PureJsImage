@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "node": "v24.16.0",
+  "methodology": "Isolated processes. Full-plane native extraction and cropped group bands use the identical independently verified input and output crop. Warm runs follow two workflows and two GC calls; absolute peak RSS includes warmup. Forward HLG/PQ rows measure new writer paths; separate color checks qualify decoder compatibility, with no speed comparison claimed. Linear blend rows check color within 1/255 and alpha within 0.00000012 against a pinned libjxl reference. Input throughput for crop rows counts the source image and does not describe actual decoded work.",
+  "inputSha256": "948d2d3e29f27cfbd4030ee1e3ed15ad45d498263be9dc052816f7ac93feed7b",
+  "oracleSha256": "9fa3024fe808fc4786ded4cf4ba0482f4bc728b0bf7040b54b080455dd36b25f",
+  "width": 4100,
+  "height": 1025,
+  "region": {
+    "x": 1022,
+    "y": 1022,
+    "width": 5,
+    "height": 3
+  },
+  "rows": [
+    {
+      "mode": "crop-full",
+      "temperature": "cold",
+      "milliseconds": 1417.410703,
+      "inputMegapixelsPerSecond": 2.9649134094340193,
+      "absoluteProcessPeakRss": 193634304,
+      "baseline": {
+        "rss": 149037056,
+        "heapTotal": 47484928,
+        "heapUsed": 12820896,
+        "external": 44732801,
+        "arrayBuffers": 31733114
+      },
+      "after": {
+        "rss": 193634304,
+        "heapTotal": 48009216,
+        "heapUsed": 13872352,
+        "external": 69999909,
+        "arrayBuffers": 56959738
+      },
+      "outputSha256": "107510e229d5479ffc7605aafdc4df1d9afa25a767783233027c6283b5a4d19b",
+      "encodedBytes": 0
+    },
+    {
+      "mode": "crop-full",
+      "temperature": "warm",
+      "milliseconds": 1441.0977000000003,
+      "inputMegapixelsPerSecond": 2.916179798219093,
+      "absoluteProcessPeakRss": 230719488,
+      "baseline": {
+        "rss": 148803584,
+        "heapTotal": 48009216,
+        "heapUsed": 12811896,
+        "external": 29173208,
+        "arrayBuffers": 16133077
+      },
+      "after": {
+        "rss": 202358784,
+        "heapTotal": 44285952,
+        "heapUsed": 9145896,
+        "external": 69999909,
+        "arrayBuffers": 56959738
+      },
+      "outputSha256": "107510e229d5479ffc7605aafdc4df1d9afa25a767783233027c6283b5a4d19b",
+      "encodedBytes": 0
+    },
+    {
+      "mode": "crop-bands",
+      "temperature": "cold",
+      "milliseconds": 700.938487,
+      "inputMegapixelsPerSecond": 5.995533242847885,
+      "absoluteProcessPeakRss": 163475456,
+      "baseline": {
+        "rss": 150134784,
+        "heapTotal": 47484928,
+        "heapUsed": 12866376,
+        "external": 44732801,
+        "arrayBuffers": 31733114
+      },
+      "after": {
+        "rss": 163475456,
+        "heapTotal": 48271360,
+        "heapUsed": 23892528,
+        "external": 53432361,
+        "arrayBuffers": 40392190
+      },
+      "outputSha256": "107510e229d5479ffc7605aafdc4df1d9afa25a767783233027c6283b5a4d19b",
+      "encodedBytes": 0
+    },
+    {
+      "mode": "crop-bands",
+      "temperature": "warm",
+      "milliseconds": 704.711076,
+      "inputMegapixelsPerSecond": 5.963436851104636,
+      "absoluteProcessPeakRss": 173727744,
+      "baseline": {
+        "rss": 159920128,
+        "heapTotal": 48009216,
+        "heapUsed": 12798320,
+        "external": 29132764,
+        "arrayBuffers": 16133077
+      },
+      "after": {
+        "rss": 160210944,
+        "heapTotal": 48009216,
+        "heapUsed": 27446560,
+        "external": 37832312,
+        "arrayBuffers": 24792141
+      },
+      "outputSha256": "107510e229d5479ffc7605aafdc4df1d9afa25a767783233027c6283b5a4d19b",
+      "encodedBytes": 0
+    },
+    {
+      "mode": "hlg",
+      "temperature": "cold",
+      "milliseconds": 76.495588,
+      "inputMegapixelsPerSecond": 0.8567291488758803,
+      "absoluteProcessPeakRss": 154206208,
+      "baseline": {
+        "rss": 148877312,
+        "heapTotal": 47484928,
+        "heapUsed": 12815120,
+        "external": 44731553,
+        "arrayBuffers": 31731866
+      },
+      "after": {
+        "rss": 154206208,
+        "heapTotal": 48271360,
+        "heapUsed": 26196352,
+        "external": 45969068,
+        "arrayBuffers": 32928897
+      },
+      "outputSha256": "b3655a4a0ad06b8780ca251e7b751d8846e316a9cd9c91019f8fc2b9165e57f9",
+      "encodedBytes": 88798
+    },
+    {
+      "mode": "hlg",
+      "temperature": "warm",
+      "milliseconds": 43.213356999999974,
+      "inputMegapixelsPerSecond": 1.5165681296178872,
+      "absoluteProcessPeakRss": 167804928,
+      "baseline": {
+        "rss": 152023040,
+        "heapTotal": 47747072,
+        "heapUsed": 12992336,
+        "external": 29872893,
+        "arrayBuffers": 16832762
+      },
+      "after": {
+        "rss": 152547328,
+        "heapTotal": 48271360,
+        "heapUsed": 21538072,
+        "external": 31069964,
+        "arrayBuffers": 18029793
+      },
+      "outputSha256": "b3655a4a0ad06b8780ca251e7b751d8846e316a9cd9c91019f8fc2b9165e57f9",
+      "encodedBytes": 88798
+    },
+    {
+      "mode": "pq",
+      "temperature": "cold",
+      "milliseconds": 57.292407999999966,
+      "inputMegapixelsPerSecond": 1.143886289436465,
+      "absoluteProcessPeakRss": 156258304,
+      "baseline": {
+        "rss": 148570112,
+        "heapTotal": 47484928,
+        "heapUsed": 12827448,
+        "external": 44732593,
+        "arrayBuffers": 31732906
+      },
+      "after": {
+        "rss": 156258304,
+        "heapTotal": 48271360,
+        "heapUsed": 13380504,
+        "external": 45755455,
+        "arrayBuffers": 32715284
+      },
+      "outputSha256": "65a09afe4af03976ecf3fca4c6123d8e64bb809f58233b7b89a73d0434ea6c45",
+      "encodedBytes": 114830
+    },
+    {
+      "mode": "pq",
+      "temperature": "warm",
+      "milliseconds": 50.83981400000005,
+      "inputMegapixelsPerSecond": 1.2890684454510386,
+      "absoluteProcessPeakRss": 160133120,
+      "baseline": {
+        "rss": 144658432,
+        "heapTotal": 47747072,
+        "heapUsed": 12895536,
+        "external": 29173196,
+        "arrayBuffers": 16133065
+      },
+      "after": {
+        "rss": 151080960,
+        "heapTotal": 48271360,
+        "heapUsed": 26651936,
+        "external": 30447650,
+        "arrayBuffers": 17407479
+      },
+      "outputSha256": "65a09afe4af03976ecf3fca4c6123d8e64bb809f58233b7b89a73d0434ea6c45",
+      "encodedBytes": 114830
+    },
+    {
+      "mode": "linear-blend",
+      "temperature": "cold",
+      "milliseconds": 38.62997899999999,
+      "inputMegapixelsPerSecond": 0.006626977457067737,
+      "absoluteProcessPeakRss": 137707520,
+      "baseline": {
+        "rss": 118337536,
+        "heapTotal": 50368512,
+        "heapUsed": 19144816,
+        "external": 13671694,
+        "arrayBuffers": 672007
+      },
+      "after": {
+        "rss": 137707520,
+        "heapTotal": 51417088,
+        "heapUsed": 30661304,
+        "external": 18078655,
+        "arrayBuffers": 5038484
+      },
+      "outputSha256": "05f8605a354eaaebe571e8119382f8a2479aec3a2093578354ad5bb9fdfa79e1",
+      "encodedBytes": 407
+    },
+    {
+      "mode": "linear-blend",
+      "temperature": "warm",
+      "milliseconds": 10.643291000000033,
+      "inputMegapixelsPerSecond": 0.024052710763992003,
+      "absoluteProcessPeakRss": 152096768,
+      "baseline": {
+        "rss": 152096768,
+        "heapTotal": 48533504,
+        "heapUsed": 13545696,
+        "external": 13584942,
+        "arrayBuffers": 544811
+      },
+      "after": {
+        "rss": 152096768,
+        "heapTotal": 48533504,
+        "heapUsed": 23114976,
+        "external": 18139798,
+        "arrayBuffers": 5099627
+      },
+      "outputSha256": "05f8605a354eaaebe571e8119382f8a2479aec3a2093578354ad5bb9fdfa79e1",
+      "encodedBytes": 407
+    }
+  ]
+}

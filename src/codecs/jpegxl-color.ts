@@ -3,6 +3,9 @@ import type { ImageDecoder } from '../codec.ts'
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import {
+  createStructuredGrayTransform,
+  createStructuredGrayTransform16,
+  createStructuredRgbTransform,
   parseGrayIccTransform,
   parseGrayIccTransform16,
   parseRgbIccTransform16,
@@ -11,19 +14,23 @@ import {
 import type { JpegXlFrameStructure } from './jpegxl-decode.ts'
 
 /** Fixed curve storage and bounded copies of the profile's CLUT data. */
-export const jpegXlProfileWorkingBytes = (frame: Readonly<JpegXlFrameStructure>): number => {
-  if (Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) <= 8) return 256
+export const jpegXlColorWorkingBytes = (frame: Readonly<JpegXlFrameStructure>): number => {
+  if (Math.max(frame.bitDepth, frame.alphaBitDepth ?? 0) <= 8)
+    return frame.colorChannels === 1
+      ? 8192
+      : frame.iccProfile
+        ? 114_688 + frame.iccProfile.byteLength * 2
+        : 16_384
   return frame.colorChannels === 1 ? 131_072 : 3_149_824 + (frame.iccProfile?.byteLength ?? 0) * 2
 }
 
 /** Convert gray RGBA or integer 16-bit rows without an 8-bit color intermediate. */
-export const createJpegXlProfileDecoder = (
+export const createJpegXlColorDecoder = (
   decoder: ImageDecoder,
   frame: Readonly<JpegXlFrameStructure>,
   limits: Readonly<ImageLimits>,
 ): ImageDecoder => {
   const profile = frame.iccProfile
-  if (!profile) throw invalidInput('JPEG XL profile conversion requires an ICC profile')
   const high = decoder.pixelFormat.endsWith('16')
   if (
     decoder.pixelFormat !== 'gray16' &&
@@ -31,12 +38,34 @@ export const createJpegXlProfileDecoder = (
     decoder.pixelFormat !== 'rgba16' &&
     !(frame.colorChannels === 1 && decoder.pixelFormat === 'rgba8')
   )
-    throw unsupportedOperation('JPEG XL profile conversion requires supported integer rows')
-  if (jpegXlProfileWorkingBytes(frame) > limits.maxDecodedBytes)
-    throw limitExceeded('JPEG XL profile tables exceed maxDecodedBytes')
-  const gray8 = frame.colorChannels === 1 && !high ? parseGrayIccTransform(profile) : undefined
-  const gray16 = frame.colorChannels === 1 && high ? parseGrayIccTransform16(profile) : undefined
-  const rgb16 = frame.colorChannels === 3 ? parseRgbIccTransform16(profile) : undefined
+    throw unsupportedOperation('JPEG XL color conversion requires supported integer rows')
+  if (jpegXlColorWorkingBytes(frame) > limits.maxDecodedBytes)
+    throw limitExceeded('JPEG XL color tables exceed maxDecodedBytes')
+  if (!profile && frame.chromaticities && frame.renderingIntent !== 'relative')
+    throw unsupportedOperation('JPEG XL custom chromaticity conversion requires relative intent')
+  const gray8 =
+    frame.colorChannels === 1 && !high
+      ? profile
+        ? parseGrayIccTransform(profile)
+        : createStructuredGrayTransform(frame.colorSemanticsTransfer)
+      : undefined
+  const gray16 =
+    frame.colorChannels === 1 && high
+      ? profile
+        ? parseGrayIccTransform16(profile)
+        : createStructuredGrayTransform16(frame.colorSemanticsTransfer)
+      : undefined
+  const rgb16 =
+    frame.colorChannels === 3
+      ? profile
+        ? parseRgbIccTransform16(profile)
+        : createStructuredRgbTransform(
+            frame.colorSemanticsPrimaries,
+            frame.colorSemanticsTransfer,
+            frame.chromaticities,
+            16,
+          )
+      : undefined
   const channels = decoder.pixelFormat.startsWith('gray')
     ? 1
     : decoder.pixelFormat.startsWith('rgba')

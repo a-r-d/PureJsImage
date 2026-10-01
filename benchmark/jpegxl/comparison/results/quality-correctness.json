@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "date": "2026-09-30T04:27:18.362Z",
+  "date": "2026-10-01T14:30:25.294Z",
   "sourceReport": "benchmark/jpegxl/comparison/results/quality.json",
-  "sourceReportSha256": "37bb2f3bcfc660be41a84441923e331ecc1f0b3171154f9647bff13c2266a22a",
+  "sourceReportSha256": "4dff4b22d8f1a3218e469e01cfb08bec87e5b27c4033b240f6b0f7010a30c688",
   "rows": [
     {
       "subject": "purejsimage",

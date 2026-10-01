@@ -3,7 +3,7 @@
 ## Quick answer
 
 <!-- capabilities:jpegxl-summary:start -->
-Decode common static JPEG XL with native precision, color, alpha and HDR; inspect progressive stages, iterate timed animation frames and exact Level 10 native layers, preserve source-profile samples, write bounded grouped lossless Level 10 planes, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
+Decode common static JPEG XL with native precision, color, alpha and HDR; read wider Modular integer and floating samples, convert supported ICC and relative custom HDR color, preserve matching ICC and finite Float32 output, compose native float/CMYK or HDR VarDCT frames, stream lossless or Experimental lossy animation, and reconstruct eligible JPEGs byte for byte.
 
 Decode status: Stable common static. Encode status: Stable lossless, static lossy and exact transcode.
 <!-- capabilities:jpegxl-summary:end -->
@@ -31,9 +31,9 @@ The decoder separates the source description from emitted pixels. For example,
 a gray image with alpha has two source channels. The pixel API expands it to
 RGBA with RGB color semantics and retains the independent alpha depth and
 association. Source metadata still describes gray plus alpha. Supported GRAY
-ICC profiles can render that layout to straight sRGB RGBA. Preserving a GRAY
-profile on expanded RGBA output still fails explicitly; use native channels
-to retain that source layout.
+ICC profiles can render that layout to straight sRGB RGBA. Both integer and Float32 GRAY ICC plus alpha can re-encode to native gray
+through `keepIcc().jpegxl()` when expanded RGB channels remain equal. A GRAY
+profile cannot label expanded RGB PNG output.
 
 Modular integer samples retain their native precision. Supported crop,
 orientation and resize operations preserve sample meaning. A JPEG XL re-encode
@@ -200,8 +200,112 @@ bounded profile tables from `maxDecodedBytes`; it adds no full-frame bitmap.
 Source metadata still describes the original profile and depths. PNG output
 and JPEG XL re-encoding use the converted meaning and full output precision.
 
-Arbitrary ICC encoding into JPEG XL, ordinary floating input, non-alpha extra
-channels and high-depth structured color conversion remain unsupported.
+The same explicit `colorOutput: 'srgb'` option converts structured SDR color:
+linear, gamma and BT.709 gray/RGB, plus supported P3 and Rec. 2020 primaries.
+High-depth conversions emit full-range 16-bit samples and straight alpha.
+Custom white points and primaries work at 8- through 16-bit integer precision
+with relative rendering intent. Other custom-color intents remain unsupported.
+The default pipeline preserves structured samples and their native ranges.
+
+Static full-canvas Modular IEEE binary16 and binary32 gray/RGB input now opens
+through the ordinary pipeline as `grayf32`, `rgbf32` or `rgbaf32`. Binary16 values
+promote exactly to float32. Finite negative values, signed zero, subnormals and
+highlights above one are preserved. Integer or IEEE alpha has an independent
+normalized range. Use `alphaOutput: 'straight'` before integer conversion when
+the source alpha is associated. NaN and infinity are explicit input errors.
+
+```ts
+const floating = await images.open(floatJxl, { alphaOutput: 'straight' })
+const png = await floating
+  .convertPixelFormat({ format: 'rgba16', range: { minimum: 0.25, maximum: 1.25 } })
+  .png()
+  .toUint8Array()
+```
+
+Choose an output format with the same channel count. Gray without alpha can use
+`gray16`; RGB without alpha can use `rgb16`. Float input keeps its source color
+meaning by default. For structured SDR source color, request sRGB conversion:
+
+```ts
+const display = await images.open(floatJxl, { colorOutput: 'srgb' })
+const displayPng = await display.png().toUint8Array()
+```
+
+This emits `gray16`, `rgb16` or straight `rgba16`. It supports linear, gamma,
+BT.709, sRGB, Display P3, Rec. 2020 and relative custom white points and primaries.
+Associated samples are straightened in the source color domain first. Source
+values are then clipped to [0,1] for SDR conversion, and converted gamut values
+are clipped at the output boundary. Integer or IEEE alpha is normalized to 16 bits.
+Transfer functions evaluate the float samples directly, with one final integer
+rounding. PNG output and JPEG XL re-encode retain the converted sRGB meaning.
+The checked constant 2x alpha grid also crosses Modular group boundaries.
+
+Float ICC conversion now evaluates supported GRAY curves and RGB matrix/TRC
+or `mAB` profiles with float input. Explicit `colorOutput: 'srgb'` emits straight
+sRGB16. Float input keeps its source profile by default. Use
+`image.keepIcc().jpegxl()` to retain that profile when encoding float rows.
+Gray ICC plus alpha expands to equal RGB channels for processing and folds back
+to native grayscale when re-encoded. Editing those channels independently makes
+the original GRAY profile ineligible.
+
+```ts
+const linear = await images.open(input, { hdrOutput: 'linear-float' })
+const preservedHdr = await linear.jpegxl().toUint8Array()
+const display = await images.open(input, { hdrOutput: 'tone-map-srgb' })
+const png = await display.png().toUint8Array()
+```
+
+Structured PQ, HLG and linear float HDR supports sRGB, Display P3 and Rec. 2020.
+Linear output keeps source primaries and highlight values above one. Display
+output uses 203 nit reference white and the source-gamut Reinhard policy before
+conversion to sRGB8. HLG uses a luminance-derived system-gamma factor. Relative custom
+HDR primaries are supported. Profiles without supported transfer metadata remain unsupported.
+
+Ordinary `.jpegxl()` losslessly preserves finite `grayf32`, `rgbf32` and
+`rgbaf32` bit patterns, including signed zero, subnormals, negative values and
+highlight headroom. Output uses binary32 in a Level 10 container, even when the
+source was binary16. Associated alpha, orientation, intrinsic size and luminance
+metadata are preserved. Explicit lossy mode rounds color mantissas in Modular coding and preserves
+binary32 storage and exact alpha. It has no progressive passes or perceptual
+quality equivalence claim. Use explicit pixel-format range conversion for
+integer output. Float VarDCT writing remains unsupported.
+
+Native Modular float and CMYK frames now compose in the source domain. Cropped
+layers and reference frames are combined before ICC conversion or HDR tone
+mapping. Select animated output with `images.open(input, { frame: 2 })`. The
+sequence API also returns normalized integer planes or actual floating values.
+Float32 animation writing and selected PQ/HLG/linear XYB VarDCT frame rendering
+are supported.
+
+Modular CMYK input with unsigned C/M/Y/black through 31 bits or legal floats and a supported
+embedded `mft2` A2B0 profile opens as straight sRGB8 or sRGB16 rows. Integer or
+IEEE alpha and associated color are supported. PNG and JPEG XL output use the
+converted sRGB meaning; source metadata retains the CMYK profile. Native
+extraction is required to preserve source CMYK samples. Floating black is supported. Other
+CMYK profile families remain unsupported.
+
+Independent unshifted native groups decode cropped bands. Global transforms,
+shifted extras and dependent groups retain full native planes. Composition also
+retains a canvas and up to four reference slots, with a cumulative replay limit.
+Converter rows, normalized extras and profile tables are reserved from
+`maxDecodedBytes` before allocation. Structured SDR matrix scratch reserves
+4 KiB; HDR scratch reserves 32 KiB. Float encoding stages planar bits and retains
+compressed sections and assembled output, bounded by `maxWorkingBytes` and
+`maxOutputBytes`. It does not retain an additional interleaved float bitmap.
+
+Matching GRAY/RGB ICC profiles can be explicitly retained on lossless integer
+or Float32 JPEG XL output. Other non-alpha extra channels and nonrelative
+custom-color conversion remain unsupported. Opaque Modular integers through
+31 bits retain exact `gray32`/`rgb32` samples. Mixed floating or wide alpha uses
+normalized `rgbaf32` and reports precision loss. Custom floating layouts emit
+Float32 values, including checked 24-bit/8-exponent and 16-bit/4-exponent fields.
+Integer-color VarDCT with floating alpha emits `rgbaf32`; binary32 and custom
+16-bit/4-exponent alpha have pinned straight and associated references. Wider
+integer VarDCT display remains unsupported.
+
+Forward integer VarDCT writing now accepts HLG, relative custom chromaticities,
+associated alpha and nondefault intensity targets. Progressive floating-alpha
+stages and transformed implicit-palette prefix layouts still need qualification.
 The explicit native APIs cover additional profile and sample layouts. Use `keepExif()`
 for explicit Exif preservation; Exif orientation must be normalized before JXL
 encoding. Exif, XMP and JUMBF preservation is bounded and opt-in.
