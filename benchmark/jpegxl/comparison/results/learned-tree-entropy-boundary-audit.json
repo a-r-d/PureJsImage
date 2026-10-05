@@ -1,0 +1,3138 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-final-gates.json",
+      "sha256": "94211cc6436e69d41f9de2e6c194f216ff706836cc6a289686c6a717ca8fe095"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/manifest.json",
+      "sha256": "5015a557ab90f5060004bda092b44a35335852103ede44ce3d2436bb20d40172"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "055fe89873f4682c2a94c1fc96590895c161cf3797b10ac7ce730e97523f72e5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-modular-encode.ts",
+      "sha256": "055fe89873f4682c2a94c1fc96590895c161cf3797b10ac7ce730e97523f72e5"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "29554a265326317d3ce4491ba1e0403fc53f17e17dd91e61312274ce91c1a75a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-modular-tree.ts",
+      "sha256": "29554a265326317d3ce4491ba1e0403fc53f17e17dd91e61312274ce91c1a75a"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "d37500c884d1fd5e2c4aaee0850207fd50f59f53c08d9b0a24e9f642b8dce844"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/palette-order-175-current/jpegxl-encoder-memory.ts",
+      "sha256": "d37500c884d1fd5e2c4aaee0850207fd50f59f53c08d9b0a24e9f642b8dce844"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-bits-188c.json",
+      "sha256": "f83d291d79d2bb583eeff6c8aff30bfdb801e49cffe026faeb04a73a7d469767"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-bit-boundaries.json",
+      "sha256": "cc7bd29c6e63517e7b60af973ad3ce5bc1a6dc90aa1e8d5975e726d6a33936ff"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-tree-entropy-bits-188c.ts",
+      "sha256": "b63ac33f6288ea37a2d28a96528534ce720b4ef6db84870b9ff2651576c63483"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-188c.ts",
+      "sha256": "533c276dd821c76c7c64bae6eaddb3e542fabf9b10eaf4c7effa474e7990bff5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-188c-copy.ts",
+      "sha256": "206a3642dc88e3a19532465246c31390c27dfbbbfbfd58cd670d327e04433b0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-policy-188c.txt",
+      "sha256": "977e0a26a391569b2a9a53785cb6441343704ed8149f96aa8cc4c4d9da3011d2"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+      "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+      "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-full-189.json",
+      "sha256": "9ec260fb3e5acdd91d64eff6a284b931e264ecc8c0033af43cb4f0ee8684c225"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+      "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-full-189.ts",
+      "sha256": "d4faa9ad64fa84a985e9a8f0d319e7d8f142034ca459c0c2597828ca4a6dd329"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/investigate-tree-entropy-full-shard-189.ts",
+      "sha256": "9e564d87ca0451fbde59ae40f77ffd26b3a2c7534171d66478efe054a4d2e8d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189-im26-1030-diagnostic.json",
+      "sha256": "8810d375b25bb536eee5894b8809ad2a0dde621d2a005c2992a972d4e33c5c50"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-full-shard-189.ts",
+      "sha256": "9e564d87ca0451fbde59ae40f77ffd26b3a2c7534171d66478efe054a4d2e8d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-full-189.ts",
+      "sha256": "53a2ca56abc5deec732899ae2d592b7c6e5ffbc0d532c242776e9f7a1594157f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort7-public.json",
+      "sha256": "5ac2031eabbad53e3de028e8ea62bceeea5b7c824805dea853702f52442e395d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-controls.json",
+      "sha256": "d31d12d4b11347b6b55b9521962b9af9858feeca516b2809a7b4d8562c4b29b4"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189-im26-1416-diagnostic.json",
+      "sha256": "0ba9dc7f6091c1c51129c0376c68b3889fbc929b9140dcf10893e2ebb80c92e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189-im26-2018-diagnostic.json",
+      "sha256": "2c33ab39c03de9bf69bc9a194cfa824b9b03f02e63513bbb8e794e2a79cdac79"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189-im26-5032-diagnostic.json",
+      "sha256": "f2b2df1fdd45911c3169f41e4fae5b116403ca26e6323d289d088847dc9fd168"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189-im26-8160-original.json",
+      "sha256": "82e4b51804e887dec16de2f6b0be28a73959841d497208c6ca14bb953fe7d2f5"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-depth-190.json",
+      "sha256": "85c8ef94137a37c99d3cf248bc0e9534fad9c3ba49f911232f7bce96495ef2d9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-depth-boundaries.json",
+      "sha256": "dff5210b3f88215b78be13c5fe8734fefd1b1d1a7e56e8c4255a404ba0927d4a"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-depth-190.ts",
+      "sha256": "e8cf216a9f93abe3ee9591aece3f32e4069681aa11c8005d8c09111b4327ed48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/investigate-tree-entropy-depth-shard-190.ts",
+      "sha256": "bc80526850e66bd1d8661fd88cf9a30224167c4df950a730d144e9e4b374c3c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-depth-shards-190.ts",
+      "sha256": "3dd826fcfd4d040e02abaea274902b2374b0e183956c8c7791f6e56f8e5ea002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-8-3-191.json",
+      "sha256": "56204b6be748d3233e96e2834c38266562b5cf79720a845615bd8c09f76b0c86"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-depth-shard-190.ts",
+      "sha256": "bc80526850e66bd1d8661fd88cf9a30224167c4df950a730d144e9e4b374c3c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-boundaries-190.ts",
+      "sha256": "bf0822779fcf3ada4c38f71e14c3d9dfeebd5981093ed78c1b11dcb4f3468c9d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-qualified-floor-controls.json",
+      "sha256": "59f1e2e47977abfc0bcddeabed57e6eb3bfc81981a45cab1f79f780d9bf621af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-8-3-1025.json",
+      "sha256": "889bdebe1aad301cbed588c99f61f1d1e5ee8a37c5848e5548ba9cda10fab21d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-8-4-191.json",
+      "sha256": "0af3d461b2591dbd8543329273e1646374f0ea77c58a9ba7ba460c6128722cd3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-8-4-1025.json",
+      "sha256": "95ff2d7ecf6800c71c76818354b86d657e92c412e2b00c7ec3cf187e5fece6cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-16-3-191.json",
+      "sha256": "a22c2691dad72cd40cd05cfd56ccb69666c8735fa32f56da9fef12ee599bb00e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-16-3-1025.json",
+      "sha256": "a6c7caa1a8d2e20476807677f1303bdf49a6b793fcb17995052261d8f9d5a87e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-16-4-191.json",
+      "sha256": "07fa8eb39cbc9b4735b640c5574186a8918df53c9719415d57dc9ca091e03608"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190-16-4-1025.json",
+      "sha256": "faeea852a0e8a45d61d4aca83d326980dc0febfb5f196f2dda52f58c98978c52"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-learned-191.json",
+      "sha256": "d8fe5f2f6a33297133575c1ccf577435ee683d38af95a31d2e2965e28718d746"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-learning-boundaries.json",
+      "sha256": "8a28a32373bbe60bbad95e6bc33411d3f35bf25e842e50e9469e86bb7bdb3537"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-learned-191.ts",
+      "sha256": "915a6d8a86bb9b9e6bd52ff4b9978011be20394372a3a3ce07cf00d768a6d6a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/investigate-tree-entropy-learned-shard-191.ts",
+      "sha256": "de0c97016098c2454111213f502c2b39639788743d5111c54eb2b661ed88c447"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-8-1024.json",
+      "sha256": "4db81d93dc62481cd056b3e5e290272da669ce8ff0a383dc1cf3e6859714b599"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-learned-shard-191.ts",
+      "sha256": "de0c97016098c2454111213f502c2b39639788743d5111c54eb2b661ed88c447"
+    },
+    {
+      "path": "tests/helpers/jpegxl-learned-lossless.ts",
+      "sha256": "6576f080b7c3cfbf608e7daf83fb8b21020bf1599427a8fa84a9d024d6282811"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-8-1025.json",
+      "sha256": "be164b13f1a67342d7d0643639951c04e4f35b53e468b26e5c2af76424cdf432"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-0.json",
+      "sha256": "d6dd50191ba4dee945f2223b3e6a131b07853bcce9b590654cf3ba0b462e240b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-1.json",
+      "sha256": "dd7412dcee3c9ac6c6f1d784e82c68a20cfcca2e1a7711945d047dfd52fb4b02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-2.json",
+      "sha256": "e0d1ebde7571fabca956098de27d057d1be231df515864fa987f9dcdc6cb188d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-16-1024.json",
+      "sha256": "e00bada74330f7288d6f1c97f7bd15f2d9e7004d73a8e99d496d321acb59381a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-16-1025.json",
+      "sha256": "c67a3ad406648900cb3fd3efb49889a0e570ed57cb2942acfbc2772f105b456b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-0.json",
+      "sha256": "3b8cd4d0bdcf44c289b1560e5cc109f69ebb2c9d867f635e873da883ae151233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-1.json",
+      "sha256": "3499fed05c340a802f83b2f2c3691da8df6f4189ba2d3dc853b94ebf6472983c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-2.json",
+      "sha256": "ad31b36f2b13349090a762d4df491407f289f5234fef1a9146d14df47da344d4"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-minimum-192.json",
+      "sha256": "e1a51e02db8d7b72ac24483d71b82128067c3d29b8fbe35334307c5f5d9478dc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-minimum-budget-controls.json",
+      "sha256": "0319c742ef4957ff588ea0be7d185dd7dc39a0375da2f678f26056819eb2a9e3"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-minimum-192.ts",
+      "sha256": "488f63cf269e021e4dd1f838597ca7d32474e13e20bd7d41d3fb34c52bfe8f56"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-minimum-192.ts",
+      "sha256": "2796f836c2f166fedf4bc1deab9e7b0bfbd497d5c345d009c9ff2c0c091a94d8"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "5e0ebca418882264dc5f4e979a76e121845bfb632e830f3910f1d67e5cc2d5e3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-modular-encode.ts",
+      "sha256": "83dda4669d3cd29f66c4da88f14e319a9bd255072ca0b16ae2b6232f84ebf101"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-performance-193.json",
+      "sha256": "a75e47381f5f8cd00edbec4e5adefa5c0099b2b7191ecc001955f0da1710cae5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-performance-controls.json",
+      "sha256": "25967b7b63aed21e683175facf389c0f84ba33432608982567c47ac308caa1bf"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-193.ts",
+      "sha256": "17bd081bb511098f7ce40a17f556a3f168665646ae23a58a17ae772bb2332579"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+      "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-0.json",
+      "sha256": "4b40e07753effaaa2d26e75eea5db800def4493a49d72a6b84eb95946edc3898"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+      "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+      "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-0.json",
+      "sha256": "c0bfc07325b6de8d49fe6bca73962d4aa302a65a361c526f95e272fd70d2c5c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-1.json",
+      "sha256": "27f9755e6f574137d77b31d212d1da8906254500de3cfdff988b481387fa5f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-1.json",
+      "sha256": "75f08f4147122b9b8b23ba51719a28b3e5f3f72eaeaf3ea6a47658fd4a96565d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-2.json",
+      "sha256": "7635de94122324a8b07e48d761f952cfc59a2ed82b5a4db544eac2bbcf74e57f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-2.json",
+      "sha256": "ae704a678a5042f17cd57c1405903fc8bcdba929e86761100f49fd6d054d4b94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-3.json",
+      "sha256": "51d33a1851525a9e887e427bfe6754cb92826471104b520f98d8a640043c1a94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-3.json",
+      "sha256": "9f9755e500146b1645501255f6cf00eafa9c8e69633a00afc4a7dae2fc383686"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-4.json",
+      "sha256": "0ef580be2efadae526964a88dddf23ebfd10f7c21dbc37615e1846024e47ee97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-4.json",
+      "sha256": "db3971dc725372541e001efd2ed4bd61986a9e6a706ce5be96e3cee374bb7c75"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-5.json",
+      "sha256": "695eaec1661fbe50450b1060b341bf5112bc12b6a9315948ccfef63c101ba5d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-5.json",
+      "sha256": "fcdeccdbc0ad0ff0abe06ec209537886b0e3842dca9243db7295500608ff6475"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-6.json",
+      "sha256": "90484d6e867a23b4acf86d2072646d310af50ad73184b181a1781dc292ddb1f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-6.json",
+      "sha256": "38c266de19cfe71f9f529e89f3d1f34826993d10f92269f653084bf9aff42e8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/0-1-zero-baseline.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/1-1-zero-candidate.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/2-1-zero-baseline.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/3-1-zero-candidate.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/4-1-zero-baseline.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/5-1-zero-candidate.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/6-1-zero-baseline.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/7-1-zero-candidate.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/8-1-zero-baseline.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/9-1-zero-candidate.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/10-1-zero-baseline.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/11-1-zero-candidate.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/12-1-zero-baseline.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/13-1-zero-candidate.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/14-1-zero-baseline.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/15-1-zero-candidate.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/16-1-signed-baseline.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/17-1-signed-candidate.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/18-1-signed-baseline.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/19-1-signed-candidate.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/20-1-signed-baseline.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/21-1-signed-candidate.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/22-1-signed-baseline.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/23-1-signed-candidate.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/24-1-signed-baseline.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/25-1-signed-candidate.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/26-1-signed-baseline.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/27-1-signed-candidate.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/28-1-signed-baseline.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/29-1-signed-candidate.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/30-1-signed-baseline.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/31-1-signed-candidate.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/32-1-wide-baseline.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/33-1-wide-candidate.bin",
+      "sha256": "8f061fd2f670083684b28ebc2f09bb12587d3e458ce5b83c1817a47705b5a54a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/34-1-wide-baseline.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/35-1-wide-candidate.bin",
+      "sha256": "568c533ea1f0eecd13f09f60116636e3439ecdd14754ff2b8521abc18997edcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/36-1-wide-baseline.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/37-1-wide-candidate.bin",
+      "sha256": "03f41a4e8fd1c68b6acc13a207fa3fe31cd7d1b03574be99f429661175a2a188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/38-1-wide-baseline.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/39-1-wide-candidate.bin",
+      "sha256": "c555cdaf30d4e382c5f62557c3a1356c94e294da8bdf7491308c680d33485385"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/40-1-wide-baseline.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/41-1-wide-candidate.bin",
+      "sha256": "0d6c562c218c0f469793dfe43d535b71542b21aefd2b2fadc5f5c2c829635374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/42-1-wide-baseline.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/43-1-wide-candidate.bin",
+      "sha256": "2a6861e07b14f3339604e1b259e5593ea41cf898353da9474c6ae10c88b36128"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/44-1-wide-baseline.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/45-1-wide-candidate.bin",
+      "sha256": "2879e732391cc66bc57b3e1fe96f31eec34b93e42a19f5c8934d431e04238cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/46-1-wide-baseline.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/47-1-wide-candidate.bin",
+      "sha256": "ec176a8bd665a6ac7d979d7882a22872cf2a7d268e9a7494e034222df4a147d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/48-4-zero-baseline.bin",
+      "sha256": "b29de99ceced9f6f2ad23a30764191c6db995ca8455dba91b2999ac932824a39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/49-4-zero-candidate.bin",
+      "sha256": "b29de99ceced9f6f2ad23a30764191c6db995ca8455dba91b2999ac932824a39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/50-4-zero-baseline.bin",
+      "sha256": "3aed742d5153af53460c69460272a5922105dd9abc2371bdf16979cb492a728a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/51-4-zero-candidate.bin",
+      "sha256": "3aed742d5153af53460c69460272a5922105dd9abc2371bdf16979cb492a728a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/52-4-zero-baseline.bin",
+      "sha256": "db13eef9eec30846706268dffeb24513c3c9ea2e4417dea3deb5bab2d6396322"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/53-4-zero-candidate.bin",
+      "sha256": "db13eef9eec30846706268dffeb24513c3c9ea2e4417dea3deb5bab2d6396322"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/54-4-zero-baseline.bin",
+      "sha256": "d358d689904ab0710297b9c2e41d4984a3fd57bf1d72419d6211552d00fe15dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/55-4-zero-candidate.bin",
+      "sha256": "d358d689904ab0710297b9c2e41d4984a3fd57bf1d72419d6211552d00fe15dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/56-4-zero-baseline.bin",
+      "sha256": "a62a03bcce178d57d846e8c95013d937279fdce26066c0bbc63270e4f0fa0ef5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/57-4-zero-candidate.bin",
+      "sha256": "a62a03bcce178d57d846e8c95013d937279fdce26066c0bbc63270e4f0fa0ef5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/58-4-zero-baseline.bin",
+      "sha256": "9adaf358e6d72792b87bfeae88b0a9a0d449f26002aedcc40d2f894287b8e235"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/59-4-zero-candidate.bin",
+      "sha256": "9adaf358e6d72792b87bfeae88b0a9a0d449f26002aedcc40d2f894287b8e235"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/60-4-zero-baseline.bin",
+      "sha256": "5cabf2a8915d22004e649a8284f38790004f1fded5f83919e97bc814ed12a774"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/61-4-zero-candidate.bin",
+      "sha256": "5cabf2a8915d22004e649a8284f38790004f1fded5f83919e97bc814ed12a774"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/62-4-zero-baseline.bin",
+      "sha256": "773f421be58b68c6d9ff418ec82619356acde98b3672e97282a70d229698b156"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/63-4-zero-candidate.bin",
+      "sha256": "773f421be58b68c6d9ff418ec82619356acde98b3672e97282a70d229698b156"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/64-4-signed-baseline.bin",
+      "sha256": "d7e6d6ad3c8f4df613563a7459ae5089b43a8d16e50a5a000168959c6292160a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/65-4-signed-candidate.bin",
+      "sha256": "d7e6d6ad3c8f4df613563a7459ae5089b43a8d16e50a5a000168959c6292160a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/66-4-signed-baseline.bin",
+      "sha256": "ec283dcb602b845c582d610dba8d7b1878b45121179693a77f8232df3a581b4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/67-4-signed-candidate.bin",
+      "sha256": "ec283dcb602b845c582d610dba8d7b1878b45121179693a77f8232df3a581b4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/68-4-signed-baseline.bin",
+      "sha256": "0842115b9f1f61d7a727401e3a2c1cc622cf43cf6f5eb31326e69d29af986dd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/69-4-signed-candidate.bin",
+      "sha256": "0842115b9f1f61d7a727401e3a2c1cc622cf43cf6f5eb31326e69d29af986dd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/70-4-signed-baseline.bin",
+      "sha256": "9ac21a84eab7b0f3789736d8441d1f3bf6d0f1a143b89b4475b460a42b25cf80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/71-4-signed-candidate.bin",
+      "sha256": "9ac21a84eab7b0f3789736d8441d1f3bf6d0f1a143b89b4475b460a42b25cf80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/72-4-signed-baseline.bin",
+      "sha256": "d11bf557acddf9e7ce2d83999e481d21a57c85dbe9ce02bfa2fe1fc02f02c8b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/73-4-signed-candidate.bin",
+      "sha256": "d11bf557acddf9e7ce2d83999e481d21a57c85dbe9ce02bfa2fe1fc02f02c8b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/74-4-signed-baseline.bin",
+      "sha256": "bb66f19d0a28b71bab47bd12ed7f378e8482eea507f9aea8e52c82b15bc2fdfa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/75-4-signed-candidate.bin",
+      "sha256": "bb66f19d0a28b71bab47bd12ed7f378e8482eea507f9aea8e52c82b15bc2fdfa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/76-4-signed-baseline.bin",
+      "sha256": "af9a8d2547f62459ae26e4f67a5326b620babc7db6471f2475d2fb8f55ee5deb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/77-4-signed-candidate.bin",
+      "sha256": "af9a8d2547f62459ae26e4f67a5326b620babc7db6471f2475d2fb8f55ee5deb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/78-4-signed-baseline.bin",
+      "sha256": "c668c4567193e0d05a509c722f8f972f39a6e6ac83ce865c91d2d192a11065d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/79-4-signed-candidate.bin",
+      "sha256": "c668c4567193e0d05a509c722f8f972f39a6e6ac83ce865c91d2d192a11065d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/80-4-wide-baseline.bin",
+      "sha256": "320320180e2280849b7c14125d5b11ab19332b04c558b68f47f496fc5e1c062f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/81-4-wide-candidate.bin",
+      "sha256": "320320180e2280849b7c14125d5b11ab19332b04c558b68f47f496fc5e1c062f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/82-4-wide-baseline.bin",
+      "sha256": "469d724e4c4658f68af5fe8cbaab0f974cd47191a6c8fc2a2d652910e4336b33"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/83-4-wide-candidate.bin",
+      "sha256": "469d724e4c4658f68af5fe8cbaab0f974cd47191a6c8fc2a2d652910e4336b33"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/84-4-wide-baseline.bin",
+      "sha256": "047917bde760f463662cfa4058bf760985f56a284feeff2e8a738d1c04f7a61c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/85-4-wide-candidate.bin",
+      "sha256": "047917bde760f463662cfa4058bf760985f56a284feeff2e8a738d1c04f7a61c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/86-4-wide-baseline.bin",
+      "sha256": "a8215bcb97d1c3df66c5cc66131f8e7880609b7742f86698c1e3b86b07cacd53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/87-4-wide-candidate.bin",
+      "sha256": "a8215bcb97d1c3df66c5cc66131f8e7880609b7742f86698c1e3b86b07cacd53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/88-4-wide-baseline.bin",
+      "sha256": "a0e5507529242fd10d1fb0e6b34801acb176eab67f513e5f13e416766d989439"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/89-4-wide-candidate.bin",
+      "sha256": "a0e5507529242fd10d1fb0e6b34801acb176eab67f513e5f13e416766d989439"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/90-4-wide-baseline.bin",
+      "sha256": "bfaf27c0b9a5d8425cc4de8e185007e3645b6a4e5aad21663def5247cff0d9c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/91-4-wide-candidate.bin",
+      "sha256": "bfaf27c0b9a5d8425cc4de8e185007e3645b6a4e5aad21663def5247cff0d9c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/92-4-wide-baseline.bin",
+      "sha256": "1b1a4d4596f1cffcc5926c9e46282522b5f423440f4ec20a113bb714dc0877b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/93-4-wide-candidate.bin",
+      "sha256": "1b1a4d4596f1cffcc5926c9e46282522b5f423440f4ec20a113bb714dc0877b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/94-4-wide-baseline.bin",
+      "sha256": "a29c8b7a307e3ad9229788eab4b6a2554ef6409fc7f66ad22b48df0e666c4b73"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/95-4-wide-candidate.bin",
+      "sha256": "a29c8b7a307e3ad9229788eab4b6a2554ef6409fc7f66ad22b48df0e666c4b73"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/96-5-zero-baseline.bin",
+      "sha256": "edfa08a9928c1a33724c34033475f451833cc03e4d76410bad86adba6b9e39cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/97-5-zero-candidate.bin",
+      "sha256": "edfa08a9928c1a33724c34033475f451833cc03e4d76410bad86adba6b9e39cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/98-5-zero-baseline.bin",
+      "sha256": "ec2edabe3e19d183b9433ef9e32e8a03fe3fa0b3073bbcabe6677227cb46d4b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/99-5-zero-candidate.bin",
+      "sha256": "ec2edabe3e19d183b9433ef9e32e8a03fe3fa0b3073bbcabe6677227cb46d4b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/100-5-zero-baseline.bin",
+      "sha256": "4ee2549bd42b4c7688567d496e8c3d58aa7fc9cbcb7465e4b891695cb33a9890"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/101-5-zero-candidate.bin",
+      "sha256": "4ee2549bd42b4c7688567d496e8c3d58aa7fc9cbcb7465e4b891695cb33a9890"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/102-5-zero-baseline.bin",
+      "sha256": "a322e69ccc4e2bfba252db0eebfc6c7eb6a336bf6e1588c05cde48085e5ba4df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/103-5-zero-candidate.bin",
+      "sha256": "a322e69ccc4e2bfba252db0eebfc6c7eb6a336bf6e1588c05cde48085e5ba4df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/104-5-zero-baseline.bin",
+      "sha256": "8c340136d0b1c6b5ce4e78371d54aff8e52b6c2da9734a8f65f4136f2d0cdb40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/105-5-zero-candidate.bin",
+      "sha256": "8c340136d0b1c6b5ce4e78371d54aff8e52b6c2da9734a8f65f4136f2d0cdb40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/106-5-zero-baseline.bin",
+      "sha256": "916b0199a0dd73d791afee1ac5cbc952419c7f422e43cd828646502264540c19"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/107-5-zero-candidate.bin",
+      "sha256": "916b0199a0dd73d791afee1ac5cbc952419c7f422e43cd828646502264540c19"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/108-5-zero-baseline.bin",
+      "sha256": "4a6e9b8e4bff2233214321848e2f7a834845f404c61f0e16e8d5d9d7348c6d28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/109-5-zero-candidate.bin",
+      "sha256": "4a6e9b8e4bff2233214321848e2f7a834845f404c61f0e16e8d5d9d7348c6d28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/110-5-zero-baseline.bin",
+      "sha256": "e219441283f1f32b95fc3ff334b1e8c68c079b8de42819486144f178dba016b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/111-5-zero-candidate.bin",
+      "sha256": "e219441283f1f32b95fc3ff334b1e8c68c079b8de42819486144f178dba016b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/112-5-signed-baseline.bin",
+      "sha256": "25790b82031707cdc33df672c6395a5d729b4643b93c088a822fbdc7c2494ecc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/113-5-signed-candidate.bin",
+      "sha256": "7abc2d96b6d02a8471c0a7070bd4651ae1052cb70eacb8e9fc8dccfd40ff8bf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/114-5-signed-baseline.bin",
+      "sha256": "35cbd0d45f07348245b766e819de3f9615a60f478bab730cd5771a31f671abe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/115-5-signed-candidate.bin",
+      "sha256": "aa601b0a2a1619b3ea8185bde466e1f1642d8149554a7e3decad9e73a74aed12"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/116-5-signed-baseline.bin",
+      "sha256": "e2ef98db6fc1e1d022d0e9f62a56ea961a582a6cbdfd3b6544bee9e70f090ea2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/117-5-signed-candidate.bin",
+      "sha256": "8a02e9f81633e903164451ed9bbd124a57bc88656be40769b88991aaf16b10b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/118-5-signed-baseline.bin",
+      "sha256": "25c15ee1e0a44a309ae03bf13a408750800863931c147d940ef6a10ea9cb5336"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/119-5-signed-candidate.bin",
+      "sha256": "904a773300f7869b08c1eeff2ebec084d5b6055776c5085044fe824b23f34f13"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/120-5-signed-baseline.bin",
+      "sha256": "39574d13b1d487b956dafffc3cb7f1cbba1ac1eb079c75139bdc495cc3e2ec97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/121-5-signed-candidate.bin",
+      "sha256": "529a2d31fbd527c5bd69a7512fdc5efb06878d816bd7dd8c67cda62dcecc301d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/122-5-signed-baseline.bin",
+      "sha256": "0febc52ba459cff20e3ee3534d197dd745f7c33b164f51d1642826a0c0f3b46f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/123-5-signed-candidate.bin",
+      "sha256": "6c2f04d226360e580cefa65fba9f20210575245b0eeaf81de6db942e04d5ce7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/124-5-signed-baseline.bin",
+      "sha256": "6bf268e969c1530d9bf1f1d98356d08d6e38d7395ee95119a5304377b8163421"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/125-5-signed-candidate.bin",
+      "sha256": "22829a8439a1ac7d2a9769bf92284bbb3bd1739db9f8968442eade1319a69c6a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/126-5-signed-baseline.bin",
+      "sha256": "8b4ee67d4ef67f2ea5d2f18c2058163c68a880ea86b3c42707fa91e10513c3c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/127-5-signed-candidate.bin",
+      "sha256": "9093885ccc167288bd1c104d80a1dc49bb08b89e7dd5857076af5ccec40a43fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/128-5-wide-baseline.bin",
+      "sha256": "c3ecb84cca3a36cc9fc6753219c6e9699a4fe389c9e7c6f9cd94544172a109ef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/129-5-wide-candidate.bin",
+      "sha256": "c3ecb84cca3a36cc9fc6753219c6e9699a4fe389c9e7c6f9cd94544172a109ef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/130-5-wide-baseline.bin",
+      "sha256": "91fcfa86b403f4e904b5782a3e2bb533ed04a830e8a0005b92945afa6946fd5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/131-5-wide-candidate.bin",
+      "sha256": "91fcfa86b403f4e904b5782a3e2bb533ed04a830e8a0005b92945afa6946fd5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/132-5-wide-baseline.bin",
+      "sha256": "65cb6da2af5fb67d32b7e2086c8743ea5b5e27dbbffdc569e20f5b70383d5325"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/133-5-wide-candidate.bin",
+      "sha256": "65cb6da2af5fb67d32b7e2086c8743ea5b5e27dbbffdc569e20f5b70383d5325"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/134-5-wide-baseline.bin",
+      "sha256": "0884067c8591025014c8b7a12709bcf018391c3b920b342dd28dd3a1b330da1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/135-5-wide-candidate.bin",
+      "sha256": "0884067c8591025014c8b7a12709bcf018391c3b920b342dd28dd3a1b330da1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/136-5-wide-baseline.bin",
+      "sha256": "b12b865dfe213281cd20347fe2de99371a7a62c427161f1899ed4a14ab83a41c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/137-5-wide-candidate.bin",
+      "sha256": "b12b865dfe213281cd20347fe2de99371a7a62c427161f1899ed4a14ab83a41c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/138-5-wide-baseline.bin",
+      "sha256": "b46d2a71130ead27140464dc45913478b460de9e361b1af80e99efb4e59b32d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/139-5-wide-candidate.bin",
+      "sha256": "b46d2a71130ead27140464dc45913478b460de9e361b1af80e99efb4e59b32d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/140-5-wide-baseline.bin",
+      "sha256": "779149cad4aa81c7d4cc8cc79e5e34fa88ec369b9c8071071c502e20cd504116"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/141-5-wide-candidate.bin",
+      "sha256": "779149cad4aa81c7d4cc8cc79e5e34fa88ec369b9c8071071c502e20cd504116"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/142-5-wide-baseline.bin",
+      "sha256": "a31f48a563e0590f158af06919812519dba0d96dc916baf9ea8cf5ed1b65e6f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/143-5-wide-candidate.bin",
+      "sha256": "a31f48a563e0590f158af06919812519dba0d96dc916baf9ea8cf5ed1b65e6f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/144-9-zero-baseline.bin",
+      "sha256": "2568dff1bfda317e8af50971cbaba2500c2168756e8bc9ed3e0469262eb57a50"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/145-9-zero-candidate.bin",
+      "sha256": "6b3375f20fc6c04eaa644de92b86e8b4b617692e411c769e33c2bee277d499ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/146-9-zero-baseline.bin",
+      "sha256": "33959c865852537b2f333527f6e204591c87d0b92e509580f42f4510d6267ed2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/147-9-zero-candidate.bin",
+      "sha256": "8461a24ba886c780fb6f72b1be21704c8ebed312b98289fae6df4d75943975ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/148-9-zero-baseline.bin",
+      "sha256": "c5783a3ce8c2dc67b4a25ce9d86c532bacda3c525ff89604ffa6d3c03a5c9899"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/149-9-zero-candidate.bin",
+      "sha256": "c5a5104dcdda725b6a8bb7e68dd108d8d75a7ddde57accdd940a82152009c314"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/150-9-zero-baseline.bin",
+      "sha256": "c2be015f80bf72a98e41bcd6654ae2fc2056e7000b847897d41ad351601f127f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/151-9-zero-candidate.bin",
+      "sha256": "092ba68b24e858c24a0b3044fbdfd5b257471a349d55c9d4f67006f7e7de8b2d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/152-9-zero-baseline.bin",
+      "sha256": "635cd43eec27e43d6bcf366359dee86727b4a7059085c0575c1cc2a0a6b9df0a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/153-9-zero-candidate.bin",
+      "sha256": "81e0feebedf02023c10e9081a8c38bc6006fa29986980e8a519cfd24395f8de6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/154-9-zero-baseline.bin",
+      "sha256": "8eb306dd66602d1df2d271826f1785b95252d2b945ce52637e3ef6d8234af0bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/155-9-zero-candidate.bin",
+      "sha256": "56c5ef5d40f50ce1721a02547698c957a1db9eb9c7f0d189234f65b4bf8316e2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/156-9-zero-baseline.bin",
+      "sha256": "93cc2f42acf7b838cb0d37e59bcced6bd81bf425d0e99e3e3a68d5b2c84f6b1a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/157-9-zero-candidate.bin",
+      "sha256": "8ec1ae54f1b3c8af592bbd8433169ae7004a78014b9189a6a153c33acc0cae28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/158-9-zero-baseline.bin",
+      "sha256": "2909a24934fdc9b9256e76e62a33abd136fcadbd99c50a451f8f5725bea8f2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/159-9-zero-candidate.bin",
+      "sha256": "1e2fdf56bfee095183eaf88426a272b27f4b21264823df365ff6debccb000c71"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/160-9-signed-baseline.bin",
+      "sha256": "c71990d6bda62b7339070b67c70e7e9f630c3a6c96591afeaaa4b4434f5cdd88"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/161-9-signed-candidate.bin",
+      "sha256": "98b4e1a030a07a470126dc87a6956e5d6999b66e5050f084af7445c786addf3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/162-9-signed-baseline.bin",
+      "sha256": "7e017c1c43a51c8b30645eb970f231f8696ee3a4828b15cbb79d869fd9237e9e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/163-9-signed-candidate.bin",
+      "sha256": "ec70491fbcaf8da40f77257d4e7bdf19010da2da6dbb1a4b36f17166ee388fba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/164-9-signed-baseline.bin",
+      "sha256": "23e92b5b3ecc9f1675aac772ef4c579ffb30fe1f35a2832e35d1a95fb2d6fc1a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/165-9-signed-candidate.bin",
+      "sha256": "d53a8085d6b921cc4263f5d4749dbfd87cddc7f8a1d8f28af9723f01e901bc08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/166-9-signed-baseline.bin",
+      "sha256": "daced85282bbd0eb28691d2d7b362a65218265f85381000dc4f2e120ae7b9fc0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/167-9-signed-candidate.bin",
+      "sha256": "67532bdd2696acf31b99e0766c3e9b081d195457965aa5ac14b601ce5dd1dc3b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/168-9-signed-baseline.bin",
+      "sha256": "fe5b95ffc7e2e307eec671d7e4dabb755246c60c8960ee77555d74f2ec1bbc78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/169-9-signed-candidate.bin",
+      "sha256": "4b95ddcd43d5a760e3a5146c97b190aa48bf04be36a12f6890b000d3be5dc2e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/170-9-signed-baseline.bin",
+      "sha256": "762a2fbf74e61db21968bbce0c5d872087a3e1282ed01a2967963604a5821801"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/171-9-signed-candidate.bin",
+      "sha256": "192694463ffd8b39ff9ecef0a2358ab90a10bea04f8a235e97f7ce685d514f5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/172-9-signed-baseline.bin",
+      "sha256": "3ad13f54ebd989ab38394293208dcb334c111800278f9c38e984361181937382"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/173-9-signed-candidate.bin",
+      "sha256": "782eede433ab7d247d436cd09fcece4ef75be0080121a7e8bbcd770b7bfd0745"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/174-9-signed-baseline.bin",
+      "sha256": "6a3bfcd1263b50a49cef5ee062d929f122ea6890ae7014ec3820707cdd6bb18d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/175-9-signed-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/176-9-wide-baseline.bin",
+      "sha256": "f622fa2c0b06f6c8b37edd3d5eebe08feff6aa0da47eb5a8fc40eb07916901d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/177-9-wide-candidate.bin",
+      "sha256": "f622fa2c0b06f6c8b37edd3d5eebe08feff6aa0da47eb5a8fc40eb07916901d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/178-9-wide-baseline.bin",
+      "sha256": "94a96affa0208f8038454dd5425506df845aa93a03bde7805d77e9bad4fbcdbe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/179-9-wide-candidate.bin",
+      "sha256": "94a96affa0208f8038454dd5425506df845aa93a03bde7805d77e9bad4fbcdbe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/180-9-wide-baseline.bin",
+      "sha256": "44757e3eff3f0212f37bbfd3684ad753df034c0d9da8ba25c1fecfd0a743f1d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/181-9-wide-candidate.bin",
+      "sha256": "44757e3eff3f0212f37bbfd3684ad753df034c0d9da8ba25c1fecfd0a743f1d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/182-9-wide-baseline.bin",
+      "sha256": "0411fee7f02bd297bc521c87a05db48eadd83d0029773462a6232a2a1b64cd14"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/183-9-wide-candidate.bin",
+      "sha256": "0411fee7f02bd297bc521c87a05db48eadd83d0029773462a6232a2a1b64cd14"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/184-9-wide-baseline.bin",
+      "sha256": "40e2ec526f804a5937d80990a2c1e8edfc792e3cf0924452cefcf53923a88c4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/185-9-wide-candidate.bin",
+      "sha256": "40e2ec526f804a5937d80990a2c1e8edfc792e3cf0924452cefcf53923a88c4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/186-9-wide-baseline.bin",
+      "sha256": "8d7cc02461e74eca3952b393ae0526b05c81d08943ad5db062ec60398ef37b5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/187-9-wide-candidate.bin",
+      "sha256": "8d7cc02461e74eca3952b393ae0526b05c81d08943ad5db062ec60398ef37b5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/188-9-wide-baseline.bin",
+      "sha256": "854dd347db767ead671ce6cb4878c5987500f87d06a860c7100a8a4c53dffa5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/189-9-wide-candidate.bin",
+      "sha256": "854dd347db767ead671ce6cb4878c5987500f87d06a860c7100a8a4c53dffa5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/190-9-wide-baseline.bin",
+      "sha256": "9097d0b18dfaea08605a2c6f2010a7a81bc03e6ca69b0e67b974b6905053b926"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/191-9-wide-candidate.bin",
+      "sha256": "9097d0b18dfaea08605a2c6f2010a7a81bc03e6ca69b0e67b974b6905053b926"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/192-budget-reference-baseline.bin",
+      "sha256": "6a3bfcd1263b50a49cef5ee062d929f122ea6890ae7014ec3820707cdd6bb18d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/193-budget-reference-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/194-working-bound-candidate.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/195-working-bound-candidate.bin",
+      "sha256": "6a3bfcd1263b50a49cef5ee062d929f122ea6890ae7014ec3820707cdd6bb18d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/196-working-bound-candidate.bin",
+      "sha256": "6a3bfcd1263b50a49cef5ee062d929f122ea6890ae7014ec3820707cdd6bb18d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/197-working-bound-candidate.bin",
+      "sha256": "6a3bfcd1263b50a49cef5ee062d929f122ea6890ae7014ec3820707cdd6bb18d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/198-working-bound-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/199-working-bound-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/200-output-bound-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/201-output-bound-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/202-output-bound-candidate.bin",
+      "sha256": "5267779a777bb726360702f1f95999a5f728558e57978d9923b713fd0be1e5d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/203-output-bound-candidate.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/204-output-bound-candidate.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-bits-188c/205-output-bound-candidate.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-baseline.jxl",
+      "sha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-baseline-native.png",
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-baseline-rust.png",
+      "sha256": "3b538cad3d8c64e09546f8a3f47f72156249ed11fe1264ee577ca28a45d7adab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-candidate-native.png",
+      "sha256": "b163a63fb747f9cb1c14b8a8c783b822be2cb669214a424ea46e850c0edbf9ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1030-diagnostic-candidate-rust.png",
+      "sha256": "3b538cad3d8c64e09546f8a3f47f72156249ed11fe1264ee577ca28a45d7adab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "e843cc9f6e2a5087b67b79d865b6a23667deeb0744091f151fbe2a55648c2334"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-baseline-native.png",
+      "sha256": "ec2f3a883783f74971180050d36360bd2c1074c37b622824d79f965695d97834"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-baseline-rust.png",
+      "sha256": "ad634de503ea2d17939f1e83c78d60678f95f7504a275bfe500da1210d9fc9fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-candidate-native.png",
+      "sha256": "ec2f3a883783f74971180050d36360bd2c1074c37b622824d79f965695d97834"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-1416-diagnostic-candidate-rust.png",
+      "sha256": "ad634de503ea2d17939f1e83c78d60678f95f7504a275bfe500da1210d9fc9fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "e7b0489d83676d8280458dcba2a001e2f4fac5d05e19ab1e2f5f4146871da98f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-baseline-native.png",
+      "sha256": "cc902b1b5f71afa10189e6a1c5f88d655397542bd0f8d17548e8e13b92ead9ce"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-baseline-rust.png",
+      "sha256": "3309f521629f153ebef373d99db8d1bdfe9e45eb67f629af5bd3633695b6a60b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-candidate-native.png",
+      "sha256": "cc902b1b5f71afa10189e6a1c5f88d655397542bd0f8d17548e8e13b92ead9ce"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-2018-diagnostic-candidate-rust.png",
+      "sha256": "3309f521629f153ebef373d99db8d1bdfe9e45eb67f629af5bd3633695b6a60b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-baseline.jxl",
+      "sha256": "27f1b7bcccd3122738847cc77dde0389f94a2f5b7b0722aaae3d765a32bb3030"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5032.ppm",
+      "sha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-baseline-native.png",
+      "sha256": "79c03697ac89d5482c4b1a2c5ed5b4572bbd267a23624b41303b07c586f84a20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-baseline-rust.png",
+      "sha256": "d3115f487b012ef9025a44885b609ff69bfa0ef9c6e7e8110f26a6b8a9ae05ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-candidate-native.png",
+      "sha256": "79c03697ac89d5482c4b1a2c5ed5b4572bbd267a23624b41303b07c586f84a20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-5032-diagnostic-candidate-rust.png",
+      "sha256": "d3115f487b012ef9025a44885b609ff69bfa0ef9c6e7e8110f26a6b8a9ae05ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-baseline.jxl",
+      "sha256": "25de474b434b3b66b9b01ba154335ef1375415866f254e65bab9447dfc0282be"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-baseline-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-baseline-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-candidate.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-candidate-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-189/output/im26-8160-original-candidate-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-baseline.jxl",
+      "sha256": "bfb165546de51ad291df81170e29d00a7543ffd012180b2a0092b925841bc98e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-candidate.jxl",
+      "sha256": "bfb165546de51ad291df81170e29d00a7543ffd012180b2a0092b925841bc98e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-baseline.jxl",
+      "sha256": "bfb165546de51ad291df81170e29d00a7543ffd012180b2a0092b925841bc98e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-candidate.jxl",
+      "sha256": "bfb165546de51ad291df81170e29d00a7543ffd012180b2a0092b925841bc98e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-bounded-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-baseline.jxl",
+      "sha256": "18276bb205fda7834b4e83e537e3e94fdd227e1f340364ae4c459f4efac5bdae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-candidate.jxl",
+      "sha256": "18276bb205fda7834b4e83e537e3e94fdd227e1f340364ae4c459f4efac5bdae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-original-bound-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-baseline.jxl",
+      "sha256": "e8e833148b9dd3abb11e8ca099677ed38292f90d3c72e38854ab34021722fd90"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-candidate.jxl",
+      "sha256": "e8e833148b9dd3abb11e8ca099677ed38292f90d3c72e38854ab34021722fd90"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort1-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-baseline.jxl",
+      "sha256": "c7a16328caf82b533b75e892588c6ec1d30e801c099d861df3e4d7972f9ab6d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-candidate.jxl",
+      "sha256": "c7a16328caf82b533b75e892588c6ec1d30e801c099d861df3e4d7972f9ab6d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort3-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-baseline.jxl",
+      "sha256": "5442bb720255a2d992db892ec9324d2aa04547a575830ae0a0c3627a5dcdd332"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-baseline-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-baseline-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-candidate.jxl",
+      "sha256": "5442bb720255a2d992db892ec9324d2aa04547a575830ae0a0c3627a5dcdd332"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-candidate-native.png",
+      "sha256": "4b3265f1ca622729f04e4102a8db649679aeee838a0f0412e6b3cf88cb071479"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-191-effort5-candidate-rust.png",
+      "sha256": "ce92b4a4a16d7d3d9b898a6c02826be0f126f1962321abd91f5efd005d1990e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-baseline.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-candidate.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-baseline.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-candidate.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-bounded-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-baseline.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-candidate.jxl",
+      "sha256": "cf2cf9a55c4474aa5a8d5db99e78de06953564f5b71f2310e48e182b83c4d083"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-original-bound-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-baseline.jxl",
+      "sha256": "b1fc7eb221a02a97b75f4232087547c057bf85ddc29248af24a7f6af56a922b4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-candidate.jxl",
+      "sha256": "b1fc7eb221a02a97b75f4232087547c057bf85ddc29248af24a7f6af56a922b4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort1-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-baseline.jxl",
+      "sha256": "55b746ade79c7e9bd3d8f454054e4b868f302df6922aa100070388066f738ae0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-candidate.jxl",
+      "sha256": "55b746ade79c7e9bd3d8f454054e4b868f302df6922aa100070388066f738ae0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort3-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-baseline.jxl",
+      "sha256": "b5ff704cc3c116f76a899f14afa08abaa6c1bf613061cece7308cc411fef8f1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-baseline-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-baseline-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-candidate.jxl",
+      "sha256": "b5ff704cc3c116f76a899f14afa08abaa6c1bf613061cece7308cc411fef8f1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-candidate-native.png",
+      "sha256": "b650d130475a35393996fa32ff3a39ddf869e44d161a6a8822409af2a994813a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb8-1025-effort5-candidate-rust.png",
+      "sha256": "c5840204aeedcbd7428c52cbeedf16144dfe40498b1cfdb8ef843a9c4d0313ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-baseline.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-candidate.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-baseline.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-candidate.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-bounded-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-baseline.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-candidate.jxl",
+      "sha256": "a644b3fb6ffcafcb2f6e16e7554171581086e0691a2752319b74241abf470359"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-original-bound-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-baseline.jxl",
+      "sha256": "e6f155118038f4adf5e9360316abffa8fffe73629be2c13e369ac4c6a674c291"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-candidate.jxl",
+      "sha256": "e6f155118038f4adf5e9360316abffa8fffe73629be2c13e369ac4c6a674c291"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort1-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-baseline.jxl",
+      "sha256": "d6e4c627355a56f93ef95d445b6595b2948b4cb27f9cd58ee8011f47ef94edec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-candidate.jxl",
+      "sha256": "d6e4c627355a56f93ef95d445b6595b2948b4cb27f9cd58ee8011f47ef94edec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort3-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-baseline.jxl",
+      "sha256": "120e6bb72618aa7f3f2813763e4947a00a4ccbba0748952697888dfdda7dc7e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-baseline-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-baseline-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-candidate.jxl",
+      "sha256": "120e6bb72618aa7f3f2813763e4947a00a4ccbba0748952697888dfdda7dc7e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-candidate-native.png",
+      "sha256": "2e6f51bc3fa76ee4d735f3c619c772f0677c873cf8b76eec940dee27b1d74dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-191-effort5-candidate-rust.png",
+      "sha256": "7788c1991d19bf4b50c04a79e294f7ba1543247ddf1f349f049c1d4752daef28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-baseline.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-candidate.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-baseline.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-candidate.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-bounded-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-baseline.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-candidate.jxl",
+      "sha256": "43c8b546484ab88cbcf1605e4609af90049db9e4b3adf571fb2e962a1011dc61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-original-bound-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-baseline.jxl",
+      "sha256": "d3297a82a4d37c1dac6ee002c9a7244ba78ec2b7f649bd4f14b8dc9ec622e46a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-candidate.jxl",
+      "sha256": "d3297a82a4d37c1dac6ee002c9a7244ba78ec2b7f649bd4f14b8dc9ec622e46a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort1-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-baseline.jxl",
+      "sha256": "59c4af58d9e46c19724c941823b4a5a5772f6aeb7508d708592fa777eb601797"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-candidate.jxl",
+      "sha256": "59c4af58d9e46c19724c941823b4a5a5772f6aeb7508d708592fa777eb601797"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort3-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-baseline.jxl",
+      "sha256": "fb38064f267e6d0d69d6effde420bfbd93436c19adc7846b7e63547cb09675b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-baseline-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-baseline-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-candidate.jxl",
+      "sha256": "fb38064f267e6d0d69d6effde420bfbd93436c19adc7846b7e63547cb09675b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-candidate-native.png",
+      "sha256": "77d65f7d6963926f56bd14463593340d82d0e5426002de60e62f745145e13dd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba8-1025-effort5-candidate-rust.png",
+      "sha256": "59a7a774e39e686bbd310988decf524ef6c69169d0f450575f137605aee93960"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-baseline.jxl",
+      "sha256": "d5406058e2dce2e8e55da1dc34b03af457069f8a4a64a58646188c3d73fedeb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-candidate.jxl",
+      "sha256": "d5406058e2dce2e8e55da1dc34b03af457069f8a4a64a58646188c3d73fedeb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-baseline.jxl",
+      "sha256": "d5406058e2dce2e8e55da1dc34b03af457069f8a4a64a58646188c3d73fedeb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-candidate.jxl",
+      "sha256": "d5406058e2dce2e8e55da1dc34b03af457069f8a4a64a58646188c3d73fedeb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-bounded-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-baseline.jxl",
+      "sha256": "b3e4600572957f08e17b4267dd8b346348575a4d10d7101f79a78122f735fff7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-candidate.jxl",
+      "sha256": "b3e4600572957f08e17b4267dd8b346348575a4d10d7101f79a78122f735fff7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-original-bound-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-baseline.jxl",
+      "sha256": "15be0e922e3e4af57370061006dd4c1c5fb05316b0dd41dd76bfc787adbff35c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-candidate.jxl",
+      "sha256": "15be0e922e3e4af57370061006dd4c1c5fb05316b0dd41dd76bfc787adbff35c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort1-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-baseline.jxl",
+      "sha256": "af9921db6ed8c4c3150c8870a401fb41a7a02505bed713fd685a6c8bed0bac0b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-candidate.jxl",
+      "sha256": "af9921db6ed8c4c3150c8870a401fb41a7a02505bed713fd685a6c8bed0bac0b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort3-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-baseline.jxl",
+      "sha256": "3a139753dc168b92a36a53ba47d14295c89a7118089eecf0e913c5e41afaac09"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-baseline-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-baseline-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-candidate.jxl",
+      "sha256": "3a139753dc168b92a36a53ba47d14295c89a7118089eecf0e913c5e41afaac09"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-candidate-native.png",
+      "sha256": "da491311925bae5f4d4bf31bd098296b264b8254b1bf0b64a91b5170dc1a810f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-191-effort5-candidate-rust.png",
+      "sha256": "8522cdf502193270e2920bdb83708d8631a2ae5d8d4587665f6774535d3c5724"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-baseline.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-candidate.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-baseline.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-candidate.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-bounded-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-baseline.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-candidate.jxl",
+      "sha256": "09895bfb172333885510715a317937bedc94080c80622b66b7f1196dee331aa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-original-bound-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-baseline.jxl",
+      "sha256": "c025acf195770d41632378ce13c7981a9d9c0e41c3d79232225e6928aa8d2977"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-candidate.jxl",
+      "sha256": "c025acf195770d41632378ce13c7981a9d9c0e41c3d79232225e6928aa8d2977"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort1-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-baseline.jxl",
+      "sha256": "fb768e9cb689b45e7ffdd7804d8644e1edb15cf249be9d026d50c47c06147147"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-candidate.jxl",
+      "sha256": "fb768e9cb689b45e7ffdd7804d8644e1edb15cf249be9d026d50c47c06147147"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort3-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-baseline.jxl",
+      "sha256": "58a3606d7fb71ded2dee1bdb5813b6d50bc5e36eb31410625549595363c784a8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-baseline-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-baseline-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-candidate.jxl",
+      "sha256": "58a3606d7fb71ded2dee1bdb5813b6d50bc5e36eb31410625549595363c784a8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-candidate-native.png",
+      "sha256": "953e09b2dc5bed3a4199f145eefa4fd43251e9c6a312708a69f296b7e651d566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgb16-1025-effort5-candidate-rust.png",
+      "sha256": "ddc0a31755128ca023641a764417f06efdedccd9d9e6adf3c2aae5d690fb46d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-baseline.jxl",
+      "sha256": "c0e3afd5dd464434c2512d8493c6e1f99ef383e9a1cca203c395f96ac5534f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-candidate.jxl",
+      "sha256": "c0e3afd5dd464434c2512d8493c6e1f99ef383e9a1cca203c395f96ac5534f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-baseline.jxl",
+      "sha256": "c0e3afd5dd464434c2512d8493c6e1f99ef383e9a1cca203c395f96ac5534f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-candidate.jxl",
+      "sha256": "c0e3afd5dd464434c2512d8493c6e1f99ef383e9a1cca203c395f96ac5534f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-bounded-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-baseline.jxl",
+      "sha256": "4cefa8bb84651ea674aa9f564ddebbb955ccdd0dd80d7c04e3be5fc120bdb569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-candidate.jxl",
+      "sha256": "4cefa8bb84651ea674aa9f564ddebbb955ccdd0dd80d7c04e3be5fc120bdb569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-original-bound-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-baseline.jxl",
+      "sha256": "5b613de56ec39b9f8dcaaedb3ed7770773169ad60eb0693a96cf6164fafb8184"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-candidate.jxl",
+      "sha256": "5b613de56ec39b9f8dcaaedb3ed7770773169ad60eb0693a96cf6164fafb8184"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort1-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-baseline.jxl",
+      "sha256": "f4ccc1d0a69e1f0a624ccecec4c01e978ffd8419c8c4c94508697d5275ceb878"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-candidate.jxl",
+      "sha256": "f4ccc1d0a69e1f0a624ccecec4c01e978ffd8419c8c4c94508697d5275ceb878"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort3-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-baseline.jxl",
+      "sha256": "70ff963fb2a179ef31651849c1f37ee5b808f3790a7bb8bdb619ab9ae0e9e444"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-baseline-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-baseline-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-candidate.jxl",
+      "sha256": "70ff963fb2a179ef31651849c1f37ee5b808f3790a7bb8bdb619ab9ae0e9e444"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-candidate-native.png",
+      "sha256": "0f3b70da2ccc754168a458a76865fc3998bb4a8a8f3331615852ac56b7fc2922"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-191-effort5-candidate-rust.png",
+      "sha256": "5b32a91ed89c53b7acbb7359ce13afd5845422cdd7b66fdc3806d868f7a2b20b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-baseline.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-candidate.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-baseline.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-candidate.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-bounded-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-baseline.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-candidate.jxl",
+      "sha256": "5d125eaca130f47d47c50790a6fca816ca28eb2afcaec3478683dac4b177fa8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-original-bound-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-baseline.jxl",
+      "sha256": "387a94fd5b0e5df857926b19add08fe8bdbf666c7796c33da06aaedba2c366ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-candidate.jxl",
+      "sha256": "387a94fd5b0e5df857926b19add08fe8bdbf666c7796c33da06aaedba2c366ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort1-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-baseline.jxl",
+      "sha256": "ac2403352b5509d76a1f5cc6fdc0d5a371b97da246301bd4d84a0cb27d8a3079"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-candidate.jxl",
+      "sha256": "ac2403352b5509d76a1f5cc6fdc0d5a371b97da246301bd4d84a0cb27d8a3079"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort3-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-baseline.jxl",
+      "sha256": "983d7736e0f372cfd392f298d3f73903bbbf50a7e7d6a9cfe7fce0e89bd8e35f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-baseline-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-baseline-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-candidate.jxl",
+      "sha256": "983d7736e0f372cfd392f298d3f73903bbbf50a7e7d6a9cfe7fce0e89bd8e35f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-candidate-native.png",
+      "sha256": "ecad6cd34646a3cd14be172279bfb48435c5a2618ee28fb8485032e7c4374df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-boundaries-190/output/rgba16-1025-effort5-candidate-rust.png",
+      "sha256": "aeb722d90dd526a85d0987767409fc0072fdd061e97fae19602b2c5805f7fed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline.jxl",
+      "sha256": "811197fa2799a580cea701cac076c8b505900994a27093e4a55f7ab71843e76c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline-native.npy",
+      "sha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline-rust.npy",
+      "sha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate.jxl",
+      "sha256": "0f1105fc3fb6ad0810aed0d99d155c47bc8b17dcc81616619e22c0c354712e02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate-native.npy",
+      "sha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate-rust.npy",
+      "sha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline.jxl",
+      "sha256": "811197fa2799a580cea701cac076c8b505900994a27093e4a55f7ab71843e76c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline-native.npy",
+      "sha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline-rust.npy",
+      "sha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate.jxl",
+      "sha256": "0f1105fc3fb6ad0810aed0d99d155c47bc8b17dcc81616619e22c0c354712e02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate-native.npy",
+      "sha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate-rust.npy",
+      "sha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline.jxl",
+      "sha256": "87a939c474c8c6ee7481fe3ecdabedfbd7a673204f0f841b3ffc3c7ab2c1fd93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline-native.npy",
+      "sha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline-rust.npy",
+      "sha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate.jxl",
+      "sha256": "fca357b83ebe8ccfd8fed8510f3daa59dda9da861b2f7157c99a6499bc2fcf06"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate-native.npy",
+      "sha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate-rust.npy",
+      "sha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline.jxl",
+      "sha256": "87a939c474c8c6ee7481fe3ecdabedfbd7a673204f0f841b3ffc3c7ab2c1fd93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline-native.npy",
+      "sha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline-rust.npy",
+      "sha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate.jxl",
+      "sha256": "fca357b83ebe8ccfd8fed8510f3daa59dda9da861b2f7157c99a6499bc2fcf06"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate-native.npy",
+      "sha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate-rust.npy",
+      "sha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline.jxl",
+      "sha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline-native.npy",
+      "sha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline-rust.npy",
+      "sha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate.jxl",
+      "sha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate-native.npy",
+      "sha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate-rust.npy",
+      "sha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline.jxl",
+      "sha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline-native.npy",
+      "sha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline-rust.npy",
+      "sha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate.jxl",
+      "sha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate-native.npy",
+      "sha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate-rust.npy",
+      "sha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline.jxl",
+      "sha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline-native.npy",
+      "sha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline-rust.npy",
+      "sha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate.jxl",
+      "sha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate-native.npy",
+      "sha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate-rust.npy",
+      "sha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline.jxl",
+      "sha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline-native.npy",
+      "sha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline-rust.npy",
+      "sha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate.jxl",
+      "sha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate-native.npy",
+      "sha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate-rust.npy",
+      "sha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline.jxl",
+      "sha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline-native.npy",
+      "sha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline-rust.npy",
+      "sha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate.jxl",
+      "sha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate-native.npy",
+      "sha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate-rust.npy",
+      "sha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline.jxl",
+      "sha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline-native.npy",
+      "sha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline-rust.npy",
+      "sha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate.jxl",
+      "sha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate-native.npy",
+      "sha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate-rust.npy",
+      "sha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline.jxl",
+      "sha256": "b926c5be914726d108adb790e5545b532e1299db853188d2a45528da62f06c76"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline-native.npy",
+      "sha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline-rust.npy",
+      "sha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate.jxl",
+      "sha256": "8e002c5c2f1d980a72e37796638de9a3ac565ab8996d7ea60e914ea86746b97c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate-native.npy",
+      "sha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate-rust.npy",
+      "sha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline.jxl",
+      "sha256": "b926c5be914726d108adb790e5545b532e1299db853188d2a45528da62f06c76"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline-native.npy",
+      "sha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline-rust.npy",
+      "sha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate.jxl",
+      "sha256": "8e002c5c2f1d980a72e37796638de9a3ac565ab8996d7ea60e914ea86746b97c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate-native.npy",
+      "sha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate-rust.npy",
+      "sha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline.jxl",
+      "sha256": "af6a204445fe87a6d9a1954fe3039f32747cff215cf0cb891f21d74547d62eac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline-native.npy",
+      "sha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline-rust.npy",
+      "sha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate.jxl",
+      "sha256": "932cc9d3908aae211c1d4b12a1c916e5af662309d9f9a00e4c5b7856ec055b92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate-native.npy",
+      "sha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate-rust.npy",
+      "sha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline.jxl",
+      "sha256": "af6a204445fe87a6d9a1954fe3039f32747cff215cf0cb891f21d74547d62eac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline-native.npy",
+      "sha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline-rust.npy",
+      "sha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate.jxl",
+      "sha256": "932cc9d3908aae211c1d4b12a1c916e5af662309d9f9a00e4c5b7856ec055b92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate-native.npy",
+      "sha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate-rust.npy",
+      "sha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline.jxl",
+      "sha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline-native.npy",
+      "sha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline-rust.npy",
+      "sha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate.jxl",
+      "sha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate-native.npy",
+      "sha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate-rust.npy",
+      "sha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline.jxl",
+      "sha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline-native.npy",
+      "sha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline-rust.npy",
+      "sha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate.jxl",
+      "sha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate-native.npy",
+      "sha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate-rust.npy",
+      "sha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline.jxl",
+      "sha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline-native.npy",
+      "sha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline-rust.npy",
+      "sha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate.jxl",
+      "sha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate-native.npy",
+      "sha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate-rust.npy",
+      "sha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline.jxl",
+      "sha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline-native.npy",
+      "sha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline-rust.npy",
+      "sha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate.jxl",
+      "sha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate-native.npy",
+      "sha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate-rust.npy",
+      "sha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline.jxl",
+      "sha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline-native.npy",
+      "sha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline-rust.npy",
+      "sha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate.jxl",
+      "sha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate-native.npy",
+      "sha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate-rust.npy",
+      "sha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline.jxl",
+      "sha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline-native.npy",
+      "sha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline-rust.npy",
+      "sha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate.jxl",
+      "sha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate-native.npy",
+      "sha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate-rust.npy",
+      "sha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-unrestricted.jxl",
+      "sha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-unrestricted-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-unrestricted-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-unrestricted.jxl",
+      "sha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-unrestricted-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-unrestricted-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-old-minimum.jxl",
+      "sha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-old-minimum-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-old-minimum-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-below-old-minimum.jxl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-old-minimum.jxl",
+      "sha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-old-minimum-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-old-minimum-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/baseline-below-old-minimum.jxl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-optional-peak.jxl",
+      "sha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-optional-peak-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-optional-peak-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-below-optional-peak.jxl",
+      "sha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-below-optional-peak-native.png",
+      "sha256": "b8a3bf51bdf67be84ad0b4405224fc34a5e258dbaf86f0f0747c8923402a072b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-min-budget-192/current-below-optional-peak-rust.png",
+      "sha256": "d8f2c0d9884649ee1d0e4f3f63d426921e5e591eee50a90cc7edd84d1769e507"
+    }
+  ],
+  "bitArtifacts": 202,
+  "fullArtifacts": 154,
+  "grids": 304,
+  "originalSamplesCompared": 182969408,
+  "performanceProcesses": 14,
+  "expectedFailures": 6,
+  "policy": "Read-only revalidation of all copied metadata boundary controls, every full original-sample grid, exact artifacts, staged ownership, completed receipts and performance-output hashes. All current production/module/report/harness/helper/tool/input pins remain fixed. This qualifies prototype evidence only; production still uses the original metadata writer and public comparisons remain separately qualified."
+}

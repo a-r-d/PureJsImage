@@ -7,6 +7,7 @@ import {
   jpegXlMaxHfEntropyContexts,
   readJpegXlEntropyCode,
 } from '../src/codecs/jpegxl-bitstream.ts'
+import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
 import {
   hybridTokenForEncoding,
   JpegXlBitWriter,
@@ -40,6 +41,51 @@ const literalThenRunCode = (): JpegXlEntropyCode => ({
 })
 
 describe('JPEG XL entropy decoding', () => {
+  it('appends exact entropy bits at every section alignment without padding', () => {
+    const bytes = Uint8Array.from([253, 65, 207, 9, 21])
+    for (let offset = 0; offset < 8; offset++)
+      for (let count = 0; count <= bytes.length * 8; count++) {
+        const writer = new JpegXlBitWriter()
+        writer.writeBits(2 ** offset - 1, offset)
+        writer.writeEncodedBits(bytes, count)
+        expect(writer.bitPosition).toBe(offset + count)
+        writer.writeBits(173, 8)
+        const reader = new JpegXlBitReader(writer.finish())
+        expect(reader.readBits(offset)).toBe(2 ** offset - 1)
+        for (let bit = 0; bit < count; bit++)
+          expect(reader.readBits(1)).toBe(((bytes[bit >>> 3] ?? 0) >>> (bit & 7)) & 1)
+        expect(reader.readBits(8)).toBe(173)
+      }
+  })
+
+  it('rejects invalid or oversized entropy extents before mutating the section', () => {
+    const writer = new JpegXlBitWriter(undefined, 2)
+    writer.writeBits(93, 7)
+    for (const bits of [-1, 0.5, Number.NaN, 17])
+      expect(() => writer.writeEncodedBits(new Uint8Array(2), bits)).toThrow(/extent/)
+    expect(() => writer.writeEncodedBits(new Uint8Array(2), 16)).toThrow(/maxOutputBytes/)
+    expect(writer.bitPosition).toBe(7)
+    writer.writeBits(1, 1)
+    expect(writer.finish()).toEqual(Uint8Array.of(221))
+  })
+
+  it('keeps the original section writable when optional entropy admission exceeds working storage', () => {
+    const memory = new JpegXlEncoderMemory(512)
+    const writer = new JpegXlBitWriter(memory)
+    writer.writeBits(93, 7)
+    expect(() => writer.writeEncodedBits(new Uint8Array(256).fill(255), 2048)).toThrow(
+      /maxWorkingBytes/,
+    )
+    expect(writer.bitPosition).toBe(7)
+    writer.writeBits(1, 1)
+    expect(writer.finish()).toEqual(Uint8Array.of(221))
+    expect(memory.liveBytes).toBe(1)
+    expect(memory.peakBytes).toBeLessThanOrEqual(512)
+    memory.close()
+    expect(memory.liveBytes).toBe(0)
+    expect(memory.liveAllocations).toBe(0)
+  })
+
   it('preserves every bit alignment for 0-32-bit fields and full unsigned values', () => {
     for (let offset = 0; offset < 8; offset++) {
       for (let count = 0; count <= 32; count++) {
@@ -114,6 +160,59 @@ describe('JPEG XL entropy decoding', () => {
     const symbols = new JpegXlEntropySymbolReader(readJpegXlEntropyCode(reader, 1), values.length)
     expect(Array.from(values, () => symbols.readHybridUint(0, reader))).toEqual(Array.from(values))
     expect(symbols.hasValidFinalState()).toBe(true)
+  })
+
+  it('preserves values across independently configured histograms and remapped contexts', () => {
+    const configs = [
+      { splitExponent: 2, msbInToken: 0, lsbInToken: 1 },
+      { splitExponent: 4, msbInToken: 1, lsbInToken: 2 },
+      { splitExponent: 0, msbInToken: 0, lsbInToken: 0 },
+    ]
+    const contextMap = Uint8Array.from([1, 0, 2, 1])
+    const values = Uint32Array.from({ length: 1024 }, (_, index) =>
+      index % 7 === 0 ? 262143 : index % 5 === 0 ? 0 : (index * 37) & 65535,
+    )
+    const contexts = Uint16Array.from(values, (_, index) => index & 3)
+    const frequencies = configs.map(() => new Uint32Array(256))
+    for (let index = 0; index < values.length; index++) {
+      const histogram = contextMap[contexts[index] ?? 0]
+      const config = histogram === undefined ? undefined : configs[histogram]
+      const counts = histogram === undefined ? undefined : frequencies[histogram]
+      if (!config || !counts) throw new Error('Missing mixed hybrid fixture histogram')
+      const token = hybridTokenForEncoding(values[index] ?? 0, config)
+      counts[token] = (counts[token] ?? 0) + 1
+    }
+    const writer = new JpegXlBitWriter()
+    const encoding = writeAnsCode(
+      writer,
+      contextMap,
+      frequencies,
+      { splitExponent: 4, msbInToken: 2, lsbInToken: 0 },
+      false,
+      configs,
+    )
+    writeAnsValues(writer, values, contexts, values.length, encoding)
+    const reader = new JpegXlBitReader(writer.finish())
+    const code = readJpegXlEntropyCode(reader, contextMap.length)
+    expect(code.uintConfigs).toMatchObject(configs)
+    const symbols = new JpegXlEntropySymbolReader(code, values.length)
+    for (let index = 0; index < values.length; index++)
+      expect(symbols.readHybridUint(contexts[index] ?? 0, reader)).toBe(values[index])
+    expect(symbols.hasValidFinalState()).toBe(true)
+  })
+
+  it('rejects a histogram configuration list with a different extent', () => {
+    const config = { splitExponent: 4, msbInToken: 2, lsbInToken: 0 }
+    expect(() =>
+      writeAnsCode(
+        new JpegXlBitWriter(),
+        Uint8Array.from([0, 1]),
+        [Uint32Array.of(1), Uint32Array.of(1)],
+        config,
+        false,
+        [config],
+      ),
+    ).toThrow('ANS encoding shape')
   })
 
   it('omits hybrid fields when the ANS split exponent equals the alphabet size', () => {

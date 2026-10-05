@@ -1,0 +1,218 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "matchedPins": 45,
+  "archivedPinMatches": 1,
+  "independentSamples": 132710400,
+  "publicSamples": 66355200,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-residual-controls-209.ts",
+      "sha256": "0910f6b594aae9c0e52f9c9922ec4e7a1368ba6e12fe72fd6ba3d2fb4574f324"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-residual-controls-audit-209.ts",
+      "sha256": "05584291c2350902fded9eabb13d6903c27da6f43c8227182e97fda4274743fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/residual-controls-before-format-209/manifest.json",
+      "sha256": "da88c34335438b880cd2801edbeebf910abcb3f949c08b6f83d939d6f601b2b3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "sha256": "2cf661886007a6111ee4623f1de36f902d8e2b5df61015a8f2a7a792bab3fd62"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-native-residual-model-207c.json",
+      "sha256": "3bfaa8ffca40928ec81992f299e200883b17c3fc0dd89a18d401b0ac05ddf90b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-rct6-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-rct6-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-rct6.jxl",
+      "sha256": "0dc1308f817bda22178ed4102475f67af525eeb829ac5626bd20025f47a0d728"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-raw-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-raw-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-raw.jxl",
+      "sha256": "2c87a15d3f9d33465ace696e178636ddd28b0566bf1d87a37cf26addb9f9ca6b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-rct6-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-rct6-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-rct6.jxl",
+      "sha256": "088545b43adf6f102a41f4acef9fccc4104b59893be8ea88d8b8d093cf5803f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-raw-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-raw-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-raw.jxl",
+      "sha256": "0722dc2bff98effc2012da6211e6de9ae59d4fa2720aa39d8e42484be7bd3321"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-residual-group-208.json",
+      "sha256": "e5ddcc341803a6daca9a6349af3f6e7b2bfb17d109aa5755ed7f4e1c5ec4a3ad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-rct6-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-rct6-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-rct6.jxl",
+      "sha256": "77afa1de72a14eb800abdf91e82cbf7a71cdbad728aaef8829d5278e21f1cbbf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-raw-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-raw-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-raw.jxl",
+      "sha256": "b67fc80a95f3b5e63f62214240e12e109a7b59cb30842672bc3a60200171a268"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-rct6-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-rct6-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-rct6.jxl",
+      "sha256": "0e0513f73b22550a12e88696854a61be2ef0b8dfc4ba0835cd7f6ec073f5e06a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-raw-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-raw-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-raw.jxl",
+      "sha256": "287e44fe24025f31f39c83d5efda534fb52db6facd1203bebd0f19e2dd0b922e"
+    }
+  ],
+  "results": [
+    {
+      "report": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "variant": "1024-rct6",
+      "artifact": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-rct6.jxl",
+      "bytes": 407390,
+      "accountedBytes": 407390,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "variant": "1024-raw",
+      "artifact": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/1024-raw.jxl",
+      "bytes": 625030,
+      "accountedBytes": 625030,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "variant": "256-rct6",
+      "artifact": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-rct6.jxl",
+      "bytes": 395768,
+      "accountedBytes": 395768,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "variant": "256-raw",
+      "artifact": ".tmp/jpegxl-comparison-v1/native-residual-control-207c/output/256-raw.jxl",
+      "bytes": 573537,
+      "accountedBytes": 573537,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "variant": "1024-rct6",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-rct6.jxl",
+      "bytes": 416146,
+      "accountedBytes": 416146,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "variant": "1024-raw",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-raw.jxl",
+      "bytes": 646688,
+      "accountedBytes": 646688,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "variant": "256-rct6",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-rct6.jxl",
+      "bytes": 402110,
+      "accountedBytes": 402110,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "variant": "256-raw",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-raw.jxl",
+      "bytes": 587810,
+      "accountedBytes": 587810,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    }
+  ],
+  "policy": "Re-read every complete control artifact, exact original independent sample grid and whole-file byte accounting; also decode every candidate through the ordinary first-party public codec. Original unformatted evidence is retained byte-for-byte. Exactly one dependent pre-format pin may resolve to its manifest-verified archive, with semantic equality to the formatted published report. No changed source, relaxed bound, speed or general parity claim."
+}

@@ -1,0 +1,102 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "28e122b8442808f14b9c8d13a6a0b2b7af188bd21053d7ff3bb46757f061695e",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-learned-palette-quality-changes-166b.ts",
+      "sha256": "73a7712fbbd12c2fa9afeb9bf93ee1f3d29f0122e90d1d1a605b4dcc95229784"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-patch-metadata-public.json",
+      "sha256": "264f7760a9f65ecbde2de764387b54d3e2fc0c226b4c1d2a77e8ba9d78c0b1af"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-public-controls.json",
+      "sha256": "a0c20bc9e5ac18a2c8d6f2d7e9a26af449e02f0e56181d7e8391f5573c29eaae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/replay-learned-palette-shard-166.ts",
+      "sha256": "e6b0780f21fd0555023446e770d1988b42b10bf01d3fd68a32a57390508e35d5"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-5034-diagnostic",
+      "index": 52,
+      "setting": 20,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/learned-palette-166/shard-0/im26-5034-diagnostic-20.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "bytes": 41926,
+      "baselineBytes": 47421,
+      "baselineScore": 71.65284326,
+      "score": 100,
+      "baselineButteraugli": 6.0912513733,
+      "butteraugli": 0,
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "index": 55,
+      "setting": 22.361,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/learned-palette-166/shard-3/im26-5034-diagnostic-22.361.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "bytes": 41926,
+      "baselineBytes": 44917,
+      "baselineScore": 65.8437298,
+      "score": 100,
+      "baselineButteraugli": 8.3293170929,
+      "butteraugli": 0,
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "index": 58,
+      "setting": 21.148,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/learned-palette-166/shard-2/im26-5034-diagnostic-21.148.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "bytes": 41926,
+      "baselineBytes": 46080,
+      "baselineScore": 68.22012861,
+      "score": 100,
+      "baselineButteraugli": 6.3026313782,
+      "butteraugli": 0,
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "index": 61,
+      "setting": 20.566,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/learned-palette-166/shard-1/im26-5034-diagnostic-20.566.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "bytes": 41926,
+      "baselineBytes": 46884,
+      "baselineScore": 69.77656848,
+      "score": 100,
+      "baselineButteraugli": 7.0862207413,
+      "butteraugli": 0,
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0
+    }
+  ],
+  "policy": "Read-only audit of all four settings caught by the failed strict entropy-only replay. Each artifact must be byte-identical to the already independently exact public lossless file, smaller than its prior lossy file, exact in both complete original native/Rust sample grids, SSIMULACRA2 100 and Butteraugli zero. This identifies a verified exact-candidate selection improvement, not a regression or matched-target comparison."
+}

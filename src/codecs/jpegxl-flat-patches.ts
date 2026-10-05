@@ -19,9 +19,10 @@ const sameColor = (
   first: number,
   second: number,
   tolerance: number,
+  channels: 3 | 4,
 ): boolean => {
-  const a = first * 3,
-    b = second * 3
+  const a = first * channels,
+    b = second * channels
   return (
     Math.abs((pixels[a] ?? 0) - (pixels[b] ?? 0)) <= tolerance &&
     Math.abs((pixels[a + 1] ?? 0) - (pixels[b + 1] ?? 0)) <= tolerance &&
@@ -34,6 +35,7 @@ export const hasFlatScreenshotBackground = (
   pixels: Uint8Array,
   width: number,
   height: number,
+  channels: 3 | 4 = 3,
 ): boolean => {
   let sampled = 0,
     flat = 0
@@ -44,7 +46,7 @@ export const hasFlatScreenshotBackground = (
       let matches = true
       for (let dy = 0; dy < 4 && matches; dy++) {
         for (let dx = 0; dx < 4; dx++) {
-          if (sameColor(pixels, base, base + dy * width + dx, 1)) continue
+          if (sameColor(pixels, base, base + dy * width + dx, 1, channels)) continue
           matches = false
           break
         }
@@ -61,6 +63,7 @@ export const findFlatScreenshotPatches = (
   width: number,
   height: number,
   memory: JpegXlEncoderMemory,
+  channels: 3 | 4 = 3,
 ): JpegXlFlatPatchGroup[] => {
   const count = width * height
   const background = allocateJpegXlArray(memory, Uint8Array, count)
@@ -76,7 +79,7 @@ export const findFlatScreenshotPatches = (
         let flat = true
         for (let dy = 0; dy < 4 && flat; dy++) {
           for (let dx = 0; dx < 4; dx++) {
-            if (sameColor(pixels, base, base + dy * width + dx, 1)) continue
+            if (sameColor(pixels, base, base + dy * width + dx, 1, channels)) continue
             flat = false
             break
           }
@@ -85,7 +88,7 @@ export const findFlatScreenshotPatches = (
         let neighbors = 0
         for (let dy = -4; dy <= 4; dy += 4) {
           for (let dx = -4; dx <= 4; dx += 4) {
-            if (sameColor(pixels, base, base + dy * width + dx, 2)) neighbors++
+            if (sameColor(pixels, base, base + dy * width + dx, 2, channels)) neighbors++
           }
         }
         if (neighbors < 8) continue
@@ -115,7 +118,11 @@ export const findFlatScreenshotPatches = (
           const next = ny * width + nx
           if (background[next]) continue
           if (Math.abs(nx - (origin % width)) + Math.abs(ny - ((origin / width) | 0)) > 50) continue
-          if (!sameColor(pixels, at, next, 2) || !sameColor(pixels, origin, next, 5)) continue
+          if (
+            !sameColor(pixels, at, next, 2, channels) ||
+            !sameColor(pixels, origin, next, 5, channels)
+          )
+            continue
           background[next] = 1
           root[next] = origin
           queue[tail++] = next
@@ -177,14 +184,10 @@ export const findFlatScreenshotPatches = (
     const same = (a: JpegXlFlatPatch, b: JpegXlFlatPatch): boolean => {
       for (let y = 0; y < a.height; y++) {
         for (let x = 0; x < a.width; x++) {
-          const first = ((a.y + y) * width + a.x + x) * 3,
-            second = ((b.y + y) * width + b.x + x) * 3
-          if (
-            pixels[first] !== pixels[second] ||
-            pixels[first + 1] !== pixels[second + 1] ||
-            pixels[first + 2] !== pixels[second + 2]
-          )
-            return false
+          const first = ((a.y + y) * width + a.x + x) * channels,
+            second = ((b.y + y) * width + b.x + x) * channels
+          for (let channel = 0; channel < channels; channel++)
+            if (pixels[first + channel] !== pixels[second + channel]) return false
         }
       }
       return true
@@ -196,10 +199,9 @@ export const findFlatScreenshotPatches = (
         let hash = 2_166_136_261
         for (let y = 0; y < patch.height; y++) {
           for (let x = 0; x < patch.width; x++) {
-            const offset = ((patch.y + y) * width + patch.x + x) * 3
-            hash = Math.imul(hash ^ (pixels[offset] ?? 0), 16_777_619)
-            hash = Math.imul(hash ^ (pixels[offset + 1] ?? 0), 16_777_619)
-            hash = Math.imul(hash ^ (pixels[offset + 2] ?? 0), 16_777_619)
+            const offset = ((patch.y + y) * width + patch.x + x) * channels
+            for (let channel = 0; channel < channels; channel++)
+              hash = Math.imul(hash ^ (pixels[offset + channel] ?? 0), 16_777_619)
           }
         }
         const bucket = byHash.get(hash) ?? []

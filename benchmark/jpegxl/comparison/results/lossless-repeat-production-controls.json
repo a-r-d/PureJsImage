@@ -1,0 +1,3532 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "8ebabe8439e1ac2fcb62758ce9e2e4a474f9e9ae49263056056d5b5acc3b4d36",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "fullParity": false,
+  "rows": [
+    {
+      "fixture": "alpha_triangles",
+      "originalBytes": 463599,
+      "bytes": 87250,
+      "ratio": 0.18820144133184066,
+      "encodedSha256": "a1f8a9298f7a197b748c8ddadf70cb26bd8296ce406d95549f318c058b60ebb8",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "ownedPeak": 90043685,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "gray16-default",
+      "originalBytes": 964,
+      "bytes": 161,
+      "ratio": 0.16701244813278007,
+      "encodedSha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81",
+      "inputSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+      "ownedPeak": 59009,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "gray8",
+      "originalBytes": 5672,
+      "bytes": 5672,
+      "ratio": 1,
+      "encodedSha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb",
+      "inputSha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798",
+      "ownedPeak": 3440174,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "originalBytes": 759672,
+      "bytes": 759672,
+      "ratio": 1,
+      "encodedSha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "ownedPeak": 68887407,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "originalBytes": 804786,
+      "bytes": 804786,
+      "ratio": 1,
+      "encodedSha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "ownedPeak": 68736210,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-1416-original",
+      "originalBytes": 7452825,
+      "bytes": 7452825,
+      "ratio": 1,
+      "encodedSha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205",
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "ownedPeak": 153885002,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "originalBytes": 926285,
+      "bytes": 926285,
+      "ratio": 1,
+      "encodedSha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "ownedPeak": 91803084,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-2400-diagnostic",
+      "originalBytes": 829785,
+      "bytes": 829785,
+      "ratio": 1,
+      "encodedSha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121",
+      "inputSha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207",
+      "ownedPeak": 68400255,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "originalBytes": 344414,
+      "bytes": 328459,
+      "ratio": 0.9536749377203018,
+      "encodedSha256": "cdf131998ffab1fe3ea1cd816229d69bb1a2fea9945a881c9d1ca4668494aade",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "ownedPeak": 89674950,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "originalBytes": 226686,
+      "bytes": 168184,
+      "ratio": 0.741924953459852,
+      "encodedSha256": "4ce59326e3e70dd823557b84a3b90a36ad5c10fe5fa6a951f8974616b1ed7945",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "ownedPeak": 89302005,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "originalBytes": 255312,
+      "bytes": 170236,
+      "ratio": 0.666776336404086,
+      "encodedSha256": "3992258d59488dc467bc945f77532e0d74276195ab950639462a525143653a2c",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "ownedPeak": 89333086,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "originalBytes": 176420,
+      "bytes": 58178,
+      "ratio": 0.3297698673619771,
+      "encodedSha256": "212893afa23b281423dea4f1177c49d1100743def860b5818be66f227c8fe293",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "ownedPeak": 89253704,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "im26-8160-original",
+      "originalBytes": 619382,
+      "bytes": 619382,
+      "ratio": 1,
+      "encodedSha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "ownedPeak": 96474716,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "rgb16-default",
+      "originalBytes": 2185,
+      "bytes": 231,
+      "ratio": 0.105720823798627,
+      "encodedSha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031",
+      "inputSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+      "ownedPeak": 239909,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "rgba16-straight",
+      "originalBytes": 2756,
+      "bytes": 1001,
+      "ratio": 0.3632075471698113,
+      "encodedSha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d",
+      "inputSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+      "ownedPeak": 229605,
+      "allOriginalNativeSamplesExact": true
+    },
+    {
+      "fixture": "sunset_logo",
+      "originalBytes": 850887,
+      "bytes": 850887,
+      "ratio": 1,
+      "encodedSha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee",
+      "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "ownedPeak": 85061856,
+      "allOriginalNativeSamplesExact": true
+    }
+  ],
+  "graphics": [
+    {
+      "fixture": "im26-5032-diagnostic",
+      "originalBytes": 344414,
+      "bytes": 328459,
+      "ratio": 0.9536749377203018,
+      "encodedSha256": "cdf131998ffab1fe3ea1cd816229d69bb1a2fea9945a881c9d1ca4668494aade",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "ownedPeak": 89674950,
+      "allOriginalNativeSamplesExact": true,
+      "peers": [
+        {
+          "subject": "jsquash",
+          "bytes": 301588,
+          "encodedSha256": "9cd7d4d33b4c4c7d85556d9a8e5751a0a8f5162e4f6363036ee0d12dc7c3bc78",
+          "ratio": 1.089098372614295,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 100
+          },
+          "exactOriginalNativeSamples": true
+        },
+        {
+          "subject": "vips",
+          "bytes": 268611,
+          "encodedSha256": "e145ab94b80d4af5d1dd45462dae2b828f3e10a0195631ae5f921e18a93d975e",
+          "ratio": 1.2228054696196358,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 1
+          },
+          "exactOriginalNativeSamples": true
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "originalBytes": 226686,
+      "bytes": 168184,
+      "ratio": 0.741924953459852,
+      "encodedSha256": "4ce59326e3e70dd823557b84a3b90a36ad5c10fe5fa6a951f8974616b1ed7945",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "ownedPeak": 89302005,
+      "allOriginalNativeSamplesExact": true,
+      "peers": [
+        {
+          "subject": "jsquash",
+          "bytes": 202254,
+          "encodedSha256": "7eaae8bc066ec91ef77364bccbd42f2bdadf1021253d4c8f61565892faa2ad29",
+          "ratio": 0.8315484489799955,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 100
+          },
+          "exactOriginalNativeSamples": true
+        },
+        {
+          "subject": "vips",
+          "bytes": 158783,
+          "encodedSha256": "d6375ce5097e57b1a463c8ee1c79780decbd304925147f6087e1aed80909509d",
+          "ratio": 1.059206590126147,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 1
+          },
+          "exactOriginalNativeSamples": true
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "originalBytes": 255312,
+      "bytes": 170236,
+      "ratio": 0.666776336404086,
+      "encodedSha256": "3992258d59488dc467bc945f77532e0d74276195ab950639462a525143653a2c",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "ownedPeak": 89333086,
+      "allOriginalNativeSamplesExact": true,
+      "peers": [
+        {
+          "subject": "jsquash",
+          "bytes": 217711,
+          "encodedSha256": "d3a7424b86233854b7fd923fe9963a6352d211c030eb484279be6ab7738defa0",
+          "ratio": 0.7819356853810786,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 100
+          },
+          "exactOriginalNativeSamples": true
+        },
+        {
+          "subject": "vips",
+          "bytes": 179817,
+          "encodedSha256": "d0d3256d66dfaa444eba72ba09a4152bb59706b32390e82a5d4e7cef596e7bee",
+          "ratio": 0.9467180522420016,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 1
+          },
+          "exactOriginalNativeSamples": true
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "originalBytes": 176420,
+      "bytes": 58178,
+      "ratio": 0.3297698673619771,
+      "encodedSha256": "212893afa23b281423dea4f1177c49d1100743def860b5818be66f227c8fe293",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "ownedPeak": 89253704,
+      "allOriginalNativeSamplesExact": true,
+      "peers": [
+        {
+          "subject": "jsquash",
+          "bytes": 135588,
+          "encodedSha256": "4079c35b24f7803e0f8da4f1e4f672242efd9da3ad77553ab6222555eca910c3",
+          "ratio": 0.42907926955187775,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 100
+          },
+          "exactOriginalNativeSamples": true
+        },
+        {
+          "subject": "vips",
+          "bytes": 105926,
+          "encodedSha256": "a0465cb3bf7fa689705c134944852a44e1e53c86c304c6b4c5e2a6c72c8880f9",
+          "ratio": 0.5492324830542077,
+          "originalSettings": {
+            "lossless": true,
+            "effort": 1,
+            "value": 1
+          },
+          "exactOriginalNativeSamples": true
+        }
+      ]
+    }
+  ],
+  "costs": [
+    {
+      "label": "graphic",
+      "fixture": "im26-5334-diagnostic",
+      "comparisons": [
+        {
+          "metric": "cold",
+          "pairedMedianPercent": -26.995182033626854,
+          "pairedMedian95PercentInterval": {
+            "lower": -29.095102310193454,
+            "upper": -26.184096818524914,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "warm",
+          "pairedMedianPercent": -23.72170958723968,
+          "pairedMedian95PercentInterval": {
+            "lower": -26.13856880686578,
+            "upper": -21.804387729181983,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "coldMaximumRssKiB",
+          "pairedMedianPercent": -1.1563169164882203,
+          "pairedMedian95PercentInterval": {
+            "lower": -2.4649019397706584,
+            "upper": 0.748847926267282,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        },
+        {
+          "metric": "maximumRssKiB",
+          "pairedMedianPercent": -2.431825473211424,
+          "pairedMedian95PercentInterval": {
+            "lower": -2.919988064282364,
+            "upper": 1.155073388640715,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        }
+      ],
+      "freshPairs": 7,
+      "protectedCostPassed": true
+    },
+    {
+      "label": "photo",
+      "fixture": "im26-1030-diagnostic",
+      "comparisons": [
+        {
+          "metric": "cold",
+          "pairedMedianPercent": -30.11506964964388,
+          "pairedMedian95PercentInterval": {
+            "lower": -30.626017542039353,
+            "upper": -26.615604431979868,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "warm",
+          "pairedMedianPercent": -28.13100338558241,
+          "pairedMedian95PercentInterval": {
+            "lower": -34.64837117832978,
+            "upper": -15.891592723835945,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "coldMaximumRssKiB",
+          "pairedMedianPercent": -3.3910117760153846,
+          "pairedMedian95PercentInterval": {
+            "lower": -3.899801421154625,
+            "upper": -3.054448871181936,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        },
+        {
+          "metric": "maximumRssKiB",
+          "pairedMedianPercent": -3.4019460183126515,
+          "pairedMedian95PercentInterval": {
+            "lower": -4.677962906228639,
+            "upper": -3.054448871181936,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        }
+      ],
+      "freshPairs": 7,
+      "protectedCostPassed": true
+    },
+    {
+      "label": "second-photo",
+      "fixture": "im26-1416-diagnostic",
+      "comparisons": [
+        {
+          "metric": "cold",
+          "pairedMedianPercent": -31.652471011788606,
+          "pairedMedian95PercentInterval": {
+            "lower": -50.05980688869877,
+            "upper": -30.06088664952581,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "warm",
+          "pairedMedianPercent": -33.1989824333587,
+          "pairedMedian95PercentInterval": {
+            "lower": -50.523588923096455,
+            "upper": -28.845623286995558,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 5,
+          "passed": true
+        },
+        {
+          "metric": "coldMaximumRssKiB",
+          "pairedMedianPercent": -3.6012738548475975,
+          "pairedMedian95PercentInterval": {
+            "lower": -4.17352316901577,
+            "upper": -3.353959502082682,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        },
+        {
+          "metric": "maximumRssKiB",
+          "pairedMedianPercent": -3.8168838206535827,
+          "pairedMedian95PercentInterval": {
+            "lower": -5.630214784864562,
+            "upper": -3.062173570866422,
+            "confidence": 0.95,
+            "draws": 10000,
+            "seed": 965392921
+          },
+          "allowedIncreasePercent": 15,
+          "passed": true
+        }
+      ],
+      "freshPairs": 7,
+      "protectedCostPassed": true
+    }
+  ],
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "artifact": ".tmp/jpegxl-comparison-v1/actual-lossless-repeat-production-878/jpegxl-specialized.js",
+      "bytes": 613206,
+      "sha256": "dc370bc1c451aada186fb0bd8270c359f936231ab3a8232078bc751c04142211",
+      "ceiling": 614000,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "exactQualifiedPrivatePackage": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/jpegxl-specialized.js"
+    },
+    {
+      "target": "codec-jpegxl",
+      "artifact": ".tmp/jpegxl-comparison-v1/actual-lossless-repeat-production-878/codec-jpegxl.js",
+      "bytes": 540999,
+      "sha256": "0b45a5e7fa482514b65e129fe7cb50e26440ce4b048b1af1a862a49554d95233",
+      "ceiling": 541000,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "exactQualifiedPrivatePackage": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/codec-jpegxl.js"
+    }
+  ],
+  "originalFixtures": 16,
+  "encodedFiles": 32,
+  "completeIndependentNativeRustGrids": 64,
+  "exactIndependentSamples": 384733048,
+  "smallerLosslessFiles": 8,
+  "unchangedLosslessFiles": 8,
+  "largerLosslessFiles": 0,
+  "focusedTests": 1,
+  "realBrowserCases": 18,
+  "originalWorkingBudgetsRecovered": true,
+  "packageCeilingsPreserved": true,
+  "timingAllowancePercent": 5,
+  "humanAuthorizedRssAllowancePercent": 15,
+  "historicalObservationsPooled": false,
+  "preservedOrigins": [
+    {
+      "origin": "src/codecs/jpegxl-modular-encode.ts",
+      "path": ".tmp/jpegxl-comparison-v1/qualified-lossless-repeat-adoption-877/original/jpegxl-modular-encode.ts",
+      "sha256": "40f4e022f77536cede873247f9365832c2a49808026504b769f70a8835fe3535"
+    }
+  ],
+  "physicallyVerifiedRecords": 739,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-cost-audit-876.json",
+      "sha256": "4c20122d0213a3439e777396cb7ad55626e422a41983cb8cee8546f0c6f62cf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871.json",
+      "sha256": "7e37f97d8cb91bed0441c7b41270f4b774dcf366b5eff3c21602538e2369487b"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/probe-current-lossless-fixed-sample-repeats-871.ts",
+      "sha256": "623a8153b60046e9612f6156037d51c60c454ae40b23e24ec01d374d18c9157c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-current-lossless-fixed-sample-repeats-870.ts",
+      "sha256": "ec8cef05844506a02b6c7874cd0f271782b86516b382e8a1bca5bbcb398227fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-fixed-sample-repeats-870-871.json",
+      "sha256": "ee358fab35dece5a7a928e5575cb2b3d9aff902f63d2dcbc82194317aaacec61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/manifest.json",
+      "sha256": "9a459491658b39039140a24bcc8495610ee343a689ae3ffd209328171a693e6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-production-802.json",
+      "sha256": "75ce5f2808cd2c4cfac56e11a6fde9f6fde74987c75f3732d8abc2659f80ce98"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765.json",
+      "sha256": "9fe606022088b8483892ff8dab8d95f6ac271db6abe08caa43d4b34a20fa4057"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/fixtures.json",
+      "sha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "edb08052806c426456db90e31c3ff174016a758d5e588282ebd4f38b3d956f08"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "sha256": "e6b0e85e016cc66d851f909a17a334de805cdc3bbf02214b90c1af3f36710076"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-bitstream.ts",
+      "sha256": "5846610bd42ded716b0bfcb789d8ad2d9a428b29ce506b7abb2258ab3e7e462d"
+    },
+    {
+      "path": "src/codecs/jpegxl-chroma.ts",
+      "sha256": "65f981931247f009ef2c2fb9c0cf3869d1bfbc80d4b19cecebb7b607e0e4ab42"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-chroma.ts",
+      "sha256": "9a367823bc3defa126886b628833afdcdfffdc1818fac9cf2f40f0e493d494b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "2b2db1fd3ef93432da744b538e0c432e3cf7d5e1f99e3692d70b0a41e2e7018c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-color.ts",
+      "sha256": "54663af0385980fc5b4b9c0571b2b67b8fb226b0510ab096c46ec8ab884c937e"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "sha256": "ca254c6f07b427c20ece7faafe063f309e147db6788193961495eb0984f5acf9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-container.ts",
+      "sha256": "323bfcaed572ac8f45f9b0f630910425d2089438abe6c43f390b455fc063cfcd"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "d4dbba5954bff8d009d84777967fd4260a86aa00a9eb75035c6331ca526b026d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-decode.ts",
+      "sha256": "2efb093a48af3acc99087e9e840b3d8e61472187ac3fa3334949b67fa55746a9"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "3d5d4dba24c88a59ad04d72ea6ce92f3e0b17d9f5a0b848f83d16a0805bc5869"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-encoder-memory.ts",
+      "sha256": "5466860102eb8dc5da940fbc85d701ea0fc8bf17d734f31636da8f0aee6b5191"
+    },
+    {
+      "path": "src/codecs/jpegxl-exif.ts",
+      "sha256": "cbf19f2338045c045c4209befe6ebf18c1853fa76d923167736fb6ed340e4de6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-exif.ts",
+      "sha256": "a836b8d61a95595a13aa361037319a4950ce1a0808257f1a65cc73431e4c9ac0"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-flat-patches.ts",
+      "sha256": "f1f0c4c7406056f0a8a572eaaa0a6f710df706b58bac4c5037e3e9fdaf786ffc"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-color.ts",
+      "sha256": "58051df0e321a3e1decf879be1b916e03e86ead75e2e7c524bb9438fecd66eac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-float-color.ts",
+      "sha256": "5b62cf1d2727dfe88689903c9deb265f570c9b00a982e82ca73dda52ecbe4ca7"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "22baeda7d43ecd0e198c9d3fe21caa216e4bec392188886ccd4572ccd8410172"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-float-encode.ts",
+      "sha256": "82cc64daee2c628054fdb3d83cc2de5e9afefdfefce1896d869a96ce658e0e18"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "42767538053ed1229498c3d1197fc4ff88c284297fc859867646c0d8ce2e3739"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-frame-features.ts",
+      "sha256": "599e05faed38c9da297714bf5349f85d1689511ee42f82853087374a0b8fa83c"
+    },
+    {
+      "path": "src/codecs/jpegxl-icc.ts",
+      "sha256": "7ebded0282f92d30e0e268cb551898a78b699028c4af9107f6120486fd3580a8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-icc.ts",
+      "sha256": "476b8611b43cc33d8c13fe9f0c1af8e4aec968e8f9feafb04d2e19ed53bb5cd6"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "sha256": "28227218bd147413fd8cf58c786568f96cbec5f9aca7e4c949d14540fadcac6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-inspect.ts",
+      "sha256": "08e056d8df2b7b9148afe209f492d5ae39ce7e32185a71f8fa91759998ccf86a"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "sha256": "f5432e44555295dd08297fa56635eac00bbdfb58c5b529c793c7f3e87b889341"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-data.ts",
+      "sha256": "e719f6ffa2b1c0a0b1a98d27a4a0fce58f4bd80d1a0bb1b229a98cf6c0a86fad"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "aee098c79be0b38f5f91a20e21404b95751a0e7647340bd44e34cc1193dcba12"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "f134376ba9c07de2a34a6e0d48df4ce0cceda592c64b9b4a977555d22b98bbf5"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "b348b240ee149168e2c9dc5deb73ce95904a14be2082afd97ada41fa57df7c5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-pixels.ts",
+      "sha256": "50b579419a5767f98a7024dd9983c0a0cab6c5f1599c2ac8b6a2ba2af68c2e4a"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "6519711eaeefba44d51d3a9e2476a246b65c85b7cad4bbfa90beb1fef9513f3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "5f1c5ee82a623e7eb4a48d19ad555c574005e2e8c8d71ad8060ef8ab9756c41c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "195e1fd5f8b29d70c0b756a4579d69d93805bf3b31983e9fe700f153dc0c012c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "8b58076e12668f21dd82eb0e56b154498e8053483a8cad2b68d2522aa7d8eca5"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3bcc0166bf5ce9de6d74d368245204202ac2d4346c9603373b1addafb23a1413"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "cc1e062a3f01caab243623347aaef886362869c1d3f42c604004619472ea8621"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50540cef781af542d7173a1d78b4d7dc6d2b802e03bd64ddaaf455c8d8a2d7ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-jpeg-transcode.ts",
+      "sha256": "b3088a4491245d3245bdcaca0c21b98df7678835720d47dc420bf717117de725"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "76adaaa05232156f79de86d0e762cc2b695f012e6c8b832b9ca42b9d9220a58d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-level10.ts",
+      "sha256": "e6ec2343517807cd922b8342270a173b76fe0fcefd5f0916d7c7a00758c7e7cb"
+    },
+    {
+      "path": "src/codecs/jpegxl-limits.ts",
+      "sha256": "c2b8bf339c8ec40b9180ac999c105eb58eeba7651d812fc48fef0624bef7c2f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/qualified-lossless-repeat-adoption-877/original/jpegxl-modular-encode.ts",
+      "sha256": "40f4e022f77536cede873247f9365832c2a49808026504b769f70a8835fe3535"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-modular-encode.ts",
+      "sha256": "8677725c58eae224c1a4edbfb3c6a3efc1455e0669e7bf8b6ed6fed6ea402745"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "c465202fc15b54782c25fb87a10489f925028313c4353c04c8a411684a706423"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-modular-rct.ts",
+      "sha256": "4dd5c9baad77cfaea2b003cd180b1be1523af30244b0853e30fd965646a151bf"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "00e14f14eead03391d1bb5965aba8a8e98f77b62428540d7724c44423034954c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-modular-tree.ts",
+      "sha256": "6a298537e76f29f49c6a9d7673e17ccd1d88e2847830b2a496e539627c628b87"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "91ebc48ecf4de1401eb5d0ad0265e266229a8d734f5471c206c7e88ecf9ee7cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-native-encode.ts",
+      "sha256": "715577e21bbe722ca0e01fc99b26015e13da9cd6a77ae3fd1ebde52837e3fad8"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "654b07d4180ef87aad3fa4663da48d6d090d5a674f6e68e4a97607246b21e644"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-native-pixel.ts",
+      "sha256": "176186f52d1ff1c32b0e6bd6431a96d82368e01f7c079d21d0761992dc428d58"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "f3dad73c25bd8d83ab9e7b7a0feff1302b1f166c03a53504cb6359968edb16fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-native-samples.ts",
+      "sha256": "ff7fd1a10acad09434a6eafa62da4360403d0cec3be81c07834fe38447c91148"
+    },
+    {
+      "path": "src/codecs/jpegxl-patch-blend.ts",
+      "sha256": "1a1de4be6b0791e72be162d9747036033de1d16271dc504cb67a201096ea409c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-patch-blend.ts",
+      "sha256": "43850617092aebc22d9925d1cd4a51e15b30386bdbe2423c404698f690550a3c"
+    },
+    {
+      "path": "src/codecs/jpegxl-progressive-plan.ts",
+      "sha256": "e8e17dec70bd5fc2a2f5a5ba717619ee266fbd83c2c8bbaf900b051ffe1f7ee6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-progressive-plan.ts",
+      "sha256": "e88489f6e4318563776204160653497528fd5952b92e0ed050fc0b7f5afa1fdd"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence-encode.ts",
+      "sha256": "850483b190fb151e57e688bd54dde061fd3f2114a676e54deff0c0c88653eb28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-sequence-encode.ts",
+      "sha256": "008a8e33f71e1ce73d13d7fe761552ca7cb2c741ef9a3e8f43fa33da144aedaa"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "71ac700640ec08c7f4d2aa9ba4696ea4f06c85d664563dbfd840f722cd0df47b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-sequence.ts",
+      "sha256": "d7476dc9e780e8147479d693c7ba3afab788a49ccd6235651598609a456b9fa3"
+    },
+    {
+      "path": "src/codecs/jpegxl-session.ts",
+      "sha256": "e8110f4f4c3ef13d33cdadc8c07998840079e70a2ffe132e71d77117e98b6ef4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-session.ts",
+      "sha256": "7e2159faa8b8885b8466f12e1a7dc13877bc173544197cb156b0585ac0695f52"
+    },
+    {
+      "path": "src/codecs/jpegxl-splines.ts",
+      "sha256": "6b9056a839b11ec5f56c1caafc300e33d3ae96e06643edf6be0180b1f5256d60"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-splines.ts",
+      "sha256": "6c729458c10e9dfa69955f0a6f0b7f80910cd09dc2b2f70a1ce6ef2da919f10b"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "576377992ff6fd5b970a6500f82d13d942c6e56cf184ae0982663a7c82bf2bff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "075ebf54d84f40d2ff55cb73d1e241e0c08c614bbc74b685f2d62c10d7b24c40"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "a24392a90aca5a22c2f665475a50e0182529c1b2bd907ac8388fdbafed4ee4e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "01a1bc7624039ce6564c29b055e2f92a10e27a2b5ef6fa0674787019b4f50c94"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "13f0ac7f3eac38341b84baa7afb0d6533250793bd6275eaed02af875fb8fc87c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-jpeg.ts",
+      "sha256": "93dae01d4ef89779ff97f403d4a81d3ed71de753059bc1150377ed2898c3bd00"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "sha256": "cbc906121c669209a172e2ef3f35295080206cb0565c3c7deaf29dfe557a95d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-memory.ts",
+      "sha256": "c6a5733edcfb77f28064c43501c92eb7bd4b35f233213449a40c59bfe868acba"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct-render.ts",
+      "sha256": "3784f4e1ae066cebdd4ab4a8b29e5e955b2f5efa86b51b8c1c3b1defdb828867"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "sha256": "46d253e36669690b5d3be06bdae97422c79832a9d0bbc24f313789dc6163127d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-vardct.ts",
+      "sha256": "ab65ed61576391e68079124a3bae3b517bc293fbbf4496e1d2f682b9b7d9032f"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "sha256": "66d49025d914fa4146fd53841944ba23144625142f222cf57160d6b5cd4804e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl.ts",
+      "sha256": "d3436afe2ab8e67765eafc97a03ea19d78f327b1ec1a9277a8d34eb20ebae207"
+    },
+    {
+      "path": "src/codecs/jpegxl-errors.ts",
+      "sha256": "e43f8dab32a38e0b42c62680e768b87fb5aa4ba47b122d6171457f082f1893ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-870/candidate/jpegxl-errors.ts",
+      "sha256": "96c98a2a2444065b603a16ebcf4fe4a0e6f34a39c9010f72b2d620cee466d65e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-production-802/jpegxl-specialized.js",
+      "sha256": "ecf156bb346c1de265ac7881fa042d2f07ea7dfba388be54afa1c88371b93458"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/jpegxl-specialized.js",
+      "sha256": "dc370bc1c451aada186fb0bd8270c359f936231ab3a8232078bc751c04142211"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-production-802/codec-jpegxl.js",
+      "sha256": "37d4ab0612ec7f0446ba0e86dc395aa683a2f9ececc2739b907c3c71fd8a24a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/codec-jpegxl.js",
+      "sha256": "0b45a5e7fa482514b65e129fe7cb50e26440ce4b048b1af1a862a49554d95233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/alpha_triangles/ref.png",
+      "sha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/alpha_triangles-lossless-e1-d0.jxl",
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-baseline.jxl",
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-baseline.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/alpha_triangles-lossless-e1-d0.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-baseline.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/alpha_triangles-lossless-e1-d0.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-candidate.jxl",
+      "sha256": "a1f8a9298f7a197b748c8ddadf70cb26bd8296ce406d95549f318c058b60ebb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/gray16-default.raw",
+      "sha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray16-default.oracle.pnm",
+      "sha256": "ce1aa5c037583491e7ff718fdda02e599643d4be51c5d67e0b03ef557583e596"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray16-default-lossless-e1-d0.jxl",
+      "sha256": "8cddd44d165d23a18c43ec04b912d8bbe87f9e8fc800e39225c4acb6c22c661f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-baseline.jxl",
+      "sha256": "8cddd44d165d23a18c43ec04b912d8bbe87f9e8fc800e39225c4acb6c22c661f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-baseline.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray16-default-lossless-e1-d0.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-baseline.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray16-default-lossless-e1-d0.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-candidate.jxl",
+      "sha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/gray8.raw",
+      "sha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/grayscale/ref.png",
+      "sha256": "9d8d45dc6158ba173694f9e3075242c4a1e941649ed0eb9538479f83c8fed63f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray8-lossless-e1-d0.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-baseline.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-baseline.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray8-lossless-e1-d0.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-baseline.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/gray8-lossless-e1-d0.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-candidate.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+      "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1030-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-baseline.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-baseline.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1030-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1030-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.raw",
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+      "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-original-lossless-e1-d0.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-baseline.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-baseline.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-original-lossless-e1-d0.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-baseline.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-1416-original-lossless-e1-d0.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-candidate.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2018-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2018-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2018-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2400-diagnostic.raw",
+      "sha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2400.ppm",
+      "sha256": "4b8de9a0cdd9f743434a96510ab5eb51d1b2078640e48a144c240783e5fdaaba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2400-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-baseline.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-baseline.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2400-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-2400-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5032-diagnostic.raw",
+      "sha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5032.ppm",
+      "sha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5032-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "efb52d199f5b2315352fb21a07a48d85025d4e65a793837508624b136c173565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-baseline.jxl",
+      "sha256": "efb52d199f5b2315352fb21a07a48d85025d4e65a793837508624b136c173565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-baseline.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5032-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5032-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "cdf131998ffab1fe3ea1cd816229d69bb1a2fea9945a881c9d1ca4668494aade"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5034-diagnostic.raw",
+      "sha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5034.ppm",
+      "sha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5034-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "f0d162f79a86870045f9513a8536ef6fc5bb014eaa4e44bb466f1b48982113f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-baseline.jxl",
+      "sha256": "f0d162f79a86870045f9513a8536ef6fc5bb014eaa4e44bb466f1b48982113f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5034-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5034-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "4ce59326e3e70dd823557b84a3b90a36ad5c10fe5fa6a951f8974616b1ed7945"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5052-diagnostic.raw",
+      "sha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5052.ppm",
+      "sha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5052-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "de95bfd640acb78d3c10d72f61ec8c749b210d3aea6382f35ee5d1feb38d3b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-baseline.jxl",
+      "sha256": "de95bfd640acb78d3c10d72f61ec8c749b210d3aea6382f35ee5d1feb38d3b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-baseline.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5052-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5052-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "3992258d59488dc467bc945f77532e0d74276195ab950639462a525143653a2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5334-diagnostic.raw",
+      "sha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5334.ppm",
+      "sha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5334-diagnostic-lossless-e1-d0.jxl",
+      "sha256": "9f428fa6873c8c0b9547772345033568bb5b7729c3c803101fdbb8838d12ed54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-baseline.jxl",
+      "sha256": "9f428fa6873c8c0b9547772345033568bb5b7729c3c803101fdbb8838d12ed54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-baseline.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5334-diagnostic-lossless-e1-d0.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-5334-diagnostic-lossless-e1-d0.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "212893afa23b281423dea4f1177c49d1100743def860b5818be66f227c8fe293"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-8160-original-lossless-e1-d0.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-baseline.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-baseline.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-8160-original-lossless-e1-d0.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-baseline.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/im26-8160-original-lossless-e1-d0.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-candidate.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/rgb16-default.raw",
+      "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb16-default.oracle.pnm",
+      "sha256": "babd659d24d9b42e82ce8e9ce9b11bfef364f5cea5049260f1496dfdcd4a7d27"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgb16-default-lossless-e1-d0.jxl",
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-baseline.jxl",
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-baseline.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgb16-default-lossless-e1-d0.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-baseline.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgb16-default-lossless-e1-d0.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-candidate.jxl",
+      "sha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/rgba16-straight.raw",
+      "sha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgba16-straight.oracle.pam",
+      "sha256": "c98699c78b512b21c6a0d2040348aa36f594ef721fe168fe8e847ec2352914e5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgba16-straight-lossless-e1-d0.jxl",
+      "sha256": "a506fbf57b3229e059b3ecbd2ff5f01f6e2ab0ff699863e6936b119101d2e5f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-baseline.jxl",
+      "sha256": "a506fbf57b3229e059b3ecbd2ff5f01f6e2ab0ff699863e6936b119101d2e5f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-baseline.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgba16-straight-lossless-e1-d0.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-baseline.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/rgba16-straight-lossless-e1-d0.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-candidate.jxl",
+      "sha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/sunset_logo/ref.png",
+      "sha256": "c974b5a5c4232b22780c90fad60679d79bfb6088999cd5fbc6f5ebdd2f05f908"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/sunset_logo-lossless-e1-d0.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-baseline.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-baseline.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/sunset_logo-lossless-e1-d0.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-baseline.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-filter-packed-ac-full-matrix-765/sunset_logo-lossless-e1-d0.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-candidate.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-controls-871/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-cost-875.json",
+      "sha256": "ead83cb754963613fbfce60d7d0b5dbba663c208de814e2de546dea5d66f6d68"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-graphic-cost-875.ts",
+      "sha256": "7b5d02628e993dc7a16179e684666e1476af2cacdfe3bff85bd797bbe30a66c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-graphic-worker-874.ts",
+      "sha256": "15e558663a52de51c479d9d3d7677df26e5ec20030b5913039a1cfe8a366a554"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-fixed-sample-repeats-graphic-cost-874-875.json",
+      "sha256": "0647b01bdc8ea8c17182f91f3a03d9b86e6fad5631227cd708e69b78175da749"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-0.json",
+      "sha256": "7678346552dc5a13c39131fb962246f3cc1971fe9fb55a1fc1dae8701b694746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-0.json",
+      "sha256": "7666aa1a00255553556b14ad32458b0612f6d8b6f65b6c952f43d651937ea6d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-1.json",
+      "sha256": "454b1b82723e3009eab7c5498af45d31a2a27950d4fc1cc3eccec9d0c4aa7896"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-1.json",
+      "sha256": "3cc16478fa3af23545e094a37efc2d9436c24b27be73ae05f1d44c4b4a488a04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-2.json",
+      "sha256": "c6b1fccce7818b7b0047f21b0b488f82cec8bf2bdad1fd299d4002cc9b6e8a3b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-2.json",
+      "sha256": "5c03bd2ffc9d9739d8754ae857a0edc6fa01d82a9b4a72e0a402ed493d7c4bb6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-3.json",
+      "sha256": "d3f7f5413563fed90a640ebfddea395e76029b4f189285d789ef86150ff7498f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-3.json",
+      "sha256": "dea22372624a37e23c8b582441cb96ea6a0c21ad249540708019d5c8f534a65f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-4.json",
+      "sha256": "6902d9d41c8a3f7820e02ecdd54791f289d3ace2daaab28774ef0b342c59e584"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-4.json",
+      "sha256": "f5f57a7d7aeb83c9e3839a27f6ca5a43171496d1062d495b511cd3456ab1a2ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-5.json",
+      "sha256": "776e875969f03d440bc1cfea4f68ee564115a3b6d7cfac5bc31ed0d8f262645b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-5.json",
+      "sha256": "3db7d57ce9347ef0c80aff30d8affb9fdfb68f95b46e5484cee19e119e08fff3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-baseline-6.json",
+      "sha256": "bcd35743204d1f8574bf277fe4577c2bc94d81011ccc9967bd566ff6457ec941"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-graphic-performance-874-candidate-6.json",
+      "sha256": "0449394d81fcab163ab45d16af846ab71d2e0632b24de78bf71fc91e0ce658e2"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-graphic-worker-874.ts",
+      "sha256": "15e558663a52de51c479d9d3d7677df26e5ec20030b5913039a1cfe8a366a554"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-graphic-cost-875.ts",
+      "sha256": "7b5d02628e993dc7a16179e684666e1476af2cacdfe3bff85bd797bbe30a66c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-cost-audit-851.json",
+      "sha256": "d8266779e02f25be4eef5d982a2aff11caf4cceeda37cc25e71f9f47fb1f4978"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847.json",
+      "sha256": "594d96ede4480d8e83e543057c4130569c6408d3e4d9c44321cb3119a468808c"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/probe-current-lossless-repeated-color-gate-847.ts",
+      "sha256": "8ef019e15d70d3141a3b2a945f074de4c31545fd98e9c16fd0ad81cc76273abc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-current-lossless-repeated-color-gate-846.ts",
+      "sha256": "d8d890ed252871d465db0dc483dd320fb837cf0a55169cead03490c4983da630"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-repeated-color-gate-846-847.json",
+      "sha256": "b93734f869dfb847f45262d5920eb5d068507128b8feabd49a22bf2f579369f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/manifest.json",
+      "sha256": "659d4532384946983c91e7bc459b104d2594fec22d2c6591d6455c845930f636"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-bitstream.ts",
+      "sha256": "5846610bd42ded716b0bfcb789d8ad2d9a428b29ce506b7abb2258ab3e7e462d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-chroma.ts",
+      "sha256": "9a367823bc3defa126886b628833afdcdfffdc1818fac9cf2f40f0e493d494b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-color.ts",
+      "sha256": "54663af0385980fc5b4b9c0571b2b67b8fb226b0510ab096c46ec8ab884c937e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-container.ts",
+      "sha256": "323bfcaed572ac8f45f9b0f630910425d2089438abe6c43f390b455fc063cfcd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-decode.ts",
+      "sha256": "2efb093a48af3acc99087e9e840b3d8e61472187ac3fa3334949b67fa55746a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-encoder-memory.ts",
+      "sha256": "5466860102eb8dc5da940fbc85d701ea0fc8bf17d734f31636da8f0aee6b5191"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-exif.ts",
+      "sha256": "a836b8d61a95595a13aa361037319a4950ce1a0808257f1a65cc73431e4c9ac0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-flat-patches.ts",
+      "sha256": "f1f0c4c7406056f0a8a572eaaa0a6f710df706b58bac4c5037e3e9fdaf786ffc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-float-color.ts",
+      "sha256": "5b62cf1d2727dfe88689903c9deb265f570c9b00a982e82ca73dda52ecbe4ca7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-float-encode.ts",
+      "sha256": "82cc64daee2c628054fdb3d83cc2de5e9afefdfefce1896d869a96ce658e0e18"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-frame-features.ts",
+      "sha256": "599e05faed38c9da297714bf5349f85d1689511ee42f82853087374a0b8fa83c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-icc.ts",
+      "sha256": "476b8611b43cc33d8c13fe9f0c1af8e4aec968e8f9feafb04d2e19ed53bb5cd6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-inspect.ts",
+      "sha256": "08e056d8df2b7b9148afe209f492d5ae39ce7e32185a71f8fa91759998ccf86a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-data.ts",
+      "sha256": "e719f6ffa2b1c0a0b1a98d27a4a0fce58f4bd80d1a0bb1b229a98cf6c0a86fad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "f134376ba9c07de2a34a6e0d48df4ce0cceda592c64b9b4a977555d22b98bbf5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-pixels.ts",
+      "sha256": "50b579419a5767f98a7024dd9983c0a0cab6c5f1599c2ac8b6a2ba2af68c2e4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "5f1c5ee82a623e7eb4a48d19ad555c574005e2e8c8d71ad8060ef8ab9756c41c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "8b58076e12668f21dd82eb0e56b154498e8053483a8cad2b68d2522aa7d8eca5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "cc1e062a3f01caab243623347aaef886362869c1d3f42c604004619472ea8621"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-jpeg-transcode.ts",
+      "sha256": "b3088a4491245d3245bdcaca0c21b98df7678835720d47dc420bf717117de725"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-level10.ts",
+      "sha256": "e6ec2343517807cd922b8342270a173b76fe0fcefd5f0916d7c7a00758c7e7cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-modular-encode.ts",
+      "sha256": "6fb3c841a1337d371c06481dd0fc53d598e2422f487e1267ca3fe8a9b41128e1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-modular-rct.ts",
+      "sha256": "4dd5c9baad77cfaea2b003cd180b1be1523af30244b0853e30fd965646a151bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-modular-tree.ts",
+      "sha256": "6a298537e76f29f49c6a9d7673e17ccd1d88e2847830b2a496e539627c628b87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-native-encode.ts",
+      "sha256": "715577e21bbe722ca0e01fc99b26015e13da9cd6a77ae3fd1ebde52837e3fad8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-native-pixel.ts",
+      "sha256": "176186f52d1ff1c32b0e6bd6431a96d82368e01f7c079d21d0761992dc428d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-native-samples.ts",
+      "sha256": "ff7fd1a10acad09434a6eafa62da4360403d0cec3be81c07834fe38447c91148"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-patch-blend.ts",
+      "sha256": "43850617092aebc22d9925d1cd4a51e15b30386bdbe2423c404698f690550a3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-progressive-plan.ts",
+      "sha256": "e88489f6e4318563776204160653497528fd5952b92e0ed050fc0b7f5afa1fdd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-sequence-encode.ts",
+      "sha256": "008a8e33f71e1ce73d13d7fe761552ca7cb2c741ef9a3e8f43fa33da144aedaa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-sequence.ts",
+      "sha256": "d7476dc9e780e8147479d693c7ba3afab788a49ccd6235651598609a456b9fa3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-session.ts",
+      "sha256": "7e2159faa8b8885b8466f12e1a7dc13877bc173544197cb156b0585ac0695f52"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-splines.ts",
+      "sha256": "6c729458c10e9dfa69955f0a6f0b7f80910cd09dc2b2f70a1ce6ef2da919f10b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "075ebf54d84f40d2ff55cb73d1e241e0c08c614bbc74b685f2d62c10d7b24c40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "01a1bc7624039ce6564c29b055e2f92a10e27a2b5ef6fa0674787019b4f50c94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-jpeg.ts",
+      "sha256": "93dae01d4ef89779ff97f403d4a81d3ed71de753059bc1150377ed2898c3bd00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-memory.ts",
+      "sha256": "c6a5733edcfb77f28064c43501c92eb7bd4b35f233213449a40c59bfe868acba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct-render.ts",
+      "sha256": "3784f4e1ae066cebdd4ab4a8b29e5e955b2f5efa86b51b8c1c3b1defdb828867"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-vardct.ts",
+      "sha256": "ab65ed61576391e68079124a3bae3b517bc293fbbf4496e1d2f682b9b7d9032f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl.ts",
+      "sha256": "d3436afe2ab8e67765eafc97a03ea19d78f327b1ec1a9277a8d34eb20ebae207"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-846/candidate/jpegxl-errors.ts",
+      "sha256": "96c98a2a2444065b603a16ebcf4fe4a0e6f34a39c9010f72b2d620cee466d65e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/jpegxl-specialized.js",
+      "sha256": "13753473e17fc7c0a1b4b942b28eebbcf5e651ad9c090fc9461ad25f15365490"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/codec-jpegxl.js",
+      "sha256": "1ba2162a06f94da311df65593a20d9da246fc28c303771635269347ecf6f923e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-baseline.jxl",
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-baseline.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-baseline.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-candidate.jxl",
+      "sha256": "a1f8a9298f7a197b748c8ddadf70cb26bd8296ce406d95549f318c058b60ebb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-baseline.jxl",
+      "sha256": "8cddd44d165d23a18c43ec04b912d8bbe87f9e8fc800e39225c4acb6c22c661f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-baseline.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-baseline.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-candidate.jxl",
+      "sha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-baseline.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-baseline.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-baseline.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-candidate.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-baseline.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-baseline.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-baseline.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-baseline.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-baseline.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-candidate.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-baseline.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-baseline.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-baseline.jxl",
+      "sha256": "efb52d199f5b2315352fb21a07a48d85025d4e65a793837508624b136c173565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-baseline.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "cdf131998ffab1fe3ea1cd816229d69bb1a2fea9945a881c9d1ca4668494aade"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-baseline.jxl",
+      "sha256": "f0d162f79a86870045f9513a8536ef6fc5bb014eaa4e44bb466f1b48982113f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "4ce59326e3e70dd823557b84a3b90a36ad5c10fe5fa6a951f8974616b1ed7945"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-baseline.jxl",
+      "sha256": "de95bfd640acb78d3c10d72f61ec8c749b210d3aea6382f35ee5d1feb38d3b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-baseline.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "3992258d59488dc467bc945f77532e0d74276195ab950639462a525143653a2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-baseline.jxl",
+      "sha256": "9f428fa6873c8c0b9547772345033568bb5b7729c3c803101fdbb8838d12ed54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-baseline.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "212893afa23b281423dea4f1177c49d1100743def860b5818be66f227c8fe293"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-baseline.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-baseline.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-baseline.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-candidate.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-baseline.jxl",
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-baseline.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-baseline.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-candidate.jxl",
+      "sha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-baseline.jxl",
+      "sha256": "a506fbf57b3229e059b3ecbd2ff5f01f6e2ab0ff699863e6936b119101d2e5f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-baseline.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-baseline.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-candidate.jxl",
+      "sha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-baseline.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-baseline.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-baseline.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-candidate.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-controls-847/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-cost-850.json",
+      "sha256": "cc181461c68fd1d54a5492b81d2b3fa1b0ef4a7fc98306002f8f9468ff1d71d1"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-repeated-color-gate-second-photo-cost-850.ts",
+      "sha256": "774a24051068d528de9b3fd08c93901c121464c62641d033d1db02269c3c25c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-repeated-color-gate-second-photo-worker-849.ts",
+      "sha256": "0043a6329d6244bcb5cf5d0a25ed427980ae4270fbebc871110de26ea915333e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-repeated-color-gate-second-photo-cost-849-850.json",
+      "sha256": "5949b4476b71b4a3dca710c5f4fdceb524ab47faf8b423a19dfaa1d7fb251fd3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-0.json",
+      "sha256": "fcb2ddee186f608ce8be9d912561a6e05c3a43f68fbd83ed855bb7fda6acc70b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-0.json",
+      "sha256": "f8dfb45c2812d69a16b24a078d6898848842384d8425bb325919284ff81e6849"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-1.json",
+      "sha256": "e3137dc75fd820c328c59b6f5f2ef6add67086ec6b7ca8cfc9bf879c13dbd43f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-1.json",
+      "sha256": "f2e5430b9545b76605672b5ab5ed4edccfecb96fb2b13cadcf3e8a6146baa3ef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-2.json",
+      "sha256": "4f0ecd3132599b718ad85a14e9541bfcf7f161062feda89a943ed00ebbe694dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-2.json",
+      "sha256": "349677d1d46eb9038a1bb19072ed2bfcb2db66604d0e45368bc8474c4e10440a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-3.json",
+      "sha256": "766be81febbbc603ce0f37de4645bcdaa65d34f4c6b9683966510cf462d59fdc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-3.json",
+      "sha256": "b21c7c92ba5562c164066d16f19212478ff75122937a61999a67ba34f5a47dc5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-4.json",
+      "sha256": "e3670d0a83b84593190e824ef79939f98c791afd294e66c63d31fdd61cc842e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-4.json",
+      "sha256": "8424a9f7169c640c6744084399e6edfc8bde4553ec88a6ca30546cd6dd3972fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-5.json",
+      "sha256": "426f748e0da5ff14e751f2127b7a2883c92c68c4beed900a24e5fc4f30c1768f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-5.json",
+      "sha256": "19b8bb64f43adfa68795422844d5b9f568a17d5b88ad2ac1e0469b6ad7b9abfc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-baseline-6.json",
+      "sha256": "5703d0421f1f4e06441f5394b14cf10f41973effc669febfc9fa1ea395f6f2c0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-performance-849-candidate-6.json",
+      "sha256": "c73de97fa14b62b6b369387c70dc2f03627c8da270d04a190450d90166c9f3d1"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-repeated-color-gate-second-photo-worker-849.ts",
+      "sha256": "0043a6329d6244bcb5cf5d0a25ed427980ae4270fbebc871110de26ea915333e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-repeated-color-gate-second-photo-cost-850.ts",
+      "sha256": "774a24051068d528de9b3fd08c93901c121464c62641d033d1db02269c3c25c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-cost-audit-825.json",
+      "sha256": "56a6f10166a8d4b755c64710a578a84499c76b09b7966e06bbda16d6fef61da1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817.json",
+      "sha256": "8ff95d2065c801a7a8e764de95799e526e4a43c5d2714173bdd34071cdc048ff"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/probe-current-lossless-single-predictor-817.ts",
+      "sha256": "3cfdc4d75c4e609aba9b31bd7c9d78d8eeb6e32913a6f54d0e221363ce634078"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-current-lossless-single-predictor-816.ts",
+      "sha256": "06ddf336ef4c91988af52638e46e5901768a7bae1695002d82b2998a6c85c313"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-single-predictor-816-817.json",
+      "sha256": "8c5458937ac04bfceac054b8f1f3494c2afd213bda96c8d0f0709cd4ba473685"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/manifest.json",
+      "sha256": "70ceae6945d0a2d50d2ebaef55e72c8ecd0aaac92d3d34aa15cb723430371f53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-bitstream.ts",
+      "sha256": "5846610bd42ded716b0bfcb789d8ad2d9a428b29ce506b7abb2258ab3e7e462d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-chroma.ts",
+      "sha256": "9a367823bc3defa126886b628833afdcdfffdc1818fac9cf2f40f0e493d494b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-color.ts",
+      "sha256": "54663af0385980fc5b4b9c0571b2b67b8fb226b0510ab096c46ec8ab884c937e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-container.ts",
+      "sha256": "323bfcaed572ac8f45f9b0f630910425d2089438abe6c43f390b455fc063cfcd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-decode.ts",
+      "sha256": "2efb093a48af3acc99087e9e840b3d8e61472187ac3fa3334949b67fa55746a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-encoder-memory.ts",
+      "sha256": "5466860102eb8dc5da940fbc85d701ea0fc8bf17d734f31636da8f0aee6b5191"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-exif.ts",
+      "sha256": "a836b8d61a95595a13aa361037319a4950ce1a0808257f1a65cc73431e4c9ac0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-flat-patches.ts",
+      "sha256": "f1f0c4c7406056f0a8a572eaaa0a6f710df706b58bac4c5037e3e9fdaf786ffc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-float-color.ts",
+      "sha256": "5b62cf1d2727dfe88689903c9deb265f570c9b00a982e82ca73dda52ecbe4ca7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-float-encode.ts",
+      "sha256": "82cc64daee2c628054fdb3d83cc2de5e9afefdfefce1896d869a96ce658e0e18"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-frame-features.ts",
+      "sha256": "599e05faed38c9da297714bf5349f85d1689511ee42f82853087374a0b8fa83c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-icc.ts",
+      "sha256": "476b8611b43cc33d8c13fe9f0c1af8e4aec968e8f9feafb04d2e19ed53bb5cd6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-inspect.ts",
+      "sha256": "08e056d8df2b7b9148afe209f492d5ae39ce7e32185a71f8fa91759998ccf86a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-data.ts",
+      "sha256": "e719f6ffa2b1c0a0b1a98d27a4a0fce58f4bd80d1a0bb1b229a98cf6c0a86fad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "f134376ba9c07de2a34a6e0d48df4ce0cceda592c64b9b4a977555d22b98bbf5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-pixels.ts",
+      "sha256": "50b579419a5767f98a7024dd9983c0a0cab6c5f1599c2ac8b6a2ba2af68c2e4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "5f1c5ee82a623e7eb4a48d19ad555c574005e2e8c8d71ad8060ef8ab9756c41c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "8b58076e12668f21dd82eb0e56b154498e8053483a8cad2b68d2522aa7d8eca5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "cc1e062a3f01caab243623347aaef886362869c1d3f42c604004619472ea8621"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-jpeg-transcode.ts",
+      "sha256": "b3088a4491245d3245bdcaca0c21b98df7678835720d47dc420bf717117de725"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-level10.ts",
+      "sha256": "e6ec2343517807cd922b8342270a173b76fe0fcefd5f0916d7c7a00758c7e7cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-modular-encode.ts",
+      "sha256": "75e43bda6e4bbc36c939e1afc9b82a32936ef1f705383c38bb0b3cd4df55edac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-modular-rct.ts",
+      "sha256": "4dd5c9baad77cfaea2b003cd180b1be1523af30244b0853e30fd965646a151bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-modular-tree.ts",
+      "sha256": "6a298537e76f29f49c6a9d7673e17ccd1d88e2847830b2a496e539627c628b87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-native-encode.ts",
+      "sha256": "715577e21bbe722ca0e01fc99b26015e13da9cd6a77ae3fd1ebde52837e3fad8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-native-pixel.ts",
+      "sha256": "176186f52d1ff1c32b0e6bd6431a96d82368e01f7c079d21d0761992dc428d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-native-samples.ts",
+      "sha256": "ff7fd1a10acad09434a6eafa62da4360403d0cec3be81c07834fe38447c91148"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-patch-blend.ts",
+      "sha256": "43850617092aebc22d9925d1cd4a51e15b30386bdbe2423c404698f690550a3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-progressive-plan.ts",
+      "sha256": "e88489f6e4318563776204160653497528fd5952b92e0ed050fc0b7f5afa1fdd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-sequence-encode.ts",
+      "sha256": "008a8e33f71e1ce73d13d7fe761552ca7cb2c741ef9a3e8f43fa33da144aedaa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-sequence.ts",
+      "sha256": "d7476dc9e780e8147479d693c7ba3afab788a49ccd6235651598609a456b9fa3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-session.ts",
+      "sha256": "7e2159faa8b8885b8466f12e1a7dc13877bc173544197cb156b0585ac0695f52"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-splines.ts",
+      "sha256": "6c729458c10e9dfa69955f0a6f0b7f80910cd09dc2b2f70a1ce6ef2da919f10b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "075ebf54d84f40d2ff55cb73d1e241e0c08c614bbc74b685f2d62c10d7b24c40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "01a1bc7624039ce6564c29b055e2f92a10e27a2b5ef6fa0674787019b4f50c94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-jpeg.ts",
+      "sha256": "93dae01d4ef89779ff97f403d4a81d3ed71de753059bc1150377ed2898c3bd00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-memory.ts",
+      "sha256": "c6a5733edcfb77f28064c43501c92eb7bd4b35f233213449a40c59bfe868acba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct-render.ts",
+      "sha256": "3784f4e1ae066cebdd4ab4a8b29e5e955b2f5efa86b51b8c1c3b1defdb828867"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-vardct.ts",
+      "sha256": "ab65ed61576391e68079124a3bae3b517bc293fbbf4496e1d2f682b9b7d9032f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl.ts",
+      "sha256": "d3436afe2ab8e67765eafc97a03ea19d78f327b1ec1a9277a8d34eb20ebae207"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-816/candidate/jpegxl-errors.ts",
+      "sha256": "96c98a2a2444065b603a16ebcf4fe4a0e6f34a39c9010f72b2d620cee466d65e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/jpegxl-specialized.js",
+      "sha256": "7fb14e306824f8c7d5d268286cbed1f317dddeabd86f57fa2cd2929d0b304f5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/codec-jpegxl.js",
+      "sha256": "b4745d4a9e0ff4a953557a4451781242862da209073a0e5cb190ea8522abd9c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-baseline.jxl",
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-baseline.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-baseline.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-candidate.jxl",
+      "sha256": "2128ef67b4406ce9ef5a499e321e0ddb86fff05522a90559a2379a8a6ffad22b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-baseline.jxl",
+      "sha256": "8cddd44d165d23a18c43ec04b912d8bbe87f9e8fc800e39225c4acb6c22c661f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-baseline.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-baseline.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-candidate.jxl",
+      "sha256": "8cddd44d165d23a18c43ec04b912d8bbe87f9e8fc800e39225c4acb6c22c661f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-baseline.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-baseline.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-baseline.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-candidate.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-baseline.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-baseline.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-baseline.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-baseline.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-baseline.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-candidate.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-baseline.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-baseline.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-baseline.jxl",
+      "sha256": "efb52d199f5b2315352fb21a07a48d85025d4e65a793837508624b136c173565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-baseline.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "efb52d199f5b2315352fb21a07a48d85025d4e65a793837508624b136c173565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-baseline.jxl",
+      "sha256": "f0d162f79a86870045f9513a8536ef6fc5bb014eaa4e44bb466f1b48982113f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "f0d162f79a86870045f9513a8536ef6fc5bb014eaa4e44bb466f1b48982113f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-baseline.jxl",
+      "sha256": "de95bfd640acb78d3c10d72f61ec8c749b210d3aea6382f35ee5d1feb38d3b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-baseline.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "de95bfd640acb78d3c10d72f61ec8c749b210d3aea6382f35ee5d1feb38d3b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-baseline.jxl",
+      "sha256": "9f428fa6873c8c0b9547772345033568bb5b7729c3c803101fdbb8838d12ed54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-baseline.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "9f428fa6873c8c0b9547772345033568bb5b7729c3c803101fdbb8838d12ed54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-baseline.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-baseline.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-baseline.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-candidate.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-baseline.jxl",
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-baseline.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-baseline.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-candidate.jxl",
+      "sha256": "36ea2d273659399fac2fd5c9804a127351202bf4de3aadf9fc4cd19361d7a03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-baseline.jxl",
+      "sha256": "a506fbf57b3229e059b3ecbd2ff5f01f6e2ab0ff699863e6936b119101d2e5f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-baseline.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-baseline.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-candidate.jxl",
+      "sha256": "a506fbf57b3229e059b3ecbd2ff5f01f6e2ab0ff699863e6936b119101d2e5f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-baseline.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-baseline.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-baseline.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-candidate.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-controls-817/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-cost-824.json",
+      "sha256": "d557c800bc153551cc47a849693c44aada24ccb04b2fb51c29c25fd13cb5d451"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-cost-824.ts",
+      "sha256": "7b479f5e9aace1e6aa549eb5a1caf2343c6333f46649ce1a5279c3d5541b1b6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-worker-823.ts",
+      "sha256": "cc8f3c4e9d7854b26aeb0cd68d254506003fdf2b166947ad2f547a12326e3c7f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-single-predictor-graphic-cost-823-824.json",
+      "sha256": "934fc460c4c534e45f8a1637fff452782b66f8a1a5471dcdf5a86d65968f9eda"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-0.json",
+      "sha256": "f248262fb8739fbdf68fabba12843340b4937b454f5b041cec6e05fb40f5c546"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-0.json",
+      "sha256": "559eca68e757d702ce47fdae636467a37770cfed19e108b63999f833b12c9afb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-1.json",
+      "sha256": "0cdf5e3fa2a6245814444f296a89cf8b9eae0eec261ea2eba7bfa1678cf29a70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-1.json",
+      "sha256": "1b0a6a0a2e5c835dc28c3ce7af7c50b8d3e951d3af38d92892d0302ba5882e0b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-2.json",
+      "sha256": "33fc78917a9468ee59faf0ead691a02f6b5ae0b34ccc31a5f20bab77b67c8825"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-2.json",
+      "sha256": "6e5dcd6378822faa076007f278fd3d19647738bd528dfe38a3c4a64fdff07822"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-3.json",
+      "sha256": "68e70e855295dedd6e01afc8e3fb38acebea0d524b18fbfb2c1040dd32d9d233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-3.json",
+      "sha256": "1e8a20f2cf2f3ee6c69a3f80bfd02f7f5edc63573773f0b2f283c0280c61edcf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-4.json",
+      "sha256": "290fe72258b62ebcec28421cd091788a8245c7d515f8f285fcf9291dd19e1a83"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-4.json",
+      "sha256": "f6bb014c154de37ace250e6b7403d241157ec55fb4f654c604347a1c36f2a742"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-5.json",
+      "sha256": "975904eb7cd87e89e350ddfd87ca368ef050aaed6ca0d07992e422f9ac91e0b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-5.json",
+      "sha256": "f96e97e68c701e323ebf56924b416f436cde90ebd3346007d9308587251f0951"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-baseline-6.json",
+      "sha256": "810c09f3310817e3e74bd6ef6f195420f3b399afa39249480b065e17ad80200b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-823-candidate-6.json",
+      "sha256": "5013b9a1df8e850388c51f017338c8f6404d76d5b847984358e4dd95c5eaeabb"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-worker-823.ts",
+      "sha256": "cc8f3c4e9d7854b26aeb0cd68d254506003fdf2b166947ad2f547a12326e3c7f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-cost-824.ts",
+      "sha256": "7b479f5e9aace1e6aa549eb5a1caf2343c6333f46649ce1a5279c3d5541b1b6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-cost-audit-821.json",
+      "sha256": "8a603217a32d3451ae6c8d584f02fc476a2cafca76092887368348d4fb0c4350"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-cost-820.json",
+      "sha256": "7c33fb2d3ba8f16995b9ff451ade051eef1f30846412df137f9662253111df77"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-cost-820.ts",
+      "sha256": "cf6d4ca20cc22161198386a6bcba7127cbb71c743c81dfa1c9da95e2230de9f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-worker-819.ts",
+      "sha256": "47db160b3ccdc5d4b3716a5811b92454f80c1aa62a01d506b1114ef2d95ba50d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-single-predictor-graphic-cost-819-820.json",
+      "sha256": "494e0d8a55278fa85527cbdae16131ef44b43aca8503cf4583b4a4f918e8cfc6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-0.json",
+      "sha256": "ca30ccd272f43716c3cc07d49f29968c037e2f8706ae0cb5d6c29fbb5b2df374"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-0.json",
+      "sha256": "c1a2e82bb5a22f7ad02b23d8578efb8fcee3ec227ffb27290f8ddf1924d0b0c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-1.json",
+      "sha256": "bdc6ba978494cdae8221c39cb590de96ffff01c1782bdeecffd77cb25c3ecb24"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-1.json",
+      "sha256": "af98f1c53147d4b353f6ebaa11095acde3ee62e0a09e8ea6a1c533c88937476f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-2.json",
+      "sha256": "2ece360f11529fd3aa7b9e57b4bda67a3efec56c71306801cc5b33a00f1f4095"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-2.json",
+      "sha256": "01b814fe204f73b8a7a38568e7f9ad11dbe86cf27ee3c9dc857ffef1faa58f25"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-3.json",
+      "sha256": "c1762a4cc72ab6e9ce475fc6d1dd95687b40bc76ccc11c563703f30c7449dd67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-3.json",
+      "sha256": "346a7e29b580dd94c2344a243d85d62131e0911352aedb3f7142c702263f5ced"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-4.json",
+      "sha256": "68152521169e41fd58f498ef4ab77c983f97eadede96e28f839d6ead3a8109c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-4.json",
+      "sha256": "dc13aad8f84bbeadf6fdbfaab406f607e18f565faf7b70b48f8ae636193a679b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-5.json",
+      "sha256": "5c1c453a74bf9b4587e02c3edbb29cb83fe3a60dc8f459842fde4784441f1f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-5.json",
+      "sha256": "5b520fb494bae121fe82938f7db17df3a4250fee964afcff8d066b299cfb6cdf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-baseline-6.json",
+      "sha256": "fd8f227a2742daadb941e3bb5ea12f8fcd9daff972ba4710c62a31cab9a28125"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-performance-819-candidate-6.json",
+      "sha256": "38aad5a79f559516809fdfa46c8ff7a0f1513e2f4a8b9863998c175884d3a92f"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-worker-819.ts",
+      "sha256": "47db160b3ccdc5d4b3716a5811b92454f80c1aa62a01d506b1114ef2d95ba50d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-single-predictor-graphic-cost-820.ts",
+      "sha256": "cf6d4ca20cc22161198386a6bcba7127cbb71c743c81dfa1c9da95e2230de9f8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-single-predictor-graphic-cost-820.json",
+      "sha256": "cc0ff7f5fc45fa219a92854d28f6e0fe4356ec9bed7b6b2b1ca5d7878ae54493"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-current-lossless-single-predictor-cost-821.ts",
+      "sha256": "5cf3d1d1521a941485e386a6aeb2936932ae609da5a796b8b998589efadf8d37"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-single-predictor-cost-audit-821.json",
+      "sha256": "5fa2e7cc02956f998ba156bc508af9d4e88a141cd5ceb3378da0c643e41f0a51"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-single-predictor-graphic-cost-824.json",
+      "sha256": "e898812a9cf36f21a7ef41ef5b256e257bb814b7a6b782981226e90196931151"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-current-lossless-single-predictor-cost-825.ts",
+      "sha256": "9bb56b35d1e36a6e17f8defb669b3d180cdbec09673be71f7728c98d284204e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-single-predictor-cost-audit-825.json",
+      "sha256": "85defd29cffdd52d681121084793873fc49758c221f95ce86c51015d5377429b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-repeated-color-gate-second-photo-cost-850.json",
+      "sha256": "d397c86898713f82350a967b51ac71e3ede94fb6c85f17ff77649102728d05cb"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-current-lossless-repeated-color-gate-cost-851.ts",
+      "sha256": "5596bc4626c98aed62146f72783929350c988c0abd5a55c458ba9c58eed451fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-repeated-color-gate-cost-audit-851.json",
+      "sha256": "300111729d21ea4e4fd14b43152c15a7b3f63efe84b97474dc334743bd0cad27"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-fixed-sample-repeats-graphic-cost-875.json",
+      "sha256": "e105926f8880ffc4f3b8c9f26ea20b62705be68a4524614269df1bc09ba14936"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-current-lossless-fixed-sample-repeats-cost-876.ts",
+      "sha256": "9002a20be57709571e001143a31f49270a284a10e447da6ec7b16fb15e6761f5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-fixed-sample-repeats-cost-audit-876.json",
+      "sha256": "ee14652de443decde7514704365bc0f9ab09469a3bb3f58d6bef3c70e132a766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-cost-audit-876.json",
+      "sha256": "a45a33e31ff3275710792c7d385356483f5a53ac0f9dd5c56e6b13b81c1b41aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-cost-875.json",
+      "sha256": "d17e21ac65f215eacec137415b70c65cf6474ffe4ef2e23a34b724ee9bf6e677"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-photo-cost-875.ts",
+      "sha256": "82a2d5bc6b09dff64aa669ef193e6e896cf37bfcaa9d5b50c63fdd25d9e7beb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-photo-worker-874.ts",
+      "sha256": "633725ea7efad428948df2bf04947df5453ffa0dad7b50e172aee0c28b4ace2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-fixed-sample-repeats-photo-cost-874-875.json",
+      "sha256": "a08e7d5039a8289c153230c5b8c09414eba8f9f65118f6b5c6d2be10a863e570"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-0.json",
+      "sha256": "3cca503639da3b64179914834702fe160b48ad3249fc66356df56f64e01b8e82"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-0.json",
+      "sha256": "219468538efa04c042640f95aa242114acdb7fd6f89f2b134b324bd99f919e30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-1.json",
+      "sha256": "d369967511216008c63935aa6585ac91906c3eecf155be52913af14db41c50c0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-1.json",
+      "sha256": "9c404576272f5b0c2a5e07612abf87bded8aa68236fa56ec177cdfc4c0595193"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-2.json",
+      "sha256": "c1f48e29833a0818a9ffc53967db2fdc120c72563a7252970dd3a26eeba9f415"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-2.json",
+      "sha256": "f2eec397eba3f5bd7a79d23588c4fbab54e6d135c3bd0d4d3b7a5aed7f6d44bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-3.json",
+      "sha256": "fb4f646159450241e0d2e709e7f1af1150bff97dcfbe2e10c84261579ee2e8bc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-3.json",
+      "sha256": "f858968b8f96979bcf7dc2c97135c9418ac6905d4ed0246604fff61d7174b96d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-4.json",
+      "sha256": "74e53497b7f3a3f31bf8f1e5d10ea01e270b8de5651ad2b11719c3bb3ea59ed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-4.json",
+      "sha256": "c5ab8724cbf1ffea19e7b086745311d542c273890991823faa211028dd2aa69d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-5.json",
+      "sha256": "14a089cd44eae9a700d284d9c550806c574a208012b7506442ebf32851d7e3f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-5.json",
+      "sha256": "c8d601dbcfd561401685f4d6f8896da3d142718966cbedf9458c4d8c925bbbb1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-baseline-6.json",
+      "sha256": "8458fb27447a2e11356533aea8724425de5e485a79825e844b000b5489ba84af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-photo-performance-874-candidate-6.json",
+      "sha256": "1761f354673931bc691b92607ee6a36ede4d08b322d6d87ec003b9d089c218e0"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-photo-worker-874.ts",
+      "sha256": "633725ea7efad428948df2bf04947df5453ffa0dad7b50e172aee0c28b4ace2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-photo-cost-875.ts",
+      "sha256": "82a2d5bc6b09dff64aa669ef193e6e896cf37bfcaa9d5b50c63fdd25d9e7beb8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-fixed-sample-repeats-photo-cost-875.json",
+      "sha256": "664601b0d3b58dac1db7421c385a67799ef1b7e24bcf401c8f0267f87d799223"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-cost-audit-876.json",
+      "sha256": "0d19545049e0267d785a64eb602bf78ea34c208dc838b8f83cef4d19032f23fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-cost-875.json",
+      "sha256": "d795de7756f9c9c26bbdc999ac19929dfe4c146168c7862d62b6a491f79e6d26"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-second-photo-cost-875.ts",
+      "sha256": "deaef9315aec53d0db9bb8e6e411dcd3ad5967f1c54adc58f2dbb89c24ae4a9f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-second-photo-worker-874.ts",
+      "sha256": "9d83745dbf946693aedc975bee25e3bae065330dbfcc42d45cb29876c44d070e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-lossless-fixed-sample-repeats-second-photo-cost-874-875.json",
+      "sha256": "32eec0c5621304a1aa414fd62a79cae77f8e3b877e8b42c46d69896b72c112f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-0.json",
+      "sha256": "000b6130a0c7fa446247b13da45cbd6593c6fc159c4d3453ca3db9ee5d677815"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-0.json",
+      "sha256": "b5e34fe747922d70f4c212a957004f0b3c754a943b34f2e8cfafa0a657d5168b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-1.json",
+      "sha256": "1f7af48ae0f5a0d45ea666e77c40eb3b9c36d5b358d61edeffb4fe0b2903f6b8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-1.json",
+      "sha256": "3f40b165f472ee86ccbca76f4156d922bfec057e614040c9f74dc9bb8fc84c92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-2.json",
+      "sha256": "a80554ac17e0a75ae641588a9c0ed67b0f27c7e034def6c9bdba53ffb682f649"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-2.json",
+      "sha256": "70f7b9992d93ac39a90cac8c9416de9f8507410a73851cd7de8ffd6abfc4c8df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-3.json",
+      "sha256": "bcadf8c1f7b65440bb03a1a5820ebd33f517a2309794cd35410f4812b79a7db8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-3.json",
+      "sha256": "3bbf3ae38b7fcac8817d363c68be3823c4b36ba02a7c0b2ae9c98cdf8d43a11b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-4.json",
+      "sha256": "3d000499a1330d9036cf74b065ac4cb7d45fb3090e40441822c64848e7e5d841"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-4.json",
+      "sha256": "9019b1f5839b6e74baafa43e021f461d72397a7266837417e21e6ba0df013d4e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-5.json",
+      "sha256": "db27ad82321433ded764f712893b871bbe8eef2ef1a12e8c1b3d8ed5e91d4240"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-5.json",
+      "sha256": "4ec3349683458fa5abd789c7c15dc7db5f4803a7a3b43dc358a9fe606dd0d876"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-baseline-6.json",
+      "sha256": "2d0d66227a5a4e8d7d26bbd31d7d1a82507da1ef80201f683426c26e9b621dc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-sample-repeats-second-photo-performance-874-candidate-6.json",
+      "sha256": "e58a2f74c525f784428c84151b1c69d0f552c9c5eee37952f35edde4e7b50a03"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-second-photo-worker-874.ts",
+      "sha256": "9d83745dbf946693aedc975bee25e3bae065330dbfcc42d45cb29876c44d070e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-current-lossless-fixed-sample-repeats-second-photo-cost-875.ts",
+      "sha256": "deaef9315aec53d0db9bb8e6e411dcd3ad5967f1c54adc58f2dbb89c24ae4a9f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-lossless-fixed-sample-repeats-second-photo-cost-875.json",
+      "sha256": "d1e8ac5914f06e574c022164b261c1d8cfbeba39e0b0fd78f824e0f168002e6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-fixed-repeat-cost-declaration-873.json",
+      "sha256": "c435182c5481270b0ddd24865e2f923a0b678aee06d0486a279feb3c6ed92f43"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/audit-current-lossless-fixed-sample-repeats-cost-876.ts",
+      "sha256": "9002a20be57709571e001143a31f49270a284a10e447da6ec7b16fb15e6761f5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/repeated-working-limits-872.json",
+      "sha256": "17011e181c6f9b85116c30de2e71c774e78afbd6613909bd8d5e911dfffc7518"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-lossless-repeat-production-878/jpegxl-specialized.js",
+      "sha256": "dc370bc1c451aada186fb0bd8270c359f936231ab3a8232078bc751c04142211"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-lossless-repeat-production-878/codec-jpegxl.js",
+      "sha256": "0b45a5e7fa482514b65e129fe7cb50e26440ce4b048b1af1a862a49554d95233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/qualified-lossless-repeat-adoption-877/result.json",
+      "sha256": "8656c026f616f72a536964fc74f04f8ecb090f6de5e711a04b94cde46f366a2f"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-actual-lossless-repeat-production-878.ts",
+      "sha256": "7705896a02a23b813ff5e6dfd6f6669e3a4998dd5b0a8bcd11c8c2a8c28e0e6d"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a9018bf234f81dea7eb4515abb60573530e2782e250e0fd5c4436580b8953d9c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-lossless-repeat-production-878.json",
+      "sha256": "9b6b995797a6b12632cbe5f8cc2f58b4553c25d386071b6b4e2c4f4dc2d8a52f"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-lossless-repeat-browser-881.ts",
+      "sha256": "17a2e807e602b70922f8d93bc44d7ba6f4b7eb1dffb167cda04cffea2bf8bd58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-lossless-repeat-browser-880.ts",
+      "sha256": "0a70f00707bce38e149becbd801bdb8484f4c4d8b0e95aed0112a35e2079c314"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-lossless-repeat-browser-881.json",
+      "sha256": "58e10858c2845b0e3813596f3a3673ca2a10b2e4509c52052915504aef64baed"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "f0f7c557dd25f76f9c76d024bda9807d0f9266045265466f36a75daafd4daba5"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "70d19ac8aab448d5fbe39444a9af9e9bc2d7b92a015e50fa7743fd42db4b3359"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "d15a525bacb70ffcc9fec021e0925a68496911c26558b1c45548fcf36c43d339"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/lossless-repeat-production-browser-results-881.json",
+      "sha256": "5f2a042e483aaf83c864183f3e61d1fde95d5545fc495eae0c04c749b876c198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "9cd7d4d33b4c4c7d85556d9a8e5751a0a8f5162e4f6363036ee0d12dc7c3bc78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "e145ab94b80d4af5d1dd45462dae2b828f3e10a0195631ae5f921e18a93d975e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "7eaae8bc066ec91ef77364bccbd42f2bdadf1021253d4c8f61565892faa2ad29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "d6375ce5097e57b1a463c8ee1c79780decbd304925147f6087e1aed80909509d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "d3a7424b86233854b7fd923fe9963a6352d211c030eb484279be6ab7738defa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "d0d3256d66dfaa444eba72ba09a4152bb59706b32390e82a5d4e7cef596e7bee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "4079c35b24f7803e0f8da4f1e4f672242efd9da3ad77553ab6222555eca910c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "a0465cb3bf7fa689705c134944852a44e1e53c86c304c6b4c5e2a6c72c8880f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/lossless-repeat-memory-boundary-886.json",
+      "sha256": "48d44cefd422d2077b0f45693764a94a3d719d4132e3e238440257309a5ddf9b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/lossless-repeat-production-browser-881.json",
+      "sha256": "01490c6c16e0d8adee1d012b17cd7cc3c3a82a5f23522433b6c69c8f3e859946"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/main-node.json",
+      "sha256": "57f25253f045b1898751bf00c7f706d23c471a911e960dd7da75b943573b5b03"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/publish-lossless-repeat-controls-884.ts",
+      "sha256": "491b0162af36b653ee3ef9cf03b0b4d4ef9c13ede9e1570bf50d2745c01a7111"
+    }
+  ],
+  "fullRepositoryCheckPending": true,
+  "priorLossyCheckpoint": "filter-ac-production-controls.json",
+  "policy": "Current lossless effort-one compressed bytes through actual complete public packages that equal the qualified private candidates byte for byte. All sixteen original integer fixtures retain native8/native16/hiddenRGB/alpha/caller samples, closed ownership and actual former serialized size floors. A bounded joint-color residual sample excludes alpha and skips unlikely large-image repeats. Original working budgets recover the exact former stream. Three fresh independent seven-pair cost studies pass unchanged5percent time and human-authorized15percent absolute RSS median/95percent upper guards, with no pooling. Frozen exact jSquash/wasm-vips peers are physically checked on four graphics. Remaining compression gaps and the original13adequate/11unresolved lossy comparisons remain open. Repository-wide handoff checks are separate."
+}

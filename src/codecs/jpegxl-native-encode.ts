@@ -5,6 +5,7 @@ import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '
 import { inspectIccProfile } from './icc.ts'
 import { jpegXlContainerSignature } from './jpegxl-container.ts'
 import type { JpegXlAnimationHeader, JpegXlFrameStructure } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
@@ -242,7 +243,7 @@ export const writeJpegXlNativeImageHeader = (
         !channel.spotColor ||
         channel.spotColor.some((value) => !Number.isFinite(value) || value < 0 || value > 1)
       )
-        throw invalidInput('JPEG XL spot color requires four finite unit-range components')
+        throw invalidJpegXlInput('spot color requires four finite unit-range components')
       for (const value of channel.spotColor) writePositiveF16(writer, value)
     }
     if (channel.type === 5)
@@ -337,7 +338,7 @@ export const encodeJpegXlNative = async (
     options.container !== 'auto' &&
     options.container !== 'raw'
   )
-    throw invalidInput('JPEG XL container is invalid')
+    throw invalidJpegXlInput('container is invalid')
   if (level === 10 && options.container === 'raw')
     throw invalidInput('Level 10 requires container signaling')
   const colorSemantics =
@@ -359,11 +360,11 @@ export const encodeJpegXlNative = async (
     typeof tone.relativeToMaxDisplay !== 'boolean' ||
     (tone.relativeToMaxDisplay && tone.linearBelow > 1)
   )
-    throw invalidInput('JPEG XL native toneMapping is invalid')
+    throw invalidJpegXlInput('native toneMapping is invalid')
   if (options.intrinsicSize)
     validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
   if (extra.some((channel) => channel.type === 4) && !options.iccProfile)
-    throw invalidInput('JPEG XL CMYK requires an ICC profile')
+    throw invalidJpegXlInput('CMYK requires an ICC profile')
   if (!options.iccProfile && !acceptsJpegXlColorSemantics(colorSemantics))
     throw unsupportedOperation('Input color semantics cannot be preserved')
   if (options.color.length !== 1 && options.color.length !== 3)
@@ -389,14 +390,14 @@ export const encodeJpegXlNative = async (
       channel.name !== undefined &&
       (typeof channel.name !== 'string' || channel.name.length > 1071)
     )
-      throw invalidInput('JPEG XL channel name is invalid')
+      throw invalidJpegXlInput('channel name is invalid')
     if (
       channel.type === 2 &&
       (!channel.spotColor ||
         channel.spotColor.length !== 4 ||
         channel.spotColor.some((value) => !Number.isFinite(value) || value < 0 || value > 1))
     )
-      throw invalidInput('JPEG XL spot color requires four finite unit-range components')
+      throw invalidJpegXlInput('spot color requires four finite unit-range components')
   }
   const planes = [...options.color, ...extra]
   const groupDimension = 1_024
@@ -485,7 +486,7 @@ export const encodeJpegXlNative = async (
     const hasBlack = extra.some((channel) => channel.type === 4)
     const expectedSpace = hasBlack ? 'CMYK' : options.color.length === 1 ? 'GRAY' : 'RGB '
     if (space !== expectedSpace)
-      throw invalidInput('JPEG XL native ICC color space differs from its color planes')
+      throw invalidJpegXlInput('native ICC color space differs from its color planes')
     if (
       hasBlack &&
       (options.color.length !== 3 || extra.filter((channel) => channel.type === 4).length !== 1)

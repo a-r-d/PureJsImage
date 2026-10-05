@@ -10,9 +10,240 @@ import {
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
+import { verifyJpegXlAlphaEntropy } from './helpers/jpegxl-alpha-entropy.ts'
+import {
+  encodeJpegXlCoefficientOrderFixture,
+  verifyJpegXlCoefficientOrders,
+} from './helpers/jpegxl-coefficient-orders.ts'
+import {
+  encodeJpegXlFamilyContextFixture,
+  verifyJpegXlFamilyContexts,
+} from './helpers/jpegxl-family-contexts.ts'
 import { verifyJpegXlLocalContrast } from './helpers/jpegxl-local-contrast.ts'
+import { verifyOpaqueJpegXlGradient } from './helpers/jpegxl-opaque-gradients.ts'
 
 describe('JPEG XL pixel-to-VarDCT conformance path', () => {
+  it('preserves pixels and bounded storage when optional family contexts exceed the working budget', async () => {
+    const result = await verifyJpegXlFamilyContexts(8, false, false, 10_000_000)
+    expect(result.bytes).toBe(17_200)
+    expect(result.encodedChecksum).toBe(797952392)
+    expect(result.decodedChecksum).toBe(1636999297)
+    expect(result.alphaSamples).toBe(513 * 257)
+    expect(result.alphaError).toBe(0)
+    const fixture = await encodeJpegXlFamilyContextFixture(8, false, false)
+    const memory = new JpegXlEncoderMemory(10_000_000)
+    const parts = encodeJpegXlVarDct8(fixture.pixels, 513, 257, 3, memory, 4, 7)
+    let checksum = 2166136261
+    for (const part of parts)
+      for (const byte of part) checksum = Math.imul(checksum ^ byte, 16777619) >>> 0
+    expect(checksum).toBe(2791929463)
+    expect(memory.liveBytes).toBe(parts.reduce((sum, part) => sum + part.byteLength, 0))
+    expect(memory.peakBytes).toBeLessThanOrEqual(10_000_000)
+    memory.close()
+    expect(memory.liveBytes).toBe(0)
+    expect(memory.liveAllocations).toBe(0)
+  }, 30_000)
+
+  it('keeps synchronous and asynchronous family selection identical and releases late cancelled search', async () => {
+    const fixture = await encodeJpegXlFamilyContextFixture(8, false, false)
+    const memory = new JpegXlEncoderMemory(16_777_216)
+    let checkpoints = 0
+    const parts = await encodeJpegXlVarDct8Async(
+      fixture.pixels,
+      513,
+      257,
+      3,
+      memory,
+      async () => {
+        checkpoints++
+      },
+      4,
+      7,
+    )
+    expect(parts).toEqual(encodeJpegXlVarDct8(fixture.pixels, 513, 257, 3, undefined, 4, 7))
+    expect(memory.liveBytes).toBe(parts.reduce((sum, part) => sum + part.byteLength, 0))
+    memory.close()
+    expect(memory.liveBytes).toBe(0)
+    expect(memory.liveAllocations).toBe(0)
+    const aborted = new JpegXlEncoderMemory(16_777_216)
+    const reason = new Error('cancel optional family search')
+    let steps = 0
+    await expect(
+      encodeJpegXlVarDct8Async(
+        fixture.pixels,
+        513,
+        257,
+        3,
+        aborted,
+        async () => {
+          if (++steps === checkpoints - 2) throw reason
+        },
+        4,
+        7,
+      ),
+    ).rejects.toBe(reason)
+    expect(aborted.liveBytes).toBe(0)
+    expect(aborted.liveAllocations).toBe(0)
+    aborted.close()
+  }, 30_000)
+
+  for (const depth of [8, 16] as const)
+    for (const progressive of [false, true])
+      for (const opaque of [false, true])
+        it(`keeps complete metadata and family-context files no larger with identical ${depth}-bit pixels, progressive=${progressive}, opaque=${opaque}`, async () => {
+          const result = await verifyJpegXlFamilyContexts(depth, progressive, opaque, 16_777_216)
+          // Full decoded grids are independently equal to the frozen pre-change fixtures.
+          const checksum =
+            depth === 8
+              ? opaque
+                ? progressive
+                  ? 1643672645
+                  : 1714441565
+                : 1636999297
+              : opaque
+                ? 3220092047
+                : 254616429
+          const maximumBytes =
+            depth === 8
+              ? progressive
+                ? opaque
+                  ? 8_247
+                  : 19_753
+                : opaque
+                  ? 2_316
+                  : 17_242
+              : progressive
+                ? opaque
+                  ? 10_826
+                  : 20_740
+                : opaque
+                  ? 9_445
+                  : 19_030
+          expect(result.decodedChecksum).toBe(checksum)
+          expect(result.bytes).toBeLessThanOrEqual(maximumBytes)
+          expect(result.alphaError).toBe(0)
+          expect(result.alphaSamples).toBe(513 * 257)
+        }, 30_000)
+
+  it('preserves pixels when the optional order search exceeds its budget', async () => {
+    const result = await verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
+    expect(result.bytes).toBe(12_865)
+    expect(result.encodedChecksum).toBe(4000595827)
+    expect(result.decodedChecksum).toBe(2042671564)
+    expect(result.alphaSamples).toBe(513 * 129)
+    expect(result.alphaError).toBe(0)
+  })
+
+  it('keeps synchronous and asynchronous adaptive orders identical and unwinds late cancellation', async () => {
+    const fixture = await encodeJpegXlCoefficientOrderFixture(8, false, false)
+    const memory = new JpegXlEncoderMemory(16_777_216)
+    let checkpoints = 0
+    const actual = await encodeJpegXlVarDct8Async(
+      fixture.pixels,
+      fixture.width,
+      fixture.height,
+      3,
+      memory,
+      async () => {
+        checkpoints++
+      },
+      4,
+      7,
+    )
+    expect(actual).toEqual(
+      encodeJpegXlVarDct8(fixture.pixels, fixture.width, fixture.height, 3, undefined, 4, 7),
+    )
+    expect(memory.liveBytes).toBe(actual.reduce((total, part) => total + part.byteLength, 0))
+    memory.close()
+    expect(memory.liveBytes).toBe(0)
+
+    const aborted = new JpegXlEncoderMemory(16_777_216)
+    const reason = new Error('cancel adaptive coefficient search')
+    let steps = 0
+    await expect(
+      encodeJpegXlVarDct8Async(
+        fixture.pixels,
+        fixture.width,
+        fixture.height,
+        3,
+        aborted,
+        async () => {
+          if (++steps === checkpoints - 2) throw reason
+        },
+        4,
+        7,
+      ),
+    ).rejects.toBe(reason)
+    expect(aborted.liveBytes).toBe(0)
+    expect(aborted.liveAllocations).toBe(0)
+    aborted.close()
+  })
+
+  for (const depth of [8, 16] as const)
+    for (const progressive of [false, true])
+      for (const opaque of [false, true])
+        it(`reduces asymmetric coefficient streams without changing ${depth}-bit pixels, progressive=${progressive}, opaque=${opaque}`, async () => {
+          const result = await verifyJpegXlCoefficientOrders(depth, progressive, opaque)
+          // Complete decoded grids from the independently verified natural-order baseline.
+          const checksum =
+            depth === 8 ? (opaque ? 4188113066 : 2042671564) : opaque ? 3248784091 : 63100287
+          const maximumBytes =
+            depth === 8
+              ? progressive
+                ? opaque
+                  ? 8_100
+                  : 14_700
+                : opaque
+                  ? 6_750
+                  : 12_300
+              : progressive
+                ? opaque
+                  ? 7_450
+                  : 12_500
+                : opaque
+                  ? 6_650
+                  : 11_500
+          expect(result.decodedChecksum).toBe(checksum)
+          expect(result.alphaError).toBe(0)
+          expect(result.alphaSamples).toBe(513 * 129)
+          expect(result.bytes).toBeLessThanOrEqual(maximumBytes)
+        })
+
+  for (const depth of [8, 16] as const)
+    for (const grouped of [false, true])
+      it(`compresses changing ${depth}-bit binary alpha bands, grouped=${grouped}`, async () => {
+        const result = await verifyJpegXlAlphaEntropy(
+          depth,
+          true,
+          grouped,
+          16_777_216,
+          'binary-bands',
+        )
+        expect(result.alphaSamples).toBe((grouped ? 257 : 129) * 129)
+        expect(result.alphaError).toBe(0)
+        expect(result.bytes).toBeLessThan(grouped ? 1_600 : 1_200)
+      })
+
+  for (const depth of [8, 16] as const)
+    for (const progressive of [false, true])
+      for (const grouped of [false, true])
+        it(`compresses repeated ${depth}-bit alpha exactly, progressive=${progressive}, grouped=${grouped}`, async () => {
+          const result = await verifyJpegXlAlphaEntropy(depth, progressive, grouped)
+          expect(result.alphaSamples).toBe((grouped ? 257 : 129) * 129)
+          expect(result.alphaError).toBe(0)
+          expect(result.bytes).toBeLessThan(1_500)
+        })
+
+  for (const depth of [8, 16] as const)
+    it(`keeps exact ${depth}-bit alpha and decoded colors when repeat scratch exceeds the memory limit`, async () => {
+      const ordinary = await verifyJpegXlAlphaEntropy(depth, true, true)
+      const limited = await verifyJpegXlAlphaEntropy(depth, true, true, 3_145_728)
+      expect(limited.alphaError).toBe(0)
+      expect(limited.alphaSamples).toBe(ordinary.alphaSamples)
+      expect(limited.decodedChecksum).toBe(ordinary.decodedChecksum)
+      expect(limited.bytes).toBeGreaterThan(ordinary.bytes * 2)
+    })
+
   for (const progressive of [false, true]) {
     it(`changes local contrast gradually across refinement boundaries, progressive=${progressive}`, async () => {
       for (const boundary of [2, 4]) {
@@ -109,6 +340,24 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
       expect(error / samples).toBeLessThan(1.5)
       expect(maximum).toBeLessThanOrEqual(5)
     })
+  }
+
+  for (const progressive of [false, true]) {
+    for (const partialAlpha of [false, true]) {
+      it(
+        'preserves opaque color gradients and final partial alpha, progressive=' +
+          progressive +
+          ', partialAlpha=' +
+          partialAlpha,
+        async () => {
+          const result = await verifyOpaqueJpegXlGradient(progressive, partialAlpha)
+          expect(result.samples).toBe(129 * 65 * 3)
+          expect(result.meanColorError).toBeLessThan(partialAlpha ? 1.5 : 0.85)
+          expect(result.alphaError).toBe(0)
+          expect(result.liveBytes).toBe(0)
+        },
+      )
+    }
   }
 
   it('selects a smaller public stream for sparse diagonal graphics without losing edge quality', async () => {

@@ -1,0 +1,69 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "f76c57bee9c77f0975de5f73073a2b41a604b13116c68c6f90892c3be8646102",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-patch-public-shard-150.ts",
+      "sha256": "c5285ecdf0eb0cee84deae7f48a098ce1c35e4a75e31c6d148e96f7f6f09625c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-current-effort7-public.json",
+      "sha256": "d6f4f1ad22fd3a38c3737221b356d64239a81b59807edd9fbb802a21371974b6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-production-controls.json",
+      "sha256": "1c941dd81869562ecaf7abdce3ff2e2d732deb41813d1e47ce2e9b99daab4cd3"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "020b9ef4cde351d064472aab153b52f2a635b755d39e85899bc55624c9aa52d5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "result": {
+    "fixture": "im26-8160-original",
+    "artifact": ".tmp/jpegxl-comparison-v1/patch-public-150/im26-8160-original.jxl",
+    "artifactSha256": "23f5e96250dba8fe7d26ac9c64a529a7540042c27fa9bfb07bbcc71b9e28b4ec",
+    "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+    "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+    "bytes": 417785,
+    "baselineBytes": 418068,
+    "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+    "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+    "maximumSampleError": 0,
+    "elapsedMs": 33366.856923
+  },
+  "policy": "Actual compiled public adapter, ordinary lossless effort 7. Every original RGBA8 sample must be exact in native/Rust decoding and complete size must not grow. Timings in disjoint development processes are observations, not speed comparisons."
+}

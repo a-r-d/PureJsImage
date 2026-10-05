@@ -1,0 +1,119 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-284.json",
+      "sha256": "f01066be922a68092a033e1d35739f88d38acd3fff19cd06a5a2712f074b1786"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-program-profile-282.json",
+      "sha256": "5cafc75d2b9bb592c75d89e2e30b3860b5e284f364ed23104a89d89c5e88c6e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-guarded-color-final-285.ts",
+      "sha256": "731585dbe9dc3d13383c66d0675f5926955227bd7982553c8da146df36c1cad9"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-guarded-color-285.ts",
+      "sha256": "5a84b63d30006cf5e18d80df6d976e75df194ca30fe8c08cb5afec38c3fe6064"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-guarded-color-final-285.json",
+      "sha256": "16cbbce4f56a3eb37c722673a4342ab88ec14ff4426b7188df9b13e6e3651896"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/funded-sampling-270-current/manifest.json",
+      "sha256": "639d328b97d061e04ad8a1c86ff8ec754c18d780c9ca14fa394cb3d9b1100aa3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-audit.json",
+      "sha256": "12a625c8ffef889f52632cd3425f096eebcb14f2d669d1017c12810c163a0acb"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-controls-280.json",
+      "sha256": "1488f5aaa5dd1b8cd22482f3592776303a715afe2ecda77a7fbf114f0226d007"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-neighbors-281.json",
+      "sha256": "50e862f6404c7fd7c959f4e71a604133c6c93776864d343de1e88a52d10c0396"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-program-profile-282b.json",
+      "sha256": "8baece9fb4445d5441e08eedf4c86c668fcb912e9ebfe852f0eb2b71e322f38e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-audit-283.json",
+      "sha256": "9343796513dde090ece26653107d3932d2628d8940eb1ab319ddcb951b5ec95c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-repository-check-284.json",
+      "sha256": "57a025016459a10fcfb0979c7b0b2b95fd6f959f2ea9f3501d9b71b726d84d2e"
+    },
+    {
+      "path": "/tmp/jpegxl-guarded-local-color-repository-check-284.log",
+      "sha256": "5fffa67d89f8fef96c473cda7087d57996299e33238766a45b15432498c36110"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-COLOR.md",
+      "sha256": "ff47a444f7bec0dae133341db09daac37cab27f054118a4272840240cbe1a1b4"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 34,
+  "independentGrids": 68,
+  "independentSamples": 211350544,
+  "completeProfileFrames": 42,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Four configured in the actual bounded npm child environment and installed Vitest resolver; narrow read-only observation pinned"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "All34guarded-color control files/68independent grids/211350544original samples,42reference-display frame section accounts and actual npm run check pass, including preserved two exact compression regressions and initial failed profile receipt. Every prior production qualification pin, eight rebuilt public modules and fourteen raw retained source/build files stays unchanged. Four-worker configuration established by actual child environment/installed resolver. Guard remains rejected before package/paired-cost adoption; original protected costs/limits/package policy/index and qualified production comparisons are preserved. Overall parity and robust local/shared-model selection remain open."
+}

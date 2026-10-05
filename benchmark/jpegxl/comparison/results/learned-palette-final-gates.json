@@ -1,0 +1,91 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "28e122b8442808f14b9c8d13a6a0b2b7af188bd21053d7ff3bb46757f061695e",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-learned-palette-final-gates-170c.ts",
+      "sha256": "57574b59f63210829feb025a80dadb99e17f01b1cd5c42340ce2bf02e8737073"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-learned-palette-check-170c.json",
+      "sha256": "77eca500e361888e4c80703e93b1711f32d90bf7ff769a6fccb1fbfadc4c391f"
+    },
+    {
+      "path": "/tmp/jpegxl-learned-palette-check-170c.log",
+      "sha256": "9c2b227cf715f146386151e1131566913bd3b66c8108a5b2ddbc7eaea083bf80"
+    },
+    {
+      "path": "/tmp/jpegxl-learned-palette-memory-170b-focused.log",
+      "sha256": "ab9b3600161c158810f913b5b6301e69ccb80de677dfc8d0a5db90367e670a4d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-learned-palette-public.json",
+      "sha256": "965df841dc8bdb6632e9f5cf396f3267b5f0388a60c4cf5da7f44af3ca55d671"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-retention-audit.json",
+      "sha256": "fb1edb58c0f3031c075a89062189a7cd7b8930bd630ca274d64f2c00324a3f87"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-minimum-budget-controls.json",
+      "sha256": "163ca9e02f52725fa7dd413a2ebffaea10ac9d1916ed4d864702ccb536f5966f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/original-memory-test.ts",
+      "sha256": "bf372c4d1a5b646205859285ca4b12bea128fca230a0a4c23bae627d9923eaaf"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "5e0ebca418882264dc5f4e979a76e121845bfb632e830f3910f1d67e5cc2d5e3"
+    }
+  ],
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "f042d343c8b8b1e92fb0f30a76a940e6a13fa7d2281f5fe8c209afd9fc2f7e35"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "priorAudit": {
+    "streams": 150,
+    "pins": 135,
+    "bands": 52
+  },
+  "minimumBudget": {
+    "required": 221988,
+    "rejected": 221987,
+    "exactStreams": 6,
+    "rejectedStreams": 2,
+    "originalTestSnapshot": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/original-memory-test.ts"
+  },
+  "fullGate": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/parity-learned-palette-check-170c.json",
+    "status": "completed",
+    "code": 0
+  },
+  "policy": "Successful full repository gate, identical rebuilt public modules and independently exact required/optional memory controls. The prior original memory-test pin is verified against its immutable archived bytes; the updated test has its own new pin. Production source, all quality settings and every original mandatory large-input boundary remain unchanged. No speed or overall compression-parity claim."
+}

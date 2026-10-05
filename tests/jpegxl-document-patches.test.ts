@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
 import { hasFlatScreenshotBackground } from '../src/codecs/jpegxl-flat-patches.ts'
 import { encodeJpegXlDocumentPatchCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
-import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { defaultImageLimits } from '../src/limits.ts'
-import { MemorySource } from '../src/source.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
+import { MemorySource } from '../src/source.ts'
+import {
+  encodeLosslessPatchFixture,
+  losslessPatchFixture,
+  verifyLosslessPatchFixture,
+} from './helpers/jpegxl-lossless-patches.ts'
+import { verifySmallGroupPatch } from './helpers/jpegxl-small-groups.ts'
 
 const colorSemantics = {
   family: 'rgb',
@@ -73,6 +79,182 @@ const encodeCandidate = async (pixels: Uint8Array) => {
 }
 
 describe('JPEG XL document reference patches', () => {
+  it.each(['rgb8', 'rgba8'] as const)(
+    'preserves every %s sample across partial patch groups and a second DC group',
+    async (format) => {
+      const result = await verifySmallGroupPatch(format)
+      expect(result).toMatchObject({
+        format,
+        bytes: format === 'rgb8' ? 3659 : 4236,
+        checksum: format === 'rgb8' ? 3485435651 : 907579079,
+        samples: 2049 * 129 * (format === 'rgb8' ? 3 : 4),
+        groups: 9,
+        dcGroups: 2,
+        ownedLive: 0,
+        ownedAllocations: 0,
+      })
+    },
+    60_000,
+  )
+
+  it.each(['rgb8', 'rgba8'] as const)(
+    'keeps the original size for a cheap multi-group %s patch image',
+    async (format) => {
+      const tile = losslessPatchFixture(format, 'flat')
+      const width = format === 'rgb8' ? 2050 : 1025
+      const height = 257
+      const pixels = new Uint8Array(width * height * tile.channels)
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const source = ((y % tile.height) * tile.width + (x % tile.width)) * tile.channels
+          const target = (y * width + x) * tile.channels
+          for (let channel = 0; channel < tile.channels; channel++)
+            pixels[target + channel] = tile.pixels[source + channel] ?? 0
+        }
+      }
+      const original = Uint8Array.from(pixels)
+      const result = await encodeLosslessPatchFixture({ ...tile, width, height, pixels })
+      // The independently exact baseline has a 40-byte container prefix.
+      expect(result.encoded.length).toBe(format === 'rgb8' ? 5255 : 3980)
+      let checksum = 0x811c9dc5
+      for (const byte of result.encoded) checksum = Math.imul(checksum ^ byte, 0x01000193) >>> 0
+      expect(checksum).toBe(format === 'rgb8' ? 501593494 : 2157783432)
+      expect(result.ownedLive).toBe(0)
+      expect(pixels).toEqual(original)
+      const frames = await readJpegXlSourceFrameStructures(
+        new MemorySource(result.encoded),
+        defaultImageLimits,
+      )
+      expect(frames.at(-1)?.groupDimension).toBe(1024)
+    },
+    60_000,
+  )
+
+  it.each(['rgb8', 'rgba8'] as const)(
+    'selects exact patches on a colored flat background through the public %s encoder',
+    async (format) => {
+      const result = await verifyLosslessPatchFixture(format, 'flat')
+      expect(result.samples).toBe(512 * 512 * (format === 'rgba8' ? 4 : 3))
+      expect(result.ownedLive).toBe(0)
+    },
+    60_000,
+  )
+
+  it('reports a structured working-storage limit without modifying caller samples', async () => {
+    const fixture = losslessPatchFixture()
+    const original = Uint8Array.from(fixture.pixels)
+    await expect(encodeLosslessPatchFixture(fixture, 8 * 1024 * 1024)).rejects.toMatchObject({
+      code: 'LIMIT_EXCEEDED',
+    })
+    expect(fixture.pixels).toEqual(original)
+  })
+
+  it.each(['document', 'flat'] as const)(
+    'releases component scratch when the bounded %s search stops early',
+    async (finder) => {
+      const width = 512,
+        pixels = new Uint8Array(width * width * 3)
+      pixels.fill(255)
+      for (let y = 0; y < width; y += 3)
+        for (let x = 0; x < width; x += 3) pixels[(y * width + x) * 3] = 0
+      const memory = new JpegXlEncoderMemory(8 * 1024 * 1024)
+      try {
+        expect(
+          await encodeJpegXlDocumentPatchCandidate(
+            pixels,
+            width,
+            width,
+            options,
+            memory,
+            async () => {},
+            'rgb8',
+            finder,
+          ),
+        ).toBeUndefined()
+        expect(memory.liveBytes).toBe(0)
+      } finally {
+        memory.close()
+      }
+    },
+  )
+
+  it.each(['rgb8', 'rgba8'] as const)(
+    'selects exact repeated patches through the public %s encoder',
+    async (format) => {
+      const result = await verifyLosslessPatchFixture(format)
+      expect(result.ownedLive).toBe(0)
+      expect(result.samples).toBe(512 * 512 * (format === 'rgba8' ? 4 : 3))
+    },
+    // This reference search runs beside other large codec cases in the full suite.
+    60_000,
+  )
+  it('preserves exact lossless alpha, invisible RGB and nonpatched samples', async () => {
+    const rgb = patternedPage()
+    const pixels = new Uint8Array(256 * 256 * 4)
+    for (let position = 0; position < 256 * 256; position++) {
+      const x = position % 256,
+        y = (position / 256) | 0,
+        foreground = rgb[position * 3] === 18
+      for (let channel = 0; channel < 3; channel++)
+        pixels[position * 4 + channel] = foreground
+          ? (rgb[position * 3 + channel] ?? 0)
+          : 248 + ((x + y + channel) % 8)
+      pixels[position * 4 + 3] = foreground
+        ? ((x % 10) + (y % 10)) % 3 === 0
+          ? 0
+          : ((x % 10) + (y % 10)) % 3 === 1
+            ? 128
+            : 255
+        : 255
+    }
+    const original = Uint8Array.from(pixels)
+    const memory = new JpegXlEncoderMemory(268_435_456)
+    let candidate: Awaited<ReturnType<typeof encodeJpegXlDocumentPatchCandidate>>
+    try {
+      candidate = await encodeJpegXlDocumentPatchCandidate(
+        pixels,
+        256,
+        256,
+        {
+          ...options,
+          mode: 'lossless',
+          distance: 0,
+          alphaBitDepth: 8,
+          colorSemantics: { ...colorSemantics, alpha: 'straight' },
+        },
+        memory,
+        async () => {},
+        'rgba8',
+      )
+    } finally {
+      memory.close()
+    }
+    expect(memory.liveBytes).toBe(0)
+    expect(pixels).toEqual(original)
+    if (!candidate) throw new Error('Missing lossless patch candidate')
+    const encoded = new Uint8Array(candidate.byteLength)
+    encoded.set(candidate.header)
+    let offset = candidate.header.length
+    for (const section of candidate.sections) {
+      encoded.set(section, offset)
+      offset += section.length
+    }
+    const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
+    if (!decoder) throw new Error('Missing lossless patch decoder')
+    let rows = 0
+    for await (const block of decoder.decode()) {
+      expect(block.format).toBe('rgba8')
+      for (let y = 0; y < block.height; y++) {
+        expect(block.data.subarray(y * block.stride, y * block.stride + 256 * 4)).toEqual(
+          pixels.subarray((block.y + y) * 256 * 4, (block.y + y + 1) * 256 * 4),
+        )
+        rows++
+      }
+      block.release?.()
+    }
+    expect(rows).toBe(256)
+  }, 30_000)
+
   it('encodes repeated components as a reference frame and restores RGB pixels', async () => {
     const pixels = patternedPage()
     const candidate = await encodeCandidate(pixels)

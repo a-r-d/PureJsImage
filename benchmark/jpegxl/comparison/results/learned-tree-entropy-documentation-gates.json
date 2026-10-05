@@ -1,0 +1,91 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "audit": {
+    "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-audit-final.json",
+    "sha256": "bc641b31df7ae6e80c55e5a6a951d5e2711afb50ca3431e1a46faf41e9c62037"
+  },
+  "downloadPins": [
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "a57a6e5c60a86530810be88e448f0198690d5977aeda8541a49931aa9477285d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/REPORT.md",
+      "sha256": "bc880bcfd4533147ca815acb46669276ef3597f59eed6b3ec1ae8d2371943e9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    }
+  ],
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "e76fae0712f7c11e97b6db034062aaf62795b3ed2fdb5a2d88501b6d9aa8e803"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "harness": {
+    "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-tree-entropy-documentation-206.ts",
+    "sha256": "dc185628b5ca2ea0cfaa82d18a70d4ae6ae6281029760865000ba5fcdfdf3e3f"
+  },
+  "completedFullCheckReceipt": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-check-203c.json",
+    "sha256": "5c8c0147c31381fb4141d680640ae98d61607b3d0d87c35d8ee49138a8cc5b75"
+  },
+  "documentationCommands": [
+    "documentation:write",
+    "capabilities:check",
+    "documentation:check",
+    "docs:build"
+  ],
+  "archive": {
+    "path": ".tmp/jpegxl-comparison-v1/tree-entropy-documentation-before-205/manifest.json",
+    "sha256": "897b4f1d83458946e669072e022f539a5bf49fb9f7851a0b478b3c683d866ea7"
+  },
+  "experiments": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/scalar-palette-rgba-controls.json"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/scalar-palette-rgba-controls-retry.json"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-scalar-palette-sample-profile.json"
+    }
+  ],
+  "policy": "Documentation refresh after the separately completed full repository gate. Exact current modules/downloads and generated surfaces pass. Both scalar-palette attempts and the actual native palette/raw-sample profile remain isolated first-party diagnostics; production and every qualified encoding stay unchanged. Original qualified Markdown/download pins remain recoverable in the archived exact documents. No speed, compression-parity, version, dependency, staging, commit or push claim."
+}

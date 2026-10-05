@@ -1,0 +1,1306 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "sha256": "3da1d5ed0d4af4519ba660a11e79f730e8da2ce61909f523688eae57d0410837"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-current-residual-control-208.ts",
+      "sha256": "9bef83c37d6c75cb06ec284dd1e11a72d3f5c1532557c1bc3f24319e43e73630"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-current-residual-control-208.ts",
+      "sha256": "67746d727c7f677d4fa341062f887420f919d6e93eff5f937372cef4c4f87e9f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-current-residual-control-208-copy.ts",
+      "sha256": "24b0053f7d943ef7cf895afd34be9c6180142b6e6ce50a5b382b3138340088dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-residual-control-208.json",
+      "sha256": "1e1ec8f8de462ff3a51dbd920cef5a1f746442d9b27e19054b18619a5dfc4cf3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/manifest.json",
+      "sha256": "51655af0f342b6d3691508c913b5b51ddf3eafee26b03adb9df0ecbf514d622e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-scalar-palette-sample-profile.json",
+      "sha256": "7813cc2d115b5bc45fc3d24186812e2f70c5bac308ca4022b1fd8cce8952b1f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-matrix-198-e7/im26-8160-original.bin",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "5c033a40e7520a1478eb3b7a51e981debfff7c5962c70b118e746cfa2dfd3b67"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "d37500c884d1fd5e2c4aaee0850207fd50f59f53c08d9b0a24e9f642b8dce844"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-final-gates-final.json",
+      "sha256": "ab378377c5c75b22797eddcd1adb4bdebeed4c987c5cda3bf55a851a8e785fcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/jpegxl-modular-encode.ts",
+      "sha256": "3b197f56a337cd6acaa8f1185386ce04f7e7951eba6f39bf56c29dd988b05489"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/jpegxl-jpeg-encode.ts",
+      "sha256": "8271024c05dea4f150951f92752fcd9da5ee6148eb658cec5b7969c69423dd71"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/jpegxl-vardct-encode.ts",
+      "sha256": "f23fe331781f241ca94a82db54a120974f7edf33c43e3c24819e7d74a501bbd2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "bad72956f5849240a9b1fc2852faf59b0f24faea26b8e59e9dcfa63fbd61f324"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-residual-control-208/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "variant": "1024-rct6",
+      "fixture": "im26-8160-original",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-rct6.jxl",
+      "encodedSha256": "77afa1de72a14eb800abdf91e82cbf7a71cdbad728aaef8829d5278e21f1cbbf",
+      "bytes": 416146,
+      "baselineBytes": 416143,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "wide": [
+        {
+          "sha256": "5fea8252fd9a07ed3eb5c22c0145c9c95d8c18afa0cbaf356ccafb1a7d562643",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "44e18eea22a8089d5af0166ba91841c35796cfd4e9070b17278d4c2ab201cfcc",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "58d0c1a0f748f7538795f9bdb18b801020efad71a4cd63104995a81d9ee227ba",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "97bd1ce73e89825279580fd95e93e1d083b266ddf1d8bc12ec0d4601958a0e68",
+          "samples": 2073600,
+          "above255": 0
+        }
+      ],
+      "featureBits": 10565,
+      "patches": 368,
+      "unchangedPrefixSha256": "2eac2ef87c26ab64a39a290f67db77551e1a9963f50d2d8d5ff27f97aa59fb23",
+      "prefixBytes": 9398,
+      "headerBytes": 20,
+      "globalBytes": 1328,
+      "sectionBytes": [1328, 0, 0, 217668, 170638, 2284, 14770],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "rawBytes": 217668,
+          "paletteBytes": null,
+          "selectedBytes": 217668,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "rawBytes": 170638,
+          "paletteBytes": null,
+          "selectedBytes": 170638,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "rawBytes": 2284,
+          "paletteBytes": 2290,
+          "selectedBytes": 2284,
+          "context": "channel",
+          "predictors": [4, 2, 2, 1]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "rawBytes": 14770,
+          "paletteBytes": null,
+          "selectedBytes": 14770,
+          "context": "learned",
+          "predictors": [5, 5, 6, 1]
+        }
+      ],
+      "grids": [
+        {
+          "decoder": "native",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        },
+        {
+          "decoder": "rust",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        }
+      ],
+      "maximumSampleError": 0,
+      "ownedPeak": 120179739,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 15140.225395999998
+    },
+    {
+      "variant": "1024-raw",
+      "fixture": "im26-8160-original",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/1024-raw.jxl",
+      "encodedSha256": "b67fc80a95f3b5e63f62214240e12e109a7b59cb30842672bc3a60200171a268",
+      "bytes": 646688,
+      "baselineBytes": 416143,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "wide": [
+        {
+          "sha256": "5fea8252fd9a07ed3eb5c22c0145c9c95d8c18afa0cbaf356ccafb1a7d562643",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "44e18eea22a8089d5af0166ba91841c35796cfd4e9070b17278d4c2ab201cfcc",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "58d0c1a0f748f7538795f9bdb18b801020efad71a4cd63104995a81d9ee227ba",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "97bd1ce73e89825279580fd95e93e1d083b266ddf1d8bc12ec0d4601958a0e68",
+          "samples": 2073600,
+          "above255": 0
+        }
+      ],
+      "featureBits": 10565,
+      "patches": 368,
+      "unchangedPrefixSha256": "2eac2ef87c26ab64a39a290f67db77551e1a9963f50d2d8d5ff27f97aa59fb23",
+      "prefixBytes": 9398,
+      "headerBytes": 21,
+      "globalBytes": 1328,
+      "sectionBytes": [1328, 0, 0, 343395, 272502, 2274, 17730],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "rawBytes": 343395,
+          "paletteBytes": null,
+          "selectedBytes": 343395,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "rawBytes": 272502,
+          "paletteBytes": null,
+          "selectedBytes": 272502,
+          "context": "learned",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "rawBytes": 2585,
+          "paletteBytes": 2274,
+          "selectedBytes": 2274,
+          "context": "learned",
+          "predictors": [4, 4]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "rawBytes": 17730,
+          "paletteBytes": null,
+          "selectedBytes": 17730,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        }
+      ],
+      "grids": [
+        {
+          "decoder": "native",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        },
+        {
+          "decoder": "rust",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        }
+      ],
+      "maximumSampleError": 0,
+      "ownedPeak": 121139259,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 16833.861577
+    },
+    {
+      "variant": "256-rct6",
+      "fixture": "im26-8160-original",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-rct6.jxl",
+      "encodedSha256": "0e0513f73b22550a12e88696854a61be2ef0b8dfc4ba0835cd7f6ec073f5e06a",
+      "bytes": 402110,
+      "baselineBytes": 416143,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "wide": [
+        {
+          "sha256": "5fea8252fd9a07ed3eb5c22c0145c9c95d8c18afa0cbaf356ccafb1a7d562643",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "44e18eea22a8089d5af0166ba91841c35796cfd4e9070b17278d4c2ab201cfcc",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "58d0c1a0f748f7538795f9bdb18b801020efad71a4cd63104995a81d9ee227ba",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "97bd1ce73e89825279580fd95e93e1d083b266ddf1d8bc12ec0d4601958a0e68",
+          "samples": 2073600,
+          "above255": 0
+        }
+      ],
+      "featureBits": 10565,
+      "patches": 368,
+      "unchangedPrefixSha256": "2eac2ef87c26ab64a39a290f67db77551e1a9963f50d2d8d5ff27f97aa59fb23",
+      "prefixBytes": 9398,
+      "headerBytes": 88,
+      "globalBytes": 1328,
+      "sectionBytes": [
+        1328, 0, 0, 33, 24959, 15358, 9473, 4244, 16874, 11269, 33, 33, 4688, 57222, 44738, 65031,
+        8043, 466, 33, 33, 10791, 11273, 5274, 10029, 22157, 420, 33, 33, 22693, 3196, 109, 107,
+        24484, 84, 1676, 33, 169, 1781, 35, 23, 13478, 72, 776
+      ],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 24959,
+          "paletteBytes": null,
+          "selectedBytes": 24959,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 512,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 15358,
+          "paletteBytes": null,
+          "selectedBytes": 15358,
+          "context": "learned",
+          "predictors": [6, 5, 5, 1]
+        },
+        {
+          "x": 768,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 9473,
+          "paletteBytes": null,
+          "selectedBytes": 9473,
+          "context": "channel",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 4980,
+          "paletteBytes": 4244,
+          "selectedBytes": 4244,
+          "context": "channel",
+          "predictors": [4, 9]
+        },
+        {
+          "x": 1280,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 16874,
+          "paletteBytes": null,
+          "selectedBytes": 16874,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1536,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 11269,
+          "paletteBytes": null,
+          "selectedBytes": 11269,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 1792,
+          "y": 0,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 0,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 256,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 9067,
+          "paletteBytes": 4688,
+          "selectedBytes": 4688,
+          "context": "learned",
+          "predictors": [1, 4]
+        },
+        {
+          "x": 512,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 57222,
+          "paletteBytes": null,
+          "selectedBytes": 57222,
+          "context": "learned",
+          "predictors": [6, 5, 5, 1]
+        },
+        {
+          "x": 768,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 44738,
+          "paletteBytes": null,
+          "selectedBytes": 44738,
+          "context": "learned",
+          "predictors": [4, 4, 5, 1]
+        },
+        {
+          "x": 1024,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 65031,
+          "paletteBytes": null,
+          "selectedBytes": 65031,
+          "context": "learned",
+          "predictors": [1, 5, 5, 1]
+        },
+        {
+          "x": 1280,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 8043,
+          "paletteBytes": null,
+          "selectedBytes": 8043,
+          "context": "learned",
+          "predictors": [4, 5, 4, 1]
+        },
+        {
+          "x": 1536,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 945,
+          "paletteBytes": 466,
+          "selectedBytes": 466,
+          "context": "learned",
+          "predictors": [4, 5]
+        },
+        {
+          "x": 1792,
+          "y": 256,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 0,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 256,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 10791,
+          "paletteBytes": null,
+          "selectedBytes": 10791,
+          "context": "learned",
+          "predictors": [4, 4, 2, 1]
+        },
+        {
+          "x": 512,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 11273,
+          "paletteBytes": null,
+          "selectedBytes": 11273,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 768,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 5274,
+          "paletteBytes": 6711,
+          "selectedBytes": 5274,
+          "context": "learned",
+          "predictors": [4, 0, 0, 1]
+        },
+        {
+          "x": 1024,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 10029,
+          "paletteBytes": null,
+          "selectedBytes": 10029,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 1280,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 22157,
+          "paletteBytes": null,
+          "selectedBytes": 22157,
+          "context": "learned",
+          "predictors": [4, 5, 5, 1]
+        },
+        {
+          "x": 1536,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 566,
+          "paletteBytes": 420,
+          "selectedBytes": 420,
+          "context": "channel",
+          "predictors": [4, 4]
+        },
+        {
+          "x": 1792,
+          "y": 512,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 0,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 256,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 22693,
+          "paletteBytes": null,
+          "selectedBytes": 22693,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 512,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 3196,
+          "paletteBytes": 3399,
+          "selectedBytes": 3196,
+          "context": "channel",
+          "predictors": [4, 0, 0, 1]
+        },
+        {
+          "x": 768,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 175,
+          "paletteBytes": 109,
+          "selectedBytes": 109,
+          "context": "channel",
+          "predictors": [9, 6]
+        },
+        {
+          "x": 1024,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 117,
+          "paletteBytes": 107,
+          "selectedBytes": 107,
+          "context": "channel",
+          "predictors": [1, 6]
+        },
+        {
+          "x": 1280,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 24484,
+          "paletteBytes": null,
+          "selectedBytes": 24484,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1536,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 140,
+          "paletteBytes": 84,
+          "selectedBytes": 84,
+          "context": "channel",
+          "predictors": [9, 10]
+        },
+        {
+          "x": 1792,
+          "y": 768,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 2307,
+          "paletteBytes": 1676,
+          "selectedBytes": 1676,
+          "context": "learned",
+          "predictors": [1, 4]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 45,
+          "paletteBytes": 33,
+          "selectedBytes": 33,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 256,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 277,
+          "paletteBytes": 169,
+          "selectedBytes": 169,
+          "context": "learned",
+          "predictors": [1, 2]
+        },
+        {
+          "x": 512,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 1781,
+          "paletteBytes": 2262,
+          "selectedBytes": 1781,
+          "context": "learned",
+          "predictors": [4, 0, 0, 1]
+        },
+        {
+          "x": 768,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 50,
+          "paletteBytes": 35,
+          "selectedBytes": 35,
+          "context": "channel",
+          "predictors": [1, 0]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 35,
+          "paletteBytes": 23,
+          "selectedBytes": 23,
+          "context": "channel",
+          "predictors": [0, 0]
+        },
+        {
+          "x": 1280,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 13478,
+          "paletteBytes": null,
+          "selectedBytes": 13478,
+          "context": "learned",
+          "predictors": [5, 5, 6, 1]
+        },
+        {
+          "x": 1536,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 137,
+          "paletteBytes": 72,
+          "selectedBytes": 72,
+          "context": "learned",
+          "predictors": [9, 10]
+        },
+        {
+          "x": 1792,
+          "y": 1024,
+          "width": 128,
+          "height": 56,
+          "rawBytes": 928,
+          "paletteBytes": 776,
+          "selectedBytes": 776,
+          "context": "gradient",
+          "predictors": [1, 4]
+        }
+      ],
+      "grids": [
+        {
+          "decoder": "native",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        },
+        {
+          "decoder": "rust",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        }
+      ],
+      "maximumSampleError": 0,
+      "ownedPeak": 12625223,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 26035.689304
+    },
+    {
+      "variant": "256-raw",
+      "fixture": "im26-8160-original",
+      "artifact": ".tmp/jpegxl-comparison-v1/current-residual-control-208/output/256-raw.jxl",
+      "encodedSha256": "287e44fe24025f31f39c83d5efda534fb52db6facd1203bebd0f19e2dd0b922e",
+      "bytes": 587810,
+      "baselineBytes": 416143,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "wide": [
+        {
+          "sha256": "5fea8252fd9a07ed3eb5c22c0145c9c95d8c18afa0cbaf356ccafb1a7d562643",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "44e18eea22a8089d5af0166ba91841c35796cfd4e9070b17278d4c2ab201cfcc",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "58d0c1a0f748f7538795f9bdb18b801020efad71a4cd63104995a81d9ee227ba",
+          "samples": 2073600,
+          "above255": 0
+        },
+        {
+          "sha256": "97bd1ce73e89825279580fd95e93e1d083b266ddf1d8bc12ec0d4601958a0e68",
+          "samples": 2073600,
+          "above255": 0
+        }
+      ],
+      "featureBits": 10565,
+      "patches": 368,
+      "unchangedPrefixSha256": "2eac2ef87c26ab64a39a290f67db77551e1a9963f50d2d8d5ff27f97aa59fb23",
+      "prefixBytes": 9398,
+      "headerBytes": 92,
+      "globalBytes": 1328,
+      "sectionBytes": [
+        1328, 0, 0, 32, 32657, 17486, 10137, 4547, 29128, 14616, 32, 32, 5040, 86218, 69825, 110988,
+        15229, 478, 32, 32, 14872, 17787, 6638, 17864, 28877, 441, 32, 32, 37071, 3201, 105, 105,
+        32305, 83, 1829, 32, 174, 1979, 34, 20, 15926, 72, 964
+      ],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 32657,
+          "paletteBytes": null,
+          "selectedBytes": 32657,
+          "context": "learned",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 512,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 17486,
+          "paletteBytes": null,
+          "selectedBytes": 17486,
+          "context": "learned",
+          "predictors": [6, 6, 6, 1]
+        },
+        {
+          "x": 768,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 10137,
+          "paletteBytes": null,
+          "selectedBytes": 10137,
+          "context": "channel",
+          "predictors": [5, 5, 4, 1]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 5150,
+          "paletteBytes": 4547,
+          "selectedBytes": 4547,
+          "context": "channel",
+          "predictors": [4, 9]
+        },
+        {
+          "x": 1280,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 29128,
+          "paletteBytes": null,
+          "selectedBytes": 29128,
+          "context": "learned",
+          "predictors": [4, 5, 4, 1]
+        },
+        {
+          "x": 1536,
+          "y": 0,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 14616,
+          "paletteBytes": null,
+          "selectedBytes": 14616,
+          "context": "gradient",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1792,
+          "y": 0,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 0,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 256,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 11063,
+          "paletteBytes": 5040,
+          "selectedBytes": 5040,
+          "context": "learned",
+          "predictors": [4, 4]
+        },
+        {
+          "x": 512,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 86218,
+          "paletteBytes": null,
+          "selectedBytes": 86218,
+          "context": "learned",
+          "predictors": [6, 6, 6, 1]
+        },
+        {
+          "x": 768,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 69825,
+          "paletteBytes": null,
+          "selectedBytes": 69825,
+          "context": "learned",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1024,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 110988,
+          "paletteBytes": null,
+          "selectedBytes": 110988,
+          "context": "learned",
+          "predictors": [1, 1, 1, 1]
+        },
+        {
+          "x": 1280,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 15229,
+          "paletteBytes": null,
+          "selectedBytes": 15229,
+          "context": "learned",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1536,
+          "y": 256,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 1348,
+          "paletteBytes": 478,
+          "selectedBytes": 478,
+          "context": "learned",
+          "predictors": [4, 5]
+        },
+        {
+          "x": 1792,
+          "y": 256,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 0,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 256,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 14872,
+          "paletteBytes": null,
+          "selectedBytes": 14872,
+          "context": "gradient",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 512,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 17787,
+          "paletteBytes": null,
+          "selectedBytes": 17787,
+          "context": "gradient",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 768,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 6638,
+          "paletteBytes": 6664,
+          "selectedBytes": 6638,
+          "context": "gradient",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1024,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 17864,
+          "paletteBytes": null,
+          "selectedBytes": 17864,
+          "context": "gradient",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1280,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 28877,
+          "paletteBytes": null,
+          "selectedBytes": 28877,
+          "context": "learned",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 1536,
+          "y": 512,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 697,
+          "paletteBytes": 441,
+          "selectedBytes": 441,
+          "context": "channel",
+          "predictors": [4, 4]
+        },
+        {
+          "x": 1792,
+          "y": 512,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 49,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 0,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 55,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 256,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 37071,
+          "paletteBytes": null,
+          "selectedBytes": 37071,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 512,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 3201,
+          "paletteBytes": 3555,
+          "selectedBytes": 3201,
+          "context": "channel",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 768,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 173,
+          "paletteBytes": 105,
+          "selectedBytes": 105,
+          "context": "channel",
+          "predictors": [4, 6]
+        },
+        {
+          "x": 1024,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 123,
+          "paletteBytes": 105,
+          "selectedBytes": 105,
+          "context": "channel",
+          "predictors": [2, 6]
+        },
+        {
+          "x": 1280,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 32305,
+          "paletteBytes": null,
+          "selectedBytes": 32305,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1536,
+          "y": 768,
+          "width": 256,
+          "height": 256,
+          "rawBytes": 164,
+          "paletteBytes": 83,
+          "selectedBytes": 83,
+          "context": "channel",
+          "predictors": [5, 10]
+        },
+        {
+          "x": 1792,
+          "y": 768,
+          "width": 128,
+          "height": 256,
+          "rawBytes": 2888,
+          "paletteBytes": 1829,
+          "selectedBytes": 1829,
+          "context": "learned",
+          "predictors": [4, 4]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 45,
+          "paletteBytes": 32,
+          "selectedBytes": 32,
+          "context": "channel",
+          "predictors": [13, 0]
+        },
+        {
+          "x": 256,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 396,
+          "paletteBytes": 174,
+          "selectedBytes": 174,
+          "context": "learned",
+          "predictors": [4, 2]
+        },
+        {
+          "x": 512,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 1979,
+          "paletteBytes": 2243,
+          "selectedBytes": 1979,
+          "context": "channel",
+          "predictors": [4, 4, 4, 1]
+        },
+        {
+          "x": 768,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 70,
+          "paletteBytes": 34,
+          "selectedBytes": 34,
+          "context": "channel",
+          "predictors": [2, 0]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 45,
+          "paletteBytes": 20,
+          "selectedBytes": 20,
+          "context": "channel",
+          "predictors": [1, 0]
+        },
+        {
+          "x": 1280,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 15926,
+          "paletteBytes": null,
+          "selectedBytes": 15926,
+          "context": "learned",
+          "predictors": [5, 5, 5, 1]
+        },
+        {
+          "x": 1536,
+          "y": 1024,
+          "width": 256,
+          "height": 56,
+          "rawBytes": 161,
+          "paletteBytes": 72,
+          "selectedBytes": 72,
+          "context": "learned",
+          "predictors": [5, 10]
+        },
+        {
+          "x": 1792,
+          "y": 1024,
+          "width": 128,
+          "height": 56,
+          "rawBytes": 1231,
+          "paletteBytes": 964,
+          "selectedBytes": 964,
+          "context": "channel",
+          "predictors": [5, 4]
+        }
+      ],
+      "grids": [
+        {
+          "decoder": "native",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        },
+        {
+          "decoder": "rust",
+          "samples": 8294400,
+          "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+        }
+      ],
+      "maximumSampleError": 0,
+      "ownedPeak": 13057747,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 25730.281450999995
+    }
+  ],
+  "policy": "Development-only first-party group-size attribution: hold the current qualified first-party image header, complete reference frame and exact Replace patch feature bits fixed. Re-encode every Int32 displayed residual and alpha sample using current copied raw/RCT6 group models with exact tuple palette floors at 1024/256 groups. Count the complete file and verify every original RGBA8 sample in native/Rust. The original 416143-byte production artifact remains the complete size floor. This isolates group sizing, is not yet production adoption and makes no speed or overall parity claim."
+}

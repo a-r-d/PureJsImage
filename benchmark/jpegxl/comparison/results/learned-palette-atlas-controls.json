@@ -1,0 +1,242 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "57b37955c307b12be851c96e3f4c8efa2d5ed6d97a45d0ecb386eae1fe6e2780",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-learned-palette-156.ts",
+      "sha256": "6fa3aa55a629aaabe19f32d9eee8af97736bc1a145607b906ebf3339dd246fa2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-learned-palette-156.ts",
+      "sha256": "2b3c2ec4aba7d5cd35e90ac9af9836d05d15743cb917f26762e5ab47459b0743"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-guard-public-controls.json",
+      "sha256": "7ed8e130dab566765aac78b8ef5d1f8efded2d01b5cf772ddeef1f918f9a7280"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/modular-local-artwork-profile.json",
+      "sha256": "a5dc699c1aa3f4f81a198e66aaf8a4a75cc5ff41e2b8ad4f6bf095d3d08213c1"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/baseline/jpegxl-modular-encode.ts",
+      "sha256": "83dda4669d3cd29f66c4da88f14e319a9bd255072ca0b16ae2b6232f84ebf101"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/candidate/jpegxl-modular-encode.ts",
+      "sha256": "81a00e2b5119b1910a600b81a1dadc2a3c99087e12d039a16b2f81b5e4689515"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-156/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "baseline",
+      "bytes": 21418,
+      "baselineBytes": 21418,
+      "referenceBytes": 10019,
+      "encodedSha256": "e63a09bf968cfd1906322131a9f8835b12e200855e072ecb0e199452b939c2de",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5052-diagnostic-baseline.jxl",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "atlasWidth": 176,
+      "atlasHeight": 153,
+      "atlasSha256": "75349373e69ba6b0692f783a4d5b00002d9bc1f13765e0af82be8b86bae283c3",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 2098478,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 802.02034
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "candidate",
+      "bytes": 21418,
+      "baselineBytes": 21418,
+      "referenceBytes": 10019,
+      "encodedSha256": "e63a09bf968cfd1906322131a9f8835b12e200855e072ecb0e199452b939c2de",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5052-diagnostic-candidate.jxl",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "atlasWidth": 176,
+      "atlasHeight": 153,
+      "atlasSha256": "75349373e69ba6b0692f783a4d5b00002d9bc1f13765e0af82be8b86bae283c3",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 2098478,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 796.2025989999997
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "bytes": 45751,
+      "baselineBytes": 45751,
+      "referenceBytes": 15093,
+      "encodedSha256": "2a53b78f907eb3a380a18241f34c4e4f170cf13b9f8047b3b8bdff1fbc022a94",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5034-diagnostic-baseline.jxl",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "atlasWidth": 219,
+      "atlasHeight": 188,
+      "atlasSha256": "5a476038c1930c01008443a4034f74cabe3076cf0b4eb610055e6cc240dcfa96",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 3795756,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 804.3207390000002
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "candidate",
+      "bytes": 45751,
+      "baselineBytes": 45751,
+      "referenceBytes": 15093,
+      "encodedSha256": "2a53b78f907eb3a380a18241f34c4e4f170cf13b9f8047b3b8bdff1fbc022a94",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5034-diagnostic-candidate.jxl",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "atlasWidth": 219,
+      "atlasHeight": 188,
+      "atlasSha256": "5a476038c1930c01008443a4034f74cabe3076cf0b4eb610055e6cc240dcfa96",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 3795756,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 795.5983190000006
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "baseline",
+      "bytes": 22136,
+      "baselineBytes": 22136,
+      "referenceBytes": 15815,
+      "encodedSha256": "600e52dcaffc84f6657ccf3b66d54f55227421d2cef30f970c4703798f236097",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5334-diagnostic-baseline.jxl",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "atlasWidth": 241,
+      "atlasHeight": 192,
+      "atlasSha256": "15f829b91dde8ff275cd52f16904e8265be7658aac2d41b53c5ae888a6f94e6c",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 10360389,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2157.662837
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "candidate",
+      "bytes": 22136,
+      "baselineBytes": 22136,
+      "referenceBytes": 15815,
+      "encodedSha256": "600e52dcaffc84f6657ccf3b66d54f55227421d2cef30f970c4703798f236097",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5334-diagnostic-candidate.jxl",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "atlasWidth": 241,
+      "atlasHeight": 192,
+      "atlasSha256": "15f829b91dde8ff275cd52f16904e8265be7658aac2d41b53c5ae888a6f94e6c",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 10360389,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2142.301180999999
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "baseline",
+      "bytes": 134581,
+      "baselineBytes": 134581,
+      "referenceBytes": 4411,
+      "encodedSha256": "c25f26f1cf338a51ba7b2ba07c6bed1bf6974492c800cf90da09f856361f14cf",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5032-diagnostic-baseline.jxl",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "atlasWidth": 121,
+      "atlasHeight": 133,
+      "atlasSha256": "e6a951be409b195b50e3bf5e5d0fc2d60d86d7a6d45ba9dcd1e4d07010dff4b4",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 4418780,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 735.4035280000007
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "candidate",
+      "bytes": 134581,
+      "baselineBytes": 134581,
+      "referenceBytes": 4411,
+      "encodedSha256": "c25f26f1cf338a51ba7b2ba07c6bed1bf6974492c800cf90da09f856361f14cf",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-156/output/im26-5032-diagnostic-candidate.jxl",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "atlasWidth": 121,
+      "atlasHeight": 133,
+      "atlasSha256": "e6a951be409b195b50e3bf5e5d0fc2d60d86d7a6d45ba9dcd1e4d07010dff4b4",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 4418780,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 739.7081550000003
+    }
+  ],
+  "policy": "Copied first-party modules differ only in allowing the existing bounded learned-tree candidate for palette transforms. Re-encode only exact small RGBA8 reference atlases; unchanged displayed sections/metadata and the original source stay frozen. Baseline must reproduce every complete byte. Both independent decoders must preserve every original composed sample; all headers/ToC/container bytes count. This is not production retention or a speed comparison."
+}

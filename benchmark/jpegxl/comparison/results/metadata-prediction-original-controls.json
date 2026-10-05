@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "7f2b8a050f2e410e794f23374df269045f5ee739f0b6635e0da166520bb5c7b1",
+  "implementationDirty": true,
+  "harnessSha256": "6fae6e9bd31960e3dccc1ff95220b6cefd3a9f1b7e8cc8835de92c6f51bd1567",
+  "candidateModuleHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/baseline/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "bb40a238224d8fddd5f6428b1d12eec7f95dfb8e4ff02f5ca0325b8734e2b7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "8611e330310ee103a42fe0dcaa20f1661b12c2dbc52e1f35debf6d61862eec60"
+    }
+  ],
+  "preparationHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-metadata-139.ts",
+      "sha256": "e74bb3a9c72addc68c1c85eca05aac9b17883b3b0565cf35b8e7a380077f35b2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-metadata-original-139.ts",
+      "sha256": "a216154ff567e3b8d69952004c2b25bba4b7108c1b6b7f705f83d278772ce9f8"
+    }
+  ],
+  "toolHashes": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "identityBoundary": "Current repository source searches complete local metadata bits at effort 7; copied baseline modules pin qualified 4e9b84f separately.",
+  "policy": "Qualify metadata prediction on the unchanged original 12 MP photograph and UI capture. Baseline comes from frozen first-party 4e9b84f modules; it is independently decoded in this control rather than an existing public original-size curve point. Complete files must not grow and full native/Rust grids and alpha must equal the independently reproduced prior baseline. No speed claim.",
+  "results": [
+    {
+      "fixture": "im26-1416-original",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 677447,
+      "baselineBytes": 677447,
+      "score": 79.12328551,
+      "butteraugli": 1.8558037281,
+      "encodeMilliseconds": 28577.570739,
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-original-139/im26-1416-original-baseline-3.jxl",
+      "artifactSha256": "1037612960543a2e5897ec3267210edc48193ffb91b345a6dd196d54dde7dfe2",
+      "nativePixelsSha256": "d04403cd0c44320a7a39474cc85e0b44c8fc8930c931fa40804869750c67ff90",
+      "rustPixelsSha256": "f7b9593d0820277c598410d84e8cd2d25cff54f6c33d1e7dd9d56c9d3b9a6e92",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-original",
+      "variant": "current",
+      "distance": 3,
+      "bytes": 657639,
+      "baselineBytes": 677447,
+      "score": 79.12328551,
+      "butteraugli": 1.8558037281,
+      "encodeMilliseconds": 27888.139791,
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-original-139/im26-1416-original-current-3.jxl",
+      "artifactSha256": "2d4fced248383fb0330d4c6eda6c78ad14d150dd10dc31909d8e0241a7845ed0",
+      "nativePixelsSha256": "d04403cd0c44320a7a39474cc85e0b44c8fc8930c931fa40804869750c67ff90",
+      "rustPixelsSha256": "f7b9593d0820277c598410d84e8cd2d25cff54f6c33d1e7dd9d56c9d3b9a6e92",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 201765,
+      "baselineBytes": 201765,
+      "score": 84.73812654,
+      "butteraugli": 2.1732695103,
+      "encodeMilliseconds": 5986.960521000001,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-original-139/im26-8160-original-baseline-3.jxl",
+      "artifactSha256": "8ecc79331f98dd332d5621f84231600af1aaf8b6fa8bd75700c0b9a7b886286d",
+      "nativePixelsSha256": "af7eb90018109a0fa63ab6721b0b463c27e11eb27dd6021575efff4aee63af22",
+      "rustPixelsSha256": "aa48c75ef2e0609d1322ea556df044c1ee6d8ff1987295253cf71617e1387e55",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "current",
+      "distance": 3,
+      "bytes": 197984,
+      "baselineBytes": 201765,
+      "score": 84.73812654,
+      "butteraugli": 2.1732695103,
+      "encodeMilliseconds": 5933.549488000004,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-original-139/im26-8160-original-current-3.jxl",
+      "artifactSha256": "b1d75ef3eb57f444a3bccdd0cb0578e3a24c99f34452e1932519b32399a5d88d",
+      "nativePixelsSha256": "af7eb90018109a0fa63ab6721b0b463c27e11eb27dd6021575efff4aee63af22",
+      "rustPixelsSha256": "aa48c75ef2e0609d1322ea556df044c1ee6d8ff1987295253cf71617e1387e55",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    }
+  ]
+}

@@ -1,0 +1,324 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-funded-fused-controls-329.ts",
+      "sha256": "5d851e578b551c49f55bde17d44bb680a0c7cd6b9c31a173265f9c352adfdeb7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-funded-fused-audit-329.ts",
+      "sha256": "134ac679014571396790e7d2182e49758febfb9f410a5c91991d3621693a9d82"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-funded-fused-audit-329.json",
+      "sha256": "8351f1d21502d12f6c77dabc3e0a2e68868027092880d6809613435aa83f33a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-error-prefix-funding-329.ts",
+      "sha256": "6b22df903e6cda96fcd6cda73e89441f96add775d20e7b4f7af3c9fc3c7248a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/error-prefix-funding-325/error-proof-329.json",
+      "sha256": "2908d93a6b29ca6ec8c04728d6e9f1e15401a2b944b4955d8e59327148e73ac0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-program-profile.json",
+      "sha256": "4a4a48a38315396fda4e6c4a78fef80828a503ec3a01feb6987796f84604ec90"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/fused-ordinary-predictor-tree-controls.json",
+      "sha256": "df28f22bac6230951791a25827b3583d8513b2eba8e59ccfa3bfb93cd70472a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-controls.json",
+      "sha256": "38f9c11cafd577f0cc69dea7a5b34d32b627507e89dd449a8b02f8a79a742292"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/error-prefix-funding-package-controls-retry.json",
+      "sha256": "f121dce0b878860034988b798c0bdfa75aa29feeec69e426bfee2bf0087722bc"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-fused-ordinary-predictor-tree-controls-323.json",
+      "sha256": "3c6865ef96e433d759120dce61a7ef54119c2eae038e05a880094c50a1bcf78d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-fused-ordinary-package-controls-324.json",
+      "sha256": "13f4097b3455a3b5b39e62decbe8f0003368ea9868147b84d56d86236d8b0204"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-error-prefix-funding-package-controls-325.json",
+      "sha256": "10da6ee189211f35db27e076b9d08b213ba86b4115a60da491959232ceaa3ff7"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-error-prefix-funding-package-controls-326.json",
+      "sha256": "ee50bad6f86ea87bb934b5924c4553f3fb780ce90160ce176cd0488de03eeedd"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-fused-predictor-tree-controls-328.json",
+      "sha256": "0d8a7bd3ae5d1517b259d2748b1492ef62c3b43d327a17697cebd709b22377ff"
+    }
+  ],
+  "files": 16,
+  "grids": 32,
+  "independentSamples": 100679680,
+  "priorSourcePublicSamples": 25169920,
+  "priorBuiltPublicSamples": 25169920,
+  "sourcePins": 215,
+  "freshErrorLiteralChecks": 1356,
+  "errorProofPins": 140,
+  "encodedFloors": [
+    {
+      "cohort": "raw",
+      "fixture": "im26-1416-diagnostic",
+      "baselineBytes": 649404,
+      "fusedBytes": 648383,
+      "savedBytes": 1021,
+      "baselineOwnedPeak": 132979807,
+      "fusedOwnedPeak": 132977821,
+      "wholeSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28"
+    },
+    {
+      "cohort": "raw",
+      "fixture": "im26-2018-diagnostic",
+      "baselineBytes": 613268,
+      "fusedBytes": 612152,
+      "savedBytes": 1116,
+      "baselineOwnedPeak": 173946841,
+      "fusedOwnedPeak": 173944498,
+      "wholeSha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf"
+    },
+    {
+      "cohort": "raw",
+      "fixture": "photo-2018-red-one-level-dither",
+      "baselineBytes": 617106,
+      "fusedBytes": 615996,
+      "savedBytes": 1110,
+      "baselineOwnedPeak": 174039153,
+      "fusedOwnedPeak": 174037417,
+      "wholeSha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a"
+    },
+    {
+      "cohort": "raw",
+      "fixture": "photo-1416-boundary-513",
+      "baselineBytes": 227797,
+      "fusedBytes": 227749,
+      "savedBytes": 48,
+      "baselineOwnedPeak": 47284910,
+      "fusedOwnedPeak": 47285749,
+      "wholeSha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6"
+    },
+    {
+      "cohort": "funded",
+      "fixture": "im26-1416-diagnostic",
+      "baselineBytes": 649404,
+      "fusedBytes": 648383,
+      "savedBytes": 1021,
+      "baselineOwnedPeak": 132979807,
+      "fusedOwnedPeak": 132977821,
+      "wholeSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28"
+    },
+    {
+      "cohort": "funded",
+      "fixture": "im26-2018-diagnostic",
+      "baselineBytes": 613268,
+      "fusedBytes": 612152,
+      "savedBytes": 1116,
+      "baselineOwnedPeak": 173946841,
+      "fusedOwnedPeak": 173944498,
+      "wholeSha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf"
+    },
+    {
+      "cohort": "funded",
+      "fixture": "photo-2018-red-one-level-dither",
+      "baselineBytes": 617106,
+      "fusedBytes": 615996,
+      "savedBytes": 1110,
+      "baselineOwnedPeak": 174039153,
+      "fusedOwnedPeak": 174037417,
+      "wholeSha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a"
+    },
+    {
+      "cohort": "funded",
+      "fixture": "photo-1416-boundary-513",
+      "baselineBytes": 227797,
+      "fusedBytes": 227749,
+      "savedBytes": 48,
+      "baselineOwnedPeak": 47284910,
+      "fusedOwnedPeak": 47285749,
+      "wholeSha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6"
+    }
+  ],
+  "packageRows": [
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/jpegxl-specialized-baseline.js",
+      "artifactSha256": "445908cf694f56437f4fecb0e2000e214890b8210bf472a79181becafd49705a",
+      "bytes": 613578,
+      "previousBytes": 613578,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "funded",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/jpegxl-specialized-funded.js",
+      "artifactSha256": "fd843f46203e9421e5ecfd2cab6400dfcd18117ea6fbe3eb325b444da6c8436b",
+      "bytes": 608347,
+      "previousBytes": 613578,
+      "deltaBytes": -5231,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "fused",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/jpegxl-specialized-fused.js",
+      "artifactSha256": "c0987cff96c93f6a487eb92d6e7e688bf07c33ff6326afa255281a9dfad17121",
+      "bytes": 610215,
+      "previousBytes": 613578,
+      "deltaBytes": -3363,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/codec-jpegxl-baseline.js",
+      "artifactSha256": "87b5f853e3d3c972001d03e72fa9bc7ee08c3ecc9a6d3bf4900c8257faaa2767",
+      "bytes": 540978,
+      "previousBytes": 540978,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "funded",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/codec-jpegxl-funded.js",
+      "artifactSha256": "25d3e47a859e077ec7a7430f1985f69b753e6fae1f63d8ccdae73958cbba7ca8",
+      "bytes": 536436,
+      "previousBytes": 540978,
+      "deltaBytes": -4542,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "fused",
+      "artifact": ".tmp/jpegxl-comparison-v1/error-prefix-package-326/codec-jpegxl-fused.js",
+      "artifactSha256": "ca5c6d1cd4ca597669e3a9ff097f42c8ea5be5ef9b16b82d1ee184d32bca562c",
+      "bytes": 538304,
+      "previousBytes": 540978,
+      "deltaBytes": -2674,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    }
+  ],
+  "productionUnchanged": true,
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Fresh all16raw/funded files/32native-Rust grids/100679680original finite samples re-read and hashes/layout/alpha/hiddenRGB/closed ownership verified. Prior25169920source decoder samples and25169920actual built326public bundle decoder samples labelled separate. Whole bytes match prior318physical programs/partitions/transforms/accounts; no new header profile counted. Fresh1356literal ImageError proof unchanged class/name/code/message, all corrected326bundle bytes/public exports/original ceilings verified. Raw fused model has no general previous encoded learned-group fallback yet; paired costs/minimum-memory/browser/full matrix qualification and broad parity remain open. Rejected325API-dropping bundle evidence stays separate; no source/protection/adoption change."
+}

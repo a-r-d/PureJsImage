@@ -1,0 +1,1129 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "runtime": "v24.16.0",
+  "effort": 7,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-funded-sampling-matrix-shard-264.ts",
+      "sha256": "27b7ae93e0d6c29362dc60890bc79729aba8e919e75f657d01b9d458eb60f641"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-funded-public-264.ts",
+      "sha256": "d70b1c383b80dc9fc3d4241f9c51d9102c7d679764f5a52263b5f560c8f3b550"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-cache-groups-effort7-public.json",
+      "sha256": "b2570cda9b891681266ad9541edeca10f2251496c41c32276618427e06fd32be"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-neighbor-controls.json",
+      "sha256": "3889035aeaed8f6cf95858b91ab0c88bf515d9055d6cec42562f74938d20aae0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/adapters.ts",
+      "sha256": "c491799e5bfdba8da50c244d5fcd14d4ce865481fb9d7c2a927f86b589bee4f1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/node-worker.ts",
+      "sha256": "c7d0dff205dfded26c375eb6f38b3cc71a449b0bec2545f764e77213380158e1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/fixtures.json",
+      "sha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "publicWorkerSha256": "c7d0dff205dfded26c375eb6f38b3cc71a449b0bec2545f764e77213380158e1",
+  "builtModularEncoderSha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12",
+  "harnessSha256": "27b7ae93e0d6c29362dc60890bc79729aba8e919e75f657d01b9d458eb60f641",
+  "policy": "All 16 pinned native uint8/uint16 inputs are freshly encoded through the rebuilt actual public package at effort 7. Every original sample, alpha and hidden RGB remains exact in both independently pinned decoders. Every changed complete stream must shrink against the last full qualified matrix. Four disjoint development processes use one bounded service; runtime encoding remains single-threaded. This is compression evidence, not a speed comparison.",
+  "controllerPins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-funded-sampling-matrix-264.ts",
+      "sha256": "6a6eef3f76365b7806735e55672f80dbd3ac3d165d1e30f209acc15bbddd007b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-funded-sampling-matrix-shard-264.ts",
+      "sha256": "27b7ae93e0d6c29362dc60890bc79729aba8e919e75f657d01b9d458eb60f641"
+    }
+  ],
+  "partialReportPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7-shard-0.json",
+      "sha256": "2ed4f244de3b621e5439a091615243058dcc748f257123dd9ea8e3590b131fea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7-shard-1.json",
+      "sha256": "bebeb8b96bef95e8c066db150bcdaaf7f29a16d05570ca725caf6830807b8318"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7-shard-2.json",
+      "sha256": "c72a403fb38f01cae68d220ab2288c7a942259192fef87d7c52d4e1ba690ca9f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7-shard-3.json",
+      "sha256": "9fce64f877636462c8b6b7889186427ad7bfe2992857257fa97079c8a781a249"
+    }
+  ],
+  "rows": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-1030-diagnostic.bin",
+      "bytes": 484347,
+      "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+      "qualifiedBaselineBytes": 484347,
+      "qualifiedBaselineSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+      "qualifiedUnchanged": true,
+      "previousBytes": 611525,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 17930.349403,
+        "initializationMs": 75.60090899999999,
+        "output": {
+          "kind": "jxl",
+          "sha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+          "bytes": 484347
+        },
+        "memory": {
+          "baseline": {
+            "rss": 85692416,
+            "heapTotal": 14680064,
+            "heapUsed": 9851504,
+            "external": 15548435,
+            "arrayBuffers": 6840404
+          },
+          "after": {
+            "rss": 281755648,
+            "heapTotal": 44576768,
+            "heapUsed": 13280560,
+            "external": 110763896,
+            "arrayBuffers": 102017921
+          },
+          "peakRssBytes": 295309312,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde",
+          "samplesCompared": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47",
+          "samplesCompared": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-1416-diagnostic.bin",
+      "bytes": 649404,
+      "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "qualifiedBaselineBytes": 649404,
+      "qualifiedBaselineSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "qualifiedUnchanged": true,
+      "previousBytes": 768663,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 26776.904328,
+        "initializationMs": 82.23278300000001,
+        "output": {
+          "kind": "jxl",
+          "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+          "bytes": 649404
+        },
+        "memory": {
+          "baseline": {
+            "rss": 85790720,
+            "heapTotal": 14680064,
+            "heapUsed": 9833912,
+            "external": 15682173,
+            "arrayBuffers": 6974142
+          },
+          "after": {
+            "rss": 336109568,
+            "heapTotal": 79704064,
+            "heapUsed": 20291952,
+            "external": 147451776,
+            "arrayBuffers": 138705801
+          },
+          "peakRssBytes": 370122752,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samplesCompared": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samplesCompared": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-2018-diagnostic.bin",
+      "bytes": 613268,
+      "encodedSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "qualifiedBaselineBytes": 613268,
+      "qualifiedBaselineSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "qualifiedUnchanged": true,
+      "previousBytes": 790860,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 31304.026416,
+        "initializationMs": 70.879675,
+        "output": {
+          "kind": "jxl",
+          "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+          "bytes": 613268
+        },
+        "memory": {
+          "baseline": {
+            "rss": 87826432,
+            "heapTotal": 14942208,
+            "heapUsed": 9838000,
+            "external": 17751620,
+            "arrayBuffers": 9043589
+          },
+          "after": {
+            "rss": 360165376,
+            "heapTotal": 45363200,
+            "heapUsed": 8979416,
+            "external": 188232149,
+            "arrayBuffers": 140613599
+          },
+          "peakRssBytes": 385122304,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-2400-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "4b8de9a0cdd9f743434a96510ab5eb51d1b2078640e48a144c240783e5fdaaba",
+      "inputSha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-2400-diagnostic.bin",
+      "bytes": 586772,
+      "encodedSha256": "cfaf8aaf9a903e70ebfbc63210e2fd5d706bbb0c2fe8c9b3ebab0b9dee8058a1",
+      "qualifiedBaselineBytes": 586772,
+      "qualifiedBaselineSha256": "cfaf8aaf9a903e70ebfbc63210e2fd5d706bbb0c2fe8c9b3ebab0b9dee8058a1",
+      "qualifiedUnchanged": true,
+      "previousBytes": 689473,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 17536.428698,
+        "initializationMs": 69.277252,
+        "output": {
+          "kind": "jxl",
+          "sha256": "cfaf8aaf9a903e70ebfbc63210e2fd5d706bbb0c2fe8c9b3ebab0b9dee8058a1",
+          "bytes": 586772
+        },
+        "memory": {
+          "baseline": {
+            "rss": 85397504,
+            "heapTotal": 14942208,
+            "heapUsed": 9838064,
+            "external": 15655307,
+            "arrayBuffers": 6947276
+          },
+          "after": {
+            "rss": 278638592,
+            "heapTotal": 45363200,
+            "heapUsed": 9360536,
+            "external": 84703648,
+            "arrayBuffers": 75957673
+          },
+          "peakRssBytes": 303255552,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9",
+          "samplesCompared": 3137536,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72",
+          "samplesCompared": 3137536,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5032-diagnostic.bin",
+      "bytes": 133365,
+      "encodedSha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e",
+      "qualifiedBaselineBytes": 133365,
+      "qualifiedBaselineSha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e",
+      "qualifiedUnchanged": true,
+      "previousBytes": 232438,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 56436.961676000006,
+        "initializationMs": 66.45515499999999,
+        "output": {
+          "kind": "jxl",
+          "sha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e",
+          "bytes": 133365
+        },
+        "memory": {
+          "baseline": {
+            "rss": 88059904,
+            "heapTotal": 14417920,
+            "heapUsed": 9828272,
+            "external": 17281011,
+            "arrayBuffers": 8572980
+          },
+          "after": {
+            "rss": 428122112,
+            "heapTotal": 146288640,
+            "heapUsed": 26851520,
+            "external": 182868666,
+            "arrayBuffers": 174122691
+          },
+          "peakRssBytes": 474292224,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5034-diagnostic.bin",
+      "bytes": 37687,
+      "encodedSha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b",
+      "qualifiedBaselineBytes": 37687,
+      "qualifiedBaselineSha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b",
+      "qualifiedUnchanged": true,
+      "previousBytes": 62171,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 145500.479655,
+        "initializationMs": 68.11890900000002,
+        "output": {
+          "kind": "jxl",
+          "sha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b",
+          "bytes": 37687
+        },
+        "memory": {
+          "baseline": {
+            "rss": 88379392,
+            "heapTotal": 14680064,
+            "heapUsed": 9856208,
+            "external": 17213693,
+            "arrayBuffers": 8505662
+          },
+          "after": {
+            "rss": 497754112,
+            "heapTotal": 146026496,
+            "heapUsed": 14280280,
+            "external": 189587262,
+            "arrayBuffers": 180841287
+          },
+          "peakRssBytes": 539111424,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5052-diagnostic.bin",
+      "bytes": 17259,
+      "encodedSha256": "18b004cb1c6736cdb74cfc6bf6fe506a81c581b0e1d54064e787177f7ab00fc7",
+      "qualifiedBaselineBytes": 17259,
+      "qualifiedBaselineSha256": "18b004cb1c6736cdb74cfc6bf6fe506a81c581b0e1d54064e787177f7ab00fc7",
+      "qualifiedUnchanged": true,
+      "previousBytes": 46936,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 83250.94553,
+        "initializationMs": 70.85512999999999,
+        "output": {
+          "kind": "jxl",
+          "sha256": "18b004cb1c6736cdb74cfc6bf6fe506a81c581b0e1d54064e787177f7ab00fc7",
+          "bytes": 17259
+        },
+        "memory": {
+          "baseline": {
+            "rss": 88313856,
+            "heapTotal": 14417920,
+            "heapUsed": 9810792,
+            "external": 17221776,
+            "arrayBuffers": 8513745
+          },
+          "after": {
+            "rss": 335466496,
+            "heapTotal": 145764352,
+            "heapUsed": 8516344,
+            "external": 13415666,
+            "arrayBuffers": 4669691
+          },
+          "peakRssBytes": 366620672,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "format": "uint8",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5334-diagnostic.bin",
+      "bytes": 18696,
+      "encodedSha256": "5382ec025dfeca3c50046bec6bb2f94b451f8856870b74b10155d98ca5aaa0ac",
+      "qualifiedBaselineBytes": 18696,
+      "qualifiedBaselineSha256": "5382ec025dfeca3c50046bec6bb2f94b451f8856870b74b10155d98ca5aaa0ac",
+      "qualifiedUnchanged": true,
+      "previousBytes": 27624,
+      "unchangedFromPrevious": false,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 117444.172949,
+        "initializationMs": 70.388794,
+        "output": {
+          "kind": "jxl",
+          "sha256": "5382ec025dfeca3c50046bec6bb2f94b451f8856870b74b10155d98ca5aaa0ac",
+          "bytes": 18696
+        },
+        "memory": {
+          "baseline": {
+            "rss": 87801856,
+            "heapTotal": 14942208,
+            "heapUsed": 9848760,
+            "external": 17205503,
+            "arrayBuffers": 8497472
+          },
+          "after": {
+            "rss": 444358656,
+            "heapTotal": 145240064,
+            "heapUsed": 10733464,
+            "external": 118205714,
+            "arrayBuffers": 109459739
+          },
+          "peakRssBytes": 485228544,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "format": "uint8",
+      "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-1416-original.bin",
+      "bytes": 6220181,
+      "encodedSha256": "99da34e7cfe65770bbca4ddd3d2f13417f9d53f0dd6e4820e7cf4dd1591915da",
+      "qualifiedBaselineBytes": 6220181,
+      "qualifiedBaselineSha256": "99da34e7cfe65770bbca4ddd3d2f13417f9d53f0dd6e4820e7cf4dd1591915da",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 105176.52330100001,
+        "initializationMs": 81.062175,
+        "output": {
+          "kind": "jxl",
+          "sha256": "99da34e7cfe65770bbca4ddd3d2f13417f9d53f0dd6e4820e7cf4dd1591915da",
+          "bytes": 6220181
+        },
+        "memory": {
+          "baseline": {
+            "rss": 182992896,
+            "heapTotal": 14680064,
+            "heapUsed": 9982904,
+            "external": 111410395,
+            "arrayBuffers": 102677712
+          },
+          "after": {
+            "rss": 338653184,
+            "heapTotal": 28323840,
+            "heapUsed": 8131112,
+            "external": 276096088,
+            "arrayBuffers": 61204606
+          },
+          "peakRssBytes": 485720064,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e",
+          "samplesCompared": 48000000,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23",
+          "samplesCompared": 48000000,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "format": "uint8",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-8160-original.bin",
+      "bytes": 401990,
+      "encodedSha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746",
+      "qualifiedBaselineBytes": 407341,
+      "qualifiedBaselineSha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d",
+      "qualifiedUnchanged": false,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 32955.621269,
+        "initializationMs": 65.720758,
+        "output": {
+          "kind": "jxl",
+          "sha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746",
+          "bytes": 401990
+        },
+        "memory": {
+          "baseline": {
+            "rss": 96575488,
+            "heapTotal": 14942208,
+            "heapUsed": 9896680,
+            "external": 25754313,
+            "arrayBuffers": 17046282
+          },
+          "after": {
+            "rss": 354041856,
+            "heapTotal": 149172224,
+            "heapUsed": 11255224,
+            "external": 68068826,
+            "arrayBuffers": 39532963
+          },
+          "peakRssBytes": 354041856,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd",
+          "samplesCompared": 8294400,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb",
+          "samplesCompared": 8294400,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "alpha_triangles",
+      "format": "uint8",
+      "sourceSha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/alpha_triangles.bin",
+      "bytes": 14134,
+      "encodedSha256": "1d042c8040f07375581dbf6785f9d79eca0b86824ecf01f966b975fa581a06d3",
+      "qualifiedBaselineBytes": 14134,
+      "qualifiedBaselineSha256": "1d042c8040f07375581dbf6785f9d79eca0b86824ecf01f966b975fa581a06d3",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 7888.725321,
+        "initializationMs": 70.65521300000002,
+        "output": {
+          "kind": "jxl",
+          "sha256": "1d042c8040f07375581dbf6785f9d79eca0b86824ecf01f966b975fa581a06d3",
+          "bytes": 14134
+        },
+        "memory": {
+          "baseline": {
+            "rss": 88252416,
+            "heapTotal": 14942208,
+            "heapUsed": 9824560,
+            "external": 17139900,
+            "arrayBuffers": 8431869
+          },
+          "after": {
+            "rss": 267759616,
+            "heapTotal": 78917632,
+            "heapUsed": 16646000,
+            "external": 85430731,
+            "arrayBuffers": 76684756
+          },
+          "peakRssBytes": 267759616,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8",
+          "samplesCompared": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "sunset_logo",
+      "format": "uint8",
+      "sourceSha256": "c974b5a5c4232b22780c90fad60679d79bfb6088999cd5fbc6f5ebdd2f05f908",
+      "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/sunset_logo.bin",
+      "bytes": 550050,
+      "encodedSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "qualifiedBaselineBytes": 550050,
+      "qualifiedBaselineSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 11207.588318,
+        "initializationMs": 64.66972600000001,
+        "output": {
+          "kind": "jxl",
+          "sha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+          "bytes": 550050
+        },
+        "memory": {
+          "baseline": {
+            "rss": 90222592,
+            "heapTotal": 14417920,
+            "heapUsed": 9815744,
+            "external": 19471283,
+            "arrayBuffers": 10763252
+          },
+          "after": {
+            "rss": 262860800,
+            "heapTotal": 46936064,
+            "heapUsed": 24721472,
+            "external": 81312102,
+            "arrayBuffers": 72566127
+          },
+          "peakRssBytes": 317054976,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92",
+          "samplesCompared": 5122656,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7",
+          "samplesCompared": 5122656,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "gray16-default",
+      "format": "uint16",
+      "sourceSha256": "ce1aa5c037583491e7ff718fdda02e599643d4be51c5d67e0b03ef557583e596",
+      "inputSha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/gray16-default.bin",
+      "bytes": 176,
+      "encodedSha256": "943b06a7df1733dd2e52574a1d154de35e36b960ae69b42c724678ea6b3fc498",
+      "qualifiedBaselineBytes": 176,
+      "qualifiedBaselineSha256": "943b06a7df1733dd2e52574a1d154de35e36b960ae69b42c724678ea6b3fc498",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 99.48042399999999,
+        "initializationMs": 65.61509500000001,
+        "output": {
+          "kind": "jxl",
+          "sha256": "943b06a7df1733dd2e52574a1d154de35e36b960ae69b42c724678ea6b3fc498",
+          "bytes": 176
+        },
+        "memory": {
+          "baseline": {
+            "rss": 79908864,
+            "heapTotal": 14680064,
+            "heapUsed": 9816328,
+            "external": 8745477,
+            "arrayBuffers": 37446
+          },
+          "after": {
+            "rss": 111931392,
+            "heapTotal": 56164352,
+            "heapUsed": 14516472,
+            "external": 9539276,
+            "arrayBuffers": 790761
+          },
+          "peakRssBytes": 368631808,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883",
+          "samplesCompared": 1271,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850",
+          "samplesCompared": 1271,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "rgb16-default",
+      "format": "uint16",
+      "sourceSha256": "babd659d24d9b42e82ce8e9ce9b11bfef364f5cea5049260f1496dfdcd4a7d27",
+      "inputSha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/rgb16-default.bin",
+      "bytes": 201,
+      "encodedSha256": "1970777154dafa8da6160489f2edd10ffd476860a2c3dd93224641fe73da512f",
+      "qualifiedBaselineBytes": 201,
+      "qualifiedBaselineSha256": "1970777154dafa8da6160489f2edd10ffd476860a2c3dd93224641fe73da512f",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 141.77301,
+        "initializationMs": 66.18181899999999,
+        "output": {
+          "kind": "jxl",
+          "sha256": "1970777154dafa8da6160489f2edd10ffd476860a2c3dd93224641fe73da512f",
+          "bytes": 201
+        },
+        "memory": {
+          "baseline": {
+            "rss": 79847424,
+            "heapTotal": 14942208,
+            "heapUsed": 9823400,
+            "external": 8762572,
+            "arrayBuffers": 54541
+          },
+          "after": {
+            "rss": 119611392,
+            "heapTotal": 57212928,
+            "heapUsed": 25401952,
+            "external": 11598715,
+            "arrayBuffers": 2850200
+          },
+          "peakRssBytes": 163598336,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be",
+          "samplesCompared": 5499,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045",
+          "samplesCompared": 5499,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "rgba16-straight",
+      "format": "uint16",
+      "sourceSha256": "c98699c78b512b21c6a0d2040348aa36f594ef721fe168fe8e847ec2352914e5",
+      "inputSha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/rgba16-straight.bin",
+      "bytes": 1129,
+      "encodedSha256": "e7c282b90c7f6a0399a734b9984da66e56a6b0b249284b7a10fb478bfae3d20f",
+      "qualifiedBaselineBytes": 1129,
+      "qualifiedBaselineSha256": "e7c282b90c7f6a0399a734b9984da66e56a6b0b249284b7a10fb478bfae3d20f",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 161.35281400000002,
+        "initializationMs": 71.04574699999999,
+        "output": {
+          "kind": "jxl",
+          "sha256": "e7c282b90c7f6a0399a734b9984da66e56a6b0b249284b7a10fb478bfae3d20f",
+          "bytes": 1129
+        },
+        "memory": {
+          "baseline": {
+            "rss": 80031744,
+            "heapTotal": 14417920,
+            "heapUsed": 9817080,
+            "external": 8759913,
+            "arrayBuffers": 51882
+          },
+          "after": {
+            "rss": 114020352,
+            "heapTotal": 57475072,
+            "heapUsed": 23525872,
+            "external": 10953401,
+            "arrayBuffers": 2204886
+          },
+          "peakRssBytes": 154423296,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6",
+          "samplesCompared": 4620,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051",
+          "samplesCompared": 4620,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "fixture": "gray8",
+      "format": "uint8",
+      "sourceSha256": "9d8d45dc6158ba173694f9e3075242c4a1e941649ed0eb9538479f83c8fed63f",
+      "inputSha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/gray8.bin",
+      "bytes": 2736,
+      "encodedSha256": "4fa1c25695ee9532d44968907db62761f5476fbbbd1f97d405e289bed2fa5ec1",
+      "qualifiedBaselineBytes": 2736,
+      "qualifiedBaselineSha256": "4fa1c25695ee9532d44968907db62761f5476fbbbd1f97d405e289bed2fa5ec1",
+      "qualifiedUnchanged": true,
+      "previousBytes": null,
+      "unchangedFromPrevious": null,
+      "publicSourceMatchesDirectObservation": null,
+      "measurement": {
+        "status": "verified",
+        "detail": "Execution completed; independent validation pending",
+        "times": [],
+        "coldMs": 1868.9902539999998,
+        "initializationMs": 69.633313,
+        "output": {
+          "kind": "jxl",
+          "sha256": "4fa1c25695ee9532d44968907db62761f5476fbbbd1f97d405e289bed2fa5ec1",
+          "bytes": 2736
+        },
+        "memory": {
+          "baseline": {
+            "rss": 79872000,
+            "heapTotal": 14942208,
+            "heapUsed": 9843776,
+            "external": 9063012,
+            "arrayBuffers": 354981
+          },
+          "after": {
+            "rss": 211378176,
+            "heapTotal": 66650112,
+            "heapUsed": 33397224,
+            "external": 53567818,
+            "arrayBuffers": 44819303
+          },
+          "peakRssBytes": 211378176,
+          "scope": "isolated Node process including wrapper, WASM, adapters and input; no metric subprocess",
+          "wasmLinearMemoryBytes": null
+        }
+      },
+      "containerOverheadBytes": 40,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6",
+          "samplesCompared": 160000,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29",
+          "samplesCompared": 160000,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    }
+  ]
+}

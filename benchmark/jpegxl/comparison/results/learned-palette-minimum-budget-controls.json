@@ -1,0 +1,178 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "28e122b8442808f14b9c8d13a6a0b2b7af188bd21053d7ff3bb46757f061695e",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-learned-palette-min-budget-170b.ts",
+      "sha256": "7e2e9871cc6cff24ffa90dc4615639a78a472c55cb14a521957f86f6ee583421"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "bf372c4d1a5b646205859285ca4b12bea128fca230a0a4c23bae627d9923eaaf"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a59b375901e3ddc596a25fa301257397617bd2e8efefec99f73921f7437a9366"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-modular-encode.ts",
+      "sha256": "83dda4669d3cd29f66c4da88f14e319a9bd255072ca0b16ae2b6232f84ebf101"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/learned-palette-162/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "variant": "baseline",
+      "label": "unrestricted",
+      "maxWorkingBytes": 268435456,
+      "peak": 221988,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 586,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/baseline-unrestricted.jxl",
+      "artifactSha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    },
+    {
+      "variant": "current",
+      "label": "unrestricted",
+      "maxWorkingBytes": 268435456,
+      "peak": 242800,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 583,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/current-unrestricted.jxl",
+      "artifactSha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    },
+    {
+      "variant": "current",
+      "label": "old-minimum",
+      "maxWorkingBytes": 221988,
+      "peak": 221988,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 586,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/current-old-minimum.jxl",
+      "artifactSha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    },
+    {
+      "variant": "current",
+      "label": "below-old-minimum",
+      "maxWorkingBytes": 221987,
+      "peak": 220974,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/current-below-old-minimum.jxl",
+      "artifactSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": "LIMIT_EXCEEDED",
+      "samplesCompared": 0
+    },
+    {
+      "variant": "baseline",
+      "label": "old-minimum",
+      "maxWorkingBytes": 221988,
+      "peak": 221988,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 586,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/baseline-old-minimum.jxl",
+      "artifactSha256": "720a92c584bb796b1d98f1abec650c18c57c3281ab794e91d75031fe37090d6d",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    },
+    {
+      "variant": "baseline",
+      "label": "below-old-minimum",
+      "maxWorkingBytes": 221987,
+      "peak": 220974,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/baseline-below-old-minimum.jxl",
+      "artifactSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": "LIMIT_EXCEEDED",
+      "samplesCompared": 0
+    },
+    {
+      "variant": "current",
+      "label": "optional-peak",
+      "maxWorkingBytes": 242800,
+      "peak": 242800,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 583,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/current-optional-peak.jxl",
+      "artifactSha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    },
+    {
+      "variant": "current",
+      "label": "below-optional-peak",
+      "maxWorkingBytes": 242799,
+      "peak": 241786,
+      "live": 0,
+      "allocations": 0,
+      "bytes": 583,
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-min-budget-170b/current-below-optional-peak.jxl",
+      "artifactSha256": "5c385bac628a0b090979409ba8e042d9df6b3361f2c06886b9e0a89910327671",
+      "inputSha256": "42affe2f5dceb2f12fa084b49fb5fe78501fbb0177e8d879b051829d183fbcc5",
+      "errorCode": null,
+      "samplesCompared": 4608
+    }
+  ],
+  "policy": "The unchanged original 48x32 RGB8 memory fixture is independently exact at the original mandatory allocation minimum, fails one byte below it, and recovers a valid original-sample-exact stream below the new optional-search peak. Preserve mandatory failure and no-output semantics; optional search failure retains a complete prior stream. No production mutation or speed claim."
+}

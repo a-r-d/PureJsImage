@@ -8,6 +8,7 @@ import { readExactly } from '../source.ts'
 import { decodeBrotli } from './brotli.ts'
 import { ascii, uint32BigEndian } from './helpers.ts'
 import { createIsobmffReader, type IsobmffBox } from './isobmff.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 
 export const jpegXlRawSignature = Uint8Array.of(0xff, 0x0a)
@@ -70,14 +71,14 @@ const validateFileType = async (
   const payload = await reader.payload(box, 4_096)
   throwIfAborted(options.signal)
   if (payload.byteLength < 8 || payload.byteLength % 4 !== 0) {
-    throw invalidInput('JPEG XL ftyp box is malformed')
+    throw invalidJpegXlInput('ftyp box is malformed')
   }
   const majorBrand = ascii(payload, 0, 4)
   let declaresJpegXl = majorBrand === 'jxl '
   for (let offset = 8; offset < payload.byteLength; offset += 4) {
     declaresJpegXl ||= ascii(payload, offset, 4) === 'jxl '
   }
-  if (!declaresJpegXl) throw invalidInput('JPEG XL ftyp box does not declare the jxl brand')
+  if (!declaresJpegXl) throw invalidJpegXlInput('ftyp box does not declare the jxl brand')
   const version = uint32BigEndian(payload, 4)
   if (version !== 0 && version !== 1) {
     throw unsupportedOperation(`JPEG XL container version ${version} is not supported`)
@@ -91,7 +92,7 @@ const validateCodestreamStart = async (
   options: Readonly<AbortOptions>,
 ): Promise<void> => {
   if (segment.length < jpegXlRawSignature.byteLength) {
-    throw invalidInput('JPEG XL codestream segment is truncated')
+    throw invalidJpegXlInput('codestream segment is truncated')
   }
   const signature = await readExactly(
     source,
@@ -100,7 +101,7 @@ const validateCodestreamStart = async (
     options,
   )
   if (!startsWith(signature, jpegXlRawSignature)) {
-    throw invalidInput('JPEG XL codestream signature is missing')
+    throw invalidJpegXlInput('codestream signature is missing')
   }
 }
 
@@ -111,7 +112,7 @@ const checkedCodestreamBytes = (
   let bytes = 0
   for (const segment of segments) {
     bytes += segment.length
-    if (!Number.isSafeInteger(bytes)) throw invalidInput('JPEG XL codestream size overflows')
+    if (!Number.isSafeInteger(bytes)) throw invalidJpegXlInput('codestream size overflows')
   }
   if (bytes > limits.maxCodestreamBytes) {
     throw limitExceeded(
@@ -139,36 +140,36 @@ const inspectContainer = async (
     signature.start !== 0 ||
     signature.end !== jpegXlContainerSignature.byteLength
   ) {
-    throw invalidInput('JPEG XL container signature box is malformed')
+    throw invalidJpegXlInput('container signature box is malformed')
   }
   const signaturePayload = await reader.payload(signature, 4)
   if (!startsWith(signaturePayload, jpegXlContainerSignature.subarray(8))) {
-    throw invalidInput('JPEG XL container signature payload is invalid')
+    throw invalidJpegXlInput('container signature payload is invalid')
   }
-  if (fileType?.type !== 'ftyp') throw invalidInput('JPEG XL container requires ftyp after JXL')
+  if (fileType?.type !== 'ftyp') throw invalidJpegXlInput('container requires ftyp after JXL')
   if (
     boxes.filter(({ type }) => type === 'JXL ').length !== 1 ||
     boxes.filter(({ type }) => type === 'ftyp').length !== 1
   ) {
-    throw invalidInput('JPEG XL container repeats a required signature or ftyp box')
+    throw invalidJpegXlInput('container repeats a required signature or ftyp box')
   }
   const containerVersion = await validateFileType(reader, fileType, options)
 
   const levelBoxes = boxes.filter(({ type }) => type === 'jxll')
-  if (levelBoxes.length > 1) throw invalidInput('JPEG XL container repeats the jxll box')
+  if (levelBoxes.length > 1) throw invalidJpegXlInput('container repeats the jxll box')
   let level: 5 | 10 | undefined
   const levelBox = levelBoxes[0]
   if (levelBox) {
     const payload = await reader.payload(levelBox, 1)
     const value = payload[0]
     if (payload.byteLength !== 1 || (value !== 5 && value !== 10)) {
-      throw invalidInput('JPEG XL jxll level is invalid')
+      throw invalidJpegXlInput('jxll level is invalid')
     }
     level = value
   }
 
   const frameIndexes = boxes.filter(({ type }) => type === 'jxli')
-  if (frameIndexes.length > 1) throw invalidInput('JPEG XL container repeats the jxli box')
+  if (frameIndexes.length > 1) throw invalidJpegXlInput('container repeats the jxli box')
   const frameIndex = frameIndexes[0]
   if (frameIndex && frameIndex.end - frameIndex.contentStart > limits.maxMetadataBytes) {
     throw limitExceeded('JPEG XL jxli box exceeds maxMetadataBytes')
@@ -177,9 +178,9 @@ const inspectContainer = async (
   const complete = boxes.filter(({ type }) => type === 'jxlc')
   const partial = boxes.filter(({ type }) => type === 'jxlp')
   if (complete.length > 0 && partial.length > 0) {
-    throw invalidInput('JPEG XL container mixes jxlc and jxlp codestream representations')
+    throw invalidJpegXlInput('container mixes jxlc and jxlp codestream representations')
   }
-  if (complete.length > 1) throw invalidInput('JPEG XL container repeats the jxlc box')
+  if (complete.length > 1) throw invalidJpegXlInput('container repeats the jxlc box')
   if (partial.length > limits.maxSegments) {
     throw limitExceeded(
       `JPEG XL has ${partial.length} jxlp segments; maxSegments is ${limits.maxSegments}`,
@@ -191,7 +192,7 @@ const inspectContainer = async (
   if (complete.length === 1) {
     organization = 'jxlc'
     const box = complete[0]
-    if (!box) throw invalidInput('JPEG XL jxlc box is missing')
+    if (!box) throw invalidJpegXlInput('jxlc box is missing')
     segments.push(
       Object.freeze({ offset: box.contentStart, length: box.end - box.contentStart, index: 0 }),
     )
@@ -203,20 +204,20 @@ const inspectContainer = async (
       throwIfAborted(options.signal)
       const box = partial[physicalIndex]
       if (!box || box.end - box.contentStart < 4) {
-        throw invalidInput('JPEG XL jxlp box is truncated')
+        throw invalidJpegXlInput('jxlp box is truncated')
       }
       const header = await readExactly(source, box.contentStart, 4, options)
       const indexAndFinal = uint32BigEndian(header, 0)
       const index = indexAndFinal & 0x7fff_ffff
       const final = (indexAndFinal & 0x8000_0000) !== 0
-      if (indexes.has(index)) throw invalidInput('JPEG XL jxlp indexes must be unique')
+      if (indexes.has(index)) throw invalidJpegXlInput('jxlp indexes must be unique')
       indexes.add(index)
       if (containerVersion === 0 && index !== physicalIndex) {
-        throw invalidInput('JPEG XL version 0 jxlp indexes must be in ascending order')
+        throw invalidJpegXlInput('version 0 jxlp indexes must be in ascending order')
       }
       if (final) {
         if (finalIndex !== undefined) {
-          throw invalidInput('JPEG XL jxlp final-fragment signaling is invalid')
+          throw invalidJpegXlInput('jxlp final-fragment signaling is invalid')
         }
         finalIndex = index
       }
@@ -228,26 +229,26 @@ const inspectContainer = async (
         }),
       )
     }
-    if (finalIndex === undefined) throw invalidInput('JPEG XL jxlp sequence has no final fragment')
+    if (finalIndex === undefined) throw invalidJpegXlInput('jxlp sequence has no final fragment')
     if (finalIndex !== partial.length - 1 || indexes.size !== partial.length) {
-      throw invalidInput('JPEG XL jxlp indexes are not a contiguous sequence')
+      throw invalidJpegXlInput('jxlp indexes are not a contiguous sequence')
     }
     segments.sort((left, right) => left.index - right.index)
   } else {
-    throw invalidInput('JPEG XL container contains no jxlc or jxlp codestream')
+    throw invalidJpegXlInput('container contains no jxlc or jxlp codestream')
   }
 
   const firstSegment = segments[0]
-  if (!firstSegment) throw invalidInput('JPEG XL container codestream is empty')
+  if (!firstSegment) throw invalidJpegXlInput('container codestream is empty')
   await validateCodestreamStart(source, firstSegment, options)
 
   const metadataTypes = new Set(['Exif', 'xml ', 'jumb', 'jbrd', 'brob'])
   const metadataBoxes = boxes.filter(({ type }) => metadataTypes.has(type)).map(summary)
   if (metadataBoxes.filter(({ type }) => type === 'jbrd').length > 1) {
-    throw invalidInput('JPEG XL container repeats the jbrd box')
+    throw invalidJpegXlInput('container repeats the jbrd box')
   }
   const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.payloadBytes, 0)
-  if (!Number.isSafeInteger(metadataBytes)) throw invalidInput('JPEG XL metadata size overflows')
+  if (!Number.isSafeInteger(metadataBytes)) throw invalidJpegXlInput('metadata size overflows')
   if (metadataBytes > limits.maxMetadataBytes) {
     throw limitExceeded(
       `JPEG XL metadata has ${metadataBytes} bytes; maxMetadataBytes is ${limits.maxMetadataBytes}`,
@@ -273,7 +274,7 @@ export const inspectJpegXlSource = async (
 ): Promise<JpegXlStructure> => {
   throwIfAborted(options.signal)
   if (source.size < jpegXlRawSignature.byteLength) {
-    throw invalidInput('JPEG XL signature is truncated')
+    throw invalidJpegXlInput('signature is truncated')
   }
   const header = await readExactly(
     source,
@@ -302,7 +303,7 @@ export const inspectJpegXlSource = async (
   }
   if (startsWith(header, jpegXlContainerSignature)) return inspectContainer(source, limits, options)
   if (header.byteLength >= 8 && ascii(header, 4, 4) === 'JXL ') {
-    throw invalidInput('JPEG XL container signature is malformed')
+    throw invalidJpegXlInput('container signature is malformed')
   }
   throw unsupportedOperation('Input is not a JPEG XL codestream or container')
 }
@@ -326,7 +327,7 @@ const decodedMetadataBoxes = async (
     throwIfAborted(options.signal)
     let type = box.type
     if (type === 'brob') {
-      if (box.payloadBytes < 5) throw invalidInput('JPEG XL brob metadata is truncated')
+      if (box.payloadBytes < 5) throw invalidJpegXlInput('brob metadata is truncated')
       type = ascii(await readExactly(source, boxContentStart(box), 4, options), 0, 4)
       if (type.startsWith('jxl') || type === 'brob' || type === 'jbrd') {
         throw invalidInput(`JPEG XL brob cannot contain ${type}`)
@@ -362,10 +363,10 @@ export const readJpegXlPreservedMetadata = async (
   const exifBox = options.exif ? decoded.get('Exif') : undefined
   let exif: Uint8Array | undefined
   if (exifBox) {
-    if (exifBox.byteLength < 12) throw invalidInput('JPEG XL Exif metadata is truncated')
+    if (exifBox.byteLength < 12) throw invalidJpegXlInput('Exif metadata is truncated')
     const tiffOffset = uint32BigEndian(exifBox, 0)
     const start = 4 + tiffOffset
-    if (start + 8 > exifBox.byteLength) throw invalidInput('JPEG XL Exif TIFF offset is invalid')
+    if (start + 8 > exifBox.byteLength) throw invalidJpegXlInput('Exif TIFF offset is invalid')
     exif = Uint8Array.from(exifBox.subarray(start))
     // Validate the TIFF header and first IFD without altering the preserved payload.
     normalizeExifOrientation(exif)
@@ -397,12 +398,12 @@ export class JpegXlCodestreamSource implements ImageSource {
         const logical = Object.freeze({ ...segment, logicalStart })
         logicalStart += segment.length
         if (!Number.isSafeInteger(logicalStart)) {
-          throw invalidInput('JPEG XL logical codestream size overflows')
+          throw invalidJpegXlInput('logical codestream size overflows')
         }
         return logical
       }),
     )
-    if (logicalStart !== this.size) throw invalidInput('JPEG XL logical codestream size is invalid')
+    if (logicalStart !== this.size) throw invalidJpegXlInput('logical codestream size is invalid')
   }
 
   async read(
@@ -412,10 +413,10 @@ export class JpegXlCodestreamSource implements ImageSource {
   ): Promise<Uint8Array> {
     throwIfAborted(options.signal)
     if (!Number.isSafeInteger(offset) || offset < 0) {
-      throw invalidInput('JPEG XL logical read offset is invalid')
+      throw invalidJpegXlInput('logical read offset is invalid')
     }
     if (!Number.isSafeInteger(length) || length < 0) {
-      throw invalidInput('JPEG XL logical read length is invalid')
+      throw invalidJpegXlInput('logical read length is invalid')
     }
     const available = offset >= this.size ? 0 : Math.min(length, this.size - offset)
     if (available === 0) return new Uint8Array()
@@ -441,7 +442,7 @@ export class JpegXlCodestreamSource implements ImageSource {
       output.set(await readExactly(this.#source, physicalOffset, amount, options), written)
       written += amount
     }
-    if (written !== available) throw invalidInput('JPEG XL logical codestream has a gap')
+    if (written !== available) throw invalidJpegXlInput('logical codestream has a gap')
     return output
   }
 }

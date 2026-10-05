@@ -1,4 +1,4 @@
-import { invalidInput } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 const basis = Float32Array.from({ length: 64 }, (_, index) => {
   const frequency = index >>> 3
@@ -16,7 +16,7 @@ export const forwardJpegXlDct8 = (
   coefficients: Float32Array,
 ): void => {
   if (samples.length !== 64 || intermediate.length !== 64 || coefficients.length !== 64)
-    throw invalidInput('JPEG XL DCT8 requires three 64-value buffers')
+    throw invalidJpegXlInput('DCT8 requires three 64-value buffers')
   for (let y = 0; y < 8; y++) {
     const row = y * 8
     const a0 = (samples[row] ?? 0) + (samples[row + 7] ?? 0),

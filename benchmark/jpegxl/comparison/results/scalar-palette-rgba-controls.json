@@ -1,0 +1,219 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-scalar-palette-204.ts",
+      "sha256": "8e26e5285f938ef9989ca026dba58453700d5b032bc6ef7d9964650c8040afc4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-scalar-palette-204.ts",
+      "sha256": "c7c762f99859f69c7d5b38d8b14a66d0f1b0976dd7b5c3e227d2e20a3e686bfb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-policy-204.txt",
+      "sha256": "b8e2191788c194f28d6a2da4a3aeb0c296c75446157d2827c377dd9dd94024d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/tree-entropy-197-current/manifest.json",
+      "sha256": "366f043264c4abc314e7e1fd4bd593c1ef7f39ad977b6f3455db26ccbdfeabca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/remaining-lossless-local-profile.json",
+      "sha256": "19d01dd7352570df2c5e6df2ecc7bbef5734fc891783bc78fa293568880bcc84"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/baseline/jpegxl-modular-encode.ts",
+      "sha256": "e36173b7cc11ae00a0571d806015765843dfd264d29362d41f65dc4d5650e857"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/candidate/jpegxl-modular-encode.ts",
+      "sha256": "24cf2da84fb7a85fb4d408712c6d80dbdf572e3ea75256aece49f2cd1bbdaa73"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/scalar-palette-204/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/scalar-palette-204/output/im26-8160-original-baseline.jxl",
+      "artifactSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 416143,
+      "baselineBytes": 416143,
+      "changeBytes": 0,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 32986.162294,
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    }
+  ],
+  "policy": "A forced copied first-party local RGB scalar-palette structural control on the unchanged full RGBA8 screenshot. Alpha, all hidden color and every native/Rust original sample must remain exact. The copied baseline must reproduce the current complete public file. Scalar eligibility also moves RCT into local group headers, so growth is reported instead of silently removed. Complete-file alternative selection and old mandatory-limit recovery are not implemented in production. No speed, production adoption or general parity claim."
+}

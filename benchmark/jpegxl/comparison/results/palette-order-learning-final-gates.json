@@ -1,0 +1,132 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-public-176.json",
+      "sha256": "c23656320cb4c75e67842a7256d40650979a865d79d7892487630cdb43efc2df"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-focused-176.json",
+      "sha256": "3b30617fe5f59292c58d1647b69a77ce8b6f8c6c470a805ccae792c6df100492"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-quality-177.json",
+      "sha256": "eba2ef96cccaa24fae128586f632409f88b6eda808edf2a6d6fbab6172bd531f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-memory-178.json",
+      "sha256": "2ef6b2c0639e97c2f171e064c77cf743ff4da981053d239fc2a9de729f9e0a45"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-matrix-179c.json",
+      "sha256": "1851857e0a0ddc70bfad57bf02058685633251ab5ffc47e2881c5f1ce84cd987"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-audit-180.json",
+      "sha256": "9d65afdf1fb6a53e7f290a525bf776ef3a586a9401fa5b8e144bf6b78868e8f6"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-check-181.json",
+      "sha256": "d78324f4e9dc7999de50928674268d62ca7a282012336fc9e6e618141f773f83"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-palette-order-public.json",
+      "sha256": "0a6967df2d392acfd26332a822d882125a919261239affd9055300cdf2228e05"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-retention-audit.json",
+      "sha256": "5cc4be5fa92ab790c5b517dc61b39896ea683253712d6e72d4c9e150fe952006"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-minimum-budget-controls.json",
+      "sha256": "c0426307e8ef45cbd4e8c6d5da5a7a38acf53800882edb5ab1c812745b329bf0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort1-public.json",
+      "sha256": "8c9f3b6acadb9d1ea4a379a7585af32e4170d0f1002e14f8f721353d9d059a4a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort7-public.json",
+      "sha256": "5ac2031eabbad53e3de028e8ea62bceeea5b7c824805dea853702f52442e395d"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-palette-order-final-gates-181.ts",
+      "sha256": "6d85aa20752a0c5b15a6c6b3312f23b19df187e1767ed6ffd264a58a983df2ab"
+    },
+    {
+      "path": "/tmp/jpegxl-palette-order-check-181.log",
+      "sha256": "fe8a7d3f601f86bae73f7804df1ac478ecd1385001f9a10c12ba88f5e80eb53a"
+    },
+    {
+      "path": "/tmp/jpegxl-palette-order-focused-176.log",
+      "sha256": "35e5c65d945ca44bfc1a4c591f92d63f3ba597a123223bba22b21ca9969f267b"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "5e0ebca418882264dc5f4e979a76e121845bfb632e830f3910f1d67e5cc2d5e3"
+    },
+    {
+      "path": "tests/jpegxl-artwork.test.ts",
+      "sha256": "64d4d401766f580486a75c5fe112a4eb2a92afe253ae6650a4ded5f9c074cf0c"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "86c9ac2d441d4b389ffc6936c303ebc5f665cf5c37387764e32e6db7cf7c4dff"
+    }
+  ],
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "9a27f924c0f86f1ad458e0d304809338738cd07228c8d45a964c2ca037f8a791"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "qualityAudit": {
+    "observations": 166,
+    "pins": 132,
+    "calculations": 52,
+    "newlyEncoded": 91
+  },
+  "minimumBudget": {
+    "required": 221988,
+    "rejected": 221987,
+    "exactStreams": 6,
+    "rejectedStreams": 2
+  },
+  "fullMatrices": {
+    "streams": 32,
+    "independentGrids": 64,
+    "samplesCompared": 384733048
+  },
+  "fullGate": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/parity-palette-order-check-181.json",
+    "status": "completed",
+    "code": 0
+  },
+  "policy": "All fresh ordinary public fixed-settings encodings and both fresh full lossless effort matrices agree with the rebuilt final gate modules. Original uint8/uint16/alpha/hidden samples, complete size floors, the original mandatory small memory boundary, optional fallback, large-input regressions, real Chromium and all repository handoff gates pass. Previous snapshots remain separately pinned. No speed or general compression-parity claim."
+}

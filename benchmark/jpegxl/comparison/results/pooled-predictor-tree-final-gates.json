@@ -1,0 +1,131 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-pooled-trees-302.ts",
+      "sha256": "ba072fdc2b6e9160f3a5dec2bdd9bd97bc90ad4b9f44e2e4c13983b35fd5e167"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-final-302.json",
+      "sha256": "6f2cd62c8a9c01df72a0bd7756772c7b7b7c0f16f4376f7716e04c1257553bad"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-final-gates.json",
+      "sha256": "ba7fce97c6cb103470cdae47d292ef3351ba77ec4f31fec9736cb34688d82690"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-audit.json",
+      "sha256": "78714d82f0f6a21bcfb7da9b9d63d1f15ff180b8ca611f10ddbf2c506916b7ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-301.json",
+      "sha256": "e34ff8a9b0d1e82d0bb6188f248184aa54c8a7a19a36bb6669b86d362defd633"
+    },
+    {
+      "path": "/tmp/jpegxl-pooled-predictor-tree-repository-check-301.log",
+      "sha256": "5e6ebd72e30b0298ae2ad4ef598f9d300a622e42d18de840d8e346e21d6120d7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/POOLED-TREES.md",
+      "sha256": "d400099c01249439009ef26504ef94b2e236dfa38aaacff29e165f70cddc9b3d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-controls-296.json",
+      "sha256": "ca579b6051085bda6e5e3ea13d3dd0d35159b8b6fd7d880c656ef9757d7e2e8b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-profile-297.json",
+      "sha256": "5f20bc31187cefc9b52d30da666d1a2de30203c2ba007a210decca27b1f99ba8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-controls-298.json",
+      "sha256": "8bd2347afe5f650afb484dd176524c3459fb30489e724a64c5635c2be5699bdd"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-profile-299.json",
+      "sha256": "c437d97d86958a59fd46eb4de854fad64ab6212ba9b4653ed8749183e7431f2f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-audit-300.json",
+      "sha256": "1193ed9b33760b1cbf791ba702e066c587ea5ce5519ef8a4e484d2405038f134"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-repository-check-301.json",
+      "sha256": "e92c8d08866a635f99bc85ac4bae0c6c1932f36d964f3f45b46a9e330e4b5e11"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-program-profile.json",
+      "sha256": "8cf15f9fda4d536611680a586f10a6692bdbce01bebac2d0a43f477b3963deed"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 24,
+  "independentGrids": 48,
+  "independentSamples": 151019520,
+  "freshControlProfilePins": 214,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Four verified in actual child and installed Vitest resolver"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "All24pooled learning files/48independent grids/151019520original samples, physical common/global predictor profiles and actual full repository check pass. Every443prior qualification pin/eight rebuilt public modules/fourteen retained raw source/build files and prior295boundaries remain unchanged. Document delta rows directly match all8physical header/residual/outer accounts. Pooled learning improves1416and closes experimental boundary ordinary gap, but two photo ordinary floors remain+1111/+2101. No source, cap/cost/memory/package or full-parity adoption. Active sample/leaf limits and heterogeneous residual growth guide further model design."
+}

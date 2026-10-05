@@ -1,0 +1,578 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-photo-local-rct-275.ts",
+      "sha256": "30da25a24333637d7565e14225840f67f477e83ed177d2428445fd48f77c5722"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-photo-local-rct-275.ts",
+      "sha256": "2ecd4152df033ef4602dad4849d1a05db5685de4707fd3b81e012ee7477468e2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-photo-local-rct-275.json",
+      "sha256": "c4417b83d6b38fe90ae9ce03674072aab6119aad9c76abcf1e7aa9a7ff657b50"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/manifest.json",
+      "sha256": "57320be8b58edc646d65f3023e90d3fe4a346affcf4d47d3039436cde48442ad"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-modular-encode.ts",
+      "sha256": "76ec4680a4e963b08c956fcfe5105d72c87f6a8e79e34417e2db0c7ed98d2877"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-modular-encode.ts",
+      "sha256": "e1221e158ff6330495d65246f7713277f1dff11e4b4022067476d14f208f5ab3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-modular-encode.ts",
+      "sha256": "1e4b3fb131104ad4c5a8645c9e30397b854d27c376441864bc0205579f7c024d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-modular-encode.ts",
+      "sha256": "edafbf7e4209f421e7cd93d052e992162f1e7b09625e1fd7ed5eaf30f66478b5"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-modular-tree.ts",
+      "sha256": "3bfb51b8b38ed5203e35343ae4587845d84c2c47773df2d1485e5e476279ae58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-modular-tree.ts",
+      "sha256": "3bfb51b8b38ed5203e35343ae4587845d84c2c47773df2d1485e5e476279ae58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-modular-tree.ts",
+      "sha256": "3bfb51b8b38ed5203e35343ae4587845d84c2c47773df2d1485e5e476279ae58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-modular-tree.ts",
+      "sha256": "3bfb51b8b38ed5203e35343ae4587845d84c2c47773df2d1485e5e476279ae58"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/baseline/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/global256/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local256/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275/local512/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/remaining-funded-lossless-local-profile.json",
+      "sha256": "bb7187a1436f37c1e2abecc6a0403062ca3111faba817d906ba505566991a607"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-leaf-cap-controls.json",
+      "sha256": "5045fc6f0ef54b641986618300987405ea1d5c9942a5ac83f73263d70bf17130"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-layout-controls.json",
+      "sha256": "6ff9dd0ebc093ec53d95a49a64d3398297c36797f72e94fbaeca2542efa2a43a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-program-profile.json",
+      "sha256": "6f54c4f078d5b0724733652b838ea7843f517653e987c3ec16aaadf73955a8f6"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-baseline.jxl",
+      "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "bytes": 649404,
+      "baselineBytes": 649404,
+      "changeBytes": 0,
+      "requestedGroupDimension": 1024,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 132979807,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 25794.919146,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "global256",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-global256.jxl",
+      "encodedSha256": "935c667dac93a658cebf2e96feb3ed0cd9161e819f625a0e16ca2de5c10f838c",
+      "bytes": 675916,
+      "baselineBytes": 649404,
+      "changeBytes": 26512,
+      "requestedGroupDimension": 256,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 16375927,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 12,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-global256.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-global256.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 17771.278917000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "local256",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local256.jxl",
+      "encodedSha256": "08f894869e71cfaee038d3d00ec08a538ca9f1d2ae820ede5c8829106f01cd46",
+      "bytes": 651257,
+      "baselineBytes": 649404,
+      "changeBytes": 1853,
+      "requestedGroupDimension": 256,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 16314627,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 12,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local256.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local256.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 17563.665239,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "local512",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local512.jxl",
+      "encodedSha256": "01a66ac4c8a90cc86b67783971bbfbaf55e9ce7db47f3d2fcd18ba05a01cfae0",
+      "bytes": 641956,
+      "baselineBytes": 649404,
+      "changeBytes": -7448,
+      "requestedGroupDimension": 512,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 37074342,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local512.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-local512.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 10643.154107999988,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-baseline.jxl",
+      "encodedSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "bytes": 613268,
+      "baselineBytes": 613268,
+      "changeBytes": 0,
+      "requestedGroupDimension": 1024,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 173946841,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 31518.7258,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "global256",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-global256.jxl",
+      "encodedSha256": "b8a1d5a13c7fe6c770b11f5a862cd91b7b3119122484443cad70b9aaad9c5a04",
+      "bytes": 647790,
+      "baselineBytes": 613268,
+      "changeBytes": 34522,
+      "requestedGroupDimension": 256,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 16964139,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 16,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-global256.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-global256.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 21215.272453000012,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "local256",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local256.jxl",
+      "encodedSha256": "96929ed1d04b8a23edbcc212316b5aac2c168b66a185ab0388f7e3fe7ee92915",
+      "bytes": 622029,
+      "baselineBytes": 613268,
+      "changeBytes": 8761,
+      "requestedGroupDimension": 256,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 16911316,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 16,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local256.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local256.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 21077.973516,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "local512",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local512.jxl",
+      "encodedSha256": "1ec6b0aecf36b03706357accc1a3771adcbf80642b8ba7405ef6ffaff06bf199",
+      "bytes": 615721,
+      "baselineBytes": 613268,
+      "changeBytes": 2453,
+      "requestedGroupDimension": 512,
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 37459237,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local512.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-local512.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 11208.792457000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Whole fixed1416/2018 original RGBA8 photos: current baseline and independently exact273global256 control, versus local256/local512 RCT selection. Existing first-party bounded4096literal-rate selector scores42legal types; extend only sample addressing to strided group origins without copying pixels. Move RCT signaling from global to local before existing palette/squeeze transforms. Keep65536training/256leaves/depth16/128models/262144LZcache and predictor/histogram policies. No shared-tree implementation or second complete ordinary encode. Require all original native/Rust/public samples, exact baselines, immutable pins/inputs and closed ownership; report growth/actual selected geometry. One-off times are diagnostic, not original5percent paired qualification. No production or broader parity claim."
+}

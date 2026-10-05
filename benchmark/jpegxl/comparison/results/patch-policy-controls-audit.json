@@ -1,0 +1,642 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "matchedPins": 91,
+  "independentSamples": 132710400,
+  "publicSamples": 66355200,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-patch-policy-controls-218.ts",
+      "sha256": "39b0c451770e08a7d39277e550b409edc3ae05fd97a9f0b464d29346cae1465f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-policy-audit-218.json",
+      "sha256": "550171679054ed776085765171b8aeb42ee7738175192ad3ea50674c47e91a9e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-group-policy-211.json",
+      "sha256": "3bca0d6e2a97aedee2f5094be5027eb5bd65ae4201b0e7f49438fce09d8fac27"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-baseline-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-baseline-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-baseline.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-candidate-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-candidate-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-candidate.jxl",
+      "sha256": "2624471ce515413bcaae4955dc0df3a7509f7942e46663bc19077802abb07551"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-controls.json",
+      "sha256": "fd254521d47f730ea81a9448ddb255b553419ff9ce2d18f9c06794a4a96a2f54"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-model-reuse-213.json",
+      "sha256": "8ada88889c098093402c63122a88c5bc949efea9e4b8e4ed75b89066eaaffcad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-baseline-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-baseline-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-baseline.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-candidate-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-candidate-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-candidate.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "sha256": "95f78da979f070d1252b95d5c49a4871e48f7c537e002cfdb2f1cdc0f03c6e30"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-model-reuse-force-214.json",
+      "sha256": "78e8384003ee96f63e60d8b09f936255302e6733d5d18b54fd845fe85a465378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-baseline-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-baseline-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-baseline.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-candidate-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-candidate-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-candidate.jxl",
+      "sha256": "a3a33f96458d56f675b058d36252a8f296ff3bfb6536f711284aab2256af1751"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "sha256": "394367f9b994eac2823ad9770b9b52205e6cc85f12885a711f2ad2294bbf525b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-spatial-tree-216.json",
+      "sha256": "1e2e84bb05a30348908637917b824d5456b8e91fd401235efa65ae710fd0c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate-native.png",
+      "sha256": "98be29b78927520ed2010db635e29f7c48a65d9ab28c91a0172c32e921095451"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate-rust.png",
+      "sha256": "08479e2c69120b07563a0f416985d9ead4be2901a6bdfb7a48959eb3312f66fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "sha256": "ef80178eead9fe89f0f38fc19c698f5261d862f7b080e503810d1ce05f3c355c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-group-performance-212.json",
+      "sha256": "42205c6e02de7c69bfe86b843ae8e21e8fe41d3e77a615bf1d2cb14bd0069f6c"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-patch-group-212.ts",
+      "sha256": "922768d3f704fee4ddaf90a84735a422f3387ef7ecf8888567da6f9c8bf45d00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-patch-group-worker-212.ts",
+      "sha256": "61cd8d91977899c78616a04119be015e09c4bdb9fb99ab0e771e290f90c06c20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-baseline-0.json",
+      "sha256": "49c8855c4a3a4463be110b2054e6f2acbdc9e76985f2c2c1f1b32c2b7116a93e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-candidate-0.json",
+      "sha256": "12edafdb571add5afb03a0f75c76edb47df8923163857b46b85a4fa47c1479dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-candidate-1.json",
+      "sha256": "c444848dbc6f9b104223a9ce8ea7c54ab137e8c3805f92b41c759c6c9074b239"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-baseline-1.json",
+      "sha256": "835dfbd021adaf912550ae67cf70db9df76a5f288f582f99d0005470ac846d00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-baseline-2.json",
+      "sha256": "3e0a1354f292eefe2deac6faa62dc14f690484a53b9b6e8b622ae6617f09e888"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-group-performance-212-candidate-2.json",
+      "sha256": "9bb4774a0737399abdb60e3cd203c32c2c3b1e6f8cb8e500a8ff9c4ba70afb87"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "sha256": "8777f62c54111ba1464cd065616c4c46f823672f7d475fa1e4409ffa18cd916b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-spatial-performance-217.json",
+      "sha256": "db95a1f427ad89259b7246081ca3bf131507ff277d1ebd4c956a8125434d4115"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-spatial-217.ts",
+      "sha256": "08215e28c9f8ecd7c31ba9772247806d9bd448b7f34555cc4bea73d2a7fea34c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-spatial-worker-217.ts",
+      "sha256": "516a1acb34e73bc99c2e5530a0729169917da312ce2433d4aac45fc98de1ba5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-baseline-0.json",
+      "sha256": "9fc5825344034dfeced0288cfbc04a9952dc79703cd29d52acf783b674b68b71"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-candidate-0.json",
+      "sha256": "60c6b0e9bca984709a08c9a12d9dccabbb5064de3d68d062db6e459c9f2f2570"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-candidate-1.json",
+      "sha256": "aed8ff9dc1f9aa39a9a2e644b3da9dced7ed2c3c28aeadfaf856e32aa8fcc229"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-baseline-1.json",
+      "sha256": "122b898b17e7bb440c1eb92a8be714e013f065bf6bde25feb7ef406244182238"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-baseline-2.json",
+      "sha256": "ce0b786f724fd905a172b400efcebff19a098cd903600793a93c5fba0c68aec4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-performance-217-candidate-2.json",
+      "sha256": "b7326a06206d61fd9c4b040236a154b66402a030cfe5e8032f56c9db6f76f275"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-baseline-cpu-profile-counts.json",
+      "sha256": "b4289157f5c89efd054c2186cc79700988be3bc463f01ca6df8f90c84c38143e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/inspect-modular-trees.ts",
+      "sha256": "eb09a11fd5176b0f682864fb8620de3712b2c4a0cb9de22601912981f7abfb79"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-emitted-trees-218.json",
+      "sha256": "1b2d9b2bb10aa7f44721e449ed9e471edf33de81754183aafae1a4b66963a941"
+    }
+  ],
+  "results": [
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-baseline.jxl",
+      "bytes": 416143,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-group-policy-211/output/im26-8160-original-candidate.jxl",
+      "bytes": 402055,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-model-reuse-controls.json",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-baseline.jxl",
+      "bytes": 416143,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-model-reuse-controls.json",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-candidate.jxl",
+      "bytes": 416143,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-baseline.jxl",
+      "bytes": 416143,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214/output/im26-8160-original-candidate.jxl",
+      "bytes": 418331,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "bytes": 416143,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "bytes": 413957,
+      "publicSamples": 8294400,
+      "independentSamples": 16588800,
+      "maximumSampleError": 0
+    }
+  ],
+  "performanceResults": [
+    {
+      "report": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "pairs": 3,
+      "completeEncodes": 12,
+      "independentlyValidatedHashes": true,
+      "settledGc": true,
+      "pairedCalculations": true,
+      "productionAccepted": false
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "pairs": 3,
+      "completeEncodes": 12,
+      "independentlyValidatedHashes": true,
+      "settledGc": true,
+      "pairedCalculations": true,
+      "productionAccepted": false
+    }
+  ],
+  "spatialStructures": [
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "reference",
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "regular",
+      "section": "global",
+      "nodes": 1,
+      "leaves": 1,
+      "properties": [],
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "regular",
+      "section": "group-0",
+      "nodes": 1343,
+      "leaves": 672,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 200
+        },
+        {
+          "property": 10,
+          "count": 122
+        },
+        {
+          "property": 11,
+          "count": 94
+        },
+        {
+          "property": 12,
+          "count": 72
+        },
+        {
+          "property": 13,
+          "count": 65
+        },
+        {
+          "property": 15,
+          "count": 115
+        }
+      ],
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "regular",
+      "section": "group-1",
+      "nodes": 1207,
+      "leaves": 604,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 152
+        },
+        {
+          "property": 10,
+          "count": 99
+        },
+        {
+          "property": 11,
+          "count": 70
+        },
+        {
+          "property": 12,
+          "count": 61
+        },
+        {
+          "property": 13,
+          "count": 67
+        },
+        {
+          "property": 15,
+          "count": 151
+        }
+      ],
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "regular",
+      "section": "group-2",
+      "nodes": 7,
+      "leaves": 4,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        }
+      ],
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-baseline.jxl",
+      "frameType": "regular",
+      "section": "group-3",
+      "nodes": 59,
+      "leaves": 30,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 7
+        },
+        {
+          "property": 10,
+          "count": 6
+        },
+        {
+          "property": 13,
+          "count": 1
+        },
+        {
+          "property": 15,
+          "count": 12
+        }
+      ],
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "frameType": "reference",
+      "skippedSections": []
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "frameType": "regular",
+      "section": "global",
+      "nodes": 1,
+      "leaves": 1,
+      "properties": [],
+      "skippedSections": [
+        {
+          "section": 5,
+          "reason": "Transform header requires a separate probe"
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "frameType": "regular",
+      "section": "group-0",
+      "nodes": 1443,
+      "leaves": 722,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 2,
+          "count": 128
+        },
+        {
+          "property": 3,
+          "count": 127
+        },
+        {
+          "property": 9,
+          "count": 134
+        },
+        {
+          "property": 10,
+          "count": 83
+        },
+        {
+          "property": 11,
+          "count": 64
+        },
+        {
+          "property": 12,
+          "count": 41
+        },
+        {
+          "property": 13,
+          "count": 44
+        },
+        {
+          "property": 15,
+          "count": 97
+        }
+      ],
+      "skippedSections": [
+        {
+          "section": 5,
+          "reason": "Transform header requires a separate probe"
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "frameType": "regular",
+      "section": "group-1",
+      "nodes": 1337,
+      "leaves": 669,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 2,
+          "count": 130
+        },
+        {
+          "property": 3,
+          "count": 95
+        },
+        {
+          "property": 9,
+          "count": 80
+        },
+        {
+          "property": 10,
+          "count": 87
+        },
+        {
+          "property": 11,
+          "count": 47
+        },
+        {
+          "property": 12,
+          "count": 44
+        },
+        {
+          "property": 13,
+          "count": 37
+        },
+        {
+          "property": 15,
+          "count": 145
+        }
+      ],
+      "skippedSections": [
+        {
+          "section": 5,
+          "reason": "Transform header requires a separate probe"
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-tree-216/output/im26-8160-original-candidate.jxl",
+      "frameType": "regular",
+      "section": "group-3",
+      "nodes": 65,
+      "leaves": 33,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 2,
+          "count": 1
+        },
+        {
+          "property": 3,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 7
+        },
+        {
+          "property": 10,
+          "count": 6
+        },
+        {
+          "property": 13,
+          "count": 1
+        },
+        {
+          "property": 15,
+          "count": 11
+        }
+      ],
+      "skippedSections": [
+        {
+          "section": 5,
+          "reason": "Transform header requires a separate probe"
+        }
+      ]
+    }
+  ],
+  "profileNegativeDeltasPreserved": true,
+  "policy": "Re-read eight whole copied first-party files, all sixteen independent original grids and all ordinary public decoder pixels. Verify raw three-pair pilot logs, exact independently validated measured hashes, settled GC and paired calculations. Preserve profile sample-count limitations. Parse emitted baseline/candidate tree structure separately; branch counts are not pixel frequency or causal byte attribution. Production and current public comparison outputs remain unchanged. Pilots cannot accept production, establish speed or prove overall parity."
+}

@@ -1,0 +1,984 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "d093319eb94d36b23a39014035c077bee864f6f9b91d856b72fba8f0ce653398",
+  "implementationDirty": true,
+  "harnessSha256": "09d161f75a1d90ac3e185b2f9cb8bd2da74c53b8ff7687bea5823e6cdfdcb843",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "candidateModuleHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/baseline/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "14de108c6429fb2e327c528b004243acf5506eafb0f79a55c0af68fb906b418a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "bb565a7ad30075a3229d2eed8b95542d51c71610a6d9a9d33e8335ec361f2f43"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-2/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-2/jpegxl-vardct-encode.ts",
+      "sha256": "94181a7e3db4cec6f02a335de36892cbcb027a5023ff71e300218d448845ca2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-2/jpegxl-jpeg-encode.ts",
+      "sha256": "8a9a9a8766d2beea3aa39a44879e0a2f4aa9e4977400a15ce59f93ddcd7564a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-3/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-3/jpegxl-vardct-encode.ts",
+      "sha256": "4fb956f53f792f75c3f930709d20882a8536b6f353a13fdd9633e9a7f595c15a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-3/jpegxl-jpeg-encode.ts",
+      "sha256": "8a9a9a8766d2beea3aa39a44879e0a2f4aa9e4977400a15ce59f93ddcd7564a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-4/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-4/jpegxl-vardct-encode.ts",
+      "sha256": "d02678170f4e6d3f55e808bc8baa0a7e6cd5ab892fc7cd4544688927ac8bede1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/gaborish-neumann-130/degree-4/jpegxl-jpeg-encode.ts",
+      "sha256": "8a9a9a8766d2beea3aa39a44879e0a2f4aa9e4977400a15ce59f93ddcd7564a9"
+    }
+  ],
+  "preparationHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-gaborish-neumann-130.ts",
+      "sha256": "e14d32cca4a8120e30c98545101e5848111c72cfaa0f2e19007086b5d0f26ac4"
+    }
+  ],
+  "toolHashes": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "identityBoundary": "Production source remains qualified d093319. Separately hashed first-party copies isolate restoration and finite Neumann inverse degrees.",
+  "policy": "Bounded degree-2/3/4 Neumann inverse-preconditioning controls with two shrinking halo tiles before both DC and AC coding; signal default Gaborish only for qualified opaque SDR RGBA photos above distance 1. Protect every distance-1, graphic and transparency artifact byte for byte. Every output must have complete independently decoded grids, disagreement at most one RGB level and exact original alpha. Broad screening interpolations are not adequate public comparisons or proof of retention. No production mutation or speed claim.",
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 1,
+      "bytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "protected": true,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-baseline-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "distance": 1,
+      "bytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "protected": true,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-2-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "distance": 1,
+      "bytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "protected": true,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-3-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "distance": 1,
+      "bytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "protected": true,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-4-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-baseline-4.jxl",
+      "artifactSha256": "69587c6b6bc9845ae826548c2000614e25eef0fa6c8e1c1c845fb26cf7553b30",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "distance": 4,
+      "bytes": 97256,
+      "score": 84.12697917,
+      "butteraugli": 1.7700753212,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-2-4.jxl",
+      "artifactSha256": "a2050a99f4804ae2425bd9589efb67c63b9e86bcfdbef1bc2e684e7a26f45624",
+      "nativePixelsSha256": "522145152ea101f09f20449d8f75ad50d5cc72f70811b11fdcfb8b70fbb24d72",
+      "rustPixelsSha256": "69b15f575d8816df9999ea301a313770a45d5d9086d81ed04b7380370ae38c70",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "distance": 4,
+      "bytes": 99048,
+      "score": 84.64520748,
+      "butteraugli": 1.987010479,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-3-4.jxl",
+      "artifactSha256": "3abcbec4839e3eb44e6cf0ced251de871c32c8fb799b8d62bdd87f35f4564201",
+      "nativePixelsSha256": "218c218793b0dc7dca599e0a6e9b463d2c3bf6ef838506700bf3d80c5b578cb0",
+      "rustPixelsSha256": "fdc678842f4c9216c71bf4dd26cc162665ce85f851998e858c54ad72f4dfbc87",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "distance": 4,
+      "bytes": 99817,
+      "score": 84.74551069,
+      "butteraugli": 1.9371290207,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-4-4.jxl",
+      "artifactSha256": "aeac41ad4b5aba767e2138889607f85b1b3e2d09a1699a189b2d35d07edf22ab",
+      "nativePixelsSha256": "265f3918d6f695d6b4aa3e723e956fe8d9acc69707cc1102b60dc8df931cfe1d",
+      "rustPixelsSha256": "a24ad8d689ca5d9600ed3687c783d1ec4709db1d5b90ea02e05618068e1e4903",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-baseline-8.jxl",
+      "artifactSha256": "1104574327e962245903692fcc16f9f106222e205f125d5acdac124c5af9c9d4",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "distance": 8,
+      "bytes": 64285,
+      "score": 75.3837884,
+      "butteraugli": 3.1627745628,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-2-8.jxl",
+      "artifactSha256": "bb034fa695f076bd1f380618c2cb1602ee4121f4102f7560f458b24bc5581264",
+      "nativePixelsSha256": "81da96550df6b3f08ebde3c631126454aff8428d4dca0934dd407d6facfbd73a",
+      "rustPixelsSha256": "e9ec769bff8ffbc4dcbfed25c78b3435f3875b1a5769ae65c57b36164c319388",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "distance": 8,
+      "bytes": 65590,
+      "score": 75.56135815,
+      "butteraugli": 3.0365972519,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-3-8.jxl",
+      "artifactSha256": "83332e89b798b0654e7bc037ef47f7188aea8c139d45deafe7bcad1f421092bf",
+      "nativePixelsSha256": "c6121cc817f644b3a07db4d4959bf7976de49b9f15feb9f2c1ea891433d5690b",
+      "rustPixelsSha256": "4cdb9088ae933604a6a1beba91e400418fb73885b6a9c875818a57f361579f83",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "distance": 8,
+      "bytes": 66163,
+      "score": 75.74379491,
+      "butteraugli": 3.0452637672,
+      "protected": false,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1030-diagnostic-degree-4-8.jxl",
+      "artifactSha256": "05b566834e2b4d5dd9ff39487327d560d3b26eef78a9c1ae2707fed7798bf37c",
+      "nativePixelsSha256": "372d3d6d6be91835701a61afa33a1aff93e07683087e9fbd7e2187fade3c0f61",
+      "rustPixelsSha256": "70a60ef0c32d745c29aadedde16368afba679bf539b2a79773e5ef34c26c9a77",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 1,
+      "bytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "protected": true,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-baseline-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "distance": 1,
+      "bytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "protected": true,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-2-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "distance": 1,
+      "bytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "protected": true,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-3-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "distance": 1,
+      "bytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "protected": true,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-4-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 52532,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-baseline-4.jxl",
+      "artifactSha256": "dd5c6edd89aec8aa3cf7ad390c91e2539d66fa8b2bb20fb5e2d8b3eeac06488d",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "distance": 4,
+      "bytes": 61676,
+      "score": 84.11090356,
+      "butteraugli": 1.6842037439,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-2-4.jxl",
+      "artifactSha256": "1937eca8a060945d1c7bcdfb69f6e5f741a7e25f4e73612c9e5af1d09ab17476",
+      "nativePixelsSha256": "8a5e37c17d8f1bf8b81d65100a97fbd406b443eeb82a7155d210f446e2ac6a6d",
+      "rustPixelsSha256": "e3b466d9badd979f0993ea9f38fe2e0a58352bd379e911a3fa0b965ab72e5256",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "distance": 4,
+      "bytes": 62784,
+      "score": 84.45214062,
+      "butteraugli": 1.7542849779,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-3-4.jxl",
+      "artifactSha256": "d8f4810324c6f58b2213573be4c5b3eb07035456a885a1a410621652218e3bf7",
+      "nativePixelsSha256": "1af8f49f72fdf2a589e1faba2fbf6cd2905d7b60dcd9ba09b040b246e452ec58",
+      "rustPixelsSha256": "ddbd20bd1853ce03bf0158dda78f897e5a05a14d0b74a840f5c164177dc9b302",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "distance": 4,
+      "bytes": 63200,
+      "score": 84.5612215,
+      "butteraugli": 1.7049592733,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-4-4.jxl",
+      "artifactSha256": "91bef03d99d3d6da1d70773aa73cc8e291cba6a4a0ba32f3094482ecdb2d92a4",
+      "nativePixelsSha256": "7ee06817b35c5875725769ebbab45825f0ee68da122c6f567570733b337afff0",
+      "rustPixelsSha256": "57b4cf6302f6cb64a5edeff248c848b321da886cb9a1a1da5595e549a4bb94db",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-baseline-8.jxl",
+      "artifactSha256": "71f42c2e9f46170801f304ef6cf7f48daa351d45946b262063c3f2ebc2196112",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "distance": 8,
+      "bytes": 37731,
+      "score": 74.24891139,
+      "butteraugli": 2.5344099998,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-2-8.jxl",
+      "artifactSha256": "2daef5c30e4eb2f20319c0d88ac26a55a1c5666baef2e50612a25f257f257ecb",
+      "nativePixelsSha256": "5349d147d5f241f2d4bb80e52f22ccad6110f372b4488e17c0c8049cb6e52a41",
+      "rustPixelsSha256": "610a0053e85be69c647c4754433df6bf72ae8c79adbc875fc974096c2a9d514e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "distance": 8,
+      "bytes": 38250,
+      "score": 74.50500871,
+      "butteraugli": 2.7394208908,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-3-8.jxl",
+      "artifactSha256": "0b6af2085f5a5470704b77743959e50ce5833f44681725bcb4f6c2a6fc46a034",
+      "nativePixelsSha256": "c82970b5338503301cbbfe5963f4dc9ebb584eabf053b75b0c6b03a3b3d2ba9f",
+      "rustPixelsSha256": "d107f069d2c5f8e534a916e74537a05a09cd63e0631aacc8d3f7eee9f7499b85",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "distance": 8,
+      "bytes": 38525,
+      "score": 74.63947353,
+      "butteraugli": 2.5584950447,
+      "protected": false,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-1416-diagnostic-degree-4-8.jxl",
+      "artifactSha256": "008291b70122d64dbaef72d3ecd533d2def7ce258f428ae2b049ca2a410ef68d",
+      "nativePixelsSha256": "ca1a083d0f1ba1362b67c134c9f1eaa82b1292a241d8b2d9b9e4d88bc7ff4bfe",
+      "rustPixelsSha256": "e2100fecd8377b8dc7cb4aa4642d640ad9979e781960bd423699c27facfcc783",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "protected": true,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-5034-diagnostic-baseline-3.jxl",
+      "artifactSha256": "c1554dcb63637ac7920bb108429268abb0d0eb10f4a128c760d03f0b56ba45d2",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-2",
+      "distance": 3,
+      "bytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "protected": true,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-5034-diagnostic-degree-2-3.jxl",
+      "artifactSha256": "c1554dcb63637ac7920bb108429268abb0d0eb10f4a128c760d03f0b56ba45d2",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-3",
+      "distance": 3,
+      "bytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "protected": true,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-5034-diagnostic-degree-3-3.jxl",
+      "artifactSha256": "c1554dcb63637ac7920bb108429268abb0d0eb10f4a128c760d03f0b56ba45d2",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-4",
+      "distance": 3,
+      "bytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "protected": true,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/im26-5034-diagnostic-degree-4-3.jxl",
+      "artifactSha256": "c1554dcb63637ac7920bb108429268abb0d0eb10f4a128c760d03f0b56ba45d2",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "protected": true,
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/alpha_triangles-baseline-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-2",
+      "distance": 3,
+      "bytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "protected": true,
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/alpha_triangles-degree-2-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-3",
+      "distance": 3,
+      "bytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "protected": true,
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/alpha_triangles-degree-3-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-4",
+      "distance": 3,
+      "bytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "protected": true,
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/gaborish-neumann-130/alpha_triangles-degree-4-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    }
+  ],
+  "estimates": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 10.435816270000004,
+      "interpolatedBytes": 76353.02996507692
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 8.522676050000001,
+      "interpolatedBytes": 162143.4192853846
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 8.743190769999998,
+      "interpolatedBytes": 79991.46365080698
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-2",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 6.307190360000007,
+      "interpolatedBytes": 161897.34544591856
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 9.083849329999993,
+      "interpolatedBytes": 80224.37821611282
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-3",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 5.788962050000009,
+      "interpolatedBytes": 161573.35139857576
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 9.001715779999998,
+      "interpolatedBytes": 80362.98645561225
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "degree-4",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 5.688658840000002,
+      "interpolatedBytes": 161555.6884628538
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 11.35804318999999,
+      "interpolatedBytes": 49044.212899444516
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 9.650199360000002,
+      "interpolatedBytes": 121064.47744580303
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 9.861992169999994,
+      "interpolatedBytes": 50252.124102513284
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-2",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 7.144804829999998,
+      "interpolatedBytes": 119191.6201341089
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 9.947131909999996,
+      "interpolatedBytes": 50294.65601065631
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-3",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 6.803567770000001,
+      "interpolatedBytes": 118744.34243640862
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "target": 80,
+      "status": "wide diagnostic bracket",
+      "width": 9.921747969999998,
+      "interpolatedBytes": 50337.208762351365
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "degree-4",
+      "target": 90,
+      "status": "wide diagnostic bracket",
+      "width": 6.694486889999993,
+      "interpolatedBytes": 118612.42678268257
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-2",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-2",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-2",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-3",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-3",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-3",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-4",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-4",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "degree-4",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-2",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-2",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-2",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-3",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-3",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-3",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-4",
+      "target": 70,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-4",
+      "target": 80,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "degree-4",
+      "target": 90,
+      "status": "unresolved",
+      "width": null,
+      "interpolatedBytes": null
+    }
+  ]
+}

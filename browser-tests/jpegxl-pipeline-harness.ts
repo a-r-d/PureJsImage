@@ -1,6 +1,32 @@
+export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'
+export { verifyJpegXlArtwork } from '../tests/helpers/jpegxl-artwork.ts'
+export { verifyJpegXlCoefficientOrders } from '../tests/helpers/jpegxl-coefficient-orders.ts'
+export { verifyDenseLosslessTraining } from '../tests/helpers/jpegxl-dense-training.ts'
+export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
+export {
+  verifyJpegXlDcAllocationRecovery,
+  verifyJpegXlDcModel,
+} from '../tests/helpers/jpegxl-dc-model.ts'
+export { verifyJpegXlFamilyContexts } from '../tests/helpers/jpegxl-family-contexts.ts'
+export {
+  verifyFastLosslessChannels,
+  verifyRepeatedLosslessColors,
+} from '../tests/helpers/jpegxl-fast-lossless.ts'
+export { verifyFlatPaletteGraphic } from '../tests/helpers/jpegxl-flat-palette.ts'
 export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.ts'
+export {
+  verifyLearnedLosslessFixture,
+  verifyReversibleLosslessColor,
+} from '../tests/helpers/jpegxl-learned-lossless.ts'
+export { verifyLearnedPalette } from '../tests/helpers/jpegxl-learned-palette.ts'
+export { verifySampledZeroLearning } from '../tests/helpers/jpegxl-learner-shortcuts.ts'
 export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
+export { verifyLosslessPatchFixture } from '../tests/helpers/jpegxl-lossless-patches.ts'
+export { verifyOpaqueJpegXlGradient } from '../tests/helpers/jpegxl-opaque-gradients.ts'
+export { verifyJpegXlPatchFeatures } from '../tests/helpers/jpegxl-patch-features.ts'
+export { verifySmallGroupPatch } from '../tests/helpers/jpegxl-small-groups.ts'
 export { verifyJpegXlTransformFixture } from '../tests/helpers/jpegxl-transform-gaps.ts'
+export { verifyJpegXlTreeEntropy } from '../tests/helpers/jpegxl-tree-entropy.ts'
 
 import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'

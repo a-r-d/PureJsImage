@@ -1,4 +1,5 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 type OwnedArray =
   | Uint8Array<ArrayBuffer>
@@ -8,6 +9,7 @@ type OwnedArray =
   | Int16Array<ArrayBuffer>
   | Int32Array<ArrayBuffer>
   | Float32Array<ArrayBuffer>
+  | Float64Array<ArrayBuffer>
 interface ArrayConstructor<T extends OwnedArray> {
   new (length: number): T
   readonly BYTES_PER_ELEMENT: number
@@ -31,7 +33,7 @@ export class JpegXlEncoderMemory {
   constructor(limit: number, outputLimit = 134_217_728) {
     this.outputLimit = outputLimit
     if (!Number.isSafeInteger(limit) || limit < 1)
-      throw invalidInput('JPEG XL maxWorkingBytes must be a positive safe integer')
+      throw invalidJpegXlInput('maxWorkingBytes must be a positive safe integer')
     this.#limit = limit
   }
 
@@ -54,7 +56,7 @@ export class JpegXlEncoderMemory {
     scope = this.#scope,
   ): T {
     if (!Number.isSafeInteger(length) || length < 0)
-      throw invalidInput('JPEG XL allocation length must be a nonnegative safe integer')
+      throw invalidJpegXlInput('allocation length must be a nonnegative safe integer')
     const bytes = length * arrayType.BYTES_PER_ELEMENT
     this.#admit(bytes, scope)
     const output = new arrayType(length)
@@ -64,14 +66,14 @@ export class JpegXlEncoderMemory {
 
   release(view: ArrayBufferView): void {
     if (!(view.buffer instanceof ArrayBuffer))
-      throw invalidInput('JPEG XL cannot release shared storage')
+      throw invalidJpegXlInput('cannot release shared storage')
     this.#releaseBuffer(view.buffer)
   }
 
   /** Escapes returned backing buffers, then releases all other scoped allocations. */
   run<T>(action: () => T): T {
     const parent = this.#scope
-    if (parent.closed) throw invalidInput('JPEG XL encoder memory is closed')
+    if (parent.closed) throw invalidJpegXlInput('encoder memory is closed')
     const scope: AllocationScope = { buffers: new Set(), parent, closed: false }
     this.#scope = scope
     try {
@@ -88,7 +90,7 @@ export class JpegXlEncoderMemory {
   /** Keeps scratch owned across cooperative yields; callers serialize each encoder. */
   async runAsync<T>(action: () => Promise<T>): Promise<T> {
     const parent = this.#scope
-    if (parent.closed) throw invalidInput('JPEG XL encoder memory is closed')
+    if (parent.closed) throw invalidJpegXlInput('encoder memory is closed')
     const scope: AllocationScope = { buffers: new Set(), parent, closed: false }
     this.#scope = scope
     try {
@@ -129,13 +131,13 @@ export class JpegXlEncoderMemory {
     for (const buffer of this.#scope.buffers) this.#releaseBuffer(buffer)
     this.#scope.closed = true
     if (this.#live !== 0 || this.#owners.size !== 0)
-      throw invalidInput('JPEG XL encoder allocation ownership did not unwind')
+      throw invalidJpegXlInput('encoder allocation ownership did not unwind')
   }
 
   #admit(bytes: number, scope: AllocationScope): void {
-    if (scope.closed) throw invalidInput('JPEG XL allocation scope is closed')
+    if (scope.closed) throw invalidJpegXlInput('allocation scope is closed')
     if (!Number.isSafeInteger(bytes) || bytes < 0)
-      throw invalidInput('JPEG XL allocation size must be a nonnegative safe integer')
+      throw invalidJpegXlInput('allocation size must be a nonnegative safe integer')
     if (bytes > this.#limit - this.#live)
       throw limitExceeded(
         `JPEG XL encoder requires ${this.#live + bytes} live backing bytes; maxWorkingBytes is ${this.#limit}`,
@@ -143,7 +145,7 @@ export class JpegXlEncoderMemory {
   }
 
   #own(buffer: ArrayBuffer, scope: AllocationScope): void {
-    if (this.#owners.has(buffer)) throw invalidInput('JPEG XL backing buffer is already owned')
+    if (this.#owners.has(buffer)) throw invalidJpegXlInput('backing buffer is already owned')
     scope.buffers.add(buffer)
     this.#owners.set(buffer, scope)
     this.#live += buffer.byteLength
@@ -152,9 +154,9 @@ export class JpegXlEncoderMemory {
 
   #releaseBuffer(buffer: ArrayBuffer): void {
     const owner = this.#owners.get(buffer)
-    if (!owner) throw invalidInput('JPEG XL backing buffer released twice or without ownership')
+    if (!owner) throw invalidJpegXlInput('backing buffer released twice or without ownership')
     if (this.#live < buffer.byteLength)
-      throw invalidInput('JPEG XL managed allocation counter underflow')
+      throw invalidJpegXlInput('managed allocation counter underflow')
     owner.buffers.delete(buffer)
     this.#owners.delete(buffer)
     this.#live -= buffer.byteLength
@@ -180,14 +182,14 @@ export const copyJpegXlArray = <T extends OwnedArray, V>(
   arrayType: ArrayConstructor<T>,
   values: ArrayLike<V>,
   map: (value: V, index: number) => number = (value) => {
-    if (typeof value !== 'number') throw invalidInput('JPEG XL array source is not numeric')
+    if (typeof value !== 'number') throw invalidJpegXlInput('array source is not numeric')
     return value
   },
 ): T => {
   const output = allocateJpegXlArray(memory, arrayType, values.length)
   for (let index = 0; index < values.length; index += 1) {
     const value = values[index]
-    if (value === undefined) throw invalidInput('JPEG XL array source has a missing value')
+    if (value === undefined) throw invalidJpegXlInput('array source has a missing value')
     output[index] = map(value, index)
   }
   return output

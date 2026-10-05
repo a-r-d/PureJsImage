@@ -1,7 +1,7 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecodeRequest, DecoderOptions, ImageDecoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { ImageError, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimits } from '../limits.ts'
 import { type PixelBlock, pixelBytesPerPixel } from '../pixel.ts'
@@ -18,6 +18,7 @@ import {
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { decodeJpegXlJpegPixels } from './jpegxl-jpeg-pixels.ts'
 import { decodeJpegXlJpegPixelImage } from './jpegxl-jpeg-reconstruct-source.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -35,7 +36,7 @@ import {
 const scaleDenominator = (request: Readonly<DecodeRequest>): 1 | 2 | 4 | 8 => {
   const scale = request.scaleDenominator ?? 1
   if (scale !== 1 && scale !== 2 && scale !== 4 && scale !== 8) {
-    throw invalidInput('JPEG XL decode scale denominator must be 1, 2, 4, or 8')
+    throw invalidJpegXlInput('decode scale denominator must be 1, 2, 4, or 8')
   }
   return scale
 }
@@ -61,7 +62,7 @@ const decodeRegion = (
     x + outputWidth > width ||
     y + outputHeight > height
   ) {
-    throw invalidInput('JPEG XL decode region is invalid')
+    throw invalidJpegXlInput('decode region is invalid')
   }
   return Object.freeze({ x, y, width: outputWidth, height: outputHeight })
 }
@@ -130,7 +131,7 @@ export const createJpegDerivedJpegXlDecoder = async (
     jpegXlLimits,
   )
   const displayFrame = frames.at(-1)
-  if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
+  if (!displayFrame) throw invalidJpegXlInput('display frame is missing')
   const { image, colorMaps } = await decodeJpegXlJpegPixelImage(source, {
     limits,
     ...(options.signal ? { signal: options.signal } : {}),
@@ -362,7 +363,7 @@ export const createJpegXlVarDctDecoder = async (
       const referenceLeases = new Map<number, ReturnType<JpegXlVarDctMemoryLedger['retain']>>()
       for (let index = 0; index < dependencyFrames.length; index += 1) {
         const dependency = dependencyFrames[index]
-        if (!dependency) throw invalidInput('JPEG XL internal DC frame is missing')
+        if (!dependency) throw invalidJpegXlInput('internal DC frame is missing')
         const sections: Uint8Array[] = []
         const sectionLeases = []
         for (const section of dependency.sections) {
@@ -375,7 +376,7 @@ export const createJpegXlVarDctDecoder = async (
           )
         }
         const firstSection = sections[0]
-        if (!firstSection) throw invalidInput('JPEG XL internal DC frame section is missing')
+        if (!firstSection) throw invalidJpegXlInput('internal DC frame section is missing')
         if (dependency.frameType === 'reference') {
           let referencePlanes: readonly [Float64Array, Float64Array, Float64Array]
           let referenceAlpha: Float64Array | undefined
@@ -393,7 +394,7 @@ export const createJpegXlVarDctDecoder = async (
               x = native.planes[1],
               b = native.planes[2]
             if (!y || !x || !b)
-              throw invalidInput('JPEG XL Modular reference color channels are missing')
+              throw invalidJpegXlInput('Modular reference color channels are missing')
             const outputX = new Float64Array(x.length),
               outputY = new Float64Array(y.length),
               outputB = new Float64Array(b.length)
@@ -405,7 +406,7 @@ export const createJpegXlVarDctDecoder = async (
             referencePlanes = [outputX, outputY, outputB]
             if (dependency.alphaBitDepth !== undefined) {
               const alpha = native.planes[3 + (dependency.selectedAlphaChannel ?? 0)]
-              if (!alpha) throw invalidInput('JPEG XL Modular reference alpha is missing')
+              if (!alpha) throw invalidJpegXlInput('Modular reference alpha is missing')
               const scale = 1 / (2 ** dependency.alphaBitDepth - 1)
               referenceAlpha = Float64Array.from(alpha, (value) => value * scale)
             }
@@ -421,7 +422,7 @@ export const createJpegXlVarDctDecoder = async (
               true,
               references,
             )
-            if (!decoded.dcPlanes) throw invalidInput('JPEG XL reference frame output is missing')
+            if (!decoded.dcPlanes) throw invalidJpegXlInput('reference frame output is missing')
             referencePlanes = decoded.dcPlanes
             const encodedAlpha = decoded.nativeExtraPlanes?.[dependency.selectedAlphaChannel ?? 0]
             const alphaScale = 1 / (2 ** (dependency.alphaBitDepth ?? 8) - 1)
@@ -461,7 +462,7 @@ export const createJpegXlVarDctDecoder = async (
               )
             : decodeJpegXlMultiGroupModularDcFrameSections(sections, dependency, readOptions.signal)
         } else {
-          if (!dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame dependency is missing')
+          if (!dcPlanes) throw invalidJpegXlInput('VarDCT DC frame dependency is missing')
           const decoded = await decodeJpegXlDct8SectionCancellable(
             readOptions.signal,
             firstSection,
@@ -472,13 +473,13 @@ export const createJpegXlVarDctDecoder = async (
             dcPlanes,
             true,
           )
-          if (!decoded.dcPlanes) throw invalidInput('JPEG XL VarDCT DC frame output is missing')
+          if (!decoded.dcPlanes) throw invalidJpegXlInput('VarDCT DC frame output is missing')
           dcPlanes = decoded.dcPlanes
           decoded.release()
         }
         for (const lease of sectionLeases) lease.release()
         if (dependency.frameType === 'dc') {
-          if (!dcPlanes) throw invalidInput('JPEG XL internal DC frame output is missing')
+          if (!dcPlanes) throw invalidJpegXlInput('internal DC frame output is missing')
           dcPlanesLease?.release()
           dcPlanesLease = memory.retain(
             'jpegxl-vardct-external-dc-planes',
@@ -496,7 +497,7 @@ export const createJpegXlVarDctDecoder = async (
         )
       }
       const firstSection = sections[0]
-      if (!firstSection) throw invalidInput('JPEG XL VarDCT global section is missing')
+      if (!firstSection) throw invalidJpegXlInput('VarDCT global section is missing')
       const pixels = await decodeJpegXlDct8SectionCancellable(
         readOptions.signal,
         firstSection,

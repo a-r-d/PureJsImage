@@ -1,6 +1,7 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
 import { decodeBrotli, encodeBrotli } from './brotli.ts'
 import { JpegXlBitReader } from './jpegxl-bitstream.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 
 export type JpegXlJpegAppMarkerType = 'unknown' | 'icc' | 'exif' | 'xmp'
@@ -91,7 +92,7 @@ class JpegXlReconstructionBitWriter {
       value < 0 ||
       value >= 2 ** count
     ) {
-      throw invalidInput('JPEG XL reconstruction output bit field is invalid')
+      throw invalidJpegXlInput('reconstruction output bit field is invalid')
     }
     this.#ensure(this.#bitPosition + count)
     for (let index = 0; index < count; index += 1) {
@@ -122,7 +123,7 @@ class JpegXlReconstructionBitWriter {
 
 const readU32 = (reader: JpegXlBitReader, distributions: readonly U32Distribution[]): number => {
   const distribution = distributions[reader.readBits(2)]
-  if (!distribution) throw invalidInput('JPEG XL reconstruction integer selector is invalid')
+  if (!distribution) throw invalidJpegXlInput('reconstruction integer selector is invalid')
   return 'value' in distribution
     ? distribution.value
     : distribution.offset + reader.readBits(distribution.bits)
@@ -147,7 +148,7 @@ const writeU32 = (
     writer.writeBits(encoded, distribution.bits)
     return
   }
-  throw invalidInput('JPEG XL reconstruction integer is outside its distribution')
+  throw invalidJpegXlInput('reconstruction integer is outside its distribution')
 }
 
 const freezeNumbers = (numbers: number[]): readonly number[] => Object.freeze(numbers)
@@ -200,9 +201,9 @@ const readMarkerOrder = (
         `JPEG XL reconstruction has at least ${markers.length} markers; maxJpegMarkers is ${limits.maxJpegMarkers}`,
       )
     }
-    throw invalidInput('JPEG XL reconstruction marker order has no EOI')
+    throw invalidJpegXlInput('reconstruction marker order has no EOI')
   }
-  if (scanCount === 0) throw invalidInput('JPEG XL reconstruction has no JPEG scans')
+  if (scanCount === 0) throw invalidJpegXlInput('reconstruction has no JPEG scans')
   if (scanCount > limits.maxJpegScans) {
     throw limitExceeded(
       `JPEG XL reconstruction has ${scanCount} scans; maxJpegScans is ${limits.maxJpegScans}`,
@@ -223,10 +224,10 @@ const readAppMarkers = (reader: JpegXlBitReader, count: number): readonly JpegXl
     Array.from({ length: count }, () => {
       const typeIndex = readU32(reader, [value(0), value(1), bits(1, 2), bits(2, 4)])
       const type = appMarkerTypes[typeIndex]
-      if (!type) throw invalidInput('JPEG XL reconstruction APP marker type is invalid')
+      if (!type) throw invalidJpegXlInput('reconstruction APP marker type is invalid')
       const byteLength = reader.readBits(16) + 1
       if (byteLength < 3) {
-        throw invalidInput('JPEG XL reconstruction APP marker is shorter than its JPEG header')
+        throw invalidJpegXlInput('reconstruction APP marker is shorter than its JPEG header')
       }
       return Object.freeze({ type, byteLength })
     }),
@@ -236,15 +237,15 @@ const readQuantizationTables = (
   reader: JpegXlBitReader,
 ): readonly JpegXlJpegQuantizationTable[] => {
   const count = readU32(reader, [value(1), value(2), value(3), value(4)])
-  if (count === 4) throw invalidInput('JPEG XL reconstruction has an invalid quantization count')
+  if (count === 4) throw invalidJpegXlInput('reconstruction has an invalid quantization count')
   return Object.freeze(
     Array.from({ length: count }, (_, table) => {
       const precision = reader.readBits(1) === 0 ? 8 : 16
       const index = reader.readBits(2)
       const lastInMarker = reader.readBits(1) !== 0
-      if (index > 3) throw invalidInput('JPEG XL reconstruction quantization index is invalid')
+      if (index > 3) throw invalidJpegXlInput('reconstruction quantization index is invalid')
       if (table === 0 && index !== 0) {
-        throw invalidInput('JPEG XL reconstruction first quantization table index is invalid')
+        throw invalidJpegXlInput('reconstruction first quantization table index is invalid')
       }
       return Object.freeze({ precision, index, lastInMarker })
     }),
@@ -267,20 +268,20 @@ const readComponents = (
   else {
     const count = readU32(reader, [value(1), value(2), value(3), value(4)])
     if (count !== 1 && count !== 3) {
-      throw invalidInput('JPEG XL reconstruction component count is unsupported')
+      throw invalidJpegXlInput('reconstruction component count is unsupported')
     }
     ids = Array.from({ length: count }, () => reader.readBits(8))
   }
   const expectedCount = gray ? 1 : 3
   if (ids.length !== expectedCount) {
-    throw invalidInput('JPEG XL reconstruction grayscale and component fields disagree')
+    throw invalidJpegXlInput('reconstruction grayscale and component fields disagree')
   }
   if (new Set(ids).size !== ids.length) {
-    throw invalidInput('JPEG XL reconstruction component identifiers repeat')
+    throw invalidJpegXlInput('reconstruction component identifiers repeat')
   }
   const quantizationTables = ids.map(() => reader.readBits(2))
   if (quantizationTables.some((index) => index >= quantizationTableCount)) {
-    throw invalidInput('JPEG XL reconstruction component references a missing quantization table')
+    throw invalidJpegXlInput('reconstruction component references a missing quantization table')
   }
   return Object.freeze({
     ids: freezeNumbers(ids),
@@ -308,20 +309,20 @@ const readHuffmanTables = (
       )
       const symbolCount = counts.reduce((sum, current) => sum + current, 0)
       if (symbolCount > 257) {
-        throw invalidInput('JPEG XL reconstruction Huffman table has too many symbols')
+        throw invalidJpegXlInput('reconstruction Huffman table has too many symbols')
       }
       const values = Array.from({ length: symbolCount }, () =>
         readU32(reader, [bits(2), bits(2, 4), bits(4, 8), bits(8, 1)]),
       )
       if (symbolCount !== 0) {
         if (values.at(-1) !== 256) {
-          throw invalidInput('JPEG XL reconstruction Huffman table has no terminal symbol')
+          throw invalidJpegXlInput('reconstruction Huffman table has no terminal symbol')
         }
         if (new Set(values).size !== values.length) {
-          throw invalidInput('JPEG XL reconstruction Huffman table repeats a symbol')
+          throw invalidJpegXlInput('reconstruction Huffman table repeats a symbol')
         }
         if (kind === 'dc' && values.some((symbol) => symbol !== 256 && symbol >= 12)) {
-          throw invalidInput('JPEG XL reconstruction DC Huffman symbol is invalid')
+          throw invalidJpegXlInput('reconstruction DC Huffman symbol is invalid')
         }
       }
       return Object.freeze({
@@ -358,14 +359,14 @@ const readScans = (
   const headers = Array.from({ length: count }, () => {
     const scanComponentCount = readU32(reader, [value(1), value(2), value(3), value(4)])
     if (scanComponentCount >= 4 || scanComponentCount > componentCount) {
-      throw invalidInput('JPEG XL reconstruction scan component count is invalid')
+      throw invalidJpegXlInput('reconstruction scan component count is invalid')
     }
     const spectralStart = reader.readBits(6)
     const spectralEnd = reader.readBits(6)
     const successiveLow = reader.readBits(4)
     const successiveHigh = reader.readBits(4)
     if (spectralEnd < spectralStart) {
-      throw invalidInput('JPEG XL reconstruction scan spectral range is invalid')
+      throw invalidJpegXlInput('reconstruction scan spectral range is invalid')
     }
     const components = Object.freeze(
       Array.from({ length: scanComponentCount }, () => {
@@ -373,13 +374,13 @@ const readScans = (
         const acTable = reader.readBits(2)
         const dcTable = reader.readBits(2)
         if (component >= componentCount) {
-          throw invalidInput('JPEG XL reconstruction scan references a missing component')
+          throw invalidJpegXlInput('reconstruction scan references a missing component')
         }
         return Object.freeze({ component, dcTable, acTable })
       }),
     )
     if (new Set(components.map(({ component }) => component)).size !== components.length) {
-      throw invalidInput('JPEG XL reconstruction scan repeats a component')
+      throw invalidJpegXlInput('reconstruction scan repeats a component')
     }
     const lastNeededPass = readU32(reader, [value(0), value(1), value(2), bits(3, 3)])
     return { spectralStart, spectralEnd, successiveLow, successiveHigh, components, lastNeededPass }
@@ -412,7 +413,7 @@ export const parseJpegXlJpegReconstructionHeader = (
     Array.from({ length: markerOrder.commentCount }, () => {
       const byteLength = reader.readBits(16) + 1
       if (byteLength < 3) {
-        throw invalidInput('JPEG XL reconstruction COM marker is shorter than its JPEG header')
+        throw invalidJpegXlInput('reconstruction COM marker is shorter than its JPEG header')
       }
       return byteLength
     }),
@@ -432,7 +433,7 @@ export const parseJpegXlJpegReconstructionHeader = (
       let previous = -1
       for (let index = 0; index < extraZeroRunCount; index += 1) {
         const runs = readU32(reader, [value(1), bits(2, 2), bits(4, 5), bits(8, 20)])
-        if (runs > 4) throw invalidInput('JPEG XL reconstruction extra zero-run count is invalid')
+        if (runs > 4) throw invalidJpegXlInput('reconstruction extra zero-run count is invalid')
         const delta = readU32(reader, [value(0), bits(3, 1), bits(5, 9), bits(28, 41)])
         previous = checkedDeltaIndex(previous, delta, 'extra zero-run block')
         extraZeroRuns.push(Object.freeze({ block: previous, runs }))
@@ -477,7 +478,7 @@ export const parseJpegXlJpegReconstructionHeader = (
 
 const appMarkerTypeIndex = (type: JpegXlJpegAppMarkerType): number => {
   const index = appMarkerTypes.indexOf(type)
-  if (index < 0) throw invalidInput('JPEG XL reconstruction APP marker type is invalid')
+  if (index < 0) throw invalidJpegXlInput('reconstruction APP marker type is invalid')
   return index
 }
 
@@ -488,7 +489,7 @@ const writeDeltaIndexes = (
   let previous = -1
   for (const index of indexes) {
     const delta = index - previous - 1
-    if (delta < 0) throw invalidInput('JPEG XL reconstruction indexes are not increasing')
+    if (delta < 0) throw invalidJpegXlInput('reconstruction indexes are not increasing')
     writeU32(writer, delta, [value(0), bits(3, 1), bits(5, 9), bits(28, 41)])
     previous = index
   }
@@ -515,28 +516,28 @@ export const encodeJpegXlJpegReconstruction = (
   const writer = new JpegXlReconstructionBitWriter()
   const gray = header.componentIds.length === 1
   if (!gray && header.componentIds.length !== 3) {
-    throw invalidInput('JPEG XL reconstruction component count is unsupported')
+    throw invalidJpegXlInput('reconstruction component count is unsupported')
   }
   writer.writeBits(gray ? 1 : 0, 1)
   for (const marker of header.markerOrder) {
     if (!Number.isInteger(marker) || marker < 0xc0 || marker > 0xff) {
-      throw invalidInput('JPEG XL reconstruction marker is invalid')
+      throw invalidJpegXlInput('reconstruction marker is invalid')
     }
     writer.writeBits(marker - 0xc0, 6)
   }
   if (header.markerOrder.at(-1) !== 0xd9) {
-    throw invalidInput('JPEG XL reconstruction marker order has no EOI')
+    throw invalidJpegXlInput('reconstruction marker order has no EOI')
   }
   for (const app of header.appMarkers) {
     writeU32(writer, appMarkerTypeIndex(app.type), [value(0), value(1), bits(1, 2), bits(2, 4)])
     if (app.byteLength < 3 || app.byteLength > 65_536) {
-      throw invalidInput('JPEG XL reconstruction APP marker length is invalid')
+      throw invalidJpegXlInput('reconstruction APP marker length is invalid')
     }
     writer.writeBits(app.byteLength - 1, 16)
   }
   for (const byteLength of header.commentByteLengths) {
     if (byteLength < 3 || byteLength > 65_536) {
-      throw invalidInput('JPEG XL reconstruction COM marker length is invalid')
+      throw invalidJpegXlInput('reconstruction COM marker length is invalid')
     }
     writer.writeBits(byteLength - 1, 16)
   }
@@ -548,7 +549,7 @@ export const encodeJpegXlJpegReconstruction = (
   }
 
   if (header.componentIds.length !== header.componentQuantizationTables.length) {
-    throw invalidInput('JPEG XL reconstruction component descriptors disagree')
+    throw invalidJpegXlInput('reconstruction component descriptors disagree')
   }
   const ids = header.componentIds
   if (ids.length === 1 && ids[0] === 1) writer.writeBits(0, 2)
@@ -569,7 +570,7 @@ export const encodeJpegXlJpegReconstruction = (
     writer.writeBits(table.slot, 2)
     writer.writeBits(table.lastInMarker ? 1 : 0, 1)
     if (table.counts.length !== 17)
-      throw invalidInput('JPEG XL reconstruction Huffman counts are incomplete')
+      throw invalidJpegXlInput('reconstruction Huffman counts are incomplete')
     for (const count of table.counts) {
       writeU32(writer, count, [value(0), value(1), bits(3, 2), bits(8)])
     }
@@ -601,8 +602,7 @@ export const encodeJpegXlJpegReconstruction = (
     for (const extra of scan.extraZeroRuns) {
       writeU32(writer, extra.runs, [value(1), bits(2, 2), bits(4, 5), bits(8, 20)])
       const delta = extra.block - previous - 1
-      if (delta < 0)
-        throw invalidInput('JPEG XL reconstruction zero-run indexes are not increasing')
+      if (delta < 0) throw invalidJpegXlInput('reconstruction zero-run indexes are not increasing')
       writeU32(writer, delta, [value(0), bits(3, 1), bits(5, 9), bits(28, 41)])
       previous = extra.block
     }
@@ -627,7 +627,7 @@ export const encodeJpegXlJpegReconstruction = (
     blobs.tail,
   ])
   if (opaque.byteLength !== blobs.decodedBytes || opaque.byteLength > limits.maxMetadataBytes) {
-    throw invalidInput('JPEG XL reconstruction opaque data length is inconsistent')
+    throw invalidJpegXlInput('reconstruction opaque data length is inconsistent')
   }
   const encoded = concatenate([writer.finish(), encodeBrotli(opaque)])
   if (encoded.byteLength > limits.maxMetadataBytes) {
@@ -661,7 +661,7 @@ const takeBlobs = (
   for (const length of lengths) {
     const end = next + length
     if (!Number.isSafeInteger(end) || end > decoded.byteLength) {
-      throw invalidInput('JPEG XL reconstruction opaque data is truncated')
+      throw invalidJpegXlInput('reconstruction opaque data is truncated')
     }
     blobs.push(decoded.slice(next, end))
     next = end
@@ -679,7 +679,7 @@ export const decodeJpegXlJpegReconstructionBlobs = (
     header.compressedDataBytes < 0 ||
     header.compressedDataOffset + header.compressedDataBytes !== payload.byteLength
   ) {
-    throw invalidInput('JPEG XL reconstruction compressed-data extent is invalid')
+    throw invalidJpegXlInput('reconstruction compressed-data extent is invalid')
   }
   const unknownAppLengths = header.appMarkers
     .filter(({ type }) => type === 'unknown')
@@ -707,7 +707,7 @@ export const decodeJpegXlJpegReconstructionBlobs = (
   const interMarker = takeBlobs(decoded, header.interMarkerByteLengths, comments.offset)
   const tailEnd = interMarker.offset + header.tailByteLength
   if (tailEnd !== decoded.byteLength) {
-    throw invalidInput('JPEG XL reconstruction opaque data length is inconsistent')
+    throw invalidJpegXlInput('reconstruction opaque data length is inconsistent')
   }
   return Object.freeze({
     unknownAppMarkers: apps.blobs,

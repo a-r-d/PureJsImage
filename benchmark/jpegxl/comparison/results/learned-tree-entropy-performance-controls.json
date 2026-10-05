@@ -1,0 +1,1266 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-193.ts",
+      "sha256": "17bd081bb511098f7ce40a17f556a3f168665646ae23a58a17ae772bb2332579"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+      "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+    }
+  ],
+  "partialReportPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-0.json",
+      "sha256": "4b40e07753effaaa2d26e75eea5db800def4493a49d72a6b84eb95946edc3898"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-0.json",
+      "sha256": "c0bfc07325b6de8d49fe6bca73962d4aa302a65a361c526f95e272fd70d2c5c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-1.json",
+      "sha256": "27f9755e6f574137d77b31d212d1da8906254500de3cfdff988b481387fa5f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-1.json",
+      "sha256": "75f08f4147122b9b8b23ba51719a28b3e5f3f72eaeaf3ea6a47658fd4a96565d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-2.json",
+      "sha256": "7635de94122324a8b07e48d761f952cfc59a2ed82b5a4db544eac2bbcf74e57f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-2.json",
+      "sha256": "ae704a678a5042f17cd57c1405903fc8bcdba929e86761100f49fd6d054d4b94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-3.json",
+      "sha256": "51d33a1851525a9e887e427bfe6754cb92826471104b520f98d8a640043c1a94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-3.json",
+      "sha256": "9f9755e500146b1645501255f6cf00eafa9c8e69633a00afc4a7dae2fc383686"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-4.json",
+      "sha256": "0ef580be2efadae526964a88dddf23ebfd10f7c21dbc37615e1846024e47ee97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-4.json",
+      "sha256": "db3971dc725372541e001efd2ed4bd61986a9e6a706ce5be96e3cee374bb7c75"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-5.json",
+      "sha256": "695eaec1661fbe50450b1060b341bf5112bc12b6a9315948ccfef63c101ba5d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-5.json",
+      "sha256": "fcdeccdbc0ad0ff0abe06ec209537886b0e3842dca9243db7295500608ff6475"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-baseline-6.json",
+      "sha256": "90484d6e867a23b4acf86d2072646d310af50ad73184b181a1781dc292ddb1f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-performance-193-candidate-6.json",
+      "sha256": "38c266de19cfe71f9f529e89f3d1f34826993d10f92269f653084bf9aff42e8b"
+    }
+  ],
+  "results": [
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 0,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18835.67614,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 19684.345759,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 276304,
+      "maximumRssKiB": 280540,
+      "beforeCold": {
+        "rss": 121708544,
+        "heapTotal": 22368256,
+        "heapUsed": 10937688,
+        "external": 29928925,
+        "arrayBuffers": 8905505
+      },
+      "beforeWarm": {
+        "rss": 187633664,
+        "heapTotal": 25722880,
+        "heapUsed": 7038896,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 0,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18760.456371,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 19778.617398,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 273988,
+      "maximumRssKiB": 278576,
+      "beforeCold": {
+        "rss": 120807424,
+        "heapTotal": 22106112,
+        "heapUsed": 15844656,
+        "external": 29932324,
+        "arrayBuffers": 16503308
+      },
+      "beforeWarm": {
+        "rss": 255770624,
+        "heapTotal": 26247168,
+        "heapUsed": 7067344,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 1,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18799.384542,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 20724.83215,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 264392,
+      "maximumRssKiB": 265040,
+      "beforeCold": {
+        "rss": 121946112,
+        "heapTotal": 22106112,
+        "heapUsed": 10938008,
+        "external": 29932365,
+        "arrayBuffers": 8910185
+      },
+      "beforeWarm": {
+        "rss": 193896448,
+        "heapTotal": 25985024,
+        "heapUsed": 7127656,
+        "external": 20286971,
+        "arrayBuffers": 6820011
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 1,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 19222.639801,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 20369.683995000003,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 268304,
+      "maximumRssKiB": 274616,
+      "beforeCold": {
+        "rss": 121905152,
+        "heapTotal": 23154688,
+        "heapUsed": 15762728,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 218345472,
+        "heapTotal": 25985024,
+        "heapUsed": 7045088,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 2,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 19066.010429,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 19554.682501000003,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 265476,
+      "maximumRssKiB": 276820,
+      "beforeCold": {
+        "rss": 121360384,
+        "heapTotal": 22630400,
+        "heapUsed": 15932800,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 271142912,
+        "heapTotal": 25722880,
+        "heapUsed": 7018328,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 2,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18993.318758999998,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 19191.223138,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 268240,
+      "maximumRssKiB": 277252,
+      "beforeCold": {
+        "rss": 121757696,
+        "heapTotal": 22106112,
+        "heapUsed": 10938464,
+        "external": 29932324,
+        "arrayBuffers": 8910185
+      },
+      "beforeWarm": {
+        "rss": 192024576,
+        "heapTotal": 25985024,
+        "heapUsed": 7057496,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 3,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 19860.558146,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 20389.682844,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 272428,
+      "maximumRssKiB": 272428,
+      "beforeCold": {
+        "rss": 121929728,
+        "heapTotal": 22630400,
+        "heapUsed": 15776296,
+        "external": 29932324,
+        "arrayBuffers": 16503308
+      },
+      "beforeWarm": {
+        "rss": 186126336,
+        "heapTotal": 26509312,
+        "heapUsed": 7119776,
+        "external": 20286971,
+        "arrayBuffers": 6820011
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 3,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 19144.974439999998,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 18874.445774999997,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 252744,
+      "maximumRssKiB": 263480,
+      "beforeCold": {
+        "rss": 122146816,
+        "heapTotal": 22892544,
+        "heapUsed": 15775144,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 204750848,
+        "heapTotal": 25985024,
+        "heapUsed": 7097896,
+        "external": 20287836,
+        "arrayBuffers": 6820876
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 4,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18626.930469000003,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 19985.549512,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 280740,
+      "maximumRssKiB": 280740,
+      "beforeCold": {
+        "rss": 120774656,
+        "heapTotal": 22892544,
+        "heapUsed": 15734736,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 185225216,
+        "heapTotal": 25722880,
+        "heapUsed": 7066032,
+        "external": 20287836,
+        "arrayBuffers": 6820876
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 4,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18714.035003,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 19557.455725,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 267488,
+      "maximumRssKiB": 270896,
+      "beforeCold": {
+        "rss": 122347520,
+        "heapTotal": 22892544,
+        "heapUsed": 15650112,
+        "external": 29932324,
+        "arrayBuffers": 16503308
+      },
+      "beforeWarm": {
+        "rss": 205643776,
+        "heapTotal": 26247168,
+        "heapUsed": 7068504,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 5,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18388.117594000003,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 19577.3494,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 271128,
+      "maximumRssKiB": 279280,
+      "beforeCold": {
+        "rss": 120684544,
+        "heapTotal": 22368256,
+        "heapUsed": 10940552,
+        "external": 29932324,
+        "arrayBuffers": 8909769
+      },
+      "beforeWarm": {
+        "rss": 190431232,
+        "heapTotal": 25985024,
+        "heapUsed": 7090120,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 5,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18749.074764999998,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 19749.081524999998,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 262592,
+      "maximumRssKiB": 268004,
+      "beforeCold": {
+        "rss": 120762368,
+        "heapTotal": 22892544,
+        "heapUsed": 15563480,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 179728384,
+        "heapTotal": 25722880,
+        "heapUsed": 7077824,
+        "external": 20287836,
+        "arrayBuffers": 6820876
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+          "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 6,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18945.649558999998,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "warm": {
+        "milliseconds": 19383.966428999996,
+        "bytes": 485212,
+        "encodedSha256": "8adff33a57619285079fdeec9d3ea3b162106d696b8ca358fe0cea036ec041a3",
+        "ownedPeak": 98577205
+      },
+      "coldMaximumRssKiB": 265304,
+      "maximumRssKiB": 284060,
+      "beforeCold": {
+        "rss": 121716736,
+        "heapTotal": 23154688,
+        "heapUsed": 15593184,
+        "external": 29928925,
+        "arrayBuffers": 16499909
+      },
+      "beforeWarm": {
+        "rss": 184844288,
+        "heapTotal": 25722880,
+        "heapUsed": 7047008,
+        "external": 16656951,
+        "arrayBuffers": 3189991
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-worker-193.ts",
+          "sha256": "717dbaa5c614434a51af26a13e99e5c773d26c6f05afed67c6c7492cdc86876f"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+          "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+          "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+          "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-modular-encode.ts",
+          "sha256": "328df99edc67b6c9caf9ebc34431ef3cd0dfec439b5cb4709043734a6ccb2745"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-jpeg-encode.ts",
+          "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-encode.ts",
+          "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-forward-transforms.ts",
+          "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/candidate/jpegxl-vardct-quantization.ts",
+          "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 6,
+      "fixture": "im26-1030-diagnostic",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "cold": {
+        "milliseconds": 18670.748739000002,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "warm": {
+        "milliseconds": 24770.535146,
+        "bytes": 484347,
+        "encodedSha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1",
+        "ownedPeak": 98576341
+      },
+      "coldMaximumRssKiB": 267772,
+      "maximumRssKiB": 279660,
+      "beforeCold": {
+        "rss": 120795136,
+        "heapTotal": 22368256,
+        "heapUsed": 10959760,
+        "external": 22126623,
+        "arrayBuffers": 8697607
+      },
+      "beforeWarm": {
+        "rss": 212160512,
+        "heapTotal": 25985024,
+        "heapUsed": 7123640,
+        "external": 20286971,
+        "arrayBuffers": 6820011
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "metric": "cold",
+      "baseline": {
+        "median": 18945.649558999998,
+        "mad": 196.5747940000001,
+        "iqr": 395.89967500000057,
+        "coefficientOfVariation": 0.010617859567072514,
+        "values": [
+          18835.67614, 19222.639801, 19066.010429, 19144.974439999998, 18626.930469000003,
+          18749.074764999998, 18945.649558999998
+        ]
+      },
+      "candidate": {
+        "median": 18760.456371,
+        "mad": 89.70763199999783,
+        "iqr": 322.57001999999557,
+        "coefficientOfVariation": 0.02289368009742033,
+        "values": [
+          18760.456371, 18799.384542, 18993.318758999998, 19860.558146, 18714.035003,
+          18388.117594000003, 18670.748739000002
+        ]
+      },
+      "paired": {
+        "median": -0.39934732600471756,
+        "mad": 1.0516497440292594,
+        "iqr": 2.3928267937750713,
+        "coefficientOfVariation": 6.08060757097779,
+        "values": [
+          -0.39934732600471756, -2.2018581390573777, -0.38126313981994286, 3.7377104275726714,
+          0.46762688111690043, -1.925199912658171, -1.450997070033977
+        ]
+      },
+      "pairWinRate": 0.7142857142857143
+    },
+    {
+      "metric": "warm",
+      "baseline": {
+        "median": 19684.345759,
+        "mad": 300.3793300000034,
+        "iqr": 601.583083000005,
+        "coefficientOfVariation": 0.022111707274386314,
+        "values": [
+          19684.345759, 20369.683995000003, 19554.682501000003, 18874.445774999997, 19985.549512,
+          19749.081524999998, 19383.966428999996
+        ]
+      },
+      "candidate": {
+        "median": 19778.617398,
+        "mad": 587.3942599999973,
+        "iqr": 1167.3764249999986,
+        "coefficientOfVariation": 0.08665112733330602,
+        "values": [
+          19778.617398, 20724.83215, 19191.223138, 20389.682844, 19557.455725, 19577.3494,
+          24770.535146
+        ]
+      },
+      "paired": {
+        "median": 0.47891680096554534,
+        "mad": 2.3375987968579093,
+        "iqr": 9.886663781757555,
+        "coefficientOfVariation": 2.097655255113124,
+        "values": [
+          0.47891680096554534, 1.743513326407875, -1.858681995892364, 8.02798178586519,
+          -2.142016594254559, -0.8695701862519889, 27.788784801758926
+        ]
+      },
+      "pairWinRate": 0.42857142857142855
+    },
+    {
+      "metric": "maximumRssKiB",
+      "baseline": {
+        "median": 276820,
+        "mad": 3920,
+        "iqr": 12736,
+        "coefficientOfVariation": 0.024899562620441216,
+        "values": [280540, 274616, 276820, 263480, 280740, 268004, 284060]
+      },
+      "candidate": {
+        "median": 277252,
+        "mad": 2408,
+        "iqr": 8384,
+        "coefficientOfVariation": 0.01846042877158746,
+        "values": [278576, 265040, 277252, 272428, 270896, 279280, 279660]
+      },
+      "paired": {
+        "median": -0.7000784201896315,
+        "mad": 2.7869725892198716,
+        "iqr": 6.883134203579832,
+        "coefficientOfVariation": 13.385106300221711,
+        "values": [
+          -0.7000784201896315, -3.487051009409503, 0.15605808828842438, 3.3960831941703296,
+          -3.5064472465626606, 4.207399889553898, -1.548968527775818
+        ]
+      },
+      "pairWinRate": 0.5714285714285714
+    },
+    {
+      "metric": "coldMaximumRssKiB",
+      "baseline": {
+        "median": 265476,
+        "mad": 2884,
+        "iqr": 13712,
+        "coefficientOfVariation": 0.03173975221326142,
+        "values": [276304, 268304, 265476, 252744, 280740, 262592, 265304]
+      },
+      "candidate": {
+        "median": 268240,
+        "mad": 2888,
+        "iqr": 4940,
+        "coefficientOfVariation": 0.011392975942731408,
+        "values": [273988, 264392, 268240, 272428, 267488, 271128, 267772]
+      },
+      "paired": {
+        "median": 0.9302535958749303,
+        "mad": 2.320416645411938,
+        "iqr": 4.708717829097708,
+        "coefficientOfVariation": 4.260448485785932,
+        "values": [
+          -0.8382071920782885, -1.45804758781084, 1.0411487290753252, 7.788117620991986,
+          -4.72038184797321, 3.250670241286868, 0.9302535958749303
+        ]
+      },
+      "pairWinRate": 0.42857142857142855
+    }
+  ],
+  "policy": "Seven isolated pairs alternate baseline/candidate order on pinned im26-1030 diagnostic lossless effort 7. Each fresh process records cold and one warm complete encoder run after explicit GC, exact previously independently validated complete output hashes, closed owned storage and peak process RSS. Before-cold/warm external/ArrayBuffer/heap/RSS are recorded; warm peak remains process cumulative. Oracles do not run in measured processes. This is a protected runtime/memory check for a compression policy, not a speed optimization or universal parity claim."
+}

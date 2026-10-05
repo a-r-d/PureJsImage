@@ -1,0 +1,48 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-photo-controls-276.ts",
+      "sha256": "b05490f9393a03baca5bc433c7cfd4d0b71a37a0471314f5b41b597abc066174"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-photo-audit-276.json",
+      "sha256": "ecbfdff199cd27201bb36896e8e65a7f05e7855da45cf893aafe52fe37648b8e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-program-profile.json",
+      "sha256": "6f54c4f078d5b0724733652b838ea7843f517653e987c3ec16aaadf73955a8f6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PHOTO-MODELS.md",
+      "sha256": "f3adf4b44ac0b62725a41ae4f08445b4bceab1cf602774df18f93185a93c57ce"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-leaf-cap-controls.json",
+      "sha256": "5045fc6f0ef54b641986618300987405ea1d5c9942a5ac83f73263d70bf17130"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-layout-controls.json",
+      "sha256": "6ff9dd0ebc093ec53d95a49a64d3398297c36797f72e94fbaeca2542efa2a43a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    }
+  ],
+  "files": 22,
+  "grids": 44,
+  "independentSamples": 161480704,
+  "priorPublicSamples": 80740352,
+  "sourcePins": 149,
+  "completeProfileFiles": 12,
+  "fullParity": false,
+  "adoptedPrototype": false,
+  "policy": "Fresh post-control re-read of all22complete files/44native-depth independent grids, every original alpha/color sample, exact production baseline/source/input/harness/tool pins and twelve complete bit-accounted headers. Public sample counts come from the completed encodes, not another public replay. Copied prototypes remain unadopted; paired costs and broader selection remain unqualified."
+}

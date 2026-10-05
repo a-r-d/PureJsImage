@@ -1,0 +1,102 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "reportPins": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-isolated-183.json",
+      "sha256": "4f64f960e541c7b29417b237ee8e134585d6b54218875d084e03f924517cb113"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-full-184.json",
+      "sha256": "de4ae72b26c2d4f5a4a72786cd074d12ea86f4750d212c11b679fb8c135d2ce3"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-hybrid-isolated-186.json",
+      "sha256": "1ac3639aca90ab2b73d9ac86d0e2c7605b7958919c1fdb6bac7f65fed1c28a4e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-compression-docs-185.json",
+      "sha256": "237659cfa995ed540de03073b432b0c3297e24fe0cac6a5ffa36b15c39b41d65"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-controls.json",
+      "sha256": "d31d12d4b11347b6b55b9521962b9af9858feeca516b2809a7b4d8562c4b29b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-hybrid-controls.json",
+      "sha256": "915f4e0c6f337ee79c2bbd75a2a581cecb7472049f27348b1276e1f5d00398f2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-full-controls.json",
+      "sha256": "4a7a42602713ac97e8d06dfd00a88ae007932f8d359115ee6702b50b1de1b80f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-184-im26-1030-diagnostic.json",
+      "sha256": "fe19c3d14de7b7f859836183b962dfbc2a23b9585ab5ac9f957ce006edef5ce5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-184-im26-1416-diagnostic.json",
+      "sha256": "33d401d310d10b27eaa7ea7c93d0018a5f1f5a83e3f70288f9f0181c7b92dd36"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-184-im26-2018-diagnostic.json",
+      "sha256": "e55f00864d34c06001e9c8817cd5c85ef9d1b86fd9c76f43ff0649fb9165f448"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-184-im26-5032-diagnostic.json",
+      "sha256": "cd19ce161f59af89ca00f2ebcf12e5924db2ada2ae09f022cbdcb55e0f795481"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-full-184-im26-8160-original.json",
+      "sha256": "f4a1685319e7bb24515223f822c8f7b681bb858caf86a15e55d3bbe9b627c4d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort7-public.json",
+      "sha256": "5ac2031eabbad53e3de028e8ea62bceeea5b7c824805dea853702f52442e395d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-final-gates.json",
+      "sha256": "94211cc6436e69d41f9de2e6c194f216ff706836cc6a289686c6a717ca8fe095"
+    }
+  ],
+  "pins": 123,
+  "isolatedTrees": 72,
+  "originalTrees": 6,
+  "fullImages": 10,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "9a27f924c0f86f1ad458e0d304809338738cd07228c8d45a964c2ca037f8a791"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "harness": {
+    "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-tree-entropy-187.ts",
+    "sha256": "565ec227fb5b9d6d32a7ff59fe729173dc621b06c338023d30bdc015f0918ad1"
+  },
+  "policy": "Read-only post-run audit of all 72 isolated tree artifacts and original nodes, every default-role/baseline hybrid byte, all ten complete independent-exact prototype image grids, all module/report/input/tool/harness pins and ownership/floors. Documentation gate completes and qualified production source/public module identity stays unchanged. Prototype tree metadata is not retained in production and does not establish overall parity or speed."
+}

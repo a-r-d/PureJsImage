@@ -1,0 +1,982 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+      "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+      "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+    }
+  ],
+  "partialReportPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-baseline-0.json",
+      "sha256": "90792eb953ab4476744401a7045c1538aafda85d199e8d130f0bf422fdfb7225"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-candidate-0.json",
+      "sha256": "d23235af120aa8fde7023294c7347aa728fba28764b545f63cabc2f9a48d6788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-candidate-1.json",
+      "sha256": "dd7323ceda3faa47fea4085b64ab072c180398e971ba645d6df5b390af1bf23d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-baseline-1.json",
+      "sha256": "c900848c2df6b163196ac21e96ad4dabf50d41860378494a0ef7246e7534972e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-baseline-2.json",
+      "sha256": "28132f9dfcac9dafca7b3449e0ad577256276a78441f3471132b483fbcfd5a61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-performance-359-candidate-2.json",
+      "sha256": "82745625e86e1a49018aa62792ecde00da789598bd5641d782077e1d7a42b2be"
+    }
+  ],
+  "results": [
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-funded.js",
+          "sha256": "25d3e47a859e077ec7a7430f1985f69b753e6fae1f63d8ccdae73958cbba7ca8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 0,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 27618.580250000003,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "warm": {
+        "milliseconds": 29173.32408,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "coldMaximumRssKiB": 287176,
+      "maximumRssKiB": 327768,
+      "beforeCold": {
+        "rss": 96980992,
+        "heapTotal": 16003072,
+        "heapUsed": 10477120,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 221929472,
+        "heapTotal": 25387008,
+        "heapUsed": 6557504,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 96980992,
+            "heapTotal": 15740928,
+            "heapUsed": 10476240,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 96980992,
+            "heapTotal": 16003072,
+            "heapUsed": 10477120,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 96980992,
+          "heapTotal": 16003072,
+          "heapUsed": 10477120,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 221929472,
+            "heapTotal": 25387008,
+            "heapUsed": 6562736,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 221929472,
+            "heapTotal": 25387008,
+            "heapUsed": 6557504,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 221929472,
+          "heapTotal": 25387008,
+          "heapUsed": 6557504,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-guarded.js",
+          "sha256": "c310675c367839dae33a7c689c1aa079e5439224d80f34446ef814a9a1ef0d62"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 0,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 29248.438846,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "warm": {
+        "milliseconds": 29965.668807000002,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "coldMaximumRssKiB": 267884,
+      "maximumRssKiB": 304068,
+      "beforeCold": {
+        "rss": 97521664,
+        "heapTotal": 16273408,
+        "heapUsed": 10482768,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 224718848,
+        "heapTotal": 26181632,
+        "heapUsed": 6611888,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 97521664,
+            "heapTotal": 16273408,
+            "heapUsed": 10481888,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 97521664,
+            "heapTotal": 16273408,
+            "heapUsed": 10482768,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 97521664,
+          "heapTotal": 16273408,
+          "heapUsed": 10482768,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 224718848,
+            "heapTotal": 26181632,
+            "heapUsed": 6611648,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 224718848,
+            "heapTotal": 26181632,
+            "heapUsed": 6611888,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 224718848,
+          "heapTotal": 26181632,
+          "heapUsed": 6611888,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-guarded.js",
+          "sha256": "c310675c367839dae33a7c689c1aa079e5439224d80f34446ef814a9a1ef0d62"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 1,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 29621.384846999998,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "warm": {
+        "milliseconds": 31090.727253000005,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "coldMaximumRssKiB": 269384,
+      "maximumRssKiB": 280800,
+      "beforeCold": {
+        "rss": 97677312,
+        "heapTotal": 16535552,
+        "heapUsed": 10482768,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 238116864,
+        "heapTotal": 25919488,
+        "heapUsed": 6618600,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 97677312,
+            "heapTotal": 16535552,
+            "heapUsed": 10481888,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 97677312,
+            "heapTotal": 16535552,
+            "heapUsed": 10482768,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 97677312,
+          "heapTotal": 16535552,
+          "heapUsed": 10482768,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 238383104,
+            "heapTotal": 26181632,
+            "heapUsed": 6622576,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 238116864,
+            "heapTotal": 25919488,
+            "heapUsed": 6618600,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 238116864,
+          "heapTotal": 25919488,
+          "heapUsed": 6618600,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-funded.js",
+          "sha256": "25d3e47a859e077ec7a7430f1985f69b753e6fae1f63d8ccdae73958cbba7ca8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 1,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 28950.845089,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "warm": {
+        "milliseconds": 29929.519245,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "coldMaximumRssKiB": 295736,
+      "maximumRssKiB": 324180,
+      "beforeCold": {
+        "rss": 97165312,
+        "heapTotal": 16265216,
+        "heapUsed": 10477192,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 204369920,
+        "heapTotal": 25387008,
+        "heapUsed": 6562624,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 97165312,
+            "heapTotal": 16265216,
+            "heapUsed": 10476312,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 97165312,
+            "heapTotal": 16265216,
+            "heapUsed": 10477192,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 97165312,
+          "heapTotal": 16265216,
+          "heapUsed": 10477192,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 204677120,
+            "heapTotal": 25911296,
+            "heapUsed": 6568584,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 204369920,
+            "heapTotal": 25387008,
+            "heapUsed": 6562624,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 204369920,
+          "heapTotal": 25387008,
+          "heapUsed": 6562624,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-funded.js",
+          "sha256": "25d3e47a859e077ec7a7430f1985f69b753e6fae1f63d8ccdae73958cbba7ca8"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "baseline",
+      "pair": 2,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 28841.364526,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "warm": {
+        "milliseconds": 29297.794332,
+        "bytes": 649404,
+        "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+        "ownedPeak": 132979807
+      },
+      "coldMaximumRssKiB": 289400,
+      "maximumRssKiB": 336788,
+      "beforeCold": {
+        "rss": 96591872,
+        "heapTotal": 16003072,
+        "heapUsed": 10477120,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 183668736,
+        "heapTotal": 25387008,
+        "heapUsed": 6566544,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 96591872,
+            "heapTotal": 16003072,
+            "heapUsed": 10476240,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 96591872,
+            "heapTotal": 16003072,
+            "heapUsed": 10477120,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 96591872,
+          "heapTotal": 16003072,
+          "heapUsed": 10477120,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 183668736,
+            "heapTotal": 25387008,
+            "heapUsed": 6569864,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 183668736,
+            "heapTotal": 25387008,
+            "heapUsed": 6566544,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 183668736,
+          "heapTotal": 25387008,
+          "heapUsed": 6566544,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    },
+    {
+      "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+      "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+      "implementationDirty": true,
+      "pins": [
+        {
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-pilot-worker-359.ts",
+          "sha256": "afed2a01aa3538bd05249aac57d52860a167d5077d364810f2833687e4fbc87e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/prepare-token-pilot-359.ts",
+          "sha256": "63a6ceab7f0c952d347e4fae672762dcc7a6b5cebff9d3fba5714759e10d1b0b"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/measure-token-pilot-359.ts",
+          "sha256": "3112e19a0eaefdaeb958ea01add5bcb8d6e2d8da3fe835f02b29fa07fc9c4b5e"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-pilot-359.json",
+          "sha256": "8272ec9bc4d61374ec40c0b381a92ba59affbe709093382a92aac0b02ef8a74b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+          "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+          "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+        },
+        {
+          "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+          "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/domain-proof.json",
+          "sha256": "e8691a83e32b5a4a78767971b518e01c71c93329303aaf83199c52594fc960fc"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-guarded.js",
+          "sha256": "c310675c367839dae33a7c689c1aa079e5439224d80f34446ef814a9a1ef0d62"
+        },
+        {
+          "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+          "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+        },
+        {
+          "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+          "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+        }
+      ],
+      "variant": "candidate",
+      "pair": 2,
+      "fixture": "im26-1416-diagnostic",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "cold": {
+        "milliseconds": 29124.401496000002,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "warm": {
+        "milliseconds": 29294.573802,
+        "bytes": 648383,
+        "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+        "ownedPeak": 115647847
+      },
+      "coldMaximumRssKiB": 283316,
+      "maximumRssKiB": 307968,
+      "beforeCold": {
+        "rss": 97296384,
+        "heapTotal": 16273408,
+        "heapUsed": 10482768,
+        "external": 12222903,
+        "arrayBuffers": 3480644
+      },
+      "beforeWarm": {
+        "rss": 261492736,
+        "heapTotal": 26181632,
+        "heapUsed": 6617240,
+        "external": 12260807,
+        "arrayBuffers": 3480644
+      },
+      "coldReclamation": {
+        "observations": [
+          {
+            "rss": 97296384,
+            "heapTotal": 16273408,
+            "heapUsed": 10481888,
+            "external": 12222863,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 97296384,
+            "heapTotal": 16273408,
+            "heapUsed": 10482768,
+            "external": 12222903,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 97296384,
+          "heapTotal": 16273408,
+          "heapUsed": 10482768,
+          "external": 12222903,
+          "arrayBuffers": 3480644
+        }
+      },
+      "warmReclamation": {
+        "observations": [
+          {
+            "rss": 261492736,
+            "heapTotal": 26181632,
+            "heapUsed": 6620928,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          },
+          {
+            "rss": 261492736,
+            "heapTotal": 26181632,
+            "heapUsed": 6617240,
+            "external": 12260807,
+            "arrayBuffers": 3480644
+          }
+        ],
+        "baseline": {
+          "rss": 261492736,
+          "heapTotal": 26181632,
+          "heapUsed": 6617240,
+          "external": 12260807,
+          "arrayBuffers": 3480644
+        }
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "metric": "cold",
+      "baseline": {
+        "median": 28841.364526,
+        "mad": 109.48056299999735,
+        "iqr": 1332.2648389999958,
+        "coefficientOfVariation": 0.021211153645774285,
+        "values": [27618.580250000003, 28950.845089, 28841.364526]
+      },
+      "candidate": {
+        "median": 29248.438846,
+        "mad": 124.0373499999987,
+        "iqr": 496.9833509999953,
+        "coefficientOfVariation": 0.007200629231718288,
+        "values": [29248.438846, 29621.384846999998, 29124.401496000002]
+      },
+      "paired": {
+        "median": 2.3161318985288393,
+        "mad": 1.3347741345962394,
+        "iqr": 4.919954255898684,
+        "coefficientOfVariation": 0.6775080183100268,
+        "values": [5.901312019831284, 2.3161318985288393, 0.9813577639325999]
+      },
+      "pairedMedianBootstrapInterval": {
+        "lower": 0.9813577639325999,
+        "upper": 5.901312019831284,
+        "confidence": 0.95,
+        "draws": 10000,
+        "seed": 965392921
+      },
+      "pairWinRate": 0
+    },
+    {
+      "metric": "warm",
+      "baseline": {
+        "median": 29297.794332,
+        "mad": 124.4702520000028,
+        "iqr": 756.195165000001,
+        "coefficientOfVariation": 0.011234951662897234,
+        "values": [29173.32408, 29929.519245, 29297.794332]
+      },
+      "candidate": {
+        "median": 29965.668807000002,
+        "mad": 671.0950050000029,
+        "iqr": 1796.1534510000056,
+        "coefficientOfVariation": 0.024605454514656375,
+        "values": [29965.668807000002, 31090.727253000005, 29294.573802]
+      },
+      "paired": {
+        "median": 2.715990556397374,
+        "mad": 1.1638178644946429,
+        "iqr": 3.8908008183520693,
+        "coefficientOfVariation": 0.7428847130064583,
+        "values": [2.715990556397374, 3.879808420892017, -0.010992397460052317]
+      },
+      "pairedMedianBootstrapInterval": {
+        "lower": -0.010992397460052317,
+        "upper": 3.879808420892017,
+        "confidence": 0.95,
+        "draws": 10000,
+        "seed": 965392921
+      },
+      "pairWinRate": 0.3333333333333333
+    },
+    {
+      "metric": "maximumRssKiB",
+      "baseline": {
+        "median": 327768,
+        "mad": 3588,
+        "iqr": 12608,
+        "coefficientOfVariation": 0.016093403802279433,
+        "values": [327768, 324180, 336788]
+      },
+      "candidate": {
+        "median": 304068,
+        "mad": 3900,
+        "iqr": 27168,
+        "coefficientOfVariation": 0.04030088340936294,
+        "values": [304068, 280800, 307968]
+      },
+      "paired": {
+        "median": -8.557312018242936,
+        "mad": 1.3265878474880148,
+        "iqr": 6.150730576607654,
+        "coefficientOfVariation": 0.2718135065454861,
+        "values": [-7.230724170754921, -13.381454747362575, -8.557312018242936]
+      },
+      "pairedMedianBootstrapInterval": {
+        "lower": -13.381454747362575,
+        "upper": -7.230724170754921,
+        "confidence": 0.95,
+        "draws": 10000,
+        "seed": 965392921
+      },
+      "pairWinRate": 1
+    },
+    {
+      "metric": "coldMaximumRssKiB",
+      "baseline": {
+        "median": 289400,
+        "mad": 2224,
+        "iqr": 8560,
+        "coefficientOfVariation": 0.012472089036940082,
+        "values": [287176, 295736, 289400]
+      },
+      "candidate": {
+        "median": 269384,
+        "mad": 1500,
+        "iqr": 15432,
+        "coefficientOfVariation": 0.02540214965618648,
+        "values": [267884, 269384, 283316]
+      },
+      "paired": {
+        "median": -6.717831573669109,
+        "mad": 2.1928184655550673,
+        "iqr": 6.80836945871277,
+        "coefficientOfVariation": 0.48010774989453464,
+        "values": [-6.717831573669109, -8.910650039224176, -2.1022805805114064]
+      },
+      "pairedMedianBootstrapInterval": {
+        "lower": -8.910650039224176,
+        "upper": -2.1022805805114064,
+        "confidence": 0.95,
+        "draws": 10000,
+        "seed": 965392921
+      },
+      "pairWinRate": 1
+    }
+  ],
+  "protectedCostPassed": false,
+  "trials": 3,
+  "pilotOnly": true,
+  "qualified": false,
+  "policy": "Three fresh isolated alternating pairs on unchanged1024x7681416RGBAphoto compare actual358built full-public-APIprefix-only fac188baseline and funded356guarded refinement with precomputed histogram scalar constants. Every cold/warm whole file must match independently validated345/356hash and close owned memory. Complete create/write/finish/sink timing and settled explicitGC/stable ArrayBuffer<=inputplus512KiB/absolute cold and cumulativewarm peakRSS preserved from258. Original5percent paired median/95percent bootstrap upper stay unchanged, but threepilotpairs are insufficient to qualify15pairprotection or claim gain; fresh confirmation must not pool them. No source, fixture/metric/timed-boundary/settings/budget change or overallparity claim."
+}

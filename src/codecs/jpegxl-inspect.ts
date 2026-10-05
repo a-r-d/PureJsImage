@@ -1,7 +1,6 @@
 import type { AbortOptions } from '../abort.ts'
 import type { ImageMetadata } from '../codec.ts'
 import type { PixelRenderingIntent } from '../color.ts'
-import { invalidInput } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
 import { pixelBytesPerPixel } from '../pixel.ts'
@@ -13,6 +12,7 @@ import {
   JpegXlCodestreamSource,
 } from './jpegxl-container.ts'
 import { jpegXlXybOutputIsLinear, readJpegXlSourceInspectionMetadata } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { parseJpegXlJpegReconstructionHeader } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -120,27 +120,27 @@ export const inspectJpegXl = async (
     const exifMarkers = reconstruction.appMarkers.filter(({ type }) => type === 'exif')
     const xmpMarkers = reconstruction.appMarkers.filter(({ type }) => type === 'xmp')
     if (exifMarkers.length > 1 || xmpMarkers.length > 1) {
-      throw invalidInput('JPEG XL reconstruction metadata repeats Exif or XMP references')
+      throw invalidJpegXlInput('reconstruction metadata repeats Exif or XMP references')
     }
     const exifBox = structure.metadataBoxes.find(({ type }) => type === 'Exif')
     const xmpBox = structure.metadataBoxes.find(({ type }) => type === 'xml ')
     const exifMarker = exifMarkers[0]
     const xmpMarker = xmpMarkers[0]
     if ((exifMarker === undefined) !== (exifBox === undefined)) {
-      throw invalidInput('JPEG XL reconstruction Exif reference does not match the container')
+      throw invalidJpegXlInput('reconstruction Exif reference does not match the container')
     }
     if (exifMarker && exifBox && exifBox.payloadBytes !== exifMarker.byteLength - 5) {
-      throw invalidInput('JPEG XL reconstruction Exif size does not match the container')
+      throw invalidJpegXlInput('reconstruction Exif size does not match the container')
     }
     if ((xmpMarker === undefined) !== (xmpBox === undefined)) {
-      throw invalidInput('JPEG XL reconstruction XMP reference does not match the container')
+      throw invalidJpegXlInput('reconstruction XMP reference does not match the container')
     }
     if (xmpMarker && xmpBox && xmpBox.payloadBytes !== xmpMarker.byteLength - 32) {
-      throw invalidInput('JPEG XL reconstruction XMP size does not match the container')
+      throw invalidJpegXlInput('reconstruction XMP size does not match the container')
     }
   }
   const renderingIntent = metadata.colorSemantics?.renderingIntent
-  if (!renderingIntent) throw invalidInput('JPEG XL rendering intent metadata is missing')
+  if (!renderingIntent) throw invalidJpegXlInput('rendering intent metadata is missing')
   return Object.freeze({
     kind: structure.kind,
     organization: structure.organization,

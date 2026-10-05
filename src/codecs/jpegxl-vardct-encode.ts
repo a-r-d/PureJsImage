@@ -1,5 +1,5 @@
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { createStructuredRgbMatrix, nclxToLinear, nclxToLinearSrgbMatrix } from './icc.ts'
 import {
@@ -8,13 +8,16 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
+  learnJpegXlForwardCoefficientOrders,
   type VarDctCoefficientGeometry,
   type VarDctCoefficientPlane,
   varDctCodestreamParts,
 } from './jpegxl-jpeg-encode.ts'
+import { hasSmallVisiblePalette } from './jpegxl-modular-encode.ts'
 import {
   defaultJpegXlDct4x8Dequantization,
   defaultJpegXlDct8Dequantization,
@@ -278,11 +281,49 @@ export const encodeJpegXlVarDct8 = (
       let next = steps.next()
       while (!next.done) next = steps.next()
       const geometry = next.value
-      return varDctCodestreamParts(
+      const baseline = varDctCodestreamParts(
         { width, height },
         geometry,
         encodeVarDctCoefficientSections(geometry),
       )
+      if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
+      try {
+        return withJpegXlMemory(owned, () => {
+          const learning = learnJpegXlForwardCoefficientOrders(geometry)
+          let next = learning.next()
+          while (!next.done) next = learning.next()
+          const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
+          const alternate = varDctCodestreamParts(
+            { width, height },
+            alternateGeometry,
+            encodeVarDctCoefficientSections(alternateGeometry),
+          )
+          let selected =
+            codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
+          for (const candidate of [geometry, alternateGeometry]) {
+            try {
+              selected = withJpegXlMemory(owned, () => {
+                const familyGeometry = { ...candidate, forwardFamilyContexts: true }
+                const family = varDctCodestreamParts(
+                  { width, height },
+                  familyGeometry,
+                  encodeVarDctCoefficientSections(familyGeometry),
+                )
+                return codestreamPartBytes(family) < codestreamPartBytes(selected)
+                  ? family
+                  : selected
+              })
+            } catch (error) {
+              if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+              break
+            }
+          }
+          return selected
+        })
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        return baseline
+      }
     })
   } finally {
     if (!memory) owned.close()
@@ -293,6 +334,35 @@ export interface JpegXlForwardFrameOptions {
   readonly reference?: boolean
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
   readonly strategyPolicy?: 'rate-distortion'
+}
+
+const usesForwardCoefficientOrderSearch = (
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): boolean =>
+  geometry.effort === 7 &&
+  geometry.loadAcGroup !== undefined &&
+  geometry.groupsAcross * geometry.groupsDown > 1 &&
+  geometry.fullBlockWidth * geometry.fullBlockHeight >= 1_024
+
+const codestreamPartBytes = (parts: readonly Uint8Array[]): number =>
+  parts.reduce((total, part) => total + part.byteLength, 0)
+
+const forwardFrameParts = (
+  width: number,
+  height: number,
+  geometry: Readonly<VarDctCoefficientGeometry>,
+  sections: readonly Uint8Array[],
+  frame: Readonly<JpegXlForwardFrameOptions>,
+): readonly Uint8Array[] => {
+  const global = sections[0]
+  if (!global) throw invalidJpegXlInput('VarDCT global section is missing')
+  const selectedSections = frame.patchGlobalSection
+    ? [frame.patchGlobalSection(global), ...sections.slice(1)]
+    : sections
+  return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
+    reference: frame.reference === true,
+    patches: frame.patchGlobalSection !== undefined,
+  })
 }
 
 export const encodeJpegXlVarDct8Async = (
@@ -336,15 +406,58 @@ export const encodeJpegXlVarDct8Async = (
     const geometry = next.value
     const sections = await encodeVarDctCoefficientSectionsAsync(geometry, checkpoint)
     await checkpoint()
-    const global = sections[0]
-    if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
-    const selectedSections = frame.patchGlobalSection
-      ? [frame.patchGlobalSection(global), ...sections.slice(1)]
-      : sections
-    return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
-      reference: frame.reference === true,
-      patches: frame.patchGlobalSection !== undefined,
-    })
+    const baseline = forwardFrameParts(width, height, geometry, sections, frame)
+    if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
+    try {
+      return await withJpegXlMemoryAsync(memory, async () => {
+        const learning = learnJpegXlForwardCoefficientOrders(geometry)
+        let next = learning.next()
+        try {
+          while (!next.done) {
+            await checkpoint()
+            next = learning.next()
+          }
+        } finally {
+          learning.return([])
+        }
+        const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
+        const alternateSections = await encodeVarDctCoefficientSectionsAsync(
+          alternateGeometry,
+          checkpoint,
+        )
+        await checkpoint()
+        const alternate = forwardFrameParts(
+          width,
+          height,
+          alternateGeometry,
+          alternateSections,
+          frame,
+        )
+        let selected =
+          codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
+        for (const candidate of [geometry, alternateGeometry]) {
+          try {
+            selected = await withJpegXlMemoryAsync(memory, async () => {
+              const familyGeometry = { ...candidate, forwardFamilyContexts: true }
+              const familySections = await encodeVarDctCoefficientSectionsAsync(
+                familyGeometry,
+                checkpoint,
+              )
+              await checkpoint()
+              const family = forwardFrameParts(width, height, familyGeometry, familySections, frame)
+              return codestreamPartBytes(family) < codestreamPartBytes(selected) ? family : selected
+            })
+          } catch (error) {
+            if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+            break
+          }
+        }
+        return selected
+      })
+    } catch (error) {
+      if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      return baseline
+    }
   })
 
 function* prepare8(
@@ -363,26 +476,55 @@ function* prepare8(
   strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
-    throw invalidInput('JPEG XL dimensions must be positive safe integers')
+    throw invalidJpegXlInput('dimensions must be positive safe integers')
   if (!Number.isInteger(sampleDepth) || sampleDepth < 8 || sampleDepth > 16)
-    throw invalidInput('JPEG XL forward sample depth must be between 8 and 16')
+    throw invalidJpegXlInput('forward sample depth must be between 8 and 16')
   const sampleBytes = color?.storageBytes ?? (sampleDepth === 8 ? 1 : 2)
   if ((sampleDepth !== 8 || sampleBytes === 2 || channels === 1) && !imageHeader)
-    throw invalidInput('JPEG XL high-depth and grayscale encoding require an explicit image header')
+    throw invalidJpegXlInput('high-depth and grayscale encoding require an explicit image header')
   validateImageDimensions(width, height, 1, limits, channels * sampleBytes)
   if (pixels.length !== width * height * channels * sampleBytes)
-    throw invalidInput('JPEG XL RGB8 extent is inconsistent')
+    throw invalidJpegXlInput('RGB8 extent is inconsistent')
   if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)
-    throw invalidInput('JPEG XL forward conformance distance must be between 0.25 and 25')
+    throw invalidJpegXlInput('forward conformance distance must be between 0.25 and 25')
   const blockQuantization = 4
   const globalScale = Math.round(65536 / (distance * blockQuantization))
   const effectiveDistance = 65536 / globalScale / blockQuantization
+  let rgbDcPolicy = channels === 3
+  if (
+    effort === 7 &&
+    distance > 1 &&
+    width * height <= 4_194_304 &&
+    channels === 4 &&
+    sampleDepth === 8 &&
+    sampleBytes === 1 &&
+    (color?.alphaBitDepth ?? 8) === 8 &&
+    (color?.primaries ?? 'srgb') === 'srgb' &&
+    (color?.transfer.kind ?? 'srgb') === 'srgb'
+  ) {
+    rgbDcPolicy = true
+    for (let offset = 3; offset < pixels.length; offset += 4) {
+      if (pixels[offset] !== 255) {
+        rgbDcPolicy = false
+        break
+      }
+    }
+    if (rgbDcPolicy) {
+      try {
+        // Artwork with few visible colors keeps its established DC policy.
+        rgbDcPolicy = !hasSmallVisiblePalette(pixels, memory)
+      } catch (error) {
+        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        rgbDcPolicy = false
+      }
+    }
+  }
   // Keep fine DC precision outside the measured SDR experiments.
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
   const moderateSdrDc =
     distance > 1 &&
     effort !== 1 &&
-    channels === 3 &&
+    rgbDcPolicy &&
     sampleDepth === 8 &&
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
@@ -735,7 +877,7 @@ function* prepare8(
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel]
         const component = components[channel]
-        if (!plane || !component) throw invalidInput('JPEG XL forward channel is missing')
+        if (!plane || !component) throw invalidJpegXlInput('forward channel is missing')
         let sum = 0
         for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
         means[channel] = sum / 64
@@ -812,10 +954,11 @@ function* prepare8(
       forwardJpegXlDctHalves(plane, intermediate, transformed, strategy === 13)
     else forwardJpegXlDct8(plane, intermediate, transformed)
   }
+  const epfMaximumSharpness = channels === 4 ? 2 : 3
   let epfSharpnessMap =
     blockStrategyMap &&
     distance >= 2 &&
-    channels !== 4 &&
+    (channels !== 4 || (effort === 7 && moderateSdrDc)) &&
     colorTransfer.kind === 'srgb' &&
     primaryCode === 1
       ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
@@ -973,7 +1116,7 @@ function* prepare8(
           // Map quantization RMS through the normative EPF sigma relationship.
           // 1.17157287525381 is 4 - 2*sqrt(2); development calibration caps strength at 3.
           epfSharpnessMap[index] = Math.min(
-            3,
+            epfMaximumSharpness,
             Math.round(
               (Math.sqrt(selectedError) * 255 * 7 * 1.17157287525381) / (localScale * 0.46),
             ),
@@ -1026,10 +1169,10 @@ function* prepare8(
           const destination = acStorage[channel]
           const table = strategyTables(strategy)[channel]
           if (!plane || !destination || !table)
-            throw invalidInput('JPEG XL forward AC channel is missing')
+            throw invalidJpegXlInput('forward AC channel is missing')
           if (deferredDcGroups) {
             const component = components[channel]
-            if (!component) throw invalidInput('JPEG XL forward DC channel is missing')
+            if (!component) throw invalidJpegXlInput('forward DC channel is missing')
             let sum = 0
             for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
             component.coefficients[(originY + y) * fullBlockWidth + originX + x] = Math.round(
@@ -1070,7 +1213,7 @@ function* prepare8(
         }
         return cachedPlanes.map((plane, channel) => {
           const destination = passStorage[channel]
-          if (!destination) throw invalidInput('JPEG XL progressive channel is missing')
+          if (!destination) throw invalidJpegXlInput('progressive channel is missing')
           const count = plane.blocksPerLineForMcu * plane.blocksPerColumnForMcu * 64
           destination.set(plane.coefficients.subarray(0, count))
           if (pass === 0) {
@@ -1095,7 +1238,7 @@ function* prepare8(
   const first = components[0]
   const second = components[1]
   const third = components[2]
-  if (!first || !second || !third) throw invalidInput('JPEG XL forward channel mapping is missing')
+  if (!first || !second || !third) throw invalidJpegXlInput('forward channel mapping is missing')
   const alphaStorage =
     channels === 4 ? allocateJpegXlArray(memory, Int32Array, 256 * 256) : undefined
   const alpha = alphaStorage

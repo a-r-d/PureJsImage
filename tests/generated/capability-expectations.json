@@ -317,7 +317,16 @@
         "tests/jpegxl-float-completion.test.ts",
         "browser-tests/jpegxl-float-completion.pw.ts",
         "tests/jpegxl-gap-completion.test.ts",
-        "browser-tests/jpegxl-gap-completion.pw.ts"
+        "tests/jpegxl-fast-lossless.test.ts",
+        "tests/jpegxl-learned-lossless.test.ts",
+        "browser-tests/jpegxl-gap-completion.pw.ts",
+        "tests/jpegxl-artwork.test.ts",
+        "tests/jpegxl-patch-features.test.ts",
+        "tests/jpegxl-learned-palette.test.ts",
+        "tests/jpegxl-tree-entropy.test.ts",
+        "tests/jpegxl-flat-palette.test.ts",
+        "tests/jpegxl-grouped-search.test.ts",
+        "tests/jpegxl-dc-model.test.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -355,7 +364,11 @@
           "benchmark/jpegxl/run-gap-resources.ts",
           "benchmark/jpegxl/gap-completion/receipt.json",
           "benchmark/jpegxl/generate-vardct-floating-alpha.ts",
-          "tests/fixtures/jpegxl/gap-alpha/manifest.json"
+          "tests/fixtures/jpegxl/gap-alpha/manifest.json",
+          "tests/jpegxl-flat-palette.test.ts",
+          "benchmark/jpegxl/comparison/results/flat-palette-production-controls.json",
+          "benchmark/jpegxl/comparison/results/flat-palette-quality-audit.json",
+          "benchmark/jpegxl/comparison/results/family-floor-production-controls.json"
         ]
       }
     },

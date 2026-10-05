@@ -1,9 +1,10 @@
-import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { unsupportedOperation } from '../errors.ts'
 import {
   type JpegXlFrameStructure,
   jpegXlExtraChannelPass,
   jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlVarDctLowFrequencyState } from './jpegxl-vardct-render.ts'
 
 export interface JpegXlRegion {
@@ -71,7 +72,7 @@ export const jpegXlEncodedPoint = (
     case 8:
       return [width - 1 - y, x]
     default:
-      throw invalidInput('JPEG XL orientation is invalid')
+      throw invalidJpegXlInput('orientation is invalid')
   }
 }
 
@@ -86,10 +87,10 @@ export const planJpegXlProgressive = (
     request.fallback !== 'allow' &&
     request.fallback !== 'reject'
   )
-    throw invalidInput('JPEG XL fallback policy is invalid')
+    throw invalidJpegXlInput('fallback policy is invalid')
   const coordinateSpace = request.coordinateSpace ?? 'encoded'
   if (coordinateSpace !== 'encoded' && coordinateSpace !== 'display')
-    throw invalidInput('JPEG XL coordinate space is invalid')
+    throw invalidJpegXlInput('coordinate space is invalid')
   const orientation = coordinateSpace === 'display' ? frame.orientation : 1
   const width = orientation >= 5 ? frame.height : frame.width
   const height = orientation >= 5 ? frame.width : frame.height
@@ -103,16 +104,16 @@ export const planJpegXlProgressive = (
     region.x + region.width > width ||
     region.y + region.height > height
   )
-    throw invalidInput('JPEG XL progressive region is invalid')
+    throw invalidJpegXlInput('progressive region is invalid')
   const scale = request.scaleDenominator ?? 1
   if (scale !== 1 && scale !== 2 && scale !== 4 && scale !== 8)
-    throw invalidInput('JPEG XL progressive scale must be 1, 2, 4 or 8')
+    throw invalidJpegXlInput('progressive scale must be 1, 2, 4 or 8')
   const until = request.until ?? 'final'
   if (typeof until === 'number' && until < 1)
-    throw invalidInput('JPEG XL completed pass counts start at one')
+    throw invalidJpegXlInput('completed pass counts start at one')
   const passes = until === 'dc' ? 0 : until === 'final' ? frame.passCount : until
   if (!Number.isSafeInteger(passes) || passes < 0 || passes > frame.passCount)
-    throw invalidInput('JPEG XL progressive pass count is invalid')
+    throw invalidJpegXlInput('progressive pass count is invalid')
   const first = jpegXlEncodedPoint(region.x, region.y, frame.width, frame.height, orientation)
   const last = jpegXlEncodedPoint(
     region.x + region.width - 1,
@@ -159,7 +160,7 @@ export const planJpegXlProgressive = (
     fallbackReasons.push('The frame stores all image data in one section')
   if (state) {
     if (state.frame !== frame || state.released)
-      throw invalidInput('JPEG XL plan requires live LF state for this frame')
+      throw invalidJpegXlInput('plan requires live LF state for this frame')
     if (state.lfGlobal.patches.length)
       fallbackReasons.push('Patches require reference source dependencies')
     if (state.lfGlobal.splines.length)
@@ -227,7 +228,7 @@ export const planJpegXlProgressive = (
   }
   if (selectiveAlpha && fallbackReasons.length === 0 && frame.sections.length > 1) {
     const channel = frame.extraChannels[0]
-    if (!channel) throw invalidInput('JPEG XL selective alpha descriptor is missing')
+    if (!channel) throw invalidJpegXlInput('selective alpha descriptor is missing')
     const factor = (frame.extraChannelUpsampling[0] ?? 1) * 2 ** channel.dimShift
     const groupedShifts = state?.extraChannels
       ? state.extraChannels.groupedShifts

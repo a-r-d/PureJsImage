@@ -1,0 +1,386 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "3a1f98818c3a153e67731e0b643ada412ff6c728f7f7fd9c954bdeb9d8790fa5",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-flat-palette-production-493.ts",
+      "sha256": "2f94dbf6450a9ca895fa8b5d5478ddd0aac924e4533f721a2e3c4e2ace40251b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-flat-palette-production-493.json",
+      "sha256": "7e292d22234b89ed65d858cfd1585f1a15b88fbc6314aa18676e486d465f2d2b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-adoption-478/result.json",
+      "sha256": "26020c6ab379619acde7d57c8c60b693889e75bfa1db0ba5373f8d0d6d69452f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-format-492/result.json",
+      "sha256": "1a69514a24bb31c0dadf68986b58b1e310712743730c79716bc64be3d1baba52"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-adoption-package-476.json",
+      "sha256": "caea0a6c58e7ca99419f71f5d0a3d0d8c6f593994e5c89aba9e6aaf7d59fbc32"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "ac95adc921bd39be25fec1b7129de724760862fe932505915c8e357f04760ef8"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "sha256": "e6b0e85e016cc66d851f909a17a334de805cdc3bbf02214b90c1af3f36710076"
+    },
+    {
+      "path": "src/codecs/jpegxl-chroma.ts",
+      "sha256": "65f981931247f009ef2c2fb9c0cf3869d1bfbc80d4b19cecebb7b607e0e4ab42"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "2b2db1fd3ef93432da744b538e0c432e3cf7d5e1f99e3692d70b0a41e2e7018c"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "sha256": "ca254c6f07b427c20ece7faafe063f309e147db6788193961495eb0984f5acf9"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "d4dbba5954bff8d009d84777967fd4260a86aa00a9eb75035c6331ca526b026d"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "3d5d4dba24c88a59ad04d72ea6ce92f3e0b17d9f5a0b848f83d16a0805bc5869"
+    },
+    {
+      "path": "src/codecs/jpegxl-exif.ts",
+      "sha256": "cbf19f2338045c045c4209befe6ebf18c1853fa76d923167736fb6ed340e4de6"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-color.ts",
+      "sha256": "58051df0e321a3e1decf879be1b916e03e86ead75e2e7c524bb9438fecd66eac"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "22baeda7d43ecd0e198c9d3fe21caa216e4bec392188886ccd4572ccd8410172"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "42767538053ed1229498c3d1197fc4ff88c284297fc859867646c0d8ce2e3739"
+    },
+    {
+      "path": "src/codecs/jpegxl-icc.ts",
+      "sha256": "7ebded0282f92d30e0e268cb551898a78b699028c4af9107f6120486fd3580a8"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "sha256": "28227218bd147413fd8cf58c786568f96cbec5f9aca7e4c949d14540fadcac6c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "sha256": "f5432e44555295dd08297fa56635eac00bbdfb58c5b529c793c7f3e87b889341"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "117e08152ceb03fe258a296295d9201c486a33bb4851c0e41f42611f818c565a"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "b348b240ee149168e2c9dc5deb73ce95904a14be2082afd97ada41fa57df7c5f"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "6519711eaeefba44d51d3a9e2476a246b65c85b7cad4bbfa90beb1fef9513f3c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "195e1fd5f8b29d70c0b756a4579d69d93805bf3b31983e9fe700f153dc0c012c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3bcc0166bf5ce9de6d74d368245204202ac2d4346c9603373b1addafb23a1413"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50540cef781af542d7173a1d78b4d7dc6d2b802e03bd64ddaaf455c8d8a2d7ee"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "76adaaa05232156f79de86d0e762cc2b695f012e6c8b832b9ca42b9d9220a58d"
+    },
+    {
+      "path": "src/codecs/jpegxl-limits.ts",
+      "sha256": "c2b8bf339c8ec40b9180ac999c105eb58eeba7651d812fc48fef0624bef7c2f7"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "00c1b3efc8a59f3676c6e99fa3818700e915c6117a2f88afa1cafcfa1785a3dc"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "c465202fc15b54782c25fb87a10489f925028313c4353c04c8a411684a706423"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "00e14f14eead03391d1bb5965aba8a8e98f77b62428540d7724c44423034954c"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "91ebc48ecf4de1401eb5d0ad0265e266229a8d734f5471c206c7e88ecf9ee7cb"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "654b07d4180ef87aad3fa4663da48d6d090d5a674f6e68e4a97607246b21e644"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "f3dad73c25bd8d83ab9e7b7a0feff1302b1f166c03a53504cb6359968edb16fd"
+    },
+    {
+      "path": "src/codecs/jpegxl-patch-blend.ts",
+      "sha256": "1a1de4be6b0791e72be162d9747036033de1d16271dc504cb67a201096ea409c"
+    },
+    {
+      "path": "src/codecs/jpegxl-progressive-plan.ts",
+      "sha256": "e8e17dec70bd5fc2a2f5a5ba717619ee266fbd83c2c8bbaf900b051ffe1f7ee6"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence-encode.ts",
+      "sha256": "850483b190fb151e57e688bd54dde061fd3f2114a676e54deff0c0c88653eb28"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "71ac700640ec08c7f4d2aa9ba4696ea4f06c85d664563dbfd840f722cd0df47b"
+    },
+    {
+      "path": "src/codecs/jpegxl-session.ts",
+      "sha256": "e8110f4f4c3ef13d33cdadc8c07998840079e70a2ffe132e71d77117e98b6ef4"
+    },
+    {
+      "path": "src/codecs/jpegxl-splines.ts",
+      "sha256": "6b9056a839b11ec5f56c1caafc300e33d3ae96e06643edf6be0180b1f5256d60"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "af2c0a2e258e3db01b04f79819c6ca841df40017ac0a84dbe66c2b49d6155f64"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "a24392a90aca5a22c2f665475a50e0182529c1b2bd907ac8388fdbafed4ee4e0"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "13f0ac7f3eac38341b84baa7afb0d6533250793bd6275eaed02af875fb8fc87c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "sha256": "cbc906121c669209a172e2ef3f35295080206cb0565c3c7deaf29dfe557a95d5"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "sha256": "46d253e36669690b5d3be06bdae97422c79832a9d0bbc24f313789dc6163127d"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "sha256": "66d49025d914fa4146fd53841944ba23144625142f222cf57160d6b5cd4804e6"
+    },
+    {
+      "path": "src/codecs/jpegxl-errors.ts",
+      "sha256": "e43f8dab32a38e0b42c62680e768b87fb5aa4ba47b122d6171457f082f1893ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/jpegxl-specialized.js",
+      "sha256": "a5dcb798f5f150e0292cf1bb70f2503520a71e15c58d9a5c91064028142078a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/codec-jpegxl.js",
+      "sha256": "18d23f0d3ebb7290b6d294dfd104d432dd7353fb706cfdeda53dcc77571bb1ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl",
+      "sha256": "b4625ce925f63aa18b79bae729d25051f767b0dd46fe9d61dab794566fcf8005"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl.native.npy",
+      "sha256": "d1a2d6624412e0110d92b1a17f04d21b8ec8436fc1771d6aa4814febd6a89120"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl.rust.npy",
+      "sha256": "c5cc7d372ad124a5547ae3c231606c2f224dc03e6fc048502c59853ed5c17bbd"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl",
+      "sha256": "53cdc06172bf2fd1f2801c075eab0dd6811cce244ab7e8619227ba0c9bc7cd8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl.native.npy",
+      "sha256": "2528bef53d229df3c4251eb7de3e72d201a920b104fabd3f25cd77b553facbac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl.rust.npy",
+      "sha256": "02f76a39fd1cabd291ee5034f56a8a714d8ce77a05e9c02f751120f3084c025a"
+    }
+  ],
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "artifact": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/jpegxl-specialized.js",
+      "sha256": "a5dcb798f5f150e0292cf1bb70f2503520a71e15c58d9a5c91064028142078a3",
+      "bytes": 609451,
+      "ceiling": 614000,
+      "withinLimit": true,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "stageArtifact": ".tmp/jpegxl-comparison-v1/flat-palette-adoption-package-476/jpegxl-specialized.js",
+      "stageSha256": "92e87dc44b61695691b05831e83a65335736619d538aa5bb0a49042e8187ad34",
+      "stageBytes": 609451,
+      "byteDeltaFromStage": 0,
+      "wholeStageArtifactIdentical": false,
+      "countDifferencePolicy": "Record actual package counts after safe production import organization; preserve unchanged hard ceilings and exports. All43compiled runtime bodies are independently identical. The earlier486exact-count assumption remains recorded as failed."
+    },
+    {
+      "target": "codec-jpegxl",
+      "artifact": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/codec-jpegxl.js",
+      "sha256": "18d23f0d3ebb7290b6d294dfd104d432dd7353fb706cfdeda53dcc77571bb1ab",
+      "bytes": 537224,
+      "ceiling": 541000,
+      "withinLimit": true,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "stageArtifact": ".tmp/jpegxl-comparison-v1/flat-palette-adoption-package-476/codec-jpegxl.js",
+      "stageSha256": "d23dc8dc0ad47fb2a8d72739c76861e133f24acce73a86a8b00bf5a2312ff450",
+      "stageBytes": 537540,
+      "byteDeltaFromStage": -316,
+      "wholeStageArtifactIdentical": false,
+      "countDifferencePolicy": "Record actual package counts after safe production import organization; preserve unchanged hard ceilings and exports. All43compiled runtime bodies are independently identical. The earlier486exact-count assumption remains recorded as failed."
+    }
+  ],
+  "results": [
+    {
+      "maxWorkingBytes": 268435456,
+      "artifact": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl",
+      "bytes": 771,
+      "sha256": "b4625ce925f63aa18b79bae729d25051f767b0dd46fe9d61dab794566fcf8005",
+      "inputSha256": "8a8abdb5bf6cfcf2aa1c7ff4f0612633d8668c68ac15fd0ad15966e3be3f5e5e",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl.native.npy",
+          "sha256": "d1a2d6624412e0110d92b1a17f04d21b8ec8436fc1771d6aa4814febd6a89120",
+          "samples": 65536,
+          "maximumOriginalError": 8,
+          "originalAlphaError": 0,
+          "preservedColorOccurrences": 89
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-268435456.jxl.rust.npy",
+          "sha256": "c5cc7d372ad124a5547ae3c231606c2f224dc03e6fc048502c59853ed5c17bbd",
+          "samples": 65536,
+          "maximumOriginalError": 8,
+          "originalAlphaError": 0,
+          "preservedColorOccurrences": 89
+        }
+      ],
+      "maximumDecoderError": 0,
+      "ownedPeak": 2072457,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "maxWorkingBytes": 1500000,
+      "artifact": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl",
+      "bytes": 10986,
+      "sha256": "53cdc06172bf2fd1f2801c075eab0dd6811cce244ab7e8619227ba0c9bc7cd8a",
+      "inputSha256": "8a8abdb5bf6cfcf2aa1c7ff4f0612633d8668c68ac15fd0ad15966e3be3f5e5e",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl.native.npy",
+          "sha256": "2528bef53d229df3c4251eb7de3e72d201a920b104fabd3f25cd77b553facbac",
+          "samples": 65536,
+          "maximumOriginalError": 10,
+          "originalAlphaError": 0,
+          "preservedColorOccurrences": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/flat-palette-production-493/budget-1500000.jxl.rust.npy",
+          "sha256": "02f76a39fd1cabd291ee5034f56a8a714d8ce77a05e9c02f751120f3084c025a",
+          "samples": 65536,
+          "maximumOriginalError": 10,
+          "originalAlphaError": 0,
+          "preservedColorOccurrences": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 979138,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    }
+  ],
+  "sourceAdopted": true,
+  "originalQualifiedStreamsReproduced": true,
+  "independentGrids": 4,
+  "originalAlphaError": 0,
+  "managedOwnershipClosed": true,
+  "fullParity": false,
+  "representativePerformanceQualified": false,
+  "policy": "Fresh actual production packages without private-module redirection preserve original exports and hard ceilings, and record actual byte counts separately after import organization. Two public128square requests reproduce the separately independently qualified palette and natural working-budget fallback streams. Four complete native/Rust grids verify all samples, exact original alpha and global flat-color preservation where applicable. These generated regressions and package proofs do not replace the complete pre-adoption original matrix, final real-browser/full-check gates or unresolved compression parity."
+}

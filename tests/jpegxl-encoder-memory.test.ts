@@ -32,6 +32,7 @@ const prepare = async (
     failAt?: number
     failAbort?: boolean
     signal?: AbortSignal
+    checksum?: boolean
     onWrite?: (index: number) => Promise<void>
   } = {},
 ) => {
@@ -42,6 +43,7 @@ const prepare = async (
   let writes = 0,
     bytes = 0,
     aborts = 0
+  let encodedChecksum = 2_166_136_261
   const failure = new Error('deliberate sink failure')
   const sink: ImageSink = {
     async write(data) {
@@ -49,6 +51,9 @@ const prepare = async (
       if (writes === config.failAt) throw failure
       await config.onWrite?.(writes)
       bytes += data.byteLength
+      if (config.checksum)
+        for (let i = 0; i < data.length; i++)
+          encodedChecksum = Math.imul(encodedChecksum ^ (data[i] ?? 0), 16_777_619) >>> 0
     },
     async close() {},
     async abort() {
@@ -87,12 +92,32 @@ const prepare = async (
     format: 'rgb8',
     data: pixels,
   })
-  return { encoder, failure, result: () => ({ writes, bytes, aborts }) }
+  return { encoder, failure, result: () => ({ writes, bytes, aborts, encodedChecksum }) }
 }
 const expectClosed = (encoder: ImageEncoder) =>
   expect(counters(encoder)).toMatchObject({ live: 0, allocations: 0 })
 
 describe('JPEG XL actual encoder allocations', () => {
+  it.each([1, 7] as const)(
+    'cancels grouped lossless search at effort %i without output or retained storage',
+    async (effort) => {
+      const controller = new AbortController()
+      const run = await prepare(
+        { mode: 'lossless', effort },
+        { width: 513, height: 512, signal: controller.signal },
+      )
+      const reason = new Error('cancel grouped lossless search')
+      const timer = setTimeout(() => controller.abort(reason), 0)
+      try {
+        await expect(run.encoder.finish()).rejects.toBe(reason)
+        expect(run.result()).toMatchObject({ writes: 0, aborts: 1 })
+        expectClosed(run.encoder)
+      } finally {
+        clearTimeout(timer)
+      }
+    },
+    60_000,
+  )
   it('admits grouped effort-1 lossy scratch and unwinds a rejected allocation', async () => {
     const options = { mode: 'lossy', distance: 1, effort: 1 } as const
     const dimensions = { width: 513, height: 257 }
@@ -191,7 +216,32 @@ describe('JPEG XL actual encoder allocations', () => {
     expect(memory.liveBytes).toBe(256)
     memory.close()
   })
-  it.each([1, 3, 5, 7] as const)(
+  it('recovers the original effort-1 stream at its budget and rejects below the new minimum', async () => {
+    const required = 103_131
+    const baseline = await prepare({ effort: 1 }, { checksum: true })
+    await baseline.encoder.finish()
+    expect(baseline.result()).toMatchObject({ bytes: 578, encodedChecksum: 1595657910 })
+    expectClosed(baseline.encoder)
+    const originalBudget = await prepare(
+      { effort: 1, maxWorkingBytes: 104_966 },
+      { checksum: true },
+    )
+    await originalBudget.encoder.finish()
+    expect(originalBudget.result()).toMatchObject({ bytes: 1888, encodedChecksum: 979580636 })
+    expect(counters(originalBudget.encoder).peak).toBeLessThanOrEqual(104_966)
+    expectClosed(originalBudget.encoder)
+    const at = await prepare({ effort: 1, maxWorkingBytes: required }, { checksum: true })
+    await at.encoder.finish()
+    expect(at.result()).toMatchObject({ bytes: 1888, encodedChecksum: 979580636 })
+    expect(counters(at.encoder).peak).toBe(required)
+    expectClosed(at.encoder)
+    const below = await prepare({ effort: 1, maxWorkingBytes: required - 1 })
+    await expect(below.encoder.finish()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(below.result()).toMatchObject({ writes: 0, aborts: 1 })
+    expect(counters(below.encoder).peak).toBeLessThan(required)
+    expectClosed(below.encoder)
+  })
+  it.each([3, 5] as const)(
     'effort %i succeeds at its measured budget and fails one byte below it',
     async (effort) => {
       const baseline = await prepare({ effort })
@@ -210,6 +260,34 @@ describe('JPEG XL actual encoder allocations', () => {
       expectClosed(below.encoder)
     },
   )
+  it('retains the original effort-7 minimum and rejects one byte below it', async () => {
+    // Independently exact prior stream, before optional learned palette search.
+    const required = 221_988
+    const at = await prepare({ effort: 7, maxWorkingBytes: required }, { checksum: true })
+    await at.encoder.finish()
+    expect(counters(at.encoder).peak).toBe(required)
+    expect(at.result()).toMatchObject({ bytes: 586, encodedChecksum: 3_265_037_986 })
+    expectClosed(at.encoder)
+    const below = await prepare({ effort: 7, maxWorkingBytes: required - 1 })
+    await expect(below.encoder.finish()).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
+    expect(below.result()).toMatchObject({ writes: 0, aborts: 1 })
+    expect(counters(below.encoder).peak).toBeLessThan(required)
+    expectClosed(below.encoder)
+  })
+  it('retains exact effort-7 output below the optional palette search peak', async () => {
+    const baseline = await prepare({ effort: 7 }, { checksum: true })
+    await baseline.encoder.finish()
+    const { peak } = counters(baseline.encoder)
+    expectClosed(baseline.encoder)
+    for (const maxWorkingBytes of [peak, peak - 1]) {
+      const bounded = await prepare({ effort: 7, maxWorkingBytes }, { checksum: true })
+      await bounded.encoder.finish()
+      expect(bounded.result().bytes).toBe(baseline.result().bytes)
+      expect(bounded.result().encodedChecksum).toBe(baseline.result().encodedChecksum)
+      expect(counters(bounded.encoder).peak).toBeLessThanOrEqual(maxWorkingBytes)
+      expectClosed(bounded.encoder)
+    }
+  })
   it('fits single-group effort-7 search in a 96 MiB working budget', async () => {
     const run = await prepare(
       { effort: 7, maxWorkingBytes: 96 * 1024 * 1024 },

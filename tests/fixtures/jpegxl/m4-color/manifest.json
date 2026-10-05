@@ -112,7 +112,7 @@
       "sha256": "fc62cdcebb22df4e2ab307371c912b9fcd44a1c9826f83559935a4868b6c08b5",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "05054408e1564501ba3812070aa99de47ea4cf67cb6420f000b57f582c9567ad"
+      "encodedSha256": "b65f5c2113bd7e18e0737e12baeef5b91932aa5e09765f986dd8ddcd66409a20"
     },
     {
       "id": "linear-8",
@@ -224,7 +224,7 @@
       "sha256": "e15ea3bc5d76c25370d7da7e96bcce7992ac5b710eb5acf46f35b753937dbfcf",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "2846a66b6d016270ad1f118204a82b5dc4197a3262a9b4de62c40f312159f70d"
+      "encodedSha256": "6b70cbe8946dbbd6db1c59945445c2934f3f193ff7536ca74cc0610a36daff37"
     },
     {
       "id": "p3-8",
@@ -336,7 +336,7 @@
       "sha256": "b101908708a0ab81e0687263a5721ebfc7661a59bc7e9f2b03c5dfd7c2df6ee2",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "bbde3746acaaa83f75b5ff4abd02ca661e19f828d37209b5babb8bb5395e8294"
+      "encodedSha256": "3fe1c4376fed8bd696d29ae97698ef557136c8c1dbd09165034cfc36513caee6"
     },
     {
       "id": "rec2020-8",
@@ -448,7 +448,7 @@
       "sha256": "32403867d7f3a9f5313c3c1af06f4059a80a3ea74fb0c471ab6cb8a6834dd399",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "0f3e0b1574fdb9a6538d62aa3b0c1a289ea6ee7d1f1801131276a80c09448ec3"
+      "encodedSha256": "b316a7ae3ddab919feba190c9bea449bf5c21d0f0eeaa4cc9f8eaa114e19a696"
     },
     {
       "id": "pq-8",
@@ -560,7 +560,7 @@
       "sha256": "092bdce223edaec8fd5b544f4e01ecc6102311c84ecb4628452802653842c381",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "b8e6328f288bbca8407098d1f8218f6e1f32d1a5c622ef235d656fc6c23b71b5"
+      "encodedSha256": "5e3ebde14b0be2a4ee8ebe804c03e3c5f8b96cfe32faf54b6e1025fe2f944b04"
     },
     {
       "id": "hlg-8",
@@ -672,7 +672,7 @@
       "sha256": "34f68e9f0f4a2f06fff13dcbbe88cb71d4bb3ada4be57a8e8a56b947a846fecd",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "5d98eea53f8b0b4db43095e20cc42b60d43d028b4131b1c526dbc91570223774"
+      "encodedSha256": "973e03861716a1888c98ccc883faae2939eefe0480b0576dab1224798a237b27"
     },
     {
       "id": "gamma-8",
@@ -788,7 +788,7 @@
       "sha256": "19c8a4f6636a13289dab90b3b9e241734dfe45a786248684539767b1e4904751",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "e403f527d6fd34f1c5054269b6ab74504683cd586c3e519b40f4826d614e5744"
+      "encodedSha256": "cd943f09671943380f4a9589f4fd0b6cb9ca4e0ccac8d3f68c2298029c9a3267"
     },
     {
       "id": "gray-srgb-8",
@@ -1488,7 +1488,7 @@
       "sha256": "6c4590b88f624b9b8dfabd69d0f05c5fa371b42ff8b41a8684b5df220f2de906",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "48cbe5b226f428e67a554f5544993b06c6455415406f54844ef1ef3a12bdceeb"
+      "encodedSha256": "309a01e3e68af047b4753d5f218431d83280f0e4a5a9c65e0f46dde9d14e5aba"
     },
     {
       "id": "custom-8",
@@ -1700,7 +1700,7 @@
       "sha256": "a31fd0460732d5d35d18596c7f2a279f23692986a0b7d12adc8c88c9babe5046",
       "pixelsSha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378",
       "oracle": "cjxl decode and PureJsImage encode match exact native samples through djxl",
-      "encodedSha256": "a0ff104b01a6fbc00eed86f5858f22fb4422dccb0a0a4a084668cdb457dad08c"
+      "encodedSha256": "8a09b0ae996b4cbf5e55fab8785585d76e017d84f1759b4dd31b630897a808ac"
     }
   ]
 }

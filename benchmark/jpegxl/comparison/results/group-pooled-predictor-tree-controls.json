@@ -1,0 +1,958 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-group-pooled-trees-298.ts",
+      "sha256": "406829e599294721c3afe15826fe53bb53c14866fd2d767e9ef21e93bbc297b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-group-pooled-trees-298.json",
+      "sha256": "eee86cd3d7e0973a78098994866de450b164a4b5a535cd4cbe25ce7156577718"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-encode-fragment-298.ts",
+      "sha256": "0504367f4ecf62aa6837b07112b7a144f9a12d458fc5bb45324b0887cc2338a9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/manifest.json",
+      "sha256": "79d31a2e76e7e30a75905160ee1878c424abcf76b432cc29ae4e7bfe878ddb30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-pooled-trees-296.ts",
+      "sha256": "d22d2eb439260f8324d31059c3e1695d5e4b2533f2e027e528ad7fbd102442e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-trees-296.json",
+      "sha256": "69471c511ad1c2cb18ec7829c0335be491f16b2c04fccb63980df88df71a503a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-encode-fragment-296.ts",
+      "sha256": "2bdbcc7921a26c7fb68cd197c1690a7dca5227e5264fb9fb9ca1628441e43247"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-final-gates.json",
+      "sha256": "ba7fce97c6cb103470cdae47d292ef3351ba77ec4f31fec9736cb34688d82690"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-groups-286e/manifest.json",
+      "sha256": "3593d6ffced157ccf924d2f8083dc14acce7eb2e6b102b627db10932e387e42b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-hybrid-291.ts",
+      "sha256": "6cc0eb8a2d3763665f76aa1a570ff1f182f87545f7f421cd3dd95399d6e21a7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-hybrid-291.json",
+      "sha256": "e23411b40ee22f892c9fcf404d88ed11f95a50d2a5ef9b7cb79f55faf5e71523"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286e.ts",
+      "sha256": "90a728f4a63bc075bb4798828e82b46b631f9a591a8605a97b86829c2296e553"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-final-gates.json",
+      "sha256": "fe9fc68b8361cae293a2063434e854cf0d2bdc08c41d86ca2414d9e30dc8ed10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286e.ts",
+      "sha256": "2363c793620cf280a4d826ab945cb7abb2f26c9f58fab9d2bf5ecf5823f30673"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286e.json",
+      "sha256": "738439f081cfbf10cae886b7767f5927a2bdf9cc1f97d6f6a397fdec838d461e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286c.ts",
+      "sha256": "9a91496ef8695cec8aeaafb510dcfa1d7cb97acc1b434a420fa5d3a9eee6e83d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286c.json",
+      "sha256": "4a026b2cbd3e2fc1df79f78e057a610536deb7303787a13d0b8a060dc2b40a83"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286d.json",
+      "sha256": "34e4d51996b6ef4839a004db9e85744c4842565d3d69917576e9c8816410e880"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls.json",
+      "sha256": "e1f47c429b30637be3ee0da68254282fdf003ca6af6ac0629798a78b8da458fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286c.ts",
+      "sha256": "c1fcfc92a0a8670f6c6198d379d4990b2d53e29093bb277775b2a44a4da2655d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286c.json",
+      "sha256": "3fc65d1608f203db81824339378a835992a1edc6067b0680aa927c4a87b8a366"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286b.ts",
+      "sha256": "76e0a2655fcdc3f726c72c81e9e567e6cf75557440271aaa8291ead24c31d211"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286b.json",
+      "sha256": "7f9f1f550c91ffc495b2d10c85cea2de7a372256e3bb3dc185b80fafbd3b38c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/manifest.json",
+      "sha256": "e11590e829783a401677546dc8636c9c993293227cb97be5d2cba20ffba20174"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286.ts",
+      "sha256": "2469a99389fc4cf24349649247dad094a17e37f02b1a18d517246a86e8691ce7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286b.ts",
+      "sha256": "2348f58fdfa5dd1b265f3bbdc6a583bc9e14051e2968de0e0430d05889d4e46c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286b.json",
+      "sha256": "cae65318bb75efa8218ab776e3077e73ff158c1bc7cc3cd69d284fe68afc5c66"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286.json",
+      "sha256": "63f2212cad85fdd1213e1d70eb1984591c03163d06ab746a0bb1eb67062c5a3a"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-group-pooled-trees-298.ts",
+      "sha256": "dae9b46eac4c0aa05c872ffd625f7051141f94ededb2a2d782c4a20bf900082e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286.ts",
+      "sha256": "e8076b609eae65477dbffa5023da4ea693ce126fb80e9aae0653dbf6e4cf4c3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286.ts",
+      "sha256": "281490888e57f44078a96d554e462da73fc73e045402b271f4b2e68560e74378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286.json",
+      "sha256": "b11471c00f293592e511115c809e33a28019b97ac764aac325865baf38fd04d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/manifest.json",
+      "sha256": "0881f65cb8da2de471705ccc9d86690fa15c6f33acf2e6e0a8a592294e5f4772"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-tree-fragment-298.ts",
+      "sha256": "2f820cca902c2c428962b4b6171c3abb6e09a2383cbac7e4ef042e7a9b4684eb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-final-gates.json",
+      "sha256": "ace0862413240a9888a3f4114ec21f49c0cd2e7426cdbf0370fe428a027d4988"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "sha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "sha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-encode.ts",
+      "sha256": "1cd512bbec281b8fa2d022b2cdf3454b4268ec7780c2e24aa87689fe4367f183"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-encode.ts",
+      "sha256": "1cd512bbec281b8fa2d022b2cdf3454b4268ec7780c2e24aa87689fe4367f183"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-encode.ts",
+      "sha256": "61f54240973f6a13d6acbf187d5fd3c747d8c28a59d8a2bc21fc535a9189b1ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-encode.ts",
+      "sha256": "5461595059a4bc5cbdbc29505d27d41226bdcd27300834d27e9f58ad82c8e615"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-tree.ts",
+      "sha256": "52c5d4abb490812c3c4729bf549737acafdd48e288d38da502dffab618c78c3e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-encode.ts",
+      "sha256": "52b01d05cff49f1a4eabf2d9219179b1074c7a87b225c435bca898ab62c8e01e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-tree.ts",
+      "sha256": "52c5d4abb490812c3c4729bf549737acafdd48e288d38da502dffab618c78c3e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl",
+      "encodedSha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b",
+      "bytes": 640822,
+      "baselineBytes": 640822,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8582,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 72763183,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 16713.005204,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl",
+      "encodedSha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "bytes": 640597,
+      "baselineBytes": 640822,
+      "changeBytes": -225,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8807,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 64292182,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 15698.123198999998,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "floor",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl",
+      "encodedSha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "bytes": 640597,
+      "baselineBytes": 640822,
+      "changeBytes": -225,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8807,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 72763183,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 21762.506723,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "baselineBytes": 614379,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 1111,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92621983,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 18166.854685000006,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl",
+      "encodedSha256": "d8b45d4fb7bd8f31dd800f2dfa9293269749b615210cf772ed47447bff28d7fb",
+      "bytes": 615952,
+      "baselineBytes": 614379,
+      "changeBytes": 1573,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 2684,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 82316102,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 16614.968165,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "floor",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "baselineBytes": 614379,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 1111,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92621983,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 23487.57465699999,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "baselineBytes": 619207,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 2101,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92842369,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 18341.82215400001,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "encodedSha256": "42cb2d9e4e1c04e584ca077181ad2741cd8cf0b0201190f2bddc811a184d1edf",
+      "bytes": 626130,
+      "baselineBytes": 619207,
+      "changeBytes": 6923,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 9024,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 82375700,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 16849.995475000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "floor",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "baselineBytes": 619207,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 2101,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92842369,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 23866.427119,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "baseline",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "baselineBytes": 227774,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -23,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 6371.265649000008,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "pooled",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl",
+      "encodedSha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4",
+      "bytes": 227778,
+      "baselineBytes": 227774,
+      "changeBytes": 4,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -19,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 6024.762926000025,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "floor",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "baselineBytes": 227774,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -23,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "maxLeaves": 256,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 8990.902239999996,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Four unchanged original/frozen inputs compare exact296uniform/joined tree floor, pooled training with one additional legitimate group-ID property, and exact complete-file floor including previous trees. Existing65536samples/channel,256leaves/channel/depth16/128models, local transforms, predictor candidates and per-model integer coding remain. Group-ID uses existing decoder1+3DC+17+group convention; predictor history resets per group. Every original native/Rust/public sample/alpha/coverage, immutable input/pin, exact baseline/floor and managed closure guard required. No cap/cost/memory/package relaxation or source/full-parity adoption."
+}

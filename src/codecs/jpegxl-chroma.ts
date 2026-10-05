@@ -1,5 +1,5 @@
 import { throwIfAborted } from '../abort.ts'
-import { invalidInput } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 export const jpegXlChromaShifts = (
   modes: readonly [number, number, number],
@@ -9,7 +9,7 @@ export const jpegXlChromaShifts = (
     if (mode === 1) return [1, 1]
     if (mode === 2) return [1, 0]
     if (mode === 3) return [0, 1]
-    throw invalidInput('JPEG XL chroma subsampling mode is invalid')
+    throw invalidJpegXlInput('chroma subsampling mode is invalid')
   })
   const horizontal = Math.max(...raw.map((value) => value[0])),
     vertical = Math.max(...raw.map((value) => value[1]))
@@ -63,7 +63,7 @@ export const jpegXlYcbcrToRgb = (planes: readonly Float64Array[]): readonly Floa
   const cb = planes[0],
     y = planes[1],
     cr = planes[2]
-  if (!cb || !y || !cr) throw invalidInput('JPEG XL YCbCr color planes are missing')
+  if (!cb || !y || !cr) throw invalidJpegXlInput('YCbCr color planes are missing')
   const red = new Float64Array(y.length),
     green = new Float64Array(y.length),
     blue = new Float64Array(y.length)

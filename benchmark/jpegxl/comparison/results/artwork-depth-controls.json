@@ -1,0 +1,2792 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "cb91695b112d750b28036ecacc026273b0f2721f1b83a3cab36d8cc1c0aad4e8",
+  "implementationDirty": true,
+  "harnessSha256": "e6cbc0db29e914a41a1caae38b2e01309d4098730f2f94ad3e4779c7373b7f94",
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-depth-controls.json",
+      "sha256": "d3170ea1e60b9ca89901c9825eeaefc5b9f50a23927afe7969df0786d5d706f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-artwork-depth-output-144.ts",
+      "sha256": "9aa7ff7d4b51f9a84cc5151445de3715ee8085de1a1f63dce368052fc4c2e241"
+    },
+    {
+      "path": "benchmark/jpegxl/verify-m7-forward-depth.ts",
+      "sha256": "395b990a24511e89c469fcfb7cfe24b8968a5186fde0e00bac04409c83416292"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ],
+  "policy": "Thirty public integer gray/RGB/RGBA cases at 8/10/12/16-bit source depth, including mixed 16-bit alpha and partial groups, in regular and progressive modes. Both independent complete normalized PNG grids must match the prior first-party implementation exactly, with no larger complete file. Native alpha tolerances are those of the pinned 16-bit PNG conversion; separate Float32 fixtures require exact native 8/16-bit alpha.",
+  "results": [
+    {
+      "id": "gray-8-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-8-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "2619a8191df17270668e4bac5215a018242954b590df72ce5d9c9690d8718a15",
+        "encodedSha256": "3f136ad56a5296305f5d5c96dac8f8b09097438e6dad291e115393184098c518",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-8-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "2619a8191df17270668e4bac5215a018242954b590df72ce5d9c9690d8718a15",
+        "encodedSha256": "3f136ad56a5296305f5d5c96dac8f8b09097438e6dad291e115393184098c518",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-8-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-8-513x257",
+        "status": "verified",
+        "bytes": 600,
+        "sourceSha256": "c5cfb8364ad9909cdb1598fbfca70efd2c8edf42f88471f760235d38fdaedabc",
+        "encodedSha256": "ef86bb37482136e8f225456c5a2411d136b27470dc912c53cbe9b9590a609143",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "08428deae78c04d5813add3ceac0f81a16bfbfaa5fd66cbf32749d2a23e5027e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2aa0753976bb68d916d1b66064b5f19983e4509777f77801da3398c59498d51c"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-8-513x257",
+        "status": "verified",
+        "bytes": 600,
+        "sourceSha256": "c5cfb8364ad9909cdb1598fbfca70efd2c8edf42f88471f760235d38fdaedabc",
+        "encodedSha256": "ef86bb37482136e8f225456c5a2411d136b27470dc912c53cbe9b9590a609143",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "08428deae78c04d5813add3ceac0f81a16bfbfaa5fd66cbf32749d2a23e5027e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2aa0753976bb68d916d1b66064b5f19983e4509777f77801da3398c59498d51c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-8-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-8-17x13",
+        "status": "verified",
+        "bytes": 357,
+        "sourceSha256": "9e93c77b8a3638fc5535d40be70b67c8a060a694e2c2557e61e4dce6e4d930ed",
+        "encodedSha256": "5a3ca2d92b47b16e4803fa79877d17949bb66b683ef54c2120a1da4ad2338699",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "91fd53210675044cd0c395726b4e3a1cd5e734bc0f278b5389584cc267c3de03"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0852df2f3e7b0497d0f58d480ef0d878c6c45bf55111067f6c16de6bc4c41181"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-8-17x13",
+        "status": "verified",
+        "bytes": 357,
+        "sourceSha256": "9e93c77b8a3638fc5535d40be70b67c8a060a694e2c2557e61e4dce6e4d930ed",
+        "encodedSha256": "5a3ca2d92b47b16e4803fa79877d17949bb66b683ef54c2120a1da4ad2338699",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "91fd53210675044cd0c395726b4e3a1cd5e734bc0f278b5389584cc267c3de03"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0852df2f3e7b0497d0f58d480ef0d878c6c45bf55111067f6c16de6bc4c41181"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-8-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-8-513x257",
+        "status": "verified",
+        "bytes": 3680,
+        "sourceSha256": "f9463a0121c6173336d590a62057066ffdae3fc6d1e10670f2c70a6a8dbc1a18",
+        "encodedSha256": "220db5f5cc5528a2f19fc49ec8c83c52d7cce102c69f6a65991d84c9d63a738a",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "ec5f782e67899c968b9dca9fcdfbbaca75c8217b02a453b5eeafe963c0b80c9c"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "148d576d4c43ffffa19573a93326e69c965655ec40599c412d7d9af8418e3c7e"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-8-513x257",
+        "status": "verified",
+        "bytes": 3680,
+        "sourceSha256": "f9463a0121c6173336d590a62057066ffdae3fc6d1e10670f2c70a6a8dbc1a18",
+        "encodedSha256": "220db5f5cc5528a2f19fc49ec8c83c52d7cce102c69f6a65991d84c9d63a738a",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "ec5f782e67899c968b9dca9fcdfbbaca75c8217b02a453b5eeafe963c0b80c9c"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "148d576d4c43ffffa19573a93326e69c965655ec40599c412d7d9af8418e3c7e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-8-17x13",
+        "status": "verified",
+        "bytes": 156,
+        "sourceSha256": "4ccddaee488d8bb6bf523ff134d3ccb182f233f25a3c2703ff38776484d577f9",
+        "encodedSha256": "bc4a4d301c047fb2a8b884247005138561a920aa89abf2933668155f3f5c4725",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "795fe625ce60a0dbc16d59d196faf1b674ebb971d3f80227ee98a0638e291837"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "795fe625ce60a0dbc16d59d196faf1b674ebb971d3f80227ee98a0638e291837"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-17x13",
+        "status": "verified",
+        "bytes": 156,
+        "sourceSha256": "4ccddaee488d8bb6bf523ff134d3ccb182f233f25a3c2703ff38776484d577f9",
+        "encodedSha256": "bc4a4d301c047fb2a8b884247005138561a920aa89abf2933668155f3f5c4725",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "795fe625ce60a0dbc16d59d196faf1b674ebb971d3f80227ee98a0638e291837"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "795fe625ce60a0dbc16d59d196faf1b674ebb971d3f80227ee98a0638e291837"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-8-513x257",
+        "status": "verified",
+        "bytes": 8248,
+        "sourceSha256": "7dbe8780f46b19b362d2c98d130844aeec08a6b9390eee6a3417e984f55f2d0a",
+        "encodedSha256": "e9080a5917758d100b17dc42aa6392425745eafa0e9b6569a9b10140f61d4913",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "103f3cc19f47a2a9ac5a1d861a1e70a437af57278dc2c577c4818684559f833d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b03209f811db823a3b6d0cb6566f4fab0621583da418d8c0a4eaeaa8acae0a55"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-513x257",
+        "status": "verified",
+        "bytes": 8248,
+        "sourceSha256": "7dbe8780f46b19b362d2c98d130844aeec08a6b9390eee6a3417e984f55f2d0a",
+        "encodedSha256": "e9080a5917758d100b17dc42aa6392425745eafa0e9b6569a9b10140f61d4913",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "103f3cc19f47a2a9ac5a1d861a1e70a437af57278dc2c577c4818684559f833d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b03209f811db823a3b6d0cb6566f4fab0621583da418d8c0a4eaeaa8acae0a55"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-alpha16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-8-alpha16-17x13",
+        "status": "verified",
+        "bytes": 390,
+        "sourceSha256": "cbb9d881eb1a54aebc7f20cb5cd70dd281d443e9458a75af804a346be8550104",
+        "encodedSha256": "485264d20da60c207d0827d582d322d71ef2f21a948a3846a96d0108b0ee5995",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "e0237b8f279b1a7b9b2b3641631a2d4cad323e3b68aef7d76ade39279308eafc"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51077f592ffa7bae4a390a2689f3925747a2c8d7d4682e34a9dd986f489e0c6d"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-alpha16-17x13",
+        "status": "verified",
+        "bytes": 390,
+        "sourceSha256": "cbb9d881eb1a54aebc7f20cb5cd70dd281d443e9458a75af804a346be8550104",
+        "encodedSha256": "485264d20da60c207d0827d582d322d71ef2f21a948a3846a96d0108b0ee5995",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "e0237b8f279b1a7b9b2b3641631a2d4cad323e3b68aef7d76ade39279308eafc"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51077f592ffa7bae4a390a2689f3925747a2c8d7d4682e34a9dd986f489e0c6d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-alpha16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-8-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4279,
+        "sourceSha256": "d89c67e513b9f4285f286cd1f019a9b03da49590bd887f22736f287b51a60f12",
+        "encodedSha256": "b93b57bb958754281c899d8877bae4988f0979573a17e46ca06b4c37ec5b446c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cb85a743a94bdda5aa36ead7711bf6ec1dbc23ff407f29fcdd8e2aa60114467"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3942c2e9f0aaca8744b58ae766b6b400acae51c3e39cf396a28e8ad63d9df3bf"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4279,
+        "sourceSha256": "d89c67e513b9f4285f286cd1f019a9b03da49590bd887f22736f287b51a60f12",
+        "encodedSha256": "b93b57bb958754281c899d8877bae4988f0979573a17e46ca06b4c37ec5b446c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cb85a743a94bdda5aa36ead7711bf6ec1dbc23ff407f29fcdd8e2aa60114467"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3942c2e9f0aaca8744b58ae766b6b400acae51c3e39cf396a28e8ad63d9df3bf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-10-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-10-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "8f2582b00cb64c98eb2bd6afdc73e3acfeaa951897f0c243d7e4cdeb7fc149f7",
+        "encodedSha256": "e24aea7bdd95bb49062a16e5b72a5cdbd86227da4ade89747351bf944f8f885d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-10-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "8f2582b00cb64c98eb2bd6afdc73e3acfeaa951897f0c243d7e4cdeb7fc149f7",
+        "encodedSha256": "e24aea7bdd95bb49062a16e5b72a5cdbd86227da4ade89747351bf944f8f885d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-10-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-10-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "ac6dfde509730966fad599d38c4475a137500a5b284965ad0530f24d5f385a9e",
+        "encodedSha256": "2e71d0fc7a0784e24ce37cbe5d6544f6e234e3c5e6c3f73de7cf162beeff4428",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "a026c2ae8ab0e0b7a63469eb81c6dc521097f25abe213b96390fc458530b601d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2cc277cc3717b246da97c1cc68e1dc5fbdfa23bca88c312f55318091a05cd614"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-10-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "ac6dfde509730966fad599d38c4475a137500a5b284965ad0530f24d5f385a9e",
+        "encodedSha256": "2e71d0fc7a0784e24ce37cbe5d6544f6e234e3c5e6c3f73de7cf162beeff4428",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "a026c2ae8ab0e0b7a63469eb81c6dc521097f25abe213b96390fc458530b601d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2cc277cc3717b246da97c1cc68e1dc5fbdfa23bca88c312f55318091a05cd614"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-10-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-10-17x13",
+        "status": "verified",
+        "bytes": 352,
+        "sourceSha256": "63feefb9954e8d039039fa585e6be864e811e0f73377d54fa563bfceb3326c3a",
+        "encodedSha256": "31db7c33de9e32060fa445ce715abf0bcdbf7ff831505bb91babd8714f71f1df",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c7cd7d04cd7f45d53ae32768a679e935b15d473a7547458e47feba4a260b4c0e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "37357713b21e702f82123134f2c590a822eee4cd722b78eac829321b7f6ce37b"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-10-17x13",
+        "status": "verified",
+        "bytes": 352,
+        "sourceSha256": "63feefb9954e8d039039fa585e6be864e811e0f73377d54fa563bfceb3326c3a",
+        "encodedSha256": "31db7c33de9e32060fa445ce715abf0bcdbf7ff831505bb91babd8714f71f1df",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c7cd7d04cd7f45d53ae32768a679e935b15d473a7547458e47feba4a260b4c0e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "37357713b21e702f82123134f2c590a822eee4cd722b78eac829321b7f6ce37b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-10-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-10-513x257",
+        "status": "verified",
+        "bytes": 4589,
+        "sourceSha256": "12f206ab26e186fb3835f4f3d6a84ed3e7b89d2f91bd8c07e41a431ba81c4db6",
+        "encodedSha256": "f9fe5e4a3249c311562c4de2861ed1ea005ced153f5684f7751f8e5f3f72cda9",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "587fcde35840fd397cbf43a5d47b698b42a038ee52e15a17310e817b85320d1d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4723bb22cb3a23e9bf93693e61ad105f9c22e6fa76de5ec92fb2d664a02b35bf"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-10-513x257",
+        "status": "verified",
+        "bytes": 4589,
+        "sourceSha256": "12f206ab26e186fb3835f4f3d6a84ed3e7b89d2f91bd8c07e41a431ba81c4db6",
+        "encodedSha256": "f9fe5e4a3249c311562c4de2861ed1ea005ced153f5684f7751f8e5f3f72cda9",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "587fcde35840fd397cbf43a5d47b698b42a038ee52e15a17310e817b85320d1d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4723bb22cb3a23e9bf93693e61ad105f9c22e6fa76de5ec92fb2d664a02b35bf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-10-17x13",
+        "status": "verified",
+        "bytes": 417,
+        "sourceSha256": "b98a70e62fed3f1832a2b645fe4739e782839aa098f8862a096ce6e7bbe40d09",
+        "encodedSha256": "52fd9c624c02200e879ce3376a4b344e0211bd05a7055eb983059382f2cc1caf",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "256f58a8d7eaf339531c5b428d36a8d4f32b6ab1c8de164d3f1c7ec3443a12b2"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7c5b97e54368166b6ef96a359ac5cfb7c67574d63c4fbd91b0d21d261001fc50"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-17x13",
+        "status": "verified",
+        "bytes": 417,
+        "sourceSha256": "b98a70e62fed3f1832a2b645fe4739e782839aa098f8862a096ce6e7bbe40d09",
+        "encodedSha256": "52fd9c624c02200e879ce3376a4b344e0211bd05a7055eb983059382f2cc1caf",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "256f58a8d7eaf339531c5b428d36a8d4f32b6ab1c8de164d3f1c7ec3443a12b2"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7c5b97e54368166b6ef96a359ac5cfb7c67574d63c4fbd91b0d21d261001fc50"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-10-513x257",
+        "status": "verified",
+        "bytes": 7373,
+        "sourceSha256": "06145a2d2593b2f202a6cc0e6c3cdf9261b2e25ed07beb5abe5b32316ea2e69b",
+        "encodedSha256": "c4e1727c0dbe10f38c18b58c3a5fb843d7900def9504c37942acc5a78bcb9b2e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cdaf2140c19ee72784a3acee681f7bf6889261b8108b95d4ea791af85c1f8c0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "83aa68108d1df51fe7d82bf014323a9b5f10d42da85a9ae1a6cda205cace5fed"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-513x257",
+        "status": "verified",
+        "bytes": 7373,
+        "sourceSha256": "06145a2d2593b2f202a6cc0e6c3cdf9261b2e25ed07beb5abe5b32316ea2e69b",
+        "encodedSha256": "c4e1727c0dbe10f38c18b58c3a5fb843d7900def9504c37942acc5a78bcb9b2e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cdaf2140c19ee72784a3acee681f7bf6889261b8108b95d4ea791af85c1f8c0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "83aa68108d1df51fe7d82bf014323a9b5f10d42da85a9ae1a6cda205cace5fed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-alpha16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-10-alpha16-17x13",
+        "status": "verified",
+        "bytes": 390,
+        "sourceSha256": "a2fc37c49e1260ec1960cb71f4b1200cd12082d0c3586dbca8fae925e0ef5275",
+        "encodedSha256": "0a1b9784be058df8085856f883f3533cedf570bde86ca71e7acf03d8b561546d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3bc4247d9691cacb88a2e59dc3e2369b4521d9a5b4dd178ba53f09fcb017b30e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4d9e151670e40963b6489b3b4faf16e3f455f49b6af584413aeeebd78975d898"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-alpha16-17x13",
+        "status": "verified",
+        "bytes": 390,
+        "sourceSha256": "a2fc37c49e1260ec1960cb71f4b1200cd12082d0c3586dbca8fae925e0ef5275",
+        "encodedSha256": "0a1b9784be058df8085856f883f3533cedf570bde86ca71e7acf03d8b561546d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3bc4247d9691cacb88a2e59dc3e2369b4521d9a5b4dd178ba53f09fcb017b30e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4d9e151670e40963b6489b3b4faf16e3f455f49b6af584413aeeebd78975d898"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-alpha16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-10-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4288,
+        "sourceSha256": "3882aa771c7f2a75eafaaa881ad6b8ed2f600a69a587292c4278042accaf2fbf",
+        "encodedSha256": "1836308ed84d2081dd4701d81c3b3f6faa615d35a5c33355567f34a6f683a287",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "aa93ea680a4a038063f69d0b284a5e9781233053fc18a078f11125ff16142075"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b40ad129ed0d7d8cdfda0c470401536203b2a0e0a646055cdbb7d489940ea627"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4288,
+        "sourceSha256": "3882aa771c7f2a75eafaaa881ad6b8ed2f600a69a587292c4278042accaf2fbf",
+        "encodedSha256": "1836308ed84d2081dd4701d81c3b3f6faa615d35a5c33355567f34a6f683a287",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "aa93ea680a4a038063f69d0b284a5e9781233053fc18a078f11125ff16142075"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b40ad129ed0d7d8cdfda0c470401536203b2a0e0a646055cdbb7d489940ea627"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-12-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-12-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "b5032236cbfffe857e2c5e117dd991f6948d990bdcc8529ac3d9b613e78589e3",
+        "encodedSha256": "e6bb95100370b309116674c96227daff4c74d1d8e49852a982b2a0b2ec66e482",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-12-17x13",
+        "status": "verified",
+        "bytes": 286,
+        "sourceSha256": "b5032236cbfffe857e2c5e117dd991f6948d990bdcc8529ac3d9b613e78589e3",
+        "encodedSha256": "e6bb95100370b309116674c96227daff4c74d1d8e49852a982b2a0b2ec66e482",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-12-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-12-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "43d4db0e7df0dfe73431a1406aa67395f4fada778e042644a3608052226b36d2",
+        "encodedSha256": "52ccab144107b49d653681fa0970da1a721283f030bfcdf99a244f54d35f1512",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "838ae666ce2ec4d39233fa9eb36be10f49e53ad32fecb0dc5dc3ebe343908bef"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51943a6c4bf2b7f61a92f0ffbda4d4e47c002b003d3b8300b28e534604c0564f"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-12-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "43d4db0e7df0dfe73431a1406aa67395f4fada778e042644a3608052226b36d2",
+        "encodedSha256": "52ccab144107b49d653681fa0970da1a721283f030bfcdf99a244f54d35f1512",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "838ae666ce2ec4d39233fa9eb36be10f49e53ad32fecb0dc5dc3ebe343908bef"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51943a6c4bf2b7f61a92f0ffbda4d4e47c002b003d3b8300b28e534604c0564f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-12-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-12-17x13",
+        "status": "verified",
+        "bytes": 352,
+        "sourceSha256": "3242df1cd3f224450b22535cd4ffc5ed6fd1d22bcfb75ba9cf03da3e4c5df709",
+        "encodedSha256": "62a750e0e7dedb90ec238262658475122bb95b889f1d29ea6f2f250adcb348fd",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7069756e238d52c4c3fa0ed04e9802fc7f69c9859b0850de7d787d2da9f3f3ab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "de4883e138296073f2112218892cb3bdd4a9387077bb81f0c2446143890c2f75"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-12-17x13",
+        "status": "verified",
+        "bytes": 352,
+        "sourceSha256": "3242df1cd3f224450b22535cd4ffc5ed6fd1d22bcfb75ba9cf03da3e4c5df709",
+        "encodedSha256": "62a750e0e7dedb90ec238262658475122bb95b889f1d29ea6f2f250adcb348fd",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7069756e238d52c4c3fa0ed04e9802fc7f69c9859b0850de7d787d2da9f3f3ab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "de4883e138296073f2112218892cb3bdd4a9387077bb81f0c2446143890c2f75"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-12-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-12-513x257",
+        "status": "verified",
+        "bytes": 4588,
+        "sourceSha256": "c40eb1a960746d9ecd67a135bcfd766c2b320acb3e649de1415f130a2f603341",
+        "encodedSha256": "56c093c9269451cf96aca0b8d94804a2ea9875580899d5c287895746bf4dc0c7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "be47f9eb6f0d4e00f3ceb4c983c32e2270bc4099a4d94ee00c725b6d36b60e35"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d2a53603877df3d1aec9805b81fe352e5982c21cd9be45d1bdccde0a336f54cc"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-12-513x257",
+        "status": "verified",
+        "bytes": 4588,
+        "sourceSha256": "c40eb1a960746d9ecd67a135bcfd766c2b320acb3e649de1415f130a2f603341",
+        "encodedSha256": "56c093c9269451cf96aca0b8d94804a2ea9875580899d5c287895746bf4dc0c7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "be47f9eb6f0d4e00f3ceb4c983c32e2270bc4099a4d94ee00c725b6d36b60e35"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d2a53603877df3d1aec9805b81fe352e5982c21cd9be45d1bdccde0a336f54cc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-12-17x13",
+        "status": "verified",
+        "bytes": 399,
+        "sourceSha256": "fd4edcf45f3f1b4860a90266c68ed7ac59688e751e6f6e780a70788c06bf3dd9",
+        "encodedSha256": "8e7478b863cf4208522faebc566173142f378cd67114ad4f215c702529044aed",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fc8066a70daee4df395d9d5f69de81a048315b9c3b7d3cf277c514e350d75193"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0680d0a771f5b247cd51475d916e41ebfa99889e996b08ad6de17b5cbe20f504"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-17x13",
+        "status": "verified",
+        "bytes": 399,
+        "sourceSha256": "fd4edcf45f3f1b4860a90266c68ed7ac59688e751e6f6e780a70788c06bf3dd9",
+        "encodedSha256": "8e7478b863cf4208522faebc566173142f378cd67114ad4f215c702529044aed",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fc8066a70daee4df395d9d5f69de81a048315b9c3b7d3cf277c514e350d75193"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0680d0a771f5b247cd51475d916e41ebfa99889e996b08ad6de17b5cbe20f504"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-12-513x257",
+        "status": "verified",
+        "bytes": 7063,
+        "sourceSha256": "faded8133402c3def99f2d5d402d6c737d32abec1ac9d7207fffe045008a775c",
+        "encodedSha256": "9459be39d6049bcbe8c2ac14604db40800770067800e63b63f6788e4b9d9c3aa",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "33b51308d4954afc81e95782063d2f44b1401a5c6fe6bf7c91a4e4e3f3fe704b"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "ebaa92628d1d77e16c3a01000c26c283f3831348669bc2c2ceb5ef4031d8d060"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-513x257",
+        "status": "verified",
+        "bytes": 7063,
+        "sourceSha256": "faded8133402c3def99f2d5d402d6c737d32abec1ac9d7207fffe045008a775c",
+        "encodedSha256": "9459be39d6049bcbe8c2ac14604db40800770067800e63b63f6788e4b9d9c3aa",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "33b51308d4954afc81e95782063d2f44b1401a5c6fe6bf7c91a4e4e3f3fe704b"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "ebaa92628d1d77e16c3a01000c26c283f3831348669bc2c2ceb5ef4031d8d060"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-alpha16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-12-alpha16-17x13",
+        "status": "verified",
+        "bytes": 389,
+        "sourceSha256": "f239a56f8920d939947e1f9620ded97cec89e64c52331bf79ecb593ba707dabc",
+        "encodedSha256": "752ab1c822d087a0259bff2d914a1daa4626379716de9e51aaab26e21e0df025",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fe9bf0977ffef8ec2890d5eac15a1ac928f039b9567dc96e5e90daaf4e8ecd89"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "608de82aa259037c0ead2922fde00941825a9045dfde9d716133f02f2b899758"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-alpha16-17x13",
+        "status": "verified",
+        "bytes": 389,
+        "sourceSha256": "f239a56f8920d939947e1f9620ded97cec89e64c52331bf79ecb593ba707dabc",
+        "encodedSha256": "752ab1c822d087a0259bff2d914a1daa4626379716de9e51aaab26e21e0df025",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fe9bf0977ffef8ec2890d5eac15a1ac928f039b9567dc96e5e90daaf4e8ecd89"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "608de82aa259037c0ead2922fde00941825a9045dfde9d716133f02f2b899758"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-alpha16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-12-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4291,
+        "sourceSha256": "07a8db424d837ed4b0790be16c5e2bb1965aff2c1c44c888b20eb77f042c9b7c",
+        "encodedSha256": "13c859aa0ae426b7c55980386ea6e0c253c5d1b3ad97fd746ad1166b72891714",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "265366d351da7d5cb28259eed50540b15cb50ad26edc81855b85d858c8e1dfb7"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "1009a8d366865620ded22a955d396edd1633bcb0cac7df48fc77fbbcbc5d664e"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4291,
+        "sourceSha256": "07a8db424d837ed4b0790be16c5e2bb1965aff2c1c44c888b20eb77f042c9b7c",
+        "encodedSha256": "13c859aa0ae426b7c55980386ea6e0c253c5d1b3ad97fd746ad1166b72891714",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "265366d351da7d5cb28259eed50540b15cb50ad26edc81855b85d858c8e1dfb7"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "1009a8d366865620ded22a955d396edd1633bcb0cac7df48fc77fbbcbc5d664e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-16-17x13",
+        "status": "verified",
+        "bytes": 287,
+        "sourceSha256": "a7aa465a8b115f8c94f928af04f4bb5fcc87d9b585ee64d90c662491f1298e88",
+        "encodedSha256": "58e6d70b044f59e9d4e463cf33dd7f4afa5eecc46a5c7d1d5ddcf0e88257a34f",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-16-17x13",
+        "status": "verified",
+        "bytes": 287,
+        "sourceSha256": "a7aa465a8b115f8c94f928af04f4bb5fcc87d9b585ee64d90c662491f1298e88",
+        "encodedSha256": "58e6d70b044f59e9d4e463cf33dd7f4afa5eecc46a5c7d1d5ddcf0e88257a34f",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "gray-16-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "156a0e8328d4f187d86aa57098330f94afef1bfe92f990f39955c82758220c51",
+        "encodedSha256": "e3b4960befba7ee8966b11592b25d1b1726a6c23a7c0d6c55e6678cf19f3ef89",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d9d6cea9ba2a59c1071d5c4acf2497a548d813aa304c6e284bcc4c79d8fcbcab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eccadcaed078c77d00cb33caf398d50761420c5506d8ca5ccc34b4d8fcfdae74"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-16-513x257",
+        "status": "verified",
+        "bytes": 601,
+        "sourceSha256": "156a0e8328d4f187d86aa57098330f94afef1bfe92f990f39955c82758220c51",
+        "encodedSha256": "e3b4960befba7ee8966b11592b25d1b1726a6c23a7c0d6c55e6678cf19f3ef89",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d9d6cea9ba2a59c1071d5c4acf2497a548d813aa304c6e284bcc4c79d8fcbcab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eccadcaed078c77d00cb33caf398d50761420c5506d8ca5ccc34b4d8fcfdae74"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-16-17x13",
+        "status": "verified",
+        "bytes": 353,
+        "sourceSha256": "796314b5492cc0c51021c407fed2f583412d39d92188085cc9fe214c1c8e9454",
+        "encodedSha256": "bd5b13c50b2eaee3b157a853962493b73a25ee79f000550ab1320ee4cff48c0d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "8e0876f878108df7cc483073b4cd48d750aa0be8e435c9d86f3995665f08bbaf"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c3842a3c4bc668149095ce3a37b264c0c70f6d6d4ec06abc486d245b93430eef"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-16-17x13",
+        "status": "verified",
+        "bytes": 353,
+        "sourceSha256": "796314b5492cc0c51021c407fed2f583412d39d92188085cc9fe214c1c8e9454",
+        "encodedSha256": "bd5b13c50b2eaee3b157a853962493b73a25ee79f000550ab1320ee4cff48c0d",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "8e0876f878108df7cc483073b4cd48d750aa0be8e435c9d86f3995665f08bbaf"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c3842a3c4bc668149095ce3a37b264c0c70f6d6d4ec06abc486d245b93430eef"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgb-16-513x257",
+        "status": "verified",
+        "bytes": 4589,
+        "sourceSha256": "06b0f1922b2f650aaf96f01f5c3db1a4b6448d8fbc6450c7ecdcabc85ed0ed55",
+        "encodedSha256": "6acbe8e23b5b0abe010a12bd9c91b6f97c6e5c3d13d4c3a0d1f895ef773ad0bf",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "788401813edf48db908f11b245343efd976a8bc41a7b968bc2072d14f11ffec8"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "030939a807783ba61c43c0e1164dcc08932b227f665568ee553f7343ce2b4bd5"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-16-513x257",
+        "status": "verified",
+        "bytes": 4589,
+        "sourceSha256": "06b0f1922b2f650aaf96f01f5c3db1a4b6448d8fbc6450c7ecdcabc85ed0ed55",
+        "encodedSha256": "6acbe8e23b5b0abe010a12bd9c91b6f97c6e5c3d13d4c3a0d1f895ef773ad0bf",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "788401813edf48db908f11b245343efd976a8bc41a7b968bc2072d14f11ffec8"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "030939a807783ba61c43c0e1164dcc08932b227f665568ee553f7343ce2b4bd5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-16-17x13",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-16-17x13",
+        "status": "verified",
+        "bytes": 392,
+        "sourceSha256": "f19e03455069e07862b8be4b119ae5a3c08439742f6df5e77600e1b31902b2ee",
+        "encodedSha256": "bf7a9177d36309395b324c4fc310de023bd94f138f2c53878df51ccc581827e3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "36bd8c90f3aeda6745c5d1200e49ce8e45a8c00d0a8b5188c1f72efc0158f43f"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0e15f23f0fb00e0cb2e2a0bd329fdcca08bb45899f01ebef4fef118d80831b6f"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-16-17x13",
+        "status": "verified",
+        "bytes": 392,
+        "sourceSha256": "f19e03455069e07862b8be4b119ae5a3c08439742f6df5e77600e1b31902b2ee",
+        "encodedSha256": "bf7a9177d36309395b324c4fc310de023bd94f138f2c53878df51ccc581827e3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "36bd8c90f3aeda6745c5d1200e49ce8e45a8c00d0a8b5188c1f72efc0158f43f"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0e15f23f0fb00e0cb2e2a0bd329fdcca08bb45899f01ebef4fef118d80831b6f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-16-513x257",
+      "progressive": false,
+      "baseline": {
+        "id": "rgba-16-513x257",
+        "status": "verified",
+        "bytes": 4292,
+        "sourceSha256": "c7085575155f415c6a1e79f642a54d4a7a64bd6a35519744135a819bbdb8d0b6",
+        "encodedSha256": "e889ff90aa16d05f068ba1ace078bc3d76f4163e66d2866f5413b9a2c65459a7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "441cd2b56c7460226bccc16539058115c72f6fe77ab6dd55dbdaace1d4ebad64"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "424d0f8512ce328abd523c898fd5e2df469e46511f91a9e3ff4a4aaeaf811261"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-16-513x257",
+        "status": "verified",
+        "bytes": 4292,
+        "sourceSha256": "c7085575155f415c6a1e79f642a54d4a7a64bd6a35519744135a819bbdb8d0b6",
+        "encodedSha256": "e889ff90aa16d05f068ba1ace078bc3d76f4163e66d2866f5413b9a2c65459a7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "441cd2b56c7460226bccc16539058115c72f6fe77ab6dd55dbdaace1d4ebad64"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "424d0f8512ce328abd523c898fd5e2df469e46511f91a9e3ff4a4aaeaf811261"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-8-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-8-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "2619a8191df17270668e4bac5215a018242954b590df72ce5d9c9690d8718a15",
+        "encodedSha256": "f54ab5acc46ec196c63826b1bee2c9dd4b49403483d469e4ab0e2fbc456b8d6c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-8-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "2619a8191df17270668e4bac5215a018242954b590df72ce5d9c9690d8718a15",
+        "encodedSha256": "f54ab5acc46ec196c63826b1bee2c9dd4b49403483d469e4ab0e2fbc456b8d6c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b1d4aa998d2e4254fffd22b3cc6e68a7fcdba1cb227a8997c0ae10c213f28727"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-8-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-8-513x257",
+        "status": "verified",
+        "bytes": 864,
+        "sourceSha256": "c5cfb8364ad9909cdb1598fbfca70efd2c8edf42f88471f760235d38fdaedabc",
+        "encodedSha256": "63883e6e0322543458fb475390ff1628145dcc4f712a519428059c23e9e07676",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "08428deae78c04d5813add3ceac0f81a16bfbfaa5fd66cbf32749d2a23e5027e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2aa0753976bb68d916d1b66064b5f19983e4509777f77801da3398c59498d51c"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-8-513x257",
+        "status": "verified",
+        "bytes": 864,
+        "sourceSha256": "c5cfb8364ad9909cdb1598fbfca70efd2c8edf42f88471f760235d38fdaedabc",
+        "encodedSha256": "63883e6e0322543458fb475390ff1628145dcc4f712a519428059c23e9e07676",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "08428deae78c04d5813add3ceac0f81a16bfbfaa5fd66cbf32749d2a23e5027e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2aa0753976bb68d916d1b66064b5f19983e4509777f77801da3398c59498d51c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-8-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-8-17x13",
+        "status": "verified",
+        "bytes": 416,
+        "sourceSha256": "9e93c77b8a3638fc5535d40be70b67c8a060a694e2c2557e61e4dce6e4d930ed",
+        "encodedSha256": "ce662849aa7fae02b841123224c5c7143c3caf6bf1d9c41baf75f746d314feea",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "91fd53210675044cd0c395726b4e3a1cd5e734bc0f278b5389584cc267c3de03"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0852df2f3e7b0497d0f58d480ef0d878c6c45bf55111067f6c16de6bc4c41181"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-8-17x13",
+        "status": "verified",
+        "bytes": 416,
+        "sourceSha256": "9e93c77b8a3638fc5535d40be70b67c8a060a694e2c2557e61e4dce6e4d930ed",
+        "encodedSha256": "ce662849aa7fae02b841123224c5c7143c3caf6bf1d9c41baf75f746d314feea",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "91fd53210675044cd0c395726b4e3a1cd5e734bc0f278b5389584cc267c3de03"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0852df2f3e7b0497d0f58d480ef0d878c6c45bf55111067f6c16de6bc4c41181"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-8-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-8-513x257",
+        "status": "verified",
+        "bytes": 4271,
+        "sourceSha256": "f9463a0121c6173336d590a62057066ffdae3fc6d1e10670f2c70a6a8dbc1a18",
+        "encodedSha256": "22293b30f73ee9007ce094d2ac4bdfd0fa30febedc1a5c3fa638beaf7858f3bb",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "ec5f782e67899c968b9dca9fcdfbbaca75c8217b02a453b5eeafe963c0b80c9c"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "148d576d4c43ffffa19573a93326e69c965655ec40599c412d7d9af8418e3c7e"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-8-513x257",
+        "status": "verified",
+        "bytes": 4271,
+        "sourceSha256": "f9463a0121c6173336d590a62057066ffdae3fc6d1e10670f2c70a6a8dbc1a18",
+        "encodedSha256": "22293b30f73ee9007ce094d2ac4bdfd0fa30febedc1a5c3fa638beaf7858f3bb",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "ec5f782e67899c968b9dca9fcdfbbaca75c8217b02a453b5eeafe963c0b80c9c"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "148d576d4c43ffffa19573a93326e69c965655ec40599c412d7d9af8418e3c7e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-8-17x13",
+        "status": "verified",
+        "bytes": 508,
+        "sourceSha256": "4ccddaee488d8bb6bf523ff134d3ccb182f233f25a3c2703ff38776484d577f9",
+        "encodedSha256": "890fdf161e2bedc615fb9497353049af0aa20f1edb1d39b70e0870e0bb55461e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eb636b56abbe3bc787c2f186120348d8c87fb7c095965f5384458628580d13e0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "188ae605f46d0a8d036fd7f29f28baf7b572953bc17bbca21fe7482470cb2e52"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-17x13",
+        "status": "verified",
+        "bytes": 508,
+        "sourceSha256": "4ccddaee488d8bb6bf523ff134d3ccb182f233f25a3c2703ff38776484d577f9",
+        "encodedSha256": "890fdf161e2bedc615fb9497353049af0aa20f1edb1d39b70e0870e0bb55461e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eb636b56abbe3bc787c2f186120348d8c87fb7c095965f5384458628580d13e0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "188ae605f46d0a8d036fd7f29f28baf7b572953bc17bbca21fe7482470cb2e52"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-8-513x257",
+        "status": "verified",
+        "bytes": 8772,
+        "sourceSha256": "7dbe8780f46b19b362d2c98d130844aeec08a6b9390eee6a3417e984f55f2d0a",
+        "encodedSha256": "b787521c22b2963e835415c671f778581daf3377ddfbffbbdac5ec8b0d453bdb",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "103f3cc19f47a2a9ac5a1d861a1e70a437af57278dc2c577c4818684559f833d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b03209f811db823a3b6d0cb6566f4fab0621583da418d8c0a4eaeaa8acae0a55"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-513x257",
+        "status": "verified",
+        "bytes": 8772,
+        "sourceSha256": "7dbe8780f46b19b362d2c98d130844aeec08a6b9390eee6a3417e984f55f2d0a",
+        "encodedSha256": "b787521c22b2963e835415c671f778581daf3377ddfbffbbdac5ec8b0d453bdb",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "103f3cc19f47a2a9ac5a1d861a1e70a437af57278dc2c577c4818684559f833d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b03209f811db823a3b6d0cb6566f4fab0621583da418d8c0a4eaeaa8acae0a55"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-alpha16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-8-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "cbb9d881eb1a54aebc7f20cb5cd70dd281d443e9458a75af804a346be8550104",
+        "encodedSha256": "f7c0f830f076604cb926a58cc497c5e430026e197097acb0de2847c5d06c7f58",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "e0237b8f279b1a7b9b2b3641631a2d4cad323e3b68aef7d76ade39279308eafc"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51077f592ffa7bae4a390a2689f3925747a2c8d7d4682e34a9dd986f489e0c6d"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "cbb9d881eb1a54aebc7f20cb5cd70dd281d443e9458a75af804a346be8550104",
+        "encodedSha256": "f7c0f830f076604cb926a58cc497c5e430026e197097acb0de2847c5d06c7f58",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "e0237b8f279b1a7b9b2b3641631a2d4cad323e3b68aef7d76ade39279308eafc"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51077f592ffa7bae4a390a2689f3925747a2c8d7d4682e34a9dd986f489e0c6d"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-8-alpha16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-8-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4509,
+        "sourceSha256": "d89c67e513b9f4285f286cd1f019a9b03da49590bd887f22736f287b51a60f12",
+        "encodedSha256": "802f3da54cb9433ce2b819a3e6cc244a2479f130f0339d63e75c7444843dd134",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cb85a743a94bdda5aa36ead7711bf6ec1dbc23ff407f29fcdd8e2aa60114467"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3942c2e9f0aaca8744b58ae766b6b400acae51c3e39cf396a28e8ad63d9df3bf"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-8-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4509,
+        "sourceSha256": "d89c67e513b9f4285f286cd1f019a9b03da49590bd887f22736f287b51a60f12",
+        "encodedSha256": "802f3da54cb9433ce2b819a3e6cc244a2479f130f0339d63e75c7444843dd134",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cb85a743a94bdda5aa36ead7711bf6ec1dbc23ff407f29fcdd8e2aa60114467"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3942c2e9f0aaca8744b58ae766b6b400acae51c3e39cf396a28e8ad63d9df3bf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-10-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-10-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "8f2582b00cb64c98eb2bd6afdc73e3acfeaa951897f0c243d7e4cdeb7fc149f7",
+        "encodedSha256": "208bbd81ab4a4df5bf5f5f4193432624dd880890e1cd4b5f86e539a2d308b8a5",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-10-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "8f2582b00cb64c98eb2bd6afdc73e3acfeaa951897f0c243d7e4cdeb7fc149f7",
+        "encodedSha256": "208bbd81ab4a4df5bf5f5f4193432624dd880890e1cd4b5f86e539a2d308b8a5",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "820501ce67c02996a6ef3bd3e75a7745dd7e1ecb04896a7af2e21ebcf08fcf4a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-10-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-10-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "ac6dfde509730966fad599d38c4475a137500a5b284965ad0530f24d5f385a9e",
+        "encodedSha256": "f61233c18a22c0ccc2100aa06f622d59fe36a5b7dd116d6745ca2984918cf311",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "a026c2ae8ab0e0b7a63469eb81c6dc521097f25abe213b96390fc458530b601d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2cc277cc3717b246da97c1cc68e1dc5fbdfa23bca88c312f55318091a05cd614"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-10-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "ac6dfde509730966fad599d38c4475a137500a5b284965ad0530f24d5f385a9e",
+        "encodedSha256": "f61233c18a22c0ccc2100aa06f622d59fe36a5b7dd116d6745ca2984918cf311",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "a026c2ae8ab0e0b7a63469eb81c6dc521097f25abe213b96390fc458530b601d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "2cc277cc3717b246da97c1cc68e1dc5fbdfa23bca88c312f55318091a05cd614"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-10-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-10-17x13",
+        "status": "verified",
+        "bytes": 402,
+        "sourceSha256": "63feefb9954e8d039039fa585e6be864e811e0f73377d54fa563bfceb3326c3a",
+        "encodedSha256": "fa73940289bb8558131f662f66a130c9776b1c8afd79c48363161bf3eca13412",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c7cd7d04cd7f45d53ae32768a679e935b15d473a7547458e47feba4a260b4c0e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "37357713b21e702f82123134f2c590a822eee4cd722b78eac829321b7f6ce37b"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-10-17x13",
+        "status": "verified",
+        "bytes": 402,
+        "sourceSha256": "63feefb9954e8d039039fa585e6be864e811e0f73377d54fa563bfceb3326c3a",
+        "encodedSha256": "fa73940289bb8558131f662f66a130c9776b1c8afd79c48363161bf3eca13412",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c7cd7d04cd7f45d53ae32768a679e935b15d473a7547458e47feba4a260b4c0e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "37357713b21e702f82123134f2c590a822eee4cd722b78eac829321b7f6ce37b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-10-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-10-513x257",
+        "status": "verified",
+        "bytes": 5149,
+        "sourceSha256": "12f206ab26e186fb3835f4f3d6a84ed3e7b89d2f91bd8c07e41a431ba81c4db6",
+        "encodedSha256": "b549d4be9b71ba910d5778fff17af1480b52a6da649c76ca9a13a4263a712bb3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "587fcde35840fd397cbf43a5d47b698b42a038ee52e15a17310e817b85320d1d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4723bb22cb3a23e9bf93693e61ad105f9c22e6fa76de5ec92fb2d664a02b35bf"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-10-513x257",
+        "status": "verified",
+        "bytes": 5149,
+        "sourceSha256": "12f206ab26e186fb3835f4f3d6a84ed3e7b89d2f91bd8c07e41a431ba81c4db6",
+        "encodedSha256": "b549d4be9b71ba910d5778fff17af1480b52a6da649c76ca9a13a4263a712bb3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "587fcde35840fd397cbf43a5d47b698b42a038ee52e15a17310e817b85320d1d"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4723bb22cb3a23e9bf93693e61ad105f9c22e6fa76de5ec92fb2d664a02b35bf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-10-17x13",
+        "status": "verified",
+        "bytes": 464,
+        "sourceSha256": "b98a70e62fed3f1832a2b645fe4739e782839aa098f8862a096ce6e7bbe40d09",
+        "encodedSha256": "a5b4843003892c6fe1cc6d23b3c27a4013537129b9aa7a805bf7909a988e57c3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "256f58a8d7eaf339531c5b428d36a8d4f32b6ab1c8de164d3f1c7ec3443a12b2"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7c5b97e54368166b6ef96a359ac5cfb7c67574d63c4fbd91b0d21d261001fc50"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-17x13",
+        "status": "verified",
+        "bytes": 464,
+        "sourceSha256": "b98a70e62fed3f1832a2b645fe4739e782839aa098f8862a096ce6e7bbe40d09",
+        "encodedSha256": "a5b4843003892c6fe1cc6d23b3c27a4013537129b9aa7a805bf7909a988e57c3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "256f58a8d7eaf339531c5b428d36a8d4f32b6ab1c8de164d3f1c7ec3443a12b2"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7c5b97e54368166b6ef96a359ac5cfb7c67574d63c4fbd91b0d21d261001fc50"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-10-513x257",
+        "status": "verified",
+        "bytes": 7603,
+        "sourceSha256": "06145a2d2593b2f202a6cc0e6c3cdf9261b2e25ed07beb5abe5b32316ea2e69b",
+        "encodedSha256": "0a56d93be73c80e491af9fdd10b572d8f5d0f0b8d3744862de7e8e5bbb68f7cd",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cdaf2140c19ee72784a3acee681f7bf6889261b8108b95d4ea791af85c1f8c0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "83aa68108d1df51fe7d82bf014323a9b5f10d42da85a9ae1a6cda205cace5fed"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-513x257",
+        "status": "verified",
+        "bytes": 7603,
+        "sourceSha256": "06145a2d2593b2f202a6cc0e6c3cdf9261b2e25ed07beb5abe5b32316ea2e69b",
+        "encodedSha256": "0a56d93be73c80e491af9fdd10b572d8f5d0f0b8d3744862de7e8e5bbb68f7cd",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "5cdaf2140c19ee72784a3acee681f7bf6889261b8108b95d4ea791af85c1f8c0"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "83aa68108d1df51fe7d82bf014323a9b5f10d42da85a9ae1a6cda205cace5fed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-alpha16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-10-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "a2fc37c49e1260ec1960cb71f4b1200cd12082d0c3586dbca8fae925e0ef5275",
+        "encodedSha256": "7a617c223d097bc5f5e420d06320ee6dc12a0dc995d4094bd135ada3dcc534c2",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3bc4247d9691cacb88a2e59dc3e2369b4521d9a5b4dd178ba53f09fcb017b30e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4d9e151670e40963b6489b3b4faf16e3f455f49b6af584413aeeebd78975d898"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "a2fc37c49e1260ec1960cb71f4b1200cd12082d0c3586dbca8fae925e0ef5275",
+        "encodedSha256": "7a617c223d097bc5f5e420d06320ee6dc12a0dc995d4094bd135ada3dcc534c2",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "3bc4247d9691cacb88a2e59dc3e2369b4521d9a5b4dd178ba53f09fcb017b30e"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "4d9e151670e40963b6489b3b4faf16e3f455f49b6af584413aeeebd78975d898"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-10-alpha16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-10-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4518,
+        "sourceSha256": "3882aa771c7f2a75eafaaa881ad6b8ed2f600a69a587292c4278042accaf2fbf",
+        "encodedSha256": "f6b699567712e94dcb7a586964b7532680b6c68a52556c9ce981931ddcbcbf26",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "aa93ea680a4a038063f69d0b284a5e9781233053fc18a078f11125ff16142075"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b40ad129ed0d7d8cdfda0c470401536203b2a0e0a646055cdbb7d489940ea627"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-10-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4518,
+        "sourceSha256": "3882aa771c7f2a75eafaaa881ad6b8ed2f600a69a587292c4278042accaf2fbf",
+        "encodedSha256": "f6b699567712e94dcb7a586964b7532680b6c68a52556c9ce981931ddcbcbf26",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "aa93ea680a4a038063f69d0b284a5e9781233053fc18a078f11125ff16142075"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "b40ad129ed0d7d8cdfda0c470401536203b2a0e0a646055cdbb7d489940ea627"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-12-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-12-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "b5032236cbfffe857e2c5e117dd991f6948d990bdcc8529ac3d9b613e78589e3",
+        "encodedSha256": "5f1ccfcaa3d15a3061741e58cc30043301d1f7080ec0ebf1980f8aba0855d01c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-12-17x13",
+        "status": "verified",
+        "bytes": 330,
+        "sourceSha256": "b5032236cbfffe857e2c5e117dd991f6948d990bdcc8529ac3d9b613e78589e3",
+        "encodedSha256": "5f1ccfcaa3d15a3061741e58cc30043301d1f7080ec0ebf1980f8aba0855d01c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-12-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-12-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "43d4db0e7df0dfe73431a1406aa67395f4fada778e042644a3608052226b36d2",
+        "encodedSha256": "2982080de4a5322ce087dddae4a1bcc9a2e1f3ce97610f9b7b87b065cd2d91a3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "838ae666ce2ec4d39233fa9eb36be10f49e53ad32fecb0dc5dc3ebe343908bef"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51943a6c4bf2b7f61a92f0ffbda4d4e47c002b003d3b8300b28e534604c0564f"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-12-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "43d4db0e7df0dfe73431a1406aa67395f4fada778e042644a3608052226b36d2",
+        "encodedSha256": "2982080de4a5322ce087dddae4a1bcc9a2e1f3ce97610f9b7b87b065cd2d91a3",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "838ae666ce2ec4d39233fa9eb36be10f49e53ad32fecb0dc5dc3ebe343908bef"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "51943a6c4bf2b7f61a92f0ffbda4d4e47c002b003d3b8300b28e534604c0564f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-12-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-12-17x13",
+        "status": "verified",
+        "bytes": 402,
+        "sourceSha256": "3242df1cd3f224450b22535cd4ffc5ed6fd1d22bcfb75ba9cf03da3e4c5df709",
+        "encodedSha256": "8360b36b43c580bb7d661950628fe7a0e4cacc4261760c2e0cb15493476e19a1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7069756e238d52c4c3fa0ed04e9802fc7f69c9859b0850de7d787d2da9f3f3ab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "de4883e138296073f2112218892cb3bdd4a9387077bb81f0c2446143890c2f75"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-12-17x13",
+        "status": "verified",
+        "bytes": 402,
+        "sourceSha256": "3242df1cd3f224450b22535cd4ffc5ed6fd1d22bcfb75ba9cf03da3e4c5df709",
+        "encodedSha256": "8360b36b43c580bb7d661950628fe7a0e4cacc4261760c2e0cb15493476e19a1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "7069756e238d52c4c3fa0ed04e9802fc7f69c9859b0850de7d787d2da9f3f3ab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "de4883e138296073f2112218892cb3bdd4a9387077bb81f0c2446143890c2f75"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-12-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-12-513x257",
+        "status": "verified",
+        "bytes": 5152,
+        "sourceSha256": "c40eb1a960746d9ecd67a135bcfd766c2b320acb3e649de1415f130a2f603341",
+        "encodedSha256": "dbd7e005f1de73aac61616216977d3e646414acb56df3a051574b5d5e777f9e7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "be47f9eb6f0d4e00f3ceb4c983c32e2270bc4099a4d94ee00c725b6d36b60e35"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d2a53603877df3d1aec9805b81fe352e5982c21cd9be45d1bdccde0a336f54cc"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-12-513x257",
+        "status": "verified",
+        "bytes": 5152,
+        "sourceSha256": "c40eb1a960746d9ecd67a135bcfd766c2b320acb3e649de1415f130a2f603341",
+        "encodedSha256": "dbd7e005f1de73aac61616216977d3e646414acb56df3a051574b5d5e777f9e7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "be47f9eb6f0d4e00f3ceb4c983c32e2270bc4099a4d94ee00c725b6d36b60e35"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d2a53603877df3d1aec9805b81fe352e5982c21cd9be45d1bdccde0a336f54cc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-12-17x13",
+        "status": "verified",
+        "bytes": 446,
+        "sourceSha256": "fd4edcf45f3f1b4860a90266c68ed7ac59688e751e6f6e780a70788c06bf3dd9",
+        "encodedSha256": "8ef5ea005a78d1b0b15aad67f882d98be69f25539333b861331d33f14cfae2b6",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fc8066a70daee4df395d9d5f69de81a048315b9c3b7d3cf277c514e350d75193"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0680d0a771f5b247cd51475d916e41ebfa99889e996b08ad6de17b5cbe20f504"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-17x13",
+        "status": "verified",
+        "bytes": 446,
+        "sourceSha256": "fd4edcf45f3f1b4860a90266c68ed7ac59688e751e6f6e780a70788c06bf3dd9",
+        "encodedSha256": "8ef5ea005a78d1b0b15aad67f882d98be69f25539333b861331d33f14cfae2b6",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fc8066a70daee4df395d9d5f69de81a048315b9c3b7d3cf277c514e350d75193"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0680d0a771f5b247cd51475d916e41ebfa99889e996b08ad6de17b5cbe20f504"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-12-513x257",
+        "status": "verified",
+        "bytes": 7293,
+        "sourceSha256": "faded8133402c3def99f2d5d402d6c737d32abec1ac9d7207fffe045008a775c",
+        "encodedSha256": "cf79cb409a8bab8c5e6ea3d79902484364716123644fabe1957c0df3cd4562d1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "33b51308d4954afc81e95782063d2f44b1401a5c6fe6bf7c91a4e4e3f3fe704b"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "ebaa92628d1d77e16c3a01000c26c283f3831348669bc2c2ceb5ef4031d8d060"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-513x257",
+        "status": "verified",
+        "bytes": 7293,
+        "sourceSha256": "faded8133402c3def99f2d5d402d6c737d32abec1ac9d7207fffe045008a775c",
+        "encodedSha256": "cf79cb409a8bab8c5e6ea3d79902484364716123644fabe1957c0df3cd4562d1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "33b51308d4954afc81e95782063d2f44b1401a5c6fe6bf7c91a4e4e3f3fe704b"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 1,
+            "decodedSha256": "ebaa92628d1d77e16c3a01000c26c283f3831348669bc2c2ceb5ef4031d8d060"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-alpha16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-12-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "f239a56f8920d939947e1f9620ded97cec89e64c52331bf79ecb593ba707dabc",
+        "encodedSha256": "51b25cb523e2d99720fb16d274e8ef9cef7dc3b04c464a15b46cf96c8bc75c45",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fe9bf0977ffef8ec2890d5eac15a1ac928f039b9567dc96e5e90daaf4e8ecd89"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "608de82aa259037c0ead2922fde00941825a9045dfde9d716133f02f2b899758"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-alpha16-17x13",
+        "status": "verified",
+        "bytes": 436,
+        "sourceSha256": "f239a56f8920d939947e1f9620ded97cec89e64c52331bf79ecb593ba707dabc",
+        "encodedSha256": "51b25cb523e2d99720fb16d274e8ef9cef7dc3b04c464a15b46cf96c8bc75c45",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "fe9bf0977ffef8ec2890d5eac15a1ac928f039b9567dc96e5e90daaf4e8ecd89"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "608de82aa259037c0ead2922fde00941825a9045dfde9d716133f02f2b899758"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-12-alpha16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-12-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4521,
+        "sourceSha256": "07a8db424d837ed4b0790be16c5e2bb1965aff2c1c44c888b20eb77f042c9b7c",
+        "encodedSha256": "430de7fcaddef58ea8d938f5ad3352978f532c48e949f6a8abd12098a918f903",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "265366d351da7d5cb28259eed50540b15cb50ad26edc81855b85d858c8e1dfb7"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "1009a8d366865620ded22a955d396edd1633bcb0cac7df48fc77fbbcbc5d664e"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-12-alpha16-513x257",
+        "status": "verified",
+        "bytes": 4521,
+        "sourceSha256": "07a8db424d837ed4b0790be16c5e2bb1965aff2c1c44c888b20eb77f042c9b7c",
+        "encodedSha256": "430de7fcaddef58ea8d938f5ad3352978f532c48e949f6a8abd12098a918f903",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "265366d351da7d5cb28259eed50540b15cb50ad26edc81855b85d858c8e1dfb7"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "1009a8d366865620ded22a955d396edd1633bcb0cac7df48fc77fbbcbc5d664e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-16-17x13",
+        "status": "verified",
+        "bytes": 331,
+        "sourceSha256": "a7aa465a8b115f8c94f928af04f4bb5fcc87d9b585ee64d90c662491f1298e88",
+        "encodedSha256": "7726fa7a5c34b5b9787a990f1b8134703d29907c4e869d028e19f366049596c7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-16-17x13",
+        "status": "verified",
+        "bytes": 331,
+        "sourceSha256": "a7aa465a8b115f8c94f928af04f4bb5fcc87d9b585ee64d90c662491f1298e88",
+        "encodedSha256": "7726fa7a5c34b5b9787a990f1b8134703d29907c4e869d028e19f366049596c7",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c0331fc3ff910612f79e462775698b4b882c38ba21df069c43b162de16c0e2f6"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "069e5170858d67e51a07a1b4742cfea8eedff0eb43af55703293b011c24609d2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gray-16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "gray-16-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "156a0e8328d4f187d86aa57098330f94afef1bfe92f990f39955c82758220c51",
+        "encodedSha256": "7df2f8278ade5f7112639388361daf4103920862a40fdfbf73ab694d41256da1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d9d6cea9ba2a59c1071d5c4acf2497a548d813aa304c6e284bcc4c79d8fcbcab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eccadcaed078c77d00cb33caf398d50761420c5506d8ca5ccc34b4d8fcfdae74"
+          }
+        ]
+      },
+      "current": {
+        "id": "gray-16-513x257",
+        "status": "verified",
+        "bytes": 865,
+        "sourceSha256": "156a0e8328d4f187d86aa57098330f94afef1bfe92f990f39955c82758220c51",
+        "encodedSha256": "7df2f8278ade5f7112639388361daf4103920862a40fdfbf73ab694d41256da1",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "d9d6cea9ba2a59c1071d5c4acf2497a548d813aa304c6e284bcc4c79d8fcbcab"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "eccadcaed078c77d00cb33caf398d50761420c5506d8ca5ccc34b4d8fcfdae74"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-16-17x13",
+        "status": "verified",
+        "bytes": 403,
+        "sourceSha256": "796314b5492cc0c51021c407fed2f583412d39d92188085cc9fe214c1c8e9454",
+        "encodedSha256": "a163d755ee8963f52dbea9f6b10a010f123add34c06d9be62b36859ab3d60b3b",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "8e0876f878108df7cc483073b4cd48d750aa0be8e435c9d86f3995665f08bbaf"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c3842a3c4bc668149095ce3a37b264c0c70f6d6d4ec06abc486d245b93430eef"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-16-17x13",
+        "status": "verified",
+        "bytes": 403,
+        "sourceSha256": "796314b5492cc0c51021c407fed2f583412d39d92188085cc9fe214c1c8e9454",
+        "encodedSha256": "a163d755ee8963f52dbea9f6b10a010f123add34c06d9be62b36859ab3d60b3b",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "8e0876f878108df7cc483073b4cd48d750aa0be8e435c9d86f3995665f08bbaf"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "c3842a3c4bc668149095ce3a37b264c0c70f6d6d4ec06abc486d245b93430eef"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgb-16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgb-16-513x257",
+        "status": "verified",
+        "bytes": 5151,
+        "sourceSha256": "06b0f1922b2f650aaf96f01f5c3db1a4b6448d8fbc6450c7ecdcabc85ed0ed55",
+        "encodedSha256": "17fcbf6279cb60f091d65c97af852e6f939d54555a7864c1a24e68101a3c198e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "788401813edf48db908f11b245343efd976a8bc41a7b968bc2072d14f11ffec8"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "030939a807783ba61c43c0e1164dcc08932b227f665568ee553f7343ce2b4bd5"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgb-16-513x257",
+        "status": "verified",
+        "bytes": 5151,
+        "sourceSha256": "06b0f1922b2f650aaf96f01f5c3db1a4b6448d8fbc6450c7ecdcabc85ed0ed55",
+        "encodedSha256": "17fcbf6279cb60f091d65c97af852e6f939d54555a7864c1a24e68101a3c198e",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "788401813edf48db908f11b245343efd976a8bc41a7b968bc2072d14f11ffec8"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 2,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "030939a807783ba61c43c0e1164dcc08932b227f665568ee553f7343ce2b4bd5"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-16-17x13",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-16-17x13",
+        "status": "verified",
+        "bytes": 439,
+        "sourceSha256": "f19e03455069e07862b8be4b119ae5a3c08439742f6df5e77600e1b31902b2ee",
+        "encodedSha256": "f5faba01a67c4f6411f24c119a5e183024444c4c3d295a9ea966890f01cf19ac",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "36bd8c90f3aeda6745c5d1200e49ce8e45a8c00d0a8b5188c1f72efc0158f43f"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0e15f23f0fb00e0cb2e2a0bd329fdcca08bb45899f01ebef4fef118d80831b6f"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-16-17x13",
+        "status": "verified",
+        "bytes": 439,
+        "sourceSha256": "f19e03455069e07862b8be4b119ae5a3c08439742f6df5e77600e1b31902b2ee",
+        "encodedSha256": "f5faba01a67c4f6411f24c119a5e183024444c4c3d295a9ea966890f01cf19ac",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "36bd8c90f3aeda6745c5d1200e49ce8e45a8c00d0a8b5188c1f72efc0158f43f"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "0e15f23f0fb00e0cb2e2a0bd329fdcca08bb45899f01ebef4fef118d80831b6f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rgba-16-513x257",
+      "progressive": true,
+      "baseline": {
+        "id": "rgba-16-513x257",
+        "status": "verified",
+        "bytes": 4522,
+        "sourceSha256": "c7085575155f415c6a1e79f642a54d4a7a64bd6a35519744135a819bbdb8d0b6",
+        "encodedSha256": "e77f5558bbbfe0f63e9d2a6aebe8fbaba44bea8951cce6b38df736d86798214c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "441cd2b56c7460226bccc16539058115c72f6fe77ab6dd55dbdaace1d4ebad64"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "424d0f8512ce328abd523c898fd5e2df469e46511f91a9e3ff4a4aaeaf811261"
+          }
+        ]
+      },
+      "current": {
+        "id": "rgba-16-513x257",
+        "status": "verified",
+        "bytes": 4522,
+        "sourceSha256": "c7085575155f415c6a1e79f642a54d4a7a64bd6a35519744135a819bbdb8d0b6",
+        "encodedSha256": "e77f5558bbbfe0f63e9d2a6aebe8fbaba44bea8951cce6b38df736d86798214c",
+        "oracles": [
+          {
+            "oracle": "libjxl",
+            "maximumDifference": 0,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "441cd2b56c7460226bccc16539058115c72f6fe77ab6dd55dbdaace1d4ebad64"
+          },
+          {
+            "oracle": "jxl-rs",
+            "maximumDifference": 1,
+            "maximumAlphaDifference": 0,
+            "decodedSha256": "424d0f8512ce328abd523c898fd5e2df469e46511f91a9e3ff4a4aaeaf811261"
+          }
+        ]
+      }
+    }
+  ]
+}

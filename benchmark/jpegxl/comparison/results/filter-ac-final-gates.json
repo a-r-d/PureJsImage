@@ -1,0 +1,192 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "5abf439d5dbdb53ad73ce5a5c9c414497cc770055e288dcfdfa51c0e0213f138",
+  "implementationDirty": true,
+  "completed": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/publish-current-filter-packed-ac-final-gates-811.ts",
+      "sha256": "b4344dc53401fde02c921b9c9a0b0f04a9fb7265baeb1c512f2a90254bd59e03"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-current-filter-packed-ac-final-gates-811.json",
+      "sha256": "c5d0228cbb91f8ca1bb2545f1d7fb57bdeb55755df3cf1ab861d41c9f309fb8b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/filter-ac-production-controls.json",
+      "sha256": "23162656e18ef123be163d5e48db68dd29beb6c3db2091072c5092374343e339"
+    },
+    {
+      "path": "/tmp/jpegxl-current-filter-packed-ac-repository-gate-814.log",
+      "sha256": "7ec8158d8e6ae4c5a30d9b8218dbb498c49bcc91094dd2613329b95e32152025"
+    },
+    {
+      "path": "/tmp/jpegxl-current-filter-packed-ac-package-metrics-812.log",
+      "sha256": "f145156e41b2a6fee661dd2b862a67d84a9784926706c95082b4501b5fd4f90b"
+    },
+    {
+      "path": "/tmp/jpegxl-current-filter-packed-ac-documentation-813.log",
+      "sha256": "78042ceb0ee2378e1bc238f28cae9ddec8c1d5ca1a1a95b4ed01ede4401d0ca4"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3bfca128ae3383812a060e629340f46a4fcbe7d667f82ee11b4cbeb3c8978eab"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "1a41f3639e65bff9dca8323a8040f49dd8b161d4eaabf8ec08856916d92ae71c"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "5a4155c9789b7ff6d815733dc9aeffa8bdea7f74a886c7c7441e76b52fc0ddd7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FILTER-AC.md",
+      "sha256": "0c3cffa5f3cab4ff6f23fe2ec169bb5f27611d15c0d5c8f7b63b184717cceceb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/DC-MODELS.md",
+      "sha256": "ff8e20f8cb26e11dc93dd455e02c568aad81795f37c91d3103442720dddedcc0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "f5ae327cd13dbfcf372d849dda371061fa8f1eec3fd0851acd34d2e265f7811d"
+    },
+    {
+      "path": "docs-astro/src/pages/jpeg-xl/comparison.astro",
+      "sha256": "ee79d280238a22e2f2dfbcda26e9f23ff24a250d31bb5af34fa17add3b850704"
+    },
+    {
+      "path": "scripts/jpegxl-showcase-assets.ts",
+      "sha256": "8e41280b0daba9322082af7c7a92d96a03c93a4b53375946b3aed829013e5f0d"
+    },
+    {
+      "path": "tests/jpegxl-dc-model.test.ts",
+      "sha256": "629d2026d910405de0ca8adb5bd0285030bbcbde755aafdee36b434eade0f797"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "de17622037faca4445ece9cc8098ffa3e1f2d7b4ab2ec4d246941dfcddad2b6e"
+    }
+  ],
+  "productionProofPath": "benchmark/jpegxl/comparison/results/filter-ac-production-controls.json",
+  "physicalProductionEvidenceReverified": 2712,
+  "physicalEvidenceReadsSequential": true,
+  "physicalHashReadChunkBytes": 65536,
+  "receipts": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-filter-packed-ac-package-metrics-812.json",
+      "sha256": "1b9ea14dc07820878dd04a0e0b9b61377c30ab072f00c1173dd1dd158982ed7b",
+      "receipt": {
+        "startedAt": "2026-10-04T21:41:01.083Z",
+        "finishedAt": "2026-10-04T21:41:45.996Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 34905849856,
+        "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "args": [
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "size"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: b7f782a70bc4410e884cb4b8108bcfed\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 44.890s\n             CPU time consumed: 1min 6.344s\n                   Memory peak: 1.2G (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-filter-packed-ac-documentation-813.json",
+      "sha256": "4ae788b448beee338ef05d883a570451ff629939fe379158e517525329c0fc0f",
+      "receipt": {
+        "startedAt": "2026-10-04T21:42:26.277Z",
+        "finishedAt": "2026-10-04T21:42:27.516Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 34926968832,
+        "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "args": [
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "documentation:write"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 1.209s\n             CPU time consumed: 1.619s\n                   Memory peak: 108.2M (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-current-filter-packed-ac-repository-gate-814.json",
+      "sha256": "fc178197bc4188a76c6ef84f4f603e7d8bb7db738eaa2fe3b7afa16f6d65f04c",
+      "receipt": {
+        "startedAt": "2026-10-04T21:42:52.277Z",
+        "finishedAt": "2026-10-04T21:47:28.936Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 35122921472,
+        "executable": "/usr/bin/env",
+        "args": [
+          "VITEST_MAX_WORKERS=4",
+          "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "check"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 601f56419ea84723a1305e50cd603975\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:160:42 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    158 │   timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 │ }\n  > 160 │ await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\\n', { flag: 'wx' })\n        │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    161 │ const results: object[] = []\n    162 │ let failures = 0\n  \n  i Unsafe fix: Use a template literal.\n  \n    158 158 │     timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 159 │   }\n    160     │ - await·writeFile(`${root}/protocol.json`,·JSON.stringify(protocol,·null,·2)·+·'\\n',·{·flag:·'wx'·})\n        160 │ + await·writeFile(`${root}/protocol.json`,·`${JSON.stringify(protocol,·null,·2)}\\n`,·{·flag:·'wx'·})\n    161 161 │   const results: object[] = []\n    162 162 │   let failures = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:99:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n     97 │ await writeFile(\n     98 │   `${directory}/manifest.json`,\n   > 99 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 100 │     {\n         ...\n  > 112 │     2,\n  > 113 │   ) + '\\n',\n        │   ^^^^^^^^\n    114 │ )\n    115 │ \n  \n  i Unsafe fix: Use a template literal.\n  \n     97  97 │   await writeFile(\n     98  98 │     `${directory}/manifest.json`,\n     99     │ - ··JSON.stringify(\n         99 │ + ··`${JSON.stringify(\n    100 100 │       {\n    101 101 │         encoderHash,\n    ······· │ \n    111 111 │       null,\n    112 112 │       2,\n    113     │ - ··)·+·'\\n',\n        113 │ + ··)}\\n`,\n    114 114 │   )\n    115 115 │   \n  \n\nbenchmark/jpegxl/generate-m6-preview.ts:147:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    145 │ await writeFile(\n    146 │   `${directory}/provenance.json`,\n  > 147 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 148 │     {\n         ...\n  > 159 │     2,\n  > 160 │   ) + '\\n',\n        │   ^^^^^^^^\n    161 │ )\n    162 │ console.log(\n  \n  i Unsafe fix: Use a template literal.\n  \n    145 145 │   await writeFile(\n    146 146 │     `${directory}/provenance.json`,\n    147     │ - ··JSON.stringify(\n        147 │ + ··`${JSON.stringify(\n    148 148 │       {\n    149 149 │         encoderHash,\n    ······· │ \n    158 158 │       null,\n    159 159 │       2,\n    160     │ - ··)·+·'\\n',\n        160 │ + ··)}\\n`,\n    161 161 │   )\n    162 162 │   console.log(\n  \n\nbenchmark/jpegxl/comparison/profile-lossy-sections.ts:59:13 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    57 │         const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n    58 │         const frame = frames.at(-1)\n  > 59 │         if (!frame || frame.encoding !== 'vardct' || frame.frameType !== 'regular')\n       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    60 │           throw new Error('Expected a final VarDCT display frame')\n    61 │         // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     57  57 │           const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n     58  58 │           const frame = frames.at(-1)\n     59     │ - ········if·(!frame·||·frame.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n         59 │ + ········if·(frame?.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n     60  60 │             throw new Error('Expected a final VarDCT display frame')\n     61  61 │           // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json lint ━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json lint ━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:36:5 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    34 │   )\n    35 │ const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n  > 36 │ if (!entry || entry.status !== 'verified')\n       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    37 │   throw new Error('Source is outside the selected frozen HDR cohort')\n    38 │ const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     34  34 │     )\n     35  35 │   const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n     36     │ - if·(!entry·||·entry.status·!==·'verified')\n         36 │ + if·(entry?.status·!==·'verified')\n     37  37 │     throw new Error('Source is outside the selected frozen HDR cohort')\n     38  38 │   const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:255:11 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    253 │         defaultImageLimits,\n    254 │       )\n  > 255 │       if (!decoder || decoder.pixelFormat !== 'rgbf32')\n        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    256 │         throw new Error('Missing native-light decoder')\n    257 │       maximumOwnDifference = 0\n  \n  i Unsafe fix: Change to an optional chain.\n  \n    253 253 │           defaultImageLimits,\n    254 254 │         )\n    255     │ - ······if·(!decoder·||·decoder.pixelFormat·!==·'rgbf32')\n        255 │ + ······if·(decoder?.pixelFormat·!==·'rgbf32')\n    256 256 │           throw new Error('Missing native-light decoder')\n    257 257 │         maximumOwnDifference = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:50:3 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    48 │ const dc = frames[0]\n    49 │ if (\n  > 50 │   !dc ||\n       │   ^^^^^^\n  > 51 │   dc.frameType !== 'dc' ||\n       │   ^^^^^^^^^^^^^^^^^^^^^\n    52 │   dc.passCount < 2 ||\n    53 │   dc.sections.slice(1).every((section) => section.length === 0)\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     48  48 │   const dc = frames[0]\n     49  49 │   if (\n     50     │ - ··!dc·||\n     51     │ - ··dc.frameType·!==·'dc'·||\n         50 │ + ··dc?.frameType·!==·'dc'·||\n     52  51 │     dc.passCount < 2 ||\n     53  52 │     dc.sections.slice(1).every((section) => section.length === 0)\n  \n\nbenchmark/jpegxl/generate-m8-custom-filters.ts:27:7 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━\n\n  ! This variable positive is unused.\n  \n    25 │   { bits: 30, offset: 18688 },\n    26 │ ] as const\n  > 27 │ const positive = (value: number, name: string, allowZero = false): void => {\n       │       ^^^^^^^^\n    28 │   if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n    29 │     throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.\n  \n  i Unsafe fix: If this is intentional, prepend positive with an underscore.\n  \n     25  25 │     { bits: 30, offset: 18688 },\n     26  26 │   ] as const\n     27     │ - const·positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n         27 │ + const·_positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n     28  28 │     if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n     29  29 │       throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n\nbenchmark/jpegxl/generate-m8-weighted-patches.ts:208:73 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━\n\n  ! Forbidden non-null assertion.\n  \n    206 │     const samples = []\n    207 │     for (let c = 0; c < 4; c++)\n  > 208 │       for (let i = c; i < front.length; i += 4) samples.push(packSigned(front[i]!))\n        │                                                                         ^^^^^^^^^\n    209 │     const counts = new Uint32Array(280)\n    210 │     for (const sample of samples) {\n  \n\nbiome.json:14:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    12 │       \"!!benchmark/corpus/files\",\n    13 │       \"!!benchmark/results\",\n  > 14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4.\n  \n    14 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │                                                                 ---  \n\nbiome.json:15:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    13 │       \"!!benchmark/results\",\n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n  > 15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5.\n  \n    15 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │                                                                 ---  \n\nbiome.json:16:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n  > 16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5.\n  \n    16 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:17:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  > 17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5.\n  \n    17 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:18:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  > 18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4.\n  \n    18 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │                                                                   ---  \n\nbiome.json:19:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  > 19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n    21 │       \"!!src/scientific/browser-reader-catalog.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4.\n  \n    19 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │                                                                  ---  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json format ━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json format ━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json format ━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-capped052.json format ━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 6.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-integrated054.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 4.4 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-holdout-capped052.json format ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 5.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-prompt2-artifacts.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 3.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 4min 36.631s\n             CPU time consumed: 20min 46.025s\n                   Memory peak: 2.8G (swap: 0B)\n"
+      }
+    }
+  ],
+  "sourceAdopted": true,
+  "repositoryCheckPassed": true,
+  "passingTestFiles": 270,
+  "passingTests": 3633,
+  "existingSkippedFiles": 1,
+  "existingSkippedTests": 3,
+  "focusedTests": 85,
+  "realBrowserCases": 18,
+  "packageMetricsRefreshed": true,
+  "documentationRefreshed": true,
+  "versionUnchanged": true,
+  "zeroRuntimeDependencies": true,
+  "indexEmpty": true,
+  "publicComparisonCountsChanged": false,
+  "fullParity": false,
+  "policy": "Record the complete current-source repository gate after all original representative cost, full matrix, both metric, frozen-peer matching, working-budget/family/JPEG, independent recovery, actual package and three-browser protections. Reverify physical records through sequential64KiBreads and preserve all prior rejections and existing skips. The website records current matched-photo gains and the explicit fixed-request and secondary metric tradeoffs with frozen peer and older speed provenance. Complete compression parity remains open. No version, release, staging, commit or push occurs."
+}

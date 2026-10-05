@@ -1,0 +1,78 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "streams": 97,
+  "uniqueStreams": 71,
+  "pins": 52,
+  "bands": 52,
+  "qualityStreams": 91,
+  "newlyEncoded": 91,
+  "smaller": 24,
+  "changed": 0,
+  "adequate": 11,
+  "unresolved": 13,
+  "extraPins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/postverify-tree-entropy-202c.ts",
+      "sha256": "19150cd9657d43ef0336646c262f620171519651e6a92f17efeeaffe03189e74"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-audit-202.ts",
+      "sha256": "e9694115ef3a91dd8c7a0747e33f4fbe44b474ee9b04db9d53a47b06d37e177f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-production-controls-197.ts",
+      "sha256": "3d502b7629938d016ddeebac460163e7b16b7ec9a2dd3310989ed4ee749add17"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-quality-199.ts",
+      "sha256": "6880a4098c1431de49b6a1eb8ef8f7461f2f1fed09486896314657a2e082541b"
+    },
+    {
+      "path": "tests/helpers/jpegxl-artwork.ts",
+      "sha256": "dba445f9ecb427fef0a2222f6b0f0498c59fe7b71c1ba4618b3ea31731b10dee"
+    },
+    {
+      "path": "tests/helpers/jpegxl-tree-entropy.ts",
+      "sha256": "87740f7f625fc655e92e46745e6473f8e8452454ba451bad5c5d26bcd69480d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-helper-pre-lint-203.ts",
+      "sha256": "ce53bf1fa9011b9496f4d35a6a9cc5dea82587115d91ea3b8cb6a2063964e3db"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-helper-pre-types-203b.ts",
+      "sha256": "26ace4ef249994011de2d9119fa3ee2fdd6f4ae7eaba07fe2ba4edf65814da67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-retries-203b.ts",
+      "sha256": "909eae5eb14606f96d4831101625ff28bb0f31ef72953a62075cb998d5ba6a0d"
+    },
+    {
+      "path": "tests/jpegxl-tree-entropy.test.ts",
+      "sha256": "847410ab33c04995730a682e005371ceaa03a8533e0111410a062ca7670104d5"
+    },
+    {
+      "path": "tests/jpegxl-artwork.test.ts",
+      "sha256": "4989e44f6eb89ff49d2d3b6de9c371df0810e7fbe817574067c32cf62d336a19"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "a691e541e1da6413c1ea169b0f0cfc0e637f028069d4b15ce86bf4251406b413"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "a38e08bfc0fb1635f84b8ff79fa82b39571f8cbdba15c965303b9bce29b35581"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-adoption-audit.json",
+      "sha256": "2b2797ddd398fa668d7d73bbe53bb713875c3e692b720b7074bc3397e4f1eedc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-boundary-audit.json",
+      "sha256": "f96be8d00a63f29210cb2c24b63f5c35c7db1eca61c410edc76527facf29eea7"
+    }
+  ],
+  "policy": "Post-run complete artifact/grids and source/input/output/tool/module/report/harness audit. All 91 fixed quality settings preserve every prior full native/Rust grid and score. All 91 settings are freshly encoded through the same frozen ordinary public source/modules and identical API. Changed streams shrink. The full current lossless and original-minimum matrices retain their separate final sample-grid gate; all prototype boundaries remain pinned in the pre-adoption independent audit. All three current artwork cases preserve exact visible color/alpha. Full-cohort bands, inversions and original 0.25-score adequacy/null ratios are recomputed. Prototype controls retain their original qualified-source boundary separately. No speed or general parity claim."
+}

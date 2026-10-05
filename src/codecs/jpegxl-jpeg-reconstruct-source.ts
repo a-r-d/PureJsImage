@@ -1,5 +1,5 @@
-import { throwIfAborted, type AbortOptions } from '../abort.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { type AbortOptions, throwIfAborted } from '../abort.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
 import type { ImageSink } from '../sink.ts'
@@ -7,20 +7,21 @@ import { createImageSource, type ImageInput, readExactly } from '../source.ts'
 import type { JpegCoefficientComponent, JpegCoefficientImage } from './jpeg-coefficients.ts'
 import {
   inspectJpegXlSource,
-  JpegXlCodestreamSource,
   type JpegXlBoxSummary,
+  JpegXlCodestreamSource,
 } from './jpegxl-container.ts'
 import { readJpegXlSourceFrameStructure } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
-  reconstructJpegFromCoefficientImage,
   type JpegXlJpegReconstructionMetadata,
+  reconstructJpegFromCoefficientImage,
   verifyJpegFromCoefficientImage,
 } from './jpegxl-jpeg-reconstruct.ts'
 import {
   decodeJpegXlJpegReconstructionBlobs,
-  parseJpegXlJpegReconstructionHeader,
   type JpegXlJpegReconstructionBlobs,
   type JpegXlJpegReconstructionHeader,
+  parseJpegXlJpegReconstructionHeader,
 } from './jpegxl-jpeg-reconstruction.ts'
 import type { JpegXlLimitOptions } from './jpegxl-limits.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
@@ -67,7 +68,7 @@ const rawSampling = (mode: number): readonly [number, number] => {
   if (mode === 1) return Object.freeze([1, 1])
   if (mode === 2) return Object.freeze([1, 0])
   if (mode === 3) return Object.freeze([0, 1])
-  throw invalidInput('JPEG XL chroma subsampling mode is invalid')
+  throw invalidJpegXlInput('chroma subsampling mode is invalid')
 }
 
 const actualShifts = (
@@ -101,7 +102,7 @@ const paddedBlockDimensions = (
 
 const checkedInt16 = (value: number): number => {
   if (!Number.isInteger(value) || value < -32_768 || value > 32_767) {
-    throw invalidInput('JPEG XL coefficient exceeds signed 16-bit storage')
+    throw invalidJpegXlInput('coefficient exceeds signed 16-bit storage')
   }
   return value
 }
@@ -133,7 +134,7 @@ const mergeAcGroup = (
   for (let component = 0; component < destination.length; component += 1) {
     const internalChannel = channelOrder[component]
     if (internalChannel === undefined) {
-      throw invalidInput('JPEG XL coefficient channel order is incomplete')
+      throw invalidJpegXlInput('coefficient channel order is incomplete')
     }
     const shift = shifts[internalChannel]
     const output = destination[component]
@@ -142,7 +143,7 @@ const mergeAcGroup = (
     const sourceWidth = group.componentBlockWidths[component]
     const sourceHeight = group.componentBlockHeights[component]
     if (!shift || !output || !outputWidth || !source || !sourceWidth || !sourceHeight) {
-      throw invalidInput('JPEG XL coefficient group component is missing')
+      throw invalidJpegXlInput('coefficient group component is missing')
     }
     const destinationX = groupBlockX >> shift[0]
     const destinationY = groupBlockY >> shift[1]
@@ -189,14 +190,14 @@ const buildCoefficientImage = (
   for (let component = 0; component < componentIds.length; component += 1) {
     const internalChannel = channelOrder[component]
     if (internalChannel === undefined) {
-      throw invalidInput('JPEG XL reconstruction channel order is incomplete')
+      throw invalidJpegXlInput('reconstruction channel order is incomplete')
     }
     const channelRaw = raw[internalChannel]
     const shift = shifts[internalChannel]
     const table = quantization[internalChannel]
     const componentCoefficients = coefficients[component]
     if (!channelRaw || !shift || !table || !componentCoefficients) {
-      throw invalidInput('JPEG XL reconstruction component data is missing')
+      throw invalidJpegXlInput('reconstruction component data is missing')
     }
     const horizontalSampling = 2 ** channelRaw[0]
     const verticalSampling = 2 ** channelRaw[1]
@@ -280,7 +281,7 @@ const decodeJpegXlJpegCoefficientData = async (
     jpegXlLimits.maxHeaderBytes,
   )
   if (reconstruction && reconstruction.componentIds.length !== frame.colorChannels)
-    throw invalidInput('JPEG XL reconstruction component count differs from its image header')
+    throw invalidJpegXlInput('reconstruction component count differs from its image header')
   if (
     frame.encoding !== 'vardct' ||
     (frame.colorTransform !== 'ycbcr' && frame.colorTransform !== 'none') ||
@@ -297,7 +298,7 @@ const decodeJpegXlJpegCoefficientData = async (
     sections.push(await readExactly(logical, section.offset, section.length, options))
   }
   const lfSection = sections[0]
-  if (!lfSection) throw invalidInput('JPEG XL LF global section is missing')
+  if (!lfSection) throw invalidJpegXlInput('LF global section is missing')
   const combinedSection = sections.length === 1
   const lfGlobal = decodeJpegXlJpegLfGlobal(lfSection, 0, !combinedSection)
   const correlation = lfGlobal.colorCorrelation
@@ -318,7 +319,7 @@ const decodeJpegXlJpegCoefficientData = async (
   const dcGroupsAcross = Math.ceil(fullBlockWidth / 256)
   const dcGroupsDown = Math.ceil(fullBlockHeight / 256)
   if (dcGroupsAcross * dcGroupsDown !== frame.dcGroupCount) {
-    throw invalidInput('JPEG XL DC group geometry is inconsistent')
+    throw invalidJpegXlInput('DC group geometry is inconsistent')
   }
   const dcGroups: JpegXlJpegDcGroup[] = []
   for (let group = 0; group < frame.dcGroupCount; group += 1) {
@@ -328,7 +329,7 @@ const decodeJpegXlJpegCoefficientData = async (
     const blockWidth = Math.min(256, fullBlockWidth - groupX * 256)
     const blockHeight = Math.min(256, fullBlockHeight - groupY * 256)
     const section = combinedSection ? lfSection : sections[1 + group]
-    if (!section) throw invalidInput('JPEG XL DC group section is missing')
+    if (!section) throw invalidJpegXlInput('DC group section is missing')
     dcGroups.push(
       decodeJpegXlJpegDcGroup(
         section,
@@ -346,7 +347,7 @@ const decodeJpegXlJpegCoefficientData = async (
     )
   }
   const hfSection = combinedSection ? lfSection : sections[1 + frame.dcGroupCount]
-  if (!hfSection) throw invalidInput('JPEG XL HF global section is missing')
+  if (!hfSection) throw invalidJpegXlInput('HF global section is missing')
   const groupCount = frame.groupsAcross * frame.groupsDown
   const hfGlobal = decodeJpegXlJpegHfGlobal(
     hfSection,
@@ -363,7 +364,7 @@ const decodeJpegXlJpegCoefficientData = async (
     throw unsupportedOperation('JPEG XL quantization is not exact-JPEG compatible')
   }
   const hfPass = hfGlobal.passes[0]
-  if (!hfPass) throw invalidInput('JPEG XL HF pass is missing')
+  if (!hfPass) throw invalidJpegXlInput('HF pass is missing')
   const shifts = actualShifts(frame.chromaSubsampling)
   const channelOrder = jpegChannelOrder(frame.colorTransform)
   const componentWidths = channelOrder.map(
@@ -398,7 +399,7 @@ const decodeJpegXlJpegCoefficientData = async (
     const dcGroupIndex = dcGroupY * dcGroupsAcross + dcGroupX
     const dcGroup = dcGroups[dcGroupIndex]
     const section = combinedSection ? lfSection : sections[2 + frame.dcGroupCount + group]
-    if (!dcGroup || !section) throw invalidInput('JPEG XL AC group data is missing')
+    if (!dcGroup || !section) throw invalidJpegXlInput('AC group data is missing')
     const decoded = decodeJpegXlJpegAcGroup(
       section,
       {
@@ -420,14 +421,14 @@ const decodeJpegXlJpegCoefficientData = async (
     // Restore this before handing coefficients to either the JPEG writer or pixel renderer.
     for (const component of [1, 2]) {
       const internalChannel = channelOrder[component]
-      if (internalChannel === undefined) throw invalidInput('JPEG XL chroma channel is missing')
+      if (internalChannel === undefined) throw invalidJpegXlInput('chroma channel is missing')
       const shift = shifts[internalChannel]
       const chroma = decoded.componentCoefficients[component]
       const luma = decoded.componentCoefficients[0]
       const chromaQuantization = hfGlobal.dct8Quantization[internalChannel]
       const lumaQuantization = hfGlobal.dct8Quantization[1]
       if (!shift || !chroma || !luma || !chromaQuantization || !lumaQuantization)
-        throw invalidInput('JPEG XL chroma correlation data is missing')
+        throw invalidJpegXlInput('chroma correlation data is missing')
       if (shift[0] !== 0 || shift[1] !== 0) continue
       for (let y = 0; y < blockHeight; y += 1)
         for (let x = 0; x < blockWidth; x += 1) {
@@ -495,7 +496,7 @@ const decodeJpegXlJpegCoefficientData = async (
   ] as const
   for (let index = 0; index < dcGroups.length; index += 1) {
     const group = dcGroups[index]
-    if (!group) throw invalidInput('JPEG XL DC color map is missing')
+    if (!group) throw invalidJpegXlInput('DC color map is missing')
     const x = (index % dcGroupsAcross) * 32
     const y = Math.floor(index / dcGroupsAcross) * 32
     const tileWidth = Math.ceil(group.blockWidth / 8)

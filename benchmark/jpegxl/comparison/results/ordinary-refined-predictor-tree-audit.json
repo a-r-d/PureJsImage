@@ -1,0 +1,98 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-ordinary-refined-trees-320.ts",
+      "sha256": "437141a44751b822d3cc732e6722af489ac1c3ca787728ae54aac755b7852950"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-ordinary-refined-audit-320.json",
+      "sha256": "f11be1f506940a1b94129693d68282964c5b41bc87da7e995b37b19b358814b8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-program-profile.json",
+      "sha256": "4a4a48a38315396fda4e6c4a78fef80828a503ec3a01feb6987796f84604ec90"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-controls-318.json",
+      "sha256": "9ac92d26c63754d6b60b75796ffa2b7b71c5dd07fccd9b63ac07d0fc26991ad6"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-profile-319.json",
+      "sha256": "dfe1027c7aae078f430a5a3c6b882293de264cfc8c4fd5cd71b6ba2b4d9e7d6e"
+    }
+  ],
+  "files": 12,
+  "grids": 24,
+  "independentSamples": 75509760,
+  "priorPublicSamples": 37754880,
+  "sourcePins": 71,
+  "sizeChanges": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "baselineBytes": 649404,
+      "floorBytes": 648383,
+      "savedBytes": 1021,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 157,
+      "headerChangeBytes": 24.75,
+      "remainingChangeBytes": -1045.75,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "baselineBytes": 613268,
+      "floorBytes": 612152,
+      "savedBytes": 1116,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 181,
+      "headerChangeBytes": -54.25,
+      "remainingChangeBytes": -1061.75,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "baselineBytes": 617106,
+      "floorBytes": 615996,
+      "savedBytes": 1110,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 168,
+      "headerChangeBytes": -31.875,
+      "remainingChangeBytes": -1078.125,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "baselineBytes": 227797,
+      "floorBytes": 227749,
+      "savedBytes": 48,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 26,
+      "headerChangeBytes": 30.875,
+      "remainingChangeBytes": -78.875,
+      "outerChangeBytes": 0
+    }
+  ],
+  "productionUnchanged": true,
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Fresh all12ordinary318complete files/24independent grids/75509760original samples re-read with exact hashes/layout/finite values/alpha/hidden RGB; prior37754880public samples labelled prior encoding. Exact retained ordinary baseline, fixed original policy/leaf/model/memory limits and complete floor/group/header/residual/outer accounts verified. Selected tree structures/transforms and changed predictor counts reflect physical profile. No runtime/RSS/package/minimum-memory/browser/full-matrix qualification or source/parity adoption."
+}

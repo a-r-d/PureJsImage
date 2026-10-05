@@ -1,0 +1,260 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-small-group-paired-controls-232.ts",
+      "sha256": "d9f68184f77c3384e8282fe70c52fce63d2f7de1a33fddbe0eee76ffd2c25ede"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-small-group-paired-audit-232.json",
+      "sha256": "04bd7cd28c638aedb57a31ae40b483b07e3051bc415b1dbcc59e529c1a483cea"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-performance-controls.json",
+      "sha256": "d0e0f1377a201dc1c25b3830346da0f98367f176f1cccffdedcc3fe4c544f50f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-midpoint-controls.json",
+      "sha256": "b97bfa3ac7301957f7b9fff872f36febb12e3523e3114e885b8eb5f4ff7aafa0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-small-group-performance-223.json",
+      "sha256": "a7494d050abe28769ca437044b0dd734b9d74ec8526a539e2e190e04640b63fe"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-small-group-223.ts",
+      "sha256": "3c5f78ae6768ec0ed6554961a0ba3ddcfeb10291097f16aff57bf4e7c56dbbae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-small-group-worker-223.ts",
+      "sha256": "90344cee138c7f7eefb9c0a27231c8a1e1741f86833933debf1078abaaa7cb5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-0.json",
+      "sha256": "5687dc91475d12fd2ff0a7386a8320ee310c85742e153d307a80f8585a9d1f40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-0.json",
+      "sha256": "525557d870d6bea610008315306bfaf964a231ece8b65afed02aee1f9cbfe7d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-1.json",
+      "sha256": "03524ed747607e3b9b18251364332f706caa9bb2016074f6c8b2813d70b2fbef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-1.json",
+      "sha256": "f5f682ec6cdfb9a44520904b64dea75e28b6b38953df1563089fd4ba9c5dbff5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-2.json",
+      "sha256": "53f76a3b16203b2ad4c926a15f4cab01efa829b3b9ca58624d13af9e16ef31a8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-2.json",
+      "sha256": "ef60a57dcd57dd45e6eed54f7b151b7e9baf71e3b164b88b882cd898c3130664"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-3.json",
+      "sha256": "db4309797b1fcc1bac9cc47880e09e679b1851953a4539c1da1574dce9927c8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-3.json",
+      "sha256": "e3eb666ea7efa3f623c8287ac4ce61a61cf78671890647bba2de6347bb9cc193"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-4.json",
+      "sha256": "8dfce2cdff1b6a36abbfb08516a100a38605eeb609542b2597e983b8172ca6d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-4.json",
+      "sha256": "769031eeb65bba45703ccd4ea0268e9d85a0dc7f13b209167bbbfac9d9f9e787"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-5.json",
+      "sha256": "0466ea18edbd88e0848793b82631560c34ad577820396ded35132e682f01bb82"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-5.json",
+      "sha256": "4af7ba65f30786461d5ca1aac0f7d4c894723147215b01f56e65901f67b02dc5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-baseline-6.json",
+      "sha256": "3022206ff409b4950d5a83e7ad0d6bfc24015349842615395bac77e9423684cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-performance-223-candidate-6.json",
+      "sha256": "cea716ddcb23ce533786daa703a872c30691af12641f740d92acfed9089fb5f9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-small-group-performance-controls.json",
+      "sha256": "3236923e70c6af759fc5148e0a7008f4ab883407632304504f25855f8e3b3f61"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-pixel-guard-controls.json",
+      "sha256": "a4920a6975c4d582da00e13cd9ecbbf5e7fa14fb00d471e2141f9b914f6881fc"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-small-group-performance-230.json",
+      "sha256": "c29054027c428805cbd4f3b8a345070a9a87f7b066a70663c7e510bb1d7c469f"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-guarded-small-group-230.ts",
+      "sha256": "876f510f53d726d31143685007caeb974d0b04fdfad1b9cfc6a1847e21fc1f63"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-guarded-small-group-worker-230.ts",
+      "sha256": "e44594888d783f016f27b1d0f232f74d988f7635c96d66e0b3825f70336e704c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-0.json",
+      "sha256": "e319907ce2879069f8f91b8aefc36838bca4e88f73f2176c9392b039ff76c452"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-0.json",
+      "sha256": "b507072d658f33f1995e7a4b621513f8889711db1cf10fe5c549c0ca024f68a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-1.json",
+      "sha256": "1e5e90e68e461c0d70835a7a398bc9feb0827dc64f9244db182bfeaa3aac7909"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-1.json",
+      "sha256": "c579d5e4b9573ff40c01ce7e8212adb2574817803536dd6a43f1c2f02e0289df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-2.json",
+      "sha256": "bdfa4f15de42c11efa4c33a07e5494baeb8595bb56e30d0cfd62ec50bcdc1bc1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-2.json",
+      "sha256": "4635e09c5c43ded14f5b7d2d653d7b9f31bea997f24d58a0ad438305e61af1d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-3.json",
+      "sha256": "0bc9882d629ef543d574014197cdbb7466ce64e98c448ab532aa92ee4e97f751"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-3.json",
+      "sha256": "44d48c4f040ba09a56260a1097caf942afacc791b1139786b9f58fb3a6666904"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-4.json",
+      "sha256": "df0f84675158c636664b88c449d4d1e92b26f3e62ee73940f5b7286183cf7228"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-4.json",
+      "sha256": "0cc79cb36eecedf8dd126b5063d1f78f01f73574f766ef024dea99bf0b9ab250"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-5.json",
+      "sha256": "c3133fd9839af561b88a230ecfe9b20bc14e8fad3bd92945460adf5d877834dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-5.json",
+      "sha256": "ef47ff494657d2459d04aa1ada0b8b098b9bf0f7aa3c6ac5c196c22a2f003aad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-6.json",
+      "sha256": "1492e175a1d291929a84bf35d638b7f2324defa41f1c06d9b666310af2df78c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-6.json",
+      "sha256": "6c504a7655fa4d7a98a2fc03cd2a81205a9acd9242a8995d270ebf633e1f8322"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-7.json",
+      "sha256": "4d3080d89836eb384b012243af96d3e623ea8e1cb73f5cbe4c4b573281e886ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-7.json",
+      "sha256": "9fb6fdcc465b046ba56def3808b379c8fb748677303788ff3cd270cedd9234ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-8.json",
+      "sha256": "0f7980636b2d89b181a4c7721a5986a5852dba6fb5cd536978ccadaa8ce22651"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-8.json",
+      "sha256": "7817a9cab750375846b01a90e15bdc98767f4588a4828924e286bc6eeb23372b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-9.json",
+      "sha256": "d0cc11a4ea972d62f91a850062b81ffa7e7e51a760d255a9c1b5310db020a4ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-9.json",
+      "sha256": "1a5f8002c05f3c31de4d2cd23c63cfd0bb7b72eec739fb8fc7b8cf617fdc887a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-10.json",
+      "sha256": "7ab8f3d6abe8868b360159472e3987214c5fdbde7a93ec00e680055487772867"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-10.json",
+      "sha256": "1f15efe32469586377c637c052c3ff86c79e277d48fc8c1ec4672f795f60a731"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-11.json",
+      "sha256": "6a515d1dd3671a78e38370ac7ceca22576a40105518ab1680e69c8cc05e7af64"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-11.json",
+      "sha256": "7dcb802b93dadd5a978079e946dbc3e943cac94cff4a0ca067afff48cfe20eb2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-12.json",
+      "sha256": "ccb2fb2f7f622a7dde00969e81d3733636c9ef9d90ef1fe69dd563e6a8e8870e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-12.json",
+      "sha256": "9bb6b3bcbb589c7d5cfc4505245a9c0584e1fa922aad884ed09ff0c0c6ab5b2d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-13.json",
+      "sha256": "c560e8e435912e848f031ae1ecb5df21f6398afc3c06e432e8b52cdf66a92714"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-13.json",
+      "sha256": "5e09aba4248adbf89c09504f4d4a09927ead2da5c06c3fb9490baaf7db070e50"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-baseline-14.json",
+      "sha256": "2d2e053f8e699c25d7ae36dcb010f46e352a4cddb960875aaedb5d669763353d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-small-group-performance-230-candidate-14.json",
+      "sha256": "9dd4a1ff725a85aa03e4454dad1714de9b07390633e0a30eaba23f60fc8aeafa"
+    }
+  ],
+  "performanceResults": [
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-performance-controls.json",
+      "pairs": 7,
+      "completeEncodes": 28,
+      "independentlyValidatedHashes": true,
+      "settledGc": true,
+      "pairedCalculations": true,
+      "productionAccepted": false
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/guarded-small-group-performance-controls.json",
+      "pairs": 15,
+      "completeEncodes": 60,
+      "independentlyValidatedHashes": true,
+      "settledGc": true,
+      "pairedCalculations": true,
+      "productionAccepted": false
+    }
+  ],
+  "policy": "Re-read both separate complete paired cohorts, raw observations, measured source/output hashes, owned closure, explicit settled GC and paired calculations. Preserve all seven earlier and fifteen guarded pairs separately. No speed, production or overall parity claim."
+}

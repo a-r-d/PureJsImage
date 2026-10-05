@@ -1,0 +1,1299 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-residual-models-304b.ts",
+      "sha256": "a7ee5abdcb5b26c832a96ca15f227619ffd969c7d307c1ffe36b29e250dad2fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-residual-audit-304b.json",
+      "sha256": "3353aa0b98bdb7b1ee32142955cac6588a28c34df35bbabae37b83df2018ba06"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/audit-residual-models-304.ts",
+      "sha256": "1dffb50763054c5fcec412a8adaf28dfb82ec581b676c8c80a59c64b1abe926f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-residual-audit-304.json",
+      "sha256": "339429560b2ba3802803e0a61c6389b9e2db0e41641cb0be511008e906b0d423"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json",
+      "sha256": "ab25a37bca153cd26637eee15285240bd6034fbdad6c0b230ddd9c93d2988590"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json",
+      "sha256": "ef0c0a97d95d5cd796d440fe191506450e70d7ac45f6ecdfb7a677e106194898"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-cost-profile-303b.json",
+      "sha256": "5a1d181f324c2816d38b17a2180cb88c6ba9c352395372f7f927a60a5471228a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-leaf-cost-profile-303c.json",
+      "sha256": "53f3fabc7d59a5d1c9ec9c776c2548c67758c71f3abeefc9babbb41564fd45f4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/profile-residual-costs-303.ts",
+      "sha256": "b06e9bfe873cc40d993bdb7994724ea3030cdbdf31a12b244c44de17e8fe5ebd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-residual-profile-303b.json",
+      "sha256": "8c5f480b4973aad5b63a6a040657523e3ec8e241956ae50ea1ab4b14a25946ad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-residual-profile-303/manifest.json",
+      "sha256": "4ad9eda2acc09a5adb08cc3541c6d1d3865d7b89aceaa198ac63037ed4c33f61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-residual-profile-303/jpegxl-decode.ts",
+      "sha256": "abf185fde3727267bd08f1ddb36a705d2907e63e994cd31cea92ac1a1f255b39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/jpegxl-decode.ts",
+      "sha256": "0cdd056b4607f95b2e83b0ede99f7b3786c15806d95a9fece3ce8babd9669a51"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/manifest.json",
+      "sha256": "73ff7693bf1a91fa285a79ec94942f484331be27decdf10f8870cbc34c105ccf"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-residual-costs-303b.ts",
+      "sha256": "80fa3fdd10783459908f8ddca31ead4067629b3ccf64ea22934d984e6c4cfa68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-residual-profile-303.ts",
+      "sha256": "e5cecb55bcac47e2fe95120decacf267dd9d1ba13ebcf0d541e95098929ef634"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/residual-cost-stats-303.ts",
+      "sha256": "c182febb60e648dcf5cf657c33a8d176a19251fe963cad8d97f83637cfda81e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-residual-profile-303.json",
+      "sha256": "70e26f6ea362198e1ceda3ee0d77182180ba1564dfbfc5f605c2c058a42d8bed"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-final-gates.json",
+      "sha256": "dcc632eefc6687328ae83d8a242889a6db9b60a202f02db9345c71d7f410df52"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-pooled-trees-296.ts",
+      "sha256": "d22d2eb439260f8324d31059c3e1695d5e4b2533f2e027e528ad7fbd102442e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-trees-296.json",
+      "sha256": "69471c511ad1c2cb18ec7829c0335be491f16b2c04fccb63980df88df71a503a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-encode-fragment-296.ts",
+      "sha256": "2bdbcc7921a26c7fb68cd197c1690a7dca5227e5264fb9fb9ca1628441e43247"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-final-gates.json",
+      "sha256": "ba7fce97c6cb103470cdae47d292ef3351ba77ec4f31fec9736cb34688d82690"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-controls.json",
+      "sha256": "99f49e6675200d6a2ff6ddb2575fac1f6642419ef6b92d88a3248c619a172cf8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-groups-286e/manifest.json",
+      "sha256": "3593d6ffced157ccf924d2f8083dc14acce7eb2e6b102b627db10932e387e42b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-hybrid-291.ts",
+      "sha256": "6cc0eb8a2d3763665f76aa1a570ff1f182f87545f7f421cd3dd95399d6e21a7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-hybrid-291.json",
+      "sha256": "e23411b40ee22f892c9fcf404d88ed11f95a50d2a5ef9b7cb79f55faf5e71523"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286e.ts",
+      "sha256": "90a728f4a63bc075bb4798828e82b46b631f9a591a8605a97b86829c2296e553"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-final-gates.json",
+      "sha256": "fe9fc68b8361cae293a2063434e854cf0d2bdc08c41d86ca2414d9e30dc8ed10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286e.ts",
+      "sha256": "2363c793620cf280a4d826ab945cb7abb2f26c9f58fab9d2bf5ecf5823f30673"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286e.json",
+      "sha256": "738439f081cfbf10cae886b7767f5927a2bdf9cc1f97d6f6a397fdec838d461e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286c.ts",
+      "sha256": "9a91496ef8695cec8aeaafb510dcfa1d7cb97acc1b434a420fa5d3a9eee6e83d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286c.json",
+      "sha256": "4a026b2cbd3e2fc1df79f78e057a610536deb7303787a13d0b8a060dc2b40a83"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286d.json",
+      "sha256": "34e4d51996b6ef4839a004db9e85744c4842565d3d69917576e9c8816410e880"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls.json",
+      "sha256": "e1f47c429b30637be3ee0da68254282fdf003ca6af6ac0629798a78b8da458fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286c.ts",
+      "sha256": "c1fcfc92a0a8670f6c6198d379d4990b2d53e29093bb277775b2a44a4da2655d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286c.json",
+      "sha256": "3fc65d1608f203db81824339378a835992a1edc6067b0680aa927c4a87b8a366"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286b.ts",
+      "sha256": "76e0a2655fcdc3f726c72c81e9e567e6cf75557440271aaa8291ead24c31d211"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286b.json",
+      "sha256": "7f9f1f550c91ffc495b2d10c85cea2de7a372256e3bb3dc185b80fafbd3b38c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/manifest.json",
+      "sha256": "e11590e829783a401677546dc8636c9c993293227cb97be5d2cba20ffba20174"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286.ts",
+      "sha256": "2469a99389fc4cf24349649247dad094a17e37f02b1a18d517246a86e8691ce7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286b.ts",
+      "sha256": "2348f58fdfa5dd1b265f3bbdc6a583bc9e14051e2968de0e0430d05889d4e46c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286b.json",
+      "sha256": "cae65318bb75efa8218ab776e3077e73ff158c1bc7cc3cd69d284fe68afc5c66"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286.json",
+      "sha256": "63f2212cad85fdd1213e1d70eb1984591c03163d06ab746a0bb1eb67062c5a3a"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-pooled-trees-296.ts",
+      "sha256": "278fdb25aa414ec0c62284b64ab22748fd2f1eef22b4b72b5be7143839b972bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286.ts",
+      "sha256": "e8076b609eae65477dbffa5023da4ea693ce126fb80e9aae0653dbf6e4cf4c3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286.ts",
+      "sha256": "281490888e57f44078a96d554e462da73fc73e045402b271f4b2e68560e74378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286.json",
+      "sha256": "b11471c00f293592e511115c809e33a28019b97ac764aac325865baf38fd04d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/manifest.json",
+      "sha256": "79d31a2e76e7e30a75905160ee1878c424abcf76b432cc29ae4e7bfe878ddb30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-tree-fragment-296.ts",
+      "sha256": "15a4f98a242f830a620eb5da86111dc1336acbb1675b61f53a8ff1b50798fed8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-final-gates.json",
+      "sha256": "ace0862413240a9888a3f4114ec21f49c0cd2e7426cdbf0370fe428a027d4988"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "dd863c9a63369df30c8ac538029dfb269881a0674abc83c3b87a96518727c1ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "sha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "sha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "ddd72d18a96c7bfad8df179d895a703d77fc860edba86dc172d5c16bc15c84e2"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-modular-encode.ts",
+      "sha256": "2d5b5c3b1e27d2b47f96edb0d6981e9670e9c91ff648bb18d7211dd880243cde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-modular-encode.ts",
+      "sha256": "2d5b5c3b1e27d2b47f96edb0d6981e9670e9c91ff648bb18d7211dd880243cde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-modular-tree.ts",
+      "sha256": "a9e71c3673e452fe96bedad0012eeb55cf9f1d799a55e9ccc8545e5eedcbe5dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-modular-tree.ts",
+      "sha256": "a9e71c3673e452fe96bedad0012eeb55cf9f1d799a55e9ccc8545e5eedcbe5dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/baseline/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-hybrid-291/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-encode.ts",
+      "sha256": "5461595059a4bc5cbdbc29505d27d41226bdcd27300834d27e9f58ad82c8e615"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-encode.ts",
+      "sha256": "1cd512bbec281b8fa2d022b2cdf3454b4268ec7780c2e24aa87689fe4367f183"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-pooled-trees-297.ts",
+      "sha256": "a1248fdc9c5bf2e23717f495fe6c1fa8811b8f7cf52da4766bdb57961c90a56a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-pooled-profile-297.ts",
+      "sha256": "64f3563f63459364a01b89c115203c6832618da17611c74d82bd79cc14f3ec19"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-profile-297.json",
+      "sha256": "fb9be0dae5775cea5a591a1fbbfafb2bf7f78d816927036365a245f84d4e39e0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-controls-296.json",
+      "sha256": "ca579b6051085bda6e5e3ea13d3dd0d35159b8b6fd7d880c656ef9757d7e2e8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "dd863c9a63369df30c8ac538029dfb269881a0674abc83c3b87a96518727c1ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-pooled.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-pooled.jxl",
+      "sha256": "5ba6b9e96adaa43472fc89a385e3a5e7772285dc506f191df4efd3bec861d0dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "sha256": "e92b9f1b9e2d964d449f999961da583a530e299d6631700c98bebb254978d916"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "ddd72d18a96c7bfad8df179d895a703d77fc860edba86dc172d5c16bc15c84e2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-pooled.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-pooled.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-pooled.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-floor.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-1416-diagnostic-floor.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-pooled.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-pooled.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-floor.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/im26-2018-diagnostic-floor.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-baseline.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-baseline.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-pooled.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-pooled.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-floor.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-2018-red-one-level-dither-floor.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-baseline.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-baseline.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-pooled.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-pooled.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-floor.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296-output/photo-1416-boundary-513-floor.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-program-profile.json",
+      "sha256": "8cf15f9fda4d536611680a586f10a6692bdbce01bebac2d0a43f477b3963deed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-group-pooled-trees-298.ts",
+      "sha256": "406829e599294721c3afe15826fe53bb53c14866fd2d767e9ef21e93bbc297b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-group-pooled-trees-298.json",
+      "sha256": "eee86cd3d7e0973a78098994866de450b164a4b5a535cd4cbe25ce7156577718"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-encode-fragment-298.ts",
+      "sha256": "0504367f4ecf62aa6837b07112b7a144f9a12d458fc5bb45324b0887cc2338a9"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-group-pooled-trees-298.ts",
+      "sha256": "dae9b46eac4c0aa05c872ffd625f7051141f94ededb2a2d782c4a20bf900082e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/manifest.json",
+      "sha256": "0881f65cb8da2de471705ccc9d86690fa15c6f33acf2e6e0a8a592294e5f4772"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-tree-fragment-298.ts",
+      "sha256": "2f820cca902c2c428962b4b6171c3abb6e09a2383cbac7e4ef042e7a9b4684eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-encode.ts",
+      "sha256": "1cd512bbec281b8fa2d022b2cdf3454b4268ec7780c2e24aa87689fe4367f183"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-tree.ts",
+      "sha256": "f6a4ee84756e9b1653d8b8208a7ab71da990bf5617f3270b8e2d0c10610042f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/baseline/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-encode.ts",
+      "sha256": "61f54240973f6a13d6acbf187d5fd3c747d8c28a59d8a2bc21fc535a9189b1ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-tree.ts",
+      "sha256": "52c5d4abb490812c3c4729bf549737acafdd48e288d38da502dffab618c78c3e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-encode.ts",
+      "sha256": "52b01d05cff49f1a4eabf2d9219179b1074c7a87b225c435bca898ab62c8e01e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-tree.ts",
+      "sha256": "52c5d4abb490812c3c4729bf549737acafdd48e288d38da502dffab618c78c3e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-group-pooled-trees-299.ts",
+      "sha256": "1067127a586388cc1a638ca5c72edcb82ffad2db1e5e26bff7a3d30632a68af7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-group-pooled-profile-299.ts",
+      "sha256": "d18067c34117901444e0aa2cd9051456b027c17ea8a377d38543fe0529f07955"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-group-pooled-profile-299.json",
+      "sha256": "0622f2a46180730d5920fee0d2154471a351a4e48a0b4a8a0f2764983119a93f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-controls-298.json",
+      "sha256": "8bd2347afe5f650afb484dd176524c3459fb30489e724a64c5635c2be5699bdd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl",
+      "sha256": "d8b45d4fb7bd8f31dd800f2dfa9293269749b615210cf772ed47447bff28d7fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "sha256": "42cb2d9e4e1c04e584ca077181ad2741cd8cf0b0201190f2bddc811a184d1edf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl",
+      "sha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl.native.npy",
+      "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl.rust.npy",
+      "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl.native.npy",
+      "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl.rust.npy",
+      "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-residual-leaf-profile-303c.ts",
+      "sha256": "6ab74e55c9b18540adcffee105afcd088049c27e51d849faa4a1c68e0bea204e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/profile-residual-costs-303b.ts",
+      "sha256": "80fa3fdd10783459908f8ddca31ead4067629b3ccf64ea22934d984e6c4cfa68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/residual-cost-stats-303c.ts",
+      "sha256": "4d51605f2c20ea339423f83b2ed69f627369200bd41ba459d6009b4724936c71"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-residual-profile-303c.json",
+      "sha256": "4a607e28aeac9318e59d4a645abbf85dbe66a56dd396147818729279d85640f1"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-residual-costs-303c.ts",
+      "sha256": "643d6e0b232c11810e83782d359809465376693c4336916996d90f99e89607d4"
+    }
+  ],
+  "sourcePins": 413,
+  "files": 24,
+  "priorReconstructedSamples": 75509760,
+  "priorProfiledGroups": 84,
+  "allocations": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "uniform",
+      "variant": "baseline",
+      "encodedSha256": "dd863c9a63369df30c8ac538029dfb269881a0674abc83c3b87a96518727c1ff",
+      "staticLeaves": 775,
+      "channelLeaves": [261, 247, 263, 4],
+      "groupChannelLeaves": [[56, 80, 75, 1], [97, 73, 103, 1], [53, 51, 44, 1], [55, 43, 41, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "uniform",
+      "variant": "pooled",
+      "encodedSha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "uniform",
+      "variant": "floor",
+      "encodedSha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "uniform",
+      "variant": "baseline",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "staticLeaves": 871,
+      "channelLeaves": [408, 219, 240, 4],
+      "groupChannelLeaves": [[102, 48, 69, 1], [80, 45, 54, 1], [103, 46, 78, 1], [123, 80, 39, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "uniform",
+      "variant": "pooled",
+      "encodedSha256": "5ba6b9e96adaa43472fc89a385e3a5e7772285dc506f191df4efd3bec861d0dc",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "uniform",
+      "variant": "floor",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "staticLeaves": 871,
+      "channelLeaves": [408, 219, 240, 4],
+      "groupChannelLeaves": [[102, 48, 69, 1], [80, 45, 54, 1], [103, 46, 78, 1], [123, 80, 39, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "uniform",
+      "variant": "baseline",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "staticLeaves": 965,
+      "channelLeaves": [414, 299, 248, 4],
+      "groupChannelLeaves": [[112, 77, 52, 1], [80, 64, 58, 1], [99, 78, 76, 1], [123, 80, 62, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "uniform",
+      "variant": "pooled",
+      "encodedSha256": "e92b9f1b9e2d964d449f999961da583a530e299d6631700c98bebb254978d916",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "uniform",
+      "variant": "floor",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "staticLeaves": 965,
+      "channelLeaves": [414, 299, 248, 4],
+      "groupChannelLeaves": [[112, 77, 52, 1], [80, 64, 58, 1], [99, 78, 76, 1], [123, 80, 62, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "uniform",
+      "variant": "baseline",
+      "encodedSha256": "ddd72d18a96c7bfad8df179d895a703d77fc860edba86dc172d5c16bc15c84e2",
+      "staticLeaves": 257,
+      "channelLeaves": [82, 82, 91, 2],
+      "groupChannelLeaves": [[81, 81, 90, 1], [1, 1, 1, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "uniform",
+      "variant": "pooled",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "staticLeaves": 253,
+      "channelLeaves": [82, 79, 91, 1],
+      "groupChannelLeaves": [[82, 79, 91, 1], [82, 79, 91, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "uniform",
+      "variant": "floor",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "staticLeaves": 253,
+      "channelLeaves": [82, 79, 91, 1],
+      "groupChannelLeaves": [[82, 79, 91, 1], [82, 79, 91, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "group-aware",
+      "variant": "baseline",
+      "encodedSha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1],
+        [256, 256, 256, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "group-aware",
+      "variant": "pooled",
+      "encodedSha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [231, 242, 219, 1],
+        [239, 241, 226, 1],
+        [238, 234, 228, 1],
+        [232, 226, 226, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "group-aware",
+      "variant": "floor",
+      "encodedSha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [231, 242, 219, 1],
+        [239, 241, 226, 1],
+        [238, 234, 228, 1],
+        [232, 226, 226, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "group-aware",
+      "variant": "baseline",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "staticLeaves": 871,
+      "channelLeaves": [408, 219, 240, 4],
+      "groupChannelLeaves": [[102, 48, 69, 1], [80, 45, 54, 1], [103, 46, 78, 1], [123, 80, 39, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "group-aware",
+      "variant": "pooled",
+      "encodedSha256": "d8b45d4fb7bd8f31dd800f2dfa9293269749b615210cf772ed47447bff28d7fb",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [233, 162, 214, 1],
+        [234, 168, 215, 1],
+        [238, 178, 217, 1],
+        [235, 159, 188, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "group-aware",
+      "variant": "floor",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "staticLeaves": 871,
+      "channelLeaves": [408, 219, 240, 4],
+      "groupChannelLeaves": [[102, 48, 69, 1], [80, 45, 54, 1], [103, 46, 78, 1], [123, 80, 39, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "group-aware",
+      "variant": "baseline",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "staticLeaves": 965,
+      "channelLeaves": [414, 299, 248, 4],
+      "groupChannelLeaves": [[112, 77, 52, 1], [80, 64, 58, 1], [99, 78, 76, 1], [123, 80, 62, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "group-aware",
+      "variant": "pooled",
+      "encodedSha256": "42cb2d9e4e1c04e584ca077181ad2741cd8cf0b0201190f2bddc811a184d1edf",
+      "staticLeaves": 769,
+      "channelLeaves": [256, 256, 256, 1],
+      "groupChannelLeaves": [
+        [237, 167, 180, 1],
+        [237, 176, 201, 1],
+        [239, 174, 203, 1],
+        [239, 164, 187, 1]
+      ],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "group-aware",
+      "variant": "floor",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "staticLeaves": 965,
+      "channelLeaves": [414, 299, 248, 4],
+      "groupChannelLeaves": [[112, 77, 52, 1], [80, 64, 58, 1], [99, 78, 76, 1], [123, 80, 62, 1]],
+      "groupCount": 4,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "group-aware",
+      "variant": "baseline",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "staticLeaves": 253,
+      "channelLeaves": [82, 79, 91, 1],
+      "groupChannelLeaves": [[82, 79, 91, 1], [82, 79, 91, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "group-aware",
+      "variant": "pooled",
+      "encodedSha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4",
+      "staticLeaves": 253,
+      "channelLeaves": [82, 79, 91, 1],
+      "groupChannelLeaves": [[82, 79, 90, 1], [82, 79, 89, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "group-aware",
+      "variant": "floor",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "staticLeaves": 253,
+      "channelLeaves": [82, 79, 91, 1],
+      "groupChannelLeaves": [[82, 79, 91, 1], [82, 79, 91, 1]],
+      "groupCount": 2,
+      "policy": "Static unique leaves assigned by exact channel/group dispatch; spatial branches retained. Shared leaves count once globally and once in each applicable group. Coded channel indices may represent different local color transforms."
+    }
+  ],
+  "deltas": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "uniform",
+      "wholeFileBytes": -229,
+      "headerBits": 897,
+      "physicalResidualReadBits": -2708,
+      "paddingBits": -21,
+      "estimatedWithinLeafTokenAndExtraBits": 538.1440077070147,
+      "estimatedPoolingBits": -3181.442612802679,
+      "estimatedQuantizationBits": -44.28281720448285,
+      "estimatedTokenAndExtraBits": -2687.581422297284,
+      "physicalMinusEstimatedBits": -20.418577702715993
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "uniform",
+      "wholeFileBytes": 1556,
+      "headerBits": 437,
+      "physicalResidualReadBits": 12009,
+      "paddingBits": 2,
+      "estimatedWithinLeafTokenAndExtraBits": 22005.842160337605,
+      "estimatedPoolingBits": -10019.213741390475,
+      "estimatedQuantizationBits": 31.254718204960227,
+      "estimatedTokenAndExtraBits": 12017.883137149736,
+      "physicalMinusEstimatedBits": -8.883137149736285
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "uniform",
+      "wholeFileBytes": 8461,
+      "headerBits": -2381,
+      "physicalResidualReadBits": 70076,
+      "paddingBits": -7,
+      "estimatedWithinLeafTokenAndExtraBits": 82979.79519493412,
+      "estimatedPoolingBits": -12739.825386716355,
+      "estimatedQuantizationBits": -145.27078690193594,
+      "estimatedTokenAndExtraBits": 70094.69902132265,
+      "physicalMinusEstimatedBits": -18.699021322652698
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "uniform",
+      "wholeFileBytes": -365,
+      "headerBits": -1032,
+      "physicalResidualReadBits": -1886,
+      "paddingBits": -2,
+      "estimatedWithinLeafTokenAndExtraBits": -2823.871375359595,
+      "estimatedPoolingBits": 837.903279387634,
+      "estimatedQuantizationBits": 103.79127483814955,
+      "estimatedTokenAndExtraBits": -1882.176821134286,
+      "physicalMinusEstimatedBits": -3.8231788657139987
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "cohort": "group-aware",
+      "wholeFileBytes": -225,
+      "headerBits": 532,
+      "physicalResidualReadBits": -2343,
+      "paddingBits": 11,
+      "estimatedWithinLeafTokenAndExtraBits": -1971.335308112204,
+      "estimatedPoolingBits": -385.51678084607556,
+      "estimatedQuantizationBits": 24.307807127013803,
+      "estimatedTokenAndExtraBits": -2332.544281828217,
+      "physicalMinusEstimatedBits": -10.455718171782792
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "cohort": "group-aware",
+      "wholeFileBytes": 1573,
+      "headerBits": -114,
+      "physicalResidualReadBits": 12705,
+      "paddingBits": -7,
+      "estimatedWithinLeafTokenAndExtraBits": 22408.509833651595,
+      "estimatedPoolingBits": -9592.779371158878,
+      "estimatedQuantizationBits": -112.62677532061934,
+      "estimatedTokenAndExtraBits": 12703.103687174618,
+      "physicalMinusEstimatedBits": 1.8963128253817558
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "cohort": "group-aware",
+      "wholeFileBytes": 6923,
+      "headerBits": -2013,
+      "physicalResidualReadBits": 57398,
+      "paddingBits": -1,
+      "estimatedWithinLeafTokenAndExtraBits": 70508.04326844774,
+      "estimatedPoolingBits": -12994.430550099285,
+      "estimatedQuantizationBits": -86.91071917209774,
+      "estimatedTokenAndExtraBits": 57426.701999177225,
+      "physicalMinusEstimatedBits": -28.701999177224934
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "cohort": "group-aware",
+      "wholeFileBytes": 4,
+      "headerBits": 26,
+      "physicalResidualReadBits": 10,
+      "paddingBits": -4,
+      "estimatedWithinLeafTokenAndExtraBits": -18.19339028187096,
+      "estimatedPoolingBits": 13.533971620196098,
+      "estimatedQuantizationBits": -0.49095203378237784,
+      "estimatedTokenAndExtraBits": -5.1503706958610564,
+      "physicalMinusEstimatedBits": 15.150370695861056
+    }
+  ],
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Read-only physical audit verifies all303b/303c totals, source/input/artifact/tool/grid pins and whole-bit/channel/model/leaf decompositions. Original75509760samples/84groups labelled prior reconstruction, not a new decoder run. Static exact dispatch counts establish channel allocation under joined/common predictor trees. Entropy deltas are estimates under observed integer configs; actual residual read and padding bits remain separate. No encode, source/cap/cost/memory/package or full-parity adoption."
+}

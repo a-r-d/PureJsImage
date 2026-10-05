@@ -1,6 +1,6 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import { directImageExecutionPlan } from '../execution-plan-contract.ts'
 import { type ImageLimitOptions, type ImageLimits, resolveLimits } from '../limits.ts'
@@ -19,6 +19,7 @@ import {
   jpegXlPixelColorSemantics,
   readJpegXlSourceFrameStructures,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   type JpegXlProgressivePlan,
@@ -164,7 +165,7 @@ export class JpegXlSession {
       internalFrameSections: Object.freeze(
         plan.internalFrameSections.map((section) => {
           const dependency = dependencies[section.frameIndex]
-          if (!dependency) throw invalidInput('JPEG XL dependency frame is missing')
+          if (!dependency) throw invalidJpegXlInput('dependency frame is missing')
           return Object.freeze({ ...section, frameIndex: this.#frames.indexOf(dependency) })
         }),
       ),
@@ -317,7 +318,7 @@ export class JpegXlSession {
       return cached.data
     }
     const part = this.#frames[frameIndex]?.sections[sectionId]
-    if (!part) throw invalidInput('JPEG XL planned section is missing')
+    if (!part) throw invalidJpegXlInput('planned section is missing')
     const lease = this.#memory.retain('jpegxl-session-compressed-section', part.length)
     try {
       // ImageSource buffers may be recycled by the next read.
@@ -364,7 +365,7 @@ export class JpegXlSession {
       for (let id = 0; id < dependency.sections.length; id += 1)
         sections.push(await this.#section(this.#frames.indexOf(dependency), id, signal))
       const first = sections[0]
-      if (!first) throw invalidInput('JPEG XL internal DC section is missing')
+      if (!first) throw invalidJpegXlInput('internal DC section is missing')
       const samples = dependency.codedWidth * dependency.codedHeight * 3
       this.#dcLease = this.#memory.retain('jpegxl-session-external-dc-planes', samples * 8)
       const temporary = this.#memory.retain(
@@ -385,7 +386,7 @@ export class JpegXlSession {
       }
     }
     if (((frame.frameFlags & 32) !== 0) !== (this.#dcPlanes !== undefined))
-      throw invalidInput('JPEG XL session has inconsistent DC dependencies')
+      throw invalidJpegXlInput('session has inconsistent DC dependencies')
     const lowSections: Uint8Array[] = []
     const lowCount = frame.sections.length === 1 ? 1 : 1 + frame.dcGroupCount
     for (let id = 0; id < lowCount; id += 1)
@@ -403,7 +404,7 @@ export class JpegXlSession {
     try {
       throwIfAborted(signal)
       if (JSON.stringify(await inheritImageSourceIdentity(this.#source)) !== this.#sourceIdentity)
-        throw invalidInput('JPEG XL source identity changed during the session')
+        throw invalidJpegXlInput('source identity changed during the session')
       yield Object.freeze({
         type: 'metadata',
         width: this.width,
@@ -511,7 +512,7 @@ export class JpegXlSession {
             sections[id] = await this.#section(this.#frames.length - 1, id, signal)
           }
           const first = sections[0]
-          if (!first) throw invalidInput('JPEG XL global section is missing')
+          if (!first) throw invalidJpegXlInput('global section is missing')
           pixels = await decodeJpegXlDct8SectionCancellable(
             signal,
             first,
@@ -594,7 +595,7 @@ export class JpegXlSession {
       for (let id = 0; id < frame.sections.length; id++)
         sections.push(await this.#section(0, id, signal))
       const first = sections[0]
-      if (!first) throw invalidInput('JPEG XL preview global section is missing')
+      if (!first) throw invalidJpegXlInput('preview global section is missing')
       const pixels = await decodeJpegXlDct8SectionCancellable(
         signal,
         first,
@@ -777,7 +778,7 @@ export const openJpegXlSession = async (
     maxCachedBytes < 0 ||
     maxCachedBytes > limits.maxDecodedBytes
   )
-    throw invalidInput('JPEG XL cache budget must be between zero and maxDecodedBytes')
+    throw invalidJpegXlInput('cache budget must be between zero and maxDecodedBytes')
   const source = await createImageSource(input, limits, { ...options, buffering: 'none' })
   const structure = await inspectJpegXlSource(source, jpegXlLimits, options)
   if (structure.metadataBoxes.some((box) => box.type === 'jbrd'))

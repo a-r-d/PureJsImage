@@ -1,0 +1,6952 @@
+{
+  "schemaVersion": 1,
+  "harnessSha256": "204076618563a37d5d0e47e2ab8bf32eb98358c95da8ed80479739c2c95439eb",
+  "policy": "Read global MA trees and untransformed local MA trees and entropy headers from lossless artifacts. Local transform headers are explicitly skipped. Tree node counts are structure evidence, not pixel-frequency or compression attribution.",
+  "rows": [
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-screen-e7-10.jxl",
+      "encodedSha256": "734da95074255d84e18b5c514ff632e1bd943084299c6252acd7e1d865e2e355",
+      "bytes": 452233,
+      "width": 1920,
+      "height": 1080,
+      "groupDimension": 1024,
+      "hasGlobalTree": true,
+      "section": "global",
+      "skippedSections": [],
+      "nodes": 1,
+      "leaves": 1,
+      "leavesByChannel": [1, 1, 1, 1],
+      "maximumDepth": 0,
+      "nonzeroOffsets": 0,
+      "nonunitMultipliers": 0,
+      "properties": [],
+      "predictors": [
+        {
+          "predictor": 1,
+          "count": 1
+        }
+      ],
+      "entropy": {
+        "prefix": true,
+        "histogramCount": 1,
+        "lz77": false
+      },
+      "tree": [
+        {
+          "kind": "leaf",
+          "predictor": 1,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 0
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-screen-e7-10.jxl",
+      "encodedSha256": "734da95074255d84e18b5c514ff632e1bd943084299c6252acd7e1d865e2e355",
+      "bytes": 452233,
+      "width": 1920,
+      "height": 1080,
+      "groupDimension": 1024,
+      "hasGlobalTree": true,
+      "section": "group-0",
+      "skippedSections": [],
+      "nodes": 493,
+      "leaves": 247,
+      "leavesByChannel": [145, 67, 34, 1],
+      "maximumDepth": 14,
+      "nonzeroOffsets": 0,
+      "nonunitMultipliers": 0,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 43
+        },
+        {
+          "property": 10,
+          "count": 49
+        },
+        {
+          "property": 11,
+          "count": 28
+        },
+        {
+          "property": 12,
+          "count": 25
+        },
+        {
+          "property": 13,
+          "count": 26
+        },
+        {
+          "property": 15,
+          "count": 72
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 1,
+          "count": 1
+        },
+        {
+          "predictor": 4,
+          "count": 61
+        },
+        {
+          "predictor": 5,
+          "count": 94
+        },
+        {
+          "predictor": 6,
+          "count": 91
+        }
+      ],
+      "entropy": {
+        "prefix": false,
+        "histogramCount": 115,
+        "lz77": false
+      },
+      "tree": [
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 1,
+          "greater": 1,
+          "lessOrEqual": 2
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 2,
+          "greater": 3,
+          "lessOrEqual": 4
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 0,
+          "greater": 5,
+          "lessOrEqual": 6
+        },
+        {
+          "kind": "leaf",
+          "predictor": 1,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 0
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 7,
+          "lessOrEqual": 8
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 4,
+          "greater": 9,
+          "lessOrEqual": 10
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 233,
+          "greater": 11,
+          "lessOrEqual": 12
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 2,
+          "greater": 13,
+          "lessOrEqual": 14
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -20,
+          "greater": 15,
+          "lessOrEqual": 16
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -26,
+          "greater": 17,
+          "lessOrEqual": 18
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 3,
+          "greater": 19,
+          "lessOrEqual": 20
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 21,
+          "lessOrEqual": 22
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 88,
+          "greater": 23,
+          "lessOrEqual": 24
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 18,
+          "greater": 25,
+          "lessOrEqual": 26
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 27,
+          "lessOrEqual": 28
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -11,
+          "greater": 29,
+          "lessOrEqual": 30
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -63,
+          "greater": 31,
+          "lessOrEqual": 32
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 16,
+          "greater": 33,
+          "lessOrEqual": 34
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -125,
+          "greater": 35,
+          "lessOrEqual": 36
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 38,
+          "greater": 37,
+          "lessOrEqual": 38
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 39,
+          "lessOrEqual": 40
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 1,
+          "greater": 41,
+          "lessOrEqual": 42
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -302,
+          "greater": 43,
+          "lessOrEqual": 44
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 135,
+          "greater": 45,
+          "lessOrEqual": 46
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 52,
+          "greater": 47,
+          "lessOrEqual": 48
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 42,
+          "greater": 49,
+          "lessOrEqual": 50
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 8,
+          "greater": 51,
+          "lessOrEqual": 52
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 53,
+          "lessOrEqual": 54
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 1,
+          "greater": 55,
+          "lessOrEqual": 56
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 57,
+          "lessOrEqual": 58
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -13,
+          "greater": 59,
+          "lessOrEqual": 60
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 9,
+          "greater": 61,
+          "lessOrEqual": 62
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 1
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 72,
+          "greater": 63,
+          "lessOrEqual": 64
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -11,
+          "greater": 65,
+          "lessOrEqual": 66
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -35,
+          "greater": 67,
+          "lessOrEqual": 68
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -7,
+          "greater": 69,
+          "lessOrEqual": 70
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 232,
+          "greater": 71,
+          "lessOrEqual": 72
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 15,
+          "greater": 73,
+          "lessOrEqual": 74
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 75,
+          "lessOrEqual": 76
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -100,
+          "greater": 77,
+          "lessOrEqual": 78
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 79,
+          "lessOrEqual": 80
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 81,
+          "lessOrEqual": 82
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -6,
+          "greater": 83,
+          "lessOrEqual": 84
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 26,
+          "greater": 85,
+          "lessOrEqual": 86
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 409,
+          "greater": 87,
+          "lessOrEqual": 88
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -72,
+          "greater": 89,
+          "lessOrEqual": 90
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 91,
+          "lessOrEqual": 92
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -4,
+          "greater": 93,
+          "lessOrEqual": 94
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -2,
+          "greater": 95,
+          "lessOrEqual": 96
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -5,
+          "greater": 97,
+          "lessOrEqual": 98
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 99,
+          "lessOrEqual": 100
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 101,
+          "lessOrEqual": 102
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 2
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 0,
+          "greater": 103,
+          "lessOrEqual": 104
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 3
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 4
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 105,
+          "lessOrEqual": 106
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 5
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 6
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -3,
+          "greater": 107,
+          "lessOrEqual": 108
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 2,
+          "greater": 109,
+          "lessOrEqual": 110
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -38,
+          "greater": 111,
+          "lessOrEqual": 112
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -3,
+          "greater": 113,
+          "lessOrEqual": 114
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 42,
+          "greater": 115,
+          "lessOrEqual": 116
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 6,
+          "greater": 117,
+          "lessOrEqual": 118
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 63,
+          "greater": 119,
+          "lessOrEqual": 120
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 7
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -6,
+          "greater": 121,
+          "lessOrEqual": 122
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 6,
+          "greater": 123,
+          "lessOrEqual": 124
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 36,
+          "greater": 125,
+          "lessOrEqual": 126
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -1,
+          "greater": 127,
+          "lessOrEqual": 128
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 129,
+          "lessOrEqual": 130
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 31,
+          "greater": 131,
+          "lessOrEqual": 132
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 6,
+          "greater": 133,
+          "lessOrEqual": 134
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 8
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 135,
+          "lessOrEqual": 136
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -16,
+          "greater": 137,
+          "lessOrEqual": 138
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -2,
+          "greater": 139,
+          "lessOrEqual": 140
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 200,
+          "greater": 141,
+          "lessOrEqual": 142
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -8,
+          "greater": 143,
+          "lessOrEqual": 144
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 9
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 10
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -2,
+          "greater": 145,
+          "lessOrEqual": 146
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 11
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 40,
+          "greater": 147,
+          "lessOrEqual": 148
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -382,
+          "greater": 149,
+          "lessOrEqual": 150
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 128,
+          "greater": 151,
+          "lessOrEqual": 152
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 113,
+          "greater": 153,
+          "lessOrEqual": 154
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 32,
+          "greater": 155,
+          "lessOrEqual": 156
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -313,
+          "greater": 157,
+          "lessOrEqual": 158
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 159,
+          "lessOrEqual": 160
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 161,
+          "lessOrEqual": 162
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 2,
+          "greater": 163,
+          "lessOrEqual": 164
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 16,
+          "greater": 165,
+          "lessOrEqual": 166
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 167,
+          "lessOrEqual": 168
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 12
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 13
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 14
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 15
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 16
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 169,
+          "lessOrEqual": 170
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 17
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 18
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 19
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 171,
+          "lessOrEqual": 172
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 8,
+          "greater": 173,
+          "lessOrEqual": 174
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 20
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 21
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 22
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 23
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 24
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 25
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 26
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 27
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 28
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 29
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 175,
+          "lessOrEqual": 176
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 177,
+          "lessOrEqual": 178
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 30
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 31
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 32
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 33
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 34
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 35
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 36
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 179,
+          "lessOrEqual": 180
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 37
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -160,
+          "greater": 181,
+          "lessOrEqual": 182
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 183,
+          "lessOrEqual": 184
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 38
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 32,
+          "greater": 185,
+          "lessOrEqual": 186
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 0,
+          "greater": 187,
+          "lessOrEqual": 188
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 2,
+          "greater": 189,
+          "lessOrEqual": 190
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 39
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -8,
+          "greater": 191,
+          "lessOrEqual": 192
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 40
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -80,
+          "greater": 193,
+          "lessOrEqual": 194
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -1,
+          "greater": 195,
+          "lessOrEqual": 196
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 197,
+          "lessOrEqual": 198
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -44,
+          "greater": 199,
+          "lessOrEqual": 200
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 41
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 1,
+          "greater": 201,
+          "lessOrEqual": 202
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -6,
+          "greater": 203,
+          "lessOrEqual": 204
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 42
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 205,
+          "lessOrEqual": 206
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 43
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -20,
+          "greater": 207,
+          "lessOrEqual": 208
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 209,
+          "lessOrEqual": 210
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -326,
+          "greater": 211,
+          "lessOrEqual": 212
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 245,
+          "greater": 213,
+          "lessOrEqual": 214
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 183,
+          "greater": 215,
+          "lessOrEqual": 216
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 4,
+          "greater": 217,
+          "lessOrEqual": 218
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 44
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -91,
+          "greater": 219,
+          "lessOrEqual": 220
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -68,
+          "greater": 221,
+          "lessOrEqual": 222
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -19,
+          "greater": 223,
+          "lessOrEqual": 224
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 225,
+          "lessOrEqual": 226
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 130,
+          "greater": 227,
+          "lessOrEqual": 228
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 60,
+          "greater": 229,
+          "lessOrEqual": 230
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 1,
+          "greater": 231,
+          "lessOrEqual": 232
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -1,
+          "greater": 233,
+          "lessOrEqual": 234
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 16,
+          "greater": 235,
+          "lessOrEqual": 236
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 7,
+          "greater": 237,
+          "lessOrEqual": 238
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 13,
+          "greater": 239,
+          "lessOrEqual": 240
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -14,
+          "greater": 241,
+          "lessOrEqual": 242
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -3,
+          "greater": 243,
+          "lessOrEqual": 244
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 45
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 46
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -1,
+          "greater": 245,
+          "lessOrEqual": 246
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -3,
+          "greater": 247,
+          "lessOrEqual": 248
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 47
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 7,
+          "greater": 249,
+          "lessOrEqual": 250
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 48
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 49
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 50
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 251,
+          "lessOrEqual": 252
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 1,
+          "greater": 253,
+          "lessOrEqual": 254
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -1,
+          "greater": 255,
+          "lessOrEqual": 256
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 51
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 257,
+          "lessOrEqual": 258
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 103,
+          "greater": 259,
+          "lessOrEqual": 260
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 94,
+          "greater": 261,
+          "lessOrEqual": 262
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 52
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -5,
+          "greater": 263,
+          "lessOrEqual": 264
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 53
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 54
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 55
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 56
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 57
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 58
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 59
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 60
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 265,
+          "lessOrEqual": 266
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 61
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -41,
+          "greater": 267,
+          "lessOrEqual": 268
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -14,
+          "greater": 269,
+          "lessOrEqual": 270
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -22,
+          "greater": 271,
+          "lessOrEqual": 272
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -5,
+          "greater": 273,
+          "lessOrEqual": 274
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -14,
+          "greater": 275,
+          "lessOrEqual": 276
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -22,
+          "greater": 277,
+          "lessOrEqual": 278
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 62
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 63
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 257,
+          "greater": 279,
+          "lessOrEqual": 280
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 64
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 281,
+          "lessOrEqual": 282
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 3,
+          "greater": 283,
+          "lessOrEqual": 284
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -93,
+          "greater": 285,
+          "lessOrEqual": 286
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 65
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 66
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 67
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 247,
+          "greater": 287,
+          "lessOrEqual": 288
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 68
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 69
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 236,
+          "greater": 289,
+          "lessOrEqual": 290
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 25,
+          "greater": 291,
+          "lessOrEqual": 292
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -66,
+          "greater": 293,
+          "lessOrEqual": 294
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 70
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 105,
+          "greater": 295,
+          "lessOrEqual": 296
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 216,
+          "greater": 297,
+          "lessOrEqual": 298
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 71
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 72,
+          "greater": 299,
+          "lessOrEqual": 300
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 72
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 9,
+          "greater": 301,
+          "lessOrEqual": 302
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 303,
+          "lessOrEqual": 304
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -8,
+          "greater": 305,
+          "lessOrEqual": 306
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 307,
+          "lessOrEqual": 308
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 214,
+          "greater": 309,
+          "lessOrEqual": 310
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 311,
+          "lessOrEqual": 312
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 8,
+          "greater": 313,
+          "lessOrEqual": 314
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -22,
+          "greater": 315,
+          "lessOrEqual": 316
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 73
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 74
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 317,
+          "lessOrEqual": 318
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 319,
+          "lessOrEqual": 320
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 41,
+          "greater": 321,
+          "lessOrEqual": 322
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -25,
+          "greater": 323,
+          "lessOrEqual": 324
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -27,
+          "greater": 325,
+          "lessOrEqual": 326
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 327,
+          "lessOrEqual": 328
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 44,
+          "greater": 329,
+          "lessOrEqual": 330
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -12,
+          "greater": 331,
+          "lessOrEqual": 332
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 333,
+          "lessOrEqual": 334
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -82,
+          "greater": 335,
+          "lessOrEqual": 336
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 78,
+          "greater": 337,
+          "lessOrEqual": 338
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 75
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 76
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 77
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 6,
+          "greater": 339,
+          "lessOrEqual": 340
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 78
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 79
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 80
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 341,
+          "lessOrEqual": 342
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 81
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 82
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 343,
+          "lessOrEqual": 344
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 83
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 84
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 85
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 86
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 87
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 694,
+          "greater": 345,
+          "lessOrEqual": 346
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 88
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 89
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 90
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 91
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 92
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 347,
+          "lessOrEqual": 348
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 93
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 94
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 95
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 349,
+          "lessOrEqual": 350
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 96
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 97
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 98
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 99
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 100
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -21,
+          "greater": 351,
+          "lessOrEqual": 352
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 101
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 102
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 353,
+          "lessOrEqual": 354
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 103
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 104
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 105
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 106
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 355,
+          "lessOrEqual": 356
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 107
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 108
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 109
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 110
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 111
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 112
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 113
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -7,
+          "greater": 357,
+          "lessOrEqual": 358
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 91,
+          "greater": 359,
+          "lessOrEqual": 360
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -84,
+          "greater": 361,
+          "lessOrEqual": 362
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -103,
+          "greater": 363,
+          "lessOrEqual": 364
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 114
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -11,
+          "greater": 365,
+          "lessOrEqual": 366
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 66,
+          "greater": 367,
+          "lessOrEqual": 368
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -18,
+          "greater": 369,
+          "lessOrEqual": 370
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 194,
+          "greater": 371,
+          "lessOrEqual": 372
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 21,
+          "greater": 373,
+          "lessOrEqual": 374
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 375,
+          "lessOrEqual": 376
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 185,
+          "greater": 377,
+          "lessOrEqual": 378
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -40,
+          "greater": 379,
+          "lessOrEqual": 380
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 15,
+          "greater": 381,
+          "lessOrEqual": 382
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 115
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 383,
+          "lessOrEqual": 384
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 1,
+          "greater": 385,
+          "lessOrEqual": 386
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -10,
+          "greater": 387,
+          "lessOrEqual": 388
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -487,
+          "greater": 389,
+          "lessOrEqual": 390
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 391,
+          "lessOrEqual": 392
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 26,
+          "greater": 393,
+          "lessOrEqual": 394
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 116
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 117
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 395,
+          "lessOrEqual": 396
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 6,
+          "greater": 397,
+          "lessOrEqual": 398
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 118
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 0,
+          "greater": 399,
+          "lessOrEqual": 400
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -291,
+          "greater": 401,
+          "lessOrEqual": 402
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 119
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 120
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -17,
+          "greater": 403,
+          "lessOrEqual": 404
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 121
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 69,
+          "greater": 405,
+          "lessOrEqual": 406
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 122
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 123
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 124
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 125
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 126
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 127
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 4,
+          "greater": 407,
+          "lessOrEqual": 408
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -52,
+          "greater": 409,
+          "lessOrEqual": 410
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 128
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 129
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 0,
+          "greater": 411,
+          "lessOrEqual": 412
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 130
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 131
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -15,
+          "greater": 413,
+          "lessOrEqual": 414
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 132
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 415,
+          "lessOrEqual": 416
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 133
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 134
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 135
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 136
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 137
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 327,
+          "greater": 417,
+          "lessOrEqual": 418
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 138
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 3,
+          "greater": 419,
+          "lessOrEqual": 420
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 139
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 140
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 141
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 142
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 143
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 421,
+          "lessOrEqual": 422
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 144
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 145
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 146
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 147
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 148
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -70,
+          "greater": 423,
+          "lessOrEqual": 424
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 149
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 150
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 151
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 152
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 153
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 154
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 155
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -54,
+          "greater": 425,
+          "lessOrEqual": 426
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 156
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 157
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 158
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -10,
+          "greater": 427,
+          "lessOrEqual": 428
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 159
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 160
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 152,
+          "greater": 429,
+          "lessOrEqual": 430
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 151,
+          "greater": 431,
+          "lessOrEqual": 432
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 161
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -44,
+          "greater": 433,
+          "lessOrEqual": 434
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 196,
+          "greater": 435,
+          "lessOrEqual": 436
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 162
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 163
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 171,
+          "greater": 437,
+          "lessOrEqual": 438
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 12,
+          "greater": 439,
+          "lessOrEqual": 440
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 164
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 165
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -26,
+          "greater": 441,
+          "lessOrEqual": 442
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 58,
+          "greater": 443,
+          "lessOrEqual": 444
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 166
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 445,
+          "lessOrEqual": 446
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 20,
+          "greater": 447,
+          "lessOrEqual": 448
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 167
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 168
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 169
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 170
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 449,
+          "lessOrEqual": 450
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 171
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 172
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 173
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 174
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 175
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 176
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 177
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 178
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 179
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 180
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -198,
+          "greater": 451,
+          "lessOrEqual": 452
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 181
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -5,
+          "greater": 453,
+          "lessOrEqual": 454
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -21,
+          "greater": 455,
+          "lessOrEqual": 456
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 182
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 183
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 184
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 185
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 186
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 457,
+          "lessOrEqual": 458
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 187
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 188
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 189
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 190
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -16,
+          "greater": 459,
+          "lessOrEqual": 460
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 191
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 192
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 193
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 170,
+          "greater": 461,
+          "lessOrEqual": 462
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 60,
+          "greater": 463,
+          "lessOrEqual": 464
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 194
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 195
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 196
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 197
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 2,
+          "greater": 465,
+          "lessOrEqual": 466
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 193,
+          "greater": 467,
+          "lessOrEqual": 468
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 469,
+          "lessOrEqual": 470
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 198
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 199
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 200
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 201
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 202
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 203
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 204
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 205
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 206
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 207
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 208
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 209
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 210
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 211
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 212
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -914,
+          "greater": 471,
+          "lessOrEqual": 472
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 213
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 214
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 215
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 216
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 217
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 218
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 219
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 220
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 221
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 222
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 473,
+          "lessOrEqual": 474
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 223
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 224
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 169,
+          "greater": 475,
+          "lessOrEqual": 476
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 225
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 198,
+          "greater": 477,
+          "lessOrEqual": 478
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 226
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 479,
+          "lessOrEqual": 480
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 227
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 228
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 1,
+          "greater": 481,
+          "lessOrEqual": 482
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -8,
+          "greater": 483,
+          "lessOrEqual": 484
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 174,
+          "greater": 485,
+          "lessOrEqual": 486
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 229
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 230
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 231
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 232
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 233
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 234
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 235
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 236
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 237
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 238
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 487,
+          "lessOrEqual": 488
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 7,
+          "greater": 489,
+          "lessOrEqual": 490
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 491,
+          "lessOrEqual": 492
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 239
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 240
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 241
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 242
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 243
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 244
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 245
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 246
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-screen-e7-10.jxl",
+      "encodedSha256": "734da95074255d84e18b5c514ff632e1bd943084299c6252acd7e1d865e2e355",
+      "bytes": 452233,
+      "width": 1920,
+      "height": 1080,
+      "groupDimension": 1024,
+      "hasGlobalTree": true,
+      "section": "group-1",
+      "skippedSections": [],
+      "nodes": 391,
+      "leaves": 196,
+      "leavesByChannel": [99, 63, 33, 1],
+      "maximumDepth": 14,
+      "nonzeroOffsets": 0,
+      "nonunitMultipliers": 0,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 32
+        },
+        {
+          "property": 10,
+          "count": 43
+        },
+        {
+          "property": 11,
+          "count": 26
+        },
+        {
+          "property": 12,
+          "count": 15
+        },
+        {
+          "property": 13,
+          "count": 12
+        },
+        {
+          "property": 15,
+          "count": 64
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 1,
+          "count": 1
+        },
+        {
+          "predictor": 4,
+          "count": 48
+        },
+        {
+          "predictor": 5,
+          "count": 97
+        },
+        {
+          "predictor": 6,
+          "count": 50
+        }
+      ],
+      "entropy": {
+        "prefix": false,
+        "histogramCount": 74,
+        "lz77": false
+      },
+      "tree": [
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 1,
+          "greater": 1,
+          "lessOrEqual": 2
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 2,
+          "greater": 3,
+          "lessOrEqual": 4
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 0,
+          "greater": 5,
+          "lessOrEqual": 6
+        },
+        {
+          "kind": "leaf",
+          "predictor": 1,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 0
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 3,
+          "greater": 7,
+          "lessOrEqual": 8
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 5,
+          "greater": 9,
+          "lessOrEqual": 10
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 233,
+          "greater": 11,
+          "lessOrEqual": 12
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 23,
+          "greater": 13,
+          "lessOrEqual": 14
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -3,
+          "greater": 15,
+          "lessOrEqual": 16
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -2,
+          "greater": 17,
+          "lessOrEqual": 18
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 6,
+          "greater": 19,
+          "lessOrEqual": 20
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -5,
+          "greater": 21,
+          "lessOrEqual": 22
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 89,
+          "greater": 23,
+          "lessOrEqual": 24
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 42,
+          "greater": 25,
+          "lessOrEqual": 26
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 27,
+          "lessOrEqual": 28
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 29,
+          "lessOrEqual": 30
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -20,
+          "greater": 31,
+          "lessOrEqual": 32
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 1,
+          "greater": 33,
+          "lessOrEqual": 34
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -7,
+          "greater": 35,
+          "lessOrEqual": 36
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 109,
+          "greater": 37,
+          "lessOrEqual": 38
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 39,
+          "lessOrEqual": 40
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 2,
+          "greater": 41,
+          "lessOrEqual": 42
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 2,
+          "greater": 43,
+          "lessOrEqual": 44
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 87,
+          "greater": 45,
+          "lessOrEqual": 46
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 47,
+          "lessOrEqual": 48
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 132,
+          "greater": 49,
+          "lessOrEqual": 50
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -9,
+          "greater": 51,
+          "lessOrEqual": 52
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -10,
+          "greater": 53,
+          "lessOrEqual": 54
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -20,
+          "greater": 55,
+          "lessOrEqual": 56
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 57,
+          "lessOrEqual": 58
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 59,
+          "lessOrEqual": 60
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 61,
+          "lessOrEqual": 62
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -39,
+          "greater": 63,
+          "lessOrEqual": 64
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 9,
+          "greater": 65,
+          "lessOrEqual": 66
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 154,
+          "greater": 67,
+          "lessOrEqual": 68
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 69,
+          "lessOrEqual": 70
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 51,
+          "greater": 71,
+          "lessOrEqual": 72
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -102,
+          "greater": 73,
+          "lessOrEqual": 74
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 98,
+          "greater": 75,
+          "lessOrEqual": 76
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 77,
+          "lessOrEqual": 78
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -88,
+          "greater": 79,
+          "lessOrEqual": 80
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 6,
+          "greater": 81,
+          "lessOrEqual": 82
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 1
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 76,
+          "greater": 83,
+          "lessOrEqual": 84
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 85,
+          "lessOrEqual": 86
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 294,
+          "greater": 87,
+          "lessOrEqual": 88
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -36,
+          "greater": 89,
+          "lessOrEqual": 90
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 4,
+          "greater": 91,
+          "lessOrEqual": 92
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -29,
+          "greater": 93,
+          "lessOrEqual": 94
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 2
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 3
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 4
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 5
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 95,
+          "lessOrEqual": 96
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 97,
+          "lessOrEqual": 98
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 5,
+          "greater": 99,
+          "lessOrEqual": 100
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 6
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 7
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 8
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -13,
+          "greater": 101,
+          "lessOrEqual": 102
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -18,
+          "greater": 103,
+          "lessOrEqual": 104
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -15,
+          "greater": 105,
+          "lessOrEqual": 106
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -6,
+          "greater": 107,
+          "lessOrEqual": 108
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 109,
+          "lessOrEqual": 110
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 6,
+          "greater": 111,
+          "lessOrEqual": 112
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -107,
+          "greater": 113,
+          "lessOrEqual": 114
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 8,
+          "greater": 115,
+          "lessOrEqual": 116
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 156,
+          "greater": 117,
+          "lessOrEqual": 118
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 119,
+          "lessOrEqual": 120
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -29,
+          "greater": 121,
+          "lessOrEqual": 122
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 123,
+          "lessOrEqual": 124
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 226,
+          "greater": 125,
+          "lessOrEqual": 126
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -155,
+          "greater": 127,
+          "lessOrEqual": 128
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 337,
+          "greater": 129,
+          "lessOrEqual": 130
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 380,
+          "greater": 131,
+          "lessOrEqual": 132
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -18,
+          "greater": 133,
+          "lessOrEqual": 134
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 17,
+          "greater": 135,
+          "lessOrEqual": 136
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 9
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 137,
+          "lessOrEqual": 138
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 139,
+          "lessOrEqual": 140
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -1,
+          "greater": 141,
+          "lessOrEqual": 142
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 304,
+          "greater": 143,
+          "lessOrEqual": 144
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -2,
+          "greater": 145,
+          "lessOrEqual": 146
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 84,
+          "greater": 147,
+          "lessOrEqual": 148
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -112,
+          "greater": 149,
+          "lessOrEqual": 150
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 151,
+          "lessOrEqual": 152
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 153,
+          "lessOrEqual": 154
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -63,
+          "greater": 155,
+          "lessOrEqual": 156
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 28,
+          "greater": 157,
+          "lessOrEqual": 158
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 10,
+          "greater": 159,
+          "lessOrEqual": 160
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -252,
+          "greater": 161,
+          "lessOrEqual": 162
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 31,
+          "greater": 163,
+          "lessOrEqual": 164
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 165,
+          "lessOrEqual": 166
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -13,
+          "greater": 167,
+          "lessOrEqual": 168
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -235,
+          "greater": 169,
+          "lessOrEqual": 170
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 171,
+          "lessOrEqual": 172
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 173,
+          "lessOrEqual": 174
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -21,
+          "greater": 175,
+          "lessOrEqual": 176
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 10
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 11
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 12
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 13
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 14
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 15
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 16
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 17
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 18
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 19
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -2,
+          "greater": 177,
+          "lessOrEqual": 178
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 20
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 21
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 22
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 23
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 120,
+          "greater": 179,
+          "lessOrEqual": 180
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 24
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 25
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 3,
+          "greater": 181,
+          "lessOrEqual": 182
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 4,
+          "greater": 183,
+          "lessOrEqual": 184
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 26
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 185,
+          "lessOrEqual": 186
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 187,
+          "lessOrEqual": 188
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 27
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 28
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 29
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 30
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 31
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 32
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 189,
+          "lessOrEqual": 190
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 33
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 34
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 35
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -79,
+          "greater": 191,
+          "lessOrEqual": 192
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 36
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -4,
+          "greater": 193,
+          "lessOrEqual": 194
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 37
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 195,
+          "lessOrEqual": 196
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -6,
+          "greater": 197,
+          "lessOrEqual": 198
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 38
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 39
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -125,
+          "greater": 199,
+          "lessOrEqual": 200
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 201,
+          "lessOrEqual": 202
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 40
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -296,
+          "greater": 203,
+          "lessOrEqual": 204
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 41
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 3,
+          "greater": 205,
+          "lessOrEqual": 206
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 39,
+          "greater": 207,
+          "lessOrEqual": 208
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 42
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -38,
+          "greater": 209,
+          "lessOrEqual": 210
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 43
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 44
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 0,
+          "greater": 211,
+          "lessOrEqual": 212
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 61,
+          "greater": 213,
+          "lessOrEqual": 214
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -1,
+          "greater": 215,
+          "lessOrEqual": 216
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 45
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 46
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -71,
+          "greater": 217,
+          "lessOrEqual": 218
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 152,
+          "greater": 219,
+          "lessOrEqual": 220
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 49,
+          "greater": 221,
+          "lessOrEqual": 222
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 43,
+          "greater": 223,
+          "lessOrEqual": 224
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 38,
+          "greater": 225,
+          "lessOrEqual": 226
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -6,
+          "greater": 227,
+          "lessOrEqual": 228
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -99,
+          "greater": 229,
+          "lessOrEqual": 230
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -434,
+          "greater": 231,
+          "lessOrEqual": 232
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 5,
+          "greater": 233,
+          "lessOrEqual": 234
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 10,
+          "greater": 235,
+          "lessOrEqual": 236
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 237,
+          "lessOrEqual": 238
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 47
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 239,
+          "lessOrEqual": 240
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 0,
+          "greater": 241,
+          "lessOrEqual": 242
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 243,
+          "lessOrEqual": 244
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 54,
+          "greater": 245,
+          "lessOrEqual": 246
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 14,
+          "greater": 247,
+          "lessOrEqual": 248
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 48
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 249,
+          "lessOrEqual": 250
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 49
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 50
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 51
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -18,
+          "greater": 251,
+          "lessOrEqual": 252
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 52
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 53
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 54
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 55
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 56
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 57
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 58
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 0,
+          "greater": 253,
+          "lessOrEqual": 254
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 59
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 255,
+          "lessOrEqual": 256
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 257,
+          "lessOrEqual": 258
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 60
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 259,
+          "lessOrEqual": 260
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 61
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 62
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 261,
+          "lessOrEqual": 262
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 63
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 263,
+          "lessOrEqual": 264
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 265,
+          "lessOrEqual": 266
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 64
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 65
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -2,
+          "greater": 267,
+          "lessOrEqual": 268
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 66
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 269,
+          "lessOrEqual": 270
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 67
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 68
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 27,
+          "greater": 271,
+          "lessOrEqual": 272
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 69
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 70
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 71
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -4,
+          "greater": 273,
+          "lessOrEqual": 274
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 72
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 73
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 33,
+          "greater": 275,
+          "lessOrEqual": 276
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -1,
+          "greater": 277,
+          "lessOrEqual": 278
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 74
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 75
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 76
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 77
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": 92,
+          "greater": 279,
+          "lessOrEqual": 280
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 8,
+          "greater": 281,
+          "lessOrEqual": 282
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 78
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 79
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 80
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 81
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 82
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -37,
+          "greater": 283,
+          "lessOrEqual": 284
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -15,
+          "greater": 285,
+          "lessOrEqual": 286
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 195,
+          "greater": 287,
+          "lessOrEqual": 288
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 2,
+          "greater": 289,
+          "lessOrEqual": 290
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -13,
+          "greater": 291,
+          "lessOrEqual": 292
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -9,
+          "greater": 293,
+          "lessOrEqual": 294
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 23,
+          "greater": 295,
+          "lessOrEqual": 296
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 52,
+          "greater": 297,
+          "lessOrEqual": 298
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 200,
+          "greater": 299,
+          "lessOrEqual": 300
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 83
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 301,
+          "lessOrEqual": 302
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -1,
+          "greater": 303,
+          "lessOrEqual": 304
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 84
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 85
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 86
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 87
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 88
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 89
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 305,
+          "lessOrEqual": 306
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 307,
+          "lessOrEqual": 308
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -9,
+          "greater": 309,
+          "lessOrEqual": 310
+        },
+        {
+          "kind": "branch",
+          "property": 12,
+          "split": -59,
+          "greater": 311,
+          "lessOrEqual": 312
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 90
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 91
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 92
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 93
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 94
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 95
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -7,
+          "greater": 313,
+          "lessOrEqual": 314
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 96
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 97
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 0,
+          "greater": 315,
+          "lessOrEqual": 316
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 65,
+          "greater": 317,
+          "lessOrEqual": 318
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 98
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 76,
+          "greater": 319,
+          "lessOrEqual": 320
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 99
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 100
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 101
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 102
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 103
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -2,
+          "greater": 321,
+          "lessOrEqual": 322
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 104
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 105
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 106
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 107
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 108
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 0,
+          "greater": 323,
+          "lessOrEqual": 324
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 109
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 110
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 111
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 112
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 113
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 114
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 115
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 116
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 117
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 447,
+          "greater": 325,
+          "lessOrEqual": 326
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 118
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 119
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 216,
+          "greater": 327,
+          "lessOrEqual": 328
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 120
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -11,
+          "greater": 329,
+          "lessOrEqual": 330
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 121
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 122
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 123
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 157,
+          "greater": 331,
+          "lessOrEqual": 332
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 333,
+          "lessOrEqual": 334
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 335,
+          "lessOrEqual": 336
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 337,
+          "lessOrEqual": 338
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -46,
+          "greater": 339,
+          "lessOrEqual": 340
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 124
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 125
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -16,
+          "greater": 341,
+          "lessOrEqual": 342
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 126
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 155,
+          "greater": 343,
+          "lessOrEqual": 344
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 1,
+          "greater": 345,
+          "lessOrEqual": 346
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 124,
+          "greater": 347,
+          "lessOrEqual": 348
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 349,
+          "lessOrEqual": 350
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 190,
+          "greater": 351,
+          "lessOrEqual": 352
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 127
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 128
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 129
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 130
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 131
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 132
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 133
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 134
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 135
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 136
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 137
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 138
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 14,
+          "greater": 353,
+          "lessOrEqual": 354
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 139
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 140
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 141
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 142
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 143
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 144
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 145
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 146
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 147
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 126,
+          "greater": 355,
+          "lessOrEqual": 356
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 148
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 149
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 150
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 6,
+          "greater": 357,
+          "lessOrEqual": 358
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 151
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 152
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 153
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 154
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 155
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -1,
+          "greater": 359,
+          "lessOrEqual": 360
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 156
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 157
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 158
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 159
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 15,
+          "greater": 361,
+          "lessOrEqual": 362
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 198,
+          "greater": 363,
+          "lessOrEqual": 364
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 160
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -276,
+          "greater": 365,
+          "lessOrEqual": 366
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 161
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 162
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 163
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 164
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 165
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 367,
+          "lessOrEqual": 368
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 166
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -68,
+          "greater": 369,
+          "lessOrEqual": 370
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -32,
+          "greater": 371,
+          "lessOrEqual": 372
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 167
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 63,
+          "greater": 373,
+          "lessOrEqual": 374
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 168
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 169
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 170
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 171
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 172
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 173
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 174
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -17,
+          "greater": 375,
+          "lessOrEqual": 376
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": -7,
+          "greater": 377,
+          "lessOrEqual": 378
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 175
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 176
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 177
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 178
+        },
+        {
+          "kind": "branch",
+          "property": 11,
+          "split": 0,
+          "greater": 379,
+          "lessOrEqual": 380
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 179
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 498,
+          "greater": 381,
+          "lessOrEqual": 382
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 180
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 181
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -2,
+          "greater": 383,
+          "lessOrEqual": 384
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 182
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -92,
+          "greater": 385,
+          "lessOrEqual": 386
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 183
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": 14,
+          "greater": 387,
+          "lessOrEqual": 388
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 184
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 185
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 186
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 187
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 188
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -1,
+          "greater": 389,
+          "lessOrEqual": 390
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 189
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 190
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 191
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 192
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 193
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 194
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 195
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-screen-e7-10.jxl",
+      "encodedSha256": "734da95074255d84e18b5c514ff632e1bd943084299c6252acd7e1d865e2e355",
+      "bytes": 452233,
+      "width": 1920,
+      "height": 1080,
+      "groupDimension": 1024,
+      "hasGlobalTree": true,
+      "section": "group-2",
+      "skippedSections": [],
+      "nodes": 7,
+      "leaves": 4,
+      "leavesByChannel": [1, 1, 1, 1],
+      "maximumDepth": 2,
+      "nonzeroOffsets": 0,
+      "nonunitMultipliers": 0,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 1,
+          "count": 1
+        },
+        {
+          "predictor": 2,
+          "count": 2
+        },
+        {
+          "predictor": 4,
+          "count": 1
+        }
+      ],
+      "entropy": {
+        "prefix": false,
+        "histogramCount": 4,
+        "lz77": true
+      },
+      "tree": [
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 1,
+          "greater": 1,
+          "lessOrEqual": 2
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 2,
+          "greater": 3,
+          "lessOrEqual": 4
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 0,
+          "greater": 5,
+          "lessOrEqual": 6
+        },
+        {
+          "kind": "leaf",
+          "predictor": 1,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 0
+        },
+        {
+          "kind": "leaf",
+          "predictor": 2,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 1
+        },
+        {
+          "kind": "leaf",
+          "predictor": 2,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 2
+        },
+        {
+          "kind": "leaf",
+          "predictor": 4,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 3
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-screen-e7-10.jxl",
+      "encodedSha256": "734da95074255d84e18b5c514ff632e1bd943084299c6252acd7e1d865e2e355",
+      "bytes": 452233,
+      "width": 1920,
+      "height": 1080,
+      "groupDimension": 1024,
+      "hasGlobalTree": true,
+      "section": "group-3",
+      "skippedSections": [],
+      "nodes": 59,
+      "leaves": 30,
+      "leavesByChannel": [11, 10, 8, 1],
+      "maximumDepth": 6,
+      "nonzeroOffsets": 0,
+      "nonunitMultipliers": 0,
+      "properties": [
+        {
+          "property": 0,
+          "count": 3
+        },
+        {
+          "property": 9,
+          "count": 7
+        },
+        {
+          "property": 10,
+          "count": 6
+        },
+        {
+          "property": 13,
+          "count": 1
+        },
+        {
+          "property": 15,
+          "count": 12
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 1,
+          "count": 1
+        },
+        {
+          "predictor": 5,
+          "count": 16
+        },
+        {
+          "predictor": 6,
+          "count": 13
+        }
+      ],
+      "entropy": {
+        "prefix": false,
+        "histogramCount": 13,
+        "lz77": false
+      },
+      "tree": [
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 1,
+          "greater": 1,
+          "lessOrEqual": 2
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 2,
+          "greater": 3,
+          "lessOrEqual": 4
+        },
+        {
+          "kind": "branch",
+          "property": 0,
+          "split": 0,
+          "greater": 5,
+          "lessOrEqual": 6
+        },
+        {
+          "kind": "leaf",
+          "predictor": 1,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 0
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 0,
+          "greater": 7,
+          "lessOrEqual": 8
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 0,
+          "greater": 9,
+          "lessOrEqual": 10
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 12,
+          "greater": 11,
+          "lessOrEqual": 12
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 13,
+          "lessOrEqual": 14
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -4,
+          "greater": 15,
+          "lessOrEqual": 16
+        },
+        {
+          "kind": "branch",
+          "property": 13,
+          "split": -3,
+          "greater": 17,
+          "lessOrEqual": 18
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 5,
+          "greater": 19,
+          "lessOrEqual": 20
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 113,
+          "greater": 21,
+          "lessOrEqual": 22
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -8,
+          "greater": 23,
+          "lessOrEqual": 24
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 1,
+          "greater": 25,
+          "lessOrEqual": 26
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 1
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 3,
+          "greater": 27,
+          "lessOrEqual": 28
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 2
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 4,
+          "greater": 29,
+          "lessOrEqual": 30
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 3
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 55,
+          "greater": 31,
+          "lessOrEqual": 32
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -6,
+          "greater": 33,
+          "lessOrEqual": 34
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 245,
+          "greater": 35,
+          "lessOrEqual": 36
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -3,
+          "greater": 37,
+          "lessOrEqual": 38
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 1,
+          "greater": 39,
+          "lessOrEqual": 40
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -105,
+          "greater": 41,
+          "lessOrEqual": 42
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 4
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 5
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": 15,
+          "greater": 43,
+          "lessOrEqual": 44
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -4,
+          "greater": 45,
+          "lessOrEqual": 46
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 6
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": -7,
+          "greater": 47,
+          "lessOrEqual": 48
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 7
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": -1,
+          "greater": 49,
+          "lessOrEqual": 50
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 8
+        },
+        {
+          "kind": "branch",
+          "property": 10,
+          "split": 0,
+          "greater": 51,
+          "lessOrEqual": 52
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 9
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 10
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 11
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 12
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 13
+        },
+        {
+          "kind": "branch",
+          "property": 15,
+          "split": -1,
+          "greater": 53,
+          "lessOrEqual": 54
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 249,
+          "greater": 55,
+          "lessOrEqual": 56
+        },
+        {
+          "kind": "branch",
+          "property": 9,
+          "split": 233,
+          "greater": 57,
+          "lessOrEqual": 58
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 14
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 15
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 16
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 17
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 18
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 19
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 20
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 21
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 22
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 23
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 24
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 25
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 26
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 27
+        },
+        {
+          "kind": "leaf",
+          "predictor": 5,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 28
+        },
+        {
+          "kind": "leaf",
+          "predictor": 6,
+          "offset": 0,
+          "multiplier": 1,
+          "context": 29
+        }
+      ]
+    },
+    {
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-public-e7/im26-1030-diagnostic.bin",
+      "encodedSha256": "6f4a621d2615e0d295bd73a2465e7cb88d63ff870f7d98d9a5b39086bd9b4fd7",
+      "bytes": 487110,
+      "width": 1024,
+      "height": 768,
+      "hasGlobalTree": false,
+      "skippedSections": []
+    }
+  ]
+}

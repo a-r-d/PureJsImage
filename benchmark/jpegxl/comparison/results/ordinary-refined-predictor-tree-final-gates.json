@@ -1,0 +1,202 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-ordinary-refined-trees-322.ts",
+      "sha256": "4f2431b9922ff00ed468eab9d68a2af2308abdf8a4d95e83d7f08795e9d0983a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-ordinary-refined-final-322.json",
+      "sha256": "007d920d7f812155ac4b30b5d35ee90dd9023b123b3b0adbc9ff07e534a24db7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-predictor-tree-final-gates.json",
+      "sha256": "a5527766aac986f93e8f123c543140f521ccbc509b0a636d1c82a943fbd6ff7a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-audit.json",
+      "sha256": "9cf66805b8cce5bc7a4cada774af0e5c70c164239547263dca8e021cfc9458bb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-program-profile.json",
+      "sha256": "4a4a48a38315396fda4e6c4a78fef80828a503ec3a01feb6987796f84604ec90"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-program-profile.json",
+      "sha256": "6f54c4f078d5b0724733652b838ea7843f517653e987c3ec16aaadf73955a8f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-321.json",
+      "sha256": "80692f74b0123ef8aadf2c446d36f687d822db092043b4820e5e66a1a3ff99b1"
+    },
+    {
+      "path": "/tmp/jpegxl-ordinary-predictor-tree-repository-check-321.log",
+      "sha256": "378adb84211c95da333fe88b9c6a6c1a0ccaef91a68c62a91d20299397c5f204"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/ORDINARY-PREDICTORS.md",
+      "sha256": "e1acb6cb4c6f26d5994673554c0e5bc8f9a7d2e1d9b8d9213884586e9dd7a90d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-controls-318.json",
+      "sha256": "9ac92d26c63754d6b60b75796ffa2b7b71c5dd07fccd9b63ac07d0fc26991ad6"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-profile-319.json",
+      "sha256": "dfe1027c7aae078f430a5a3c6b882293de264cfc8c4fd5cd71b6ba2b4d9e7d6e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-audit-320.json",
+      "sha256": "a3a44e8f80382eb2be4aa4da4da900bbf1f9a7b4630abc08aad53e7d12b8eea8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-predictor-tree-repository-check-321.json",
+      "sha256": "ba2a227bb89709a25edc1200f29ba3d78bdd27e327a95069905652b39d5da80a"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "precedingPins": 17,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 12,
+  "independentGrids": 24,
+  "independentSamples": 75509760,
+  "priorPublicSamples": 37754880,
+  "freshControlProfilePins": 71,
+  "documentedInputs": 4,
+  "sizeChanges": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "baselineBytes": 649404,
+      "floorBytes": 648383,
+      "savedBytes": 1021,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 157,
+      "headerChangeBytes": 24.75,
+      "remainingChangeBytes": -1045.75,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "baselineBytes": 613268,
+      "floorBytes": 612152,
+      "savedBytes": 1116,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 181,
+      "headerChangeBytes": -54.25,
+      "remainingChangeBytes": -1061.75,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "baselineBytes": 617106,
+      "floorBytes": 615996,
+      "savedBytes": 1110,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 168,
+      "headerChangeBytes": -31.875,
+      "remainingChangeBytes": -1078.125,
+      "outerChangeBytes": 0
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "baselineBytes": 227797,
+      "floorBytes": 227749,
+      "savedBytes": 48,
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 26,
+      "headerChangeBytes": 30.875,
+      "remainingChangeBytes": -78.875,
+      "outerChangeBytes": 0
+    }
+  ],
+  "competitorGaps": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "competitor": "jsquash",
+      "experimentalBytes": 648383,
+      "competitorBytes": 644097,
+      "gapBytes": 4286
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "competitor": "vips",
+      "experimentalBytes": 648383,
+      "competitorBytes": 649387,
+      "gapBytes": -1004
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "competitor": "jsquash",
+      "experimentalBytes": 612152,
+      "competitorBytes": 613245,
+      "gapBytes": -1093
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "competitor": "vips",
+      "experimentalBytes": 612152,
+      "competitorBytes": 621262,
+      "gapBytes": -9110
+    }
+  ],
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Four verified in actual child and installed Vitest resolver"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "All443qualified production pins/eight rebuilt public modules/fourteen raw retained source-build files and preceding317boundaries remain exact. Twelve actual ordinary baseline/raw/floor files/24independent grids/75509760original samples and71newcontrol-profile pins verified; doc sizes/157-181-168-26changed predictor leaves/header/residual/outer arithmetic match physical reports and every branch/context/selected color transform stays fixed. Four completed318-321receipts, actual full repository check/fresh four-worker proof/package0.17/no runtime dependencies/empty index pass. Additional prototype full-pixel scoring/reconstruction/encoding is not cost/minimum-memory/browser/package/full-matrix qualified; original protections unchanged. No source/adoption/stage/commit/push/release or overall parity claim."
+}

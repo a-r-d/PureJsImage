@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "4e9b84f0e04f83764f1688ef0497aa212231387ab7f5859e620b5ae892a88f23",
+  "implementationDirty": true,
+  "harnessSha256": "53c16636d756a7eb6414863105413f2bc38e9d1ef8c9c4aa8164bbbd6c82ab69",
+  "sourceReport": {
+    "path": "benchmark/jpegxl/comparison/results/dct16-rate-controls.json",
+    "sha256": "4d33d776b7e19776f6e3d2bf3e3cdf810074d93cf5ed516372ae074defc63623",
+    "measurementSha256": "6deb32bc302e44785ecea544e6b87a74a51b141b7b29cc9717cbf840600b8591",
+    "measurementSnapshot": ".tmp/jpegxl-comparison-v1/frozen-dct16-reports-136/dct16-rate-controls.json"
+  },
+  "policy": "Read actual complete-file section sizes for independently validated fixed-distance DCT16 controls. The input and artifact hashes are pinned. These settings have different decoded quality, so section differences are coding-cost attribution only, not matched-quality rankings or causal proof from strategy counts.",
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1030-diagnostic-baseline-4.jxl",
+      "artifactSha256": "69587c6b6bc9845ae826548c2000614e25eef0fa6c8e1c1c845fb26cf7553b30",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 18251,
+      "hfGlobalBytes": 784,
+      "acGroupBytes": 63524,
+      "framingBytes": 81,
+      "sectionBytes": [
+        35, 18251, 784, 1396, 5193, 9907, 617, 7562, 16492, 14843, 580, 1230, 404, 4823, 477
+      ],
+      "strategies": [0, 1, 12, 13]
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "current",
+      "distance": 4,
+      "bytes": 83341,
+      "score": 82.31775458,
+      "butteraugli": 2.2291667461,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1030-diagnostic-current-4.jxl",
+      "artifactSha256": "a5190c357440009b33e90363343490a031750044725a1cbcb6d4033dad7815f1",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 19953,
+      "hfGlobalBytes": 796,
+      "acGroupBytes": 62476,
+      "framingBytes": 81,
+      "sectionBytes": [
+        35, 19953, 796, 1263, 5000, 9826, 570, 7416, 16449, 14801, 559, 1044, 331, 4760, 457
+      ],
+      "strategies": [0, 1, 4, 12, 13]
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1030-diagnostic-baseline-8.jxl",
+      "artifactSha256": "1104574327e962245903692fcc16f9f106222e205f125d5acdac124c5af9c9d4",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 14735,
+      "hfGlobalBytes": 687,
+      "acGroupBytes": 38014,
+      "framingBytes": 79,
+      "sectionBytes": [
+        35, 14735, 687, 714, 3134, 5918, 200, 4485, 10637, 9048, 207, 606, 175, 2733, 157
+      ],
+      "strategies": [0, 1, 12, 13]
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "current",
+      "distance": 8,
+      "bytes": 54610,
+      "score": 72.09347898,
+      "butteraugli": 3.6629447937,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1030-diagnostic-current-8.jxl",
+      "artifactSha256": "8759298727e5ee1a7425b132704e12b5908a01b2e0d57e6211cad73a2e625c4a",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 16240,
+      "hfGlobalBytes": 656,
+      "acGroupBytes": 37600,
+      "framingBytes": 79,
+      "sectionBytes": [
+        35, 16240, 656, 673, 3062, 5881, 198, 4392, 10616, 9034, 207, 532, 151, 2693, 161
+      ],
+      "strategies": [0, 1, 4, 12, 13]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 52488,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1416-diagnostic-baseline-4.jxl",
+      "artifactSha256": "430425b886e2a51bd939d5dfe165ebe6dabad994655b6310e5834a3445910672",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "lfGlobalBytes": 40,
+      "dcGroupBytes": 17450,
+      "hfGlobalBytes": 1205,
+      "acGroupBytes": 33710,
+      "framingBytes": 83,
+      "sectionBytes": [
+        40, 17450, 1205, 1694, 1692, 2830, 1732, 1176, 1315, 1312, 690, 2330, 5555, 10481, 2903
+      ],
+      "strategies": [0, 1, 12, 13]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "current",
+      "distance": 4,
+      "bytes": 53364,
+      "score": 82.01284302,
+      "butteraugli": 1.9219756126,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1416-diagnostic-current-4.jxl",
+      "artifactSha256": "ce3a45f2d9e80b1b89f4f220e309b5ac1a6cbad473d3309d64e2c150e05da1d4",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 18894,
+      "hfGlobalBytes": 881,
+      "acGroupBytes": 33471,
+      "framingBytes": 83,
+      "sectionBytes": [
+        35, 18894, 881, 1685, 1639, 2806, 1723, 1151, 1214, 1222, 678, 2342, 5544, 10546, 2921
+      ],
+      "strategies": [0, 1, 4, 12, 13]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1416-diagnostic-baseline-8.jxl",
+      "artifactSha256": "71f42c2e9f46170801f304ef6cf7f48daa351d45946b262063c3f2ebc2196112",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 13253,
+      "hfGlobalBytes": 638,
+      "acGroupBytes": 18306,
+      "framingBytes": 79,
+      "sectionBytes": [
+        35, 13253, 638, 900, 880, 1581, 940, 587, 684, 697, 308, 1037, 2969, 6296, 1427
+      ],
+      "strategies": [0, 1, 12, 13]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "current",
+      "distance": 8,
+      "bytes": 33184,
+      "score": 70.828143,
+      "butteraugli": 2.9800391197,
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/dct16-rate-133/im26-1416-diagnostic-current-8.jxl",
+      "artifactSha256": "28e95b6e45b86e332e24318888c082c170c65647cec6b8d29a93a1c4a2e62dd7",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "lfGlobalBytes": 35,
+      "dcGroupBytes": 14426,
+      "hfGlobalBytes": 659,
+      "acGroupBytes": 17985,
+      "framingBytes": 79,
+      "sectionBytes": [
+        35, 14426, 659, 897, 840, 1544, 937, 576, 641, 638, 308, 1030, 2920, 6252, 1402
+      ],
+      "strategies": [0, 1, 4, 12, 13]
+    }
+  ],
+  "canonicalization": {
+    "annotator": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-dct16-reports-136.ts",
+    "annotatorSha256": "0729500f7fad97857e161b67de3d8549481bf0bdb3273e1c6e9eddd52fb7161f",
+    "measurementSnapshot": ".tmp/jpegxl-comparison-v1/frozen-dct16-reports-136/dct16-section-profile.json",
+    "measurementSha256": "9afb08661624522ef090fffb7155f3cb11bbb9868ac8ec345ebecee1ba811326",
+    "formatterVersion": "Version: 2.5.7",
+    "note": "Repository formatting only. Every raw measurement report and original cross-report byte pin is preserved separately. Current source-report hashes reference canonical repository JSON; copied modules, measurement harnesses, inputs, outputs, grids and quality coordinates are unchanged."
+  }
+}

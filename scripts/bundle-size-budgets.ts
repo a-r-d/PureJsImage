@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Mixed samples, RGB LUTs, native crop bands and HDR/float writing measure 513,065 bytes.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 516_000 },
-  // Shared custom-float, native/header and sequence helpers measure 585,675 bytes.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 589_000 },
+  // Qualified lossless group search measures 540,986 bytes within this ceiling.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 541_000 },
+  // The complete specialized JPEG XL package measures 613,208 bytes.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 614_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

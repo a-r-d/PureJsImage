@@ -298,8 +298,20 @@ describe('JPEG XL M4 independently validated color', () => {
       const second = await jpegxlCodec.createDecoder?.(
         new MemorySource(sink.toUint8Array()),
         defaultImageLimits,
+        { colorOutput: 'preserve' },
       )
+      if (!second) throw new Error('Re-encoded JPEG XL decoder unavailable')
       expect(second?.colorSemantics).toEqual(decoder.colorSemantics)
+      offset = 0
+      for await (const block of second.decode()) {
+        try {
+          expect(block.data).toEqual(expected.subarray(offset, offset + block.data.length))
+          offset += block.data.length
+        } finally {
+          block.release?.()
+        }
+      }
+      expect(offset).toBe(expected.length)
     })
   }
 

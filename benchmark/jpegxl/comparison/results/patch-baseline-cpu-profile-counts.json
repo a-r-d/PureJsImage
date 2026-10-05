@@ -1,0 +1,569 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/analyze-patch-baseline-counts-215b.ts",
+      "sha256": "53a0f7a48ced543ec29c0d5c4505d60e1b58081e426097e7790f7b87bd9c0c3f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/profile-patch-baseline-215.ts",
+      "sha256": "1f1bacc5f09034b3a24e5da43191d081f6ec116889cf1aac973c2d2ed9617716"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-baseline-profile-215.json",
+      "sha256": "57ee4ab8819ac8f87b9ae896c1374ba1fe382138dc5814c817d6ca769ce5a4c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-baseline-profile-215/baseline.cpuprofile",
+      "sha256": "a2d9eb08bf58707a99fba6c85c53105591c597cd5b0ba7cab7eaeb4206654b20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-baseline-profile-215/worker.json",
+      "sha256": "40aaccac1d8d212fc47b266a8521fa4d788e9dd2918668a916f0955f7ccf3c79"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-baseline-profile-215.json",
+      "sha256": "fdb492190a03803675d0d6822de6c60f32af3ab9218965066822bbfd5d500907"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "sha256": "95f78da979f070d1252b95d5c49a4871e48f7c537e002cfdb2f1cdc0f03c6e30"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "29554a265326317d3ce4491ba1e0403fc53f17e17dd91e61312274ce91c1a75a"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-profile-counts-215b.ts",
+      "sha256": "6189bfdce39514bed0417f7fe3bf460cb35dfd6fc70500a3db017a3d0fdd333b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/analyze-patch-baseline-215.ts",
+      "sha256": "0b2da920cad38e2b6ca51e4d43745973870c2faa7623ba1844b62792c98303f7"
+    }
+  ],
+  "samples": 35509,
+  "sampledSignedMicros": 34029040,
+  "negativeDeltas": [
+    {
+      "index": 370,
+      "delta": -1
+    },
+    {
+      "index": 35306,
+      "delta": -1
+    }
+  ],
+  "worker": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+    "implementationDirty": true,
+    "fixture": "im26-8160-original",
+    "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+    "bytes": 416143,
+    "encodedSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+    "elapsedMs": 33644.365853,
+    "ownedLive": 0,
+    "ownedAllocations": 0,
+    "workerSha256": "1f1bacc5f09034b3a24e5da43191d081f6ec116889cf1aac973c2d2ed9617716"
+  },
+  "topSelf": [
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 236,
+      "selfSamples": 6494,
+      "inclusiveSamples": 6516,
+      "samples": 6494
+    },
+    {
+      "functionName": "predict",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2352,
+      "selfSamples": 5198,
+      "inclusiveSamples": 6422,
+      "samples": 5198
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1096,
+      "selfSamples": 3040,
+      "inclusiveSamples": 3900,
+      "samples": 3040
+    },
+    {
+      "functionName": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 2681,
+      "inclusiveSamples": 2704,
+      "samples": 2681
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2277,
+      "selfSamples": 2435,
+      "inclusiveSamples": 3967,
+      "samples": 2435
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 412,
+      "selfSamples": 1897,
+      "inclusiveSamples": 17925,
+      "samples": 1897
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 1619,
+      "inclusiveSamples": 2923,
+      "samples": 1619
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 56,
+      "selfSamples": 1330,
+      "inclusiveSamples": 1971,
+      "samples": 1330
+    },
+    {
+      "functionName": "#errorWeight",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2345,
+      "selfSamples": 1189,
+      "inclusiveSamples": 1218,
+      "samples": 1189
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 170,
+      "selfSamples": 1122,
+      "inclusiveSamples": 10882,
+      "samples": 1122
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3216,
+      "selfSamples": 1063,
+      "inclusiveSamples": 2279,
+      "samples": 1063
+    },
+    {
+      "functionName": "run",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 73,
+      "selfSamples": 930,
+      "inclusiveSamples": 72322,
+      "samples": 930
+    },
+    {
+      "functionName": "writeBits",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 69,
+      "selfSamples": 861,
+      "inclusiveSamples": 873,
+      "samples": 861
+    },
+    {
+      "functionName": "gradientResidualPlan",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2232,
+      "selfSamples": 751,
+      "inclusiveSamples": 752,
+      "samples": 751
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1255,
+      "selfSamples": 677,
+      "inclusiveSamples": 707,
+      "samples": 677
+    },
+    {
+      "functionName": "logCount",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 66,
+      "selfSamples": 665,
+      "inclusiveSamples": 665,
+      "samples": 665
+    },
+    {
+      "functionName": "chooseGroupPredictors",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1928,
+      "selfSamples": 370,
+      "inclusiveSamples": 1424,
+      "samples": 370
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1912,
+      "selfSamples": 366,
+      "inclusiveSamples": 366,
+      "samples": 366
+    },
+    {
+      "functionName": "update",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2462,
+      "selfSamples": 238,
+      "inclusiveSamples": 250,
+      "samples": 238
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3200,
+      "selfSamples": 229,
+      "inclusiveSamples": 3365,
+      "samples": 229
+    },
+    {
+      "functionName": "findFlatScreenshotPatches",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-flat-patches.ts",
+      "line": 61,
+      "selfSamples": 196,
+      "inclusiveSamples": 202,
+      "samples": 196
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 896,
+      "selfSamples": 176,
+      "inclusiveSamples": 224,
+      "samples": 176
+    },
+    {
+      "functionName": "update",
+      "url": "node:internal/crypto/hash",
+      "line": 134,
+      "selfSamples": 153,
+      "inclusiveSamples": 153,
+      "samples": 153
+    },
+    {
+      "functionName": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "selfSamples": 140,
+      "inclusiveSamples": 140,
+      "samples": 140
+    },
+    {
+      "functionName": "(idle)",
+      "url": "",
+      "line": 0,
+      "selfSamples": 128,
+      "inclusiveSamples": 128,
+      "samples": 128
+    },
+    {
+      "functionName": "allocate",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 52,
+      "selfSamples": 125,
+      "inclusiveSamples": 159,
+      "samples": 125
+    },
+    {
+      "functionName": "(program)",
+      "url": "",
+      "line": 0,
+      "selfSamples": 114,
+      "inclusiveSamples": 114,
+      "samples": 114
+    },
+    {
+      "functionName": "copyJpegXlArray",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 179,
+      "selfSamples": 112,
+      "inclusiveSamples": 124,
+      "samples": 112
+    },
+    {
+      "functionName": "fixedPrediction",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1671,
+      "selfSamples": 89,
+      "inclusiveSamples": 89,
+      "samples": 89
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2210,
+      "selfSamples": 88,
+      "inclusiveSamples": 88,
+      "samples": 88
+    }
+  ],
+  "topCodecInclusive": [
+    {
+      "functionName": "run",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 73,
+      "selfSamples": 930,
+      "inclusiveSamples": 72322,
+      "samples": 930
+    },
+    {
+      "functionName": "withJpegXlMemory",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 165,
+      "selfSamples": 1,
+      "inclusiveSamples": 69536,
+      "samples": 1
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3432,
+      "selfSamples": 9,
+      "inclusiveSamples": 31404,
+      "samples": 9
+    },
+    {
+      "functionName": "runAsync",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 90,
+      "selfSamples": 4,
+      "inclusiveSamples": 27128,
+      "samples": 4
+    },
+    {
+      "functionName": "withJpegXlMemoryAsync",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-encoder-memory.ts",
+      "line": 168,
+      "selfSamples": 0,
+      "inclusiveSamples": 26826,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3536,
+      "selfSamples": 0,
+      "inclusiveSamples": 19875,
+      "samples": 0
+    },
+    {
+      "functionName": "learnJpegXlModularTree",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 396,
+      "selfSamples": 0,
+      "inclusiveSamples": 17952,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 412,
+      "selfSamples": 1897,
+      "inclusiveSamples": 17925,
+      "samples": 1897
+    },
+    {
+      "functionName": "learnPlane",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 162,
+      "selfSamples": 1,
+      "inclusiveSamples": 10939,
+      "samples": 1
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 170,
+      "selfSamples": 1122,
+      "inclusiveSamples": 10882,
+      "samples": 1122
+    },
+    {
+      "functionName": "encode",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3472,
+      "selfSamples": 0,
+      "inclusiveSamples": 7964,
+      "samples": 0
+    },
+    {
+      "functionName": "encodeAdaptiveGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3104,
+      "selfSamples": 1,
+      "inclusiveSamples": 7964,
+      "samples": 1
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3114,
+      "selfSamples": 1,
+      "inclusiveSamples": 7955,
+      "samples": 1
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 236,
+      "selfSamples": 6494,
+      "inclusiveSamples": 6516,
+      "samples": 6494
+    },
+    {
+      "functionName": "predict",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2352,
+      "selfSamples": 5198,
+      "inclusiveSamples": 6422,
+      "samples": 5198
+    },
+    {
+      "functionName": "evaluate",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-modular-tree.ts",
+      "line": 235,
+      "selfSamples": 0,
+      "inclusiveSamples": 5630,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3712,
+      "selfSamples": 0,
+      "inclusiveSamples": 4544,
+      "samples": 0
+    },
+    {
+      "functionName": "writeAnsPackedValues",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1087,
+      "selfSamples": 0,
+      "inclusiveSamples": 4196,
+      "samples": 0
+    },
+    {
+      "functionName": "buildTokenPlan",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2270,
+      "selfSamples": 0,
+      "inclusiveSamples": 4016,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2277,
+      "selfSamples": 2435,
+      "inclusiveSamples": 3967,
+      "samples": 2435
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1096,
+      "selfSamples": 3040,
+      "inclusiveSamples": 3900,
+      "samples": 3040
+    },
+    {
+      "functionName": "encodeGroupCandidate",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3422,
+      "selfSamples": 0,
+      "inclusiveSamples": 3690,
+      "samples": 0
+    },
+    {
+      "functionName": "writeAnsPixels",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2452,
+      "selfSamples": 0,
+      "inclusiveSamples": 3514,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 2458,
+      "selfSamples": 0,
+      "inclusiveSamples": 3513,
+      "samples": 0
+    },
+    {
+      "functionName": "encodeHistogramHybridGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3193,
+      "selfSamples": 0,
+      "inclusiveSamples": 3371,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3200,
+      "selfSamples": 229,
+      "inclusiveSamples": 3365,
+      "samples": 229
+    },
+    {
+      "functionName": "visitPlaneResiduals",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1720,
+      "selfSamples": 0,
+      "inclusiveSamples": 2937,
+      "samples": 0
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 1619,
+      "inclusiveSamples": 2923,
+      "samples": 1619
+    },
+    {
+      "functionName": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 2681,
+      "inclusiveSamples": 2704,
+      "samples": 2681
+    },
+    {
+      "functionName": "(anonymous)",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/patch-group-policy-211/baseline/jpegxl-modular-encode.ts",
+      "line": 3502,
+      "selfSamples": 5,
+      "inclusiveSamples": 2539,
+      "samples": 5
+    }
+  ],
+  "policy": "Fresh cold full encoder V8 CPU attribution after the rejected repeated-training and fixed-model policies. The encoder reproduces the exact independently validated public baseline and closes owned storage. The original trace has exactly two negative one-microsecond deltas; preserve them unmodified and retain the signed total. Rank validated self/inclusive stack sample counts instead of per-node duration. Initialization/sampling overhead and those temporal anomalies prevent a speed or per-node time claim. This is causal profiling evidence, not production retention."
+}

@@ -1,6 +1,6 @@
 import { throwIfAborted } from '../abort.ts'
-import { invalidInput } from '../errors.ts'
 import type { JpegXlExtraChannel } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlPatch } from './jpegxl-frame-features.ts'
 
 type Plane = Float32Array | Float64Array
@@ -22,7 +22,7 @@ export const applyJpegXlPatch = (
     patch.referenceX + patch.width > referenceWidth ||
     patch.referenceY + patch.height > referenceHeight
   )
-    throw invalidInput('JPEG XL patch exceeds its reference')
+    throw invalidJpegXlInput('patch exceeds its reference')
   const row = new Float64Array(patch.width * target.length)
   const hasAlpha = extras.some((channel) => channel.type === 0)
   for (let y = 0; y < patch.height; y++) {
@@ -37,7 +37,7 @@ export const applyJpegXlPatch = (
       const background = target[c],
         foreground = reference[c]
       if (!background || (!foreground && mode !== 0))
-        throw invalidInput('JPEG XL patch channel is missing')
+        throw invalidJpegXlInput('patch channel is missing')
       for (let x = 0; x < patch.width; x++) {
         const back = background[destination + x]!,
           front = foreground?.[source + x] ?? 0
@@ -58,7 +58,7 @@ export const applyJpegXlPatch = (
               ? reference[alphaIndex]?.[source + x]
               : target[alphaIndex]?.[destination + x]
             if (topAlpha === undefined || bottomAlpha === undefined)
-              throw invalidInput('JPEG XL patch alpha is missing')
+              throw invalidJpegXlInput('patch alpha is missing')
             const a = blend?.clamp ? clamp(topAlpha) : topAlpha
             if (mode >= 6) value = c === alphaIndex ? bottomValue : bottomValue + a * topValue
             else {

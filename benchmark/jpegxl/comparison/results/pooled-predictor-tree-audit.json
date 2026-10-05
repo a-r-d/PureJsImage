@@ -1,0 +1,68 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-pooled-trees-300.ts",
+      "sha256": "67930b0f3646efc152b01e4a73dbb22e0f919bcf5e999b7fe3d54b4a6aa37fa1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-audit-300.json",
+      "sha256": "e6014842ce997b5439778b1ea4be32e7d171c853e16748ab57de7da42acee0f9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/POOLED-TREES.md",
+      "sha256": "d400099c01249439009ef26504ef94b2e236dfa38aaacff29e165f70cddc9b3d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-controls-296.json",
+      "sha256": "ca579b6051085bda6e5e3ea13d3dd0d35159b8b6fd7d880c656ef9757d7e2e8b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-predictor-tree-profile-297.json",
+      "sha256": "5f20bc31187cefc9b52d30da666d1a2de30203c2ba007a210decca27b1f99ba8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-controls-298.json",
+      "sha256": "8bd2347afe5f650afb484dd176524c3459fb30489e724a64c5635c2be5699bdd"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-profile-299.json",
+      "sha256": "c437d97d86958a59fd46eb4de854fad64ab6212ba9b4653ed8749183e7431f2f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-controls.json",
+      "sha256": "99f49e6675200d6a2ff6ddb2575fac1f6642419ef6b92d88a3248c619a172cf8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-program-profile.json",
+      "sha256": "8cf15f9fda4d536611680a586f10a6692bdbce01bebac2d0a43f477b3963deed"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    }
+  ],
+  "files": 24,
+  "grids": 48,
+  "independentSamples": 151019520,
+  "priorPublicSamples": 75509760,
+  "sourcePins": 214,
+  "completeProfileFiles": 24,
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Fresh physical re-read of all24complete files/48independent original sample grids and151019520samples across both pooled learning controls. Prior75509760public samples labelled prior encodes. All source/copy/helper/harness/input/tool pins, exact prior/floor hashes, selected transforms, actual inherited global models and complete section/outer accounts pass. Two ordinary floors still regress; production/cost/package/full-parity adoption remains open."
+}

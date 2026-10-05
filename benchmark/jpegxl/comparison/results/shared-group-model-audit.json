@@ -1,0 +1,52 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-audit-288.ts",
+      "sha256": "409a8ee73e21e51539f06ecb0c3cde2df08015fe20b2b52cc8dca3322c843042"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286e.json",
+      "sha256": "abc9c1661d9ef3879a6c7fae9b8bfeeb734c6411203bdcc839fb546e90c375d3"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-profile-287.json",
+      "sha256": "176beef199ed21f8621bce1bbf69074a5ea94e89945da791af74341cce1d38dc"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-shared-groups-288.ts",
+      "sha256": "45f0dd0d08c0bca3bedc3cbefeb7fe7bf7997ed39e2e6611ad5af3c5e68192a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-audit-288.json",
+      "sha256": "a0fb503a6c2c90370cfdf57ef3ae721c72712a5364c5913f501d3d840c54d5bb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-program-profile.json",
+      "sha256": "7e40dac31f1cb23fb0df9a6e1a55424cb8806cf6c110d76c77535a9c0b233304"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/SHARED-MODELS.md",
+      "sha256": "c7d7b4147e845100594ccbd3f67c4225aa7ce9191b9bd1cea3b3873bfb7fc8cc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls-corrected-e.json",
+      "sha256": "2f809d068b991cae9b9a07d38f813cb372f8b17e088ffef84063b6aacb115ccc"
+    }
+  ],
+  "files": 12,
+  "grids": 24,
+  "independentSamples": 75509760,
+  "priorPublicSamples": 37754880,
+  "sourcePins": 105,
+  "completeProfileFiles": 12,
+  "fullParity": false,
+  "adoptedPrototype": false,
+  "policy": "Fresh post-control re-read of all12complete files/24independent grids and75509760original alpha/color samples, exact input/source/copy/helper/harness/tool/proof pins and twelve complete section accounts. Prior37754880public sample checks labelled prior encodes, not a new public replay. Actual shared-group references and retained-current size arithmetic checked. Prototypes remain unadopted; original costs/limits/package gates and broader compression parity unqualified."
+}

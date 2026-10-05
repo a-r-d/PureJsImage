@@ -1,0 +1,560 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-policy-repository-gates.json",
+      "sha256": "2bb545b9ab2c12ac724dcc169a04da6cc596d7da427feee236d781b706014ad1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "sha256": "394367f9b994eac2823ad9770b9b52205e6cc85f12885a711f2ad2294bbf525b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "sha256": "8777f62c54111ba1464cd065616c4c46f823672f7d475fa1e4409ffa18cd916b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-baseline-cpu-profile-counts.json",
+      "sha256": "b4289157f5c89efd054c2186cc79700988be3bc463f01ca6df8f90c84c38143e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "sha256": "95f78da979f070d1252b95d5c49a4871e48f7c537e002cfdb2f1cdc0f03c6e30"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-spatial-axis-220.json",
+      "sha256": "6b4b7b4375246a4463547b11b929219d8be6b42ceddd59857b810f0c1f51efda"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-spatial-axis-220.ts",
+      "sha256": "756a33b9760155dd04e37640590f362595d1f993f44f444fa830b54be6a6d814"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-spatial-axis-220.ts",
+      "sha256": "27512f3a5129b2beb75fdba5927612bb923c9f8f4470a388fb553bae39f5cb0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/tree-entropy-197-current/manifest.json",
+      "sha256": "366f043264c4abc314e7e1fd4bd593c1ef7f39ad977b6f3455db26ccbdfeabca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-repository-gates.json",
+      "sha256": "b5b9f9e8a06cab64ceccebc49b717e0e372008b3afdfa48b9c472f95b50997ec"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/baseline/jpegxl-modular-tree.ts",
+      "sha256": "d51f35579013d15531886780df9c160a02045ed636a692b05e21ccf69cd48616"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/row/jpegxl-modular-tree.ts",
+      "sha256": "491eaf4e341ff2744feca44c1a8935d5d7799c6331709a08fe71e4d8451effff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-axis-220/column/jpegxl-modular-tree.ts",
+      "sha256": "2a2b75d13910b818d7e020b6b57b130731b1af65cf49b426c86dc157b40d4a6a"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-axis-220/output/im26-8160-original-baseline.jxl",
+      "artifactSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 416143,
+      "baselineBytes": 416143,
+      "changeBytes": 0,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 33459.922624,
+      "spatialTreePolicy": "Qualified original model",
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "row",
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-axis-220/output/im26-8160-original-row.jxl",
+      "artifactSha256": "63156a915bd24db07a03dc16c03cc5002ebfca627c84ff3220d624392c542628",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 415126,
+      "baselineBytes": 416143,
+      "changeBytes": -1017,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246088,
+          "lz77Bytes": 312471,
+          "selectedBytes": 243841,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 243841
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 178595,
+          "lz77Bytes": 237228,
+          "selectedBytes": 176421,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 176421
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3342,
+          "lz77Bytes": 3681,
+          "selectedBytes": 3195,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3195
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14866,
+          "lz77Bytes": 19789,
+          "selectedBytes": 14752,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14752
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137336323,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 34215.351576,
+      "spatialTreePolicy": "Add local y property 2 only",
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "column",
+      "artifact": ".tmp/jpegxl-comparison-v1/spatial-axis-220/output/im26-8160-original-column.jxl",
+      "artifactSha256": "acd5aaba0c3087681e870b894d8626fad7e567e3cd318eb7bc2571e2e168d1ad",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 416011,
+      "baselineBytes": 416143,
+      "changeBytes": -132,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246833,
+          "lz77Bytes": 315471,
+          "selectedBytes": 244505,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244505
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179479,
+          "lz77Bytes": 236912,
+          "selectedBytes": 177133,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177133
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3393,
+          "lz77Bytes": 3726,
+          "selectedBytes": 3269,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3269
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14851,
+          "lz77Bytes": 19744,
+          "selectedBytes": 14731,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14731
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137300948,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 34653.046397,
+      "spatialTreePolicy": "Add local x property 3 only",
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    }
+  ],
+  "policy": "Copied first-party spatial-tree compression control. Ablate local row/column features with matching exact classification within unchanged groups, one axis per candidate. Existing raw/gradient candidates remain; the prior learned tree is not an exact byte floor. Report growth and require independently exact complete native/Rust grids, baseline identity and owned closure. Diagnostic timing is not paired or production qualification."
+}

@@ -1,0 +1,1933 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-02T15:05:11.760Z",
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "bd139e9c897f5c7277288c54bc7b83388d73886a9c71fa405e436869d2867568",
+  "implementationDirty": true,
+  "harnessSha256": "8e74da1caca48d7c7859fcf0a21f12876b81e6ef4d1710fb14aa9427571dce76",
+  "candidateModuleHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ac-rounding-120/rate060/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ac-rounding-120/rate060/jpegxl-vardct-encode.ts",
+      "sha256": "0d8a589d67e8c91c2a59cf66ecb8b05e5dfea99ccad1672546f301553d1d185d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ac-rounding-120/rate060/jpegxl-jpeg-encode.ts",
+      "sha256": "5adab955244441e9c63e3f265024a57601879b4f65a674f1c97bfa3c3c29a7c4"
+    }
+  ],
+  "preparationHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-ac-rounding-120.ts",
+      "sha256": "bc024cd25024c7ebc63169214bf8f7ce0753ec5b7002662cc0e82d863e78433f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-ac-quality-122.ts",
+      "sha256": "d16db3053655a9ed783442c63d57607a4f5574afed17a4bdddea8c5a830d6fc8"
+    }
+  ],
+  "identityBoundary": "Repository identity describes frozen retained source. Prototype module hashes identify the isolated 0.06 bit-cost rounding candidate. Same input and metric policy; not a public API result.",
+  "rustDecoderSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+  "refinementSha256": "008965983effd1be838ddbd78e0a0b45df646e0f86e484adca729bdfc08d19de",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "toolHashes": {
+    "ssimulacra2": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740",
+    "butteraugli_main": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+  },
+  "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "primaryTarget": 80,
+  "samplingTargets": [80, 70, 90],
+  "selectedFixtureIds": ["im26-1030-diagnostic", "im26-1416-diagnostic"],
+  "maximumSsimBracketWidth": 0.25,
+  "maximumPointsPerSubjectFixture": 24,
+  "matching": "Existing M7 nondominated log-byte interpolation. Refine SSIMULACRA2 80, 70 and 90 separately; unresolved targets remain explicit. Butteraugli coordinates may remain missing. No extrapolation or lossless points. Alpha: minimum SSIMULACRA2 / maximum Butteraugli over explicit black and white backgrounds.",
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "scope": "capped",
+      "sourceSha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "settingBounds": {
+        "minimum": 0.25,
+        "maximum": 25,
+        "mapping": "distance"
+      },
+      "subject": "purejsimage",
+      "role": "isolated copied first-party encoder prototype, excluded from public JavaScript rankings",
+      "points": [
+        {
+          "setting": 1,
+          "bytes": 168368,
+          "score": 90.43416953,
+          "butteraugli": 0.8373051882,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.jxl",
+          "artifactSha256": "54b4a747a1319235960dd6138213d7015f0a31126c8891418ba023898fffea55",
+          "decodedSha256": "841988bc6039071d3ded7df3f558f65ea9c5411b3d504e032e4bcbaab194447f",
+          "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+          "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.43416953,
+              "butteraugli": 0.8373051882
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1
+          }
+        },
+        {
+          "setting": 4,
+          "bytes": 80225,
+          "score": 81.29291997,
+          "butteraugli": 2.2618553638,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.jxl",
+          "artifactSha256": "2fb563241de078bc640de44694d696a576a177e42d29cb49592246185017c776",
+          "decodedSha256": "d493e7bdc27e7c97a85a605511ba5a2e1e45346a434a352d06106ad6a153590a",
+          "nativePixelsSha256": "f5d2e4f68884b57d48f85857e69f27bb46563f7619fba95d20e95e114c76e474",
+          "rustPixelsSha256": "731df4737011b2e475a64b042707ccff1cb18e72274cb63f008065fe591f2b3e",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 81.29291997,
+              "butteraugli": 2.2618553638
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4
+          }
+        },
+        {
+          "setting": 8,
+          "bytes": 51584,
+          "score": 70.72594665,
+          "butteraugli": 3.5022397041,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.jxl",
+          "artifactSha256": "270e84aa40b4c5a4f61c40dc50da1ec9bec9673067e4c49fa9825a52b4cc1038",
+          "decodedSha256": "f7d029bae67bec6f71331f98c38db090f7297f0a256cb3429ba272bb1526caec",
+          "nativePixelsSha256": "5336ce4a22fd21aa3e7336aa4c986e79922e40b36872406d8c882b7d79c748c5",
+          "rustPixelsSha256": "d4326dd31ae3e99da1d6b9081ef91b27ad934e89462d3c72918650a852349041",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.72594665,
+              "butteraugli": 3.5022397041
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8
+          }
+        },
+        {
+          "setting": 16,
+          "bytes": 30890,
+          "score": 55.86932382,
+          "butteraugli": 5.3481817245,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-16.jxl",
+          "artifactSha256": "f0924cccd1ec988f4a617f407aecfadecf0ff7ad690b8f90f9517dc2f9cafe7d",
+          "decodedSha256": "c1bce2b4f09440b397011773b593f49905af4510220b117bf37c6abb5ecb09b8",
+          "nativePixelsSha256": "db2fea26cb7531a0c032dd90c6145d5aac13abf8f2e6b6f7432af35866142194",
+          "rustPixelsSha256": "b6c1ba59037576ef991c2964b65357d8a72964998b15db8ef77da6e693856551",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 55.86932382,
+              "butteraugli": 5.3481817245
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16
+          }
+        },
+        {
+          "setting": 1.0681,
+          "bytes": 164192,
+          "score": 90.62677039,
+          "butteraugli": 0.9066311717,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.0681.jxl",
+          "artifactSha256": "3c7aea0a1bc464da1051b26e3a970918ef48da576dd2e65ab3c8d4d815861f68",
+          "decodedSha256": "663eb88b9c66f138bc74c9e823f0ace065b460e8565528ab98370120a2d5a1f2",
+          "nativePixelsSha256": "44f0f0832abd464e61eb80feebf114ac67ce6c9ef4c2e04755c8ff1e736c5071",
+          "rustPixelsSha256": "46ef63e220459c0cfe613d3007a5cbc6d55e7ca78849a88ae362eeccd3e76afd",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.62677039,
+              "butteraugli": 0.9066311717
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.0681
+          }
+        },
+        {
+          "setting": 5.6569,
+          "bytes": 64802,
+          "score": 76.34675645,
+          "butteraugli": 3.1329183578,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-5.6569.jxl",
+          "artifactSha256": "51c035d9f7e236e5bfcb9478d20e0110bd1f5386338949a65a6348e903f767b1",
+          "decodedSha256": "57ff2094f2e930509df79e4558ef28ad199b027856c0e102f91ced4a1cdcc185",
+          "nativePixelsSha256": "4db5e59f16939bfc69cec3cbb14fb4c86098d5871c8fac63effacdd31a2abeca",
+          "rustPixelsSha256": "9444f92f634a6219be0763ef52e76ffe3ee5015f739786c5293fddd4e23241dd",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 76.34675645,
+              "butteraugli": 3.1329183578
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 5.6569
+          }
+        },
+        {
+          "setting": 11.314,
+          "bytes": 40149,
+          "score": 63.5069009,
+          "butteraugli": 4.3435096741,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-11.314.jxl",
+          "artifactSha256": "1550e45165ec66d357be6a239743c0937d75ef0337b5d3f57ced2c48a0004e60",
+          "decodedSha256": "918cb205156376e4c0a95958adb5a748997cb30d33907da3e0ea210c88ee095a",
+          "nativePixelsSha256": "7c1cb6545653b9dec9627b39b569336aa4be355692a5657ec3a04c154a641a62",
+          "rustPixelsSha256": "b59fd074bef17f641b39200aeacbd9b75074ea844a1ddaacd52f65db6ca211b6",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 63.5069009,
+              "butteraugli": 4.3435096741
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.314
+          }
+        },
+        {
+          "setting": 2.067,
+          "bytes": 116291,
+          "score": 87.41288326,
+          "butteraugli": 1.4205739498,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-2.067.jxl",
+          "artifactSha256": "eea9808fe155139e26ba425687db1320ddd945897997193e1513a7430ed15b4f",
+          "decodedSha256": "a9db3a815eb85b08d77b0c4558ecc78d4d25e48b24df034ee55ca2eaf6ce3aac",
+          "nativePixelsSha256": "f0b48a10da8df0e9df6e90fdbf1ae8c7e6a446ded77fefa3cdc5ef2db924f6af",
+          "rustPixelsSha256": "b6e9b751e4b0387986ae01baff5a7d720094c36d68b5c196a99ada1cf3950e06",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 87.41288326,
+              "butteraugli": 1.4205739498
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 2.067
+          }
+        },
+        {
+          "setting": 4.7568,
+          "bytes": 72285,
+          "score": 78.89484882,
+          "butteraugli": 2.4966650009,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.7568.jxl",
+          "artifactSha256": "587e387cd13d60144dcc829d17934713d85df57ee6a06ccbcde2570c9a8459a3",
+          "decodedSha256": "ce6f857b614eaf954a6e246a56afba6d3737c849e11aac346ca1518a9098ef1e",
+          "nativePixelsSha256": "68efdae08ad63bb7e73f59b9022098ef90661c86c425250887025a33db4333bf",
+          "rustPixelsSha256": "9f8ff498a41d9acab5e5d62ad8154a6360562463fd673712a404190985924c10",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 78.89484882,
+              "butteraugli": 2.4966650009
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.7568
+          }
+        },
+        {
+          "setting": 9.5138,
+          "bytes": 45641,
+          "score": 67.26803209,
+          "butteraugli": 3.9884648323,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-9.5138.jxl",
+          "artifactSha256": "336625eb7a256d8fc4cdd07217f6804a8342aeac85d5bc9f866669e709a4d8a0",
+          "decodedSha256": "f7c635d0c98707204df00fd9f788b6aa2abceaa753670bb7d22188c1a90e7392",
+          "nativePixelsSha256": "c9557786f6cc0ae10a101bab41142fa483578f7c77f6f16515364806efb83e37",
+          "rustPixelsSha256": "231a47183394295397f50454f938dde7c588ca307f64fb6e9485c79624b1cb02",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 67.26803209,
+              "butteraugli": 3.9884648323
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.5138
+          }
+        },
+        {
+          "setting": 1.4859,
+          "bytes": 138333,
+          "score": 89.32421369,
+          "butteraugli": 1.1376285553,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.4859.jxl",
+          "artifactSha256": "6f7663d28a08bef25d13ec4ec103f863c6dd25cbab8b1cfb993f63af6af48783",
+          "decodedSha256": "e026ebcdaf5a6f2f272598442885fa42dd8ca75664e63b2ee21d85a30b2f87d7",
+          "nativePixelsSha256": "5bbe8fc375a37dbd4aba765ad4e1a1e08c69283f4ad0038cc32f2973bda9e151",
+          "rustPixelsSha256": "8bd4297ddfb5c8f92834c1e7fbafc6aae7509a3fb7652a38e1e05227dc9af9ef",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.32421369,
+              "butteraugli": 1.1376285553
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.4859
+          }
+        },
+        {
+          "setting": 4.362,
+          "bytes": 76226,
+          "score": 80.11208725,
+          "butteraugli": 2.6895997524,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.362.jxl",
+          "artifactSha256": "2b1849fce82c641b278d17027e6e5f78c5a386e3ea061cd0531121ca8ff02e7a",
+          "decodedSha256": "48534f85593d2c6e33e207a33dabfea72f2f35e776b2e8c4f5f864bde49b9010",
+          "nativePixelsSha256": "a4141daf87c6dec7659db4040522285d3639b0e4227a686b796196bab6c684e0",
+          "rustPixelsSha256": "5800a31ccf315d0feb3fe255cc3a3ea8d2d8aa2216d9029a1b918a3b43c9a2d5",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.11208725,
+              "butteraugli": 2.6895997524
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.362
+          }
+        },
+        {
+          "setting": 8.7241,
+          "bytes": 48568,
+          "score": 68.84837985,
+          "butteraugli": 3.7296915054,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.7241.jxl",
+          "artifactSha256": "eed4970955290564737ac2975a300dca3f587c8230fe3524928915a1ff99acc0",
+          "decodedSha256": "0cf80a28407403379c47d4d253b2775d970ba92c04f39bbcf8b48ed5183cbeca",
+          "nativePixelsSha256": "20cd53b43968f917b542105c4dd7112d91f8b59b01e7ae58af7e3a4e1ba2def7",
+          "rustPixelsSha256": "3f8360656885aecc472614d23c931d39e2620d469bb9addabade4132067b6ac0",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 68.84837985,
+              "butteraugli": 3.7296915054
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.7241
+          }
+        },
+        {
+          "setting": 1.2598,
+          "bytes": 150724,
+          "score": 90.182344,
+          "butteraugli": 1.0585049391,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.2598.jxl",
+          "artifactSha256": "a0b5fec81a110cbe5e9b13fcc3e904d23dcc10d3011aece8d62d8ce62bfe4106",
+          "decodedSha256": "27e8a9127e864fad600969702f24b9fea1a36f59252e68883b1423bc770b426f",
+          "nativePixelsSha256": "93c3dd02c04f183d512f315190ff1e3e6957325605e57ca8732553f15ffe0203",
+          "rustPixelsSha256": "751ddcfdc3ec4d7ebf9e956f881a701119935c64fddc643a742fc777b354af7c",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.182344,
+              "butteraugli": 1.0585049391
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.2598
+          }
+        },
+        {
+          "setting": 4.5551,
+          "bytes": 74160,
+          "score": 79.30341065,
+          "butteraugli": 2.5187671185,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.5551.jxl",
+          "artifactSha256": "a72a922dbb0fc3f0c33a4d0cafce9087e2dc14adb3afe1bb30316e0403256b39",
+          "decodedSha256": "272042af7abffe7893b52a2fd21938a6acf4e135db54ed9a4158375ece03c153",
+          "nativePixelsSha256": "477097934f629eab7e4cffe03b2335323a106078260586a1b3e31903e08afbad",
+          "rustPixelsSha256": "f695bf704f21d98d8b59f0949221ffcac986f46fca9699fae1d204bedc8f5947",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.30341065,
+              "butteraugli": 2.5187671185
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.5551
+          }
+        },
+        {
+          "setting": 8.3542,
+          "bytes": 50106,
+          "score": 69.75862075,
+          "butteraugli": 3.4537196159,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.3542.jxl",
+          "artifactSha256": "08254afcd1325684ca303b62a14b2e3c0ee65072b6104d58b73cc683ab7ca877",
+          "decodedSha256": "752942aebf7bc69f609e5b544d2b2453123fbcc0c117efa956b55d315cebf29c",
+          "nativePixelsSha256": "c6abae6147f18458fa406ddbf0a8f560e1d43e25d4f97dae85af3578196a1e86",
+          "rustPixelsSha256": "a1ff099beadc2622ba91141c3569d4d42ca46d07fa286eea4711d787b94328f5",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 69.75862075,
+              "butteraugli": 3.4537196159
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.3542
+          }
+        },
+        {
+          "setting": 1.3682,
+          "bytes": 144572,
+          "score": 89.64220741,
+          "butteraugli": 1.0926468372,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.3682.jxl",
+          "artifactSha256": "01cb7df8ae90374cd78ceb05f7a91e87d19ad2d24697331450af49324be5e7f3",
+          "decodedSha256": "7d92a3aa4961a1229bb733aa4423bc3e5073341742eaa4aa912a3d7636ee595e",
+          "nativePixelsSha256": "0d84bf5911c6a605cfeddaeb2352e58f4b805287ac92800ea45e1ae62a6c90a8",
+          "rustPixelsSha256": "d2cea78c086df932ab010a0ee68bd596655d4d8659093b6540c2c0adc4d8a4ad",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.64220741,
+              "butteraugli": 1.0926468372
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.3682
+          }
+        },
+        {
+          "setting": 4.4575,
+          "bytes": 75115,
+          "score": 79.72163386,
+          "butteraugli": 2.7362015247,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.4575.jxl",
+          "artifactSha256": "218d7d331f3a16fbda2a0b89507fb02a777717400fe5d962f7b479cb96982d1e",
+          "decodedSha256": "860d56e1d7a5c299c61e7b7b942d79fffba91349bf817575bfd292db474950c3",
+          "nativePixelsSha256": "0f8c48fb53ac05821e2e85bccb577eb43b3749e4985affbdd6557795f04504a9",
+          "rustPixelsSha256": "f216f8eea3a539599d0a9b574eeb1162d97766b2d8b7003e39dea764c75c5b5e",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.72163386,
+              "butteraugli": 2.7362015247
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.4575
+          }
+        },
+        {
+          "setting": 8.1752,
+          "bytes": 50773,
+          "score": 70.17697434,
+          "butteraugli": 3.6540498734,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.1752.jxl",
+          "artifactSha256": "8b7c4ace1e9f06931139401ea169222bf7826ee097c2349c84b3003c227611ff",
+          "decodedSha256": "3e034fb5a1b069536c14f7fac38c80c6ff8c44f1551f4dc2cb6c9f8cc434920f",
+          "nativePixelsSha256": "700f1dd92145d0d9826254742c0028820ebc1d85a229d55ca5b5179a685b8182",
+          "rustPixelsSha256": "79ea74a3744afbe2ebe4087dbbf4eba0663297d5e182cc59050cb36b3e78dd31",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.17697434,
+              "butteraugli": 3.6540498734
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.1752
+          }
+        },
+        {
+          "setting": 1.3129,
+          "bytes": 147492,
+          "score": 89.84601974,
+          "butteraugli": 1.1355656385,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.3129.jxl",
+          "artifactSha256": "9c60631c670441515fd88e37320c27991b74fc4907e8282d67c8be70914ce8ac",
+          "decodedSha256": "7ac35dd1349eeb35db01e09377b1a66d4cfae3600f637fc4184b7c1adbcdaa2f",
+          "nativePixelsSha256": "f7e97b8b7b42c45423b06d5427e31691dec96154cd8b9d854a7a448466ac9a2f",
+          "rustPixelsSha256": "a75dbc7d7be499e81273e249918b345ec259b7039909b708f0c382123dfb1cd1",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.84601974,
+              "butteraugli": 1.1355656385
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.3129
+          }
+        },
+        {
+          "setting": 4.4095,
+          "bytes": 75632,
+          "score": 79.93851181,
+          "butteraugli": 2.6317834854,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.4095.jxl",
+          "artifactSha256": "85c95e27193d2d0b9c86c0d32ef3acde3b318dc6d410e01548c795128bea0715",
+          "decodedSha256": "5fd1d53844991b9b764c99cdafe3093f2635d429b9a0b5aef59b068f795692d0",
+          "nativePixelsSha256": "903df09082497304bcaaa05c5049711de826d2dae4d18a2b3490f7e1b77616ef",
+          "rustPixelsSha256": "b9fa404008636e089b30f45023837c9e3fedcea25f910711fd12bcefc62ad761",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.93851181,
+              "butteraugli": 2.6317834854
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.4095
+          }
+        },
+        {
+          "setting": 8.2642,
+          "bytes": 50404,
+          "score": 70.0250173,
+          "butteraugli": 3.7051887512,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.2642.jxl",
+          "artifactSha256": "356ad4ae8e0fefca62ddeb83cc0e3e33695581c52ed80781da4c8ba3de62ab10",
+          "decodedSha256": "fea24a6502736fc4db4c4edfb46d5a820924d81379fe8205e00334310439a39e",
+          "nativePixelsSha256": "5703efb11c3877627deaca14a7014722a61c6b813c58af8e3bc663c1077f2a4e",
+          "rustPixelsSha256": "54318b457fa441dace8de66af0466430896c5ff819beccdabd6d5a36f7ee7105",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.0250173,
+              "butteraugli": 3.7051887512
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.2642
+          }
+        },
+        {
+          "setting": 1.2861,
+          "bytes": 149110,
+          "score": 89.97480004,
+          "butteraugli": 1.0275814533,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.2861.jxl",
+          "artifactSha256": "bb657dd65a2800db21183424337f74e41e9aea1b248689be311c874d38ca130c",
+          "decodedSha256": "934432a1bb43d9ed33232c6af16d4b3c5d140cf8a7e61aab527db2b6510fd2cc",
+          "nativePixelsSha256": "112704b852738b434c3a3dae7d8aee8dbef8d68323c2456b7b8cd5b932d78cf5",
+          "rustPixelsSha256": "7941a79fac969c9923c57fc770a1a85e58c391597c57f3cbf239ca8383e32880",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.97480004,
+              "butteraugli": 1.0275814533
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.2861
+          }
+        },
+        {
+          "setting": 8.3091,
+          "bytes": 50252,
+          "score": 69.97782388,
+          "butteraugli": 3.7347583771,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.3091.jxl",
+          "artifactSha256": "ac311f26e034eaa7e6d7bec59cd71a34af5a2f6cc2c77393fb3cae04ad353a47",
+          "decodedSha256": "c99f9acd75d6b0b15be3e3f6043424bd3018236c0503eef0e9e84f897500f6d1",
+          "nativePixelsSha256": "e0ff35aa9e303333cd7f388dfc1644db75ac6d5954291afc8192fb00413d584a",
+          "rustPixelsSha256": "3e7e386541d86c62104191f6044b30abbd5bf697ff4911cade07f4aefc2c8c8b",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 69.97782388,
+              "butteraugli": 3.7347583771
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.3091
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "adequate bracket",
+          "width": 0.047193419999999264,
+          "bracket": {
+            "lower": {
+              "setting": 8.3091,
+              "bytes": 50252,
+              "score": 69.97782388,
+              "butteraugli": 3.7347583771,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.3091.jxl",
+              "artifactSha256": "ac311f26e034eaa7e6d7bec59cd71a34af5a2f6cc2c77393fb3cae04ad353a47",
+              "decodedSha256": "c99f9acd75d6b0b15be3e3f6043424bd3018236c0503eef0e9e84f897500f6d1",
+              "nativePixelsSha256": "e0ff35aa9e303333cd7f388dfc1644db75ac6d5954291afc8192fb00413d584a",
+              "rustPixelsSha256": "3e7e386541d86c62104191f6044b30abbd5bf697ff4911cade07f4aefc2c8c8b",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 69.97782388,
+                  "butteraugli": 3.7347583771
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8.3091
+              }
+            },
+            "upper": {
+              "setting": 8.2642,
+              "bytes": 50404,
+              "score": 70.0250173,
+              "butteraugli": 3.7051887512,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-8.2642.jxl",
+              "artifactSha256": "356ad4ae8e0fefca62ddeb83cc0e3e33695581c52ed80781da4c8ba3de62ab10",
+              "decodedSha256": "fea24a6502736fc4db4c4edfb46d5a820924d81379fe8205e00334310439a39e",
+              "nativePixelsSha256": "5703efb11c3877627deaca14a7014722a61c6b813c58af8e3bc663c1077f2a4e",
+              "rustPixelsSha256": "54318b457fa441dace8de66af0466430896c5ff819beccdabd6d5a36f7ee7105",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 70.0250173,
+                  "butteraugli": 3.7051887512
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8.2642
+              }
+            },
+            "width": 0.047193419999999264
+          },
+          "interpolatedBytes": 50323.36740691611
+        },
+        {
+          "target": 80,
+          "status": "adequate bracket",
+          "width": 0.17357544000000757,
+          "bracket": {
+            "lower": {
+              "setting": 4.4095,
+              "bytes": 75632,
+              "score": 79.93851181,
+              "butteraugli": 2.6317834854,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.4095.jxl",
+              "artifactSha256": "85c95e27193d2d0b9c86c0d32ef3acde3b318dc6d410e01548c795128bea0715",
+              "decodedSha256": "5fd1d53844991b9b764c99cdafe3093f2635d429b9a0b5aef59b068f795692d0",
+              "nativePixelsSha256": "903df09082497304bcaaa05c5049711de826d2dae4d18a2b3490f7e1b77616ef",
+              "rustPixelsSha256": "b9fa404008636e089b30f45023837c9e3fedcea25f910711fd12bcefc62ad761",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 79.93851181,
+                  "butteraugli": 2.6317834854
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.4095
+              }
+            },
+            "upper": {
+              "setting": 4.362,
+              "bytes": 76226,
+              "score": 80.11208725,
+              "butteraugli": 2.6895997524,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.362.jxl",
+              "artifactSha256": "2b1849fce82c641b278d17027e6e5f78c5a386e3ea061cd0531121ca8ff02e7a",
+              "decodedSha256": "48534f85593d2c6e33e207a33dabfea72f2f35e776b2e8c4f5f864bde49b9010",
+              "nativePixelsSha256": "a4141daf87c6dec7659db4040522285d3639b0e4227a686b796196bab6c684e0",
+              "rustPixelsSha256": "5800a31ccf315d0feb3fe255cc3a3ea8d2d8aa2216d9029a1b918a3b43c9a2d5",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 80.11208725,
+                  "butteraugli": 2.6895997524
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.362
+              }
+            },
+            "width": 0.17357544000000757
+          },
+          "interpolatedBytes": 75841.89008301675
+        },
+        {
+          "target": 90,
+          "status": "adequate bracket",
+          "width": 0.2075439599999953,
+          "bracket": {
+            "lower": {
+              "setting": 1.2861,
+              "bytes": 149110,
+              "score": 89.97480004,
+              "butteraugli": 1.0275814533,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.2861.jxl",
+              "artifactSha256": "bb657dd65a2800db21183424337f74e41e9aea1b248689be311c874d38ca130c",
+              "decodedSha256": "934432a1bb43d9ed33232c6af16d4b3c5d140cf8a7e61aab527db2b6510fd2cc",
+              "nativePixelsSha256": "112704b852738b434c3a3dae7d8aee8dbef8d68323c2456b7b8cd5b932d78cf5",
+              "rustPixelsSha256": "7941a79fac969c9923c57fc770a1a85e58c391597c57f3cbf239ca8383e32880",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.97480004,
+                  "butteraugli": 1.0275814533
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.2861
+              }
+            },
+            "upper": {
+              "setting": 1.2598,
+              "bytes": 150724,
+              "score": 90.182344,
+              "butteraugli": 1.0585049391,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.2598.jxl",
+              "artifactSha256": "a0b5fec81a110cbe5e9b13fcc3e904d23dcc10d3011aece8d62d8ce62bfe4106",
+              "decodedSha256": "27e8a9127e864fad600969702f24b9fea1a36f59252e68883b1423bc770b426f",
+              "nativePixelsSha256": "93c3dd02c04f183d512f315190ff1e3e6957325605e57ca8732553f15ffe0203",
+              "rustPixelsSha256": "751ddcfdc3ec4d7ebf9e956f881a701119935c64fddc643a742fc777b354af7c",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.182344,
+                  "butteraugli": 1.0585049391
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.2598
+              }
+            },
+            "width": 0.2075439599999953
+          },
+          "interpolatedBytes": 149305.0460922942
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "adequate bracket",
+          "width": 0.1209502816000001,
+          "bracket": {
+            "lower": {
+              "setting": 1.2861,
+              "bytes": 149110,
+              "score": -1.0275814533,
+              "butteraugli": 1.0275814533,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.2861.jxl",
+              "artifactSha256": "bb657dd65a2800db21183424337f74e41e9aea1b248689be311c874d38ca130c",
+              "decodedSha256": "934432a1bb43d9ed33232c6af16d4b3c5d140cf8a7e61aab527db2b6510fd2cc",
+              "nativePixelsSha256": "112704b852738b434c3a3dae7d8aee8dbef8d68323c2456b7b8cd5b932d78cf5",
+              "rustPixelsSha256": "7941a79fac969c9923c57fc770a1a85e58c391597c57f3cbf239ca8383e32880",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.97480004,
+                  "butteraugli": 1.0275814533
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.2861
+              }
+            },
+            "upper": {
+              "setting": 1.0681,
+              "bytes": 164192,
+              "score": -0.9066311717,
+              "butteraugli": 0.9066311717,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-1.0681.jxl",
+              "artifactSha256": "3c7aea0a1bc464da1051b26e3a970918ef48da576dd2e65ab3c8d4d815861f68",
+              "decodedSha256": "663eb88b9c66f138bc74c9e823f0ace065b460e8565528ab98370120a2d5a1f2",
+              "nativePixelsSha256": "44f0f0832abd464e61eb80feebf114ac67ce6c9ef4c2e04755c8ff1e736c5071",
+              "rustPixelsSha256": "46ef63e220459c0cfe613d3007a5cbc6d55e7ca78849a88ae362eeccd3e76afd",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.62677039,
+                  "butteraugli": 0.9066311717
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.0681
+              }
+            },
+            "width": 0.1209502816000001
+          },
+          "interpolatedBytes": 152422.52012216992
+        },
+        {
+          "target": 2,
+          "status": "wide bracket",
+          "width": 0.841281414,
+          "bracket": {
+            "lower": {
+              "setting": 4,
+              "bytes": 80225,
+              "score": -2.2618553638,
+              "butteraugli": 2.2618553638,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.jxl",
+              "artifactSha256": "2fb563241de078bc640de44694d696a576a177e42d29cb49592246185017c776",
+              "decodedSha256": "d493e7bdc27e7c97a85a605511ba5a2e1e45346a434a352d06106ad6a153590a",
+              "nativePixelsSha256": "f5d2e4f68884b57d48f85857e69f27bb46563f7619fba95d20e95e114c76e474",
+              "rustPixelsSha256": "731df4737011b2e475a64b042707ccff1cb18e72274cb63f008065fe591f2b3e",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 81.29291997,
+                  "butteraugli": 2.2618553638
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4
+              }
+            },
+            "upper": {
+              "setting": 2.067,
+              "bytes": 116291,
+              "score": -1.4205739498,
+              "butteraugli": 1.4205739498,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-2.067.jxl",
+              "artifactSha256": "eea9808fe155139e26ba425687db1320ddd945897997193e1513a7430ed15b4f",
+              "decodedSha256": "a9db3a815eb85b08d77b0c4558ecc78d4d25e48b24df034ee55ca2eaf6ce3aac",
+              "nativePixelsSha256": "f0b48a10da8df0e9df6e90fdbf1ae8c7e6a446ded77fefa3cdc5ef2db924f6af",
+              "rustPixelsSha256": "b6e9b751e4b0387986ae01baff5a7d720094c36d68b5c196a99ada1cf3950e06",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 87.41288326,
+                  "butteraugli": 1.4205739498
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 2.067
+              }
+            },
+            "width": 0.841281414
+          },
+          "interpolatedBytes": 90052.5052061054
+        },
+        {
+          "target": 3,
+          "status": "wide bracket",
+          "width": 0.6362533568999997,
+          "bracket": {
+            "lower": {
+              "setting": 5.6569,
+              "bytes": 64802,
+              "score": -3.1329183578,
+              "butteraugli": 3.1329183578,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-5.6569.jxl",
+              "artifactSha256": "51c035d9f7e236e5bfcb9478d20e0110bd1f5386338949a65a6348e903f767b1",
+              "decodedSha256": "57ff2094f2e930509df79e4558ef28ad199b027856c0e102f91ced4a1cdcc185",
+              "nativePixelsSha256": "4db5e59f16939bfc69cec3cbb14fb4c86098d5871c8fac63effacdd31a2abeca",
+              "rustPixelsSha256": "9444f92f634a6219be0763ef52e76ffe3ee5015f739786c5293fddd4e23241dd",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 76.34675645,
+                  "butteraugli": 3.1329183578
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 5.6569
+              }
+            },
+            "upper": {
+              "setting": 4.7568,
+              "bytes": 72285,
+              "score": -2.4966650009,
+              "butteraugli": 2.4966650009,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1030-diagnostic-purejsimage-4.7568.jxl",
+              "artifactSha256": "587e387cd13d60144dcc829d17934713d85df57ee6a06ccbcde2570c9a8459a3",
+              "decodedSha256": "ce6f857b614eaf954a6e246a56afba6d3737c849e11aac346ca1518a9098ef1e",
+              "nativePixelsSha256": "68efdae08ad63bb7e73f59b9022098ef90661c86c425250887025a33db4333bf",
+              "rustPixelsSha256": "9f8ff498a41d9acab5e5d62ad8154a6360562463fd673712a404190985924c10",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 78.89484882,
+                  "butteraugli": 2.4966650009
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.7568
+              }
+            },
+            "width": 0.6362533568999997
+          },
+          "interpolatedBytes": 66298.41292617054
+        }
+      ],
+      "monotonicityViolations": 1
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "scope": "capped",
+      "sourceSha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "settingBounds": {
+        "minimum": 0.25,
+        "maximum": 25,
+        "mapping": "distance"
+      },
+      "subject": "purejsimage",
+      "role": "isolated copied first-party encoder prototype, excluded from public JavaScript rankings",
+      "points": [
+        {
+          "setting": 1,
+          "bytes": 137876,
+          "score": 91.25570839,
+          "butteraugli": 1.0002689362,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.jxl",
+          "artifactSha256": "acbf222937fcd21e09f95d6967ec93432ef69d22385f06dfcdf55b11f853e592",
+          "decodedSha256": "110b9133fb404c489124206969a6f4a699672eb9dbc970c65988fca56fa7c3d6",
+          "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+          "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 91.25570839,
+              "butteraugli": 1.0002689362
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1
+          }
+        },
+        {
+          "setting": 4,
+          "bytes": 50515,
+          "score": 80.94204496,
+          "butteraugli": 1.9399738312,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.jxl",
+          "artifactSha256": "83415c8a6550061d4c6842091f7eabcf1e3d3e551baf1c400d9a1fc533da4b59",
+          "decodedSha256": "c809da9d336e2505ab9be6b152fca5ebbfd252e0661124a71cfac0acdd11813c",
+          "nativePixelsSha256": "6da1bf8e86dd401af65ca82ba07812ec237c60b0bc88be8a2a4954ed8e54bd9d",
+          "rustPixelsSha256": "a2d325ddf8b4f7aaa964db37e609f12e86e55aa903a5970f8abfbef55bf736bb",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.94204496,
+              "butteraugli": 1.9399738312
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4
+          }
+        },
+        {
+          "setting": 8,
+          "bytes": 31020,
+          "score": 68.99704948,
+          "butteraugli": 3.202880621,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-8.jxl",
+          "artifactSha256": "2f5971053a183f0438ebb1685191eeed5b5574bda4d831277cebe0202911863f",
+          "decodedSha256": "9490b2b95972e3b570a29418c8318ea3f60e599bb322438c3720ff47fe343d73",
+          "nativePixelsSha256": "fd91f9b80d987e27f434412c176ae83609c75e00eb0ff96b15e68463a3093963",
+          "rustPixelsSha256": "064d04144b0105676c681d8f66776639f02d0a40deb30db0a1c1d63a2bb791a3",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 68.99704948,
+              "butteraugli": 3.202880621
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8
+          }
+        },
+        {
+          "setting": 7.5477,
+          "bytes": 32379,
+          "score": 70.2921917,
+          "butteraugli": 2.8644380569,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.5477.jxl",
+          "artifactSha256": "94afc089c80022e94918bab14a4e9c57bb8317738d2ee053195d98b18236fee1",
+          "decodedSha256": "b33a9ab7d274742e1dc8c41f87737aa302ed67f5f83a65d41eb2b014cb4e6685",
+          "nativePixelsSha256": "4ae73004838019bc16587f5a73d2a1e3a414b3416f7f5ea4a5290479a5652180",
+          "rustPixelsSha256": "e30606f5f346391ab3d0b080498fa27d13746a0902680e5c0d1046b15d042060",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.2921917,
+              "butteraugli": 2.8644380569
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.5477
+          }
+        },
+        {
+          "setting": 1.1839,
+          "bytes": 118959,
+          "score": 90.77016997,
+          "butteraugli": 0.9638038874,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.1839.jxl",
+          "artifactSha256": "8536c57f85ac28d0347424997b42a5b98e7696e858ff03d2e9e693571baa4534",
+          "decodedSha256": "dd53a1f381e7bcf0feb0548625fa9bea80108cec7e76a726debd329a1ada6bec",
+          "nativePixelsSha256": "1cf56ce75d2a23cbfb7bc9334b39e29a7525e949b5f1f398579bdd07c879293c",
+          "rustPixelsSha256": "e6b683a8c07a1257c1372e2500091e50238d89d014177897c9e0d8aebe1095b1",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.77016997,
+              "butteraugli": 0.9638038874
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.1839
+          }
+        },
+        {
+          "setting": 4.2311,
+          "bytes": 48747,
+          "score": 80.28335763,
+          "butteraugli": 1.9560046196,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2311.jxl",
+          "artifactSha256": "d1d3119cc50e9f38e3e5ad16d1d607ed0e3a3b620fb6ed9a4f0c13663655d5a7",
+          "decodedSha256": "29cb344df7aea940c8ab633d181b18b82a859aefa88d47b0e18710e4a37480a5",
+          "nativePixelsSha256": "b4ca1db36a7aef063a586da40ee5d0cf659c4eaeff50cf724fd94bb9221bb3dd",
+          "rustPixelsSha256": "d4dc7bab686bffdd6df68d2f83847b804f5b9b2b17ce92b3a56d0fa07122c895",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.28335763,
+              "butteraugli": 1.9560046196
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.2311
+          }
+        },
+        {
+          "setting": 7.6475,
+          "bytes": 32121,
+          "score": 70.07078317,
+          "butteraugli": 3.057972908,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.6475.jxl",
+          "artifactSha256": "4ba268a773660223f1080abaf1e2f28fafef766cb7a68c4009c932b1ce781872",
+          "decodedSha256": "e0af53e820e9eb5c7d81b0761a4fc763a1b1172707f938bcb94267d3b9d4070e",
+          "nativePixelsSha256": "c9b6a519ef1a433368f5e937e438691bdd548d02e1815216afcb517601eb6f12",
+          "rustPixelsSha256": "7f0b0b0d512796cca3a9238c7bb408d123367c82aa74a10f9fb6ce142d8566fa",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.07078317,
+              "butteraugli": 3.057972908
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.6475
+          }
+        },
+        {
+          "setting": 1.3024,
+          "bytes": 110368,
+          "score": 90.25756747,
+          "butteraugli": 0.9756944776,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3024.jxl",
+          "artifactSha256": "047bff3af652043e4f9c6708d5aef50c2a3ddf5c97254806966fe717c1134ba9",
+          "decodedSha256": "fb331779845dbcbe0450570232784067a6d198e6ac2fe5c52940155af8848c3b",
+          "nativePixelsSha256": "dc5458c1a0c441592afd6d85a05cbd3bee5081c346a9fd2a95dd43a3bc2afc51",
+          "rustPixelsSha256": "1a001d66c8a2617375d2cbf7466cdfac03252b39cea3399a154cbc1db5e2184b",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.25756747,
+              "butteraugli": 0.9756944776
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.3024
+          }
+        },
+        {
+          "setting": 4.3011,
+          "bytes": 48132,
+          "score": 79.92489459,
+          "butteraugli": 2.0242097378,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.3011.jxl",
+          "artifactSha256": "1212ae213dfdb37fe74fba8a35060e43f4c495ea0a41ab18c3384c635ed492a8",
+          "decodedSha256": "2c524e0f2d42458c3a4b1b080f6af61f6702492838ba9193f60c1b19f05a9d5b",
+          "nativePixelsSha256": "3ec3f73e1fd1c0b07fee66ddc1f2b09ce17144247757ca867ed1c1dfb2c33ca3",
+          "rustPixelsSha256": "f478aea5a5ff3229eab8fa8b62f045cbc6d5d95ceed04079f9b20255a256b654",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.92489459,
+              "butteraugli": 2.0242097378
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.3011
+          }
+        },
+        {
+          "setting": 7.6703,
+          "bytes": 32031,
+          "score": 70.0112743,
+          "butteraugli": 3.0415010452,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.6703.jxl",
+          "artifactSha256": "a5a79adb530fe0e0cbc88fc71189e7e5b2e20ea5a6999e8f06ae756af3130c98",
+          "decodedSha256": "774dfc92469b02d6354632dba126dcf1b55ee01fcc742c30cde1adb9bd08db09",
+          "nativePixelsSha256": "ba5f1ac3ce3a831a0324ea06980ae2ff25a2a8a81d3f4ec0f6d1c0a800ba2dee",
+          "rustPixelsSha256": "d9596a60e2b3aad3cd4005026ab606231c3e4a6615170d8c68c0f73bcc85379b",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.0112743,
+              "butteraugli": 3.0415010452
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.6703
+          }
+        },
+        {
+          "setting": 1.3434,
+          "bytes": 107939,
+          "score": 90.06816096,
+          "butteraugli": 1.0279462337,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3434.jxl",
+          "artifactSha256": "681b1ecc66c5167420e6e22e5bd07fb0a5d613309d532367bd365fa79c406b16",
+          "decodedSha256": "14d4907b9f99240240784cb88032b5e0f1429502e1c56f38e5868836941fe21b",
+          "nativePixelsSha256": "24e8fc8be28150bf9055e6695abb34be7f4042f3b77f916439d9f1c8f67fa6d4",
+          "rustPixelsSha256": "d8a783c6dfc9057b982cc24535bfc458ea4d690b0e8e620af730d1704952e20b",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.06816096,
+              "butteraugli": 1.0279462337
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.3434
+          }
+        },
+        {
+          "setting": 4.2863,
+          "bytes": 48324,
+          "score": 79.99264294,
+          "butteraugli": 1.9954959154,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2863.jxl",
+          "artifactSha256": "055acf6eb66504f5a22b7b0c55ea8679d932c128b707ff541113e649b4327f02",
+          "decodedSha256": "dd353c88722c9aded0cdb36a2949bc45df4fb6536a205f5a85d84d11e8bf0a29",
+          "nativePixelsSha256": "3388353ef06a3e62fddd0ad8e77e4eb9a66352df06d4461a4f62515182413b9d",
+          "rustPixelsSha256": "8f8e80fea4b0bac1e776a4b808d2d385b75989f088a716c5686d5863d85953ae",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.99264294,
+              "butteraugli": 1.9954959154
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.2863
+          }
+        },
+        {
+          "setting": 7.8334,
+          "bytes": 31646,
+          "score": 69.55387778,
+          "butteraugli": 3.1818301678,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.8334.jxl",
+          "artifactSha256": "626849800c54e8d564735db381f6cf5f82d913faf09ab23960be20428b2652db",
+          "decodedSha256": "0fe872c8746b82cc2dd0246d7b7b8b75ae56969f002cf41d1f0a3434af0dee5b",
+          "nativePixelsSha256": "156f23646980a07f3ac5fe0400fa783aa81c9a50bf9009fc6599bb0b34ebd806",
+          "rustPixelsSha256": "c3a00a9c1ed1d8448011bf99d4989884cb0109afd7701d12dd009d7faf4e60fb",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 69.55387778,
+              "butteraugli": 3.1818301678
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.8334
+          }
+        },
+        {
+          "setting": 1.3544,
+          "bytes": 107199,
+          "score": 90.00325926,
+          "butteraugli": 1.022832036,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3544.jxl",
+          "artifactSha256": "900647b66658954b92a2e52a825057e181a61c145752bccd74edc0e1187e7071",
+          "decodedSha256": "e983b2408ee1339f8e6c347d0079bb836087ebd5e67fb92770de3002e7c45691",
+          "nativePixelsSha256": "239c5481f1675d8906ad11667fa83748ca19272dc601deb61b9a1f9daa3910d6",
+          "rustPixelsSha256": "f37aecb6a40806a138e69c964f0ad96a3e234971941bdcad33cb0991e9a88b90",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.00325926,
+              "butteraugli": 1.022832036
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.3544
+          }
+        },
+        {
+          "setting": 4.2586,
+          "bytes": 48501,
+          "score": 80.10868717,
+          "butteraugli": 1.9139918089,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2586.jxl",
+          "artifactSha256": "cbdfb87e2b6938dcba86719a444d158914d3b1535bb0dd14fa0d0c3a56d9f79e",
+          "decodedSha256": "77723f1a0f9b11bacfb7f0c3a1481d2bedf3228fb9b049703833b0cb89484b50",
+          "nativePixelsSha256": "7270c258d376e9959dd24762ca53a9248133256b297703b2de40ccf2784a642f",
+          "rustPixelsSha256": "fc11de727a4dc1c43efeab426fa4213fa0d459545912ab19ec2dffe653c99eb4",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.10868717,
+              "butteraugli": 1.9139918089
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.2586
+          }
+        },
+        {
+          "setting": 7.7514,
+          "bytes": 31898,
+          "score": 69.79594251,
+          "butteraugli": 3.1929144859,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.7514.jxl",
+          "artifactSha256": "d3d970f0610b297b01ff1189cc4f2d596247fbe13b36c1b5736c530128e9926f",
+          "decodedSha256": "83da0dccac9c6aac5e9a153b80bd44ca876becfbfe8d8d2d67de0888368cada6",
+          "nativePixelsSha256": "06d0e73fba7ae6eb2bf2b04e692007b936c5b364053262b900434aaec9f7a1da",
+          "rustPixelsSha256": "32e2b4a86d6cddb000fbdf23dbb3491123adbab5e7597d3dbb168b7ceab4712f",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 69.79594251,
+              "butteraugli": 3.1929144859
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.7514
+          }
+        },
+        {
+          "setting": 2.3276,
+          "bytes": 72610,
+          "score": 86.67284747,
+          "butteraugli": 1.6934741735,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-2.3276.jxl",
+          "artifactSha256": "f3f2b9a2c8a250464f03bde7674d050deb78341d7bb57a662ab28b1d003519ed",
+          "decodedSha256": "0c91cb2c798e369636e73118788b0e61e3b573258f9e6fc20e3c6ae2aceaf6fb",
+          "nativePixelsSha256": "ba122e7fa48a8b0ea6b4762502a097b27854c301f5e0234a955bdeba89d89b4c",
+          "rustPixelsSha256": "9393e79ad2230be34a3d1f679c08d9b89cedaf9b1a1c22333cb703acebabbc6b",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 86.67284747,
+              "butteraugli": 1.6934741735
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 2.3276
+          }
+        },
+        {
+          "setting": 1.7755,
+          "bytes": 87620,
+          "score": 88.51962665,
+          "butteraugli": 1.1413015127,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.7755.jxl",
+          "artifactSha256": "59c1234b2e5e0d757d634fa62b80bedfda72a59d9125880be3d465d5597edbf3",
+          "decodedSha256": "0c990b55f359e2815da0fec7cfb5426a6287ada4ddeca06cf1608941c6c0005b",
+          "nativePixelsSha256": "2f77e43459d18158706e69fdc395e0ebd3f6a535a19ea0babd092c00f755fb2b",
+          "rustPixelsSha256": "459f794baa7f26e1418b87128086b6955b2fdf66149910d258805511766e8f41",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.51962665,
+              "butteraugli": 1.1413015127
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.7755
+          }
+        },
+        {
+          "setting": 1.5507,
+          "bytes": 96835,
+          "score": 89.39806359,
+          "butteraugli": 1.0800132751,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.5507.jxl",
+          "artifactSha256": "f6807b4433562c0f71eadf5a20f19a8864b99eaed19e50b24e67475a8416cdbc",
+          "decodedSha256": "f58f2f1b248ba71262f33e8252eb28e81ed14cf0c56ec127928ceb455536d1a0",
+          "nativePixelsSha256": "f4c8887e4475e392b3fe1cc23d30df76851e8da950b673448c86164920dc24d0",
+          "rustPixelsSha256": "09890927fe497c99eb2659a193be7a87b37730fcb8ee260d031b6258e2fbfe42",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.39806359,
+              "butteraugli": 1.0800132751
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.5507
+          }
+        },
+        {
+          "setting": 1.4492,
+          "bytes": 101764,
+          "score": 89.80779186,
+          "butteraugli": 1.0811793804,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.4492.jxl",
+          "artifactSha256": "01258426b074354d9acd72974323a68b4d95f8cbf51e6b3f1f4c06643bd7d38c",
+          "decodedSha256": "59b2e15d424f4e39a8a11a69a427a74cbdeea7e727ef205e35aaa118f63db60f",
+          "nativePixelsSha256": "3c269dfce2df2fb9d483bbcc9e6e25ea81d5c0d1ea71cf4f4a4cdefc6fd9770b",
+          "rustPixelsSha256": "23ca66a7607f44ff62dd6040b2370d7cee29b669a06d3d03ee0e5fe4d2154c65",
+          "maximumDecoderError": 1,
+          "alphaError": 0,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.80779186,
+              "butteraugli": 1.0811793804
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.4492
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "adequate bracket",
+          "width": 0.21533178999999336,
+          "bracket": {
+            "lower": {
+              "setting": 7.7514,
+              "bytes": 31898,
+              "score": 69.79594251,
+              "butteraugli": 3.1929144859,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.7514.jxl",
+              "artifactSha256": "d3d970f0610b297b01ff1189cc4f2d596247fbe13b36c1b5736c530128e9926f",
+              "decodedSha256": "83da0dccac9c6aac5e9a153b80bd44ca876becfbfe8d8d2d67de0888368cada6",
+              "nativePixelsSha256": "06d0e73fba7ae6eb2bf2b04e692007b936c5b364053262b900434aaec9f7a1da",
+              "rustPixelsSha256": "32e2b4a86d6cddb000fbdf23dbb3491123adbab5e7597d3dbb168b7ceab4712f",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 69.79594251,
+                  "butteraugli": 3.1929144859
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.7514
+              }
+            },
+            "upper": {
+              "setting": 7.6703,
+              "bytes": 32031,
+              "score": 70.0112743,
+              "butteraugli": 3.0415010452,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.6703.jxl",
+              "artifactSha256": "a5a79adb530fe0e0cbc88fc71189e7e5b2e20ea5a6999e8f06ae756af3130c98",
+              "decodedSha256": "774dfc92469b02d6354632dba126dcf1b55ee01fcc742c30cde1adb9bd08db09",
+              "nativePixelsSha256": "ba5f1ac3ce3a831a0324ea06980ae2ff25a2a8a81d3f4ec0f6d1c0a800ba2dee",
+              "rustPixelsSha256": "d9596a60e2b3aad3cd4005026ab606231c3e4a6615170d8c68c0f73bcc85379b",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 70.0112743,
+                  "butteraugli": 3.0415010452
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.6703
+              }
+            },
+            "width": 0.21533178999999336
+          },
+          "interpolatedBytes": 32024.022674556552
+        },
+        {
+          "target": 80,
+          "status": "adequate bracket",
+          "width": 0.11604422999999997,
+          "bracket": {
+            "lower": {
+              "setting": 4.2863,
+              "bytes": 48324,
+              "score": 79.99264294,
+              "butteraugli": 1.9954959154,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2863.jxl",
+              "artifactSha256": "055acf6eb66504f5a22b7b0c55ea8679d932c128b707ff541113e649b4327f02",
+              "decodedSha256": "dd353c88722c9aded0cdb36a2949bc45df4fb6536a205f5a85d84d11e8bf0a29",
+              "nativePixelsSha256": "3388353ef06a3e62fddd0ad8e77e4eb9a66352df06d4461a4f62515182413b9d",
+              "rustPixelsSha256": "8f8e80fea4b0bac1e776a4b808d2d385b75989f088a716c5686d5863d85953ae",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 79.99264294,
+                  "butteraugli": 1.9954959154
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.2863
+              }
+            },
+            "upper": {
+              "setting": 4.2586,
+              "bytes": 48501,
+              "score": 80.10868717,
+              "butteraugli": 1.9139918089,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2586.jxl",
+              "artifactSha256": "cbdfb87e2b6938dcba86719a444d158914d3b1535bb0dd14fa0d0c3a56d9f79e",
+              "decodedSha256": "77723f1a0f9b11bacfb7f0c3a1481d2bedf3228fb9b049703833b0cb89484b50",
+              "nativePixelsSha256": "7270c258d376e9959dd24762ca53a9248133256b297703b2de40ccf2784a642f",
+              "rustPixelsSha256": "fc11de727a4dc1c43efeab426fa4213fa0d459545912ab19ec2dffe653c99eb4",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 80.10868717,
+                  "butteraugli": 1.9139918089
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.2586
+              }
+            },
+            "width": 0.11604422999999997
+          },
+          "interpolatedBytes": 48335.202377314796
+        },
+        {
+          "target": 90,
+          "status": "adequate bracket",
+          "width": 0.1954673999999983,
+          "bracket": {
+            "lower": {
+              "setting": 1.4492,
+              "bytes": 101764,
+              "score": 89.80779186,
+              "butteraugli": 1.0811793804,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.4492.jxl",
+              "artifactSha256": "01258426b074354d9acd72974323a68b4d95f8cbf51e6b3f1f4c06643bd7d38c",
+              "decodedSha256": "59b2e15d424f4e39a8a11a69a427a74cbdeea7e727ef205e35aaa118f63db60f",
+              "nativePixelsSha256": "3c269dfce2df2fb9d483bbcc9e6e25ea81d5c0d1ea71cf4f4a4cdefc6fd9770b",
+              "rustPixelsSha256": "23ca66a7607f44ff62dd6040b2370d7cee29b669a06d3d03ee0e5fe4d2154c65",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.80779186,
+                  "butteraugli": 1.0811793804
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.4492
+              }
+            },
+            "upper": {
+              "setting": 1.3544,
+              "bytes": 107199,
+              "score": 90.00325926,
+              "butteraugli": 1.022832036,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3544.jxl",
+              "artifactSha256": "900647b66658954b92a2e52a825057e181a61c145752bccd74edc0e1187e7071",
+              "decodedSha256": "e983b2408ee1339f8e6c347d0079bb836087ebd5e67fb92770de3002e7c45691",
+              "nativePixelsSha256": "239c5481f1675d8906ad11667fa83748ca19272dc601deb61b9a1f9daa3910d6",
+              "rustPixelsSha256": "f37aecb6a40806a138e69c964f0ad96a3e234971941bdcad33cb0991e9a88b90",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.00325926,
+                  "butteraugli": 1.022832036
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.3544
+              }
+            },
+            "width": 0.1954673999999983
+          },
+          "interpolatedBytes": 107106.03806855627
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "adequate bracket",
+          "width": 0.0471375584,
+          "bracket": {
+            "lower": {
+              "setting": 1.3544,
+              "bytes": 107199,
+              "score": -1.022832036,
+              "butteraugli": 1.022832036,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3544.jxl",
+              "artifactSha256": "900647b66658954b92a2e52a825057e181a61c145752bccd74edc0e1187e7071",
+              "decodedSha256": "e983b2408ee1339f8e6c347d0079bb836087ebd5e67fb92770de3002e7c45691",
+              "nativePixelsSha256": "239c5481f1675d8906ad11667fa83748ca19272dc601deb61b9a1f9daa3910d6",
+              "rustPixelsSha256": "f37aecb6a40806a138e69c964f0ad96a3e234971941bdcad33cb0991e9a88b90",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.00325926,
+                  "butteraugli": 1.022832036
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.3544
+              }
+            },
+            "upper": {
+              "setting": 1.3024,
+              "bytes": 110368,
+              "score": -0.9756944776,
+              "butteraugli": 0.9756944776,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-1.3024.jxl",
+              "artifactSha256": "047bff3af652043e4f9c6708d5aef50c2a3ddf5c97254806966fe717c1134ba9",
+              "decodedSha256": "fb331779845dbcbe0450570232784067a6d198e6ac2fe5c52940155af8848c3b",
+              "nativePixelsSha256": "dc5458c1a0c441592afd6d85a05cbd3bee5081c346a9fd2a95dd43a3bc2afc51",
+              "rustPixelsSha256": "1a001d66c8a2617375d2cbf7466cdfac03252b39cea3399a154cbc1db5e2184b",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.25756747,
+                  "butteraugli": 0.9756944776
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.3024
+              }
+            },
+            "width": 0.0471375584
+          },
+          "interpolatedBytes": 108722.44245715595
+        },
+        {
+          "target": 2,
+          "status": "adequate bracket",
+          "width": 0.02871382240000009,
+          "bracket": {
+            "lower": {
+              "setting": 4.3011,
+              "bytes": 48132,
+              "score": -2.0242097378,
+              "butteraugli": 2.0242097378,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.3011.jxl",
+              "artifactSha256": "1212ae213dfdb37fe74fba8a35060e43f4c495ea0a41ab18c3384c635ed492a8",
+              "decodedSha256": "2c524e0f2d42458c3a4b1b080f6af61f6702492838ba9193f60c1b19f05a9d5b",
+              "nativePixelsSha256": "3ec3f73e1fd1c0b07fee66ddc1f2b09ce17144247757ca867ed1c1dfb2c33ca3",
+              "rustPixelsSha256": "f478aea5a5ff3229eab8fa8b62f045cbc6d5d95ceed04079f9b20255a256b654",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 79.92489459,
+                  "butteraugli": 2.0242097378
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.3011
+              }
+            },
+            "upper": {
+              "setting": 4.2863,
+              "bytes": 48324,
+              "score": -1.9954959154,
+              "butteraugli": 1.9954959154,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-4.2863.jxl",
+              "artifactSha256": "055acf6eb66504f5a22b7b0c55ea8679d932c128b707ff541113e649b4327f02",
+              "decodedSha256": "dd353c88722c9aded0cdb36a2949bc45df4fb6536a205f5a85d84d11e8bf0a29",
+              "nativePixelsSha256": "3388353ef06a3e62fddd0ad8e77e4eb9a66352df06d4461a4f62515182413b9d",
+              "rustPixelsSha256": "8f8e80fea4b0bac1e776a4b808d2d385b75989f088a716c5686d5863d85953ae",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 79.99264294,
+                  "butteraugli": 1.9954959154
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.2863
+              }
+            },
+            "width": 0.02871382240000009
+          },
+          "interpolatedBytes": 48293.8320806624
+        },
+        {
+          "target": 3,
+          "status": "adequate bracket",
+          "width": 0.1770629882999999,
+          "bracket": {
+            "lower": {
+              "setting": 7.6703,
+              "bytes": 32031,
+              "score": -3.0415010452,
+              "butteraugli": 3.0415010452,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.6703.jxl",
+              "artifactSha256": "a5a79adb530fe0e0cbc88fc71189e7e5b2e20ea5a6999e8f06ae756af3130c98",
+              "decodedSha256": "774dfc92469b02d6354632dba126dcf1b55ee01fcc742c30cde1adb9bd08db09",
+              "nativePixelsSha256": "ba5f1ac3ce3a831a0324ea06980ae2ff25a2a8a81d3f4ec0f6d1c0a800ba2dee",
+              "rustPixelsSha256": "d9596a60e2b3aad3cd4005026ab606231c3e4a6615170d8c68c0f73bcc85379b",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 70.0112743,
+                  "butteraugli": 3.0415010452
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.6703
+              }
+            },
+            "upper": {
+              "setting": 7.5477,
+              "bytes": 32379,
+              "score": -2.8644380569,
+              "butteraugli": 2.8644380569,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-ac-rounding-122/im26-1416-diagnostic-purejsimage-7.5477.jxl",
+              "artifactSha256": "94afc089c80022e94918bab14a4e9c57bb8317738d2ee053195d98b18236fee1",
+              "decodedSha256": "b33a9ab7d274742e1dc8c41f87737aa302ed67f5f83a65d41eb2b014cb4e6685",
+              "nativePixelsSha256": "4ae73004838019bc16587f5a73d2a1e3a414b3416f7f5ea4a5290479a5652180",
+              "rustPixelsSha256": "e30606f5f346391ab3d0b080498fa27d13746a0902680e5c0d1046b15d042060",
+              "maximumDecoderError": 1,
+              "alphaError": 0,
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 70.2921917,
+                  "butteraugli": 2.8644380569
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.5477
+              }
+            },
+            "width": 0.1770629882999999
+          },
+          "interpolatedBytes": 32112.229167706428
+        }
+      ],
+      "monotonicityViolations": 0
+    }
+  ],
+  "postRunIdentityVerification": {
+    "date": "2026-10-02T15:16:56.232Z",
+    "toolPaths": {
+      "ssimulacra2": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "butteraugli_main": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "libjxlDecoder": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "rustDecoder": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli"
+    },
+    "toolHashes": {
+      "ssimulacra2": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740",
+      "butteraugli_main": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde",
+      "libjxlDecoder": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "rustDecoder": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    "publicBaseline": {
+      "path": "benchmark/jpegxl/comparison/results/quality-alpha-left-public.json",
+      "sha256": "90759ec230986252a375cf4a484f1629c10f204be7e2f790d7de1a544e0a9685"
+    },
+    "boundary": "Executable identities verified after the completed controls. Native decoder and metrics equal frozen qualified public identities. Isolated module/preparation hashes also rechecked; repository codec source remained unchanged."
+  }
+}

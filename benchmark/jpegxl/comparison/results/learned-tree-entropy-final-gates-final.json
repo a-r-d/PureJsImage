@@ -1,0 +1,140 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-focused-197.json",
+      "sha256": "14b1ceb7040e68ef879d60bd79a024247c527480d8632cccbc86f3b1cc754d37"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-artwork-197.json",
+      "sha256": "3d9ec6be994429d3e9957a3197bdaa3fa587bccba7cd62c14c5c4cb862ee68ab"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-matrix-198.json",
+      "sha256": "54c34032d6000c17256fd6322cc54a230757cb5c1173649d9fa9c9017f8c58ab"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-quality-199.json",
+      "sha256": "483093e23dbed2509a7cb1535a08b993ac4d9d83891f8ebfc352fda6ebb88640"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-memory-200.json",
+      "sha256": "a7895e07ed624a08b2d5c708fad9624571cfd7188fc3ce3baa5fba6c13a5c1e5"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-browser-201b.json",
+      "sha256": "224ea615d80a61d4ea5d768e8b0c8a2ce4e5952a8fbdf9883e6f916034720b3f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-helper-201d.json",
+      "sha256": "aecab4b98cb1456cd22bc9a1de523c11d20ec425efb10616efa03d951b03a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-audit-202c.json",
+      "sha256": "ae08438e644b3ea548c9e6dc368083fb0190fb9051c112c64b54dfb896626572"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-check-203c.json",
+      "sha256": "5c8c0147c31381fb4141d680640ae98d61607b3d0d87c35d8ee49138a8cc5b75"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-audit-final.json",
+      "sha256": "bc641b31df7ae6e80c55e5a6a951d5e2711afb50ca3431e1a46faf41e9c62037"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-minimum-controls.json",
+      "sha256": "12f9238c0eea3a38e3a596260324731848999abbe47dc63c73588515d7523865"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-tree-entropy-final-gates-203c.ts",
+      "sha256": "ac3296c8c390517e05a1cf28d3f4dfe3956bf0266dd67c9c7d7dd434ea50c0d4"
+    },
+    {
+      "path": "/tmp/jpegxl-tree-entropy-check-203c.log",
+      "sha256": "1d470e6621fc13d12fe9bdb57444366e5038be946a34e3977b3461734780cae7"
+    },
+    {
+      "path": "/tmp/jpegxl-tree-entropy-browser-201b.log",
+      "sha256": "d869be237766accc19db3e920f179e20e72ae2dbc46628897c3c174bd4b300b1"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "5e0ebca418882264dc5f4e979a76e121845bfb632e830f3910f1d67e5cc2d5e3"
+    },
+    {
+      "path": "tests/jpegxl-artwork.test.ts",
+      "sha256": "4989e44f6eb89ff49d2d3b6de9c371df0810e7fbe817574067c32cf62d336a19"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "a691e541e1da6413c1ea169b0f0cfc0e637f028069d4b15ce86bf4251406b413"
+    }
+  ],
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "e76fae0712f7c11e97b6db034062aaf62795b3ed2fdb5a2d88501b6d9aa8e803"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "qualityAudit": {
+    "observations": 97,
+    "pins": 52,
+    "calculations": 52,
+    "newlyEncoded": 91
+  },
+  "minimumBudget": {
+    "required": 221988,
+    "rejected": 221987,
+    "exactStreams": 6,
+    "rejectedStreams": 2
+  },
+  "fullMatrices": {
+    "streams": 32,
+    "independentGrids": 64,
+    "samplesCompared": 384733048
+  },
+  "fullGate": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/parity-tree-entropy-check-203c.json",
+    "status": "completed",
+    "code": 0
+  },
+  "policy": "All fresh ordinary public fixed-settings encodings and both fresh full lossless effort matrices agree with the rebuilt final gate modules. Original uint8/uint16/alpha/hidden samples, complete size floors, the original mandatory small memory boundary, optional fallback, large-input regressions, real Chromium and all repository handoff gates pass. Previous snapshots remain separately pinned. No speed or general compression-parity claim."
+}

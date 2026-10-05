@@ -1,0 +1,666 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "28e122b8442808f14b9c8d13a6a0b2b7af188bd21053d7ff3bb46757f061695e",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-learned-palette-local-171.ts",
+      "sha256": "eb5b5dfcd8320e3bcdba278918d366cd590cfd5bd12cfeea2d4f0ac7fb93f72d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-learned-palette-local-profile-171.ts",
+      "sha256": "6b10e6c75581c31adef5df1aa42d0e19c458abbd89ecff5d47d33cbc405472fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-local-profile-155/manifest.json",
+      "sha256": "24cd20c47827cb5e9651aafa53b9f866f2522dbe8a6450864777380a3d5da3dd"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-local-profile-155/jpegxl-decode.ts",
+      "sha256": "5be04660fceb9a9cb5ce6aeb3c5693f474e65ebb1eb372b926cf68ee8c1e9392"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-public-controls.json",
+      "sha256": "a0c20bc9e5ac18a2c8d6f2d7e9a26af449e02f0e56181d7e8391f5573c29eaae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-artwork-section-profile.json",
+      "sha256": "55eaa17541632f1a515f5b7a9a78f021e13ba6e073f236a6999d27049755013f"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-5052-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-public-165/im26-5052-diagnostic.jxl",
+      "artifactSha256": "3df080bd085eb831a79d749568a1d9a80db2d4460c09094b3a6dc36bc4c5fbf8",
+      "bytes": 19124,
+      "frameType": "reference",
+      "width": 174,
+      "height": 148,
+      "groups": 1,
+      "sectionBytes": 9538,
+      "globalSectionBytes": 9538,
+      "globalHeaderBits": 4030,
+      "nodes": 39,
+      "leaves": 20,
+      "models": 14,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 174,
+          "height": 148
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 4,
+          "leaves": 13
+        },
+        {
+          "predictor": 6,
+          "leaves": 1
+        },
+        {
+          "predictor": 5,
+          "leaves": 6
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 10
+        },
+        {
+          "property": 10,
+          "nodes": 3
+        },
+        {
+          "property": 11,
+          "nodes": 2
+        },
+        {
+          "property": 12,
+          "nodes": 3
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-public-165/im26-5052-diagnostic.jxl",
+      "artifactSha256": "3df080bd085eb831a79d749568a1d9a80db2d4460c09094b3a6dc36bc4c5fbf8",
+      "bytes": 19124,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "groups": 1,
+      "sectionBytes": 9523,
+      "globalSectionBytes": 9523,
+      "globalHeaderBits": 18085,
+      "nodes": 45,
+      "leaves": 23,
+      "models": 10,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 4,
+          "leaves": 19
+        },
+        {
+          "predictor": 6,
+          "leaves": 3
+        },
+        {
+          "predictor": 5,
+          "leaves": 1
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 8
+        },
+        {
+          "property": 10,
+          "nodes": 1
+        },
+        {
+          "property": 15,
+          "nodes": 9
+        },
+        {
+          "property": 11,
+          "nodes": 2
+        },
+        {
+          "property": 12,
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "a46ddcf21909578ad44cdda6e73a09483dc66f992f3b395de18de1d7a12bdbfc",
+      "bytes": 18517,
+      "frameType": "reference",
+      "width": 162,
+      "height": 148,
+      "groups": 1,
+      "sectionBytes": 8666,
+      "globalSectionBytes": 8666,
+      "globalHeaderBits": 3993,
+      "nodes": 129,
+      "leaves": 65,
+      "models": 23,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 162,
+          "height": 148
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 65
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 10
+        },
+        {
+          "property": 10,
+          "nodes": 14
+        },
+        {
+          "property": 11,
+          "nodes": 16
+        },
+        {
+          "property": 15,
+          "nodes": 10
+        },
+        {
+          "property": 13,
+          "nodes": 7
+        },
+        {
+          "property": 12,
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "a46ddcf21909578ad44cdda6e73a09483dc66f992f3b395de18de1d7a12bdbfc",
+      "bytes": 18517,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "groups": 16,
+      "sectionBytes": 9802,
+      "globalSectionBytes": 2573,
+      "globalHeaderBits": 19445,
+      "nodes": 117,
+      "leaves": 59,
+      "models": 14,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 52
+        },
+        {
+          "predictor": 6,
+          "leaves": 7
+        }
+      ],
+      "properties": [
+        {
+          "property": 15,
+          "nodes": 16
+        },
+        {
+          "property": 9,
+          "nodes": 6
+        },
+        {
+          "property": 1,
+          "nodes": 22
+        },
+        {
+          "property": 11,
+          "nodes": 4
+        },
+        {
+          "property": 12,
+          "nodes": 3
+        },
+        {
+          "property": 10,
+          "nodes": 4
+        },
+        {
+          "property": 13,
+          "nodes": 3
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-public-165/im26-5034-diagnostic.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "bytes": 41926,
+      "frameType": "reference",
+      "width": 219,
+      "height": 188,
+      "groups": 1,
+      "sectionBytes": 14777,
+      "globalSectionBytes": 14777,
+      "globalHeaderBits": 4169,
+      "nodes": 47,
+      "leaves": 24,
+      "models": 13,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 219,
+          "height": 188
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 4,
+          "leaves": 18
+        },
+        {
+          "predictor": 6,
+          "leaves": 2
+        },
+        {
+          "predictor": 5,
+          "leaves": 4
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 9
+        },
+        {
+          "property": 10,
+          "nodes": 3
+        },
+        {
+          "property": 11,
+          "nodes": 4
+        },
+        {
+          "property": 15,
+          "nodes": 4
+        },
+        {
+          "property": 12,
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/learned-palette-public-165/im26-5034-diagnostic.jxl",
+      "artifactSha256": "25b6c5d5accc788506bae989d1c3eb2e355be41611d535acfaadbc8be85cddb8",
+      "bytes": 41926,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "groups": 1,
+      "sectionBytes": 27085,
+      "globalSectionBytes": 27085,
+      "globalHeaderBits": 16899,
+      "nodes": 119,
+      "leaves": 60,
+      "models": 21,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 269,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 269,
+          "height": 4
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 4,
+          "leaves": 44
+        },
+        {
+          "predictor": 6,
+          "leaves": 8
+        },
+        {
+          "predictor": 5,
+          "leaves": 8
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 19
+        },
+        {
+          "property": 10,
+          "nodes": 8
+        },
+        {
+          "property": 15,
+          "nodes": 16
+        },
+        {
+          "property": 11,
+          "nodes": 8
+        },
+        {
+          "property": 12,
+          "nodes": 7
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "c189bce8bf4d32b5a6fdd8fd53e57d61d687c267eea86ce967e42e518e13c9b0",
+      "bytes": 44936,
+      "frameType": "reference",
+      "width": 189,
+      "height": 176,
+      "groups": 1,
+      "sectionBytes": 11791,
+      "globalSectionBytes": 11791,
+      "globalHeaderBits": 4422,
+      "nodes": 157,
+      "leaves": 79,
+      "models": 26,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 189,
+          "height": 176
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 79
+        }
+      ],
+      "properties": [
+        {
+          "property": 10,
+          "nodes": 14
+        },
+        {
+          "property": 9,
+          "nodes": 19
+        },
+        {
+          "property": 11,
+          "nodes": 14
+        },
+        {
+          "property": 13,
+          "nodes": 8
+        },
+        {
+          "property": 12,
+          "nodes": 11
+        },
+        {
+          "property": 15,
+          "nodes": 12
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "c189bce8bf4d32b5a6fdd8fd53e57d61d687c267eea86ce967e42e518e13c9b0",
+      "bytes": 44936,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "groups": 16,
+      "sectionBytes": 33089,
+      "globalSectionBytes": 2169,
+      "globalHeaderBits": 15765,
+      "nodes": 273,
+      "leaves": 137,
+      "models": 40,
+      "prefix": false,
+      "lz77": false,
+      "metaChannels": 1,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 271,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 271,
+          "height": 4
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 110
+        },
+        {
+          "predictor": 6,
+          "leaves": 27
+        }
+      ],
+      "properties": [
+        {
+          "property": 15,
+          "nodes": 33
+        },
+        {
+          "property": 9,
+          "nodes": 8
+        },
+        {
+          "property": 12,
+          "nodes": 13
+        },
+        {
+          "property": 1,
+          "nodes": 41
+        },
+        {
+          "property": 13,
+          "nodes": 5
+        },
+        {
+          "property": 11,
+          "nodes": 10
+        },
+        {
+          "property": 0,
+          "nodes": 10
+        },
+        {
+          "property": 10,
+          "nodes": 16
+        }
+      ]
+    }
+  ],
+  "policy": "Read complete local/shared Modular global headers through a copied first-party parser. Both compared original sample grids were independently proved exact and pinned. Transform, tree and model structure identifies unmeasured policy opportunities; counts alone are not pixel-frequency or causal compression evidence. This post-learning read-only profile changes no production behavior and claims no speed gain."
+}

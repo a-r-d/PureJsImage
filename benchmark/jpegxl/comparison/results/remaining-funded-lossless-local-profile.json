@@ -1,0 +1,1429 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-remaining-funded-lossless-271.ts",
+      "sha256": "9f1d9876fd1d8046ece06c3331f652bb213a1d1ee9a9fe754cc8f5e6574468d2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/main-node.json",
+      "sha256": "57f25253f045b1898751bf00c7f706d23c471a911e960dd7da75b943573b5b03"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/compression-investigation.json",
+      "sha256": "70c730c9d1a541b8719883d51e61cffefbe33fe040e47f50a639856ff09938d8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-local-profile-155/manifest.json",
+      "sha256": "24cd20c47827cb5e9651aafa53b9f866f2522dbe8a6450864777380a3d5da3dd"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/modular-local-profile-155/jpegxl-decode.ts",
+      "sha256": "5be04660fceb9a9cb5ce6aeb3c5693f474e65ebb1eb372b926cf68ee8c1e9392"
+    }
+  ],
+  "files": 12,
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-1416-diagnostic.bin",
+      "artifactSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "bytes": 649404,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 649349,
+      "sectionBytes": 649349,
+      "globalHeaderBits": 34582,
+      "leaves": 769,
+      "models": 128,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "rct",
+          "beginChannel": 0,
+          "type": 40
+        }
+      ],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 357
+        },
+        {
+          "predictor": 3,
+          "leaves": 83
+        },
+        {
+          "predictor": 5,
+          "leaves": 328
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 3
+        },
+        {
+          "property": 15,
+          "nodes": 135
+        },
+        {
+          "property": 9,
+          "nodes": 148
+        },
+        {
+          "property": 10,
+          "nodes": 143
+        },
+        {
+          "property": 11,
+          "nodes": 137
+        },
+        {
+          "property": 12,
+          "nodes": 116
+        },
+        {
+          "property": 13,
+          "nodes": 86
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "c265cc5f504a38ec073bc44cf8e76735e1173b5b77c9f68545e49d878585e905",
+      "bytes": 644097,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 12,
+      "globalSectionBytes": 4540,
+      "sectionBytes": 644045,
+      "globalHeaderBits": 35808,
+      "leaves": 1159,
+      "models": 128,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 2,
+          "channelCount": 1,
+          "colorCount": 230,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 230,
+          "height": 1
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 787
+        },
+        {
+          "predictor": 6,
+          "leaves": 372
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 32
+        },
+        {
+          "property": 15,
+          "nodes": 174
+        },
+        {
+          "property": 1,
+          "nodes": 75
+        },
+        {
+          "property": 9,
+          "nodes": 42
+        },
+        {
+          "property": 11,
+          "nodes": 250
+        },
+        {
+          "property": 12,
+          "nodes": 217
+        },
+        {
+          "property": 10,
+          "nodes": 268
+        },
+        {
+          "property": 13,
+          "nodes": 100
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-vips-encode-ll-e7.bin",
+      "artifactSha256": "a7193cb6b032f9287085764c656a84d30bac863eaebbf7ad443161f5fa841558",
+      "bytes": 649387,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 12,
+      "globalSectionBytes": 7,
+      "sectionBytes": 649159,
+      "globalHeaderBits": 54,
+      "leaves": 1,
+      "models": 1,
+      "prefix": true,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 6,
+          "leaves": 1
+        }
+      ],
+      "properties": []
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-2018-diagnostic.bin",
+      "artifactSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "bytes": 613268,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 613213,
+      "sectionBytes": 613213,
+      "globalHeaderBits": 34431,
+      "leaves": 754,
+      "models": 128,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "rct",
+          "beginChannel": 0,
+          "type": 10
+        }
+      ],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 409
+        },
+        {
+          "predictor": 3,
+          "leaves": 102
+        },
+        {
+          "predictor": 5,
+          "leaves": 242
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 3
+        },
+        {
+          "property": 15,
+          "nodes": 123
+        },
+        {
+          "property": 9,
+          "nodes": 180
+        },
+        {
+          "property": 10,
+          "nodes": 122
+        },
+        {
+          "property": 11,
+          "nodes": 122
+        },
+        {
+          "property": 13,
+          "nodes": 88
+        },
+        {
+          "property": 12,
+          "nodes": 115
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "d463a96ecd98103a24d797c00e03447bc9744481986a3286bdc63b3c098e0e1a",
+      "bytes": 613245,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 16,
+      "globalSectionBytes": 4251,
+      "sectionBytes": 613181,
+      "globalHeaderBits": 33975,
+      "leaves": 1032,
+      "models": 124,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 271
+        },
+        {
+          "predictor": 6,
+          "leaves": 761
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 8
+        },
+        {
+          "property": 1,
+          "nodes": 109
+        },
+        {
+          "property": 9,
+          "nodes": 66
+        },
+        {
+          "property": 15,
+          "nodes": 273
+        },
+        {
+          "property": 13,
+          "nodes": 49
+        },
+        {
+          "property": 10,
+          "nodes": 199
+        },
+        {
+          "property": 11,
+          "nodes": 184
+        },
+        {
+          "property": 12,
+          "nodes": 143
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-vips-encode-ll-e7.bin",
+      "artifactSha256": "6a60bd6a5a483f253faa4ceada77568306b7b56a6a0b3f142a559916b716acb6",
+      "bytes": 621262,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 16,
+      "globalSectionBytes": 7,
+      "sectionBytes": 621023,
+      "globalHeaderBits": 54,
+      "leaves": 1,
+      "models": 1,
+      "prefix": true,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 6,
+          "leaves": 1
+        }
+      ],
+      "properties": []
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5032-diagnostic.bin",
+      "artifactSha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e",
+      "bytes": 133365,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "frame": 0,
+      "frameType": "reference",
+      "width": 121,
+      "height": 133,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 3702,
+      "sectionBytes": 3702,
+      "globalHeaderBits": 1353,
+      "leaves": 12,
+      "models": 7,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 277,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 277,
+          "height": 4
+        },
+        {
+          "width": 121,
+          "height": 133
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 4
+        },
+        {
+          "predictor": 4,
+          "leaves": 6
+        },
+        {
+          "predictor": 6,
+          "leaves": 2
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 9,
+          "nodes": 3
+        },
+        {
+          "property": 12,
+          "nodes": 3
+        },
+        {
+          "property": 10,
+          "nodes": 1
+        },
+        {
+          "property": 15,
+          "nodes": 2
+        },
+        {
+          "property": 11,
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-5032-diagnostic.bin",
+      "artifactSha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e",
+      "bytes": 133365,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "frame": 1,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 129599,
+      "sectionBytes": 129599,
+      "globalHeaderBits": 32028,
+      "leaves": 429,
+      "models": 118,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "rct",
+          "beginChannel": 0,
+          "type": 40
+        }
+      ],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 4,
+          "leaves": 261
+        },
+        {
+          "predictor": 5,
+          "leaves": 51
+        },
+        {
+          "predictor": 6,
+          "leaves": 116
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 3
+        },
+        {
+          "property": 15,
+          "nodes": 100
+        },
+        {
+          "property": 9,
+          "nodes": 98
+        },
+        {
+          "property": 10,
+          "nodes": 71
+        },
+        {
+          "property": 12,
+          "nodes": 49
+        },
+        {
+          "property": 11,
+          "nodes": 80
+        },
+        {
+          "property": 13,
+          "nodes": 27
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "4d454f7d550c2caadd2689f2487f689c6688db84cefbf7a37d8154bb73cbf30e",
+      "bytes": 127545,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "frame": 0,
+      "frameType": "reference",
+      "width": 96,
+      "height": 78,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 2896,
+      "sectionBytes": 2896,
+      "globalHeaderBits": 1139,
+      "leaves": 25,
+      "models": 7,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 251,
+          "height": 4
+        },
+        {
+          "width": 96,
+          "height": 78
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 25
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 13,
+          "nodes": 3
+        },
+        {
+          "property": 9,
+          "nodes": 6
+        },
+        {
+          "property": 10,
+          "nodes": 4
+        },
+        {
+          "property": 11,
+          "nodes": 4
+        },
+        {
+          "property": 12,
+          "nodes": 4
+        },
+        {
+          "property": 15,
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-jsquash-encode-ll-e7.bin",
+      "artifactSha256": "4d454f7d550c2caadd2689f2487f689c6688db84cefbf7a37d8154bb73cbf30e",
+      "bytes": 127545,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "frame": 1,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 16,
+      "globalSectionBytes": 3612,
+      "sectionBytes": 124590,
+      "globalHeaderBits": 28857,
+      "leaves": 717,
+      "models": 128,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 495
+        },
+        {
+          "predictor": 6,
+          "leaves": 222
+        }
+      ],
+      "properties": [
+        {
+          "property": 15,
+          "nodes": 77
+        },
+        {
+          "property": 0,
+          "nodes": 52
+        },
+        {
+          "property": 11,
+          "nodes": 98
+        },
+        {
+          "property": 10,
+          "nodes": 97
+        },
+        {
+          "property": 13,
+          "nodes": 84
+        },
+        {
+          "property": 9,
+          "nodes": 39
+        },
+        {
+          "property": 1,
+          "nodes": 191
+        },
+        {
+          "property": 12,
+          "nodes": 78
+        }
+      ]
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-vips-encode-ll-e7.bin",
+      "artifactSha256": "ea1975403c0c6cbffa35501a353052dc2984882802b8cbe4a92b6c3414998319",
+      "bytes": 150876,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 16,
+      "globalSectionBytes": 7,
+      "sectionBytes": 150652,
+      "globalHeaderBits": 54,
+      "leaves": 1,
+      "models": 1,
+      "prefix": true,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 6,
+          "leaves": 1
+        }
+      ],
+      "properties": []
+    },
+    {
+      "fixture": "im26-8160-original",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-8160-original.bin",
+      "artifactSha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746",
+      "bytes": 401990,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "frame": 0,
+      "frameType": "reference",
+      "width": 136,
+      "height": 117,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 9382,
+      "sectionBytes": 9382,
+      "globalHeaderBits": 2034,
+      "leaves": 6,
+      "models": 6,
+      "prefix": false,
+      "lz77": true,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 4,
+          "colorCount": 812,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 812,
+          "height": 4
+        },
+        {
+          "width": 136,
+          "height": 117
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 4,
+          "leaves": 3
+        },
+        {
+          "predictor": 5,
+          "leaves": 3
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 1
+        },
+        {
+          "property": 10,
+          "nodes": 4
+        }
+      ]
+    },
+    {
+      "fixture": "im26-8160-original",
+      "subject": "purejsimage",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-sampling-matrix-264-e7/im26-8160-original.bin",
+      "artifactSha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746",
+      "bytes": 401990,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "frame": 1,
+      "frameType": "regular",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 40,
+      "globalSectionBytes": 1329,
+      "sectionBytes": 392464,
+      "globalHeaderBits": 10628,
+      "leaves": 1,
+      "models": 1,
+      "prefix": true,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "rct",
+          "beginChannel": 0,
+          "type": 6
+        }
+      ],
+      "layouts": [
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        }
+      ],
+      "properties": []
+    },
+    {
+      "fixture": "im26-8160-original",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/im26-8160-original-jsquash-rgba-e7.bin",
+      "artifactSha256": "ffbc00ce082312d17ef89ad20e7dca3edbcfbd6a83535a3f30a3fa96471e7dfb",
+      "bytes": 391394,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "frame": 0,
+      "frameType": "reference",
+      "width": 131,
+      "height": 120,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 1,
+      "globalSectionBytes": 11684,
+      "sectionBytes": 11684,
+      "globalHeaderBits": 4035,
+      "leaves": 95,
+      "models": 30,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "rct",
+          "beginChannel": 0,
+          "type": 40
+        }
+      ],
+      "layouts": [
+        {
+          "width": 131,
+          "height": 120
+        },
+        {
+          "width": 131,
+          "height": 120
+        },
+        {
+          "width": 131,
+          "height": 120
+        },
+        {
+          "width": 131,
+          "height": 120
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 95
+        }
+      ],
+      "properties": [
+        {
+          "property": 0,
+          "nodes": 6
+        },
+        {
+          "property": 9,
+          "nodes": 24
+        },
+        {
+          "property": 10,
+          "nodes": 15
+        },
+        {
+          "property": 11,
+          "nodes": 19
+        },
+        {
+          "property": 15,
+          "nodes": 6
+        },
+        {
+          "property": 13,
+          "nodes": 17
+        },
+        {
+          "property": 12,
+          "nodes": 7
+        }
+      ]
+    },
+    {
+      "fixture": "im26-8160-original",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/im26-8160-original-jsquash-rgba-e7.bin",
+      "artifactSha256": "ffbc00ce082312d17ef89ad20e7dca3edbcfbd6a83535a3f30a3fa96471e7dfb",
+      "bytes": 391394,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "frame": 1,
+      "frameType": "regular",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 40,
+      "globalSectionBytes": 9241,
+      "sectionBytes": 379607,
+      "globalHeaderBits": 73193,
+      "leaves": 1899,
+      "models": 128,
+      "prefix": false,
+      "lz77": false,
+      "transforms": [
+        {
+          "kind": "palette",
+          "beginChannel": 0,
+          "channelCount": 1,
+          "colorCount": 272,
+          "deltaCount": 0,
+          "predictor": 0
+        },
+        {
+          "kind": "palette",
+          "beginChannel": 2,
+          "channelCount": 1,
+          "colorCount": 271,
+          "deltaCount": 0,
+          "predictor": 0
+        },
+        {
+          "kind": "palette",
+          "beginChannel": 4,
+          "channelCount": 1,
+          "colorCount": 271,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      ],
+      "layouts": [
+        {
+          "width": 271,
+          "height": 1
+        },
+        {
+          "width": 271,
+          "height": 1
+        },
+        {
+          "width": 272,
+          "height": 1
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 5,
+          "leaves": 1399
+        },
+        {
+          "predictor": 6,
+          "leaves": 500
+        }
+      ],
+      "properties": [
+        {
+          "property": 15,
+          "nodes": 103
+        },
+        {
+          "property": 1,
+          "nodes": 342
+        },
+        {
+          "property": 11,
+          "nodes": 358
+        },
+        {
+          "property": 0,
+          "nodes": 136
+        },
+        {
+          "property": 10,
+          "nodes": 394
+        },
+        {
+          "property": 9,
+          "nodes": 110
+        },
+        {
+          "property": 12,
+          "nodes": 232
+        },
+        {
+          "property": 13,
+          "nodes": 223
+        }
+      ]
+    },
+    {
+      "fixture": "im26-8160-original",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/im26-8160-original-vips-rgba-e7.bin",
+      "artifactSha256": "97a8ca49c44cefb0fd48131439dfad66aa827a83ca64b593663d511abf16dcfd",
+      "bytes": 422389,
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "frame": 0,
+      "frameType": "regular",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "extraChannels": 1,
+      "groups": 40,
+      "globalSectionBytes": 7,
+      "sectionBytes": 422115,
+      "globalHeaderBits": 54,
+      "leaves": 1,
+      "models": 1,
+      "prefix": true,
+      "lz77": false,
+      "transforms": [],
+      "layouts": [
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "weighted": {
+        "p1": 16,
+        "p2": 10,
+        "p3a": 7,
+        "p3b": 7,
+        "p3c": 7,
+        "p3d": 0,
+        "p3e": 0,
+        "weights": [13, 12, 12, 12]
+      },
+      "predictors": [
+        {
+          "predictor": 6,
+          "leaves": 1
+        }
+      ],
+      "properties": []
+    }
+  ],
+  "policy": "Fresh read-only structure of twelve current or pinned independent-exact effort-7 lossless files. Full current sample proof is separately qualified; frozen reference validation stays pinned. Read the complete local/shared global Modular header using an unchanged first-party parser copy. Multi-group global counts omit additional local group programs; predictor/property counts are structural, not pixel frequency or causal compression evidence. Production and measured artifacts stay unchanged. No speed or general parity claim."
+}

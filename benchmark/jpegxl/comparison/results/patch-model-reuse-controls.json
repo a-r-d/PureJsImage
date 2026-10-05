@@ -1,0 +1,378 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-model-reuse-213.json",
+      "sha256": "4bd058ddbb4e897a5b1698442f4596234cfa066497f851a256f08f1ab56ef620"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-patch-model-reuse-213.ts",
+      "sha256": "7f09f04dfec265dfe12f691513e00068228b3cdad39d5a970bfc98cb9add1e5e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-patch-model-reuse-213.ts",
+      "sha256": "a974bc3e836d95f656c4a96bf747b988b212dd811df0f3b8b0e6a2b8a691a4d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/tree-entropy-197-current/manifest.json",
+      "sha256": "366f043264c4abc314e7e1fd4bd593c1ef7f39ad977b6f3455db26ccbdfeabca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-repository-gates.json",
+      "sha256": "b5b9f9e8a06cab64ceccebc49b717e0e372008b3afdfa48b9c472f95b50997ec"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/baseline/jpegxl-modular-tree.ts",
+      "sha256": "d51f35579013d15531886780df9c160a02045ed636a692b05e21ccf69cd48616"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-modular-encode.ts",
+      "sha256": "02105ace05b8fcdc8b98594afe28fa63ffd4b47e64d7ee0ea95e229eb88d1745"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/candidate/jpegxl-modular-tree.ts",
+      "sha256": "2e892af4b4df21def0f603c5afd6ba22a1c212a7ed06afcbe52bbb153af04bc0"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-baseline.jxl",
+      "artifactSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 416143,
+      "baselineBytes": 416143,
+      "changeBytes": 0,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 33289.21676,
+      "reusedModelPolicy": "Reclassify exact local samples with captured first-party model/predictors, prune unreachable branches, renumber contexts, and rebuild local histograms. No extra training. Original leaf/matrix bounds remain unchanged.",
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-model-reuse-213/output/im26-8160-original-candidate.jxl",
+      "artifactSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 416143,
+      "baselineBytes": 416143,
+      "changeBytes": 0,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 48605.782821999994,
+      "reusedModelPolicy": "Reclassify exact local samples with captured first-party model/predictors, prune unreachable branches, renumber contexts, and rebuild local histograms. No extra training. Original leaf/matrix bounds remain unchanged.",
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    }
+  ],
+  "policy": "Copied complete first-party encoder policy. Preserve the current regular and 1024-group patch candidates as complete byte floors. Only for lossless effort-7 flat patches with more than 1024 pixels on an axis and at most 64 smaller groups, try 256-group display coding in a scoped optional search. Keep the same source pixels, reference atlas, patches and alpha; select only a smaller complete stream and recover the exact baseline on optional LIMIT_EXCEEDED. Both independent full grids, byte-exact baseline and closed owned storage are required. Timings are diagnostic, not paired performance or production adoption."
+}

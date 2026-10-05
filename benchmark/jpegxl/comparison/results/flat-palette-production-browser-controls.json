@@ -1,0 +1,80 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "3a1f98818c3a153e67731e0b643ada412ff6c728f7f7fd9c954bdeb9d8790fa5",
+  "implementationDirty": true,
+  "completed": true,
+  "browsers": ["chromium", "firefox", "webkit"],
+  "budgets": [268435456, 1500000],
+  "passingCases": 6,
+  "taskCeiling": 256,
+  "taskPeak": 255,
+  "rejectedTaskCreations": 0,
+  "cpuAffinity": "Cpus_allowed_list:\t0-7",
+  "receipt": {
+    "startedAt": "2026-10-04T08:14:10.597Z",
+    "finishedAt": "2026-10-04T08:14:33.351Z",
+    "policy": {
+      "memoryMaxBytes": 8589934592,
+      "memoryHighBytes": 8053063680,
+      "minimumAvailableBytes": 19327352832,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 800,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 33720705024,
+    "executable": "/usr/bin/taskset",
+    "args": [
+      "--cpu-list",
+      "0-7",
+      "/usr/bin/env",
+      "VIPS_CONCURRENCY=2",
+      "GOMAXPROCS=4",
+      "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      ".tmp/jpegxl-comparison-v1/verify-flat-palette-browser-affinity-500.ts"
+    ],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: f7faba86b57c439eafb19b9d8a58a137\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 22.726s\n             CPU time consumed: 34.411s\n                   Memory peak: 2.3G (swap: 0B)\n"
+  },
+  "evidence": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/flat-palette-browser-affinity-500.json",
+      "sha256": "0cd2d0ad7a45c76707aa2830f0403a9e000495b6ca5837cca1f54c696f9a336e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-flat-palette-production-browser-500.json",
+      "sha256": "61279ca597295a97f43b8bd6b49e0728fed9d934fd0016604b301dc961d4766e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-flat-palette-browser-affinity-500.ts",
+      "sha256": "d12e81a0110d68a968a127d3b043c15891694dd51a95b42e5ac902d73f51abc9"
+    },
+    {
+      "path": "/tmp/jpegxl-flat-palette-browser-affinity-500.log",
+      "sha256": "8b8872db54d793d31c74359f6216c5a00d0b6ac9b8289557c07fee99f77eee9d"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "bd3f990566bc80cff8500483ec5675bd153694eb60df3478916d29f6f7a9be83"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "13d8721e9531853aa83567f72fb167ff3f7a352b82abd235637fe65c7db793d6"
+    },
+    {
+      "path": "tests/helpers/jpegxl-flat-palette.ts",
+      "sha256": "29fe01ecb19c873598709d9259a4a8bc0c40fae0b75571f524cb4430f33dae06"
+    },
+    {
+      "path": "scripts/serve-browser-tests.ts",
+      "sha256": "e1eb864413adaa5ed083158412081c963bd2d0894d5f65731dffa42017e409b2"
+    }
+  ],
+  "policy": "All six permanent production palette and natural-fallback cases pass with original options, assertions, deadlines, skips and normal browser sandbox. Validation uses the original 8GiB/800percent/256task/no-swap ceiling and an eight-CPU affinity for development/browser pools. This is fixture correctness, not a timing, RSS or full compression-parity result. The raw500 report qualified field, complete child exit, zero task-limit events and successful receipt establish qualification. Its console summary and last legacy diagnostic policy sentence still say unqualified; preserve those historical strings and record their disagreement here."
+}

@@ -1,0 +1,171 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-funded-fused-trees-331.ts",
+      "sha256": "402e7bf4bcac9b81335b82bba0e9c446723a317a0bf1a24f25011f3b2eb26070"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-funded-fused-final-331.ts",
+      "sha256": "dff754146f0d77458a01d62a24dd775344c0c5b481a5b72c33bc333533f35555"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-fused-final-fragment-331.ts",
+      "sha256": "8c89125492411875bbca9fdcd9fbc899eb81e4de2255be7521384e64255c0f94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-funded-fused-final-331.json",
+      "sha256": "57322d7b38c214b7926f7aafa2ba7cf96b84e2d07b97145580106e0902b3814a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-final-gates.json",
+      "sha256": "0fbf33f6b69a851c46409b0b83d8063891049fdd505d3a5a79011cac06fcfbfd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-audit.json",
+      "sha256": "af9e9edc0780df0ac0ed88663f9b2532f55d7b59a317678aedb44414f42f973f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/fused-ordinary-predictor-tree-controls.json",
+      "sha256": "df28f22bac6230951791a25827b3583d8513b2eba8e59ccfa3bfb93cd70472a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-controls.json",
+      "sha256": "38f9c11cafd577f0cc69dea7a5b34d32b627507e89dd449a8b02f8a79a742292"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/error-prefix-funding-325/error-proof-329.json",
+      "sha256": "2908d93a6b29ca6ec8c04728d6e9f1e15401a2b944b4955d8e59327148e73ac0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/error-prefix-funding-package-controls-retry.json",
+      "sha256": "f121dce0b878860034988b798c0bdfa75aa29feeec69e426bfee2bf0087722bc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-330.json",
+      "sha256": "573cbc4a349c8b9cb752d043ca4973b488e49cbc386832f943f1e08fe8397ba6"
+    },
+    {
+      "path": "/tmp/jpegxl-funded-fused-predictor-tree-repository-check-330.log",
+      "sha256": "800db572532b80ee569ec5c5997de956277fd6071c4d966a7af2299d69961357"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FUSED-PREDICTORS.md",
+      "sha256": "3f2d3c82e51f1612dca46734cb449288a508a38d46ceeeec14eb233064260f04"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-fused-ordinary-predictor-tree-controls-323.json",
+      "sha256": "3c6865ef96e433d759120dce61a7ef54119c2eae038e05a880094c50a1bcf78d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-fused-ordinary-package-controls-324.json",
+      "sha256": "13f4097b3455a3b5b39e62decbe8f0003368ea9868147b84d56d86236d8b0204"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-error-prefix-funding-package-controls-325.json",
+      "sha256": "10da6ee189211f35db27e076b9d08b213ba86b4115a60da491959232ceaa3ff7"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-error-prefix-funding-package-controls-326.json",
+      "sha256": "ee50bad6f86ea87bb934b5924c4553f3fb780ce90160ce176cd0488de03eeedd"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-fused-predictor-tree-controls-328.json",
+      "sha256": "0d8a7bd3ae5d1517b259d2748b1492ef62c3b43d327a17697cebd709b22377ff"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-fused-predictor-tree-audit-329.json",
+      "sha256": "f8056e8b34c6ff9bea179cb80c90da6eec7065eb5c9ddfa27b55a49d99819507"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-fused-predictor-tree-repository-check-330.json",
+      "sha256": "ebc7371f8910529b954b358d8d344778aa9e5c86fea39653650e309e41a5d469"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "precedingPins": 15,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 16,
+  "independentGrids": 32,
+  "independentSamples": 100679680,
+  "priorSourcePublicSamples": 25169920,
+  "priorBuiltPublicSamples": 25169920,
+  "freshControlPins": 215,
+  "freshErrorLiteralChecks": 1356,
+  "errorProofPins": 140,
+  "documentedInputs": 4,
+  "bundleHeadroom": [
+    {
+      "target": "codec-jpegxl",
+      "baselineBytes": 540978,
+      "prefixBytes": 536436,
+      "fusedBytes": 538304,
+      "ceiling": 541000,
+      "headroom": 2696,
+      "prefixFundingBytes": 4542,
+      "publicExports": 15
+    },
+    {
+      "target": "jpegxl-specialized",
+      "baselineBytes": 613578,
+      "prefixBytes": 608347,
+      "fusedBytes": 610215,
+      "ceiling": 614000,
+      "headroom": 3785,
+      "prefixFundingBytes": 5231,
+      "publicExports": 14
+    }
+  ],
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Four verified in actual child and installed Vitest resolver"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "All443original qualification pins/eight rebuilt public modules/fourteen raw retained source-build identities and preceding322boundary exact. Fresh329two eight-file cohorts/32independent grids/100679680original samples/215raw-funded control pins, separate prior source and actual built-public samples, fresh1356literal error class-name-code-message proof/140pins pass. Every4docwholefile and2full public API bundle table rows agree with physical files/bytes/unchanged541000-614000ceilings. Corrected exact module resolution and full15Core14specialized exports preserved; rejected325dropping-specialized-API artifacts remain separate. Actual330fullcheck/freshworker/package0.17/no runtime dependencies/indexempty pass. Raw fused model still needs general previous learned-group fallback and original paired/minimum-memory/browser/full-cohort qualification; no source/protection/adoption/stage/commit/push/release/overall parity claim."
+}

@@ -4,6 +4,112 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Close the remaining measured JPEG XL integer-lossless size gaps with optional
+  group layouts and bounded local color prediction. Meet or beat the pinned peers
+  in all 45 comparable corpus cells and four original-size controls. Preserve
+  exact samples, existing working limits and smaller complete files. Update the
+  comparison website and retain the open lossy, float, CMYK and animation scope.
+
+- Improve JPEG XL effort-7 lossless compression with optional denser prediction
+  training. Keep the previous complete group on ties or allocation-limit
+  failure, preserve exact samples and original working budgets, and record
+  remaining compression gaps and added search work.
+
+- Preserve the existing smaller JPEG XL Modular result when comparing lossy
+  palette candidates. Keep the original exact pixels on the family-context
+  regression graphic and verify its complete file fingerprint.
+
+- Reduce eligible JPEG XL effort-7 opaque RGBA8 artwork by quantizing edge
+  colors while preserving every occurrence of flat-region colors and exact
+  alpha. Keep the prior output when optional storage cannot fit. Verify the
+  original matrix, three browser engines and measured encoding costs, while
+  retaining unresolved quality comparisons.
+
+- Improve selected JPEG XL lossless screenshot training with exact per-channel
+  predictor and zero-sample shortcuts. Preserve unsampled residuals, original
+  memory limits and independently decoded samples, and record protected costs.
+- Reduce selected JPEG XL effort-7 screenshot files with smaller display groups
+  and bounded training and match caches. Keep cheap frames on their prior groups,
+  preserve exact RGB/RGBA samples and verify partial groups and DC boundaries.
+- Try bounded learned prediction for each existing JPEG XL effort-7 RGBA8
+  palette order. Choose only smaller complete files, preserve exact samples,
+  and keep the previous stream when optional scratch exceeds working storage.
+  Record the added encoding work and independent/browser checks.
+- Improve JPEG XL effort-7 palette prediction with bounded learned trees. Keep
+  the complete previous group search as a size floor, release losing candidates,
+  and preserve exact samples when optional training exceeds working storage.
+- Reduce JPEG XL reference-patch metadata with a bounded choice of three or four
+  prefix models. Include every model header in the size comparison, preserve
+  exact patch fields and pixel sections, and keep the prior stream when optional
+  scratch exceeds the working limit.
+- Extend the exact JPEG XL effort-7 artwork candidate to one megapixel. Keep
+  complete files only when they save at least five percent, preserve visible
+  colors and exact alpha, and release optional storage on loss, budget failure
+  or cancellation. Record the extra encoding cost and independent/browser
+  checks. Correct the stale forward-color support note.
+
+- Reduce JPEG XL effort-7 VarDCT strategy and quantizer metadata with optional
+  left prediction and separate row models. Compare complete metadata bits,
+  keep the best completed candidate when extra search exceeds storage limits,
+  and preserve independently decoded pixels and exact alpha. Verify native
+  depths, progressive output and Chromium behavior.
+
+- Improve eligible JPEG XL effort-7 VarDCT compression with separate AC models
+  for DCT8 and the other supported transform families. Compare complete files
+  at natural and learned coefficient orders, preserve decoded pixels and exact
+  alpha, and keep the best completed stream when optional search exceeds the
+  working budget. Record the extra encoding work and bounded scratch.
+
+- Improve eligible multi-group JPEG XL effort-7 VarDCT compression with learned
+  coefficient orders. Preserve decoded pixels, choose only smaller complete
+  files, and retain the prior stream when optional search exceeds working
+  storage. Verify native 8/16-bit alpha, progressive output and Chromium behavior.
+
+- Improve JPEG XL effort-7 VarDCT alpha compression with first-party repeat
+  coding, gradient or left prediction, and gradient contexts. Preserve exact
+  8/16-bit alpha and decoded colors, retain smaller existing streams, and fall back when optional scratch
+  exceeds the memory budget. Check regular and progressive output in Chromium
+  and record the matched-quality transparency results.
+
+- Improve JPEG XL effort-7 lossy compression on checked opaque RGBA8 photos
+  with finer color DC precision. Preserve exact alpha and existing AC/filter
+  choices. Bound the extra palette check, retain the prior policy for small
+  palettes and other image classes, and record matched-quality measurements.
+
+- Improve JPEG XL effort-7 lossless compression by choosing residual bit layouts
+  independently for each learned ANS histogram. Preserve exact samples, keep
+  smaller existing sections, and retain the prior stream when optional search
+  exceeds allocation limits. Record the measured graphics and screenshot gains.
+
+- Correct JPEG XL sampled lossless tree-cost estimates for large groups. Scale
+  branch and histogram costs consistently to improve compression within the
+  existing tree, histogram and storage bounds.
+
+- Improve single-group JPEG XL effort-7 lossless color compression with bounded
+  reversible-transform sampling and one additional encoded candidate. Preserve
+  exact 8/16-bit samples and alpha. Retain the previous stream when it is smaller
+  or the optional search exceeds the working-memory limit.
+
+- Reduce JPEG XL effort-7 lossless page sizes with exact RGB8/RGBA8 reference
+  patches on pale pages and colored flat backgrounds, and a larger bounded
+  palette-order search. Preserve alpha, invisible RGB and untouched samples.
+  Keep smaller complete files and account for the
+  extra display copy and reference atlas within the working-memory limit.
+
+- Improve JPEG XL effort-7 lossless compression with bounded learned prediction
+  trees and shared ANS histograms. Preserve exact 8/16-bit samples and hidden RGB,
+  keep smaller existing candidates, and verify Node/browser output and independent
+  libjxl/Rust decoding. Record remaining screenshot, graphics and lossy size gaps.
+
+- Improve multi-group JPEG XL effort-1 lossless compression with separate channel
+  models, constant-channel offsets, local color transforms and bounded repeat
+  coding. Preserve exact 8/16-bit samples and the smaller existing representation.
+  Record the added encoding cost and remaining higher-effort and lossy gaps.
+
+- Add a pinned JPEG XL compression investigation with exact lossless effort
+  controls, opaque-alpha and native prediction-model checks, and matched-quality
+  lossy filter measurements. Explain remaining encoder compression gaps.
+
 - Extend JPEG XL ordinary Modular input to mixed floating alpha, wide integer
   samples and legal custom floating layouts. Preserve matching integer ICC
   profiles, convert RGB LUT8/LUT16 XYZ profiles and relative custom HDR color,

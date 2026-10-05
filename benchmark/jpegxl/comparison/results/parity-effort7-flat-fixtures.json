@@ -1,0 +1,589 @@
+{
+  "schemaVersion": 1,
+  "implementationSourceSha256": "0d0880aabd703e6319a066a1d66ba6f00872810b7d9e3c3dc16e74e4e08a37d4",
+  "harnessSha256": "f6d15bf3487ebdb71d76afbaa169b11227fb2c8c0ee3b58d8eecc93c848a0a5c",
+  "fixtureHelperSha256": "6576f080b7c3cfbf608e7daf83fb8b21020bf1599427a8fa84a9d024d6282811",
+  "patchFixtureHelperSha256": "0388b3078d29b546588fd951938fc8fbc99e11bcf68eb4988671ca3b0660b5cc",
+  "policy": "Mixed texture, correlated color in each primary channel, signed gradients and repeated patch cases on pale and colored flat backgrounds at effort 7. Preserve every 8/16-bit native sample, including invisible RGB, nonconstant straight alpha and nonpatched values. Timings are excluded; oracle memory is separate from the encoder owned-storage counter.",
+  "runtime": "v24.16.0",
+  "rows": [
+    {
+      "kind": "learned",
+      "depth": 8,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "4c8e6b5eed3587550aebdb2b13983cdabdd586e1d7ccb56b80523edb29d964c5",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/learned-8-1024-rgba8.jxl",
+      "bytes": 432957,
+      "encodedSha256": "c337823143be5c8e33fd4d2bb73e64a54d5bf983d03840c52004eb4554a08ecb",
+      "ownedPeak": 39122625,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "learned",
+      "depth": 8,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "1518af676143c7d73c4a52a99c84d529e3cccba6cbd196927c6fd2c5c9cc56a5",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/learned-8-1025-rgba8.jxl",
+      "bytes": 436131,
+      "encodedSha256": "89e18ecaf951f68e0edd1155dafa30e451faaa8c54decfe853d6faf54070e242",
+      "ownedPeak": 37882069,
+      "ownedLive": 0,
+      "models": ["learned", "channel"],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 257,
+          "effort": 7,
+          "rct": true,
+          "predictors": [6, 3, 0, 7],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 435364,
+          "lz77Bytes": 537264,
+          "selectedBytes": 435364,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 12403,
+            "squeezeBytes": 12137,
+            "selected": true
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 435364
+            },
+            {
+              "tool": "squeeze",
+              "bytes": 502604
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 1,
+          "height": 257,
+          "effort": 7,
+          "rct": true,
+          "predictors": [6, 1, 0, 0],
+          "entropy": "ans",
+          "contextModel": "channel",
+          "lz77": true,
+          "plainBytes": 848,
+          "lz77Bytes": 740,
+          "selectedBytes": 698,
+          "palette": "none",
+          "squeeze": false,
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 698
+            },
+            {
+              "tool": "palette",
+              "bytes": 726
+            },
+            {
+              "tool": "squeeze",
+              "bytes": 1144
+            }
+          ]
+        }
+      ],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "learned",
+      "depth": 16,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "26c1943941c8a648251dfb88de3b41b919f8cb2311410b84315b1714322e1fe2",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/learned-16-1024-rgba16.jxl",
+      "bytes": 1202947,
+      "encodedSha256": "b926c5be914726d108adb790e5545b532e1299db853188d2a45528da62f06c76",
+      "ownedPeak": 47576317,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "learned",
+      "depth": 16,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "3da6e7849c28a04b5213ab1da0fd89c6a1912a1655748cb879fc683ad5764f35",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/learned-16-1025-rgba16.jxl",
+      "bytes": 1206660,
+      "encodedSha256": "af6a204445fe87a6d9a1954fe3039f32747cff215cf0cb891f21d74547d62eac",
+      "ownedPeak": 43227053,
+      "ownedLive": 0,
+      "models": ["learned", "channel"],
+      "groups": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 257,
+          "effort": 7,
+          "rct": true,
+          "predictors": [6, 10, 0, 7],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": true,
+          "plainBytes": 1207275,
+          "lz77Bytes": 1205185,
+          "selectedBytes": 1205185,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 28426,
+            "squeezeBytes": 27085,
+            "selected": true
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 1205185
+            },
+            {
+              "tool": "squeeze",
+              "bytes": 1250697
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 1,
+          "height": 257,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 1],
+          "entropy": "ans",
+          "contextModel": "channel",
+          "lz77": true,
+          "plainBytes": 1985,
+          "lz77Bytes": 1423,
+          "selectedBytes": 1402,
+          "palette": "ordinary",
+          "squeeze": false,
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 1423
+            },
+            {
+              "tool": "palette",
+              "bytes": 1402
+            },
+            {
+              "tool": "squeeze",
+              "bytes": 1970
+            }
+          ]
+        }
+      ],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "patches",
+      "background": "pale",
+      "depth": 8,
+      "width": 512,
+      "height": 512,
+      "format": "rgb8",
+      "inputSha256": "b7b3189b70a972fd1637b7a1c92d46474d49a121b02cea27eca9723d77e8b635",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/patches-8-512-rgb8-pale.jxl",
+      "bytes": 3426,
+      "encodedSha256": "17584d6ff5d2429688ddbb9b3f264eb96959b874235f5e83bd7280cb5acdcbcd",
+      "ownedPeak": 11629364,
+      "ownedLive": 0,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "c936d24c29e68e3a6647fbe10797605dc19589a35019986a0100f095a0c69e9b",
+          "samplesCompared": 786432,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "ecd7e53e8c99ad9cd1697ec7a87133b4548a2c7e150d417c86fe1b24b2fc3c4f",
+          "samplesCompared": 786432,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "patches",
+      "background": "flat",
+      "depth": 8,
+      "width": 512,
+      "height": 512,
+      "format": "rgb8",
+      "inputSha256": "4750d3c0da84c23873e6fc11ac710e9af4647e48d91d2b0043cfbab0ed3dc0b3",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/patches-8-512-rgb8-flat.jxl",
+      "bytes": 3215,
+      "encodedSha256": "2f4824631555f85e8ca2d34ae40af4ad770b2d9f163e2c60d07f1290c114b4f9",
+      "ownedPeak": 11573376,
+      "ownedLive": 0,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "8dce820f1b6ebf796558296010c2a246bc417dcedbee53ae38f96e2650b597b3",
+          "samplesCompared": 786432,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "36a85abcff372ef8ec05a9d712cf09eb9c3788d6d872d800108952c8bee51abf",
+          "samplesCompared": 786432,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "patches",
+      "background": "pale",
+      "depth": 8,
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "inputSha256": "0eb6cade3722da2d30bdea13a1cfab17d916c11508e7e91d8483113093f73eec",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/patches-8-512-rgba8-pale.jxl",
+      "bytes": 4296,
+      "encodedSha256": "360e4f430f2639acde27cadf1a0c49592fdc7582f55adf88230293e5188d7279",
+      "ownedPeak": 44792764,
+      "ownedLive": 0,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "2878dda0d7bfbb643e9fc55a4447882aaf293155e4c084e56f17f27d1a12b7a3",
+          "samplesCompared": 1048576,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "7aff249c3470b4bc3aa0b1887ad2f17b6e641d0352987ecac1e3a364f2b53f88",
+          "samplesCompared": 1048576,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "patches",
+      "background": "flat",
+      "depth": 8,
+      "width": 512,
+      "height": 512,
+      "format": "rgba8",
+      "inputSha256": "e6073b6be565cfd46950deea9a114742ba86f4707c8032e1d09175691bdf1cbb",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/patches-8-512-rgba8-flat.jxl",
+      "bytes": 3787,
+      "encodedSha256": "0d80ed4f7c2cfd45246175b87e0bc54bea8f0ac2a76be9927ddf4df6c5a11ae1",
+      "ownedPeak": 34080623,
+      "ownedLive": 0,
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "2ba4e9357b25eacdf8649eeaab0516509201c50aa281eb172cb09db649b5c120",
+          "samplesCompared": 1048576,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "d72d7498ed7856660aa6764e07de13ae29a295d52003fe808151cdacdc0d036c",
+          "samplesCompared": 1048576,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 0,
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "2dee11b58216cdf0782d0360cdab603461048f08cc8e88998528e6996f434c99",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-8-1024-rgba8-0.jxl",
+      "bytes": 76446,
+      "encodedSha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02",
+      "ownedPeak": 15888634,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 1,
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "78d8ac175dce8981f878369d5af21e49ef27eb0f55baca0bc3f8395c2c121651",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-8-1024-rgba8-1.jxl",
+      "bytes": 74422,
+      "encodedSha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3",
+      "ownedPeak": 15955984,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 2,
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "e7d4958196a88f8dac17c7dbd96759bd5b52487d8818d14f9adc0981dd00301d",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-8-1024-rgba8-2.jxl",
+      "bytes": 74731,
+      "encodedSha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084",
+      "ownedPeak": 15941815,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 0,
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e85ffebe8bef6bf41eedf33f614edf97e91762afeb5b4c424ededea6796a8287",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-16-1024-rgba16-0.jxl",
+      "bytes": 138436,
+      "encodedSha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea",
+      "ownedPeak": 17165767,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 1,
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e093d147383a070a604bc0054209f1581dbbaf12819f54054f1a9aa929762acb",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-16-1024-rgba16-1.jxl",
+      "bytes": 140533,
+      "encodedSha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93",
+      "ownedPeak": 17155899,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    },
+    {
+      "kind": "color",
+      "primary": 2,
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "bb76ee1f8a2cbc5a7a9da8ef335975f567d5960f682da73dd4bc7101f1923585",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-learned-fixtures/color-16-1024-rgba16-2.jxl",
+      "bytes": 146963,
+      "encodedSha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132",
+      "ownedPeak": 17136761,
+      "ownedLive": 0,
+      "models": [],
+      "groups": [],
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "status": "verified"
+    }
+  ]
+}

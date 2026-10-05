@@ -1,0 +1,1916 @@
+{
+  "completedAt": "2026-10-05T21:30:27.372Z",
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationDirty": true,
+  "implementationSourceSha256": "792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f",
+  "repositoryCheckPassed": true,
+  "passingTestFiles": 271,
+  "passingTests": 3649,
+  "existingSkippedFiles": 1,
+  "existingSkippedTests": 3,
+  "checkReceipt": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/commit-check-1206.json",
+    "sha256": "5b06bfce508304b354333d939235df91babab4a07a8537ff549ec9150919ef86",
+    "code": 0
+  },
+  "websiteReceipt": {
+    "path": ".tmp/jpegxl-comparison-v1/final-website-1210.json",
+    "sha256": "f7301cba23ea5f596ee7bf9247e01c7a18500e66b6883912c5c4fd87ea2e90c6",
+    "passingCases": 3,
+    "projects": ["chromium", "firefox", "webkit"],
+    "peakTasks": 249,
+    "taskLimitEvents": 0
+  },
+  "priorCodecBrowserCases": 30,
+  "priorQualificationPath": "benchmark/jpegxl/comparison/results/lossless-group-search-final-gates.json",
+  "productionReverification": {
+    "productionPath": "benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json",
+    "productionSha256": "9afc4755fd42ab7c0fbc61dff57a6427babebef437c7318c820dd4f19e9f3072",
+    "verifiedPins": 700,
+    "totalBytes": 3798252136,
+    "readChunkBytes": 65536,
+    "sequentialReads": true,
+    "completedAt": "2026-10-05T21:23:13.426Z"
+  },
+  "preservedFailedBrowserAttempts": ["commit-website-1207", "commit-website-retry-1208"],
+  "stagedFiles": 468,
+  "temporaryPathsStaged": 0,
+  "versionUnchanged": "0.17.0",
+  "runtimeDependencies": 0,
+  "fullParity": false,
+  "pins": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "dd4be25a4d4db9b4c2f22fb9b54a6e5f2aadadf66986f9c08d1d97e3cf267eb5"
+    },
+    {
+      "path": "README.md",
+      "sha256": "324f34914ff240e39bc2d0c5562ba137d375bbfbeaaf70a890ba99b9fe6fcde2"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "a4508ada5305b5e258c02177348215a5782d486ea16ee41092eb5ced6e1ddd4e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/COMPRESSION.md",
+      "sha256": "02b102d4cdec14d3197a76f29f2e3c445c06716e5c875a2f30139fa1401f5eaf"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/COUNTED-TOKENS.md",
+      "sha256": "8d68c3a3e21827900f34d283a30d2b382a6b3fae4cc155b27bd02b29bf1ad2ca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/DC-MODELS.md",
+      "sha256": "ff8e20f8cb26e11dc93dd455e02c568aad81795f37c91d3103442720dddedcc0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/DENSE-TRAINING.md",
+      "sha256": "f1aead7971403bfc4c624544c5751c92dfaf7c29aaf797fc208805a0225df9b9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FILTER-AC.md",
+      "sha256": "e6c7918466a4a5b400ae0bd4caceed341561bfdbde772faed7ddb191667a917d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FLAT-PALETTE-CONFIRMATION.md",
+      "sha256": "ac615f35731ce369323fdeb2c61f9dc19a52960bb42396f2396e6ef0b8315e2d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FLAT-PALETTE-COST.md",
+      "sha256": "8b78e51b0b83d229edb16b96ab0dd97a76aefacb76f3d45028462bcdb8f7cf97"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FLAT-PALETTE-RUNTIME.md",
+      "sha256": "b40b662d89e70f5354889d001a6594593c0cfe81cb4fa375e2f209d7ccd55c0f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FLAT-PALETTE.md",
+      "sha256": "8bfcbb1bc7ed7516f040950263d8a4fa3a18b5f60ba8c7050df40e3857a367fe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FRONTIER-SAMPLING.md",
+      "sha256": "6109ad5b0161104b4f0665088f24c19e66f6b9a15b011f1cfd8bb548aa145bee"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FUSED-PREDICTORS.md",
+      "sha256": "3f2d3c82e51f1612dca46734cb449288a508a38d46ceeeec14eb233064260f04"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GROUP-SEARCH.md",
+      "sha256": "6d94cebd2aa64a072c63e5f3e95ce54fc13ddfe25efeac843d2eaa4740aa8f7e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-COLOR.md",
+      "sha256": "ff47a444f7bec0dae133341db09daac37cab27f054118a4272840240cbe1a1b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-FALLBACK.md",
+      "sha256": "050358205e195e174b0a2c682a0e11e8c9fbdb0d7c9252b52b40b7813dc264a2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-PREDICTORS.md",
+      "sha256": "9ca0a33a18d1ea75f31c58b2678296f4453f3b106ab603478ec078175b39e3b0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-RCT.md",
+      "sha256": "20ae2add95d4befc36958e15a68673025457e1489302c5daa88ffadd751525a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-REPEATS.md",
+      "sha256": "1a8b543b40616c49a6e76f0040b480b48037b2661341869adb2b7483cdb1349e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-SPATIAL.md",
+      "sha256": "3962b191a0224c168192d365f18e5fee29a9c7261b8868a02fc337074b8612fa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/OPAQUE-PHOTO-CONTROLS.md",
+      "sha256": "721d6135d8f833e4c3c5378a2bb426f676f25363f0301189d307e0e153381d9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/ORDINARY-PREDICTORS.md",
+      "sha256": "e1acb6cb4c6f26d5994673554c0e5bc8f9a7d2e1d9b8d9213884586e9dd7a90d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PALETTE-ERRORS.md",
+      "sha256": "9e1fab88b2525e961b89c19a16486a689f4ca4000b46845a0942666b42e77074"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PALETTE-QUANTIZATION.md",
+      "sha256": "14060c90a2f1a5ef907c140e2119bab49ed06a071a8095705c1ce1cb5d185794"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "c9ffe21a38b1d5760a6ddc204740281e0575c00623cbd2b7b99f16c2573d223b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PHOTO-MODELS.md",
+      "sha256": "f3adf4b44ac0b62725a41ae4f08445b4bceab1cf602774df18f93185a93c57ce"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PHOTO-QUALITY-SAMPLING.md",
+      "sha256": "d1c03644cc6230e9c7a82d5da6c79d836f77405f02ac06844a2b32c95eeb6660"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/POOLED-TREES.md",
+      "sha256": "d400099c01249439009ef26504ef94b2e236dfa38aaacff29e165f70cddc9b3d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PRECOMPUTED-TOKENS.md",
+      "sha256": "8acc39eb21f708288762e50febbf8059956f926d3e86adba03dad97bd89f2909"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PREDICTOR-CALIBRATION.md",
+      "sha256": "073595581575d41aac1fe5630807aa02dfe655ea6e5071eea114465365d72dc0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/REPORT.md",
+      "sha256": "a62f945ea785808a8a238bdd06a5e5b3132d9ad6170ca7ebb662f0c1cf579cd7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/RESIDUAL-MODELS.md",
+      "sha256": "f50dabd51382b05ea947a69b65805fa886acb3adb9c342bf73ae24c323c02242"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/SHARED-HYBRIDS.md",
+      "sha256": "c4aedadd60b9681e76abbb1fcc5384e871bbe5770596aea0c8cb98fd2a4bcec1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/SHARED-MODELS.md",
+      "sha256": "c7d7b4147e845100594ccbd3f67c4225aa7ce9191b9bd1cea3b3873bfb7fc8cc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/inspect-modular-trees.ts",
+      "sha256": "eb09a11fd5176b0f682864fb8620de3712b2c4a0cb9de22601912981f7abfb79"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/investigate-compression.ts",
+      "sha256": "6582c093ee029e8de82db3a8100576d74c259a98e8efb58a7ffe81dad836abf6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/investigate-lossy-filters.ts",
+      "sha256": "c087522ba1a847189a77c1e30b33786eb7f5add43b07d407fc07792993deac19"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/profile-lossy-sections.ts",
+      "sha256": "f109951a47a05063fbdeb5421894a698958a5792b69aba9341c2564e7b2efbb9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/quality-refinement.ts",
+      "sha256": "650c8fbb87410c27e17d637819d381b069c5d301d4f8035370fa861ef18a560a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/quality.ts",
+      "sha256": "09fc3d3e7ced0990b53a9171cc6e8573c1a6f4982f4cff3899d34219495cb707"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-bit-cost-profile.json",
+      "sha256": "351fb2b70c5251683b3eb2d2870145bde7e946283bb1003771c37c4672596c01"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-cluster-controls.json",
+      "sha256": "eb60efd967dd7b91fe5f4470eea97e6de86fbfd324c3af3512626d0c097b94a4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-histogram-hybrid-controls.json",
+      "sha256": "da643338f7459b89d6e634079da5d6f78d15ba8ad2af12d88a91f471249330fe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-map-controls.json",
+      "sha256": "d081969289f39b5c526212e047201449a58c249a6396ed4cf54242f3d03a5270"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-order-controls.json",
+      "sha256": "c5450a1e64ade42a1ae81448ca38e6928c856c1e00ec4fec1c0b8537ac22dfc7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-order-family-controls.json",
+      "sha256": "a188f7dd92d252251706d04b919b4ba502d26c02c8fad8adda5c55326d65c4a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-order-public-controls.json",
+      "sha256": "8d485bbc2695dde28f5603940f393cfdb6d75b197ab60eeb87f621325dfacb9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ac-rounding-controls.json",
+      "sha256": "544be3cfb6c47aeadafedee7c9d660e88c641203837cf2a08474a3a19cde83ac"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/alpha-entropy-investigation.json",
+      "sha256": "999fa6285d7ee106d0dc99f1e30aebd0823b5822e8f0d61b8a66c24ad2ac1d1a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/alpha-left-investigation.json",
+      "sha256": "96015dd4ab63e271dddf992916a981869a1236c009f3672332cc94024786d08a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/artwork-boundary-controls.json",
+      "sha256": "048f951c00891629c803b63bceaaef7fbc82928e105ac004e276c61a936fb318"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/artwork-cap-controls.json",
+      "sha256": "ee5294b6e2917e6311bf03d9aeecbb766a8b327513fa7cf7c21a7f2d85001492"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/artwork-depth-controls.json",
+      "sha256": "328dba9cc1aefad1047def97868b957f8800e11d2521532c2e7c8100be8edd0a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/artwork-public-controls.json",
+      "sha256": "d8cb6136da6a53e0874001804eb2597b8be1a996cc742e263f81bd7c5c101038"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/atlas-packing-controls.json",
+      "sha256": "9d8cbb73c542ed07f3324b96b1e0a6fa676fb47b817e172687d5e8103ecb4fbc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/block-context-controls.json",
+      "sha256": "9d93afe92cb356000e0a5f4dd1bab4dbf3ff4846dc02a6a72ff9abfe9672b65a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-controls.json",
+      "sha256": "f2c0664d132c826e772ec7b9d5006eda376bb9f8ede491c7e71bfa254e77d0f5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-program-profile.json",
+      "sha256": "f2fd1c4292b411ff21f696a17730fbd33ecc552cf65cfd05a1171a2ca7016ddc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-predictor-tree-audit.json",
+      "sha256": "6a9ccc3377170e38a09a949859b1332926879e0f8e38fe2f65622c6673a9821f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-predictor-tree-final-gates.json",
+      "sha256": "fe2cbd83cd00d39850f9a603d37aa43acb99e5de8e08002b7de3a3ed0bd55fe4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cache-groups-production-final-gates.json",
+      "sha256": "d218a27550cd4d25f7174bd83d5b2a624968538efe8e61ca35a838755ca96ecd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cache-small-group-controls-audit.json",
+      "sha256": "ebeb03c90ceb5ff92b7d4fd01f64cd0397c01d3876c6c7736613bd1f881cf6eb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cache-small-group-paired-audit.json",
+      "sha256": "e3875cbc9616a2c1edfe38c9c5ea2faeacafb47fbe63242797b9b70aecc60cd5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cache-small-group-performance-controls.json",
+      "sha256": "3bf2a180c553c930e8630cac9aff69ab7a3338a11d2a844835ad1354cbf08ae6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cheap-group-cost-profile.json",
+      "sha256": "f17fa97fddd5f08e1225d7dc6586610a2bc75fe680ed91f9350a8c4d29973cf1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/coefficient-order-depth-controls.json",
+      "sha256": "6ea2a65afd4c7e71b2352e6820b2e7fb518d6404a9e5b2859b03db5d4997c32b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/coefficient-order-fixtures.json",
+      "sha256": "03b4fa138c2e9cbc616d397bc33c1a8212d330ff1163c3274253c01caf4e1eed"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/coefficient-order-lossy-section-profile.json",
+      "sha256": "24320a2fc552e428a6b7be30f904a0caa4d955489a057bf1f67ed366dff71e3d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/compression-counting-and-quality-final-gates.json",
+      "sha256": "a512c4f336fef849bd7d018d0f08331b52da185bba792820ecd89900b473c654"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/compression-investigation.json",
+      "sha256": "70c730c9d1a541b8719883d51e61cffefbe33fe040e47f50a639856ff09938d8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/compression-lossy-filters.json",
+      "sha256": "eea7da24e5bb00e62b5e5c95a6c1382e8a4d7aeb63fa3579e59e19af33e13003"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/counting-sort-controls.json",
+      "sha256": "a0bc8dd8eb6b784ffbe527b0a83fa96ac6726b4a0fc0f6c341d3a51696c73054"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-lossy-section-profile.json",
+      "sha256": "0ac648a866f939a67939bbe87405f012c2722d4406abbbc80efef0068e62b45a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dc-ac-kernel-final-gates.json",
+      "sha256": "e52eae7d63d1d1a821ddcae1c283818138f58934fe5751afd56f4d3da9ab2607"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dc-ac-kernel-production-controls.json",
+      "sha256": "61498738d3b5bd57b96a92c0878969c49dea00a98ed12df847afb787e532691d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-dc-bit-profile.json",
+      "sha256": "9b3bd8e16bfb8635035e32c8b0c86d21e32967983b865401862d50dec08cce01"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-dc-rate-controls.json",
+      "sha256": "1dc1281fe3337dce5fa7d51a9fafcf7efe5cc59890b904712fef558eabf2c42a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-rate-controls.json",
+      "sha256": "4d33d776b7e19776f6e3d2bf3e3cdf810074d93cf5ed516372ae074defc63623"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-section-profile.json",
+      "sha256": "79ea7abb0a371aef49b9ea4bc1810ec4b30394e7f56bbb18cc777d4f4c91bf3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dominant-palette-quantization-controls.json",
+      "sha256": "debb4ae7f3f45b73d30c5ae1b6a25e321683fcf5a8ec0022c7eee763d33ae4df"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/error-prefix-funding-package-controls-retry.json",
+      "sha256": "f121dce0b878860034988b798c0bdfa75aa29feeec69e426bfee2bf0087722bc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/error-prefix-funding-package-controls.json",
+      "sha256": "b3e6f6373e90619f957e56cbaf40236944399d041b6e0e9c74e83a552d9dbcf7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-context-depth-controls.json",
+      "sha256": "e2573dec6cca45f9b2a613c1222c313e105be8102a8ac3b9fcf7cdf017f5e131"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-context-fixtures.json",
+      "sha256": "08952cc0c675393fcc62a20e326ee7e2ae5d276ea7485614aad178c562884a2e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-context-order-fixtures.json",
+      "sha256": "668006c6fb215e7dbff7c3432f56c323a85b2cd41e1c6278a0ede4f5248e6ff4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-context-public-controls.json",
+      "sha256": "74ddbfe5955b14e319381a52bb4f4834bd2dbdbda9acd14dcffcd959d20301ff"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-floor-browser-controls.json",
+      "sha256": "0882a9450a07fda677c69133300ac706e8c7c925d208c7288505db774b9b1881"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-floor-production-controls.json",
+      "sha256": "d571008f0706160f0fdcb76afcabdcac8379d126f2ff4f0fb255f2f6908d0824"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/filter-ac-final-gates.json",
+      "sha256": "0c7c37423209ce22e06891a23ded64bb4cd3083968731b5ff9065554b95d053e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/filter-ac-production-controls.json",
+      "sha256": "23162656e18ef123be163d5e48db68dd29beb6c3db2091072c5092374343e339"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-cost-confirmation-gates.json",
+      "sha256": "4d941dbcd3cecb2cc762c4822afdf398093484a12c7d7db35dbcd5ddb06c4cbd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-cost-gates.json",
+      "sha256": "8c011a7635f44bc7f11cccb379bfeb59799c617851c75c52d254051ec04654ee"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-curve-dominance-controls.json",
+      "sha256": "b9edf0434778dc7e6c2e1ff67321cfd883f535d5a1ce65318a79aa8675726c8b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-final-gates.json",
+      "sha256": "aa4433f6cdbea201a554377de98cdbbce1596d8d50e0911fbc58678d137d4398"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-graphic-cost-controls.json",
+      "sha256": "26b99cbf5807f37be64e7dcaeb6e1ad375ffbb016715957038e70b4ceb264b5e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-original-matrix.json",
+      "sha256": "f505805400b63d2ef43e441242a1709e57b284849040bdbab24127eab73f6ec4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-point-dominance-controls.json",
+      "sha256": "86859e982542b1375b66869f97ae674bc1018489d2c97ad154c585beedf09872"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-production-browser-controls.json",
+      "sha256": "0b75ba440f8927c28a8cbb5d26e11800240f3f60185aa293c3d97208669ed774"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-production-controls.json",
+      "sha256": "73c5de2723838a20a16e0bd0e63c756c1b1d4b56b97a9667743059480a2811d9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-quality-audit.json",
+      "sha256": "f4da7f8a492aa0ec61821622a5ece984966738dd5ec413ccbeeb156f652d40c1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/flat-palette-runtime-gates.json",
+      "sha256": "0fd9243af1572bfbf46fff15988c4163850272d6e9b41737a25b2637b0f1801c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/forward-hybrid-controls.json",
+      "sha256": "e3c0d51d0d812d66febb1329880e7a4a82a4dcf476338951ffcb8e3c688c5c04"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/frontier-palette-final-gates.json",
+      "sha256": "b816b40b0c58c0d21904b6fb65684bf4aaa3e8c9ae748924e66ca22508da9495"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-audit.json",
+      "sha256": "af9e9edc0780df0ac0ed88663f9b2532f55d7b59a317678aedb44414f42f973f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-controls.json",
+      "sha256": "38f9c11cafd577f0cc69dea7a5b34d32b627507e89dd449a8b02f8a79a742292"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-final-gates.json",
+      "sha256": "98243448175acfb02de22ebbf464673608015eac29b27276e88d3944cc5acf03"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-controls.json",
+      "sha256": "ac53445f0bdc9d9e23035c2243410e1e830d456d663de2900d897c55c0ce5dc5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-fixture-controls.json",
+      "sha256": "b1e9950fc52f2239209859bd835bc83f4685d193c06f354ac52e7e83355c46b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-neighbor-controls.json",
+      "sha256": "3889035aeaed8f6cf95858b91ab0c88bf515d9055d6cec42562f74938d20aae0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-package-controls.json",
+      "sha256": "12d59a928586635765c944bb9d4546f210af8fe9f56b5c4c0a186918fa988cb4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-paired-audit.json",
+      "sha256": "5cf3d303ebde97ef4b34db02998f8015f5e648eecb037bd5a21fc94cbac64cf2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-performance-controls.json",
+      "sha256": "6d00d056ade98f0599814651bb177dcdfa21b63390a2e8473a4a34b5ab03419a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-minimum-controls.json",
+      "sha256": "69f548e2071d4fb1be32ef962e01594f59a63ed5a9dcac937ba85562fb55a271"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-whole-group-public-controls.json",
+      "sha256": "3237920448865035084a785fcc38de0e975409630aae460fded218e882340594"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/fused-ordinary-package-controls.json",
+      "sha256": "d3b05fcec41b637fcebbb61ec6df6b7de69f1c77aec2ccb6e6b32e1277360da1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/fused-ordinary-predictor-tree-controls.json",
+      "sha256": "df28f22bac6230951791a25827b3583d8513b2eba8e59ccfa3bfb93cd70472a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/gaborish-inverse-controls.json",
+      "sha256": "b9a9c6722956c1b4eb3a50bc61e3dd88a2e9d30863061a755eed813e8b1921e2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/gaborish-neumann-controls.json",
+      "sha256": "a890f3b5f4073346f1f7de0dd80fb5a1f164559244cf9dff97242fc4943f1a84"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-program-profile.json",
+      "sha256": "8cf15f9fda4d536611680a586f10a6692bdbce01bebac2d0a43f477b3963deed"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-cpu-sample-profile-typed.json",
+      "sha256": "ab55772981499923260d7eb49824fb5fe311856194ac1ea918200cce042634d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-learner-boundary-controls-retry.json",
+      "sha256": "7fa7b0cbf27ea35a8ded12f1a85e6942bc6487fbf2e5c4ba7754f7fa0092ba96"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-predictor-tree-controls.json",
+      "sha256": "a9607f4702451ac6b9abfac55639815ed3289c377ffd51c24fabedd082f5f0f7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-profile-control.json",
+      "sha256": "1dfa878e34e9c0d66307f85a532418db0baa0e6e374a23fc0e8b403741b384f2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-audit.json",
+      "sha256": "12a625c8ffef889f52632cd3425f096eebcb14f2d669d1017c12810c163a0acb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-controls.json",
+      "sha256": "100ec629f11564e0fbed62ea6840e575e4cdc5cb463fb9dcc3fad1b898c853ce"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-final-gates.json",
+      "sha256": "ace0862413240a9888a3f4114ec21f49c0cd2e7426cdbf0370fe428a027d4988"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-program-profile.json",
+      "sha256": "aac488fd71a4f4082eb25ff516af9e1baeb00888fcafb56a4c21a81d861675f9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-predictor-tree-final-gates.json",
+      "sha256": "0bf7dd9d3d1672042bfcc38aa8eb8e28add69f6ed13f0418d25efd8c6778391b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-selective-predictor-tree-controls.json",
+      "sha256": "e29b17f8df6af2cc8ff6165e94c3a7243b0644977c54f3eaf4be90bea91c1db8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-small-group-performance-controls.json",
+      "sha256": "3236923e70c6af759fc5148e0a7008f4ab883407632304504f25855f8e3b3f61"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-artwork-controls.json",
+      "sha256": "159272e6000fd1faa05d81d34e9ec5abecf05e41bcf43be9e609469173a0d275"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-atlas-active-controls.json",
+      "sha256": "81b3ee702b21d357de2c8f4c1466bcf230e492464a0f970b64828f1e32045bb6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-atlas-controls.json",
+      "sha256": "da0cdaa783f074ccf966a4c137cc85b5b98ddbfe930128b73412361d744ab97d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-boundary-controls.json",
+      "sha256": "65efbe3554da7b5e0d53ff2dd77852991a67658b877a64687b04841e7178efc5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-final-gates.json",
+      "sha256": "ad8a170ea0f3649e2adb5f289257df3b2bbf3c4b127ccb11e4460006fcf913b3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-floor-controls.json",
+      "sha256": "50ef222d8d0494a5135581c50078d1a44d18ce649cb4f389ce1bbb402d1f4a5a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-full-controls.json",
+      "sha256": "58b3ca387e776ad45bf6883e4f2cdf69b4f7dcd48e24ef210a88aaa6d70c760d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-local-artwork-profile.json",
+      "sha256": "f71ab70a0e441b365c5b22171f1e38e7830d1e03c6625fb5ee0099740804b7cc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-minimum-budget-controls.json",
+      "sha256": "163ca9e02f52725fa7dd413a2ebffaea10ac9d1916ed4d864702ccb536f5966f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-public-controls.json",
+      "sha256": "a0c20bc9e5ac18a2c8d6f2d7e9a26af449e02f0e56181d7e8391f5573c29eaae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-qualified-floor-controls.json",
+      "sha256": "59f1e2e47977abfc0bcddeabed57e6eb3bfc81981a45cab1f79f780d9bf621af"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-quality-change-controls.json",
+      "sha256": "68a9c6aaac629385bb51a0e5f7dab884c4b50d13455f7642c54ecd17aa0d7c36"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-palette-retention-audit.json",
+      "sha256": "fb1edb58c0f3031c075a89062189a7cd7b8930bd630ca274d64f2c00324a3f87"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-adoption-audit.json",
+      "sha256": "2b2797ddd398fa668d7d73bbe53bb713875c3e692b720b7074bc3397e4f1eedc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-artwork-controls.json",
+      "sha256": "9cc0c2b462f6e2db93de0f4c043692f9d28f3f35cf66e6cf160a0cf9f2e2f561"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-bit-boundaries.json",
+      "sha256": "cc7bd29c6e63517e7b60af973ad3ce5bc1a6dc90aa1e8d5975e726d6a33936ff"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-boundary-audit.json",
+      "sha256": "f96be8d00a63f29210cb2c24b63f5c35c7db1eca61c410edc76527facf29eea7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-controls.json",
+      "sha256": "d31d12d4b11347b6b55b9521962b9af9858feeca516b2809a7b4d8562c4b29b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-depth-boundaries.json",
+      "sha256": "dff5210b3f88215b78be13c5fe8734fefd1b1d1a7e56e8c4255a404ba0927d4a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-documentation-gates.json",
+      "sha256": "a7d8dbc5dbdb6048e85a3b4995725d3dfe6a11eba6f0c6bf5b1bbe09bf4672b7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-evidence-final-gates.json",
+      "sha256": "287b70946d9708fb646e71e567d17c75677b7b4c09595165e656b7836d40421b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-field-full-controls.json",
+      "sha256": "4f52aeeb63885dee0a638b82fd4b25940bb3c447e89ca729d5b17cb36dfe31c8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-final-gates-final.json",
+      "sha256": "ab378377c5c75b22797eddcd1adb4bdebeed4c987c5cda3bf55a851a8e785fcc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-full-controls.json",
+      "sha256": "4a7a42602713ac97e8d06dfd00a88ae007932f8d359115ee6702b50b1de1b80f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-learning-boundaries.json",
+      "sha256": "8a28a32373bbe60bbad95e6bc33411d3f35bf25e842e50e9469e86bb7bdb3537"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-minimum-budget-controls.json",
+      "sha256": "0319c742ef4957ff588ea0be7d185dd7dc39a0375da2f678f26056819eb2a9e3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-package-controls.json",
+      "sha256": "982a16960e7d542a0905b8525467221fb4e6b335ac9c3be4ff83b4d22693dd0e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-performance-controls.json",
+      "sha256": "25967b7b63aed21e683175facf389c0f84ba33432608982567c47ac308caa1bf"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-performance-retry-controls.json",
+      "sha256": "22dc8b1f0ac23e7297ca4ae2c68ad9c444aa9aeccf570d461d6f38203d6ce821"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-audit-final.json",
+      "sha256": "bc641b31df7ae6e80c55e5a6a951d5e2711afb50ca3431e1a46faf41e9c62037"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-audit-retry.json",
+      "sha256": "c8b182ee2d4e1cc93d0817dff59d0ac19685d5aecde872fed6ab169d8ba6a9f5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-audit.json",
+      "sha256": "d26272bba8aa383482f598f183ad78ec89ea4fd1101b4e93ee9999ad7382f948"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-production-minimum-controls.json",
+      "sha256": "12f9238c0eea3a38e3a596260324731848999abbe47dc63c73588515d7523865"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-repository-gates-final.json",
+      "sha256": "0b15a7e6117f77f0afe45e61189881dd49f4f85070d4f0c683cd5ca3649547c2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-retention-audit.json",
+      "sha256": "c0b5b2d5ba4b261875b248edd28e44b5037f8139ed73b4026f0a71db381e0099"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-hybrid-controls.json",
+      "sha256": "915f4e0c6f337ee79c2bbd75a2a581cecb7472049f27348b1276e1f5d00398f2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-investigation.json",
+      "sha256": "e8c52290e860838f9970948f81e841876252db561df035b1254ac036e6176fa1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/local-color-selection-profile.json",
+      "sha256": "38e9dfb299bb75d1d686f72f26374f37d66ba186ac4b4a461b2ff27f05f67755"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-artwork-section-profile.json",
+      "sha256": "55eaa17541632f1a515f5b7a9a78f021e13ba6e073f236a6999d27049755013f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-container-controls.json",
+      "sha256": "679d4bc2afad24190db1f9325717e387059f594a0b79e6c95b4fcc4a0fe31f81"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-dense-training-final-gates.json",
+      "sha256": "88d5b3623f2a4306bdb889954369b6b662a310454315961af9d1b8402b2db6dd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json",
+      "sha256": "33f94a3968aea01fe2e74661e11cb0299f045f0d2b0ee2a42462382c650342b5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-group-search-final-gates.json",
+      "sha256": "0c46acccd7116beff6836634aa865c6c4bfb95fd7273f8a997dc7b374ab59ec1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json",
+      "sha256": "9afc4755fd42ab7c0fbc61dff57a6427babebef437c7318c820dd4f19e9f3072"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-rct-final-gates.json",
+      "sha256": "593701ea98fdd4318add768036ca3ec67e0f490674f617b7be39509fbfd87ada"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json",
+      "sha256": "a3fa6f67836001554a1052cc0559743626ee8c25939354297c2399964c7d282a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-repeat-final-gates.json",
+      "sha256": "086d81dd19afd5b2162732908ba2e9e38091131b735899a44bc0d30bfd6ee965"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-repeat-production-controls.json",
+      "sha256": "71d198ead424bf87a6dba8d50f2eeca8c602fa7fc8c82859527dc4a3b1395efa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-spatial-final-gates.json",
+      "sha256": "1aefc1891b2c7d0d81878bdc66228ddef0b15c50d9c0278e8fb6c0be2379cf69"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-spatial-production-controls.json",
+      "sha256": "492507e88a1841ee73a268051092b46c2dcc67394b5fc94e6cf11fb2c98d44c3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-left-controls.json",
+      "sha256": "d600803d6215efb390263abdf7b53f9bcb493ff6aafe103e6a777913e44dc9be"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-budget-controls.json",
+      "sha256": "0011cd81a04bdf53b89e668aef8815d47620b4a61f289c396cf3afe9b7a4a896"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-depth-controls.json",
+      "sha256": "39d1988b2cae1bbc2e0cb3ab95c73fc1912a4a141656c156b57255361da164b6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-fixtures.json",
+      "sha256": "b610785080774c99e3ff1aac78ed767142f7632e48e082b3f6913404623e3f13"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-order-fixtures.json",
+      "sha256": "145974626e0c152265f3c8f42bbfe904738b64c77a652aea662a9d181d9f8b91"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-original-controls.json",
+      "sha256": "2da767f4dd12763874c580ba8d9b9fa58404d83bbfbbb175857f16aa6c3f5a18"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-prediction-public-controls.json",
+      "sha256": "c3c89cc9fbdd998adab961462b1bcd2fcfafdc93a345d8eaae3f7be7ce236307"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-budget-controls.json",
+      "sha256": "06663045429b9ccf5d643fe91aba470944f69e439dceec305308bf8501336fc2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-controls.json",
+      "sha256": "85960327359914d80c8d7dc950c10a2ab6ac14eca621d1543f0032965b36fb4f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-depth-controls.json",
+      "sha256": "d3170ea1e60b9ca89901c9825eeaefc5b9f50a23927afe7969df0786d5d706f3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-fixtures.json",
+      "sha256": "0b8182bf8d46b53f197d5be412b4e92fb8906aac03b8202cec31a5f5f08c3a33"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-lossy-section-profile.json",
+      "sha256": "9d31c9179dd279aa5fcb79027678a8599a0ebcbebdcc988e1294d8e778c34c0e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-order-fixtures.json",
+      "sha256": "e79883c0e8cbb47f217da87f831d9adf525f7e1387b17e7f857edb4aa24817e0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-original-controls.json",
+      "sha256": "ed25156be4a22966fdaac67982dd9b69009bfe7d4adf1eeaac7d4b21f4a41d12"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/metadata-row-public-controls.json",
+      "sha256": "9624a4436699c0a39bb61ab9b73bf5c5af58466f230d243322ed09fc7a253289"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/modular-local-artwork-profile.json",
+      "sha256": "a5dc699c1aa3f4f81a198e66aaf8a4a75cc5ff41e2b8ad4f6bf095d3d08213c1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/modular-tree-investigation.json",
+      "sha256": "52e6cc7891746b370ab37dc09ad25cb1ed4f236b80953d0476aa0ddcaf64e2b9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "sha256": "2cf661886007a6111ee4623f1de36f902d8e2b5df61015a8f2a7a792bab3fd62"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-scalar-palette-sample-profile.json",
+      "sha256": "7813cc2d115b5bc45fc3d24186812e2f70c5bac308ca4022b1fd8cce8952b1f3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/opaque-dc-investigation.json",
+      "sha256": "35f20bce703c8a838fab1e144ad294cb16f50c6283aa6caf5df7da42daa5dd21"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/opaque-epf-cap-two-refinement-controls.json",
+      "sha256": "8986e26e31dae7e11cde8cf557976897f7fbaaad02e6011005ab7cc7d6aa073a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/opaque-epf-refinement-controls.json",
+      "sha256": "4de7ed4ea7e5f1a58a5829baef4aa9d11773473f14dc370474817de4c235d6c5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/opaque-rdo-controls.json",
+      "sha256": "8336e5dd8239f62a8e2db53cff53ec79214a2e88dbccb3b26035cd45a24232e6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/opaque-texture-controls.json",
+      "sha256": "f348b21bba5e3bed5d2dc98cc65be133f4740b7fe3a1ff596250dc61fc9bf3be"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-audit.json",
+      "sha256": "9cf66805b8cce5bc7a4cada774af0e5c70c164239547263dca8e021cfc9458bb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-final-gates.json",
+      "sha256": "0fbf33f6b69a851c46409b0b83d8063891049fdd505d3a5a79011cac06fcfbfd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-program-profile.json",
+      "sha256": "4a4a48a38315396fda4e6c4a78fef80828a503ec3a01feb6987796f84604ec90"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-frame-investigation.json",
+      "sha256": "a2e56ab48d2575d7d3a1048dd1e99804f3cc5ab0ec2d4ee637b8c0d609ba0551"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-localization-final-gates.json",
+      "sha256": "d1dd800e658fd661a8d3493d447ca4315ab34ddef7a8c40ad2da85f753c93b20"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-artwork-controls.json",
+      "sha256": "47e2ddd8a36d7e148f91aa3d3d37fe05573660f363212ee69f7e34e96745b269"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-atlas-controls.json",
+      "sha256": "c7b012a514af044e607f6395e546feb490d5c3be15430dc08109765735cbbc41"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-boundary-controls.json",
+      "sha256": "09dcdccf2ee0486651565423e8e79bb155d4a4c174e112e973866325cbbdb1c1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-final-gates.json",
+      "sha256": "94211cc6436e69d41f9de2e6c194f216ff706836cc6a289686c6a717ca8fe095"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-full-controls.json",
+      "sha256": "04cbc9823a9c10522019501d383c670121acec4302039406286558e92500eee5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-minimum-budget-controls.json",
+      "sha256": "c0426307e8ef45cbd4e8c6d5da5a7a38acf53800882edb5ab1c812745b329bf0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-public-controls.json",
+      "sha256": "2563194aaa963120785c0e23a61e895ef2ddde863ce96c113d50cc91a1b8a3ca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-retention-audit.json",
+      "sha256": "5cc4be5fa92ab790c5b517dc61b39896ea683253712d6e72d4c9e150fe952006"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-quantization-controls.json",
+      "sha256": "aa8cc1b53c14d55df8aac1e269325db7e0debf7a5ee9a40b1b398b6da77d3430"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-cache-groups-effort1-public.json",
+      "sha256": "366a93b209da95b59a91dc89f66a55245e4f6b6c3af90c2abab5a1c2f0cbc944"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-cache-groups-effort7-public.json",
+      "sha256": "b2570cda9b891681266ad9541edeca10f2251496c41c32276618427e06fd32be"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-current-effort1-public.json",
+      "sha256": "db51a7d944052dc7499cdd8924934b3d31336c20b1fa1e3733dc8cba4fc68b60"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-current-effort7-public.json",
+      "sha256": "d6f4f1ad22fd3a38c3737221b356d64239a81b59807edd9fbb802a21371974b6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort1-fixtures.json",
+      "sha256": "bab8aa2d141a155ec0f9139c0c5731818789f19f13c1e473a0fdb26a81f2b7f8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort1-photo.json",
+      "sha256": "2b6f3155c03c4e587ab90c7c9d4e28219c5a2a135669f6cb25740fde392683ba"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort1-public.json",
+      "sha256": "bebb3a8e35aff328daaaea95fc1b21f0b327fabdcf8f6ec65d4149040e89a1b2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort1-screenshot.json",
+      "sha256": "139c5cb03ef6fc39fb44f4447ec86af4129e45a7d463ab6c1c61e0e0bea6a47b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-color-fixtures.json",
+      "sha256": "4c79e8721f3762d10b5e3b573c311e9c23667ba1f957d0bb50de1fe55a06e3ff"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-color-public.json",
+      "sha256": "02155d20be46bd832598580b624cad836cb7c43764cb67e4cbd15e9ed0242d0e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-fixtures.json",
+      "sha256": "41ebc0e190e6c240a1c75ede6c58ec8aff174a57066ef2416ddc2cce74685f5d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-flat-fixtures.json",
+      "sha256": "aae6d93bf5240e29afc5f8c0adccf926daf82fdd68994c530c02bf9c03882a0f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-flat-public.json",
+      "sha256": "68da95ef1948929bae06329e685418d6d6a01b3e50768a6f03a678246fdcb9c2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-hybrid-fixtures.json",
+      "sha256": "f20f380c3c471ba05e11b741800d538175ab069c31692537bb37154510f633f1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-hybrid-public.json",
+      "sha256": "cc6a1d10349fc46cbf9f9afbfa865fed3f245770e13c3124e1be2c2c0e9f7760"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-photo.json",
+      "sha256": "61d2895ef043e2c17b288cdfb2850ffb444af1d753615fbad77f3bcc96e6070e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-public.json",
+      "sha256": "acad0c40ebd579150826edd52c0ae452d98721c45483a659e41a88f9e1fb3e97"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-screenshot.json",
+      "sha256": "5d35349f6cfe0878c2c46c502de580be772dfcd58e549d2f720ec0d5393f37f7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-split-fixtures.json",
+      "sha256": "fed948866522d68b4e436d37abaed1e99af621dda6e65113159931bded2cd47b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-effort7-split-public.json",
+      "sha256": "310ddf31c3f11b28e7e3392a4b9fffd7f8ecdf10eb6689b5d58efc77f6e89ac8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json",
+      "sha256": "d6802f9a94a182053246685c836b51b1da44f0757bcaa6b529bed89def0675c2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort1-public.json",
+      "sha256": "8c9f3b6acadb9d1ea4a379a7585af32e4170d0f1002e14f8f721353d9d059a4a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry2-effort7-public.json",
+      "sha256": "5ac2031eabbad53e3de028e8ea62bceeea5b7c824805dea853702f52442e395d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-baseline-cpu-profile-counts.json",
+      "sha256": "b4289157f5c89efd054c2186cc79700988be3bc463f01ca6df8f90c84c38143e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-border-fill-profile.json",
+      "sha256": "80c418e0fa59ee2ae531030c0deb7b4579f64dda2cd42b31912277f19dcdcec1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-context-controls.json",
+      "sha256": "a8695f8efc512c227f5caf3b21c5044e668d93aa6a0fe9d1c9d197b3a8d0a6a1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-context-model-controls.json",
+      "sha256": "01cd5ee955832ac8aacc39e0f9f6d336741e695109124f5a3bd120dc23ca6724"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-mask-profile.json",
+      "sha256": "0c8d70eba3320a8f37cf8eecc198e4275bbafb728c3b567a38f673b42dc78538"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-guard-controls.json",
+      "sha256": "77ed74480a4b8b64b19c5a99e5b18c2e1d5450dcdbd57a487ea67324cdc082ca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-guard-public-controls.json",
+      "sha256": "7ed8e130dab566765aac78b8ef5d1f8efded2d01b5cf772ddeef1f918f9a7280"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-production-controls.json",
+      "sha256": "1c941dd81869562ecaf7abdce3ff2e2d732deb41813d1e47ce2e9b99daab4cd3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-public-controls.json",
+      "sha256": "24051a53469d4683ec2b3be3f9b333416703c39b211bae68879fb3bfab9498c4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-metadata-ui-control.json",
+      "sha256": "21f9bd2ba51f9cc245e989f704ace549372024d48813943fb1375a4ab7ae8f48"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-controls.json",
+      "sha256": "fd254521d47f730ea81a9448ddb255b553419ff9ce2d18f9c06794a4a96a2f54"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "sha256": "95f78da979f070d1252b95d5c49a4871e48f7c537e002cfdb2f1cdc0f03c6e30"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-policy-controls-audit.json",
+      "sha256": "5d8bf9a9cbf968d4c1cc6f1a3d19c8ce94f8051248a230523a5cabe7c3d23542"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-policy-repository-gates.json",
+      "sha256": "2bb545b9ab2c12ac724dcc169a04da6cc596d7da427feee236d781b706014ad1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-control-audit.json",
+      "sha256": "310dacf715896a220809e7037ae01cc6528e8c1b5edf748d9d03a36d93add619"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-dc-precision-controls.json",
+      "sha256": "f2c5117a8f22c6d39769a3b144049d45a99295a3d7e8c9fd4772088a9fa8fb59"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-layout-controls.json",
+      "sha256": "6ff9dd0ebc093ec53d95a49a64d3398297c36797f72e94fbaeca2542efa2a43a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-program-profile.json",
+      "sha256": "6f54c4f078d5b0724733652b838ea7843f517653e987c3ec16aaadf73955a8f6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-investigation-final-gates.json",
+      "sha256": "d1ebee3f97dd918398603c59319caf95a54cb276c9696be1301117bce5edbf24"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-leaf-cap-controls.json",
+      "sha256": "5045fc6f0ef54b641986618300987405ea1d5c9942a5ac83f73263d70bf17130"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/plane-shortcut-controls.json",
+      "sha256": "c95394dbb6c088d06115403fd7aba48ccdef7db71266db5f07701450d4a8c515"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/plane-weighted-profile.json",
+      "sha256": "76ef22f7988e4852b5b874b2c15e660d081d8585347cd7b5bc03972f955f8a8b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-audit.json",
+      "sha256": "78714d82f0f6a21bcfb7da9b9d63d1f15ff180b8ca611f10ddbf2c506916b7ee"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-controls.json",
+      "sha256": "35716de0170e3d1705691cf95a17a905b0e37cd9893510336ef9c0f7bb281b10"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-final-gates.json",
+      "sha256": "dcc632eefc6687328ae83d8a242889a6db9b60a202f02db9345c71d7f410df52"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json",
+      "sha256": "ab25a37bca153cd26637eee15285240bd6034fbdad6c0b230ddd9c93d2988590"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json",
+      "sha256": "ef0c0a97d95d5cd796d440fe191506450e70d7ac45f6ecdfb7a677e106194898"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-model-audit.json",
+      "sha256": "4cb078eddc70a1ab9fb87a5ba47fd5fad13f48eebbbcb169e65580906bf4e9a3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/predictor-cache-final-gates.json",
+      "sha256": "f5776cfa3d38eea7007d38bdafb4a40eab79d2b6d3e09cd7672f763f70a95d15"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/predictor-cache-production-controls.json",
+      "sha256": "1c4603044451f0b28616ead49bfd7efa77b921d4443a591ebeb528dbfbe9eaf5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json",
+      "sha256": "e08227a4e31ff70de1fdec19416f36eb923dfd5e037fb9793356745c4a7692f3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-ac-rounding-controls.json",
+      "sha256": "9579452fbeae069fb287e73673ef07ade564c194a141869e668dfdaea8bf71ef"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-alpha-left-public.json",
+      "sha256": "90759ec230986252a375cf4a484f1629c10f204be7e2f790d7de1a544e0a9685"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-alpha-public.json",
+      "sha256": "3ebd651ab171b2280ed2e7645843748497eb8c9e68b3cb6e63599d6a5e561a4b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-artwork-public.json",
+      "sha256": "1fc6c305131ee331f9fe1a3216801edd358d244113bb552f160aeae66c1f4768"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-cache-groups-public.json",
+      "sha256": "840a1947514011a638d5cbed7261b980e000331c2607b9bfde72576912072259"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-coefficient-orders-public.json",
+      "sha256": "d36b2cc1065abfd72bad4ab26520f61f647f88b0fbf15ae2f0bb29a736da6d5a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-dct16-dc-rate-controls.json",
+      "sha256": "858d9a838bcfc22798f2594f87c4ff245f5c7c425b7ea40da2cfa2f65009c3e7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-dct16-rate-controls.json",
+      "sha256": "2af1d0ad453facfffebb910936ad4238670f908bcc1a9abac5ec0dd471520b32"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-family-contexts-public.json",
+      "sha256": "5042bcec920f3d7af617fd7c5e386f5678272a4442b5ee1f1d88705f1656b0e5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-funded-sampling-public.json",
+      "sha256": "bd2a267d16410d569a278d1b3e22057a926637bf737a73ef13437f9cfda38cda"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-gaborish-controls.json",
+      "sha256": "7e71b198ac9ff12151d3d64b185672d3ede963aa373157bc7e4e2b17c59d0b51"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-learned-palette-public.json",
+      "sha256": "965df841dc8bdb6632e9f5cf396f3267b5f0388a60c4cf5da7f44af3ca55d671"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-metadata-prediction-public.json",
+      "sha256": "92d57f2bef08d82e052e885925b46950d5bc458a0a84adfc3204e52e169c8afb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-metadata-row-public.json",
+      "sha256": "06c1f989280490c8b39d9f97204653fb356183884166e93d9e9da07d09cd55eb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-opaque-dc-public.json",
+      "sha256": "4160f455306a925ca9a9a934b8e017c77e6a24379d7273f90af76a14e70e3fa4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-palette-order-public.json",
+      "sha256": "0a6967df2d392acfd26332a822d882125a919261239affd9055300cdf2228e05"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-patch-metadata-public.json",
+      "sha256": "264f7760a9f65ecbde2de764387b54d3e2fc0c226b4c1d2a77e8ba9d78c0b1af"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-photo-extension.json",
+      "sha256": "e99f3daf4ca39c781f01eb4522a9eb295c6904a8609a35ed0aaea0841c8dcdb1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-photo-frontier-extension.json",
+      "sha256": "df4da029dac5453ae66f6f1d5c66c6a381114b9ee1f9e9048491d7a1f3f2eb82"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-alpha.json",
+      "sha256": "9fb91309940d65be979b5bf0ac83dc913cfedcc036116d063b114bfda01e9d65"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-graphic5034.json",
+      "sha256": "d7b800e1357be558cdaeb664d3b02e208f6443dcc520d43524558641241ad02a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-photo.json",
+      "sha256": "9de91158658068a993daba28d327101bf34e162548865d8453d5235957ea157e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-photo1416.json",
+      "sha256": "7c13807a866244a2dbf321a62f55cd90653187255bdd980f8975fcb4e5931006"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-pooled-predictor-tree-controls.json",
+      "sha256": "edac508fc23aa3c17e7c25565abe55c15f0adfa5f6b3dab9928a6081a1128346"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-pooled-predictor-tree-program-profile.json",
+      "sha256": "393e191bddf2f719663dd867205370f3295f92cc0e2e7f8a7e6fa77819376fea"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-predictor-tree-audit.json",
+      "sha256": "fd45737bd747a6d6476cc20e006ad81ad36961c400473abd061c1f84b8168105"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-predictor-tree-final-gates.json",
+      "sha256": "a5527766aac986f93e8f123c543140f521ccbc509b0a636d1c82a943fbd6ff7a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/remaining-funded-lossless-local-profile.json",
+      "sha256": "bb7187a1436f37c1e2abecc6a0403062ca3111faba817d906ba505566991a607"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/remaining-lossless-local-profile.json",
+      "sha256": "19d01dd7352570df2c5e6df2ecc7bbef5734fc891783bc78fa293568880bcc84"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-controls.json",
+      "sha256": "d99f52a4452195c2fab5c76ad164f2fd2ca2f57e89a9b6147738290ed8dfc396"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-program-profile.json",
+      "sha256": "1a95220ab119e12024234ba68bc7811934984a784aaf6ca1c41be376fbb0271b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-controls-audit.json",
+      "sha256": "bd8f76e0cede36a89bb4bc04c0b15c898a7099fdbbd90017510ff892f8d5573a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-repository-gates.json",
+      "sha256": "b5b9f9e8a06cab64ceccebc49b717e0e372008b3afdfa48b9c472f95b50997ec"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/scalar-palette-rgba-controls-retry.json",
+      "sha256": "1dced96555ff58f8732fdf45ad2e404ced2f270fbf37ec855858ffde8d2f7897"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/scalar-palette-rgba-controls.json",
+      "sha256": "7cbaec4fc149d120d901daaca723299f1adcd6ba231c9ef7de8877236f855c90"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-audit.json",
+      "sha256": "ef30496ddf454423a9fd73979ccc66f5b34d880e7648c6903136023f4b13eadb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-controls.json",
+      "sha256": "99f49e6675200d6a2ff6ddb2575fac1f6642419ef6b92d88a3248c619a172cf8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-final-gates.json",
+      "sha256": "ba7fce97c6cb103470cdae47d292ef3351ba77ec4f31fec9736cb34688d82690"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-program-profile.json",
+      "sha256": "bb209276263dfac1932cb4c48331e0746c7e0bac4c67250e2c7a33b4d4d2e6aa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-audit.json",
+      "sha256": "e0e42291c4d988145629ee68014e9b33924feca8d822d907aa0cc1d6d0bbaf0f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls-corrected-e.json",
+      "sha256": "2f809d068b991cae9b9a07d38f813cb372f8b17e088ffef84063b6aacb115ccc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls.json",
+      "sha256": "e1f47c429b30637be3ee0da68254282fdf003ca6af6ac0629798a78b8da458fd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-final-gates.json",
+      "sha256": "fe9fc68b8361cae293a2063434e854cf0d2bdc08c41d86ca2414d9e30dc8ed10"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-program-profile.json",
+      "sha256": "7e40dac31f1cb23fb0df9a6e1a55424cb8806cf6c110d76c77535a9c0b233304"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-active-neighbor-controls.json",
+      "sha256": "99c3088bfd0f7e8acbd615613c5b09e51dc292eb7db4d73d22d6ac9c45201018"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-allocation-profile.json",
+      "sha256": "556539f42c55585178b98677279d2ace799b5621e1f20fbe913b808b42a73454"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-alpha-portrait-controls.json",
+      "sha256": "3b4ed43826701c03be76abfa6163fda79a62cac39f9dc9150c13a91c262646aa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-controls.json",
+      "sha256": "319a4d633ce8e3f9921c837ad843c9f1d0a32858912e7b4d28b90fe20f94bd79"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "sha256": "1de329d75493e614568efb649c2a97c11542c4ba16bf811cf1256aa75bbb05c1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-controls-audit.json",
+      "sha256": "1bb6b077b59ba8dca5cdf8df779ebe986f23fd052e527e2c28260bb7b76d4d95"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cost-guard-controls.json",
+      "sha256": "e857a05332c29df430339cdb37f107cd459a8724d0df6b16bf7b7b4d5bf017dd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-midpoint-controls.json",
+      "sha256": "b97bfa3ac7301957f7b9fff872f36febb12e3523e3114e885b8eb5f4ff7aafa0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-neighbor-controls.json",
+      "sha256": "21069bffde89151d783393d46ffb5dc7e32f265fde32ed4ebede6af1a265a6ab"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-paired-controls-audit.json",
+      "sha256": "31309484bb3d1f5d2232409c6b4cbef184c76c9afee218fedb2e1f7ad19ef67a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-performance-controls.json",
+      "sha256": "d0e0f1377a201dc1c25b3830346da0f98367f176f1cccffdedcc3fe4c544f50f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-pixel-guard-controls.json",
+      "sha256": "a4920a6975c4d582da00e13cd9ecbbf5e7fa14fb00d471e2141f9b914f6881fc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-sampling-controls.json",
+      "sha256": "76ff53ce9816ede5d335ff1878ca83f662b5664e4474be1b77cc5efe5389f554"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-axis-controls.json",
+      "sha256": "910846ddf807d1c9c823adf262c68bc4510c2b3057d9955edb7faea832271fb4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "sha256": "394367f9b994eac2823ad9770b9b52205e6cc85f12885a711f2ad2294bbf525b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "sha256": "8777f62c54111ba1464cd065616c4c46f823672f7d475fa1e4409ffa18cd916b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-count-controls.json",
+      "sha256": "7e23aa9cf9185220b005c4a930ac722dce496dc57da164799d778e89e0028a84"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-count-package-controls.json",
+      "sha256": "ceeea9fe1806a972bd307c3a697d9ea7dca96581614f372de616cd868820606a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-controls.json",
+      "sha256": "fff50080fc84724fe54784e587ae5ea66d572b63dcc426cf579ff30b1950e1e5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-cost-confirmation.json",
+      "sha256": "ca12808f3104f65ff76aadc13f0845d4ae2e219002303d160200210d719257ce"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-cost-pilot.json",
+      "sha256": "8fa8839762b913b2f2519f3032dcbb58b984bce65c2171a7c937c6eb37fd8a2f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-final-gates.json",
+      "sha256": "1f9ac4b6fb95f28b620a0aad4f20001e4194ee26b71bb9be40c6b0d8552ce24b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-funded-package-controls.json",
+      "sha256": "620e07807da90f8fbb2c6c6b1148db3465b27e2d90c489d4b1c7f61223582e40"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-package-controls.json",
+      "sha256": "4bfe5d4a6d144ac6253e0689469fb64e2abd44e7667b7de820517ba810f4db2b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-inline-paired-audit.json",
+      "sha256": "5b13ad52af5c0cfabab8f31823f08b6fc57fae648f6b74cc335dd2028f738f6e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+      "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-cost-confirmation.json",
+      "sha256": "5f9450d60a587074c436cfdc928e55c660c2d33f8d6854be510cc19d6b165ee3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-cost-pilot.json",
+      "sha256": "30dbb7f9d89d9764701127a10139b45fbcf034c1a0e3cbbfebae75f123630110"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-cpu-sample-profile.json",
+      "sha256": "8f0c66de8abe3b1c66853b288b5b3410ae2b43af405bd7b7bbb9bbe49ed47e37"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-dynamic-package-controls.json",
+      "sha256": "1929fa6eb1cda4f8ed0ffce54a92d7409ed5d75972ca508196b2f6a2541c5e8b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-final-gates.json",
+      "sha256": "4b2909e9d657b4059633c073353d1d8e2d3c6e7179fcb33a0f9ac0dca682a241"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-package-controls.json",
+      "sha256": "046f7bd8eaf76269e3dbf50b180b3994862b01d799e24a3c26e5de7b1823c4b1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-paired-audit.json",
+      "sha256": "a9dd1933da6ac2dc33cb40fa82c826cdf36904102a6e3463bce0af1457cf3068"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-profile-control.json",
+      "sha256": "5cb85f25af9c50c89e66344b79298298630d62c80d9c9fd122daecaa27a45bf1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-profile-details.json",
+      "sha256": "90b4091528668f8ef1077b4ed5e315c61b01c4c10e14493aea3c786c361e2991"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/training-sort-profile.json",
+      "sha256": "a33e40dd1c737f8cb9be229ff53c2be94804ab32a52c2ab9e32d06b5b30e777f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+      "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-final-gates.json",
+      "sha256": "11fbe0e0386f6d1d9627291f31b692f32213cbe532c8f14f96d9f4e1fb338e5d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-package-controls.json",
+      "sha256": "bc339b025598d009f1f59ecde3ab111165c48df5ac59df03a96dcfa01d95d77c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-fallback-controls.json",
+      "sha256": "1dfe9dee8a0da0b401ba8d949632d18586f46a4ddc96899f4101fbcfb4d88b0c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-injected-controls-retry.json",
+      "sha256": "b9c737f751c7a999b6661890774589dec7e152c4bab44d06fba4ad1fe80c7b1d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-injected-controls.json",
+      "sha256": "6169fac7a6f5d94b203bbeb4eb9ff99b66561f94ab39fc6d88b73b38b376f7b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/workspace-cleanup.json",
+      "sha256": "b64ff32aec05b5a79e82d8eb4a60486bb5beac245d92f39162649a90dbc99b72"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/run-lossless-parity.ts",
+      "sha256": "8310d8a418f19d98e54a7697fdb3b6988d64fbac711389fa61a1b85c195b9836"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/verify-alpha-entropy.ts",
+      "sha256": "bbc51a479b081579c90e02ca3d40d0f66e4b53201fac8843e82115b5b9be4c6c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/verify-coefficient-orders.ts",
+      "sha256": "a12a7978e0903b9b0c0ee9a4e5a327d2b155a2091d1a40677f59329e24e2da1b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/verify-fast-lossless-fixtures.ts",
+      "sha256": "ce34101b9081bb99043157c7249b46006382d2b21c4ba01daa1d8d563e0375a5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/verify-learned-lossless-fixtures.ts",
+      "sha256": "f6d15bf3487ebdb71d76afbaa169b11227fb2c8c0ee3b58d8eecc93c848a0a5c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/verify-lossless-parity.ts",
+      "sha256": "f6332cfa2bfe0e63c8f59951a6def19831b956cde2c1ade9a3c28dc05c5c0ab7"
+    },
+    {
+      "path": "benchmark/jpegxl/measure-m7-lossless.ts",
+      "sha256": "14e6c2f0c0c2b220ae63aaa35364f68e9e9879ec5bbdf9c376727c379addc7da"
+    },
+    {
+      "path": "benchmark/optimization-log.md",
+      "sha256": "296b921a56d20edac9a17d59bcede4d2ebe8b361fdece0c4e0a9ccff945201de"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "82ed9f8698372f850ffdc8ce3e7b9eb8a124a3e7b7adaafd9b845aa7c6696ddd"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "eedaad71af2486f99693c6f830e09b670243275dce83fa5986f55f8622736a3a"
+    },
+    {
+      "path": "browser-tests/jpegxl-showcase.pw.ts",
+      "sha256": "1e4e51d6e815c103dbc1a4baa89311389c38de6888b36d7a017d8a707b0f48f3"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "26f813282a8bc4e161809a85e2ce621e485ef2cc1c4026ec794202dcfd1f4e93"
+    },
+    {
+      "path": "docs-astro/public/capabilities.json",
+      "sha256": "b852c7062146d11a22805bfdb0dabf6d6ae4cf528192938e34d2dda220d4a44a"
+    },
+    {
+      "path": "docs-astro/public/llms.txt",
+      "sha256": "393956c5ed9cef8c9521f2e3a07ec5de82250d6781e3778d2a0c976248b46582"
+    },
+    {
+      "path": "docs-astro/src/data/documentation-data.json",
+      "sha256": "ce49721508f33a9ade9d8e0984667ff25a2d071bc5c1888cef32e7252176cd6d"
+    },
+    {
+      "path": "docs-astro/src/data/package-metrics.json",
+      "sha256": "a4508ada5305b5e258c02177348215a5782d486ea16ee41092eb5ced6e1ddd4e"
+    },
+    {
+      "path": "docs-astro/src/pages/codecs.astro",
+      "sha256": "010e6ea2ce6c4564f15e1f45e3154d125b03d257076e804ecf68d0c1e2fd6a77"
+    },
+    {
+      "path": "docs-astro/src/pages/jpeg-xl/comparison.astro",
+      "sha256": "8e32b44eb49de1a541ba76b60b185c3186727de84f43a54ebbd9e950cf18383f"
+    },
+    {
+      "path": "jpegxl-codec-support.md",
+      "sha256": "8ec45d47d499872a592ad92e3da21106f19ccdebf315e2b2098f6366b31a64a1"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "0df151ad98e22b3ccd3251a9e89380612a9fbb8fe3a5ac4cb76e8b5b039044f5"
+    },
+    {
+      "path": "scripts/jpegxl-showcase-assets.ts",
+      "sha256": "1b8b73330339c5abf102a725d1e053ae5f3b5caa6cf62f61f73c3be778011c1b"
+    },
+    {
+      "path": "scripts/serve-browser-tests.ts",
+      "sha256": "e1eb864413adaa5ed083158412081c963bd2d0894d5f65731dffa42017e409b2"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "sha256": "e6b0e85e016cc66d851f909a17a334de805cdc3bbf02214b90c1af3f36710076"
+    },
+    {
+      "path": "src/codecs/jpegxl-chroma.ts",
+      "sha256": "65f981931247f009ef2c2fb9c0cf3869d1bfbc80d4b19cecebb7b607e0e4ab42"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "2b2db1fd3ef93432da744b538e0c432e3cf7d5e1f99e3692d70b0a41e2e7018c"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "sha256": "ca254c6f07b427c20ece7faafe063f309e147db6788193961495eb0984f5acf9"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "d4dbba5954bff8d009d84777967fd4260a86aa00a9eb75035c6331ca526b026d"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "3d5d4dba24c88a59ad04d72ea6ce92f3e0b17d9f5a0b848f83d16a0805bc5869"
+    },
+    {
+      "path": "src/codecs/jpegxl-errors.ts",
+      "sha256": "e43f8dab32a38e0b42c62680e768b87fb5aa4ba47b122d6171457f082f1893ca"
+    },
+    {
+      "path": "src/codecs/jpegxl-exif.ts",
+      "sha256": "cbf19f2338045c045c4209befe6ebf18c1853fa76d923167736fb6ed340e4de6"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "22baeda7d43ecd0e198c9d3fe21caa216e4bec392188886ccd4572ccd8410172"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "42767538053ed1229498c3d1197fc4ff88c284297fc859867646c0d8ce2e3739"
+    },
+    {
+      "path": "src/codecs/jpegxl-icc.ts",
+      "sha256": "7ebded0282f92d30e0e268cb551898a78b699028c4af9107f6120486fd3580a8"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "sha256": "28227218bd147413fd8cf58c786568f96cbec5f9aca7e4c949d14540fadcac6c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "sha256": "f5432e44555295dd08297fa56635eac00bbdfb58c5b529c793c7f3e87b889341"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "aee098c79be0b38f5f91a20e21404b95751a0e7647340bd44e34cc1193dcba12"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "b348b240ee149168e2c9dc5deb73ce95904a14be2082afd97ada41fa57df7c5f"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "6519711eaeefba44d51d3a9e2476a246b65c85b7cad4bbfa90beb1fef9513f3c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3bcc0166bf5ce9de6d74d368245204202ac2d4346c9603373b1addafb23a1413"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50540cef781af542d7173a1d78b4d7dc6d2b802e03bd64ddaaf455c8d8a2d7ee"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "76adaaa05232156f79de86d0e762cc2b695f012e6c8b832b9ca42b9d9220a58d"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "9c01ca7ad8137399893c19d3b3f291e15993e5e52f9ef3ad886be8483a0324f4"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "7df7ad10b8e7deff1089f5a9e6af458c267901a77ed27f15afdc42bb3dd08ae0"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "9d7354d071c6a647916711065012a7e1d85c9bf37c375deaf18aeeaa99b191e3"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "91ebc48ecf4de1401eb5d0ad0265e266229a8d734f5471c206c7e88ecf9ee7cb"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "654b07d4180ef87aad3fa4663da48d6d090d5a674f6e68e4a97607246b21e644"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "f3dad73c25bd8d83ab9e7b7a0feff1302b1f166c03a53504cb6359968edb16fd"
+    },
+    {
+      "path": "src/codecs/jpegxl-patch-blend.ts",
+      "sha256": "1a1de4be6b0791e72be162d9747036033de1d16271dc504cb67a201096ea409c"
+    },
+    {
+      "path": "src/codecs/jpegxl-progressive-plan.ts",
+      "sha256": "e8e17dec70bd5fc2a2f5a5ba717619ee266fbd83c2c8bbaf900b051ffe1f7ee6"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence-encode.ts",
+      "sha256": "850483b190fb151e57e688bd54dde061fd3f2114a676e54deff0c0c88653eb28"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "71ac700640ec08c7f4d2aa9ba4696ea4f06c85d664563dbfd840f722cd0df47b"
+    },
+    {
+      "path": "src/codecs/jpegxl-session.ts",
+      "sha256": "e8110f4f4c3ef13d33cdadc8c07998840079e70a2ffe132e71d77117e98b6ef4"
+    },
+    {
+      "path": "src/codecs/jpegxl-splines.ts",
+      "sha256": "6b9056a839b11ec5f56c1caafc300e33d3ae96e06643edf6be0180b1f5256d60"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "576377992ff6fd5b970a6500f82d13d942c6e56cf184ae0982663a7c82bf2bff"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "a24392a90aca5a22c2f665475a50e0182529c1b2bd907ac8388fdbafed4ee4e0"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "13f0ac7f3eac38341b84baa7afb0d6533250793bd6275eaed02af875fb8fc87c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "sha256": "46d253e36669690b5d3be06bdae97422c79832a9d0bbc24f313789dc6163127d"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/manifest.json",
+      "sha256": "3a385949c64c64ff45ba911fae6526a61be2a0bf682e3d04c81fc278925041ee"
+    },
+    {
+      "path": "tests/generated/capability-expectations.json",
+      "sha256": "a1fca4a905b0c6ee2cffbf8e131c667c9d8574f32ac505a6a0cbcfcee33b8e15"
+    },
+    {
+      "path": "tests/helpers/jpegxl-alpha-entropy.ts",
+      "sha256": "99cba141379daee59c45dec266c7f512b005665caadfbfbc5a85a733a63eec52"
+    },
+    {
+      "path": "tests/helpers/jpegxl-artwork.ts",
+      "sha256": "dba445f9ecb427fef0a2222f6b0f0498c59fe7b71c1ba4618b3ea31731b10dee"
+    },
+    {
+      "path": "tests/helpers/jpegxl-coefficient-orders.ts",
+      "sha256": "5996e8b30ce632904ba8602e3d8a3f55172d5a444e65a1f2840bb80405024848"
+    },
+    {
+      "path": "tests/helpers/jpegxl-dc-model.ts",
+      "sha256": "1e45c3f0cee8b532fb4d56664cb7be67aaa89353274a79b67deacd86312fba10"
+    },
+    {
+      "path": "tests/helpers/jpegxl-dense-training.ts",
+      "sha256": "98f6b1374a38e5a7f8005a3d80d73487cf2a498c53dd22a05cc88d4966e21374"
+    },
+    {
+      "path": "tests/helpers/jpegxl-family-contexts.ts",
+      "sha256": "ea7dba1d2abcca25e79cf5986e48fde08b059b8eb7234f7252aa66818444b506"
+    },
+    {
+      "path": "tests/helpers/jpegxl-fast-lossless.ts",
+      "sha256": "24405a7501eceea89ae6fe757ce9acf3d409dd65bd699851ca01935c5fe940ac"
+    },
+    {
+      "path": "tests/helpers/jpegxl-flat-palette.ts",
+      "sha256": "29fe01ecb19c873598709d9259a4a8bc0c40fae0b75571f524cb4430f33dae06"
+    },
+    {
+      "path": "tests/helpers/jpegxl-grouped-search.ts",
+      "sha256": "20ed0ef7362ba3984c9fd37597a3147bee52cd51b3fb48281932932c019dad30"
+    },
+    {
+      "path": "tests/helpers/jpegxl-learned-lossless.ts",
+      "sha256": "6576f080b7c3cfbf608e7daf83fb8b21020bf1599427a8fa84a9d024d6282811"
+    },
+    {
+      "path": "tests/helpers/jpegxl-learned-palette.ts",
+      "sha256": "ffd1b4383dce089ac95ff8f46ca3cdb7da2db049561f622422eea7aa88f395b4"
+    },
+    {
+      "path": "tests/helpers/jpegxl-learner-shortcuts.ts",
+      "sha256": "88d3b2f2c7c1914ffd88874079d56df39716fcc2652f588df245071f383c8e20"
+    },
+    {
+      "path": "tests/helpers/jpegxl-lossless-patches.ts",
+      "sha256": "0388b3078d29b546588fd951938fc8fbc99e11bcf68eb4988671ca3b0660b5cc"
+    },
+    {
+      "path": "tests/helpers/jpegxl-opaque-gradients.ts",
+      "sha256": "124ccb4c0b172b7721ff14f2565818ec5137af95143fead53d93349814935ccc"
+    },
+    {
+      "path": "tests/helpers/jpegxl-patch-features.ts",
+      "sha256": "1b8293b977f0656c399bda52bdc2bf7eacd9fa686ecd6843281bded9e0832de8"
+    },
+    {
+      "path": "tests/helpers/jpegxl-small-groups.ts",
+      "sha256": "4bcfabecc52d601e5bfe05f2977dfcb880635f0211fc56af8239ffafc13e0c30"
+    },
+    {
+      "path": "tests/helpers/jpegxl-tree-entropy.ts",
+      "sha256": "87740f7f625fc655e92e46745e6473f8e8452454ba451bad5c5d26bcd69480d7"
+    },
+    {
+      "path": "tests/jpegxl-artwork.test.ts",
+      "sha256": "0c704b2389d34bd5033c5d7a2181de574cbea7930dc2c8d1f8d6ff1cf39fe91e"
+    },
+    {
+      "path": "tests/jpegxl-bitstream.test.ts",
+      "sha256": "78ddf5e9943c7debf314368b4cd40c1ebfcffca0414985507011e8273485c41d"
+    },
+    {
+      "path": "tests/jpegxl-comparison-quality-refinement.test.ts",
+      "sha256": "0ce64dbe3f45cd7e97e2aec493c716aa9f489a1a05dc98eb3c08a1b27f365131"
+    },
+    {
+      "path": "tests/jpegxl-dc-model.test.ts",
+      "sha256": "629d2026d910405de0ca8adb5bd0285030bbcbde755aafdee36b434eade0f797"
+    },
+    {
+      "path": "tests/jpegxl-document-patches.test.ts",
+      "sha256": "34e2d64348ef5552e7971030a23f33f674baf757511664666acc16e71d42846b"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "d386f41a99722b3eb3ce0e46cacf58f481ae22ed63b642aacdb16fc640c00362"
+    },
+    {
+      "path": "tests/jpegxl-fast-lossless.test.ts",
+      "sha256": "7c581cae4117f8f2282f07d2b31d280c9f41ee3850cc36ba1c0435235899183c"
+    },
+    {
+      "path": "tests/jpegxl-flat-palette.test.ts",
+      "sha256": "dde6dbc67dd6aac59fe7003887f3c496cebbdda013026e9e5b1232083f48a895"
+    },
+    {
+      "path": "tests/jpegxl-grouped-search.test.ts",
+      "sha256": "364d6ff1455634fbeea9d43c003520efc7fb970744c6c716f10c1b1a3402920c"
+    },
+    {
+      "path": "tests/jpegxl-learned-lossless.test.ts",
+      "sha256": "ccaf1f1c8c67fa6a9bc600a749ae2404c0ebc4b92d117cb7655d439f2fcd06ec"
+    },
+    {
+      "path": "tests/jpegxl-learned-palette.test.ts",
+      "sha256": "98ffacd3f7ff11f310d45c9290d4590c30fb27298e3b52a27a3d2e1bc3eaecfc"
+    },
+    {
+      "path": "tests/jpegxl-m4-color.test.ts",
+      "sha256": "72430daf05cccbc66ebe98c44cc4fe102c9717a9ed1f6cdb4aefc2d768ed0396"
+    },
+    {
+      "path": "tests/jpegxl-m7-lossless.test.ts",
+      "sha256": "a717d2ac76b968d6b3c2c246c680447724bc5002a099eb1f54cc17ce558ab7ac"
+    },
+    {
+      "path": "tests/jpegxl-m7-vardct-encode.test.ts",
+      "sha256": "aa67c7bf2d95229ecbbb7050b255bc61583bbb5a92faea86f8f6c1c5c3333446"
+    },
+    {
+      "path": "tests/jpegxl-patch-features.test.ts",
+      "sha256": "75b3d2b8e7263a49b63450aeca79dfeb33f31895089ff286901efbb808ba5718"
+    },
+    {
+      "path": "tests/jpegxl-tree-entropy.test.ts",
+      "sha256": "847410ab33c04995730a682e005371ceaa03a8533e0111410a062ca7670104d5"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "1a41f3639e65bff9dca8323a8040f49dd8b161d4eaabf8ec08856916d92ae71c"
+    }
+  ],
+  "policy": "Fresh repository checks, current comparison-page checks and physical production evidence hashes before the main-branch commit. Production codec source is unchanged from the final native/Rust qualification. The earlier final-gates document retains its original checkpoint hashes; these pins record the later documentation and cleanup state. Failed browser attempts remain failed and archived locally. Reuse the previously qualified four-CPU development affinity and one-thread libuv pool; retain every browser assertion, deadline and the original 256-task service limit."
+}

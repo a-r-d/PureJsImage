@@ -1,0 +1,226 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-tree-entropy-artwork-197.ts",
+      "sha256": "d00ba20b7ede8a27bf1ad7a9902eb8cce1fd85f7c942fd8bc463e613abcb28bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-production-controls-197.ts",
+      "sha256": "3d502b7629938d016ddeebac460163e7b16b7ec9a2dd3310989ed4ee749add17"
+    },
+    {
+      "path": "tests/helpers/jpegxl-artwork.ts",
+      "sha256": "dba445f9ecb427fef0a2222f6b0f0498c59fe7b71c1ba4618b3ea31731b10dee"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/palette-order-learning-artwork-controls.json",
+      "sha256": "47e2ddd8a36d7e148f91aa3d3d37fe05573660f363212ee69f7e34e96745b269"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "2058d123eebb89e59eb789bc48e7052253aacb45082a0d2b6d654e98c4df1a09"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-modular-encode.ts",
+      "sha256": "33a45ac381922e6df0ee2f64903da3098e2be6a56cd7de33543089b53e197dc5"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-188c/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "options": {
+        "alpha": "varying"
+      },
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/alphavarying-baseline.jxl",
+      "artifactSha256": "fbd7263223eb3c3d62e800a2cb831db8903feade4dd1a348cf04e98e519273e9",
+      "inputSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "width": 513,
+      "height": 513,
+      "bytes": 13980,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 689555095,
+      "decodedChecksum": 2516035649,
+      "ownedPeak": 17788989,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 13980,
+      "nativePixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "rustPixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f"
+    },
+    {
+      "options": {
+        "alpha": "varying"
+      },
+      "variant": "current",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/alphavarying-current.jxl",
+      "artifactSha256": "ccdba8b63a1833e69a1c2660516e22ab4f82170ff6ba1e2ce33e4a2fbc42e128",
+      "inputSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "width": 513,
+      "height": 513,
+      "bytes": 13807,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 1526632822,
+      "decodedChecksum": 2516035649,
+      "ownedPeak": 17788243,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 13980,
+      "nativePixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "rustPixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f"
+    },
+    {
+      "options": {
+        "alpha": "hidden"
+      },
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/alphahidden-baseline.jxl",
+      "artifactSha256": "fbd7263223eb3c3d62e800a2cb831db8903feade4dd1a348cf04e98e519273e9",
+      "inputSha256": "cd0f223f82588647792abbca67c9ac4adb9bdbfd993843d86bd77eb612505160",
+      "width": 513,
+      "height": 513,
+      "bytes": 13980,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 689555095,
+      "decodedChecksum": 2516035649,
+      "ownedPeak": 18841665,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 13980,
+      "nativePixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "rustPixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f"
+    },
+    {
+      "options": {
+        "alpha": "hidden"
+      },
+      "variant": "current",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/alphahidden-current.jxl",
+      "artifactSha256": "ccdba8b63a1833e69a1c2660516e22ab4f82170ff6ba1e2ce33e4a2fbc42e128",
+      "inputSha256": "cd0f223f82588647792abbca67c9ac4adb9bdbfd993843d86bd77eb612505160",
+      "width": 513,
+      "height": 513,
+      "bytes": 13807,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 1526632822,
+      "decodedChecksum": 2516035649,
+      "ownedPeak": 18840919,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 13980,
+      "nativePixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f",
+      "rustPixelsSha256": "2516b77905fde91f931fa195993cd1c65d2bd55e757e27139f11e15f5241124f"
+    },
+    {
+      "options": {
+        "width": 512,
+        "height": 512
+      },
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/width512height512-baseline.jxl",
+      "artifactSha256": "39e0d59b679064b4cd2efb8cae089dcf9e0f3e6c26ded6e226e228ab7d071c62",
+      "inputSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51",
+      "width": 512,
+      "height": 512,
+      "bytes": 477,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 2502169417,
+      "decodedChecksum": 3681525189,
+      "ownedPeak": 12086648,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 477,
+      "nativePixelsSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51",
+      "rustPixelsSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51"
+    },
+    {
+      "options": {
+        "width": 512,
+        "height": 512
+      },
+      "variant": "current",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-artwork-197/width512height512-current.jxl",
+      "artifactSha256": "39e0d59b679064b4cd2efb8cae089dcf9e0f3e6c26ded6e226e228ab7d071c62",
+      "inputSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51",
+      "width": 512,
+      "height": 512,
+      "bytes": 477,
+      "visibleError": 0,
+      "hiddenError": 0,
+      "alphaError": 0,
+      "encodedChecksum": 2502169417,
+      "decodedChecksum": 3681525189,
+      "ownedPeak": 12086648,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "independentVisibleError": 0,
+      "maximumDecoderError": 0,
+      "baselineBytes": 477,
+      "nativePixelsSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51",
+      "rustPixelsSha256": "7fba3712946da7b4fee3b2a5f41bd3bcf725d004a91d5da0e734cd5ff950fa51"
+    }
+  ],
+  "policy": "Production tree entropy policy versus the qualified 82534d5e copied baseline on all three affected artwork regressions. Every complete file must retain the old size floor, both full independent grids must remain identical, alpha stays exact, and new exact Modular grids must exactly agree with the first-party proof; prior lossy VarDCT baseline retains its original one-level independent tolerance. No pixel-selection changes are allowed; all identities and owned closure stay pinned. No speed or general parity claim."
+}

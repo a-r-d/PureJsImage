@@ -859,6 +859,10 @@ await writeFile(
   resolve(outputDirectory, 'index.html'),
   '<!doctype html><meta charset="utf-8"><title>PureJsImage browser validation</title><script type="module" src="/compatibility.js"></script><script type="module" src="/benchmark.js"></script><script type="module" src="/scientific-competitors.js"></script>',
 )
+await writeFile(
+  resolve(outputDirectory, 'codec-validation.html'),
+  '<!doctype html><meta charset="utf-8"><title>PureJsImage codec validation</title>',
+)
 
 const contentTypes: Readonly<Record<string, string>> = {
   '.avif': 'image/avif',

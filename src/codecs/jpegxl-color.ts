@@ -1,6 +1,6 @@
 import { throwIfAborted } from '../abort.ts'
 import type { ImageDecoder } from '../codec.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import {
   createStructuredGrayTransform,
@@ -12,6 +12,7 @@ import {
   writeRgbIcc16,
 } from './icc.ts'
 import type { JpegXlFrameStructure } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 /** Fixed curve storage and bounded copies of the profile's CLUT data. */
 export const jpegXlColorWorkingBytes = (frame: Readonly<JpegXlFrameStructure>): number => {
@@ -98,7 +99,7 @@ export const createJpegXlColorDecoder = (
       for await (const block of decoder.decode(request)) {
         try {
           if (block.format !== decoder.pixelFormat)
-            throw invalidInput('JPEG XL profile input format changed')
+            throw invalidJpegXlInput('profile input format changed')
           const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
           for (let y = 0; y < block.height; y++) {
             throwIfAborted(request?.signal)

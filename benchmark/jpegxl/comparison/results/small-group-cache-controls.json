@@ -1,0 +1,602 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-allocation-profile.json",
+      "sha256": "556539f42c55585178b98677279d2ace799b5621e1f20fbe913b808b42a73454"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-axis-controls.json",
+      "sha256": "910846ddf807d1c9c823adf262c68bc4510c2b3057d9955edb7faea832271fb4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-policy-repository-gates.json",
+      "sha256": "2bb545b9ab2c12ac724dcc169a04da6cc596d7da427feee236d781b706014ad1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "sha256": "394367f9b994eac2823ad9770b9b52205e6cc85f12885a711f2ad2294bbf525b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "sha256": "8777f62c54111ba1464cd065616c4c46f823672f7d475fa1e4409ffa18cd916b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-baseline-cpu-profile-counts.json",
+      "sha256": "b4289157f5c89efd054c2186cc79700988be3bc463f01ca6df8f90c84c38143e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-model-reuse-forced-controls.json",
+      "sha256": "95f78da979f070d1252b95d5c49a4871e48f7c537e002cfdb2f1cdc0f03c6e30"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-performance-pilot.json",
+      "sha256": "40b0072f8eaf6336174622ec5d4ad9cdc256b5baccbdd0f565ad760490db0c3b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-group-public-policy-controls.json",
+      "sha256": "a8dba22f1ba0d1eadb96d19e5523175da3e5c958d6b0c54d25b997eb8b0a6a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-small-group-cache-234.json",
+      "sha256": "06ecc3946c73d6eacab8bd09e2320e9d98080e8f0606bb07da51dda288f74e1d"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-small-group-cache-234.ts",
+      "sha256": "37f9ea076c7c5971c040a23ae475c092b6743bbe78e4057a18588775bef7ee8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-small-group-cache-234.ts",
+      "sha256": "c9f091ee46170e78fa886c81f5c703641d4f1c8a55ad6e0d21374c7f27d66688"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/tree-entropy-197-current/manifest.json",
+      "sha256": "366f043264c4abc314e7e1fd4bd593c1ef7f39ad977b6f3455db26ccbdfeabca"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-pixel-guard-controls.json",
+      "sha256": "a4920a6975c4d582da00e13cd9ecbbf5e7fa14fb00d471e2141f9b914f6881fc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-repository-gates.json",
+      "sha256": "b5b9f9e8a06cab64ceccebc49b717e0e372008b3afdfa48b9c472f95b50997ec"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-encoder-memory.ts",
+      "sha256": "2b4d025220b6b4d789ddc26c5d9d31db80b6d22c80edb6d3ecad3848305e49e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-modular-encode.ts",
+      "sha256": "68b6dbb82e886eead8e6ddced673ded014b0a8a2f3d1cde63b40c591bc982c24"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "72565927c634f655ce4a6732d7dd8a733e1437940c83fe060c89cba382fdda78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "c4d47300f866d3cd04b596f87192f4e21fa722af93c4d20aaa09d1a6eb2eea54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/baseline/jpegxl-modular-tree.ts",
+      "sha256": "6d866e08287584335b3f529d8167a2dee9c9fe592c316acbdb85551525fb6f4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-encoder-memory.ts",
+      "sha256": "2b4d025220b6b4d789ddc26c5d9d31db80b6d22c80edb6d3ecad3848305e49e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-modular-encode.ts",
+      "sha256": "9a260f82ef8c5ac5b2639f4212f80664117cb6e5b76fc5efbebace2d52601815"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-jpeg-encode.ts",
+      "sha256": "72565927c634f655ce4a6732d7dd8a733e1437940c83fe060c89cba382fdda78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-vardct-encode.ts",
+      "sha256": "c4d47300f866d3cd04b596f87192f4e21fa722af93c4d20aaa09d1a6eb2eea54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache64/jpegxl-modular-tree.ts",
+      "sha256": "6d866e08287584335b3f529d8167a2dee9c9fe592c316acbdb85551525fb6f4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-encoder-memory.ts",
+      "sha256": "2b4d025220b6b4d789ddc26c5d9d31db80b6d22c80edb6d3ecad3848305e49e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-modular-encode.ts",
+      "sha256": "7460e93d870ba8bd070178ce6afcf7e343d8166191150b0e2b23c07f14eefae2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-jpeg-encode.ts",
+      "sha256": "72565927c634f655ce4a6732d7dd8a733e1437940c83fe060c89cba382fdda78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-vardct-encode.ts",
+      "sha256": "c4d47300f866d3cd04b596f87192f4e21fa722af93c4d20aaa09d1a6eb2eea54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-234/cache32/jpegxl-modular-tree.ts",
+      "sha256": "6d866e08287584335b3f529d8167a2dee9c9fe592c316acbdb85551525fb6f4f"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-234/output/im26-8160-original-baseline.jxl",
+      "artifactSha256": "3cf06470fdebd1385bf51ad42b90cb3d3cedd5789fedc8fa7ebe2d3698011288",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 407354,
+      "baselineBytes": 407354,
+      "changeBytes": 0,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 33824.070742,
+      "maxTrainingSamples": 8192,
+      "maxLz77Entries": 262144,
+      "qualifiedBytes": 416143,
+      "allocatedBytes": 3309788568,
+      "allocationCalls": 318674,
+      "selectedGroupDimension": 256,
+      "selectedGroupCount": 40,
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "cache64",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-234/output/im26-8160-original-cache64.jxl",
+      "artifactSha256": "a9aea06b226b86d6ab21c6c5dffa1d804ac56bfc0081278d4b33b0a63f6e2a0e",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 407352,
+      "baselineBytes": 407354,
+      "changeBytes": -2,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 33389.24360000001,
+      "maxTrainingSamples": 8192,
+      "maxLz77Entries": 65536,
+      "qualifiedBytes": 416143,
+      "allocatedBytes": 2612514144,
+      "allocationCalls": 318776,
+      "selectedGroupDimension": 256,
+      "selectedGroupCount": 40,
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "cache32",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-234/output/im26-8160-original-cache32.jxl",
+      "artifactSha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 407341,
+      "baselineBytes": 407354,
+      "changeBytes": -13,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "groupEvidence": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1024,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 246437,
+          "lz77Bytes": 313369,
+          "selectedBytes": 244120,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 2745,
+            "squeezeBytes": 3601,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 244120
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 0,
+          "width": 896,
+          "height": 1024,
+          "effort": 7,
+          "rct": true,
+          "predictors": [4, 5, 5, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 179977,
+          "lz77Bytes": 238292,
+          "selectedBytes": 177643,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 53,
+            "squeezeBytes": 234,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 177643
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 1024,
+          "width": 1024,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [1, 4],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 3407,
+          "lz77Bytes": 3735,
+          "selectedBytes": 3282,
+          "palette": "ordinary",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 997,
+            "squeezeBytes": 1802,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 3347
+            },
+            {
+              "tool": "palette",
+              "bytes": 3282
+            }
+          ]
+        },
+        {
+          "x": 1024,
+          "y": 1024,
+          "width": 896,
+          "height": 56,
+          "effort": 7,
+          "rct": true,
+          "predictors": [5, 5, 6, 1],
+          "entropy": "ans",
+          "contextModel": "learned",
+          "lz77": false,
+          "plainBytes": 14885,
+          "lz77Bytes": 19807,
+          "selectedBytes": 14769,
+          "palette": "none",
+          "squeeze": false,
+          "squeezeProbe": {
+            "rawBytes": 5222,
+            "squeezeBytes": 6350,
+            "selected": false
+          },
+          "candidates": [
+            {
+              "tool": "raw",
+              "bytes": 14769
+            }
+          ]
+        }
+      ],
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 33853.33725899999,
+      "maxTrainingSamples": 8192,
+      "maxLz77Entries": 32768,
+      "qualifiedBytes": 416143,
+      "allocatedBytes": 2481485285,
+      "allocationCalls": 318869,
+      "selectedGroupDimension": 256,
+      "selectedGroupCount": 40,
+      "timingPolicy": "One diagnostic encode, not a paired runtime claim"
+    }
+  ],
+  "policy": "Copied experimental small-group LZ cache controls at 262144, 65536 and 32768 entries, keeping four histories and the existing 8192 training sample policy. Only experimental display groups receive a reduced cache; all ordinary paths and reference atlas keep their original bounds. Report complete bytes against the exact 407354 prototype and 416143 retained stream, every native/Rust original sample and owned closure. Allocation observers are diagnostic; no paired timing/RSS, production or overall parity claim."
+}

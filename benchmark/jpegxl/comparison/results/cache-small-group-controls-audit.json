@@ -1,0 +1,579 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "matchedPins": 37,
+  "independentSamples": 207443224,
+  "publicSamples": 103721612,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-cache-neighbors-237.ts",
+      "sha256": "829dfac715054904444201c0cead424383ccde108b1db4f630c48456f602e383"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-cache-neighbor-audit-237.json",
+      "sha256": "767c7082043b2df4bdd1fbc7a50fb7ef4b08b6d2dd5b39148867ff19f596ec31"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "sha256": "1de329d75493e614568efb649c2a97c11542c4ba16bf811cf1256aa75bbb05c1"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-small-group-cache-neighbors-235.json",
+      "sha256": "a7e0b9865d8fd061eb5ba1726f2b36bed70aaca4e8811a8b7e1e933d64c19a7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-baseline.jxl",
+      "sha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-baseline.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-baseline.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-candidate.jxl",
+      "sha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-baseline.jxl",
+      "sha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-baseline.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-baseline.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-candidate.jxl",
+      "sha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgb-dc-edge.raw",
+      "sha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-baseline.jxl",
+      "sha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-baseline.jxl.native.npy",
+      "sha256": "9534ef0a91407f0ad5b7873666b0bdd62e8834ca1aef5cb2b44ea8249460e500"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-baseline.jxl.rust.npy",
+      "sha256": "03a5dc0371f69bf889e8a5c7f33083d426c55b99cadf2f1c9b17ef9fbae99e61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-candidate.jxl",
+      "sha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-candidate.jxl.native.npy",
+      "sha256": "9534ef0a91407f0ad5b7873666b0bdd62e8834ca1aef5cb2b44ea8249460e500"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-candidate.jxl.rust.npy",
+      "sha256": "03a5dc0371f69bf889e8a5c7f33083d426c55b99cadf2f1c9b17ef9fbae99e61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-hidden-edge.raw",
+      "sha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-baseline.jxl",
+      "sha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-baseline.jxl.native.npy",
+      "sha256": "0436a7097ea346cf9767c4d5a485a8b8ca6bce43af9f5dad04dbd8dfa8aead4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-baseline.jxl.rust.npy",
+      "sha256": "1b39404532a7f44c95c7dfa4759bda5b2be7ee41ad4f8426e1e2400bea48f59a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-candidate.jxl",
+      "sha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-candidate.jxl.native.npy",
+      "sha256": "0436a7097ea346cf9767c4d5a485a8b8ca6bce43af9f5dad04dbd8dfa8aead4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-candidate.jxl.rust.npy",
+      "sha256": "1b39404532a7f44c95c7dfa4759bda5b2be7ee41ad4f8426e1e2400bea48f59a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-opaque-portrait.raw",
+      "sha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-baseline.jxl",
+      "sha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-baseline.jxl.native.npy",
+      "sha256": "bfed4f9323869ef409d7a3d5fe64abf1b57adfddf69d1493baeeb3c0b01fc769"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-baseline.jxl.rust.npy",
+      "sha256": "09a1d3e812d104bb26b644bcfb9e7d10a8b6645dbebafe195fe2d190bdebb779"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-candidate.jxl",
+      "sha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-candidate.jxl.native.npy",
+      "sha256": "bfed4f9323869ef409d7a3d5fe64abf1b57adfddf69d1493baeeb3c0b01fc769"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-candidate.jxl.rust.npy",
+      "sha256": "09a1d3e812d104bb26b644bcfb9e7d10a8b6645dbebafe195fe2d190bdebb779"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "sha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-baseline.jxl",
+      "sha256": "4199d8e4c847647941276e03f566b175f973055148f842471e7764e36f3198c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-baseline.jxl.native.npy",
+      "sha256": "59f521320e5a77cbbbf50789484c379585597a7ecf4005f8aa83dc2e885dc1c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-baseline.jxl.rust.npy",
+      "sha256": "b7643b1adae116aa43502dcd77540cf2d10f6047bce502c36e2abdacad72b388"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-candidate.jxl",
+      "sha256": "ac40b4a9d991fd7316b2f34d3983582813555b6d60d122ac8faac949abf86799"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-candidate.jxl.native.npy",
+      "sha256": "59f521320e5a77cbbbf50789484c379585597a7ecf4005f8aa83dc2e885dc1c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-candidate.jxl.rust.npy",
+      "sha256": "b7643b1adae116aa43502dcd77540cf2d10f6047bce502c36e2abdacad72b388"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "sha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-baseline.jxl",
+      "sha256": "8679afa260474958528a5e912b391fd38fdb48d6af36342d8f7e54a033cb0468"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-baseline.jxl.native.npy",
+      "sha256": "2e34b4be20c24c5cc5bebbc8dd4923540560f9c7365375c8976de407284db805"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-baseline.jxl.rust.npy",
+      "sha256": "49cc685372b0a67cf92895de4aba19a50d78cf78875385e8a6a79597bd18e6d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-candidate.jxl",
+      "sha256": "32810cc1464f36945ac6a668085b4476d675bb7273546707843109c552daf879"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-candidate.jxl.native.npy",
+      "sha256": "2e34b4be20c24c5cc5bebbc8dd4923540560f9c7365375c8976de407284db805"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-candidate.jxl.rust.npy",
+      "sha256": "49cc685372b0a67cf92895de4aba19a50d78cf78875385e8a6a79597bd18e6d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "sha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-baseline.jxl",
+      "sha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-baseline.jxl.native.npy",
+      "sha256": "8592b161ea0a0e042e3cb23cdc56a5a71a4700bc7c844cd4726d7d14d7d83d0e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-baseline.jxl.rust.npy",
+      "sha256": "f7d857908c9a3346d8bbd307ea221e9c671dd8211f13c01093fa4b9d805f5fcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-candidate.jxl",
+      "sha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-candidate.jxl.native.npy",
+      "sha256": "8592b161ea0a0e042e3cb23cdc56a5a71a4700bc7c844cd4726d7d14d7d83d0e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-candidate.jxl.rust.npy",
+      "sha256": "f7d857908c9a3346d8bbd307ea221e9c671dd8211f13c01093fa4b9d805f5fcc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "sha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-baseline.jxl",
+      "sha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-baseline.jxl.native.npy",
+      "sha256": "75a61941ed63d16ba3e38deae7a67057ab8489b46ab22554ce558347224b337a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-baseline.jxl.rust.npy",
+      "sha256": "d614db44ea28d6cf9b1ff6be20c47e54222ff741000d267c2f06cce460bc49db"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-candidate.jxl",
+      "sha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-candidate.jxl.native.npy",
+      "sha256": "75a61941ed63d16ba3e38deae7a67057ab8489b46ab22554ce558347224b337a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-candidate.jxl.rust.npy",
+      "sha256": "d614db44ea28d6cf9b1ff6be20c47e54222ff741000d267c2f06cce460bc49db"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-transposed.raw",
+      "sha256": "8118d0a7b5ab014dac6c3de61da86331bdd11ea12bf37ead3b768806677af1e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-baseline.jxl",
+      "sha256": "dcdff0e0d6d8279a246adf3b9f36b940bfe5240a491b758ddc0d3a7f9200da56"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-baseline.jxl.native.npy",
+      "sha256": "c2ef6179923762eacdd64e994eaad9f4dae06518b75208170680de1e5461d7d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-baseline.jxl.rust.npy",
+      "sha256": "471c9e59d0bebe4199193562da81cc1fb60ec83c03c5cc42d47f00e90e1ee742"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-candidate.jxl",
+      "sha256": "afe880b85ad45ad6c8af07ce65d49a7ef0e1c336c0bb01957e95e9ebc6f0cedf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-candidate.jxl.native.npy",
+      "sha256": "c2ef6179923762eacdd64e994eaad9f4dae06518b75208170680de1e5461d7d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-candidate.jxl.rust.npy",
+      "sha256": "471c9e59d0bebe4199193562da81cc1fb60ec83c03c5cc42d47f00e90e1ee742"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-hidden-last-row.raw",
+      "sha256": "8954e9982fbc0ff3f910f89962840ef0246688a59eeaefd0a4c5c3601669c86d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-baseline.jxl",
+      "sha256": "ba6e3e2b669e0c0e6cdb52e2b237ff94a754e3301b239095b75744119db27425"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-baseline.jxl.native.npy",
+      "sha256": "68be462c08be938b7edb089b5c3fae03c17766e23373a440b5693f0f7db30aab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-baseline.jxl.rust.npy",
+      "sha256": "2fb15baedac32e8ba72577751fa3a45c11bdbe3e1404104b4d8423c1a69b00a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-candidate.jxl",
+      "sha256": "fdb7320b652a65b1d8649035e5c24f616798cfaf7dd7425242aa8723d307f6f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-candidate.jxl.native.npy",
+      "sha256": "68be462c08be938b7edb089b5c3fae03c17766e23373a440b5693f0f7db30aab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-candidate.jxl.rust.npy",
+      "sha256": "2fb15baedac32e8ba72577751fa3a45c11bdbe3e1404104b4d8423c1a69b00a9"
+    }
+  ],
+  "results": [
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-baseline.jxl",
+      "encodedSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "bytes": 416143,
+      "independentSamples": 16588800,
+      "publicSamples": 8294400,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "im26-8160-original",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/im26-8160-original-candidate.jxl",
+      "encodedSha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d",
+      "bytes": 407341,
+      "independentSamples": 16588800,
+      "publicSamples": 8294400,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "sunset_logo",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-baseline.jxl",
+      "encodedSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "bytes": 550050,
+      "independentSamples": 10245312,
+      "publicSamples": 5122656,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "sunset_logo",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/sunset_logo-candidate.jxl",
+      "encodedSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "bytes": 550050,
+      "independentSamples": 10245312,
+      "publicSamples": 5122656,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgb-dc-edge",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-baseline.jxl",
+      "encodedSha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566",
+      "bytes": 5295,
+      "independentSamples": 3161100,
+      "publicSamples": 1580550,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgb-dc-edge",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgb-dc-edge-candidate.jxl",
+      "encodedSha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566",
+      "bytes": 5295,
+      "independentSamples": 3161100,
+      "publicSamples": 1580550,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgba-hidden-edge",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-baseline.jxl",
+      "encodedSha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599",
+      "bytes": 4020,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgba-hidden-edge",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-hidden-edge-candidate.jxl",
+      "encodedSha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599",
+      "bytes": 4020,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgba-opaque-portrait",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-baseline.jxl",
+      "encodedSha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d",
+      "bytes": 4126,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "flat-rgba-opaque-portrait",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/flat-rgba-opaque-portrait-candidate.jxl",
+      "encodedSha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d",
+      "bytes": 4126,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-dc-edge",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-baseline.jxl",
+      "encodedSha256": "4199d8e4c847647941276e03f566b175f973055148f842471e7764e36f3198c9",
+      "bytes": 417230,
+      "independentSamples": 17712000,
+      "publicSamples": 8856000,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-dc-edge",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-dc-edge-candidate.jxl",
+      "encodedSha256": "ac40b4a9d991fd7316b2f34d3983582813555b6d60d122ac8faac949abf86799",
+      "bytes": 407537,
+      "independentSamples": 17712000,
+      "publicSamples": 8856000,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgb-dc-edge",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-baseline.jxl",
+      "encodedSha256": "8679afa260474958528a5e912b391fd38fdb48d6af36342d8f7e54a033cb0468",
+      "bytes": 417862,
+      "independentSamples": 13284000,
+      "publicSamples": 6642000,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgb-dc-edge",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgb-dc-edge-candidate.jxl",
+      "encodedSha256": "32810cc1464f36945ac6a668085b4476d675bb7273546707843109c552daf879",
+      "bytes": 407990,
+      "independentSamples": 13284000,
+      "publicSamples": 6642000,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-portrait",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-baseline.jxl",
+      "encodedSha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726",
+      "bytes": 48173,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-portrait",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-portrait-candidate.jxl",
+      "encodedSha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726",
+      "bytes": 48173,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-hidden-edge",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-baseline.jxl",
+      "encodedSha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559",
+      "bytes": 50012,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-hidden-edge",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-edge-candidate.jxl",
+      "encodedSha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559",
+      "bytes": 50012,
+      "independentSamples": 2107400,
+      "publicSamples": 1053700,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-transposed",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-baseline.jxl",
+      "encodedSha256": "dcdff0e0d6d8279a246adf3b9f36b940bfe5240a491b758ddc0d3a7f9200da56",
+      "bytes": 413905,
+      "independentSamples": 16588800,
+      "publicSamples": 8294400,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-transposed",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-transposed-candidate.jxl",
+      "encodedSha256": "afe880b85ad45ad6c8af07ce65d49a7ef0e1c336c0bb01957e95e9ebc6f0cedf",
+      "bytes": 408298,
+      "independentSamples": 16588800,
+      "publicSamples": 8294400,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-hidden-last-row",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-baseline.jxl",
+      "encodedSha256": "ba6e3e2b669e0c0e6cdb52e2b237ff94a754e3301b239095b75744119db27425",
+      "bytes": 417429,
+      "independentSamples": 17712000,
+      "publicSamples": 8856000,
+      "maximumSampleError": 0
+    },
+    {
+      "report": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "fixture": "screenshot-rgba-hidden-last-row",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cache-neighbors-235-checks/screenshot-rgba-hidden-last-row-candidate.jxl",
+      "encodedSha256": "fdb7320b652a65b1d8649035e5c24f616798cfaf7dd7425242aa8723d307f6f7",
+      "bytes": 407902,
+      "independentSamples": 17712000,
+      "publicSamples": 8856000,
+      "maximumSampleError": 0
+    }
+  ],
+  "policy": "Re-read all twenty-two complete uninstrumented cache32 control files, forty-four native/Rust grids and every public decoder sample. Preserve losing and fallback files as evidence. Validate original inputs/layouts, exact outputs, independent sample grids, complete nonduplicate public coverage, closed ownership and bounded-run receipts. No fresh encodes or speed/production/parity claim."
+}

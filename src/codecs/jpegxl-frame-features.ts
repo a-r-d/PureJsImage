@@ -1,9 +1,9 @@
-import { invalidInput } from '../errors.ts'
 import {
   JpegXlBitReader,
   JpegXlEntropySymbolReader,
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 export interface JpegXlPatchBlend {
   readonly mode: number
@@ -61,7 +61,7 @@ export const readJpegXlFrameFeatures = (
     const symbols = new JpegXlEntropySymbolReader(code, Math.max(1, maximumPatches * 8))
     const referencePatchCount = symbols.readHybridUint(0, reader)
     if (referencePatchCount > 1_024 + Math.floor((frameWidth * frameHeight) / 4)) {
-      throw invalidInput('JPEG XL patch dictionary has too many references')
+      throw invalidJpegXlInput('patch dictionary has too many references')
     }
     for (let referencePatch = 0; referencePatch < referencePatchCount; referencePatch += 1) {
       const referenceId = symbols.readHybridUint(1, reader)
@@ -71,7 +71,7 @@ export const readJpegXlFrameFeatures = (
       const height = symbols.readHybridUint(2, reader) + 1
       const placementCount = symbols.readHybridUint(7, reader) + 1
       if (referenceId > 3 || placementCount > maximumPatches - patches.length) {
-        throw invalidInput('JPEG XL patch dictionary extent is invalid')
+        throw invalidJpegXlInput('patch dictionary extent is invalid')
       }
       let x = 0
       let y = 0
@@ -91,20 +91,20 @@ export const readJpegXlFrameFeatures = (
           (frameWidth > 0 && x + width > frameWidth) ||
           (frameHeight > 0 && y + height > frameHeight)
         ) {
-          throw invalidInput('JPEG XL patch position is outside the frame')
+          throw invalidJpegXlInput('patch position is outside the frame')
         }
         let colorBlendMode = 0
         const blending: JpegXlPatchBlend[] = []
         for (let channel = 0; channel < extraChannelCount + 1; channel += 1) {
           const blendMode = symbols.readHybridUint(5, reader)
-          if (blendMode > 7) throw invalidInput('JPEG XL patch blend mode is invalid')
+          if (blendMode > 7) throw invalidJpegXlInput('patch blend mode is invalid')
           if (channel === 0) colorBlendMode = blendMode
           const alphaChannel =
             blendMode >= 4 && extraChannelCount > 1 ? symbols.readHybridUint(8, reader) : 0
           if (extraChannelCount > 0 && alphaChannel >= extraChannelCount)
-            throw invalidInput('JPEG XL patch alpha channel is invalid')
+            throw invalidJpegXlInput('patch alpha channel is invalid')
           const clamp = blendMode >= 3 ? symbols.readHybridUint(9, reader) : 0
-          if (clamp > 1) throw invalidInput('JPEG XL patch clamp flag is invalid')
+          if (clamp > 1) throw invalidJpegXlInput('patch clamp flag is invalid')
           blending.push(Object.freeze({ mode: blendMode, alphaChannel, clamp: clamp === 1 }))
         }
         patches.push(
@@ -123,7 +123,7 @@ export const readJpegXlFrameFeatures = (
       }
     }
     if (!symbols.hasValidFinalState()) {
-      throw invalidInput('JPEG XL patch dictionary ANS state is invalid')
+      throw invalidJpegXlInput('patch dictionary ANS state is invalid')
     }
   }
 
@@ -135,7 +135,7 @@ export const readJpegXlFrameFeatures = (
     const symbols = new JpegXlEntropySymbolReader(code, Math.max(1, maximumControlPoints * 4 + 130))
     const splineCount = symbols.readHybridUint(2, reader) + 1
     if (splineCount > maximumControlPoints) {
-      throw invalidInput('JPEG XL spline count exceeds the frame limit')
+      throw invalidJpegXlInput('spline count exceeds the frame limit')
     }
     const starts: [number, number][] = []
     let previousX = 0
@@ -146,7 +146,7 @@ export const readJpegXlFrameFeatures = (
       const x = spline === 0 ? encodedX : previousX + unpackSigned(encodedX)
       const y = spline === 0 ? encodedY : previousY + unpackSigned(encodedY)
       if (Math.abs(x) >= 8_388_608 || Math.abs(y) >= 8_388_608) {
-        throw invalidInput('JPEG XL spline starting point is out of bounds')
+        throw invalidJpegXlInput('spline starting point is out of bounds')
       }
       starts.push([x, y])
       previousX = x
@@ -158,7 +158,7 @@ export const readJpegXlFrameFeatures = (
       const controlPointCount = symbols.readHybridUint(3, reader)
       totalControlPoints += controlPointCount
       if (totalControlPoints > maximumControlPoints) {
-        throw invalidInput('JPEG XL spline control-point count exceeds the frame limit')
+        throw invalidJpegXlInput('spline control-point count exceeds the frame limit')
       }
       const controlPointDeltas: [number, number][] = []
       for (let point = 0; point < controlPointCount; point += 1) {
@@ -176,7 +176,7 @@ export const readJpegXlFrameFeatures = (
         Array.from({ length: 32 }, () => unpackSigned(symbols.readHybridUint(5, reader))),
       )
       const start = starts[spline]
-      if (!start) throw invalidInput('JPEG XL spline starting point is missing')
+      if (!start) throw invalidJpegXlInput('spline starting point is missing')
       splines.push(
         Object.freeze({
           startingX: start[0],
@@ -187,7 +187,7 @@ export const readJpegXlFrameFeatures = (
         }),
       )
     }
-    if (!symbols.hasValidFinalState()) throw invalidInput('JPEG XL spline ANS state is invalid')
+    if (!symbols.hasValidFinalState()) throw invalidJpegXlInput('spline ANS state is invalid')
   }
   const noiseLut =
     (frameFlags & 1) === 0

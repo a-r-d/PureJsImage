@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "fixture": "im26-1416-original",
+  "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
+  "implementationSourceSha256": "ea30935f43c9dde7bbedcb7c6c7ce38d6145f33a99034bae44af5724e985a428",
+  "measurementHarnessSha256": "14e6c2f0c0c2b220ae63aaa35364f68e9e9879ec5bbdf9c376727c379addc7da",
+  "verifierSha256": "f6332cfa2bfe0e63c8f59951a6def19831b956cde2c1ade9a3c28dc05c5c0ab7",
+  "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-channel-ans-photo-rgba-e1-final.jxl",
+  "encodedSha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205",
+  "bytes": 7452825,
+  "measurement": {
+    "runtime": "v24.16.0",
+    "width": 4000,
+    "height": 3000,
+    "format": "rgba8",
+    "effort": 1,
+    "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+    "implementationSourceSha256": "ea30935f43c9dde7bbedcb7c6c7ce38d6145f33a99034bae44af5724e985a428",
+    "outputSha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205",
+    "bytes": 7452825,
+    "openMilliseconds": 1138.055725,
+    "coreMilliseconds": 24101.826947,
+    "encodeOutputMilliseconds": 24122.48734,
+    "openEncodeOutputMilliseconds": 25260.543064999998,
+    "moduleReadySeconds": 0.15627044599999998,
+    "peakRssBytes": 477847552,
+    "baselineMemory": {
+      "rss": 188706816,
+      "heapTotal": 19513344,
+      "heapUsed": 10098648,
+      "external": 97740166,
+      "arrayBuffers": 84037112
+    },
+    "finalMemory": {
+      "rss": 416608256,
+      "heapTotal": 12382208,
+      "heapUsed": 8246688,
+      "external": 290880631,
+      "arrayBuffers": 278507831
+    },
+    "managedPeakBytes": 153885002,
+    "managedLiveBytes": 0,
+    "groupSearchEvidence": [],
+    "correctness": "independent verification required after measurement"
+  },
+  "containerOverheadBytes": 40,
+  "oracles": [
+    {
+      "oracle": "libjxl",
+      "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "decodedRgbaSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "maximumSampleError": 0,
+      "samplesCompared": 48000000
+    },
+    {
+      "oracle": "jxl-rs",
+      "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+      "decodedRgbaSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "maximumSampleError": 0,
+      "samplesCompared": 48000000
+    }
+  ],
+  "status": "verified",
+  "comparisonInput": "identical pinned RGBA8, including hidden color and alpha",
+  "timingScope": "Single isolated observation, not a speed comparison. Encoder core and output exclude input preparation and independent decoding.",
+  "runtime": "v24.16.0"
+}

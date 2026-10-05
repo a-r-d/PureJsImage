@@ -1,0 +1,110 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-photo-investigation-278.ts",
+      "sha256": "decf4a7a179837221d3b1930bfe14bb4ecdb1e6eb9e238bd7a14e0cb4f4438a8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-photo-final-278.json",
+      "sha256": "79fd07f336e0001748dfb5759dbff74bd5702341be6c63386b1357c2b6697503"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/retained/funded-sampling-270-current/manifest.json",
+      "sha256": "639d328b97d061e04ad8a1c86ff8ec754c18d780c9ca14fa394cb3d9b1100aa3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-control-audit.json",
+      "sha256": "310dacf715896a220809e7037ae01cc6528e8c1b5edf748d9d03a36d93add619"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-leaf-cap-controls-272.json",
+      "sha256": "fc1e4d22f463d1b0b57d10b130e270e813e6848e2a9cbf84f945531b4f78a9da"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-group-layout-controls-273.json",
+      "sha256": "bcbb25610d13a418ef7a8427329080708328f8de6484c2eacb227caf4462ff20"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-group-program-profile-274.json",
+      "sha256": "b8fb6863dd87620c44721fb630ec4089be18655faded06eceeba2f55719502c9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-local-rct-controls-275.json",
+      "sha256": "b4845d6685782a90120137ad78f6298d5a78d6ebba4c1d9cb1dbfd5b29674ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-control-audit-276.json",
+      "sha256": "676fbd8a76f23fd19c5efca6bb929b2309b8ccf40e74dae99dee0addb6b895cc"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-photo-investigation-repository-check-277.json",
+      "sha256": "810fa10a4235ba58a03d0de75fb87c5f61647c3444634fce1a75b852cdb51454"
+    },
+    {
+      "path": "/tmp/jpegxl-photo-investigation-repository-check-277.log",
+      "sha256": "5848f82ee47fe953dc2801c47e3589e1a4e1863f52b3c5c1937b4c817630988b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PHOTO-MODELS.md",
+      "sha256": "f3adf4b44ac0b62725a41ae4f08445b4bceab1cf602774df18f93185a93c57ce"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 22,
+  "independentGrids": 44,
+  "independentSamples": 161480704,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Default Vitest scheduling under bounded service; parent worker variable was not forwarded"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "The new independently exact photo investigations, full npm run check, all old production qualification pins, rebuilt public modules and fourteen raw retained files pass without production changes. One local-color policy wins one photo but grows another and remains unadopted. This preserves existing qualified comparison results and protected costs; overall parity and a broader local/shared-model decision policy remain open."
+}

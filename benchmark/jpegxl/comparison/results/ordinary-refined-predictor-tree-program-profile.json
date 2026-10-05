@@ -1,0 +1,929 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-ordinary-refined-trees-319.ts",
+      "sha256": "5b4f74a5257da0112021118c81e1c69dfd24b05a7cae2e7178e72533045e09c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-ordinary-refined-profile-319.json",
+      "sha256": "33b26b91dbd65a775ec004a3a08e2ae65c4a192660f2c39b30608d00431d6123"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/manifest.json",
+      "sha256": "73ff7693bf1a91fa285a79ec94942f484331be27decdf10f8870cbc34c105ccf"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/jpegxl-decode.ts",
+      "sha256": "0cdd056b4607f95b2e83b0ede99f7b3786c15806d95a9fece3ce8babd9669a51"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-ordinary-refined-predictor-tree-controls-318.json",
+      "sha256": "9ac92d26c63754d6b60b75796ffa2b7b71c5dd07fccd9b63ac07d0fc26991ad6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-refined.jxl",
+      "sha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-refined.jxl",
+      "sha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "a3eb8d688558206da2f0139697464f321a929977c3486f23dbedc9b6639d0af8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-refined.jxl",
+      "sha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "9af3fc22804d066787aff3c90550931f703a39c81d97bfb1da03b4e839db83e1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-refined.jxl",
+      "sha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-baseline.jxl",
+      "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "bytes": 649404,
+      "structureSha256": "c6eae14f65b1afee46399f74e240411f90740b827ab0bc01d5ec33e6b1b9b485",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 34582,
+      "remainingBits": 5160210,
+      "sectionBytes": 649349,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 357
+        },
+        {
+          "predictor": 3,
+          "leaves": 83
+        },
+        {
+          "predictor": 5,
+          "leaves": 328
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 1
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 56
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 15
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 12
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 8
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 36
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 0,
+      "headerChangeBits": 0,
+      "remainingChangeBits": 0,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "refined",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-refined.jxl",
+      "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+      "bytes": 648383,
+      "structureSha256": "c6eae14f65b1afee46399f74e240411f90740b827ab0bc01d5ec33e6b1b9b485",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 34780,
+      "remainingBits": 5151844,
+      "sectionBytes": 648328,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 404
+        },
+        {
+          "predictor": 3,
+          "leaves": 65
+        },
+        {
+          "predictor": 5,
+          "leaves": 299
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 1
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 49
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 19
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 14
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 8
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 37
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 157,
+      "headerChangeBits": 198,
+      "remainingChangeBits": -8366,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1021
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-1416-diagnostic-floor.jxl",
+      "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+      "bytes": 648383,
+      "structureSha256": "c6eae14f65b1afee46399f74e240411f90740b827ab0bc01d5ec33e6b1b9b485",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 34780,
+      "remainingBits": 5151844,
+      "sectionBytes": 648328,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 404
+        },
+        {
+          "predictor": 3,
+          "leaves": 65
+        },
+        {
+          "predictor": 5,
+          "leaves": 299
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 1
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 49
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 19
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 14
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 8
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 37
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 157,
+      "headerChangeBits": 198,
+      "remainingChangeBits": -8366,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1021
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-baseline.jxl",
+      "encodedSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "bytes": 613268,
+      "structureSha256": "084d5e9069e36819b3eb6323e91f38f4bbcf2768bb88ab4bb0dfb76d4cfa416c",
+      "transformsSha256": "e58db4048973dcc76ae4a22b2959c767c5cc9c65c0ea85ac3fa7cfe81b75838e",
+      "headerBits": 34431,
+      "remainingBits": 4871273,
+      "sectionBytes": 613213,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 754,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 409
+        },
+        {
+          "predictor": 3,
+          "leaves": 102
+        },
+        {
+          "predictor": 5,
+          "leaves": 242
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 69
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 25
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 10
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 6
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 16
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 0,
+      "headerChangeBits": 0,
+      "remainingChangeBits": 0,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": 0
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "refined",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-refined.jxl",
+      "encodedSha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf",
+      "bytes": 612152,
+      "structureSha256": "084d5e9069e36819b3eb6323e91f38f4bbcf2768bb88ab4bb0dfb76d4cfa416c",
+      "transformsSha256": "e58db4048973dcc76ae4a22b2959c767c5cc9c65c0ea85ac3fa7cfe81b75838e",
+      "headerBits": 33997,
+      "remainingBits": 4862779,
+      "sectionBytes": 612097,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 754,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 446
+        },
+        {
+          "predictor": 5,
+          "leaves": 226
+        },
+        {
+          "predictor": 3,
+          "leaves": 81
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 67
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 28
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 10
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 6
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 15
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 181,
+      "headerChangeBits": -434,
+      "remainingChangeBits": -8494,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1116
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/im26-2018-diagnostic-floor.jxl",
+      "encodedSha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf",
+      "bytes": 612152,
+      "structureSha256": "084d5e9069e36819b3eb6323e91f38f4bbcf2768bb88ab4bb0dfb76d4cfa416c",
+      "transformsSha256": "e58db4048973dcc76ae4a22b2959c767c5cc9c65c0ea85ac3fa7cfe81b75838e",
+      "headerBits": 33997,
+      "remainingBits": 4862779,
+      "sectionBytes": 612097,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 754,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 446
+        },
+        {
+          "predictor": 5,
+          "leaves": 226
+        },
+        {
+          "predictor": 3,
+          "leaves": 81
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 67
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 28
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 10
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 6
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 15
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 181,
+      "headerChangeBits": -434,
+      "remainingChangeBits": -8494,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1116
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "encodedSha256": "a3eb8d688558206da2f0139697464f321a929977c3486f23dbedc9b6639d0af8",
+      "bytes": 617106,
+      "structureSha256": "0b638cac5d9703bcd0ca7f032cf105d70ddedd7cfcd975417003211047e2399d",
+      "transformsSha256": "6ebdbbb83d99c5cbb97a511b1f1b50c345fd49cd88673ebb1592fd989046364d",
+      "headerBits": 34834,
+      "remainingBits": 4901574,
+      "sectionBytes": 617051,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 3,
+          "leaves": 102
+        },
+        {
+          "predictor": 6,
+          "leaves": 358
+        },
+        {
+          "predictor": 5,
+          "leaves": 308
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 13
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 63
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 31
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 4
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 15
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 0,
+      "headerChangeBits": 0,
+      "remainingChangeBits": 0,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": 0
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "refined",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-refined.jxl",
+      "encodedSha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a",
+      "bytes": 615996,
+      "structureSha256": "0b638cac5d9703bcd0ca7f032cf105d70ddedd7cfcd975417003211047e2399d",
+      "transformsSha256": "6ebdbbb83d99c5cbb97a511b1f1b50c345fd49cd88673ebb1592fd989046364d",
+      "headerBits": 34579,
+      "remainingBits": 4892949,
+      "sectionBytes": 615941,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 5,
+          "leaves": 335
+        },
+        {
+          "predictor": 6,
+          "leaves": 352
+        },
+        {
+          "predictor": 3,
+          "leaves": 81
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 16
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 60
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 30
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 4
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 16
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 168,
+      "headerChangeBits": -255,
+      "remainingChangeBits": -8625,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1110
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-2018-red-one-level-dither-floor.jxl",
+      "encodedSha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a",
+      "bytes": 615996,
+      "structureSha256": "0b638cac5d9703bcd0ca7f032cf105d70ddedd7cfcd975417003211047e2399d",
+      "transformsSha256": "6ebdbbb83d99c5cbb97a511b1f1b50c345fd49cd88673ebb1592fd989046364d",
+      "headerBits": 34579,
+      "remainingBits": 4892949,
+      "sectionBytes": 615941,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 769,
+      "models": 128,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 5,
+          "leaves": 335
+        },
+        {
+          "predictor": 6,
+          "leaves": 352
+        },
+        {
+          "predictor": 3,
+          "leaves": 81
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 16
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 60
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 30
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 4
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 16
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 168,
+      "headerChangeBits": -255,
+      "remainingChangeBits": -8625,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -1110
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-baseline.jxl",
+      "encodedSha256": "9af3fc22804d066787aff3c90550931f703a39c81d97bfb1da03b4e839db83e1",
+      "bytes": 227797,
+      "structureSha256": "4c4636bc23b84ef5e579b859418038fda9ec5ce5bd3ae4b5e537f71e9a24a7a8",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 15277,
+      "remainingBits": 1806659,
+      "sectionBytes": 227742,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 256,
+      "models": 70,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 98
+        },
+        {
+          "predictor": 5,
+          "leaves": 114
+        },
+        {
+          "predictor": 3,
+          "leaves": 27
+        },
+        {
+          "predictor": 13,
+          "leaves": 16
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 33
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 8
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 23
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 2
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 2
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 0,
+      "headerChangeBits": 0,
+      "remainingChangeBits": 0,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": 0
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "refined",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-refined.jxl",
+      "encodedSha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6",
+      "bytes": 227749,
+      "structureSha256": "4c4636bc23b84ef5e579b859418038fda9ec5ce5bd3ae4b5e537f71e9a24a7a8",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 15524,
+      "remainingBits": 1806028,
+      "sectionBytes": 227694,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 256,
+      "models": 71,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 92
+        },
+        {
+          "predictor": 5,
+          "leaves": 118
+        },
+        {
+          "predictor": 13,
+          "leaves": 16
+        },
+        {
+          "predictor": 3,
+          "leaves": 29
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 32
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 10
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 3
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 2
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 22
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 26,
+      "headerChangeBits": 247,
+      "remainingChangeBits": -631,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -48
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/ordinary-refined-trees-318-output/photo-1416-boundary-513-floor.jxl",
+      "encodedSha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6",
+      "bytes": 227749,
+      "structureSha256": "4c4636bc23b84ef5e579b859418038fda9ec5ce5bd3ae4b5e537f71e9a24a7a8",
+      "transformsSha256": "f32a2c1d966e68e907edf30268b4327627ec64eb740a14122e5d9d22b7ece258",
+      "headerBits": 15524,
+      "remainingBits": 1806028,
+      "sectionBytes": 227694,
+      "outerBytes": 55,
+      "groupDimension": 1024,
+      "groups": 1,
+      "leaves": 256,
+      "models": 71,
+      "lz77": false,
+      "predictors": [
+        {
+          "predictor": 1,
+          "leaves": 1
+        },
+        {
+          "predictor": 6,
+          "leaves": 92
+        },
+        {
+          "predictor": 5,
+          "leaves": 118
+        },
+        {
+          "predictor": 13,
+          "leaves": 16
+        },
+        {
+          "predictor": 3,
+          "leaves": 29
+        }
+      ],
+      "hybrids": [
+        {
+          "configuration": "0/0/0",
+          "models": 2
+        },
+        {
+          "configuration": "4/2/0",
+          "models": 32
+        },
+        {
+          "configuration": "2/1/0",
+          "models": 10
+        },
+        {
+          "configuration": "4/1/2",
+          "models": 3
+        },
+        {
+          "configuration": "2/0/1",
+          "models": 2
+        },
+        {
+          "configuration": "3/1/0",
+          "models": 22
+        }
+      ],
+      "sameTreeStructure": true,
+      "sameTransforms": true,
+      "changedPredictorLeaves": 26,
+      "headerChangeBits": 247,
+      "remainingChangeBits": -631,
+      "outerChangeBytes": 0,
+      "wholeChangeBytes": -48
+    }
+  ],
+  "productionUnchanged": true,
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Read-only exact274first-party parser accounts all12ordinary318complete files and every header/residual/outer byte. Specific original diagnostic geometry has one Modular frame/one group/one section. Actual selected tree structure and transform identities compared with original ordinary baseline; unchanged structures expose exact changed predictor leaves. Original256channel leaf/depth16/128model policies retained; no new encode/performance/package/production or parity adoption."
+}

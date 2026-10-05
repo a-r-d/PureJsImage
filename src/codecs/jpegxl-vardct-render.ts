@@ -1,14 +1,14 @@
 import { throwIfAborted } from '../abort.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { linearToSrgb } from './icc.ts'
 import {
-  decodeJpegXlStandaloneModular,
   type JpegXlFrameStructure,
   JpegXlGroupedModularPlanes,
   jpegXlExtraChannelPass,
   jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { floatSample } from './jpegxl-native-samples.ts'
 import { applyJpegXlPatch } from './jpegxl-patch-blend.ts'
 import {
@@ -53,8 +53,7 @@ const jpegXlAlphaSamples = (
   const samples = new Float32Array(plane.length)
   for (let index = 0; index < plane.length; index++) {
     const sample = floatSample(plane[index] ?? 0, bits, descriptor.bitDepth.exponentBits)
-    if (!Number.isFinite(sample))
-      throw invalidInput('JPEG XL VarDCT alpha rejects NaN and infinity')
+    if (!Number.isFinite(sample)) throw invalidJpegXlInput('VarDCT alpha rejects NaN and infinity')
     samples[index] = sample
   }
   return samples
@@ -577,8 +576,7 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
     }
     const weights4x8 = dct4x8Weights[channel]
     const weights4x4 = dct4x4Weights[channel]
-    if (!weights4x8 || !weights4x4)
-      throw invalidInput('JPEG XL AFV quantization channel is missing')
+    if (!weights4x8 || !weights4x4) throw invalidJpegXlInput('AFV quantization channel is missing')
     for (let y = 0; y < 4; y += 1) {
       for (let x = 0; x < 8; x += 1) {
         if (x !== 0 || y !== 0) weights[(2 * y + 1) * 8 + x] = weights4x8[y * 8 + x] ?? 1
@@ -650,7 +648,7 @@ const interpolateSplinePoints = (controlPoints: readonly SplinePoint[]): SplineP
     const p1 = points[start + 1]
     const p2 = points[start + 2]
     const p3 = points[start + 3]
-    if (!p0 || !p1 || !p2 || !p3) throw invalidInput('JPEG XL spline point is missing')
+    if (!p0 || !p1 || !p2 || !p3) throw invalidJpegXlInput('spline point is missing')
     output.push(p1)
     const distances = [
       Math.sqrt(Math.hypot(p1.x - p0.x, p1.y - p0.y)),
@@ -919,7 +917,7 @@ const applyAdaptiveDcSmoothing = (
   const factor1 = dcFactors[1]
   const factor2 = dcFactors[2]
   if (factor0 === 0 || factor1 === 0 || factor2 === 0) {
-    throw invalidInput('JPEG XL adaptive DC smoothing metadata is invalid')
+    throw invalidJpegXlInput('adaptive DC smoothing metadata is invalid')
   }
   const plane0 = planes[0]
   const plane1 = planes[1]
@@ -949,7 +947,7 @@ const applyAdaptiveDcSmoothing = (
   for (let channel = 0; channel < 3; channel += 1) {
     const plane = planes[channel]
     const output = smoothed[channel]
-    if (!plane || !output) throw invalidInput('JPEG XL adaptive DC smoothing plane is missing')
+    if (!plane || !output) throw invalidJpegXlInput('adaptive DC smoothing plane is missing')
     plane.set(output)
   }
 }
@@ -1143,7 +1141,7 @@ const populateLowestFrequencies = (
   const horizontalScales = lowFrequencyResampleScaleCache[blockWidth]
   const verticalScales = lowFrequencyResampleScaleCache[blockHeight]
   if (!horizontalScales || !verticalScales) {
-    throw invalidInput('JPEG XL low-frequency transform dimension is invalid')
+    throw invalidJpegXlInput('low-frequency transform dimension is invalid')
   }
   const outputWidth = blockWidth * 8
   const outputHeight = blockHeight * 8
@@ -1714,7 +1712,7 @@ const applyDefaultEpfStage1 = (
     horizontalDifferences.length < requiredLength ||
     verticalDifferences.length < requiredLength
   ) {
-    throw invalidInput('JPEG XL EPF difference scratch is too small')
+    throw invalidJpegXlInput('EPF difference scratch is too small')
   }
   const plane0 = planes[0]
   const plane1 = planes[1]
@@ -2131,7 +2129,7 @@ const applyDefaultEpfStage0 = (
   const differences = scratch[0]
   const totalWeights = scratch[1]
   if (differences.length < requiredLength || totalWeights.length < requiredLength) {
-    throw invalidInput('JPEG XL EPF difference scratch is too small')
+    throw invalidJpegXlInput('EPF difference scratch is too small')
   }
   const plane0 = planes[0]
   const plane1 = planes[1]
@@ -2270,7 +2268,7 @@ const applyDefaultEpfStage = (
 ): void => {
   const requiredOutputLength = stride * height
   if (output.some((plane) => plane.length < requiredOutputLength)) {
-    throw invalidInput('JPEG XL EPF output scratch is too small')
+    throw invalidJpegXlInput('EPF output scratch is too small')
   }
   if (frame.epfWeights || frame.epfSigma) {
     applyCustomEpfStage(
@@ -2335,7 +2333,7 @@ const applyDefaultEpfStage = (
   for (let channel = 0; channel < 3; channel += 1) {
     const plane = planes[channel]
     const filtered = output[channel]
-    if (!plane || !filtered) throw invalidInput('JPEG XL EPF output plane is missing')
+    if (!plane || !filtered) throw invalidJpegXlInput('EPF output plane is missing')
     plane.set(filtered.subarray(0, stride * height))
   }
 }
@@ -2352,7 +2350,7 @@ const makeEpfInverseSigmas = (
     const quant = quantization[blockIndex]
     const sharp = sharpness[blockIndex]
     if (quant === undefined || sharp === undefined || quant < 1 || sharp < 0 || sharp > 7) {
-      throw invalidInput('JPEG XL EPF block metadata is invalid')
+      throw invalidJpegXlInput('EPF block metadata is invalid')
     }
     const sigma = Math.min(
       -1e-4,
@@ -2707,11 +2705,11 @@ const mergeProgressiveAcGroup = (
   additional: Readonly<JpegXlJpegAcGroup>,
 ): void => {
   if (target.vardctCoefficientOffsets.length !== additional.vardctCoefficientOffsets.length) {
-    throw invalidInput('JPEG XL progressive AC block count is inconsistent')
+    throw invalidJpegXlInput('progressive AC block count is inconsistent')
   }
   for (let index = 0; index < target.vardctCoefficientOffsets.length; index += 1) {
     if (target.vardctCoefficientOffsets[index] !== additional.vardctCoefficientOffsets[index]) {
-      throw invalidInput('JPEG XL progressive AC coefficient layout is inconsistent')
+      throw invalidJpegXlInput('progressive AC coefficient layout is inconsistent')
     }
   }
   for (let channel = 0; channel < 3; channel += 1) {
@@ -2722,13 +2720,13 @@ const mergeProgressiveAcGroup = (
       !additionalCoefficients ||
       targetCoefficients.length !== additionalCoefficients.length
     ) {
-      throw invalidInput('JPEG XL progressive AC coefficient plane is inconsistent')
+      throw invalidJpegXlInput('progressive AC coefficient plane is inconsistent')
     }
     for (let position = 0; position < targetCoefficients.length; position += 1) {
       const coefficient =
         (targetCoefficients[position] ?? 0) + (additionalCoefficients[position] ?? 0)
       if (coefficient < -2_147_483_648 || coefficient > 2_147_483_647) {
-        throw invalidInput('JPEG XL progressive AC coefficient exceeds the signed 32-bit range')
+        throw invalidJpegXlInput('progressive AC coefficient exceeds the signed 32-bit range')
       }
       targetCoefficients[position] = coefficient
     }
@@ -2750,7 +2748,7 @@ const copyPlaneRegion = (
     const destinationOffset = (destinationY + y) * destinationWidth + destinationX
     for (let x = 0; x < width; x += 1) {
       const value = source[sourceOffset + x]
-      if (value === undefined) throw invalidInput('JPEG XL VarDCT LF group plane is truncated')
+      if (value === undefined) throw invalidJpegXlInput('VarDCT LF group plane is truncated')
       destination[destinationOffset + x] = value
     }
   }
@@ -2811,7 +2809,7 @@ const decodeJpegXlVarDctDcGroups = (
   const dcGroupsAcross = Math.ceil(blockWidth / dcGroupBlockDimension)
   const expectedDcGroups = dcGroupsAcross * Math.ceil(blockHeight / dcGroupBlockDimension)
   if (expectedDcGroups !== frame.dcGroupCount) {
-    throw invalidInput('JPEG XL VarDCT LF group geometry is inconsistent')
+    throw invalidJpegXlInput('VarDCT LF group geometry is inconsistent')
   }
   const blockCount = blockWidth * blockHeight
   const correlationWidth = Math.ceil(blockWidth / 8)
@@ -2843,7 +2841,7 @@ const decodeJpegXlVarDctDcGroups = (
     const groupWidth = Math.min(dcGroupBlockDimension, blockWidth - groupX)
     const groupHeight = Math.min(dcGroupBlockDimension, blockHeight - groupY)
     const groupSection = sections[1 + groupId]
-    if (!groupSection) throw invalidInput('JPEG XL VarDCT LF group section is missing')
+    if (!groupSection) throw invalidJpegXlInput('VarDCT LF group section is missing')
     let externalGroupPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
     if (externalDcPlanes) {
       const slices = externalDcPlanes.map((plane) => {
@@ -2863,7 +2861,7 @@ const decodeJpegXlVarDctDcGroups = (
       const second = slices[1]
       const third = slices[2]
       if (!first || !second || !third) {
-        throw invalidInput('JPEG XL external DC frame plane is missing')
+        throw invalidJpegXlInput('external DC frame plane is missing')
       }
       externalGroupPlanes = Object.freeze([first, second, third])
     }
@@ -2902,7 +2900,7 @@ const decodeJpegXlVarDctDcGroups = (
     for (let channel = 0; channel < 3; channel += 1) {
       const source = decoded.dcCoefficients[channel]
       const destination = assembled.dcCoefficients[channel]
-      if (!source || !destination) throw invalidInput('JPEG XL VarDCT DC plane is missing')
+      if (!source || !destination) throw invalidJpegXlInput('VarDCT DC plane is missing')
       copyPlaneRegion(
         source,
         groupWidth,
@@ -3007,7 +3005,7 @@ const prepareRenderDcPlanes = (
     dcGroup.dcCoefficients[2],
   ] as const
   if (((frame.frameFlags & 32) !== 0) !== (externalDcPlanes !== undefined)) {
-    throw invalidInput('JPEG XL VarDCT external DC frame dependency is inconsistent')
+    throw invalidJpegXlInput('VarDCT external DC frame dependency is inconsistent')
   }
   const renderDcLease = externalDcPlanes
     ? undefined
@@ -3023,7 +3021,7 @@ const prepareRenderDcPlanes = (
       const destination = dcPlanes[channel]
       const factor = dcFactors[channel]
       if (!source || !destination || factor === undefined) {
-        throw invalidInput('JPEG XL VarDCT DC coefficient plane is missing')
+        throw invalidJpegXlInput('VarDCT DC coefficient plane is missing')
       }
       for (let index = 0; index < destination.length; index += 1) {
         destination[index] = (source[index] ?? 0) * factor
@@ -3068,7 +3066,7 @@ export const prepareJpegXlVarDctLowFrequency = (
   if (frame.encoding !== 'vardct' || frame.colorTransform !== 'xyb')
     throw unsupportedOperation('JPEG XL reusable LF state requires XYB VarDCT')
   const section = sections[0]
-  if (!section) throw invalidInput('JPEG XL LF global section is missing')
+  if (!section) throw invalidJpegXlInput('LF global section is missing')
   const rollback = memory.checkpoint()
   const separated = frame.sections.length > 1
   const lfGlobal = decodeJpegXlJpegLfGlobal(
@@ -3177,7 +3175,7 @@ export const prepareJpegXlVarDctAlphaGroups = async (
   )
   if (pending.length === 0) return
   const hfSection = sections[1 + frame.dcGroupCount]
-  if (!hfSection) throw invalidInput('JPEG XL alpha dependency lacks HF global data')
+  if (!hfSection) throw invalidJpegXlInput('alpha dependency lacks HF global data')
   const groupCount = frame.groupsAcross * frame.groupsDown
   // The parser constructs every pass's coefficient orders even for a DC-only request.
   const orderLease = memory.retain(
@@ -3212,7 +3210,7 @@ export const prepareJpegXlVarDctAlphaGroups = async (
       if (shifts.length === 0) continue
       const pass = hfGlobal.passes[passIndex]
       const section = sections[id]
-      if (!pass || !section) throw invalidInput('JPEG XL alpha dependency section is missing')
+      if (!pass || !section) throw invalidJpegXlInput('alpha dependency section is missing')
       const blockDimension = frame.groupDimension / 8
       const blockX = (groupId % frame.groupsAcross) * blockDimension
       const blockY = Math.floor(groupId / frame.groupsAcross) * blockDimension
@@ -3276,7 +3274,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
 ): Generator<void, JpegXlVarDctPixels | undefined> {
   const { frame, memory, lfGlobal } = state
   const opsin = resolveOpsin(frame.opsinInverse)
-  if (state.released) throw invalidInput('JPEG XL LF state has been released')
+  if (state.released) throw invalidJpegXlInput('LF state has been released')
   if (
     frame.upsampling !== 1 ||
     lfGlobal.patches.length > 0 ||
@@ -3303,7 +3301,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
   const alphaPlane =
     selectedAlpha === undefined ? undefined : state.nativeExtraPlanes?.[selectedAlpha]
   if (alphaDescriptor && !alphaPlane)
-    throw invalidInput('JPEG XL selective alpha plane is unavailable')
+    throw invalidJpegXlInput('selective alpha plane is unavailable')
   const alphaFactorValue = alphaDescriptor
     ? (frame.extraChannelUpsampling[selectedAlpha ?? 0] ?? 1) * 2 ** alphaDescriptor.dimShift
     : 1
@@ -3484,7 +3482,7 @@ const renderJpegXlVarDctLowFrequencySteps = function* (
         const sampleY = absoluteY - firstY
         for (let x = 0; x < encodedXs.length; x += 1) {
           const sampleX = encodedXs[x]
-          if (sampleX === undefined) throw invalidInput('JPEG XL DC sample coordinate is missing')
+          if (sampleX === undefined) throw invalidJpegXlInput('DC sample coordinate is missing')
           const source = sampleY * stride + sampleX
           const offset = (transpose ? x * width + y : y * width + x) * channels * bytesPerSample
           const opsinX = planes[0][source] ?? 0
@@ -3745,7 +3743,7 @@ const decodeJpegXlDct8Striped = function* (
         for (let passIndex = 0; passIndex < maximumPasses; passIndex += 1) {
           const pass = hfGlobal.passes[passIndex]
           const acSection = allSections[2 + frame.dcGroupCount + passIndex * groupCount + groupId]
-          if (!pass || !acSection) throw invalidInput('JPEG XL VarDCT pass group is missing')
+          if (!pass || !acSection) throw invalidJpegXlInput('VarDCT pass group is missing')
           const decoded = decodeJpegXlJpegAcGroup(
             acSection,
             {
@@ -3777,7 +3775,7 @@ const decodeJpegXlDct8Striped = function* (
             acGroupLease = decodedLease
           }
         }
-        if (!acGroup) throw invalidInput('JPEG XL VarDCT AC group is missing')
+        if (!acGroup) throw invalidJpegXlInput('VarDCT AC group is missing')
         for (let blockY = bandBlockY; blockY < bandBlockY + bandBlockHeight; blockY += 1) {
           for (let blockX = groupBlockX; blockX < groupBlockX + groupBlockWidth; blockX += 1) {
             const blockIndex = blockY * blockWidth + blockX
@@ -3795,7 +3793,7 @@ const decodeJpegXlDct8Striped = function* (
               quantization === undefined ||
               quantization < 1
             ) {
-              throw invalidInput('JPEG XL VarDCT block quantization is invalid')
+              throw invalidJpegXlInput('VarDCT block quantization is invalid')
             }
             if (firstBlock === 0) continue
             if (!supportsJpegXlVarDctStrategy(strategy) || !dequantization) {
@@ -3806,7 +3804,7 @@ const decodeJpegXlDct8Striped = function* (
             const localBlockIndex = (blockY - bandBlockY) * groupBlockWidth + (blockX - groupBlockX)
             const coefficientOffset = acGroup.vardctCoefficientOffsets[localBlockIndex]
             if (coefficientOffset === undefined || coefficientOffset < 0) {
-              throw invalidInput('JPEG XL VarDCT coefficient block is missing')
+              throw invalidJpegXlInput('VarDCT coefficient block is missing')
             }
             const strategyBlockWidth = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
             const strategyBlockHeight = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
@@ -3818,7 +3816,7 @@ const decodeJpegXlDct8Striped = function* (
               const values = blockCoefficients[channel]
               const channelDc = dcSamples[channel]
               if (!coefficients || !dc || !matrix || !values || !channelDc) {
-                throw invalidInput('JPEG XL VarDCT channel data is missing')
+                throw invalidJpegXlInput('VarDCT channel data is missing')
               }
               values.fill(0, 0, coefficientCount)
               for (let localY = 0; localY < strategyBlockHeight; localY += 1) {
@@ -3853,7 +3851,7 @@ const decodeJpegXlDct8Striped = function* (
                   ? dcGroup.colorCorrelationX[colorTileIndex]
                   : dcGroup.colorCorrelationB[colorTileIndex]
               if (localMap === undefined) {
-                throw invalidInput('JPEG XL VarDCT color-correlation tile is missing')
+                throw invalidJpegXlInput('VarDCT color-correlation tile is missing')
               }
               const ratio = correlationRatio(lfGlobal.colorCorrelation, channel, localMap)
               for (let position = 0; position < coefficientCount; position += 1) {
@@ -3866,7 +3864,7 @@ const decodeJpegXlDct8Striped = function* (
               const channelDc = dcSamples[channel]
               const plane = planes[channel]
               if (!values || !channelDc || !plane)
-                throw invalidInput('JPEG XL VarDCT render plane is missing')
+                throw invalidJpegXlInput('VarDCT render plane is missing')
               populateLowestFrequencies(
                 values,
                 channelDc,
@@ -3992,7 +3990,7 @@ const decodeJpegXlDct8Striped = function* (
     const bottomRows = next ? next.topEdges[0].length / paddedWidth : 0
     for (let channel = 0; channel < 3; channel += 1) {
       const plane = center.planes[channel]
-      if (!plane) throw invalidInput('JPEG XL restoration-band plane is missing')
+      if (!plane) throw invalidJpegXlInput('restoration-band plane is missing')
       if (before) plane.set(before.bottomEdges[channel] ?? new Float32Array(), 0)
       if (next) {
         plane.set(
@@ -4120,14 +4118,14 @@ const decodeJpegXlDct8Steps = function* (
   let colorUpsampling = frame.upsampling
   const opsin = resolveOpsin(frame.opsinInverse)
   if (!Number.isSafeInteger(maximumPasses) || maximumPasses < 1 || maximumPasses > frame.passCount)
-    throw invalidInput('JPEG XL requested pass count is invalid')
+    throw invalidJpegXlInput('requested pass count is invalid')
   if (
     preparedLowFrequency &&
     (preparedLowFrequency.frame !== frame ||
       preparedLowFrequency.memory !== memory ||
       preparedLowFrequency.released)
   )
-    throw invalidInput('JPEG XL LF state does not belong to this live frame and memory ledger')
+    throw invalidJpegXlInput('LF state does not belong to this live frame and memory ledger')
   const separatedSections = continuationSections !== undefined
   if (
     frame.encoding !== 'vardct' ||
@@ -4259,7 +4257,7 @@ const decodeJpegXlDct8Steps = function* (
         groupedAlpha ? groupedAlphaPlanes : undefined,
       )
   const hfSection = separatedSections ? allSections[1 + frame.dcGroupCount] : section
-  if (!hfSection) throw invalidInput('JPEG XL VarDCT HF global section is missing')
+  if (!hfSection) throw invalidJpegXlInput('VarDCT HF global section is missing')
   const hfGlobal = decodeJpegXlJpegHfGlobal(
     hfSection,
     {
@@ -4357,7 +4355,7 @@ const decodeJpegXlDct8Steps = function* (
       const acSection = separatedSections
         ? allSections[2 + frame.dcGroupCount + passIndex * groupCount + groupId]
         : section
-      if (!pass || !acSection) throw invalidInput('JPEG XL VarDCT pass group is missing')
+      if (!pass || !acSection) throw invalidJpegXlInput('VarDCT pass group is missing')
       const decoded = decodeJpegXlJpegAcGroup(
         acSection,
         {
@@ -4383,7 +4381,7 @@ const decodeJpegXlDct8Steps = function* (
           2 + frame.dcGroupCount + passIndex * groupCount + groupId,
         )
       ) {
-        if (!groupedAlphaPlanes) throw invalidInput('JPEG XL grouped alpha state is missing')
+        if (!groupedAlphaPlanes) throw invalidJpegXlInput('grouped alpha state is missing')
         groupedAlphaPlanes.decodeGroup(
           acSection,
           decoded.endingBitPosition,
@@ -4409,7 +4407,7 @@ const decodeJpegXlDct8Steps = function* (
         acGroupLease = decodedLease
       }
     }
-    if (!acGroup) throw invalidInput('JPEG XL VarDCT AC group is missing')
+    if (!acGroup) throw invalidJpegXlInput('VarDCT AC group is missing')
     for (let blockY = groupBlockY; blockY < groupBlockY + groupBlockHeight; blockY += 1) {
       for (let blockX = groupBlockX; blockX < groupBlockX + groupBlockWidth; blockX += 1) {
         const blockIndex = blockY * blockWidth + blockX
@@ -4429,7 +4427,7 @@ const decodeJpegXlDct8Steps = function* (
           quantization === undefined ||
           quantization < 1
         ) {
-          throw invalidInput('JPEG XL VarDCT block quantization is invalid')
+          throw invalidJpegXlInput('VarDCT block quantization is invalid')
         }
         if (firstBlock === 0) continue
         if (!supportsJpegXlVarDctStrategy(strategy) || !dequantizationForStrategy) {
@@ -4440,7 +4438,7 @@ const decodeJpegXlDct8Steps = function* (
         const localBlockIndex = (blockY - groupBlockY) * groupBlockWidth + (blockX - groupBlockX)
         const coefficientOffset = acGroup.vardctCoefficientOffsets[localBlockIndex]
         if (coefficientOffset === undefined || coefficientOffset < 0) {
-          throw invalidInput('JPEG XL VarDCT coefficient block is missing')
+          throw invalidJpegXlInput('VarDCT coefficient block is missing')
         }
         const strategyBlockWidth = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
         const strategyBlockHeight = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
@@ -4453,14 +4451,13 @@ const decodeJpegXlDct8Steps = function* (
           const values = blockCoefficients[channel]
           const channelDc = dcSamples[channel]
           if (!coefficients || !dc || !dequantization || !values || !channelDc) {
-            throw invalidInput('JPEG XL VarDCT channel data is missing')
+            throw invalidJpegXlInput('VarDCT channel data is missing')
           }
           values.fill(0, 0, coefficientCount)
           for (let localY = 0; localY < strategyBlockHeight; localY += 1) {
             for (let localX = 0; localX < strategyBlockWidth; localX += 1) {
               const value = dc[(blockY + localY) * blockWidth + blockX + localX]
-              if (value === undefined)
-                throw invalidInput('JPEG XL VarDCT DC coefficient is missing')
+              if (value === undefined) throw invalidJpegXlInput('VarDCT DC coefficient is missing')
               channelDc[localY * strategyBlockWidth + localX] = value
             }
           }
@@ -4491,7 +4488,7 @@ const decodeJpegXlDct8Steps = function* (
               ? dcGroup.colorCorrelationX[colorTileIndex]
               : dcGroup.colorCorrelationB[colorTileIndex]
           if (localMap === undefined) {
-            throw invalidInput('JPEG XL VarDCT color-correlation tile is missing')
+            throw invalidJpegXlInput('VarDCT color-correlation tile is missing')
           }
           const ratio = correlationRatio(lfGlobal.colorCorrelation, channel, localMap)
           for (let position = 0; position < coefficientCount; position += 1) {
@@ -4504,7 +4501,7 @@ const decodeJpegXlDct8Steps = function* (
           const channelDc = dcSamples[channel]
           const plane = planes[channel]
           if (!values || !channelDc || !plane) {
-            throw invalidInput('JPEG XL VarDCT render plane is missing')
+            throw invalidJpegXlInput('VarDCT render plane is missing')
           }
           populateLowestFrequencies(
             values,
@@ -4586,7 +4583,7 @@ const decodeJpegXlDct8Steps = function* (
     nativeExtraPlanes = groupedAlphaPlanes.finish()
     if (frame.selectedAlphaChannel !== undefined) {
       alphaPlane = nativeExtraPlanes[frame.selectedAlphaChannel]
-      if (!alphaPlane) throw invalidInput('JPEG XL reconstructed alpha plane is missing')
+      if (!alphaPlane) throw invalidJpegXlInput('reconstructed alpha plane is missing')
     }
   }
   if (frame.gaborish) {
@@ -4681,7 +4678,7 @@ const decodeJpegXlDct8Steps = function* (
     const target = alpha ? [...planes, alpha] : planes
     for (const patch of lfGlobal.patches) {
       const reference = references.get(patch.referenceId)
-      if (!reference) throw invalidInput('JPEG XL patch reference is missing')
+      if (!reference) throw invalidJpegXlInput('patch reference is missing')
       if (
         frame.extraChannels.length > 1 &&
         (patch.blendMode >= 4 || patch.blending?.slice(1).some((blend) => blend.mode !== 0))
@@ -4820,7 +4817,7 @@ const decodeJpegXlDct8Steps = function* (
     const first = copied[0]
     const second = copied[1]
     const third = copied[2]
-    if (!first || !second || !third) throw invalidInput('JPEG XL VarDCT DC frame plane is missing')
+    if (!first || !second || !third) throw invalidJpegXlInput('VarDCT DC frame plane is missing')
     const dcPlanes = Object.freeze([first, second, third] as const)
     primaryPlanesLease.release()
     transformScratchLease.release()
@@ -5073,7 +5070,7 @@ const decodeJpegXlDct8Steps = function* (
       }
     }
   } else if (colorUpsampling === 1 && alphaUpsampling === 1) {
-    if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
+    if (!alphaPlane) throw invalidJpegXlInput('VarDCT alpha plane is missing')
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 4
       let planeIndex = y * paddedWidth
@@ -5094,7 +5091,7 @@ const decodeJpegXlDct8Steps = function* (
       }
     }
   } else {
-    if (!alphaPlane) throw invalidInput('JPEG XL VarDCT alpha plane is missing')
+    if (!alphaPlane) throw invalidJpegXlInput('VarDCT alpha plane is missing')
     const alphaFloat = jpegXlAlphaSamples(alphaPlane, frame)
     for (let y = 0; y < frame.height; y += 1) {
       let outputIndex = y * frame.width * 4
@@ -5183,7 +5180,7 @@ const finishJpegXlSteps = (
   try {
     let step = steps.next()
     while (!step.done) step = steps.next()
-    if (!step.value) throw invalidInput('JPEG XL reconstruction ended without pixels')
+    if (!step.value) throw invalidJpegXlInput('reconstruction ended without pixels')
     return step.value
   } catch (error) {
     rollback()
@@ -5206,7 +5203,7 @@ const finishJpegXlStepsCancellable = async (
       throwIfAborted(signal)
       const step = steps.next()
       if (step.done) {
-        if (!step.value) throw invalidInput('JPEG XL reconstruction ended without pixels')
+        if (!step.value) throw invalidJpegXlInput('reconstruction ended without pixels')
         completed = true
         return step.value
       }
@@ -5329,10 +5326,10 @@ export const filterJpegXlModularPlanes = (
   const width = frame.codedWidth,
     height = frame.codedHeight
   const first = input[0]
-  if (!first) throw invalidInput('JPEG XL Modular filter input is missing')
+  if (!first) throw invalidJpegXlInput('Modular filter input is missing')
   const green = frame.colorChannels === 1 ? first : input[1]
   const blue = frame.colorChannels === 1 ? first : input[2]
-  if (!green || !blue) throw invalidInput('JPEG XL Modular filter color planes are missing')
+  if (!green || !blue) throw invalidJpegXlInput('Modular filter color planes are missing')
   const planes = [
     Float32Array.from(first),
     Float32Array.from(green),
@@ -5390,7 +5387,7 @@ export const convertJpegXlModularXybPlanes = (
     yPlane.length !== xPlane.length ||
     yPlane.length !== bPlane.length
   )
-    throw invalidInput('JPEG XL Modular XYB planes have inconsistent dimensions')
+    throw invalidJpegXlInput('Modular XYB planes have inconsistent dimensions')
   const red = new Float64Array(yPlane.length),
     green = new Float64Array(yPlane.length),
     blue = new Float64Array(yPlane.length)
@@ -5430,7 +5427,7 @@ export const upsampleJpegXlNativePlane = (
   signal?: AbortSignal,
 ): Float64Array => {
   if (factor !== 1 && factor !== 2 && factor !== 4 && factor !== 8)
-    throw invalidInput('JPEG XL native upsampling factor is invalid')
+    throw invalidJpegXlInput('native upsampling factor is invalid')
   if (factor === 1) return plane
   const input = Float32Array.from(plane)
   const output = new Float64Array(outputWidth * outputHeight)
@@ -5466,7 +5463,7 @@ export const applyJpegXlModularFeatures = (
     second = planes[1],
     third = planes[2]
   if (!first || !second || !third)
-    throw invalidInput('JPEG XL synthetic features require three color planes')
+    throw invalidJpegXlInput('synthetic features require three color planes')
   throwIfAborted(signal)
   const color = [
     Float32Array.from(first),

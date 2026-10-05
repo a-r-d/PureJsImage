@@ -1,0 +1,215 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "cb91695b112d750b28036ecacc026273b0f2721f1b83a3cab36d8cc1c0aad4e8",
+  "implementationDirty": true,
+  "date": "2026-10-02T21:29:30.844Z",
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-atlas-147.ts",
+      "sha256": "584623a3148df09db7085f8476668aa30490ee8cb03902954365df2ef891db20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-atlas-147.ts",
+      "sha256": "103f1bc6fd0c9a3a2bb9e9b936497d4a0c7d4ca2bde2f04fd8bd4ea7eef10652"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/baseline/jpegxl-modular-encode.ts",
+      "sha256": "30ef0b3f223ccd56839f81880635d9a41d0cec9fd79d5868baa06336c66b3b23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/candidate/jpegxl-modular-encode.ts",
+      "sha256": "ecf6d85995fe01067d492f93d8aae84401c9d61b278527aecd8bc0e318384351"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/atlas-147/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "baselineReport": {
+    "path": "benchmark/jpegxl/comparison/results/parity-current-effort7-public.json",
+    "sha256": "d6f4f1ad22fd3a38c3737221b356d64239a81b59807edd9fbb802a21371974b6"
+  },
+  "policy": "Copied first-party modules isolate skyline atlas placement at unchanged width/dictionary/entropy/blend policy. Full independent native/Rust samples must remain exact. Complete output bytes decide the control; it is not a production or speed claim.",
+  "results": [
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "baseline",
+      "bytes": 21887,
+      "baselineBytes": 21887,
+      "encodedSha256": "90246f3edbef26caa0ed05e79e6db056601692dccdf172d9e25a26fb345433bf",
+      "unchanged": null,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5052-diagnostic-baseline.jxl",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "elapsedMs": 54555.586467,
+      "ownedPeak": 37056991,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "candidate",
+      "bytes": 21826,
+      "baselineBytes": 21887,
+      "encodedSha256": "16a7f5c23504b7a48d25973dd7532600a16d9d091f4c7aec68886d4555d1a8a3",
+      "unchanged": false,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5052-diagnostic-candidate.jxl",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "elapsedMs": 53873.69981400001,
+      "ownedPeak": 37049810,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "bytes": 46036,
+      "baselineBytes": 46036,
+      "encodedSha256": "a695daca77d227d0722d21d286ef3be6ee04618b919a40d223550c9ebbf321ea",
+      "unchanged": null,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5034-diagnostic-baseline.jxl",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "elapsedMs": 117445.192646,
+      "ownedPeak": 173343891,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "candidate",
+      "bytes": 46020,
+      "baselineBytes": 46036,
+      "encodedSha256": "01dff5403b94a3680c8b063f8b3fb315c6f132d5a59774a23c7b889feb7721bf",
+      "unchanged": false,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5034-diagnostic-candidate.jxl",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "elapsedMs": 115379.12900100002,
+      "ownedPeak": 173340289,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "baseline",
+      "bytes": 22384,
+      "baselineBytes": 22384,
+      "encodedSha256": "04070a2ed9e55def05b6e7763d8d6a298a258568ec69ed0160fe0ca5f428e3f0",
+      "unchanged": null,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5334-diagnostic-baseline.jxl",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "elapsedMs": 91230.592718,
+      "ownedPeak": 131440162,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "candidate",
+      "bytes": 22357,
+      "baselineBytes": 22384,
+      "encodedSha256": "7a09999f0461c4a877b3d4bbe82e0ef01fd9fe5f1079d0d1ed89197203fa49c3",
+      "unchanged": false,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5334-diagnostic-candidate.jxl",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "elapsedMs": 91301.41130999994,
+      "ownedPeak": 131434641,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "baseline",
+      "bytes": 134669,
+      "baselineBytes": 134669,
+      "encodedSha256": "0a8bb1c7efc59a193f2e2ce304f9a920249cbb492c191673f1d0d5932a15ef89",
+      "unchanged": null,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5032-diagnostic-baseline.jxl",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "elapsedMs": 55314.366978000035,
+      "ownedPeak": 171369927,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "candidate",
+      "bytes": 134615,
+      "baselineBytes": 134669,
+      "encodedSha256": "8df408e99a3712a005bb5bdec3e587bab7325b24a2d4a7b3cbfb264bf5d2cf43",
+      "unchanged": false,
+      "artifact": ".tmp/jpegxl-comparison-v1/atlas-147/output/im26-5032-diagnostic-candidate.jxl",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "elapsedMs": 55470.37905700004,
+      "ownedPeak": 171355834,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    }
+  ]
+}

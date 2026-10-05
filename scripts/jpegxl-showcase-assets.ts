@@ -19,11 +19,41 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
   for (const name of [
     'website-data.json',
     'REPORT.md',
+    'PARITY.md',
+    'DC-MODELS.md',
+    'FILTER-AC.md',
+    'LOSSLESS-REPEATS.md',
+    'LOSSLESS-SPATIAL.md',
+    'LOSSLESS-RCT.md',
+    'DENSE-TRAINING.md',
+    'GROUP-SEARCH.md',
+    'FRONTIER-SAMPLING.md',
     'survey.json',
     'subjects.json',
     'fixtures.json',
   ])
     await copyFile(`benchmark/jpegxl/comparison/${name}`, join(evidence, name))
+  for (const name of [
+    'parity-funded-sampling-effort1-public.json',
+    'parity-funded-sampling-effort7-public.json',
+    'quality-funded-sampling-public.json',
+    'quality-photo-extension.json',
+    'quality-photo-frontier-extension.json',
+    'dc-ac-kernel-production-controls.json',
+    'filter-ac-production-controls.json',
+    'lossless-repeat-production-controls.json',
+    'lossless-spatial-production-controls.json',
+    'lossless-rct-production-controls.json',
+    'lossless-dense-training-production-controls.json',
+    'lossless-group-search-production-controls.json',
+    'parity-cache-groups-effort1-public.json',
+    'parity-cache-groups-effort7-public.json',
+    'quality-cache-groups-public.json',
+    'parity-tree-entropy-effort1-public.json',
+    'parity-tree-entropy-effort7-public.json',
+    'quality-tree-entropy-public.json',
+  ])
+    await copyFile(`benchmark/jpegxl/comparison/results/${name}`, join(evidence, name))
   for (const value of report.sourceReports) {
     if (
       typeof value !== 'object' ||

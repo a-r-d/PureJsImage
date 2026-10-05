@@ -1,0 +1,4461 @@
+{
+  "schemaVersion": 1,
+  "policy": "Effort-7 exact VarDCT alpha gains from a left predictor, retaining all previously qualified complete-bit candidates. Native and public controls require unchanged complete independent decoded grids. The browser diagnostic records a pre-existing one-level RGB difference only under zero alpha, with identical bytes, visible color and exact alpha.",
+  "publicBefore": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "implementationDirty": true,
+    "policy": "Public alpha entropy comparison; exact alpha and unchanged decoded colors in both pinned independent decoders.",
+    "harnessSha256": "7e1d4a9544914c488082036aa2fc034ba64e2731ebe621dc4dcdfbf8f4de53a5",
+    "results": [
+      {
+        "key": "alpha_triangles-1-false",
+        "bytes": 65587,
+        "artifactSha256": "25684cbdddeab95500d735e09564bd43c4d1fce26d81851cd23924b412852f7d",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-1-true",
+        "bytes": 66427,
+        "artifactSha256": "78315df5494347c7303b2adafe1d1fbd8f199e53c61408b0512fb2c42431fc9f",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-false",
+        "bytes": 57809,
+        "artifactSha256": "fd2f21d37344a1c8e1df2dab6522354f1e45f48b89e278611085531f9373e420",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-true",
+        "bytes": 57931,
+        "artifactSha256": "5f4853ffc848d98499f6bc247e78b194ffa6c68c9a403f83ed8b0d455528f728",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-false",
+        "bytes": 122141,
+        "artifactSha256": "af5106091b9913f7156d7f5f2ce05da3bbfa4df2501372b12b8666042ef1f443",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-true",
+        "bytes": 137929,
+        "artifactSha256": "b383ae70c567e7081111765003939348006472982961aeffd53f61e4525f6c26",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-false",
+        "bytes": 55631,
+        "artifactSha256": "b320452686ffa1ac640e7bb4ef54acf8e63ef913dd586a3ad4c38d3d942ec67c",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-true",
+        "bytes": 60053,
+        "artifactSha256": "89a03968ce26fcaae89dc94051cde8a10a2bbb7a5fbce22b313716a0fe838cb8",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      }
+    ]
+  },
+  "publicAfter": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "bd139e9c897f5c7277288c54bc7b83388d73886a9c71fa405e436869d2867568",
+    "implementationDirty": true,
+    "policy": "Public alpha entropy comparison; exact alpha and unchanged decoded colors in both pinned independent decoders.",
+    "harnessSha256": "7e1d4a9544914c488082036aa2fc034ba64e2731ebe621dc4dcdfbf8f4de53a5",
+    "results": [
+      {
+        "key": "alpha_triangles-1-false",
+        "bytes": 61133,
+        "artifactSha256": "96d5b95794edf1b138815847f872a14bdfbc0bf4fc3639f6565fd34ca983920d",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-1-true",
+        "bytes": 61973,
+        "artifactSha256": "9f3dba22bdeaebe0d86f99de649fa55e9b551face6415738ed416694074818ef",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-false",
+        "bytes": 53355,
+        "artifactSha256": "ef6a557183e27d76cfc0d784bd54fbc246181662908094b9f8c78da393df13ae",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-true",
+        "bytes": 53477,
+        "artifactSha256": "7cb94c560b1a0d143945e866da7f317c8ecb7c5822ed0156f63a55335a278371",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-false",
+        "bytes": 122141,
+        "artifactSha256": "af5106091b9913f7156d7f5f2ce05da3bbfa4df2501372b12b8666042ef1f443",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-true",
+        "bytes": 137929,
+        "artifactSha256": "b383ae70c567e7081111765003939348006472982961aeffd53f61e4525f6c26",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-false",
+        "bytes": 55631,
+        "artifactSha256": "b320452686ffa1ac640e7bb4ef54acf8e63ef913dd586a3ad4c38d3d942ec67c",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-true",
+        "bytes": 60053,
+        "artifactSha256": "89a03968ce26fcaae89dc94051cde8a10a2bbb7a5fbce22b313716a0fe838cb8",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      }
+    ]
+  },
+  "nativeFixtures": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "bd139e9c897f5c7277288c54bc7b83388d73886a9c71fa405e436869d2867568",
+    "implementationDirty": true,
+    "baselineSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "harnessSha256": "e0cd86d291db2525f5c76020c1882c40eb87c44fed158450d7da89c97fd874ca",
+    "policy": "Native 8/16-bit exact alpha at all five input levels, regular/progressive and edge groups. Both independent normalized float grids must retain their complete baseline hashes.",
+    "results": [
+      {
+        "key": "8-false-false",
+        "depth": 8,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "2a5f4c7b2e443072b64b042cead4777259853b0582113c2c4f5da1be2d477042",
+        "baselineBytes": 334,
+        "currentBytes": 334,
+        "baselineSha256": "1124f675233b8b0b752a596856cabe5ebd1150512a997a7567649a594346ea1c",
+        "currentSha256": "1124f675233b8b0b752a596856cabe5ebd1150512a997a7567649a594346ea1c",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "f2e60af89b0b5865b0bfbb5ee8bbcd15965a16c0fc02962cf6d423a6e1578925",
+              "f2e60af89b0b5865b0bfbb5ee8bbcd15965a16c0fc02962cf6d423a6e1578925"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "92b533170facd1d58a80643a7b99bb130eef9eb8b599f584a0fd85480353dc5c",
+              "92b533170facd1d58a80643a7b99bb130eef9eb8b599f584a0fd85480353dc5c"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-false-true",
+        "depth": 8,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "80cb42f23b24f4c5ef2ea31b4503436ac644b90e55f814bd988a5fcef725e777",
+        "baselineBytes": 415,
+        "currentBytes": 415,
+        "baselineSha256": "00ca8c846f01a9548e025a248dc4b2d87997f8fe8d9bf7a1ebaa53c43460f7f6",
+        "currentSha256": "00ca8c846f01a9548e025a248dc4b2d87997f8fe8d9bf7a1ebaa53c43460f7f6",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "5b5f58fa1339c4d09ec9784dd3b15a3bea7e552b6d3d29726df56e59b20bd013",
+              "5b5f58fa1339c4d09ec9784dd3b15a3bea7e552b6d3d29726df56e59b20bd013"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "4ea7d4f90e9087e821788b5509f7b3e997b38c01b12fb5ede9ef8cffe488c06c",
+              "4ea7d4f90e9087e821788b5509f7b3e997b38c01b12fb5ede9ef8cffe488c06c"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "8-true-false",
+        "depth": 8,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "2a5f4c7b2e443072b64b042cead4777259853b0582113c2c4f5da1be2d477042",
+        "baselineBytes": 694,
+        "currentBytes": 693,
+        "baselineSha256": "9c755864d10377cc957742b1daaa2acddf2a8ffba9a2c48e1bef11339870c714",
+        "currentSha256": "a69136e943b89601e2b955a5c0fbb6837ced7f3b1582630b7171828a6657f0ea",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "b037844edc5f877794db1deaeee04689ed5f823d74e0c74d3eaa5df67f3e1aa5",
+              "b037844edc5f877794db1deaeee04689ed5f823d74e0c74d3eaa5df67f3e1aa5"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "0d479cca85dabceb13eac3ac6ae15b62115b62bd86ca67fca4e4b77e8f074ae7",
+              "0d479cca85dabceb13eac3ac6ae15b62115b62bd86ca67fca4e4b77e8f074ae7"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-true-true",
+        "depth": 8,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "80cb42f23b24f4c5ef2ea31b4503436ac644b90e55f814bd988a5fcef725e777",
+        "baselineBytes": 1000,
+        "currentBytes": 999,
+        "baselineSha256": "64a8eb8f21475e34272fe2dbdcaf1aa2d8771e2258645cf608cafee939a3b6e6",
+        "currentSha256": "2c957f6a26521e1216f50aac85d431ed309b21dc1441ef50cedd9bf53b0cacff",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "09fa23d6b092e541a47e8130a77ee24bf0274dc21aeadc73abece782d5c92dd3",
+              "09fa23d6b092e541a47e8130a77ee24bf0274dc21aeadc73abece782d5c92dd3"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6691d00fbc040ecee701f5a7939094fc91ecdefb5e06502bf272efac6c3c1844",
+              "6691d00fbc040ecee701f5a7939094fc91ecdefb5e06502bf272efac6c3c1844"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-false-false",
+        "depth": 16,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "5949ea901045c03ac45b7c4af9da425df3231643a1dbbb720c129e1801c3ddcb",
+        "baselineBytes": 732,
+        "currentBytes": 732,
+        "baselineSha256": "633a2ae33f43487544b224abca622844f9a22aef3937d634ae4784a264882d04",
+        "currentSha256": "85da733dc62d20e08fad35f64b06f6b9e36a9ff267ec088644c223712ee45544",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10",
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de",
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-false-true",
+        "depth": 16,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "a514a282e5cf8c1763fe2e2f4625bf361a94fd82fe560b48b82a839503e3b490",
+        "baselineBytes": 1021,
+        "currentBytes": 1018,
+        "baselineSha256": "c13ec91a2c4d3c3362cbd0f6908352c81606480fefb5b4e48b8f44d72ec35efa",
+        "currentSha256": "d56e56b5218598e2d1dc5a2e3b450e922a53976241548734f74d985f10c0c322",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617",
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba",
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-true-false",
+        "depth": 16,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "5949ea901045c03ac45b7c4af9da425df3231643a1dbbb720c129e1801c3ddcb",
+        "baselineBytes": 744,
+        "currentBytes": 743,
+        "baselineSha256": "5802e8aac713cb18215d1115820b7e80c65b7041a76c00173aef32a672d17cdc",
+        "currentSha256": "09fbdda40f61bc70b4ded1bcf516e78a65e3ab26c50ff2eaa7e5b5472d4fae97",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10",
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de",
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-true-true",
+        "depth": 16,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "a514a282e5cf8c1763fe2e2f4625bf361a94fd82fe560b48b82a839503e3b490",
+        "baselineBytes": 1028,
+        "currentBytes": 1025,
+        "baselineSha256": "e86b9af52cde415782479b19282d76381f2201b82ef723fd7e197ab382846f7e",
+        "currentSha256": "450d2c5c965acaa476024baf553d297939e2c4685f6f2122a2b9b5e436dd0717",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617",
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba",
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "8-false-false-binary-bands",
+        "depth": 8,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "d1e2137520e896f15f325dc96270a08ba3727eae08a8bfef47ef7c8c9799a1cd",
+        "baselineBytes": 583,
+        "currentBytes": 583,
+        "baselineSha256": "527c7e4516ecac5863cdf68598231ec648ce0b96e8bd74660a3041c2c44088fc",
+        "currentSha256": "527c7e4516ecac5863cdf68598231ec648ce0b96e8bd74660a3041c2c44088fc",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "219ad61e8cbccde97d999e3523646b03b1fe3490a4af619bc289cbc7b50235e1",
+              "219ad61e8cbccde97d999e3523646b03b1fe3490a4af619bc289cbc7b50235e1"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6d2bddb22128a2b0458af1b4e9b13e2fe983492a8ffb1cd5708e46a84b57dd7c",
+              "6d2bddb22128a2b0458af1b4e9b13e2fe983492a8ffb1cd5708e46a84b57dd7c"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-false-true-binary-bands",
+        "depth": 8,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "720eaf753e51f4cb0e668d529730b2b80e7b6b7fcec764b7a0f0f6cb675202fc",
+        "baselineBytes": 721,
+        "currentBytes": 721,
+        "baselineSha256": "f1267f52d76f4b211521c709abdc63c1e7de14e81aa9d6796c13fef88fc3020f",
+        "currentSha256": "f1267f52d76f4b211521c709abdc63c1e7de14e81aa9d6796c13fef88fc3020f",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "c50094d5ad322ad54be4922214573eb94de9f488a01f335467b75e22f827322c",
+              "c50094d5ad322ad54be4922214573eb94de9f488a01f335467b75e22f827322c"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "48ecbab499e205f4718b98a90aff17baea994a03097e6980f7bab99ae7200977",
+              "48ecbab499e205f4718b98a90aff17baea994a03097e6980f7bab99ae7200977"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "8-true-false-binary-bands",
+        "depth": 8,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "d1e2137520e896f15f325dc96270a08ba3727eae08a8bfef47ef7c8c9799a1cd",
+        "baselineBytes": 1377,
+        "currentBytes": 1031,
+        "baselineSha256": "4d835a1398c129448c21fc00617978c07aa5fbcfbbbf921b2c9564a2d12b5b4e",
+        "currentSha256": "a28ef551fd2a1c85fcb56d849242c6aeb734f563696470a2d401c940f515d70c",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1f5e074a38e32b5057c0aa5379e68f01451baa1917d92ce4dd83730e07c0b920",
+              "1f5e074a38e32b5057c0aa5379e68f01451baa1917d92ce4dd83730e07c0b920"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "e5e0f2217065a6a6b2a76cb530d1e376b79fc38ee59de6560001b8b8c08907bd",
+              "e5e0f2217065a6a6b2a76cb530d1e376b79fc38ee59de6560001b8b8c08907bd"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-true-true-binary-bands",
+        "depth": 8,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "720eaf753e51f4cb0e668d529730b2b80e7b6b7fcec764b7a0f0f6cb675202fc",
+        "baselineBytes": 1866,
+        "currentBytes": 1441,
+        "baselineSha256": "cb10b9be625178db84cd9b7e59eba20d91874942a1240a9b76076112c765e588",
+        "currentSha256": "0e6d376c6f8d878122ca6040b1262a6dff965ede6a76545614d9850de4b4409d",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "8d2c98649cc9dcb0932eba1c6afe10a8f5310ca1a0ad2cbb9916518dee4f7bd5",
+              "8d2c98649cc9dcb0932eba1c6afe10a8f5310ca1a0ad2cbb9916518dee4f7bd5"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "3820580c6aafb46de429256cb507b88ab1c416ac97c07c63e20f5ac47bcc247c",
+              "3820580c6aafb46de429256cb507b88ab1c416ac97c07c63e20f5ac47bcc247c"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-false-false-binary-bands",
+        "depth": 16,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "369e0d6e97d3fcdf154ae65f39c26f5e57f9763efc14e7c6b860ccc60d6224bb",
+        "baselineBytes": 1394,
+        "currentBytes": 1049,
+        "baselineSha256": "d8cffb95b28742a54bd433bfd0b0ce9af6ee8932412b5b1e172487523eb11a59",
+        "currentSha256": "e3ac8fbba22e151d4e37f05da88926a1a7de433deab4bf74257d530d584294a1",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "e06ab4e8b74f3cfbecb21512194618824f5d80db7b5f32f96a84416cc4a4444b",
+              "e06ab4e8b74f3cfbecb21512194618824f5d80db7b5f32f96a84416cc4a4444b"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "1b48667a6602ec4b85ff66d50bf5cef72dbe9f3f5352531223dffff46506c85e",
+              "1b48667a6602ec4b85ff66d50bf5cef72dbe9f3f5352531223dffff46506c85e"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-false-true-binary-bands",
+        "depth": 16,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "af56659138742b520940a3088c51681d355aef9c120ad6866c0b7b51071ca84f",
+        "baselineBytes": 1899,
+        "currentBytes": 1474,
+        "baselineSha256": "76910a8328925f70ebec55136b0c7b661650aac8589c2e3220c01551828a6485",
+        "currentSha256": "38826b640585a89037aa82d6e467ae18a890f8d1083f5bab4b401d6073fc2640",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7bb80bafe5f1a4f6671cd52e505359c6f2e0456acb59f08b4631de6b1868834f",
+              "7bb80bafe5f1a4f6671cd52e505359c6f2e0456acb59f08b4631de6b1868834f"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "c61c93e5f257ad9173f32a1fee46afe6db3b568f187eaddc0ec15b00dc67291b",
+              "c61c93e5f257ad9173f32a1fee46afe6db3b568f187eaddc0ec15b00dc67291b"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-true-false-binary-bands",
+        "depth": 16,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "369e0d6e97d3fcdf154ae65f39c26f5e57f9763efc14e7c6b860ccc60d6224bb",
+        "baselineBytes": 1405,
+        "currentBytes": 1060,
+        "baselineSha256": "7b89437375d34676f50cc8d29d6daf59f2c6d841009f0e38d6b6e2ffd73eacb0",
+        "currentSha256": "5bbe771702aa45cc8d8dd500704add71ce1bdae052ad7ee48e66f0e5b501fad2",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "e06ab4e8b74f3cfbecb21512194618824f5d80db7b5f32f96a84416cc4a4444b",
+              "e06ab4e8b74f3cfbecb21512194618824f5d80db7b5f32f96a84416cc4a4444b"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "1b48667a6602ec4b85ff66d50bf5cef72dbe9f3f5352531223dffff46506c85e",
+              "1b48667a6602ec4b85ff66d50bf5cef72dbe9f3f5352531223dffff46506c85e"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-true-true-binary-bands",
+        "depth": 16,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "af56659138742b520940a3088c51681d355aef9c120ad6866c0b7b51071ca84f",
+        "baselineBytes": 1906,
+        "currentBytes": 1481,
+        "baselineSha256": "8bbfe7b775c59debe3d42119bc0a583886e6553d3b0d975b09439f15235882e6",
+        "currentSha256": "d27ca342fd8d7d0d15439c0396377d9edbae23d1715c500ab082af55cfc389c9",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7bb80bafe5f1a4f6671cd52e505359c6f2e0456acb59f08b4631de6b1868834f",
+              "7bb80bafe5f1a4f6671cd52e505359c6f2e0456acb59f08b4631de6b1868834f"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "c61c93e5f257ad9173f32a1fee46afe6db3b568f187eaddc0ec15b00dc67291b",
+              "c61c93e5f257ad9173f32a1fee46afe6db3b568f187eaddc0ec15b00dc67291b"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      }
+    ]
+  },
+  "browserRounding": {
+    "nodeBefore": 3852943528,
+    "nodeCurrent": 3852943528,
+    "browserBefore": 2194127255,
+    "browserCurrent": 2194127255,
+    "maximum": 1,
+    "differences": 315,
+    "alphaDifferences": 0,
+    "visibleColorDifferences": 0,
+    "colorChanges": [["0:0:1", 105], ["1:0:1", 105], ["2:0:1", 105]],
+    "encodedChecksum": 2468210690,
+    "browserEncodedChecksum": 2468210690
+  },
+  "groupCosts": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "implementationDirty": true,
+    "policy": "Group-local alpha entropy controls using first-party Modular writer; no emitted public artifact or quality ranking.",
+    "harnessSha256": "782c0bd5241f6a9119433404826b45e0297eaa4707b4aac75581509d078c53fa",
+    "diagnosticModuleSha256": "ec5f3d414116f44c64e774177f82388359f55be212318137e6565c6f37576b83",
+    "results": [
+      {
+        "minimumGroupBytes": 42254,
+        "modeCoverage": [
+          {
+            "mode": "p0-m1-channel-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p0-m1-gradient-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p1-m1-channel-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p1-m1-gradient-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p2-m1-channel-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p2-m1-gradient-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p5-m1-channel-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p5-m1-gradient-repeat",
+            "groups": 16
+          },
+          {
+            "mode": "p0-m255-channel-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p0-m255-gradient-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p1-m255-channel-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p1-m255-gradient-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p2-m255-channel-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p2-m255-gradient-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p5-m1-learned-plain",
+            "groups": 12
+          },
+          {
+            "mode": "p5-m1-learned-repeat",
+            "groups": 12
+          },
+          {
+            "mode": "p5-m255-channel-repeat",
+            "groups": 14
+          },
+          {
+            "mode": "p5-m255-gradient-repeat",
+            "groups": 14
+          }
+        ],
+        "fixture": "alpha_triangles",
+        "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "totals": [
+          ["p0-m1-channel-repeat", 48198],
+          ["p0-m1-gradient-repeat", 43902],
+          ["p1-m1-channel-repeat", 45738],
+          ["p1-m1-gradient-repeat", 42306],
+          ["p2-m1-channel-repeat", 50870],
+          ["p2-m1-gradient-repeat", 46876],
+          ["p5-m1-channel-repeat", 50906],
+          ["p5-m1-gradient-repeat", 46772],
+          ["p0-m255-channel-repeat", 48194],
+          ["p0-m255-gradient-repeat", 43880],
+          ["p1-m255-channel-repeat", 45686],
+          ["p1-m255-gradient-repeat", 42234],
+          ["p2-m255-channel-repeat", 50784],
+          ["p2-m255-gradient-repeat", 48528],
+          ["p5-m1-learned-plain", 89116],
+          ["p5-m1-learned-repeat", 48104],
+          ["p5-m255-channel-repeat", 50796],
+          ["p5-m255-gradient-repeat", 48432]
+        ],
+        "groups": [
+          {
+            "left": 0,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 22,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 24,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 24,
+                "tokens": 3
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3861,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3533,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3863,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3534,
+                "tokens": 4298
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3710,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3414,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3712,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3412,
+                "tokens": 3699
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4212,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3858,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3978,
+                "tokens": 4252
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4161,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3807,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6704,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 4136,
+                "tokens": 3898
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4156,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3928,
+                "tokens": 4145
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3955,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3579,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3958,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3581,
+                "tokens": 4392
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3703,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3432,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3698,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3430,
+                "tokens": 3661
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4155,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3843,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4149,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3962,
+                "tokens": 4096
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4096,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3767,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 7041,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3848,
+                "tokens": 3689
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4089,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3887,
+                "tokens": 4018
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3861,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3533,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3863,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3534,
+                "tokens": 4298
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3710,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3414,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3712,
+                "tokens": 3699
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3412,
+                "tokens": 3699
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4212,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3858,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4252
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3978,
+                "tokens": 4252
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4161,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3807,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6704,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 4136,
+                "tokens": 3898
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4156,
+                "tokens": 4145
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3928,
+                "tokens": 4145
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 4211,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3827,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 4214,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3830,
+                "tokens": 4818
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3996,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3701,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3996,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3700,
+                "tokens": 4022
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4327,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3994,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4323,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 4115,
+                "tokens": 4298
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4441,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 4088,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 8565,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3997,
+                "tokens": 3801
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4437,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 4212,
+                "tokens": 4445
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3829,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 4214,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3830,
+                "tokens": 4818
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3997,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3705,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3998,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3702,
+                "tokens": 4024
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4325,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3993,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4324,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 4114,
+                "tokens": 4300
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4443,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 4093,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 8535,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3964,
+                "tokens": 3754
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4439,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 4215,
+                "tokens": 4447
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3955,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3579,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3958,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3581,
+                "tokens": 4392
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3703,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3432,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3698,
+                "tokens": 3661
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3430,
+                "tokens": 3661
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4155,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3843,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4149,
+                "tokens": 4096
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3962,
+                "tokens": 4096
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4096,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3767,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 7041,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3848,
+                "tokens": 3689
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4089,
+                "tokens": 4018
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3887,
+                "tokens": 4018
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3860,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3487,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3863,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3489,
+                "tokens": 4298
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3709,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3412,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3710,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3411,
+                "tokens": 3697
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3852,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4209,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3978,
+                "tokens": 4250
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4160,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3801,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6733,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 4234,
+                "tokens": 3891
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4157,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3922,
+                "tokens": 4143
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3954,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3644,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3958,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3645,
+                "tokens": 4392
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3701,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3429,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3699,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3424,
+                "tokens": 3662
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4152,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3832,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4147,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3951,
+                "tokens": 4095
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4097,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3764,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6980,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3873,
+                "tokens": 3730
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4090,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3886,
+                "tokens": 4022
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 22,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 24,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 24,
+                "tokens": 3
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3860,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3487,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3863,
+                "tokens": 4298
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3489,
+                "tokens": 4298
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3709,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3412,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3710,
+                "tokens": 3697
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3411,
+                "tokens": 3697
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3852,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4209,
+                "tokens": 4250
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3978,
+                "tokens": 4250
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4160,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3801,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6733,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 4234,
+                "tokens": 3891
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4157,
+                "tokens": 4143
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3922,
+                "tokens": 4143
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 4210,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3829,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 4214,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3830,
+                "tokens": 4818
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3997,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3705,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3998,
+                "tokens": 4024
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3702,
+                "tokens": 4024
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4325,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3993,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4324,
+                "tokens": 4300
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 4114,
+                "tokens": 4300
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4443,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 4093,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 8535,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3964,
+                "tokens": 3754
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4439,
+                "tokens": 4447
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 4215,
+                "tokens": 4447
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 4211,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3827,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 4214,
+                "tokens": 4818
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3830,
+                "tokens": 4818
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3996,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3701,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3996,
+                "tokens": 4022
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3700,
+                "tokens": 4022
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4327,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3994,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4323,
+                "tokens": 4298
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 4115,
+                "tokens": 4298
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4441,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 4088,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 8565,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3997,
+                "tokens": 3801
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4437,
+                "tokens": 4445
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 4212,
+                "tokens": 4445
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 3954,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 3644,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 3958,
+                "tokens": 4392
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 3645,
+                "tokens": 4392
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 3701,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 3429,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 3699,
+                "tokens": 3662
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 3424,
+                "tokens": 3662
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 4152,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 3832,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 4147,
+                "tokens": 4095
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 3951,
+                "tokens": 4095
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 4097,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 3764,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m1-learned-plain",
+                "bytes": 6980,
+                "tokens": 65536
+              },
+              {
+                "mode": "p5-m1-learned-repeat",
+                "bytes": 3873,
+                "tokens": 3730
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 4090,
+                "tokens": 4022
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 3886,
+                "tokens": 4022
+              }
+            ]
+          }
+        ],
+        "peakOwnedBytes": 4617070,
+        "liveBytes": 0
+      },
+      {
+        "minimumGroupBytes": 624,
+        "modeCoverage": [
+          {
+            "mode": "p0-m1-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p0-m1-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p0-m255-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p0-m255-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p1-m1-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p1-m1-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p1-m255-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p1-m255-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p2-m1-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p2-m1-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p2-m255-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p2-m255-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p5-m1-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p5-m1-gradient-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p5-m255-channel-repeat",
+            "groups": 24
+          },
+          {
+            "mode": "p5-m255-gradient-repeat",
+            "groups": 24
+          }
+        ],
+        "fixture": "sunset_logo",
+        "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+        "totals": [
+          ["p0-m1-channel-repeat", 624],
+          ["p0-m1-gradient-repeat", 648],
+          ["p0-m255-channel-repeat", 648],
+          ["p0-m255-gradient-repeat", 740],
+          ["p1-m1-channel-repeat", 696],
+          ["p1-m1-gradient-repeat", 840],
+          ["p1-m255-channel-repeat", 720],
+          ["p1-m255-gradient-repeat", 908],
+          ["p2-m1-channel-repeat", 716],
+          ["p2-m1-gradient-repeat", 912],
+          ["p2-m255-channel-repeat", 720],
+          ["p2-m255-gradient-repeat", 3984],
+          ["p5-m1-channel-repeat", 720],
+          ["p5-m1-gradient-repeat", 912],
+          ["p5-m255-channel-repeat", 720],
+          ["p5-m255-gradient-repeat", 3984]
+        ],
+        "groups": [
+          {
+            "left": 0,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 0,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 256,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 512,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 768,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 1024,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 31,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 30,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 37,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 30,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 37,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 30,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 37,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 1280,
+            "width": 156,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "p0-m1-channel-repeat",
+                "bytes": 26,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m1-gradient-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-channel-repeat",
+                "bytes": 27,
+                "tokens": 3
+              },
+              {
+                "mode": "p0-m255-gradient-repeat",
+                "bytes": 30,
+                "tokens": 3
+              },
+              {
+                "mode": "p1-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m1-gradient-repeat",
+                "bytes": 35,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p1-m255-gradient-repeat",
+                "bytes": 37,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-channel-repeat",
+                "bytes": 29,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p2-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m1-gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "p5-m255-gradient-repeat",
+                "bytes": 166,
+                "tokens": 4
+              }
+            ]
+          }
+        ],
+        "peakOwnedBytes": 4342009,
+        "liveBytes": 0
+      }
+    ]
+  },
+  "qualityControl": {
+    "count": 91,
+    "unchangedArtifacts": 67,
+    "smallerAlphaArtifacts": 24,
+    "alpha90": 52479.2359920802,
+    "priorAlpha90": 56933.23599392298,
+    "jsquashAlpha90": 70551.57394540362,
+    "reductionFromPriorPercent": 7.823198390336006,
+    "comparedWithJsquashPercent": -25.61578281344753
+  }
+}

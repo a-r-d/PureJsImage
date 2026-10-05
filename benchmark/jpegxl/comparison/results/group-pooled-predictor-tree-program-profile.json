@@ -1,0 +1,5668 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-group-pooled-trees-299.ts",
+      "sha256": "1067127a586388cc1a638ca5c72edcb82ffad2db1e5e26bff7a3d30632a68af7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-group-pooled-profile-299.ts",
+      "sha256": "d18067c34117901444e0aa2cd9051456b027c17ea8a377d38543fe0529f07955"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-group-pooled-profile-299.json",
+      "sha256": "0622f2a46180730d5920fee0d2154471a351a4e48a0b4a8a0f2764983119a93f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/manifest.json",
+      "sha256": "73ff7693bf1a91fa285a79ec94942f484331be27decdf10f8870cbc34c105ccf"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/jpegxl-decode.ts",
+      "sha256": "0cdd056b4607f95b2e83b0ede99f7b3786c15806d95a9fece3ce8babd9669a51"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-group-pooled-predictor-tree-controls-298.json",
+      "sha256": "8bd2347afe5f650afb484dd176524c3459fb30489e724a64c5635c2be5699bdd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl",
+      "sha256": "d8b45d4fb7bd8f31dd800f2dfa9293269749b615210cf772ed47447bff28d7fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "sha256": "42cb2d9e4e1c04e584ca077181ad2741cd8cf0b0201190f2bddc811a184d1edf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl",
+      "sha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "bdc4659434f4fa6b6c0eaaf127019bcbf9323efcc692092d35fc6ac2542ce46b",
+      "bytes": 640822,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 769,
+      "sectionBytes": 640753,
+      "otherSectionBytes": 0,
+      "headerBits": 35954,
+      "afterHeaderBits": 5090070,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "f115af95626ec9e49b371d83437a9f8450ca6d03bd7ca7374c9d12cd81670c36",
+        "contextMapSha256": "78536e279cad98773b94a19cbde49c2ae6fc36543a43667aa9e4fde088bf3832",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 18
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 56
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 11
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 37
+          }
+        ],
+        "sectionBytes": 4486,
+        "headerBits": 35882,
+        "afterHeaderBits": 6,
+        "leaves": 769,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 78
+          },
+          {
+            "predictor": 3,
+            "leaves": 25
+          },
+          {
+            "predictor": 6,
+            "leaves": 307
+          },
+          {
+            "predictor": 5,
+            "leaves": 287
+          },
+          {
+            "predictor": 13,
+            "leaves": 72
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 131
+          },
+          {
+            "property": 9,
+            "nodes": 185
+          },
+          {
+            "property": 10,
+            "nodes": 126
+          },
+          {
+            "property": 12,
+            "nodes": 123
+          },
+          {
+            "property": 11,
+            "nodes": 108
+          },
+          {
+            "property": 13,
+            "nodes": 92
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "f115af95626ec9e49b371d83437a9f8450ca6d03bd7ca7374c9d12cd81670c36",
+          "contextMapSha256": "78536e279cad98773b94a19cbde49c2ae6fc36543a43667aa9e4fde088bf3832",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 56
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 11
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 197404,
+          "headerBits": 17,
+          "afterHeaderBits": 1579215,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 78
+            },
+            {
+              "predictor": 3,
+              "leaves": 25
+            },
+            {
+              "predictor": 6,
+              "leaves": 307
+            },
+            {
+              "predictor": 5,
+              "leaves": 287
+            },
+            {
+              "predictor": 13,
+              "leaves": 72
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 131
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 10,
+              "nodes": 126
+            },
+            {
+              "property": 12,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 108
+            },
+            {
+              "property": 13,
+              "nodes": 92
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "f115af95626ec9e49b371d83437a9f8450ca6d03bd7ca7374c9d12cd81670c36",
+          "contextMapSha256": "78536e279cad98773b94a19cbde49c2ae6fc36543a43667aa9e4fde088bf3832",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 56
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 11
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 198996,
+          "headerBits": 17,
+          "afterHeaderBits": 1591951,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 78
+            },
+            {
+              "predictor": 3,
+              "leaves": 25
+            },
+            {
+              "predictor": 6,
+              "leaves": 307
+            },
+            {
+              "predictor": 5,
+              "leaves": 287
+            },
+            {
+              "predictor": 13,
+              "leaves": 72
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 131
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 10,
+              "nodes": 126
+            },
+            {
+              "property": 12,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 108
+            },
+            {
+              "property": 13,
+              "nodes": 92
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "f115af95626ec9e49b371d83437a9f8450ca6d03bd7ca7374c9d12cd81670c36",
+          "contextMapSha256": "78536e279cad98773b94a19cbde49c2ae6fc36543a43667aa9e4fde088bf3832",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 56
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 11
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 111530,
+          "headerBits": 19,
+          "afterHeaderBits": 892221,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 78
+            },
+            {
+              "predictor": 3,
+              "leaves": 25
+            },
+            {
+              "predictor": 6,
+              "leaves": 307
+            },
+            {
+              "predictor": 5,
+              "leaves": 287
+            },
+            {
+              "predictor": 13,
+              "leaves": 72
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 131
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 10,
+              "nodes": 126
+            },
+            {
+              "property": 12,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 108
+            },
+            {
+              "property": 13,
+              "nodes": 92
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "f115af95626ec9e49b371d83437a9f8450ca6d03bd7ca7374c9d12cd81670c36",
+          "contextMapSha256": "78536e279cad98773b94a19cbde49c2ae6fc36543a43667aa9e4fde088bf3832",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 56
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 11
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 128337,
+          "headerBits": 19,
+          "afterHeaderBits": 1026677,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 78
+            },
+            {
+              "predictor": 3,
+              "leaves": 25
+            },
+            {
+              "predictor": 6,
+              "leaves": 307
+            },
+            {
+              "predictor": 5,
+              "leaves": 287
+            },
+            {
+              "predictor": 13,
+              "leaves": 72
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 131
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 10,
+              "nodes": 126
+            },
+            {
+              "property": 12,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 108
+            },
+            {
+              "property": 13,
+              "nodes": 92
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "pooled",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-pooled.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "bytes": 640597,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 769,
+      "sectionBytes": 640528,
+      "otherSectionBytes": 0,
+      "headerBits": 36486,
+      "afterHeaderBits": 5087738,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+        "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 20
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 52
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 13
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 37
+          }
+        ],
+        "sectionBytes": 4552,
+        "headerBits": 36414,
+        "afterHeaderBits": 2,
+        "leaves": 769,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 79
+          },
+          {
+            "predictor": 3,
+            "leaves": 28
+          },
+          {
+            "predictor": 5,
+            "leaves": 293
+          },
+          {
+            "predictor": 6,
+            "leaves": 292
+          },
+          {
+            "predictor": 13,
+            "leaves": 77
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 127
+          },
+          {
+            "property": 9,
+            "nodes": 173
+          },
+          {
+            "property": 10,
+            "nodes": 122
+          },
+          {
+            "property": 12,
+            "nodes": 117
+          },
+          {
+            "property": 11,
+            "nodes": 104
+          },
+          {
+            "property": 1,
+            "nodes": 35
+          },
+          {
+            "property": 13,
+            "nodes": 87
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 197266,
+          "headerBits": 17,
+          "afterHeaderBits": 1578111,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 199003,
+          "headerBits": 17,
+          "afterHeaderBits": 1592007,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 111565,
+          "headerBits": 19,
+          "afterHeaderBits": 892501,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 128142,
+          "headerBits": 19,
+          "afterHeaderBits": 1025117,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "9f81076a28469f45f1e2d8a46a70edac63bdbdde5987ba72d42622e0ab83cd04",
+      "bytes": 640597,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 769,
+      "sectionBytes": 640528,
+      "otherSectionBytes": 0,
+      "headerBits": 36486,
+      "afterHeaderBits": 5087738,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+        "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 20
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 52
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 13
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 37
+          }
+        ],
+        "sectionBytes": 4552,
+        "headerBits": 36414,
+        "afterHeaderBits": 2,
+        "leaves": 769,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 79
+          },
+          {
+            "predictor": 3,
+            "leaves": 28
+          },
+          {
+            "predictor": 5,
+            "leaves": 293
+          },
+          {
+            "predictor": 6,
+            "leaves": 292
+          },
+          {
+            "predictor": 13,
+            "leaves": 77
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 127
+          },
+          {
+            "property": 9,
+            "nodes": 173
+          },
+          {
+            "property": 10,
+            "nodes": 122
+          },
+          {
+            "property": 12,
+            "nodes": 117
+          },
+          {
+            "property": 11,
+            "nodes": 104
+          },
+          {
+            "property": 1,
+            "nodes": 35
+          },
+          {
+            "property": 13,
+            "nodes": 87
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 197266,
+          "headerBits": 17,
+          "afterHeaderBits": 1578111,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 199003,
+          "headerBits": 17,
+          "afterHeaderBits": 1592007,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 111565,
+          "headerBits": 19,
+          "afterHeaderBits": 892501,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "9b23045cb52cbc1cc4a3d03972f439982f0dbc60a03fa624776bf37dd5b62809",
+          "contextMapSha256": "8036593d9f2c181d1809c7a0ca3db22ca5e397f8990846e604355341706fd9d5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 20
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 52
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 13
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 37
+            }
+          ],
+          "sectionBytes": 128142,
+          "headerBits": 19,
+          "afterHeaderBits": 1025117,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 79
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 293
+            },
+            {
+              "predictor": 6,
+              "leaves": 292
+            },
+            {
+              "predictor": 13,
+              "leaves": 77
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 127
+            },
+            {
+              "property": 9,
+              "nodes": 173
+            },
+            {
+              "property": 10,
+              "nodes": 122
+            },
+            {
+              "property": 12,
+              "nodes": 117
+            },
+            {
+              "property": 11,
+              "nodes": 104
+            },
+            {
+              "property": 1,
+              "nodes": 35
+            },
+            {
+              "property": 13,
+              "nodes": 87
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 871,
+      "sectionBytes": 614310,
+      "otherSectionBytes": 0,
+      "headerBits": 34193,
+      "afterHeaderBits": 4880287,
+      "globalProgram": {
+        "rootProperty": 1,
+        "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+        "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 15
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 51
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 25
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 18
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          }
+        ],
+        "sectionBytes": 4266,
+        "headerBits": 34125,
+        "afterHeaderBits": 3,
+        "leaves": 871,
+        "models": 113,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 4
+          },
+          {
+            "predictor": 6,
+            "leaves": 502
+          },
+          {
+            "predictor": 13,
+            "leaves": 38
+          },
+          {
+            "predictor": 5,
+            "leaves": 286
+          },
+          {
+            "predictor": 3,
+            "leaves": 41
+          }
+        ],
+        "properties": [
+          {
+            "property": 1,
+            "nodes": 3
+          },
+          {
+            "property": 0,
+            "nodes": 12
+          },
+          {
+            "property": 15,
+            "nodes": 180
+          },
+          {
+            "property": 9,
+            "nodes": 190
+          },
+          {
+            "property": 11,
+            "nodes": 157
+          },
+          {
+            "property": 10,
+            "nodes": 146
+          },
+          {
+            "property": 12,
+            "nodes": 100
+          },
+          {
+            "property": 13,
+            "nodes": 82
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 150880,
+          "headerBits": 17,
+          "afterHeaderBits": 1207023,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 137313,
+          "headerBits": 17,
+          "afterHeaderBits": 1098487,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 180221,
+          "headerBits": 17,
+          "afterHeaderBits": 1441751,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 141630,
+          "headerBits": 17,
+          "afterHeaderBits": 1133023,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "pooled",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-pooled.jxl",
+      "sha256": "d8b45d4fb7bd8f31dd800f2dfa9293269749b615210cf772ed47447bff28d7fb",
+      "bytes": 615952,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 769,
+      "sectionBytes": 615883,
+      "otherSectionBytes": 0,
+      "headerBits": 34079,
+      "afterHeaderBits": 4892985,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "072646872bdd2ab1c779279e26e77e22c42c40d06a20ef6a756a066b0aa8fa13",
+        "contextMapSha256": "1c1272f80f586858c2d342dcdd19ac7f9fedc218e75ae3536f5bdcacffbe7b43",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 15
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 63
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 14
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 27
+          }
+        ],
+        "sectionBytes": 4252,
+        "headerBits": 34011,
+        "afterHeaderBits": 5,
+        "leaves": 769,
+        "models": 123,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          },
+          {
+            "predictor": 3,
+            "leaves": 77
+          },
+          {
+            "predictor": 5,
+            "leaves": 198
+          },
+          {
+            "predictor": 6,
+            "leaves": 411
+          },
+          {
+            "predictor": 13,
+            "leaves": 82
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 100
+          },
+          {
+            "property": 9,
+            "nodes": 185
+          },
+          {
+            "property": 1,
+            "nodes": 55
+          },
+          {
+            "property": 10,
+            "nodes": 123
+          },
+          {
+            "property": 11,
+            "nodes": 117
+          },
+          {
+            "property": 13,
+            "nodes": 83
+          },
+          {
+            "property": 12,
+            "nodes": 102
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "072646872bdd2ab1c779279e26e77e22c42c40d06a20ef6a756a066b0aa8fa13",
+          "contextMapSha256": "1c1272f80f586858c2d342dcdd19ac7f9fedc218e75ae3536f5bdcacffbe7b43",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 63
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            }
+          ],
+          "sectionBytes": 150913,
+          "headerBits": 17,
+          "afterHeaderBits": 1207287,
+          "leaves": 769,
+          "models": 123,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 198
+            },
+            {
+              "predictor": 6,
+              "leaves": 411
+            },
+            {
+              "predictor": 13,
+              "leaves": 82
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 1,
+              "nodes": 55
+            },
+            {
+              "property": 10,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 117
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            },
+            {
+              "property": 12,
+              "nodes": 102
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "072646872bdd2ab1c779279e26e77e22c42c40d06a20ef6a756a066b0aa8fa13",
+          "contextMapSha256": "1c1272f80f586858c2d342dcdd19ac7f9fedc218e75ae3536f5bdcacffbe7b43",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 63
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            }
+          ],
+          "sectionBytes": 136849,
+          "headerBits": 17,
+          "afterHeaderBits": 1094775,
+          "leaves": 769,
+          "models": 123,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 198
+            },
+            {
+              "predictor": 6,
+              "leaves": 411
+            },
+            {
+              "predictor": 13,
+              "leaves": 82
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 1,
+              "nodes": 55
+            },
+            {
+              "property": 10,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 117
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            },
+            {
+              "property": 12,
+              "nodes": 102
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "072646872bdd2ab1c779279e26e77e22c42c40d06a20ef6a756a066b0aa8fa13",
+          "contextMapSha256": "1c1272f80f586858c2d342dcdd19ac7f9fedc218e75ae3536f5bdcacffbe7b43",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 63
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            }
+          ],
+          "sectionBytes": 180922,
+          "headerBits": 17,
+          "afterHeaderBits": 1447359,
+          "leaves": 769,
+          "models": 123,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 198
+            },
+            {
+              "predictor": 6,
+              "leaves": 411
+            },
+            {
+              "predictor": 13,
+              "leaves": 82
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 1,
+              "nodes": 55
+            },
+            {
+              "property": 10,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 117
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            },
+            {
+              "property": 12,
+              "nodes": 102
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "072646872bdd2ab1c779279e26e77e22c42c40d06a20ef6a756a066b0aa8fa13",
+          "contextMapSha256": "1c1272f80f586858c2d342dcdd19ac7f9fedc218e75ae3536f5bdcacffbe7b43",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 63
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            }
+          ],
+          "sectionBytes": 142947,
+          "headerBits": 17,
+          "afterHeaderBits": 1143559,
+          "leaves": 769,
+          "models": 123,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 198
+            },
+            {
+              "predictor": 6,
+              "leaves": 411
+            },
+            {
+              "predictor": 13,
+              "leaves": 82
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 185
+            },
+            {
+              "property": 1,
+              "nodes": 55
+            },
+            {
+              "property": 10,
+              "nodes": 123
+            },
+            {
+              "property": 11,
+              "nodes": 117
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            },
+            {
+              "property": 12,
+              "nodes": 102
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 871,
+      "sectionBytes": 614310,
+      "otherSectionBytes": 0,
+      "headerBits": 34193,
+      "afterHeaderBits": 4880287,
+      "globalProgram": {
+        "rootProperty": 1,
+        "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+        "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 15
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 51
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 25
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 18
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          }
+        ],
+        "sectionBytes": 4266,
+        "headerBits": 34125,
+        "afterHeaderBits": 3,
+        "leaves": 871,
+        "models": 113,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 4
+          },
+          {
+            "predictor": 6,
+            "leaves": 502
+          },
+          {
+            "predictor": 13,
+            "leaves": 38
+          },
+          {
+            "predictor": 5,
+            "leaves": 286
+          },
+          {
+            "predictor": 3,
+            "leaves": 41
+          }
+        ],
+        "properties": [
+          {
+            "property": 1,
+            "nodes": 3
+          },
+          {
+            "property": 0,
+            "nodes": 12
+          },
+          {
+            "property": 15,
+            "nodes": 180
+          },
+          {
+            "property": 9,
+            "nodes": 190
+          },
+          {
+            "property": 11,
+            "nodes": 157
+          },
+          {
+            "property": 10,
+            "nodes": 146
+          },
+          {
+            "property": 12,
+            "nodes": 100
+          },
+          {
+            "property": 13,
+            "nodes": 82
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 150880,
+          "headerBits": 17,
+          "afterHeaderBits": 1207023,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 137313,
+          "headerBits": 17,
+          "afterHeaderBits": 1098487,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 180221,
+          "headerBits": 17,
+          "afterHeaderBits": 1441751,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 13
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "7f6a836c0c0d79e6381036707a62b7007b2ff631d63a13065647f870eb7a4708",
+          "contextMapSha256": "fd19f2665d1d82215efc250d4afc1b921e08fa7982fd29b4d1c9617dae2d7c58",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 15
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 51
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 25
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 18
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            }
+          ],
+          "sectionBytes": 141630,
+          "headerBits": 17,
+          "afterHeaderBits": 1133023,
+          "leaves": 871,
+          "models": 113,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 502
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 286
+            },
+            {
+              "predictor": 3,
+              "leaves": 41
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 180
+            },
+            {
+              "property": 9,
+              "nodes": 190
+            },
+            {
+              "property": 11,
+              "nodes": 157
+            },
+            {
+              "property": 10,
+              "nodes": 146
+            },
+            {
+              "property": 12,
+              "nodes": 100
+            },
+            {
+              "property": 13,
+              "nodes": 82
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 965,
+      "sectionBytes": 619138,
+      "otherSectionBytes": 0,
+      "headerBits": 37037,
+      "afterHeaderBits": 4916067,
+      "globalProgram": {
+        "rootProperty": 1,
+        "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+        "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 18
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 10
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 57
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 30
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 5
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 4621,
+        "headerBits": 36965,
+        "afterHeaderBits": 3,
+        "leaves": 965,
+        "models": 121,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 4
+          },
+          {
+            "predictor": 6,
+            "leaves": 478
+          },
+          {
+            "predictor": 3,
+            "leaves": 77
+          },
+          {
+            "predictor": 5,
+            "leaves": 406
+          }
+        ],
+        "properties": [
+          {
+            "property": 1,
+            "nodes": 3
+          },
+          {
+            "property": 0,
+            "nodes": 12
+          },
+          {
+            "property": 10,
+            "nodes": 161
+          },
+          {
+            "property": 9,
+            "nodes": 199
+          },
+          {
+            "property": 15,
+            "nodes": 172
+          },
+          {
+            "property": 11,
+            "nodes": 222
+          },
+          {
+            "property": 13,
+            "nodes": 86
+          },
+          {
+            "property": 12,
+            "nodes": 109
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 152118,
+          "headerBits": 17,
+          "afterHeaderBits": 1216927,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 138344,
+          "headerBits": 19,
+          "afterHeaderBits": 1106733,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 181205,
+          "headerBits": 19,
+          "afterHeaderBits": 1449621,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 142850,
+          "headerBits": 17,
+          "afterHeaderBits": 1142783,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "subject": "pooled",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "sha256": "42cb2d9e4e1c04e584ca077181ad2741cd8cf0b0201190f2bddc811a184d1edf",
+      "bytes": 626130,
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 769,
+      "sectionBytes": 626061,
+      "otherSectionBytes": 0,
+      "headerBits": 35024,
+      "afterHeaderBits": 4973464,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "47abe7543698279214b804647df53f6807885ffb45f455a058a122f7b3f22ae2",
+        "contextMapSha256": "45d1b0816bf9e0310561fbf0e2452ef3b52182f6ba578089dd8083b06c9a42c4",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 16
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 67
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 27
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 14
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 3
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 4369,
+        "headerBits": 34952,
+        "afterHeaderBits": 0,
+        "leaves": 769,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          },
+          {
+            "predictor": 6,
+            "leaves": 360
+          },
+          {
+            "predictor": 5,
+            "leaves": 240
+          },
+          {
+            "predictor": 3,
+            "leaves": 168
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 104
+          },
+          {
+            "property": 11,
+            "nodes": 111
+          },
+          {
+            "property": 10,
+            "nodes": 100
+          },
+          {
+            "property": 9,
+            "nodes": 164
+          },
+          {
+            "property": 12,
+            "nodes": 111
+          },
+          {
+            "property": 1,
+            "nodes": 92
+          },
+          {
+            "property": 13,
+            "nodes": 83
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "47abe7543698279214b804647df53f6807885ffb45f455a058a122f7b3f22ae2",
+          "contextMapSha256": "45d1b0816bf9e0310561fbf0e2452ef3b52182f6ba578089dd8083b06c9a42c4",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 16
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 67
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 3
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 153768,
+          "headerBits": 17,
+          "afterHeaderBits": 1230127,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 360
+            },
+            {
+              "predictor": 5,
+              "leaves": 240
+            },
+            {
+              "predictor": 3,
+              "leaves": 168
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 104
+            },
+            {
+              "property": 11,
+              "nodes": 111
+            },
+            {
+              "property": 10,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 164
+            },
+            {
+              "property": 12,
+              "nodes": 111
+            },
+            {
+              "property": 1,
+              "nodes": 92
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "47abe7543698279214b804647df53f6807885ffb45f455a058a122f7b3f22ae2",
+          "contextMapSha256": "45d1b0816bf9e0310561fbf0e2452ef3b52182f6ba578089dd8083b06c9a42c4",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 16
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 67
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 3
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 139626,
+          "headerBits": 19,
+          "afterHeaderBits": 1116989,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 360
+            },
+            {
+              "predictor": 5,
+              "leaves": 240
+            },
+            {
+              "predictor": 3,
+              "leaves": 168
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 104
+            },
+            {
+              "property": 11,
+              "nodes": 111
+            },
+            {
+              "property": 10,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 164
+            },
+            {
+              "property": 12,
+              "nodes": 111
+            },
+            {
+              "property": 1,
+              "nodes": 92
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "47abe7543698279214b804647df53f6807885ffb45f455a058a122f7b3f22ae2",
+          "contextMapSha256": "45d1b0816bf9e0310561fbf0e2452ef3b52182f6ba578089dd8083b06c9a42c4",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 16
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 67
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 3
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 183474,
+          "headerBits": 19,
+          "afterHeaderBits": 1467773,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 360
+            },
+            {
+              "predictor": 5,
+              "leaves": 240
+            },
+            {
+              "predictor": 3,
+              "leaves": 168
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 104
+            },
+            {
+              "property": 11,
+              "nodes": 111
+            },
+            {
+              "property": 10,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 164
+            },
+            {
+              "property": 12,
+              "nodes": 111
+            },
+            {
+              "property": 1,
+              "nodes": 92
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "47abe7543698279214b804647df53f6807885ffb45f455a058a122f7b3f22ae2",
+          "contextMapSha256": "45d1b0816bf9e0310561fbf0e2452ef3b52182f6ba578089dd8083b06c9a42c4",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 16
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 67
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 14
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 3
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 144824,
+          "headerBits": 17,
+          "afterHeaderBits": 1158575,
+          "leaves": 769,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 360
+            },
+            {
+              "predictor": 5,
+              "leaves": 240
+            },
+            {
+              "predictor": 3,
+              "leaves": 168
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 104
+            },
+            {
+              "property": 11,
+              "nodes": 111
+            },
+            {
+              "property": 10,
+              "nodes": 100
+            },
+            {
+              "property": 9,
+              "nodes": 164
+            },
+            {
+              "property": 12,
+              "nodes": 111
+            },
+            {
+              "property": 1,
+              "nodes": 92
+            },
+            {
+              "property": 13,
+              "nodes": 83
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "subject": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "outerBytes": 69,
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 4,
+      "uniqueLeaves": 965,
+      "sectionBytes": 619138,
+      "otherSectionBytes": 0,
+      "headerBits": 37037,
+      "afterHeaderBits": 4916067,
+      "globalProgram": {
+        "rootProperty": 1,
+        "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+        "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 18
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 10
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 57
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 30
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 5
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 4621,
+        "headerBits": 36965,
+        "afterHeaderBits": 3,
+        "leaves": 965,
+        "models": 121,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 4
+          },
+          {
+            "predictor": 6,
+            "leaves": 478
+          },
+          {
+            "predictor": 3,
+            "leaves": 77
+          },
+          {
+            "predictor": 5,
+            "leaves": 406
+          }
+        ],
+        "properties": [
+          {
+            "property": 1,
+            "nodes": 3
+          },
+          {
+            "property": 0,
+            "nodes": 12
+          },
+          {
+            "property": 10,
+            "nodes": 161
+          },
+          {
+            "property": 9,
+            "nodes": 199
+          },
+          {
+            "property": 15,
+            "nodes": 172
+          },
+          {
+            "property": 11,
+            "nodes": 222
+          },
+          {
+            "property": 13,
+            "nodes": 86
+          },
+          {
+            "property": 12,
+            "nodes": 109
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 152118,
+          "headerBits": 17,
+          "afterHeaderBits": 1216927,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 138344,
+          "headerBits": 19,
+          "afterHeaderBits": 1106733,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 181205,
+          "headerBits": 19,
+          "afterHeaderBits": 1449621,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 31
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "rootProperty": 1,
+          "nodesSha256": "384a8a09aa14bee0871eec31ee114caabe8de2cac77dcd4a60ba60acb5a2d158",
+          "contextMapSha256": "15beac524352bd3ab9b566f4852f2955e2c3d004d2531798831675ed1253a2f3",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 18
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 10
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 57
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 30
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 5
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 142850,
+          "headerBits": 17,
+          "afterHeaderBits": 1142783,
+          "leaves": 965,
+          "models": 121,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 478
+            },
+            {
+              "predictor": 3,
+              "leaves": 77
+            },
+            {
+              "predictor": 5,
+              "leaves": 406
+            }
+          ],
+          "properties": [
+            {
+              "property": 1,
+              "nodes": 3
+            },
+            {
+              "property": 0,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 161
+            },
+            {
+              "property": 9,
+              "nodes": 199
+            },
+            {
+              "property": 15,
+              "nodes": 172
+            },
+            {
+              "property": 11,
+              "nodes": 222
+            },
+            {
+              "property": 13,
+              "nodes": 86
+            },
+            {
+              "property": 12,
+              "nodes": 109
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "outerBytes": 62,
+      "groupDimension": 512,
+      "groups": 2,
+      "sharedGroups": 2,
+      "uniqueLeaves": 253,
+      "sectionBytes": 227712,
+      "otherSectionBytes": 0,
+      "headerBits": 14270,
+      "afterHeaderBits": 1807426,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+        "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 5
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 27
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 20
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 1780,
+        "headerBits": 14238,
+        "afterHeaderBits": 2,
+        "leaves": 253,
+        "models": 63,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 39
+          },
+          {
+            "predictor": 6,
+            "leaves": 96
+          },
+          {
+            "predictor": 5,
+            "leaves": 69
+          },
+          {
+            "predictor": 13,
+            "leaves": 17
+          },
+          {
+            "predictor": 3,
+            "leaves": 32
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 52
+          },
+          {
+            "property": 9,
+            "nodes": 43
+          },
+          {
+            "property": 10,
+            "nodes": 51
+          },
+          {
+            "property": 11,
+            "nodes": 47
+          },
+          {
+            "property": 12,
+            "nodes": 39
+          },
+          {
+            "property": 13,
+            "nodes": 17
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+          "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 225355,
+          "headerBits": 19,
+          "afterHeaderBits": 1802821,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+          "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 577,
+          "headerBits": 13,
+          "afterHeaderBits": 4603,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 6
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "subject": "pooled",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-pooled.jxl",
+      "sha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4",
+      "bytes": 227778,
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "outerBytes": 62,
+      "groupDimension": 512,
+      "groups": 2,
+      "sharedGroups": 2,
+      "uniqueLeaves": 253,
+      "sectionBytes": 227716,
+      "otherSectionBytes": 0,
+      "headerBits": 14296,
+      "afterHeaderBits": 1807432,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "514af66f9ff83401444e0b32de03a8ebff9860fec314e0eb61685614e50e73a4",
+        "contextMapSha256": "85434896733629e3b2df05bc9b7c2bf9874d7c35d4cecf4bdcb4b489b4b1b60f",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 5
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 27
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 20
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 1783,
+        "headerBits": 14264,
+        "afterHeaderBits": 0,
+        "leaves": 253,
+        "models": 63,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 39
+          },
+          {
+            "predictor": 6,
+            "leaves": 96
+          },
+          {
+            "predictor": 5,
+            "leaves": 69
+          },
+          {
+            "predictor": 13,
+            "leaves": 17
+          },
+          {
+            "predictor": 3,
+            "leaves": 32
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 52
+          },
+          {
+            "property": 9,
+            "nodes": 42
+          },
+          {
+            "property": 10,
+            "nodes": 51
+          },
+          {
+            "property": 11,
+            "nodes": 47
+          },
+          {
+            "property": 12,
+            "nodes": 39
+          },
+          {
+            "property": 13,
+            "nodes": 17
+          },
+          {
+            "property": 1,
+            "nodes": 1
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "514af66f9ff83401444e0b32de03a8ebff9860fec314e0eb61685614e50e73a4",
+          "contextMapSha256": "85434896733629e3b2df05bc9b7c2bf9874d7c35d4cecf4bdcb4b489b4b1b60f",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 225357,
+          "headerBits": 19,
+          "afterHeaderBits": 1802837,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            },
+            {
+              "property": 1,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "514af66f9ff83401444e0b32de03a8ebff9860fec314e0eb61685614e50e73a4",
+          "contextMapSha256": "85434896733629e3b2df05bc9b7c2bf9874d7c35d4cecf4bdcb4b489b4b1b60f",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 576,
+          "headerBits": 13,
+          "afterHeaderBits": 4595,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 6
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            },
+            {
+              "property": 1,
+              "nodes": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "subject": "floor",
+      "artifact": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "outerBytes": 62,
+      "groupDimension": 512,
+      "groups": 2,
+      "sharedGroups": 2,
+      "uniqueLeaves": 253,
+      "sectionBytes": 227712,
+      "otherSectionBytes": 0,
+      "headerBits": 14270,
+      "afterHeaderBits": 1807426,
+      "globalProgram": {
+        "rootProperty": 0,
+        "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+        "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+        "hybridConfigurations": [
+          {
+            "configuration": "4/1/2",
+            "models": 5
+          },
+          {
+            "configuration": "4/2/0",
+            "models": 27
+          },
+          {
+            "configuration": "2/1/0",
+            "models": 6
+          },
+          {
+            "configuration": "3/1/0",
+            "models": 20
+          },
+          {
+            "configuration": "2/0/1",
+            "models": 4
+          },
+          {
+            "configuration": "0/0/0",
+            "models": 1
+          }
+        ],
+        "sectionBytes": 1780,
+        "headerBits": 14238,
+        "afterHeaderBits": 2,
+        "leaves": 253,
+        "models": 63,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 39
+          },
+          {
+            "predictor": 6,
+            "leaves": 96
+          },
+          {
+            "predictor": 5,
+            "leaves": 69
+          },
+          {
+            "predictor": 13,
+            "leaves": 17
+          },
+          {
+            "predictor": 3,
+            "leaves": 32
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 52
+          },
+          {
+            "property": 9,
+            "nodes": 43
+          },
+          {
+            "property": 10,
+            "nodes": 51
+          },
+          {
+            "property": 11,
+            "nodes": 47
+          },
+          {
+            "property": 12,
+            "nodes": 39
+          },
+          {
+            "property": 13,
+            "nodes": 17
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+          "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 225355,
+          "headerBits": 19,
+          "afterHeaderBits": 1802821,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "rootProperty": 0,
+          "nodesSha256": "01a323b171176a0b7344c5dc495b89de773871624ee1626b07a08018ce72c49a",
+          "contextMapSha256": "09aa9b74946f33d01f4bdc05d97ea09020529f0ccd026408a8d7398c3440ebf5",
+          "hybridConfigurations": [
+            {
+              "configuration": "4/1/2",
+              "models": 5
+            },
+            {
+              "configuration": "4/2/0",
+              "models": 27
+            },
+            {
+              "configuration": "2/1/0",
+              "models": 6
+            },
+            {
+              "configuration": "3/1/0",
+              "models": 20
+            },
+            {
+              "configuration": "2/0/1",
+              "models": 4
+            },
+            {
+              "configuration": "0/0/0",
+              "models": 1
+            }
+          ],
+          "sectionBytes": 577,
+          "headerBits": 13,
+          "afterHeaderBits": 4603,
+          "leaves": 253,
+          "models": 63,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 6
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 69
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            },
+            {
+              "predictor": 3,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 52
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "policy": "Read-only complete12file298physical profile with exact274first-party parser. Every local group inherits actual global nodes/code; selected local transforms stay fixed. Raw pooled trees have a common channel root and only legitimate channel/group/spatial/weighted properties within original leaf/model bounds and noLZ/zerooffset/unitmultiplier fields. Actual selected floor programs match exact whole-file choices. All header/remaining/other section bits and outer whole bytes reconcile. No new encode or source/cost/package/full-parity adoption."
+}

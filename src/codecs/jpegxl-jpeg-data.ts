@@ -1,13 +1,13 @@
 import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { JpegCoefficientImage } from './jpeg-coefficients.ts'
-import { walkJpegMarkers, type JpegMarkerSegment } from './jpeg-marker-walk.ts'
-import type { JpegXlLimits } from './jpegxl-limits.ts'
+import { type JpegMarkerSegment, walkJpegMarkers } from './jpeg-marker-walk.ts'
 import type {
   JpegXlJpegHuffmanTable,
   JpegXlJpegReconstructionBlobs,
   JpegXlJpegReconstructionHeader,
   JpegXlJpegScan,
 } from './jpegxl-jpeg-reconstruction.ts'
+import type { JpegXlLimits } from './jpegxl-limits.ts'
 
 export interface ParsedJpegReconstructionData {
   readonly header: JpegXlJpegReconstructionHeader

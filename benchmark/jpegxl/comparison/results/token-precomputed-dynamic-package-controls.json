@@ -1,0 +1,943 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-token-precomputed-dynamic-358.ts",
+      "sha256": "8549c3610bf86eaff259b3dff9f00633f54afe7a396d443a1b21371927a381c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/manifest.json",
+      "sha256": "fbec5b921fea4f1c374bb2044a4985673249d12eb6f038cb9e3addce5e41a6c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/error-proof.json",
+      "sha256": "2aa752ac2aab09036532199b0cb77b452f5a41199483a3acb42ef39a544683a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/template-proof.json",
+      "sha256": "12e4b3410109cf9d64e8ed8d1ad32a99c5cc1be7f2d5d882dbe17b0ef1412608"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-token-precomputed-dynamic-358.ts",
+      "sha256": "c952c619b4ea80bd9ac45bd56869e45a299c87eab0d889d7dfdaa8c359cce233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-token-precomputed-errors-358.ts",
+      "sha256": "370d6c00bf9f4d84ee1a4c72c3c243098ee9add5f9db77943c161b970e8d6734"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-token-template-errors-358.ts",
+      "sha256": "baa3fe7f264c7987abea0b444023bd6a780a7b1372a9754e2a4f24469c7eebbc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-precomputed-dynamic-358.json",
+      "sha256": "67822f315c0406c9bef58ca69520bb2d0cd06122de1433148663447efd9f0396"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-package-controls.json",
+      "sha256": "046f7bd8eaf76269e3dbf50b180b3994862b01d799e24a3c26e5de7b1823c4b1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-controls.json",
+      "sha256": "000574417fa150ae46f254dcda6bdc2bef4e7a4d075591a673639075f96d57e4"
+    },
+    {
+      "path": "scripts/bundle-size.ts",
+      "sha256": "76e9975739b6880e44afda36378a862f926aabe3cf5d2068fe2074a7bd56c32c"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "9df3b1243a9ab8167d74153a696abbf3c2ac18582b8458cad2db1a36fdb06d81"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "ac95adc921bd39be25fec1b7129de724760862fe932505915c8e357f04760ef8"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/error-prefix-funding-package-controls-retry.json",
+      "sha256": "f121dce0b878860034988b798c0bdfa75aa29feeec69e426bfee2bf0087722bc"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-token-precomputed-errors-358.ts",
+      "sha256": "370d6c00bf9f4d84ee1a4c72c3c243098ee9add5f9db77943c161b970e8d6734"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/manifest.json",
+      "sha256": "56d909cc33115ea91da149b4955ace83400c30afba044509f81e66a065c726bc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-bitstream.ts",
+      "sha256": "519b1c551d363b29f0245afce00d623434b5438bd1b61ca27f5beb56c97284f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-bitstream.ts",
+      "sha256": "519b1c551d363b29f0245afce00d623434b5438bd1b61ca27f5beb56c97284f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-chroma.ts",
+      "sha256": "7e39bdd9f08a63c717125a887849a51412e1400f35947ecf0bef07f90f8a86a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-chroma.ts",
+      "sha256": "7e39bdd9f08a63c717125a887849a51412e1400f35947ecf0bef07f90f8a86a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-color.ts",
+      "sha256": "112368b04896174606f4048a2b7ec9f93b2f71e4e3e3cfafd19b277423b9345d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-color.ts",
+      "sha256": "112368b04896174606f4048a2b7ec9f93b2f71e4e3e3cfafd19b277423b9345d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-container.ts",
+      "sha256": "5e7bda1f9acba6405174297eded3ce1fd26d06cfced306188cd1a5320308ea8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-container.ts",
+      "sha256": "5e7bda1f9acba6405174297eded3ce1fd26d06cfced306188cd1a5320308ea8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-decode.ts",
+      "sha256": "e88660443a846b7236900743800ebc60c6accc47eb7c903d64472bbd541f3bef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-decode.ts",
+      "sha256": "e88660443a846b7236900743800ebc60c6accc47eb7c903d64472bbd541f3bef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-encoder-memory.ts",
+      "sha256": "2c7f858f5b147e57b19593001be9999972b674873b49092eb9e70377038bc121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-encoder-memory.ts",
+      "sha256": "2c7f858f5b147e57b19593001be9999972b674873b49092eb9e70377038bc121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-exif.ts",
+      "sha256": "86017ef660fb9ef8d63c5c2032f8fc96dd198ef1fa938be38b9050ce684c6684"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-exif.ts",
+      "sha256": "86017ef660fb9ef8d63c5c2032f8fc96dd198ef1fa938be38b9050ce684c6684"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-float-color.ts",
+      "sha256": "79986d1a3e51e3084bcfe4260883da1a055e0a6ed97c629872ac01dcb7acd593"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-float-color.ts",
+      "sha256": "79986d1a3e51e3084bcfe4260883da1a055e0a6ed97c629872ac01dcb7acd593"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-float-encode.ts",
+      "sha256": "71aabffd2c8f83bc8fd438f9a27af95fef4d6a0c2c6045e55cf8691096224783"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-float-encode.ts",
+      "sha256": "71aabffd2c8f83bc8fd438f9a27af95fef4d6a0c2c6045e55cf8691096224783"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-frame-features.ts",
+      "sha256": "cb24fa66ce67ac848117e28983e477f2df7ac2c02afdeaa9074d0f4d42e9e46e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-frame-features.ts",
+      "sha256": "cb24fa66ce67ac848117e28983e477f2df7ac2c02afdeaa9074d0f4d42e9e46e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-icc.ts",
+      "sha256": "1d8e4350f199580598ede4b8b2ad470b80e8c65d9ab27e136bfddb7400e17b97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-icc.ts",
+      "sha256": "1d8e4350f199580598ede4b8b2ad470b80e8c65d9ab27e136bfddb7400e17b97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-inspect.ts",
+      "sha256": "9b3bd26f226fa2b6e937f0bfcc0359b8a7db6733e863615816457cd7cbb37b68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-inspect.ts",
+      "sha256": "9b3bd26f226fa2b6e937f0bfcc0359b8a7db6733e863615816457cd7cbb37b68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-data.ts",
+      "sha256": "9c31d10d979a6318ca2c28c9d1aa12b3944860292afe515a973ac1c741261466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-data.ts",
+      "sha256": "9c31d10d979a6318ca2c28c9d1aa12b3944860292afe515a973ac1c741261466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-encode.ts",
+      "sha256": "d52c25d9b0aa50b9ac3c124cd09cefb3be1d1b746462e5a14e81a15676a3db45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-encode.ts",
+      "sha256": "d52c25d9b0aa50b9ac3c124cd09cefb3be1d1b746462e5a14e81a15676a3db45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-pixels.ts",
+      "sha256": "c80c4cea7d96fc10c7ad1322db78363530a7e71efd1f77eedb7ca783367ca6d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-pixels.ts",
+      "sha256": "c80c4cea7d96fc10c7ad1322db78363530a7e71efd1f77eedb7ca783367ca6d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "7b203c5e876a5d795cbe6dc42be54ae6bba37aacf7af82f66a11e528101217e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "7b203c5e876a5d795cbe6dc42be54ae6bba37aacf7af82f66a11e528101217e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "f22e3d6f6ddf287e972eadf2628e93f955608f73a0058cb815b25df1a0702eb3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "f22e3d6f6ddf287e972eadf2628e93f955608f73a0058cb815b25df1a0702eb3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3b30b2dab25e7cd5285bd3984da515c89c1bee83464ae75641127cc48e8e65e3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3b30b2dab25e7cd5285bd3984da515c89c1bee83464ae75641127cc48e8e65e3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-jpeg-transcode.ts",
+      "sha256": "b8125035a753565dda6fe3be895c7ebfd63baa9c64c6d5601081445f9678e2af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-jpeg-transcode.ts",
+      "sha256": "b8125035a753565dda6fe3be895c7ebfd63baa9c64c6d5601081445f9678e2af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-level10.ts",
+      "sha256": "c0d4bb7c28c396161ce820cf2790bc2e8656fd9dec432c22c1ba3929f3d45a29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-level10.ts",
+      "sha256": "c0d4bb7c28c396161ce820cf2790bc2e8656fd9dec432c22c1ba3929f3d45a29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-modular-encode.ts",
+      "sha256": "81a85421790d5a944d7674cbfca98c5aba7974db22d119774ad7ef66f241d1e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-modular-encode.ts",
+      "sha256": "81a85421790d5a944d7674cbfca98c5aba7974db22d119774ad7ef66f241d1e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-modular-rct.ts",
+      "sha256": "fc6a5ec304ed98852ead53ccdbad26989650248892c3b24c397289942dcf1dd8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-modular-rct.ts",
+      "sha256": "fc6a5ec304ed98852ead53ccdbad26989650248892c3b24c397289942dcf1dd8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-modular-tree.ts",
+      "sha256": "cee9f1cdaa6e00fce6bf9dd2a0882029178ec0c8fc95f6c4a944368d8980de72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-modular-tree.ts",
+      "sha256": "cee9f1cdaa6e00fce6bf9dd2a0882029178ec0c8fc95f6c4a944368d8980de72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-native-encode.ts",
+      "sha256": "8b47344fc58144294443953e358c3c5340dfccde0a3a853935299c99a5dcc08d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-native-encode.ts",
+      "sha256": "8b47344fc58144294443953e358c3c5340dfccde0a3a853935299c99a5dcc08d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-native-pixel.ts",
+      "sha256": "ae68ef145e309d23132d508a86cc48e7ca909cf8af2adef34bec31c93a53f0a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-native-pixel.ts",
+      "sha256": "ae68ef145e309d23132d508a86cc48e7ca909cf8af2adef34bec31c93a53f0a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-native-samples.ts",
+      "sha256": "13be13d998c80af21ae42a8de318d555ab4c4890daad2392a4421bd0e57e16b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-native-samples.ts",
+      "sha256": "13be13d998c80af21ae42a8de318d555ab4c4890daad2392a4421bd0e57e16b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-patch-blend.ts",
+      "sha256": "8591f31af1389a5654c2591056d5b4dcde17b9d0a611f659cafbb511d0082d4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-patch-blend.ts",
+      "sha256": "8591f31af1389a5654c2591056d5b4dcde17b9d0a611f659cafbb511d0082d4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-progressive-plan.ts",
+      "sha256": "9566150cc188628c23be4e04c1872ca8b54c0026070383aac15a1f2f169abab3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-progressive-plan.ts",
+      "sha256": "9566150cc188628c23be4e04c1872ca8b54c0026070383aac15a1f2f169abab3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-sequence-encode.ts",
+      "sha256": "5685010c532cb4912bd40d58a225211efb7d6b3050877b8267bbd5b345ebb46d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-sequence-encode.ts",
+      "sha256": "5685010c532cb4912bd40d58a225211efb7d6b3050877b8267bbd5b345ebb46d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-sequence.ts",
+      "sha256": "0d85b27c65f14c60d6041bb02beb6b84326e7f9cbea31bdc2b18db9d2c6389c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-sequence.ts",
+      "sha256": "0d85b27c65f14c60d6041bb02beb6b84326e7f9cbea31bdc2b18db9d2c6389c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-session.ts",
+      "sha256": "70d0920f27f20383432895853cf58a56f755e7cdd9283c60ad08c2704ed9162a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-session.ts",
+      "sha256": "70d0920f27f20383432895853cf58a56f755e7cdd9283c60ad08c2704ed9162a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-splines.ts",
+      "sha256": "37688f5272892d2d7e036e817bbae5362eb71bdfcd184339bce6457c73664c95"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-splines.ts",
+      "sha256": "37688f5272892d2d7e036e817bbae5362eb71bdfcd184339bce6457c73664c95"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-encode.ts",
+      "sha256": "7970eab2650a924bd078a5532398fead0b133bebd7ee8612e4e56e646d56ab9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-encode.ts",
+      "sha256": "7970eab2650a924bd078a5532398fead0b133bebd7ee8612e4e56e646d56ab9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "57de3c56a8a9887eb80843116db03bb2336ee38753fbf73574ccc51b907dd1a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "57de3c56a8a9887eb80843116db03bb2336ee38753fbf73574ccc51b907dd1a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-jpeg.ts",
+      "sha256": "dafeb5e7921c9d252a9e23012aa943aabf5ec819ffb7155350dd4f8d95336970"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-jpeg.ts",
+      "sha256": "dafeb5e7921c9d252a9e23012aa943aabf5ec819ffb7155350dd4f8d95336970"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-memory.ts",
+      "sha256": "e1579d6d104e4b1b0835b8caea9b19e6a33f5abdf6f7b99524791bcf3fbb5ebc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-memory.ts",
+      "sha256": "e1579d6d104e4b1b0835b8caea9b19e6a33f5abdf6f7b99524791bcf3fbb5ebc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct-render.ts",
+      "sha256": "890022849919b9fd012a3e6df1bb9c077354060f379fed008dfb50ecd44b83b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct-render.ts",
+      "sha256": "890022849919b9fd012a3e6df1bb9c077354060f379fed008dfb50ecd44b83b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-vardct.ts",
+      "sha256": "0f7bf826b72e29f82e76c5df37ed89bc777f41ec74a33cc456ea6518a367956c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl-vardct.ts",
+      "sha256": "0f7bf826b72e29f82e76c5df37ed89bc777f41ec74a33cc456ea6518a367956c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl.ts",
+      "sha256": "8ee1f8cf0fe05b0f93d891652d7b6b234a8db8c17293be216d4ab7c4bd39a0ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/funded/jpegxl.ts",
+      "sha256": "8ee1f8cf0fe05b0f93d891652d7b6b234a8db8c17293be216d4ab7c4bd39a0ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-bitstream.ts",
+      "sha256": "519b1c551d363b29f0245afce00d623434b5438bd1b61ca27f5beb56c97284f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-bitstream.ts",
+      "sha256": "519b1c551d363b29f0245afce00d623434b5438bd1b61ca27f5beb56c97284f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-chroma.ts",
+      "sha256": "7e39bdd9f08a63c717125a887849a51412e1400f35947ecf0bef07f90f8a86a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-chroma.ts",
+      "sha256": "7e39bdd9f08a63c717125a887849a51412e1400f35947ecf0bef07f90f8a86a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-color.ts",
+      "sha256": "112368b04896174606f4048a2b7ec9f93b2f71e4e3e3cfafd19b277423b9345d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-color.ts",
+      "sha256": "112368b04896174606f4048a2b7ec9f93b2f71e4e3e3cfafd19b277423b9345d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-container.ts",
+      "sha256": "7b075913a23381e353eeac748dc2644eaa3abca52966ed2b5fec0fe464b6f492"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-container.ts",
+      "sha256": "5e7bda1f9acba6405174297eded3ce1fd26d06cfced306188cd1a5320308ea8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-decode.ts",
+      "sha256": "19e0dcc5f78c56a9d553bb22c88cd51d16871dc48a307ae6c7f8eced3aad097c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-decode.ts",
+      "sha256": "e88660443a846b7236900743800ebc60c6accc47eb7c903d64472bbd541f3bef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-encoder-memory.ts",
+      "sha256": "2c7f858f5b147e57b19593001be9999972b674873b49092eb9e70377038bc121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-encoder-memory.ts",
+      "sha256": "2c7f858f5b147e57b19593001be9999972b674873b49092eb9e70377038bc121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-exif.ts",
+      "sha256": "86017ef660fb9ef8d63c5c2032f8fc96dd198ef1fa938be38b9050ce684c6684"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-exif.ts",
+      "sha256": "86017ef660fb9ef8d63c5c2032f8fc96dd198ef1fa938be38b9050ce684c6684"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-float-color.ts",
+      "sha256": "79986d1a3e51e3084bcfe4260883da1a055e0a6ed97c629872ac01dcb7acd593"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-float-color.ts",
+      "sha256": "79986d1a3e51e3084bcfe4260883da1a055e0a6ed97c629872ac01dcb7acd593"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-float-encode.ts",
+      "sha256": "71aabffd2c8f83bc8fd438f9a27af95fef4d6a0c2c6045e55cf8691096224783"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-float-encode.ts",
+      "sha256": "71aabffd2c8f83bc8fd438f9a27af95fef4d6a0c2c6045e55cf8691096224783"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-frame-features.ts",
+      "sha256": "cb24fa66ce67ac848117e28983e477f2df7ac2c02afdeaa9074d0f4d42e9e46e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-frame-features.ts",
+      "sha256": "cb24fa66ce67ac848117e28983e477f2df7ac2c02afdeaa9074d0f4d42e9e46e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-icc.ts",
+      "sha256": "1d8e4350f199580598ede4b8b2ad470b80e8c65d9ab27e136bfddb7400e17b97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-icc.ts",
+      "sha256": "1d8e4350f199580598ede4b8b2ad470b80e8c65d9ab27e136bfddb7400e17b97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-inspect.ts",
+      "sha256": "9b3bd26f226fa2b6e937f0bfcc0359b8a7db6733e863615816457cd7cbb37b68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-inspect.ts",
+      "sha256": "9b3bd26f226fa2b6e937f0bfcc0359b8a7db6733e863615816457cd7cbb37b68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-data.ts",
+      "sha256": "9c31d10d979a6318ca2c28c9d1aa12b3944860292afe515a973ac1c741261466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-data.ts",
+      "sha256": "9c31d10d979a6318ca2c28c9d1aa12b3944860292afe515a973ac1c741261466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-encode.ts",
+      "sha256": "d52c25d9b0aa50b9ac3c124cd09cefb3be1d1b746462e5a14e81a15676a3db45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-encode.ts",
+      "sha256": "d52c25d9b0aa50b9ac3c124cd09cefb3be1d1b746462e5a14e81a15676a3db45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-pixels.ts",
+      "sha256": "c80c4cea7d96fc10c7ad1322db78363530a7e71efd1f77eedb7ca783367ca6d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-pixels.ts",
+      "sha256": "c80c4cea7d96fc10c7ad1322db78363530a7e71efd1f77eedb7ca783367ca6d7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "7b203c5e876a5d795cbe6dc42be54ae6bba37aacf7af82f66a11e528101217e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "7b203c5e876a5d795cbe6dc42be54ae6bba37aacf7af82f66a11e528101217e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "f22e3d6f6ddf287e972eadf2628e93f955608f73a0058cb815b25df1a0702eb3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "f22e3d6f6ddf287e972eadf2628e93f955608f73a0058cb815b25df1a0702eb3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "b5414b2967e563a075be8ccb089d6c3fe93a561eeb3c8c6e6d411fd7dfa39ea8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3b30b2dab25e7cd5285bd3984da515c89c1bee83464ae75641127cc48e8e65e3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-jpeg-transcode.ts",
+      "sha256": "b8125035a753565dda6fe3be895c7ebfd63baa9c64c6d5601081445f9678e2af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-jpeg-transcode.ts",
+      "sha256": "b8125035a753565dda6fe3be895c7ebfd63baa9c64c6d5601081445f9678e2af"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-level10.ts",
+      "sha256": "c0d4bb7c28c396161ce820cf2790bc2e8656fd9dec432c22c1ba3929f3d45a29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-level10.ts",
+      "sha256": "c0d4bb7c28c396161ce820cf2790bc2e8656fd9dec432c22c1ba3929f3d45a29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-limits.ts",
+      "sha256": "a237a93731c361558dd3db4c85af7d6129b646930f1173fa7b09276cf953bd0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-modular-encode.ts",
+      "sha256": "048720ef26a97abf1b6457bb1ac180647e2f0dcb95c20dd583c5a9e5e97623c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-modular-encode.ts",
+      "sha256": "1bc6e9dec4bb77d92a0bbb50d6b7bee8b7bfd071eb05db4e7add27521eebc7a6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-modular-rct.ts",
+      "sha256": "fc6a5ec304ed98852ead53ccdbad26989650248892c3b24c397289942dcf1dd8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-modular-rct.ts",
+      "sha256": "fc6a5ec304ed98852ead53ccdbad26989650248892c3b24c397289942dcf1dd8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-modular-tree.ts",
+      "sha256": "35f5757deef654838af85e2bd5b837d526c6502c79d2abea24b2f0ae7001622c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-modular-tree.ts",
+      "sha256": "35f5757deef654838af85e2bd5b837d526c6502c79d2abea24b2f0ae7001622c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-native-encode.ts",
+      "sha256": "8b47344fc58144294443953e358c3c5340dfccde0a3a853935299c99a5dcc08d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-native-encode.ts",
+      "sha256": "8b47344fc58144294443953e358c3c5340dfccde0a3a853935299c99a5dcc08d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-native-pixel.ts",
+      "sha256": "ae68ef145e309d23132d508a86cc48e7ca909cf8af2adef34bec31c93a53f0a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-native-pixel.ts",
+      "sha256": "ae68ef145e309d23132d508a86cc48e7ca909cf8af2adef34bec31c93a53f0a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-native-samples.ts",
+      "sha256": "13be13d998c80af21ae42a8de318d555ab4c4890daad2392a4421bd0e57e16b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-native-samples.ts",
+      "sha256": "13be13d998c80af21ae42a8de318d555ab4c4890daad2392a4421bd0e57e16b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-patch-blend.ts",
+      "sha256": "8591f31af1389a5654c2591056d5b4dcde17b9d0a611f659cafbb511d0082d4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-patch-blend.ts",
+      "sha256": "8591f31af1389a5654c2591056d5b4dcde17b9d0a611f659cafbb511d0082d4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-progressive-plan.ts",
+      "sha256": "9566150cc188628c23be4e04c1872ca8b54c0026070383aac15a1f2f169abab3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-progressive-plan.ts",
+      "sha256": "9566150cc188628c23be4e04c1872ca8b54c0026070383aac15a1f2f169abab3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-sequence-encode.ts",
+      "sha256": "08ea721e509162fe1908850f3b08b3f8059e6eeadd76a22cdafa439fbc9ac600"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-sequence-encode.ts",
+      "sha256": "5685010c532cb4912bd40d58a225211efb7d6b3050877b8267bbd5b345ebb46d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-sequence.ts",
+      "sha256": "0d85b27c65f14c60d6041bb02beb6b84326e7f9cbea31bdc2b18db9d2c6389c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-sequence.ts",
+      "sha256": "0d85b27c65f14c60d6041bb02beb6b84326e7f9cbea31bdc2b18db9d2c6389c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-session.ts",
+      "sha256": "70d0920f27f20383432895853cf58a56f755e7cdd9283c60ad08c2704ed9162a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-session.ts",
+      "sha256": "70d0920f27f20383432895853cf58a56f755e7cdd9283c60ad08c2704ed9162a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-splines.ts",
+      "sha256": "37688f5272892d2d7e036e817bbae5362eb71bdfcd184339bce6457c73664c95"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-splines.ts",
+      "sha256": "37688f5272892d2d7e036e817bbae5362eb71bdfcd184339bce6457c73664c95"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-encode.ts",
+      "sha256": "7970eab2650a924bd078a5532398fead0b133bebd7ee8612e4e56e646d56ab9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-encode.ts",
+      "sha256": "7970eab2650a924bd078a5532398fead0b133bebd7ee8612e4e56e646d56ab9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "57de3c56a8a9887eb80843116db03bb2336ee38753fbf73574ccc51b907dd1a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "57de3c56a8a9887eb80843116db03bb2336ee38753fbf73574ccc51b907dd1a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-jpeg.ts",
+      "sha256": "dafeb5e7921c9d252a9e23012aa943aabf5ec819ffb7155350dd4f8d95336970"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-jpeg.ts",
+      "sha256": "dafeb5e7921c9d252a9e23012aa943aabf5ec819ffb7155350dd4f8d95336970"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-memory.ts",
+      "sha256": "e1579d6d104e4b1b0835b8caea9b19e6a33f5abdf6f7b99524791bcf3fbb5ebc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-memory.ts",
+      "sha256": "e1579d6d104e4b1b0835b8caea9b19e6a33f5abdf6f7b99524791bcf3fbb5ebc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct-render.ts",
+      "sha256": "890022849919b9fd012a3e6df1bb9c077354060f379fed008dfb50ecd44b83b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct-render.ts",
+      "sha256": "890022849919b9fd012a3e6df1bb9c077354060f379fed008dfb50ecd44b83b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-vardct.ts",
+      "sha256": "0f7bf826b72e29f82e76c5df37ed89bc777f41ec74a33cc456ea6518a367956c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl-vardct.ts",
+      "sha256": "0f7bf826b72e29f82e76c5df37ed89bc777f41ec74a33cc456ea6518a367956c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl.ts",
+      "sha256": "8ee1f8cf0fe05b0f93d891652d7b6b234a8db8c17293be216d4ab7c4bd39a0ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-package-357/guarded/jpegxl.ts",
+      "sha256": "8ee1f8cf0fe05b0f93d891652d7b6b234a8db8c17293be216d4ab7c4bd39a0ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/funded/jpegxl-errors.ts",
+      "sha256": "96c98a2a2444065b603a16ebcf4fe4a0e6f34a39c9010f72b2d620cee466d65e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358/guarded/jpegxl-errors.ts",
+      "sha256": "96c98a2a2444065b603a16ebcf4fe4a0e6f34a39c9010f72b2d620cee466d65e"
+    }
+  ],
+  "results": [
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/jpegxl-specialized-baseline.js",
+      "artifactSha256": "445908cf694f56437f4fecb0e2000e214890b8210bf472a79181becafd49705a",
+      "bytes": 613578,
+      "previousBytes": 613578,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000,
+      "headroomBytes": 422,
+      "withinLimit": true
+    },
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "funded",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/jpegxl-specialized-funded.js",
+      "artifactSha256": "fd843f46203e9421e5ecfd2cab6400dfcd18117ea6fbe3eb325b444da6c8436b",
+      "bytes": 608347,
+      "previousBytes": 613578,
+      "deltaBytes": -5231,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000,
+      "headroomBytes": 5653,
+      "withinLimit": true
+    },
+    {
+      "publicExports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "target": "jpegxl-specialized",
+      "variant": "guarded",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/jpegxl-specialized-guarded.js",
+      "artifactSha256": "f3bfc969233bc3b3c71a91e86d22efb41c683bbbb103da3847ee8bad53c09ec5",
+      "bytes": 612866,
+      "previousBytes": 613578,
+      "deltaBytes": -712,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000,
+      "headroomBytes": 1134,
+      "withinLimit": true
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-baseline.js",
+      "artifactSha256": "87b5f853e3d3c972001d03e72fa9bc7ee08c3ecc9a6d3bf4900c8257faaa2767",
+      "bytes": 540978,
+      "previousBytes": 540978,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000,
+      "headroomBytes": 22,
+      "withinLimit": true
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "funded",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-funded.js",
+      "artifactSha256": "25d3e47a859e077ec7a7430f1985f69b753e6fae1f63d8ccdae73958cbba7ca8",
+      "bytes": 536436,
+      "previousBytes": 540978,
+      "deltaBytes": -4542,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000,
+      "headroomBytes": 4564,
+      "withinLimit": true
+    },
+    {
+      "publicExports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "target": "codec-jpegxl",
+      "variant": "guarded",
+      "artifact": ".tmp/jpegxl-comparison-v1/token-precomputed-dynamic-358-bundles/codec-jpegxl-guarded.js",
+      "artifactSha256": "c310675c367839dae33a7c689c1aa079e5439224d80f34446ef814a9a1ef0d62",
+      "bytes": 540969,
+      "previousBytes": 540978,
+      "deltaBytes": -9,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000,
+      "headroomBytes": 31,
+      "withinLimit": true
+    }
+  ],
+  "literalChecks": 1367,
+  "templateCalls": 12,
+  "templateChecks": 156,
+  "withinLimits": true,
+  "policy": "Original public targets, exports, esbuild settings and generated baseline metrics. Exact resolved codec module substitutions only. First-party literal error-prefix funding alone must reproduce corrected326package measurements; funding plus uninstrumented356precomputed scalar histogram constants and345guarded whole-group retry must fit unchanged541000/614000ceilings. Every1367converted literal and12additional guarded-only template prefixes has identical ImageError class/name/code/message proof;156template cases cover numeric/string/Unicode boundaries. Failed357literal-only package measurement remains separate. No API narrowing, third-party runtime, source/budget/settings change, production/full-matrix/cost/parity adoption."
+}

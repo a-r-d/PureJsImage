@@ -1,5 +1,17 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json' with {
+  type: 'json',
+}
+import denseLossless from '../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json' with {
+  type: 'json',
+}
+import photoCompression from '../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json' with {
+  type: 'json',
+}
+import losslessSpatial from '../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json' with {
+  type: 'json',
+}
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
 
 test('converter and exact grayscale JPEG round trip stay local', async ({ page }) => {
@@ -239,15 +251,11 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
       `https://purejsimage.com/jpeg-xl/${path}`,
     )
   }
-  const adequate = comparison.qualityComparisons.filter(
-    (row) => row.status === 'measured with adequate brackets',
-  )
   await expect(page.locator('main')).toContainText(
-    `${adequate.length} of ${comparison.qualityComparisons.length}`,
+    '13 adequately matched pairs and 11 unresolved pairs',
   )
-  for (const row of adequate)
-    if (typeof row.pureToOtherBytesRatio === 'number')
-      await expect(page.locator('main')).toContainText(row.pureToOtherBytesRatio.toFixed(3))
+  for (const row of photoCompression.matchedFrozenPeerComparisons)
+    await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
   await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)
   await expect(page.locator('main')).toContainText('all 16 pinned lossless inputs exactly')
   const response = await page.request.get('/jpeg-xl/evidence/website-data.json')
@@ -258,6 +266,96 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
     implementationSourceSha256: comparison.implementationSourceSha256,
     implementationDirty: comparison.implementationDirty,
   })
+  await expect(page.locator('main')).toContainText(losslessSpatial.implementationSourceSha256)
+  await expect(page.locator('main')).toContainText('268,214')
+  await expect(page.locator('main')).toContainText('compression first')
+  const spatialResponse = await page.request.get(
+    '/jpeg-xl/evidence/lossless-rct-production-controls.json',
+  )
+  expect(spatialResponse.ok()).toBe(true)
+  const spatialDownloaded: unknown = await spatialResponse.json()
+  expect(spatialDownloaded).toMatchObject({
+    implementationSourceSha256: losslessSpatial.implementationSourceSha256,
+    completed: true,
+    fullParity: false,
+    originalFixtures: 16,
+    smallerLosslessFiles: 4,
+    unchangedLosslessFiles: 12,
+    realBrowserCases: 18,
+    compressionFirstAuthorized: true,
+    unchangedEffort7Files: 16,
+    unchangedOriginalColorHashes: 56,
+  })
+  await expect(page.locator('main')).toContainText(denseLossless.implementationSourceSha256)
+  await expect(page.locator('main')).toContainText('125,561')
+  await expect(page.locator('main')).toContainText('6,183,475')
+  await expect(page.locator('main')).toContainText('400,951')
+  const denseResponse = await page.request.get(
+    '/jpeg-xl/evidence/lossless-dense-training-production-controls.json',
+  )
+  expect(denseResponse.ok()).toBe(true)
+  const denseDownloaded: unknown = await denseResponse.json()
+  expect(denseDownloaded).toMatchObject({
+    implementationSourceSha256: denseLossless.implementationSourceSha256,
+    completed: true,
+    fullParity: false,
+    verifiedComparableLosslessCells: 45,
+    atOrBelowFrozenPeerLosslessCells: 43,
+    smallerEffort7Files: 12,
+    unchangedEffort7Files: 4,
+    largerEffort7Files: 0,
+    unchangedEffort1Files: 16,
+    realBrowserCases: 18,
+    compressionFirstAuthorized: true,
+    unchangedOriginalColorHashes: 56,
+  })
+  await expect(page.locator('main')).toContainText(groupLossless.implementationSourceSha256)
+  const currentLossless = page.locator('table').filter({
+    has: page.locator('caption', { hasText: 'Current effort-7 lossless files' }),
+  })
+  await expect(
+    currentLossless.locator('tr').filter({ hasText: '4000 × 3000 photo' }),
+  ).toContainText('6,183,475')
+  await expect(
+    currentLossless.locator('tr').filter({ hasText: '1920 × 1080 screenshot' }),
+  ).toContainText('386,813')
+  for (const bytes of ['819,166', '641,956', '386,813'])
+    await expect(page.locator('main')).toContainText(bytes)
+  const groupResponse = await page.request.get(
+    '/jpeg-xl/evidence/lossless-group-search-production-controls.json',
+  )
+  expect(groupResponse.ok()).toBe(true)
+  const groupDownloaded: unknown = await groupResponse.json()
+  expect(groupDownloaded).toMatchObject({
+    implementationSourceSha256: groupLossless.implementationSourceSha256,
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    integerLosslessCorpusParity: true,
+    verifiedComparableLosslessCells: 45,
+    atOrBelowFrozenPeerLosslessCells: 45,
+    remainingMeasuredLosslessGaps: [],
+    smallerEffort1Files: 6,
+    unchangedEffort1Files: 10,
+    largerEffort1Files: 0,
+    smallerEffort7Files: 4,
+    unchangedEffort7Files: 12,
+    largerEffort7Files: 0,
+    realBrowserCases: 30,
+    compressionFirstAuthorized: true,
+    unchangedOriginalColorHashes: 56,
+    originalWorkingBudgetsRecovered: true,
+    originalMinimumBoundariesPreserved: true,
+  })
+  const groupDocument = await page.request.get('/jpeg-xl/evidence/GROUP-SEARCH.md')
+  expect(groupDocument.ok()).toBe(true)
+  expect(await groupDocument.text()).toContain(groupLossless.implementationSourceSha256)
+  const denseDocument = await page.request.get('/jpeg-xl/evidence/DENSE-TRAINING.md')
+  expect(denseDocument.ok()).toBe(true)
+  expect(await denseDocument.text()).toContain(denseLossless.implementationSourceSha256)
+  const spatialDocument = await page.request.get('/jpeg-xl/evidence/LOSSLESS-RCT.md')
+  expect(spatialDocument.ok()).toBe(true)
+  expect(await spatialDocument.text()).toContain(losslessSpatial.implementationSourceSha256)
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
     true,

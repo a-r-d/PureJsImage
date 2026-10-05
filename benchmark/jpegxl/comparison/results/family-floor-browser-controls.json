@@ -1,0 +1,98 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "6b29bd3e070a2f6d1a946c9d4bc22955bc4cfa5d19deb3106cc4bd0fb7d57598",
+  "implementationDirty": true,
+  "completed": true,
+  "browsers": ["chromium", "firefox", "webkit"],
+  "passingCases": 9,
+  "casesPerBrowser": 3,
+  "originalAssertionsPreserved": true,
+  "exactFamilyFileBytes": 2262,
+  "exactFamilyPixelsChecksum": 1714441565,
+  "taskCeiling": 256,
+  "taskPeak": 244,
+  "rejectedTaskCreations": 0,
+  "developmentNodeUvPool": 1,
+  "cpuAffinity": "Cpus_allowed_list:\t0-7",
+  "receipt": {
+    "startedAt": "2026-10-04T08:47:29.569Z",
+    "finishedAt": "2026-10-04T08:49:14.885Z",
+    "policy": {
+      "memoryMaxBytes": 8589934592,
+      "memoryHighBytes": 8053063680,
+      "minimumAvailableBytes": 19327352832,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 800,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 33758851072,
+    "executable": "/usr/bin/taskset",
+    "args": [
+      "--cpu-list",
+      "0-7",
+      "/usr/bin/env",
+      "UV_THREADPOOL_SIZE=1",
+      "VIPS_CONCURRENCY=2",
+      "GOMAXPROCS=4",
+      "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      ".tmp/jpegxl-comparison-v1/verify-family-floor-browser-517.ts"
+    ],
+    "code": 0,
+    "signal": null,
+    "status": "completed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 1min 45.294s\n             CPU time consumed: 2min 13.543s\n                   Memory peak: 2.4G (swap: 0B)\n"
+  },
+  "evidence": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/family-floor-browser-517.json",
+      "sha256": "ff3df8c3b44e391c721ab8cf8a060d6a14951b4e3763b8182092c3d781e8a1a0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-family-floor-browser-517.json",
+      "sha256": "c24ca776a2aaa6cf19b35504bf31cfe5f6da13ddaca17a40f3fccbcc9ca207e6"
+    },
+    {
+      "path": "/tmp/jpegxl-family-floor-browser-517.log",
+      "sha256": "66341de251b6ede9886e5942f30b3cdd99a5d42dea47b44e83e57f2243bb2bae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-family-floor-browser-517.ts",
+      "sha256": "c2ca06b2da4777a1fdb743d7a5b691d14bc6c8fba2e420f5cb7c9608ed95f545"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "28e51e2737e066ab323c59fd7bd6b0059753619c6fee84603ddabe3297f97c71"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "13d8721e9531853aa83567f72fb167ff3f7a352b82abd235637fe65c7db793d6"
+    },
+    {
+      "path": "tests/helpers/jpegxl-flat-palette.ts",
+      "sha256": "29fe01ecb19c873598709d9259a4a8bc0c40fae0b75571f524cb4430f33dae06"
+    },
+    {
+      "path": "tests/helpers/jpegxl-family-contexts.ts",
+      "sha256": "ea7dba1d2abcca25e79cf5986e48fde08b059b8eb7234f7252aa66818444b506"
+    },
+    {
+      "path": "scripts/serve-browser-tests.ts",
+      "sha256": "e1eb864413adaa5ed083158412081c963bd2d0894d5f65731dffa42017e409b2"
+    }
+  ],
+  "historicalBrowserPreimage": {
+    "originalPath": "browser-tests/jpegxl-pipeline.pw.ts",
+    "originalSha256": "bd3f990566bc80cff8500483ec5675bd153694eb60df3478916d29f6f7a9be83",
+    "archivedPath": ".tmp/jpegxl-comparison-v1/retained/family-floor-browser-522/jpegxl-pipeline-before.pw.ts",
+    "archivedSha256": "bd3f990566bc80cff8500483ec5675bd153694eb60df3478916d29f6f7a9be83",
+    "preservation": "Reconstructed the single later family-test assertion/page correction and verified its exact previously measured SHA; no historical raw report or receipt is rewritten."
+  },
+  "fullParity": false,
+  "representativePerformanceQualified": false,
+  "policy": "All nine corrected-source production palette/fallback and exact Modular family cases pass in the three normal-sandbox browser engines. Original encoded/pixel/input/alpha/ownership/deadline/skip protections remain. Only validation development pools use eight-CPU affinity, UV1/VIPS2/Go4 within the unchanged8GiB/800percent/256task/no-swap execution ceiling. This is current fixture correctness, not a representative timing, RSS or parity result."
+}

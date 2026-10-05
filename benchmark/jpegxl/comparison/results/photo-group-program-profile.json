@@ -1,0 +1,8069 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-photo-programs-274.ts",
+      "sha256": "f15b180d438705f76e41639d703c158a132ea049b8d44c09dd41af31cb16a92e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-photo-program-profile-274.ts",
+      "sha256": "7f9c86bc91ce9b7ecfc957eecd9960412938b19279e123d094a4a50a514be950"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-photo-program-profile-274.json",
+      "sha256": "f477c238179a4d21ed1b8ec53570735c4b7109b3059c40ad6f03200fd62f9075"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/manifest.json",
+      "sha256": "73ff7693bf1a91fa285a79ec94942f484331be27decdf10f8870cbc34c105ccf"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "70ae28e6e158e47d8a6686d65c3dbff302b1171e0d082b951b0deed18ceafa70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-program-profile-274/jpegxl-decode.ts",
+      "sha256": "0cdd056b4607f95b2e83b0ede99f7b3786c15806d95a9fece3ce8babd9669a51"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-group-layout-controls.json",
+      "sha256": "6ff9dd0ebc093ec53d95a49a64d3398297c36797f72e94fbaeca2542efa2a43a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/remaining-funded-lossless-local-profile.json",
+      "sha256": "bb7187a1436f37c1e2abecc6a0403062ca3111faba817d906ba505566991a607"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups512.jxl",
+      "sha256": "91e7c217165c8927f49e214e495afd12674689a0ebf10c20ab892e2bd3231213"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups256.jxl",
+      "sha256": "935c667dac93a658cebf2e96feb3ed0cd9161e819f625a0e16ca2de5c10f838c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups256samples4k.jxl",
+      "sha256": "a41374e51a54caeef26825cab23ed8d35565a4d7c9c3b908eca8b6fbc5f8b7e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups512.jxl",
+      "sha256": "1a1fa4a8fd509c12695506828cbf8942ab4e7ab092448802f7da3d576eb6735c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups256.jxl",
+      "sha256": "b8a1d5a13c7fe6c770b11f5a862cd91b7b3119122484443cad70b9aaad9c5a04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups256samples4k.jxl",
+      "sha256": "e4e2209a4d8347def0fbdd6d66fd577d7fc6ad08c17ae8d12669b7d082e1737f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "c265cc5f504a38ec073bc44cf8e76735e1173b5b77c9f68545e49d878585e905"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "a7193cb6b032f9287085764c656a84d30bac863eaebbf7ad443161f5fa841558"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "d463a96ecd98103a24d797c00e03447bc9744481986a3286bdc63b3c098e0e1a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "6a60bd6a5a483f253faa4ceada77568306b7b56a6a0b3f142a559916b716acb6"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "bytes": 649404,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 1024,
+      "groups": 1,
+      "sharedGroups": 0,
+      "uniqueLeaves": 769,
+      "sectionBytes": 649349,
+      "otherSectionBytes": 0,
+      "headerBits": 34582,
+      "afterHeaderBits": 5160210,
+      "globalProgram": {
+        "sectionBytes": 649349,
+        "headerBits": 34582,
+        "afterHeaderBits": 5160210,
+        "leaves": 769,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 40
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          },
+          {
+            "predictor": 6,
+            "leaves": 357
+          },
+          {
+            "predictor": 3,
+            "leaves": 83
+          },
+          {
+            "predictor": 5,
+            "leaves": 328
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 135
+          },
+          {
+            "property": 9,
+            "nodes": 148
+          },
+          {
+            "property": 10,
+            "nodes": 143
+          },
+          {
+            "property": 11,
+            "nodes": 137
+          },
+          {
+            "property": 12,
+            "nodes": 116
+          },
+          {
+            "property": 13,
+            "nodes": 86
+          }
+        ]
+      },
+      "localPrograms": []
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "groups512",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups512.jxl",
+      "sha256": "91e7c217165c8927f49e214e495afd12674689a0ebf10c20ab892e2bd3231213",
+      "bytes": 668448,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 0,
+      "uniqueLeaves": 777,
+      "sectionBytes": 668379,
+      "otherSectionBytes": 0,
+      "headerBits": 44078,
+      "afterHeaderBits": 5302954,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 202825,
+          "headerBits": 12046,
+          "afterHeaderBits": 1610554,
+          "leaves": 216,
+          "models": 58,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 55
+            },
+            {
+              "predictor": 5,
+              "leaves": 99
+            },
+            {
+              "predictor": 3,
+              "leaves": 33
+            },
+            {
+              "predictor": 13,
+              "leaves": 28
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 26
+            },
+            {
+              "property": 10,
+              "nodes": 51
+            },
+            {
+              "property": 12,
+              "nodes": 29
+            },
+            {
+              "property": 15,
+              "nodes": 28
+            },
+            {
+              "property": 11,
+              "nodes": 55
+            },
+            {
+              "property": 13,
+              "nodes": 23
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 205739,
+          "headerBits": 12232,
+          "afterHeaderBits": 1633680,
+          "leaves": 253,
+          "models": 57,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 92
+            },
+            {
+              "predictor": 5,
+              "leaves": 132
+            },
+            {
+              "predictor": 3,
+              "leaves": 28
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 18
+            },
+            {
+              "property": 10,
+              "nodes": 65
+            },
+            {
+              "property": 15,
+              "nodes": 43
+            },
+            {
+              "property": 12,
+              "nodes": 43
+            },
+            {
+              "property": 11,
+              "nodes": 63
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 119129,
+          "headerBits": 8782,
+          "afterHeaderBits": 944250,
+          "leaves": 152,
+          "models": 40,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 24
+            },
+            {
+              "predictor": 6,
+              "leaves": 69
+            },
+            {
+              "predictor": 5,
+              "leaves": 58
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 16
+            },
+            {
+              "property": 15,
+              "nodes": 32
+            },
+            {
+              "property": 10,
+              "nodes": 33
+            },
+            {
+              "property": 12,
+              "nodes": 28
+            },
+            {
+              "property": 11,
+              "nodes": 38
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 140678,
+          "headerBits": 10955,
+          "afterHeaderBits": 1114469,
+          "leaves": 155,
+          "models": 49,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 35
+            },
+            {
+              "predictor": 6,
+              "leaves": 69
+            },
+            {
+              "predictor": 5,
+              "leaves": 37
+            },
+            {
+              "predictor": 3,
+              "leaves": 14
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 43
+            },
+            {
+              "property": 10,
+              "nodes": 35
+            },
+            {
+              "property": 9,
+              "nodes": 25
+            },
+            {
+              "property": 11,
+              "nodes": 33
+            },
+            {
+              "property": 12,
+              "nodes": 11
+            },
+            {
+              "property": 13,
+              "nodes": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "groups256",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups256.jxl",
+      "sha256": "935c667dac93a658cebf2e96feb3ed0cd9161e819f625a0e16ca2de5c10f838c",
+      "bytes": 675916,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 256,
+      "groups": 12,
+      "sharedGroups": 0,
+      "uniqueLeaves": 797,
+      "sectionBytes": 675823,
+      "otherSectionBytes": 0,
+      "headerBits": 58775,
+      "afterHeaderBits": 5347809,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 48274,
+          "headerBits": 5133,
+          "afterHeaderBits": 381059,
+          "leaves": 64,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 12
+            },
+            {
+              "predictor": 6,
+              "leaves": 14
+            },
+            {
+              "predictor": 5,
+              "leaves": 32
+            },
+            {
+              "predictor": 3,
+              "leaves": 6
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 6
+            },
+            {
+              "property": 9,
+              "nodes": 6
+            },
+            {
+              "property": 11,
+              "nodes": 18
+            },
+            {
+              "property": 10,
+              "nodes": 25
+            },
+            {
+              "property": 15,
+              "nodes": 4
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 52316,
+          "headerBits": 4607,
+          "afterHeaderBits": 413921,
+          "leaves": 65,
+          "models": 26,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 26
+            },
+            {
+              "predictor": 5,
+              "leaves": 31
+            },
+            {
+              "predictor": 3,
+              "leaves": 7
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 8
+            },
+            {
+              "property": 15,
+              "nodes": 15
+            },
+            {
+              "property": 10,
+              "nodes": 21
+            },
+            {
+              "property": 11,
+              "nodes": 12
+            },
+            {
+              "property": 12,
+              "nodes": 5
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 58354,
+          "headerBits": 4813,
+          "afterHeaderBits": 462019,
+          "leaves": 72,
+          "models": 25,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 32
+            },
+            {
+              "predictor": 5,
+              "leaves": 39
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 4
+            },
+            {
+              "property": 10,
+              "nodes": 20
+            },
+            {
+              "property": 15,
+              "nodes": 18
+            },
+            {
+              "property": 12,
+              "nodes": 7
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 49453,
+          "headerBits": 5040,
+          "afterHeaderBits": 390584,
+          "leaves": 68,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 11
+            },
+            {
+              "predictor": 6,
+              "leaves": 18
+            },
+            {
+              "predictor": 5,
+              "leaves": 38
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 6
+            },
+            {
+              "property": 10,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 7
+            },
+            {
+              "property": 15,
+              "nodes": 7
+            },
+            {
+              "property": 11,
+              "nodes": 21
+            },
+            {
+              "property": 13,
+              "nodes": 2
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 50597,
+          "headerBits": 3823,
+          "afterHeaderBits": 400953,
+          "leaves": 48,
+          "models": 22,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 21
+            },
+            {
+              "predictor": 6,
+              "leaves": 9
+            },
+            {
+              "predictor": 3,
+              "leaves": 13
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 4
+            },
+            {
+              "property": 10,
+              "nodes": 18
+            },
+            {
+              "property": 11,
+              "nodes": 13
+            },
+            {
+              "property": 15,
+              "nodes": 1
+            },
+            {
+              "property": 9,
+              "nodes": 1
+            },
+            {
+              "property": 13,
+              "nodes": 7
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 54795,
+          "headerBits": 4526,
+          "afterHeaderBits": 433834,
+          "leaves": 66,
+          "models": 24,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 27
+            },
+            {
+              "predictor": 5,
+              "leaves": 28
+            },
+            {
+              "predictor": 3,
+              "leaves": 10
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 7
+            },
+            {
+              "property": 12,
+              "nodes": 7
+            },
+            {
+              "property": 10,
+              "nodes": 19
+            },
+            {
+              "property": 15,
+              "nodes": 9
+            },
+            {
+              "property": 11,
+              "nodes": 20
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 52850,
+          "headerBits": 3705,
+          "afterHeaderBits": 419095,
+          "leaves": 67,
+          "models": 18,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 26
+            },
+            {
+              "predictor": 5,
+              "leaves": 34
+            },
+            {
+              "predictor": 13,
+              "leaves": 6
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 13
+            },
+            {
+              "property": 10,
+              "nodes": 18
+            },
+            {
+              "property": 11,
+              "nodes": 14
+            },
+            {
+              "property": 12,
+              "nodes": 4
+            },
+            {
+              "property": 13,
+              "nodes": 2
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 48189,
+          "headerBits": 3654,
+          "afterHeaderBits": 381858,
+          "leaves": 53,
+          "models": 21,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 13
+            },
+            {
+              "predictor": 3,
+              "leaves": 12
+            },
+            {
+              "predictor": 5,
+              "leaves": 21
+            },
+            {
+              "predictor": 13,
+              "leaves": 6
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 5
+            },
+            {
+              "property": 15,
+              "nodes": 10
+            },
+            {
+              "property": 10,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 14
+            },
+            {
+              "property": 9,
+              "nodes": 2
+            },
+            {
+              "property": 13,
+              "nodes": 3
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 51689,
+          "headerBits": 4283,
+          "afterHeaderBits": 409229,
+          "leaves": 58,
+          "models": 24,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 15
+            },
+            {
+              "predictor": 5,
+              "leaves": 24
+            },
+            {
+              "predictor": 6,
+              "leaves": 6
+            },
+            {
+              "predictor": 3,
+              "leaves": 13
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 10,
+              "nodes": 22
+            },
+            {
+              "property": 11,
+              "nodes": 16
+            },
+            {
+              "property": 15,
+              "nodes": 7
+            },
+            {
+              "property": 12,
+              "nodes": 6
+            },
+            {
+              "property": 9,
+              "nodes": 3
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 67501,
+          "headerBits": 6966,
+          "afterHeaderBits": 533042,
+          "leaves": 89,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 47
+            },
+            {
+              "predictor": 3,
+              "leaves": 10
+            },
+            {
+              "predictor": 5,
+              "leaves": 31
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 17
+            },
+            {
+              "property": 15,
+              "nodes": 24
+            },
+            {
+              "property": 10,
+              "nodes": 14
+            },
+            {
+              "property": 11,
+              "nodes": 16
+            },
+            {
+              "property": 12,
+              "nodes": 13
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 87316,
+          "headerBits": 6745,
+          "afterHeaderBits": 691783,
+          "leaves": 72,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 24
+            },
+            {
+              "predictor": 6,
+              "leaves": 32
+            },
+            {
+              "predictor": 5,
+              "leaves": 16
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 23
+            },
+            {
+              "property": 10,
+              "nodes": 13
+            },
+            {
+              "property": 11,
+              "nodes": 13
+            },
+            {
+              "property": 12,
+              "nodes": 5
+            },
+            {
+              "property": 9,
+              "nodes": 13
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 54481,
+          "headerBits": 5417,
+          "afterHeaderBits": 430431,
+          "leaves": 74,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 31
+            },
+            {
+              "predictor": 3,
+              "leaves": 9
+            },
+            {
+              "predictor": 6,
+              "leaves": 33
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 10
+            },
+            {
+              "property": 12,
+              "nodes": 5
+            },
+            {
+              "property": 15,
+              "nodes": 25
+            },
+            {
+              "property": 10,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "groups256samples4k",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-1416-diagnostic-groups256samples4k.jxl",
+      "sha256": "a41374e51a54caeef26825cab23ed8d35565a4d7c9c3b908eca8b6fbc5f8b7e6",
+      "bytes": 684643,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 256,
+      "groups": 12,
+      "sharedGroups": 0,
+      "uniqueLeaves": 2516,
+      "sectionBytes": 684550,
+      "otherSectionBytes": 0,
+      "headerBits": 95623,
+      "afterHeaderBits": 5380777,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 48964,
+          "headerBits": 7004,
+          "afterHeaderBits": 384708,
+          "leaves": 193,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 33
+            },
+            {
+              "predictor": 3,
+              "leaves": 25
+            },
+            {
+              "predictor": 5,
+              "leaves": 72
+            },
+            {
+              "predictor": 6,
+              "leaves": 63
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 10,
+              "nodes": 36
+            },
+            {
+              "property": 9,
+              "nodes": 47
+            },
+            {
+              "property": 15,
+              "nodes": 45
+            },
+            {
+              "property": 11,
+              "nodes": 17
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            },
+            {
+              "property": 13,
+              "nodes": 20
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 53218,
+          "headerBits": 7702,
+          "afterHeaderBits": 418042,
+          "leaves": 214,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 99
+            },
+            {
+              "predictor": 5,
+              "leaves": 92
+            },
+            {
+              "predictor": 3,
+              "leaves": 22
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 45
+            },
+            {
+              "property": 9,
+              "nodes": 59
+            },
+            {
+              "property": 10,
+              "nodes": 30
+            },
+            {
+              "property": 11,
+              "nodes": 29
+            },
+            {
+              "property": 13,
+              "nodes": 23
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 58630,
+          "headerBits": 8143,
+          "afterHeaderBits": 460897,
+          "leaves": 227,
+          "models": 30,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 128
+            },
+            {
+              "predictor": 6,
+              "leaves": 98
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 51
+            },
+            {
+              "property": 10,
+              "nodes": 37
+            },
+            {
+              "property": 15,
+              "nodes": 59
+            },
+            {
+              "property": 11,
+              "nodes": 22
+            },
+            {
+              "property": 12,
+              "nodes": 28
+            },
+            {
+              "property": 13,
+              "nodes": 26
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 50098,
+          "headerBits": 7156,
+          "afterHeaderBits": 393628,
+          "leaves": 194,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 24
+            },
+            {
+              "predictor": 5,
+              "leaves": 96
+            },
+            {
+              "predictor": 6,
+              "leaves": 73
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 14
+            },
+            {
+              "property": 10,
+              "nodes": 27
+            },
+            {
+              "property": 9,
+              "nodes": 47
+            },
+            {
+              "property": 15,
+              "nodes": 61
+            },
+            {
+              "property": 11,
+              "nodes": 24
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 51455,
+          "headerBits": 6805,
+          "afterHeaderBits": 404835,
+          "leaves": 199,
+          "models": 24,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 50
+            },
+            {
+              "predictor": 5,
+              "leaves": 88
+            },
+            {
+              "predictor": 3,
+              "leaves": 22
+            },
+            {
+              "predictor": 13,
+              "leaves": 38
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 18
+            },
+            {
+              "property": 15,
+              "nodes": 42
+            },
+            {
+              "property": 10,
+              "nodes": 36
+            },
+            {
+              "property": 11,
+              "nodes": 21
+            },
+            {
+              "property": 13,
+              "nodes": 24
+            },
+            {
+              "property": 9,
+              "nodes": 54
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 55502,
+          "headerBits": 7551,
+          "afterHeaderBits": 436465,
+          "leaves": 204,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 96
+            },
+            {
+              "predictor": 5,
+              "leaves": 87
+            },
+            {
+              "predictor": 3,
+              "leaves": 20
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 45
+            },
+            {
+              "property": 10,
+              "nodes": 38
+            },
+            {
+              "property": 11,
+              "nodes": 25
+            },
+            {
+              "property": 15,
+              "nodes": 56
+            },
+            {
+              "property": 12,
+              "nodes": 21
+            },
+            {
+              "property": 13,
+              "nodes": 15
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 53740,
+          "headerBits": 7580,
+          "afterHeaderBits": 422340,
+          "leaves": 190,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 66
+            },
+            {
+              "predictor": 5,
+              "leaves": 84
+            },
+            {
+              "predictor": 13,
+              "leaves": 39
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 47
+            },
+            {
+              "property": 15,
+              "nodes": 37
+            },
+            {
+              "property": 10,
+              "nodes": 31
+            },
+            {
+              "property": 11,
+              "nodes": 29
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            },
+            {
+              "property": 13,
+              "nodes": 18
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 48892,
+          "headerBits": 6384,
+          "afterHeaderBits": 384752,
+          "leaves": 169,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 59
+            },
+            {
+              "predictor": 5,
+              "leaves": 54
+            },
+            {
+              "predictor": 3,
+              "leaves": 19
+            },
+            {
+              "predictor": 13,
+              "leaves": 36
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 17
+            },
+            {
+              "property": 15,
+              "nodes": 39
+            },
+            {
+              "property": 10,
+              "nodes": 26
+            },
+            {
+              "property": 11,
+              "nodes": 18
+            },
+            {
+              "property": 9,
+              "nodes": 52
+            },
+            {
+              "property": 13,
+              "nodes": 13
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 52282,
+          "headerBits": 7394,
+          "afterHeaderBits": 410862,
+          "leaves": 205,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 42
+            },
+            {
+              "predictor": 5,
+              "leaves": 81
+            },
+            {
+              "predictor": 6,
+              "leaves": 61
+            },
+            {
+              "predictor": 3,
+              "leaves": 21
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 10,
+              "nodes": 27
+            },
+            {
+              "property": 15,
+              "nodes": 66
+            },
+            {
+              "property": 11,
+              "nodes": 25
+            },
+            {
+              "property": 13,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 35
+            },
+            {
+              "property": 12,
+              "nodes": 27
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 68400,
+          "headerBits": 10250,
+          "afterHeaderBits": 536950,
+          "leaves": 242,
+          "models": 38,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 26
+            },
+            {
+              "predictor": 5,
+              "leaves": 80
+            },
+            {
+              "predictor": 6,
+              "leaves": 135
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 74
+            },
+            {
+              "property": 9,
+              "nodes": 50
+            },
+            {
+              "property": 11,
+              "nodes": 30
+            },
+            {
+              "property": 10,
+              "nodes": 25
+            },
+            {
+              "property": 12,
+              "nodes": 38
+            },
+            {
+              "property": 13,
+              "nodes": 21
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 88236,
+          "headerBits": 10980,
+          "afterHeaderBits": 694908,
+          "leaves": 263,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 60
+            },
+            {
+              "predictor": 5,
+              "leaves": 81
+            },
+            {
+              "predictor": 6,
+              "leaves": 122
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 62
+            },
+            {
+              "property": 9,
+              "nodes": 64
+            },
+            {
+              "property": 10,
+              "nodes": 50
+            },
+            {
+              "property": 11,
+              "nodes": 38
+            },
+            {
+              "property": 12,
+              "nodes": 20
+            },
+            {
+              "property": 13,
+              "nodes": 25
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 55125,
+          "headerBits": 8611,
+          "afterHeaderBits": 432389,
+          "leaves": 215,
+          "models": 35,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 3,
+              "leaves": 26
+            },
+            {
+              "predictor": 6,
+              "leaves": 106
+            },
+            {
+              "predictor": 5,
+              "leaves": 82
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 47
+            },
+            {
+              "property": 12,
+              "nodes": 25
+            },
+            {
+              "property": 15,
+              "nodes": 64
+            },
+            {
+              "property": 10,
+              "nodes": 36
+            },
+            {
+              "property": 11,
+              "nodes": 27
+            },
+            {
+              "property": 13,
+              "nodes": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "bytes": 613268,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 1024,
+      "groups": 1,
+      "sharedGroups": 0,
+      "uniqueLeaves": 754,
+      "sectionBytes": 613213,
+      "otherSectionBytes": 0,
+      "headerBits": 34431,
+      "afterHeaderBits": 4871273,
+      "globalProgram": {
+        "sectionBytes": 613213,
+        "headerBits": 34431,
+        "afterHeaderBits": 4871273,
+        "leaves": 754,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 10
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          },
+          {
+            "predictor": 6,
+            "leaves": 409
+          },
+          {
+            "predictor": 3,
+            "leaves": 102
+          },
+          {
+            "predictor": 5,
+            "leaves": 242
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 3
+          },
+          {
+            "property": 15,
+            "nodes": 123
+          },
+          {
+            "property": 9,
+            "nodes": 180
+          },
+          {
+            "property": 10,
+            "nodes": 122
+          },
+          {
+            "property": 11,
+            "nodes": 122
+          },
+          {
+            "property": 13,
+            "nodes": 88
+          },
+          {
+            "property": 12,
+            "nodes": 115
+          }
+        ]
+      },
+      "localPrograms": []
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "groups512",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups512.jxl",
+      "sha256": "1a1fa4a8fd509c12695506828cbf8942ab4e7ab092448802f7da3d576eb6735c",
+      "bytes": 638872,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 512,
+      "groups": 4,
+      "sharedGroups": 0,
+      "uniqueLeaves": 960,
+      "sectionBytes": 638803,
+      "otherSectionBytes": 0,
+      "headerBits": 55721,
+      "afterHeaderBits": 5054703,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 157914,
+          "headerBits": 14764,
+          "afterHeaderBits": 1248548,
+          "leaves": 257,
+          "models": 68,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 104
+            },
+            {
+              "predictor": 13,
+              "leaves": 13
+            },
+            {
+              "predictor": 6,
+              "leaves": 139
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 41
+            },
+            {
+              "property": 9,
+              "nodes": 65
+            },
+            {
+              "property": 11,
+              "nodes": 47
+            },
+            {
+              "property": 13,
+              "nodes": 25
+            },
+            {
+              "property": 12,
+              "nodes": 32
+            },
+            {
+              "property": 10,
+              "nodes": 43
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 143210,
+          "headerBits": 12153,
+          "afterHeaderBits": 1133527,
+          "leaves": 216,
+          "models": 59,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 99
+            },
+            {
+              "predictor": 6,
+              "leaves": 102
+            },
+            {
+              "predictor": 13,
+              "leaves": 14
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 49
+            },
+            {
+              "property": 9,
+              "nodes": 46
+            },
+            {
+              "property": 10,
+              "nodes": 40
+            },
+            {
+              "property": 11,
+              "nodes": 36
+            },
+            {
+              "property": 13,
+              "nodes": 18
+            },
+            {
+              "property": 12,
+              "nodes": 23
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 189280,
+          "headerBits": 14130,
+          "afterHeaderBits": 1500110,
+          "leaves": 242,
+          "models": 68,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 114
+            },
+            {
+              "predictor": 5,
+              "leaves": 112
+            },
+            {
+              "predictor": 13,
+              "leaves": 15
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 45
+            },
+            {
+              "property": 10,
+              "nodes": 50
+            },
+            {
+              "property": 15,
+              "nodes": 50
+            },
+            {
+              "property": 11,
+              "nodes": 53
+            },
+            {
+              "property": 13,
+              "nodes": 10
+            },
+            {
+              "property": 12,
+              "nodes": 30
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 148391,
+          "headerBits": 14611,
+          "afterHeaderBits": 1172517,
+          "leaves": 244,
+          "models": 68,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 15
+            },
+            {
+              "predictor": 5,
+              "leaves": 81
+            },
+            {
+              "predictor": 6,
+              "leaves": 147
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 47
+            },
+            {
+              "property": 11,
+              "nodes": 43
+            },
+            {
+              "property": 15,
+              "nodes": 50
+            },
+            {
+              "property": 10,
+              "nodes": 42
+            },
+            {
+              "property": 12,
+              "nodes": 41
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "groups256",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups256.jxl",
+      "sha256": "b8a1d5a13c7fe6c770b11f5a862cd91b7b3119122484443cad70b9aaad9c5a04",
+      "bytes": 647790,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 256,
+      "groups": 16,
+      "sharedGroups": 0,
+      "uniqueLeaves": 982,
+      "sectionBytes": 647685,
+      "otherSectionBytes": 0,
+      "headerBits": 78871,
+      "afterHeaderBits": 5102609,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 31388,
+          "headerBits": 4835,
+          "afterHeaderBits": 246269,
+          "leaves": 72,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 33
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            },
+            {
+              "predictor": 5,
+              "leaves": 34
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 9,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 11
+            },
+            {
+              "property": 12,
+              "nodes": 6
+            },
+            {
+              "property": 10,
+              "nodes": 11
+            },
+            {
+              "property": 13,
+              "nodes": 6
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 34561,
+          "headerBits": 3257,
+          "afterHeaderBits": 273231,
+          "leaves": 44,
+          "models": 18,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 19
+            },
+            {
+              "predictor": 6,
+              "leaves": 24
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 9
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 10,
+              "nodes": 10
+            },
+            {
+              "property": 13,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 6
+            },
+            {
+              "property": 12,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 31791,
+          "headerBits": 3966,
+          "afterHeaderBits": 250362,
+          "leaves": 55,
+          "models": 23,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 25
+            },
+            {
+              "predictor": 6,
+              "leaves": 24
+            },
+            {
+              "predictor": 13,
+              "leaves": 5
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 11
+            },
+            {
+              "property": 15,
+              "nodes": 12
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 12,
+              "nodes": 5
+            },
+            {
+              "property": 13,
+              "nodes": 4
+            },
+            {
+              "property": 10,
+              "nodes": 8
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 30608,
+          "headerBits": 3314,
+          "afterHeaderBits": 241550,
+          "leaves": 46,
+          "models": 19,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 23
+            },
+            {
+              "predictor": 13,
+              "leaves": 2
+            },
+            {
+              "predictor": 5,
+              "leaves": 20
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 12
+            },
+            {
+              "property": 9,
+              "nodes": 13
+            },
+            {
+              "property": 13,
+              "nodes": 6
+            },
+            {
+              "property": 10,
+              "nodes": 6
+            },
+            {
+              "property": 11,
+              "nodes": 5
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 42512,
+          "headerBits": 6043,
+          "afterHeaderBits": 334053,
+          "leaves": 71,
+          "models": 34,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 33
+            },
+            {
+              "predictor": 5,
+              "leaves": 28
+            },
+            {
+              "predictor": 13,
+              "leaves": 9
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 14
+            },
+            {
+              "property": 10,
+              "nodes": 11
+            },
+            {
+              "property": 15,
+              "nodes": 14
+            },
+            {
+              "property": 12,
+              "nodes": 6
+            },
+            {
+              "property": 11,
+              "nodes": 15
+            },
+            {
+              "property": 13,
+              "nodes": 7
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 52158,
+          "headerBits": 4476,
+          "afterHeaderBits": 412788,
+          "leaves": 57,
+          "models": 26,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 3
+            },
+            {
+              "predictor": 6,
+              "leaves": 26
+            },
+            {
+              "predictor": 5,
+              "leaves": 27
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 16
+            },
+            {
+              "property": 10,
+              "nodes": 9
+            },
+            {
+              "property": 11,
+              "nodes": 7
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 44520,
+          "headerBits": 5052,
+          "afterHeaderBits": 351108,
+          "leaves": 57,
+          "models": 26,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            },
+            {
+              "predictor": 6,
+              "leaves": 27
+            },
+            {
+              "predictor": 5,
+              "leaves": 25
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 18
+            },
+            {
+              "property": 9,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 8
+            },
+            {
+              "property": 10,
+              "nodes": 8
+            },
+            {
+              "property": 12,
+              "nodes": 3
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 38106,
+          "headerBits": 5130,
+          "afterHeaderBits": 299718,
+          "leaves": 48,
+          "models": 30,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 28
+            },
+            {
+              "predictor": 5,
+              "leaves": 15
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 10,
+              "nodes": 4
+            },
+            {
+              "property": 15,
+              "nodes": 22
+            },
+            {
+              "property": 13,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 51716,
+          "headerBits": 6463,
+          "afterHeaderBits": 407265,
+          "leaves": 80,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 36
+            },
+            {
+              "predictor": 5,
+              "leaves": 39
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 22
+            },
+            {
+              "property": 10,
+              "nodes": 14
+            },
+            {
+              "property": 12,
+              "nodes": 10
+            },
+            {
+              "property": 15,
+              "nodes": 16
+            },
+            {
+              "property": 11,
+              "nodes": 13
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 59185,
+          "headerBits": 5750,
+          "afterHeaderBits": 467730,
+          "leaves": 76,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 32
+            },
+            {
+              "predictor": 13,
+              "leaves": 4
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 17
+            },
+            {
+              "property": 10,
+              "nodes": 16
+            },
+            {
+              "property": 15,
+              "nodes": 21
+            },
+            {
+              "property": 11,
+              "nodes": 15
+            },
+            {
+              "property": 12,
+              "nodes": 3
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 51842,
+          "headerBits": 5109,
+          "afterHeaderBits": 409627,
+          "leaves": 64,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 29
+            },
+            {
+              "predictor": 13,
+              "leaves": 3
+            },
+            {
+              "predictor": 5,
+              "leaves": 31
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 16
+            },
+            {
+              "property": 10,
+              "nodes": 10
+            },
+            {
+              "property": 15,
+              "nodes": 17
+            },
+            {
+              "property": 11,
+              "nodes": 14
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            },
+            {
+              "property": 12,
+              "nodes": 2
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 31990,
+          "headerBits": 4283,
+          "afterHeaderBits": 251637,
+          "leaves": 54,
+          "models": 25,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 5
+            },
+            {
+              "predictor": 6,
+              "leaves": 31
+            },
+            {
+              "predictor": 5,
+              "leaves": 17
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 16
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 13,
+              "nodes": 5
+            },
+            {
+              "property": 10,
+              "nodes": 5
+            },
+            {
+              "property": 11,
+              "nodes": 5
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "sharedTree": false,
+          "sectionBytes": 41899,
+          "headerBits": 4432,
+          "afterHeaderBits": 330760,
+          "leaves": 57,
+          "models": 24,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 26
+            },
+            {
+              "predictor": 6,
+              "leaves": 24
+            },
+            {
+              "predictor": 13,
+              "leaves": 6
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 20
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 10,
+              "nodes": 11
+            },
+            {
+              "property": 11,
+              "nodes": 7
+            },
+            {
+              "property": 12,
+              "nodes": 3
+            },
+            {
+              "property": 13,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "sharedTree": false,
+          "sectionBytes": 38958,
+          "headerBits": 4807,
+          "afterHeaderBits": 306857,
+          "leaves": 52,
+          "models": 24,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 25
+            },
+            {
+              "predictor": 5,
+              "leaves": 20
+            },
+            {
+              "predictor": 13,
+              "leaves": 6
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 15
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 10,
+              "nodes": 14
+            },
+            {
+              "property": 11,
+              "nodes": 7
+            },
+            {
+              "property": 12,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "sharedTree": false,
+          "sectionBytes": 35924,
+          "headerBits": 5520,
+          "afterHeaderBits": 281872,
+          "leaves": 60,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 40
+            },
+            {
+              "predictor": 13,
+              "leaves": 3
+            },
+            {
+              "predictor": 5,
+              "leaves": 16
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 14
+            },
+            {
+              "property": 9,
+              "nodes": 15
+            },
+            {
+              "property": 12,
+              "nodes": 9
+            },
+            {
+              "property": 11,
+              "nodes": 10
+            },
+            {
+              "property": 10,
+              "nodes": 6
+            },
+            {
+              "property": 13,
+              "nodes": 2
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "sharedTree": false,
+          "sectionBytes": 30519,
+          "headerBits": 6371,
+          "afterHeaderBits": 237781,
+          "leaves": 88,
+          "models": 39,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 2,
+              "leaves": 16
+            },
+            {
+              "predictor": 6,
+              "leaves": 45
+            },
+            {
+              "predictor": 5,
+              "leaves": 26
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 10
+            },
+            {
+              "property": 9,
+              "nodes": 13
+            },
+            {
+              "property": 10,
+              "nodes": 12
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 11,
+              "nodes": 23
+            },
+            {
+              "property": 13,
+              "nodes": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "groups256samples4k",
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-groups-273-output/im26-2018-diagnostic-groups256samples4k.jxl",
+      "sha256": "e4e2209a4d8347def0fbdd6d66fd577d7fc6ad08c17ae8d12669b7d082e1737f",
+      "bytes": 656690,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 256,
+      "groups": 16,
+      "sharedGroups": 0,
+      "uniqueLeaves": 2379,
+      "sectionBytes": 656585,
+      "otherSectionBytes": 0,
+      "headerBits": 106530,
+      "afterHeaderBits": 5146150,
+      "globalProgram": {
+        "sectionBytes": 8,
+        "headerBits": 63,
+        "afterHeaderBits": 1,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "rct",
+            "beginChannel": 0,
+            "type": 6
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 1,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 31862,
+          "headerBits": 6613,
+          "afterHeaderBits": 248283,
+          "leaves": 140,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 41
+            },
+            {
+              "predictor": 13,
+              "leaves": 9
+            },
+            {
+              "predictor": 6,
+              "leaves": 89
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 10,
+              "nodes": 19
+            },
+            {
+              "property": 15,
+              "nodes": 34
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            },
+            {
+              "property": 13,
+              "nodes": 12
+            },
+            {
+              "property": 12,
+              "nodes": 9
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 35034,
+          "headerBits": 5195,
+          "afterHeaderBits": 275077,
+          "leaves": 139,
+          "models": 21,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 46
+            },
+            {
+              "predictor": 6,
+              "leaves": 92
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 37
+            },
+            {
+              "property": 9,
+              "nodes": 36
+            },
+            {
+              "property": 10,
+              "nodes": 9
+            },
+            {
+              "property": 13,
+              "nodes": 14
+            },
+            {
+              "property": 11,
+              "nodes": 27
+            },
+            {
+              "property": 12,
+              "nodes": 12
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 32355,
+          "headerBits": 5612,
+          "afterHeaderBits": 253228,
+          "leaves": 128,
+          "models": 26,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 78
+            },
+            {
+              "predictor": 13,
+              "leaves": 7
+            },
+            {
+              "predictor": 5,
+              "leaves": 42
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 29
+            },
+            {
+              "property": 9,
+              "nodes": 41
+            },
+            {
+              "property": 13,
+              "nodes": 10
+            },
+            {
+              "property": 10,
+              "nodes": 19
+            },
+            {
+              "property": 11,
+              "nodes": 16
+            },
+            {
+              "property": 12,
+              "nodes": 9
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 30985,
+          "headerBits": 5369,
+          "afterHeaderBits": 242511,
+          "leaves": 133,
+          "models": 25,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 38
+            },
+            {
+              "predictor": 6,
+              "leaves": 87
+            },
+            {
+              "predictor": 13,
+              "leaves": 7
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 33
+            },
+            {
+              "property": 9,
+              "nodes": 43
+            },
+            {
+              "property": 13,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 12
+            },
+            {
+              "property": 12,
+              "nodes": 14
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 43121,
+          "headerBits": 7261,
+          "afterHeaderBits": 337707,
+          "leaves": 157,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 105
+            },
+            {
+              "predictor": 13,
+              "leaves": 21
+            },
+            {
+              "predictor": 5,
+              "leaves": 30
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 27
+            },
+            {
+              "property": 10,
+              "nodes": 26
+            },
+            {
+              "property": 15,
+              "nodes": 44
+            },
+            {
+              "property": 12,
+              "nodes": 20
+            },
+            {
+              "property": 13,
+              "nodes": 17
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 52578,
+          "headerBits": 7350,
+          "afterHeaderBits": 413274,
+          "leaves": 187,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 122
+            },
+            {
+              "predictor": 5,
+              "leaves": 52
+            },
+            {
+              "predictor": 13,
+              "leaves": 12
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 42
+            },
+            {
+              "property": 10,
+              "nodes": 26
+            },
+            {
+              "property": 9,
+              "nodes": 49
+            },
+            {
+              "property": 11,
+              "nodes": 30
+            },
+            {
+              "property": 12,
+              "nodes": 21
+            },
+            {
+              "property": 13,
+              "nodes": 15
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 45413,
+          "headerBits": 6972,
+          "afterHeaderBits": 356332,
+          "leaves": 158,
+          "models": 26,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 108
+            },
+            {
+              "predictor": 5,
+              "leaves": 37
+            },
+            {
+              "predictor": 13,
+              "leaves": 12
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 40
+            },
+            {
+              "property": 9,
+              "nodes": 38
+            },
+            {
+              "property": 10,
+              "nodes": 19
+            },
+            {
+              "property": 11,
+              "nodes": 17
+            },
+            {
+              "property": 13,
+              "nodes": 20
+            },
+            {
+              "property": 12,
+              "nodes": 20
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 38412,
+          "headerBits": 6541,
+          "afterHeaderBits": 300755,
+          "leaves": 138,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 31
+            },
+            {
+              "predictor": 6,
+              "leaves": 97
+            },
+            {
+              "predictor": 13,
+              "leaves": 9
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 36
+            },
+            {
+              "property": 10,
+              "nodes": 24
+            },
+            {
+              "property": 15,
+              "nodes": 35
+            },
+            {
+              "property": 11,
+              "nodes": 13
+            },
+            {
+              "property": 13,
+              "nodes": 8
+            },
+            {
+              "property": 12,
+              "nodes": 18
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 52433,
+          "headerBits": 8763,
+          "afterHeaderBits": 410701,
+          "leaves": 181,
+          "models": 37,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 44
+            },
+            {
+              "predictor": 13,
+              "leaves": 15
+            },
+            {
+              "predictor": 6,
+              "leaves": 121
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 10,
+              "nodes": 26
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 15,
+              "nodes": 47
+            },
+            {
+              "property": 11,
+              "nodes": 28
+            },
+            {
+              "property": 12,
+              "nodes": 23
+            },
+            {
+              "property": 13,
+              "nodes": 11
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 60443,
+          "headerBits": 8489,
+          "afterHeaderBits": 475055,
+          "leaves": 203,
+          "models": 35,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 54
+            },
+            {
+              "predictor": 6,
+              "leaves": 131
+            },
+            {
+              "predictor": 13,
+              "leaves": 17
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 15,
+              "nodes": 60
+            },
+            {
+              "property": 10,
+              "nodes": 26
+            },
+            {
+              "property": 11,
+              "nodes": 25
+            },
+            {
+              "property": 13,
+              "nodes": 22
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 52534,
+          "headerBits": 7391,
+          "afterHeaderBits": 412881,
+          "leaves": 177,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 121
+            },
+            {
+              "predictor": 13,
+              "leaves": 16
+            },
+            {
+              "predictor": 5,
+              "leaves": 39
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 31
+            },
+            {
+              "property": 10,
+              "nodes": 28
+            },
+            {
+              "property": 15,
+              "nodes": 51
+            },
+            {
+              "property": 11,
+              "nodes": 21
+            },
+            {
+              "property": 12,
+              "nodes": 18
+            },
+            {
+              "property": 13,
+              "nodes": 24
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 32352,
+          "headerBits": 5697,
+          "afterHeaderBits": 253119,
+          "leaves": 128,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 6,
+              "leaves": 80
+            },
+            {
+              "predictor": 13,
+              "leaves": 7
+            },
+            {
+              "predictor": 5,
+              "leaves": 40
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 15,
+              "nodes": 30
+            },
+            {
+              "property": 12,
+              "nodes": 19
+            },
+            {
+              "property": 13,
+              "nodes": 10
+            },
+            {
+              "property": 11,
+              "nodes": 12
+            },
+            {
+              "property": 10,
+              "nodes": 11
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "sharedTree": false,
+          "sectionBytes": 42363,
+          "headerBits": 5308,
+          "afterHeaderBits": 333596,
+          "leaves": 114,
+          "models": 22,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 18
+            },
+            {
+              "predictor": 5,
+              "leaves": 26
+            },
+            {
+              "predictor": 6,
+              "leaves": 69
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 10
+            },
+            {
+              "property": 15,
+              "nodes": 40
+            },
+            {
+              "property": 9,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 19
+            },
+            {
+              "property": 13,
+              "nodes": 9
+            },
+            {
+              "property": 12,
+              "nodes": 13
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "sharedTree": false,
+          "sectionBytes": 39244,
+          "headerBits": 6237,
+          "afterHeaderBits": 307715,
+          "leaves": 121,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 13,
+              "leaves": 15
+            },
+            {
+              "predictor": 5,
+              "leaves": 19
+            },
+            {
+              "predictor": 6,
+              "leaves": 86
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 14
+            },
+            {
+              "property": 15,
+              "nodes": 28
+            },
+            {
+              "property": 9,
+              "nodes": 24
+            },
+            {
+              "property": 13,
+              "nodes": 16
+            },
+            {
+              "property": 10,
+              "nodes": 22
+            },
+            {
+              "property": 12,
+              "nodes": 13
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "sharedTree": false,
+          "sectionBytes": 36321,
+          "headerBits": 6849,
+          "afterHeaderBits": 283719,
+          "leaves": 139,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 25
+            },
+            {
+              "predictor": 13,
+              "leaves": 9
+            },
+            {
+              "predictor": 6,
+              "leaves": 104
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 37
+            },
+            {
+              "property": 9,
+              "nodes": 24
+            },
+            {
+              "property": 12,
+              "nodes": 17
+            },
+            {
+              "property": 13,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 21
+            },
+            {
+              "property": 11,
+              "nodes": 17
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "sharedTree": false,
+          "sectionBytes": 31127,
+          "headerBits": 6820,
+          "afterHeaderBits": 242196,
+          "leaves": 135,
+          "models": 34,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [],
+          "predictors": [
+            {
+              "predictor": 1,
+              "leaves": 1
+            },
+            {
+              "predictor": 5,
+              "leaves": 39
+            },
+            {
+              "predictor": 2,
+              "leaves": 22
+            },
+            {
+              "predictor": 6,
+              "leaves": 73
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 18
+            },
+            {
+              "property": 9,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 16
+            },
+            {
+              "property": 15,
+              "nodes": 40
+            },
+            {
+              "property": 13,
+              "nodes": 11
+            },
+            {
+              "property": 11,
+              "nodes": 27
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "c265cc5f504a38ec073bc44cf8e76735e1173b5b77c9f68545e49d878585e905",
+      "bytes": 644097,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 256,
+      "groups": 12,
+      "sharedGroups": 12,
+      "uniqueLeaves": 1159,
+      "sectionBytes": 644045,
+      "otherSectionBytes": 0,
+      "headerBits": 36136,
+      "afterHeaderBits": 5116224,
+      "globalProgram": {
+        "sectionBytes": 4540,
+        "headerBits": 35808,
+        "afterHeaderBits": 512,
+        "leaves": 1159,
+        "models": 128,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [
+          {
+            "kind": "palette",
+            "beginChannel": 2,
+            "channelCount": 1,
+            "colorCount": 230,
+            "deltaCount": 0,
+            "predictor": 0
+          }
+        ],
+        "predictors": [
+          {
+            "predictor": 5,
+            "leaves": 787
+          },
+          {
+            "predictor": 6,
+            "leaves": 372
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 32
+          },
+          {
+            "property": 15,
+            "nodes": 174
+          },
+          {
+            "property": 1,
+            "nodes": 75
+          },
+          {
+            "property": 9,
+            "nodes": 42
+          },
+          {
+            "property": 11,
+            "nodes": 250
+          },
+          {
+            "property": 12,
+            "nodes": 217
+          },
+          {
+            "property": 10,
+            "nodes": 268
+          },
+          {
+            "property": 13,
+            "nodes": 100
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "sectionBytes": 46432,
+          "headerBits": 17,
+          "afterHeaderBits": 371439,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "sectionBytes": 49561,
+          "headerBits": 17,
+          "afterHeaderBits": 396471,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "sectionBytes": 55997,
+          "headerBits": 17,
+          "afterHeaderBits": 447959,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "sectionBytes": 47910,
+          "headerBits": 17,
+          "afterHeaderBits": 383263,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": true,
+          "sectionBytes": 49271,
+          "headerBits": 17,
+          "afterHeaderBits": 394151,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": true,
+          "sectionBytes": 53820,
+          "headerBits": 48,
+          "afterHeaderBits": 430512,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 2,
+              "channelCount": 1,
+              "colorCount": 149,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 1,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": true,
+          "sectionBytes": 52054,
+          "headerBits": 19,
+          "afterHeaderBits": 416413,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": true,
+          "sectionBytes": 43920,
+          "headerBits": 19,
+          "afterHeaderBits": 351341,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": true,
+          "sectionBytes": 50529,
+          "headerBits": 17,
+          "afterHeaderBits": 404215,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": true,
+          "sectionBytes": 61237,
+          "headerBits": 73,
+          "afterHeaderBits": 489823,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 1,
+              "channelCount": 1,
+              "colorCount": 132,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "palette",
+              "beginChannel": 3,
+              "channelCount": 1,
+              "colorCount": 68,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 2,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": true,
+          "sectionBytes": 79583,
+          "headerBits": 19,
+          "afterHeaderBits": 636645,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": true,
+          "sectionBytes": 49191,
+          "headerBits": 48,
+          "afterHeaderBits": 393480,
+          "leaves": 1159,
+          "models": 128,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 2,
+              "channelCount": 1,
+              "colorCount": 35,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 1,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 787
+            },
+            {
+              "predictor": 6,
+              "leaves": 372
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 32
+            },
+            {
+              "property": 15,
+              "nodes": 174
+            },
+            {
+              "property": 1,
+              "nodes": 75
+            },
+            {
+              "property": 9,
+              "nodes": 42
+            },
+            {
+              "property": 11,
+              "nodes": 250
+            },
+            {
+              "property": 12,
+              "nodes": 217
+            },
+            {
+              "property": 10,
+              "nodes": 268
+            },
+            {
+              "property": 13,
+              "nodes": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "a7193cb6b032f9287085764c656a84d30bac863eaebbf7ad443161f5fa841558",
+      "bytes": 649387,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "groupDimension": 256,
+      "groups": 12,
+      "sharedGroups": 0,
+      "uniqueLeaves": 1890,
+      "sectionBytes": 649159,
+      "otherSectionBytes": 0,
+      "headerBits": 81969,
+      "afterHeaderBits": 5111303,
+      "globalProgram": {
+        "sectionBytes": 7,
+        "headerBits": 54,
+        "afterHeaderBits": 2,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 6,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 47536,
+          "headerBits": 5273,
+          "afterHeaderBits": 375015,
+          "leaves": 131,
+          "models": 34,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 35
+            },
+            {
+              "predictor": 5,
+              "leaves": 96
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 6
+            },
+            {
+              "property": 15,
+              "nodes": 23
+            },
+            {
+              "property": 10,
+              "nodes": 33
+            },
+            {
+              "property": 12,
+              "nodes": 30
+            },
+            {
+              "property": 11,
+              "nodes": 38
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 50638,
+          "headerBits": 4885,
+          "afterHeaderBits": 400219,
+          "leaves": 123,
+          "models": 30,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 38
+            },
+            {
+              "predictor": 5,
+              "leaves": 85
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 9
+            },
+            {
+              "property": 15,
+              "nodes": 21
+            },
+            {
+              "property": 10,
+              "nodes": 31
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            },
+            {
+              "property": 11,
+              "nodes": 37
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 56906,
+          "headerBits": 6370,
+          "afterHeaderBits": 448878,
+          "leaves": 133,
+          "models": 40,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 59
+            },
+            {
+              "predictor": 5,
+              "leaves": 74
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 10
+            },
+            {
+              "property": 10,
+              "nodes": 30
+            },
+            {
+              "property": 15,
+              "nodes": 30
+            },
+            {
+              "property": 12,
+              "nodes": 28
+            },
+            {
+              "property": 11,
+              "nodes": 34
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 49019,
+          "headerBits": 6103,
+          "afterHeaderBits": 386049,
+          "leaves": 143,
+          "models": 40,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 40
+            },
+            {
+              "predictor": 5,
+              "leaves": 103
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 15,
+              "nodes": 23
+            },
+            {
+              "property": 10,
+              "nodes": 46
+            },
+            {
+              "property": 12,
+              "nodes": 27
+            },
+            {
+              "property": 11,
+              "nodes": 38
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 50284,
+          "headerBits": 4656,
+          "afterHeaderBits": 397616,
+          "leaves": 117,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 95
+            },
+            {
+              "predictor": 6,
+              "leaves": 22
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 15,
+              "nodes": 17
+            },
+            {
+              "property": 10,
+              "nodes": 27
+            },
+            {
+              "property": 11,
+              "nodes": 45
+            },
+            {
+              "property": 12,
+              "nodes": 19
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 54058,
+          "headerBits": 4830,
+          "afterHeaderBits": 427634,
+          "leaves": 106,
+          "models": 33,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 2,
+              "channelCount": 1,
+              "colorCount": 149,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 1,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 32
+            },
+            {
+              "predictor": 5,
+              "leaves": 74
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 22
+            },
+            {
+              "property": 11,
+              "nodes": 26
+            },
+            {
+              "property": 10,
+              "nodes": 33
+            },
+            {
+              "property": 12,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 52423,
+          "headerBits": 5546,
+          "afterHeaderBits": 413838,
+          "leaves": 111,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 40
+            },
+            {
+              "predictor": 5,
+              "leaves": 71
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 9,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 25
+            },
+            {
+              "property": 12,
+              "nodes": 17
+            },
+            {
+              "property": 11,
+              "nodes": 28
+            },
+            {
+              "property": 10,
+              "nodes": 35
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 44579,
+          "headerBits": 4972,
+          "afterHeaderBits": 351660,
+          "leaves": 116,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 18
+            },
+            {
+              "predictor": 5,
+              "leaves": 98
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 19
+            },
+            {
+              "property": 15,
+              "nodes": 11
+            },
+            {
+              "property": 11,
+              "nodes": 20
+            },
+            {
+              "property": 10,
+              "nodes": 29
+            },
+            {
+              "property": 9,
+              "nodes": 23
+            },
+            {
+              "property": 12,
+              "nodes": 13
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 50814,
+          "headerBits": 5870,
+          "afterHeaderBits": 400642,
+          "leaves": 100,
+          "models": 46,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 9
+            },
+            {
+              "predictor": 5,
+              "leaves": 91
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 33
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 12,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 4
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 62329,
+          "headerBits": 11006,
+          "afterHeaderBits": 487626,
+          "leaves": 256,
+          "models": 59,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 1,
+              "channelCount": 1,
+              "colorCount": 132,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "palette",
+              "beginChannel": 3,
+              "channelCount": 1,
+              "colorCount": 68,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 2,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 152
+            },
+            {
+              "predictor": 5,
+              "leaves": 104
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 22
+            },
+            {
+              "property": 15,
+              "nodes": 31
+            },
+            {
+              "property": 12,
+              "nodes": 40
+            },
+            {
+              "property": 9,
+              "nodes": 57
+            },
+            {
+              "property": 11,
+              "nodes": 51
+            },
+            {
+              "property": 10,
+              "nodes": 54
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 80714,
+          "headerBits": 14397,
+          "afterHeaderBits": 631315,
+          "leaves": 390,
+          "models": 60,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 195
+            },
+            {
+              "predictor": 5,
+              "leaves": 195
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 34
+            },
+            {
+              "property": 15,
+              "nodes": 35
+            },
+            {
+              "property": 9,
+              "nodes": 76
+            },
+            {
+              "property": 11,
+              "nodes": 92
+            },
+            {
+              "property": 10,
+              "nodes": 83
+            },
+            {
+              "property": 12,
+              "nodes": 69
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 49852,
+          "headerBits": 8007,
+          "afterHeaderBits": 390809,
+          "leaves": 163,
+          "models": 50,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "palette",
+              "beginChannel": 2,
+              "channelCount": 1,
+              "colorCount": 35,
+              "deltaCount": 0,
+              "predictor": 0
+            },
+            {
+              "kind": "rct",
+              "beginChannel": 1,
+              "type": 40
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 65
+            },
+            {
+              "predictor": 5,
+              "leaves": 98
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 9
+            },
+            {
+              "property": 9,
+              "nodes": 9
+            },
+            {
+              "property": 15,
+              "nodes": 32
+            },
+            {
+              "property": 10,
+              "nodes": 44
+            },
+            {
+              "property": 11,
+              "nodes": 42
+            },
+            {
+              "property": 12,
+              "nodes": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "jsquash",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "d463a96ecd98103a24d797c00e03447bc9744481986a3286bdc63b3c098e0e1a",
+      "bytes": 613245,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 256,
+      "groups": 16,
+      "sharedGroups": 16,
+      "uniqueLeaves": 1032,
+      "sectionBytes": 613181,
+      "otherSectionBytes": 0,
+      "headerBits": 34251,
+      "afterHeaderBits": 4871197,
+      "globalProgram": {
+        "sectionBytes": 4251,
+        "headerBits": 33975,
+        "afterHeaderBits": 33,
+        "leaves": 1032,
+        "models": 124,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": false,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 5,
+            "leaves": 271
+          },
+          {
+            "predictor": 6,
+            "leaves": 761
+          }
+        ],
+        "properties": [
+          {
+            "property": 0,
+            "nodes": 8
+          },
+          {
+            "property": 1,
+            "nodes": 109
+          },
+          {
+            "property": 9,
+            "nodes": 66
+          },
+          {
+            "property": 15,
+            "nodes": 273
+          },
+          {
+            "property": 13,
+            "nodes": 49
+          },
+          {
+            "property": 10,
+            "nodes": 199
+          },
+          {
+            "property": 11,
+            "nodes": 184
+          },
+          {
+            "property": 12,
+            "nodes": 143
+          }
+        ]
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": true,
+          "sectionBytes": 29388,
+          "headerBits": 17,
+          "afterHeaderBits": 235087,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": true,
+          "sectionBytes": 33358,
+          "headerBits": 17,
+          "afterHeaderBits": 266847,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": true,
+          "sectionBytes": 30118,
+          "headerBits": 17,
+          "afterHeaderBits": 240927,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": true,
+          "sectionBytes": 29253,
+          "headerBits": 17,
+          "afterHeaderBits": 234007,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": true,
+          "sectionBytes": 39547,
+          "headerBits": 17,
+          "afterHeaderBits": 316359,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": true,
+          "sectionBytes": 48856,
+          "headerBits": 17,
+          "afterHeaderBits": 390831,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": true,
+          "sectionBytes": 41609,
+          "headerBits": 17,
+          "afterHeaderBits": 332855,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": true,
+          "sectionBytes": 35717,
+          "headerBits": 17,
+          "afterHeaderBits": 285719,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": true,
+          "sectionBytes": 48785,
+          "headerBits": 17,
+          "afterHeaderBits": 390263,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": true,
+          "sectionBytes": 56338,
+          "headerBits": 17,
+          "afterHeaderBits": 450687,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": true,
+          "sectionBytes": 49400,
+          "headerBits": 17,
+          "afterHeaderBits": 395183,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": true,
+          "sectionBytes": 29599,
+          "headerBits": 19,
+          "afterHeaderBits": 236773,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "sharedTree": true,
+          "sectionBytes": 38812,
+          "headerBits": 19,
+          "afterHeaderBits": 310477,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "sharedTree": true,
+          "sectionBytes": 36318,
+          "headerBits": 17,
+          "afterHeaderBits": 290527,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "sharedTree": true,
+          "sectionBytes": 33769,
+          "headerBits": 17,
+          "afterHeaderBits": 270135,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "sharedTree": true,
+          "sectionBytes": 28063,
+          "headerBits": 17,
+          "afterHeaderBits": 224487,
+          "leaves": 1032,
+          "models": 124,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 271
+            },
+            {
+              "predictor": 6,
+              "leaves": 761
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 8
+            },
+            {
+              "property": 1,
+              "nodes": 109
+            },
+            {
+              "property": 9,
+              "nodes": 66
+            },
+            {
+              "property": 15,
+              "nodes": 273
+            },
+            {
+              "property": 13,
+              "nodes": 49
+            },
+            {
+              "property": 10,
+              "nodes": 199
+            },
+            {
+              "property": 11,
+              "nodes": 184
+            },
+            {
+              "property": 12,
+              "nodes": 143
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "subject": "vips",
+      "artifact": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "6a60bd6a5a483f253faa4ceada77568306b7b56a6a0b3f142a559916b716acb6",
+      "bytes": 621262,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "groupDimension": 256,
+      "groups": 16,
+      "sharedGroups": 0,
+      "uniqueLeaves": 1988,
+      "sectionBytes": 621023,
+      "otherSectionBytes": 0,
+      "headerBits": 87779,
+      "afterHeaderBits": 4880405,
+      "globalProgram": {
+        "sectionBytes": 7,
+        "headerBits": 54,
+        "afterHeaderBits": 2,
+        "leaves": 1,
+        "models": 1,
+        "nonzeroOffsets": 0,
+        "nonunitMultipliers": 0,
+        "prefix": true,
+        "lz77": false,
+        "transforms": [],
+        "predictors": [
+          {
+            "predictor": 6,
+            "leaves": 1
+          }
+        ],
+        "properties": []
+      },
+      "localPrograms": [
+        {
+          "id": 0,
+          "sharedTree": false,
+          "sectionBytes": 30108,
+          "headerBits": 5149,
+          "afterHeaderBits": 235715,
+          "leaves": 106,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 68
+            },
+            {
+              "predictor": 5,
+              "leaves": 38
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 22
+            },
+            {
+              "property": 10,
+              "nodes": 27
+            },
+            {
+              "property": 12,
+              "nodes": 26
+            },
+            {
+              "property": 11,
+              "nodes": 27
+            },
+            {
+              "property": 9,
+              "nodes": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "sharedTree": false,
+          "sectionBytes": 33790,
+          "headerBits": 3599,
+          "afterHeaderBits": 266721,
+          "leaves": 75,
+          "models": 27,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 43
+            },
+            {
+              "predictor": 5,
+              "leaves": 32
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 14
+            },
+            {
+              "property": 10,
+              "nodes": 20
+            },
+            {
+              "property": 12,
+              "nodes": 15
+            },
+            {
+              "property": 11,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 2
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sharedTree": false,
+          "sectionBytes": 30919,
+          "headerBits": 4022,
+          "afterHeaderBits": 243330,
+          "leaves": 93,
+          "models": 28,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 59
+            },
+            {
+              "predictor": 5,
+              "leaves": 34
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 22
+            },
+            {
+              "property": 11,
+              "nodes": 24
+            },
+            {
+              "property": 9,
+              "nodes": 3
+            },
+            {
+              "property": 12,
+              "nodes": 22
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sharedTree": false,
+          "sectionBytes": 29827,
+          "headerBits": 3629,
+          "afterHeaderBits": 234987,
+          "leaves": 84,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 37
+            },
+            {
+              "predictor": 5,
+              "leaves": 47
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 16
+            },
+            {
+              "property": 9,
+              "nodes": 11
+            },
+            {
+              "property": 10,
+              "nodes": 21
+            },
+            {
+              "property": 11,
+              "nodes": 25
+            },
+            {
+              "property": 12,
+              "nodes": 8
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sharedTree": false,
+          "sectionBytes": 40377,
+          "headerBits": 5531,
+          "afterHeaderBits": 317485,
+          "leaves": 113,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 83
+            },
+            {
+              "predictor": 5,
+              "leaves": 30
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 24
+            },
+            {
+              "property": 10,
+              "nodes": 28
+            },
+            {
+              "property": 11,
+              "nodes": 24
+            },
+            {
+              "property": 12,
+              "nodes": 28
+            },
+            {
+              "property": 9,
+              "nodes": 5
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sharedTree": false,
+          "sectionBytes": 49732,
+          "headerBits": 5847,
+          "afterHeaderBits": 392009,
+          "leaves": 150,
+          "models": 33,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 108
+            },
+            {
+              "predictor": 5,
+              "leaves": 42
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 28
+            },
+            {
+              "property": 12,
+              "nodes": 36
+            },
+            {
+              "property": 10,
+              "nodes": 38
+            },
+            {
+              "property": 9,
+              "nodes": 9
+            },
+            {
+              "property": 11,
+              "nodes": 36
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sharedTree": false,
+          "sectionBytes": 42443,
+          "headerBits": 5590,
+          "afterHeaderBits": 333954,
+          "leaves": 126,
+          "models": 33,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 5,
+              "leaves": 39
+            },
+            {
+              "predictor": 6,
+              "leaves": 87
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 4
+            },
+            {
+              "property": 15,
+              "nodes": 23
+            },
+            {
+              "property": 10,
+              "nodes": 32
+            },
+            {
+              "property": 9,
+              "nodes": 10
+            },
+            {
+              "property": 11,
+              "nodes": 29
+            },
+            {
+              "property": 12,
+              "nodes": 27
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sharedTree": false,
+          "sectionBytes": 36556,
+          "headerBits": 4763,
+          "afterHeaderBits": 287685,
+          "leaves": 70,
+          "models": 38,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 48
+            },
+            {
+              "predictor": 5,
+              "leaves": 22
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 18
+            },
+            {
+              "property": 11,
+              "nodes": 8
+            },
+            {
+              "property": 9,
+              "nodes": 6
+            },
+            {
+              "property": 12,
+              "nodes": 16
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sharedTree": false,
+          "sectionBytes": 49652,
+          "headerBits": 7644,
+          "afterHeaderBits": 389572,
+          "leaves": 174,
+          "models": 45,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 124
+            },
+            {
+              "predictor": 5,
+              "leaves": 50
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 30
+            },
+            {
+              "property": 12,
+              "nodes": 39
+            },
+            {
+              "property": 11,
+              "nodes": 46
+            },
+            {
+              "property": 9,
+              "nodes": 7
+            },
+            {
+              "property": 10,
+              "nodes": 48
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sharedTree": false,
+          "sectionBytes": 57143,
+          "headerBits": 6838,
+          "afterHeaderBits": 450306,
+          "leaves": 166,
+          "models": 40,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 113
+            },
+            {
+              "predictor": 5,
+              "leaves": 53
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 4
+            },
+            {
+              "property": 9,
+              "nodes": 10
+            },
+            {
+              "property": 15,
+              "nodes": 29
+            },
+            {
+              "property": 12,
+              "nodes": 38
+            },
+            {
+              "property": 11,
+              "nodes": 39
+            },
+            {
+              "property": 10,
+              "nodes": 45
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sharedTree": false,
+          "sectionBytes": 50244,
+          "headerBits": 6492,
+          "afterHeaderBits": 395460,
+          "leaves": 153,
+          "models": 38,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 110
+            },
+            {
+              "predictor": 5,
+              "leaves": 43
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 4
+            },
+            {
+              "property": 15,
+              "nodes": 22
+            },
+            {
+              "property": 10,
+              "nodes": 40
+            },
+            {
+              "property": 11,
+              "nodes": 37
+            },
+            {
+              "property": 9,
+              "nodes": 16
+            },
+            {
+              "property": 12,
+              "nodes": 33
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "sharedTree": false,
+          "sectionBytes": 30342,
+          "headerBits": 4382,
+          "afterHeaderBits": 238354,
+          "leaves": 93,
+          "models": 32,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 64
+            },
+            {
+              "predictor": 5,
+              "leaves": 29
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 21
+            },
+            {
+              "property": 9,
+              "nodes": 9
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            },
+            {
+              "property": 10,
+              "nodes": 21
+            },
+            {
+              "property": 12,
+              "nodes": 19
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "sharedTree": false,
+          "sectionBytes": 39556,
+          "headerBits": 6560,
+          "afterHeaderBits": 309888,
+          "leaves": 195,
+          "models": 29,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 26
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 123
+            },
+            {
+              "predictor": 5,
+              "leaves": 72
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 2
+            },
+            {
+              "property": 15,
+              "nodes": 57
+            },
+            {
+              "property": 10,
+              "nodes": 39
+            },
+            {
+              "property": 9,
+              "nodes": 6
+            },
+            {
+              "property": 11,
+              "nodes": 52
+            },
+            {
+              "property": 12,
+              "nodes": 38
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "sharedTree": false,
+          "sectionBytes": 36780,
+          "headerBits": 5210,
+          "afterHeaderBits": 289030,
+          "leaves": 112,
+          "models": 31,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 12
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 86
+            },
+            {
+              "predictor": 5,
+              "leaves": 26
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 4
+            },
+            {
+              "property": 15,
+              "nodes": 24
+            },
+            {
+              "property": 9,
+              "nodes": 7
+            },
+            {
+              "property": 10,
+              "nodes": 32
+            },
+            {
+              "property": 11,
+              "nodes": 19
+            },
+            {
+              "property": 12,
+              "nodes": 25
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "sharedTree": false,
+          "sectionBytes": 34540,
+          "headerBits": 6026,
+          "afterHeaderBits": 270294,
+          "leaves": 131,
+          "models": 36,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 102
+            },
+            {
+              "predictor": 5,
+              "leaves": 29
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 3
+            },
+            {
+              "property": 15,
+              "nodes": 23
+            },
+            {
+              "property": 12,
+              "nodes": 24
+            },
+            {
+              "property": 10,
+              "nodes": 38
+            },
+            {
+              "property": 11,
+              "nodes": 36
+            },
+            {
+              "property": 9,
+              "nodes": 6
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "sharedTree": false,
+          "sectionBytes": 29007,
+          "headerBits": 6443,
+          "afterHeaderBits": 225613,
+          "leaves": 146,
+          "models": 43,
+          "nonzeroOffsets": 0,
+          "nonunitMultipliers": 0,
+          "prefix": false,
+          "lz77": false,
+          "transforms": [
+            {
+              "kind": "rct",
+              "beginChannel": 0,
+              "type": 10
+            }
+          ],
+          "predictors": [
+            {
+              "predictor": 6,
+              "leaves": 82
+            },
+            {
+              "predictor": 5,
+              "leaves": 64
+            }
+          ],
+          "properties": [
+            {
+              "property": 0,
+              "nodes": 4
+            },
+            {
+              "property": 15,
+              "nodes": 28
+            },
+            {
+              "property": 10,
+              "nodes": 31
+            },
+            {
+              "property": 11,
+              "nodes": 36
+            },
+            {
+              "property": 9,
+              "nodes": 6
+            },
+            {
+              "property": 12,
+              "nodes": 40
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "policy": "Read-only complete global and local program accounting in twelve previously independent-exact whole files on two identical pinned photos. Parser differs only by exports/import paths. Header bits include tree/entropy/transform/weighted/header fields; after-header bits include residuals, final states, prefix-plane data and padding. All section bits reconcile exactly. Shared nodes are counted once, not repeated per group. Structural or payload differences do not assign causal savings to one feature. No production, speed or parity claim."
+}

@@ -1,0 +1,156 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-cheap-group-cost-226.ts",
+      "sha256": "926ae11b1d6fb017a406a5feba07cf9b7dc2b94d061d9da653b7ce6beee0d71a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-cheap-group-cost-226.json",
+      "sha256": "d0dd62bd6679b33a76de3bce64a3936ff892242f07ece2e81b36af82e30124f6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cost-guard-controls.json",
+      "sha256": "e857a05332c29df430339cdb37f107cd459a8724d0df6b16bf7b7b4d5bf017dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge.raw",
+      "sha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-baseline.jxl",
+      "sha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-modular-tree.ts",
+      "sha256": "d51f35579013d15531886780df9c160a02045ed636a692b05e21ccf69cd48616"
+    }
+  ],
+  "fixture": "flat-rgb-dc-edge",
+  "inputSha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa",
+  "exactPriorSha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566",
+  "exactSelectedBytes": 5295,
+  "groups": [
+    {
+      "x": 0,
+      "y": 0,
+      "width": 1024,
+      "height": 257,
+      "effort": 7,
+      "rct": true,
+      "predictors": [1, 4],
+      "entropy": "ans",
+      "contextModel": "learned",
+      "lz77": false,
+      "plainBytes": 13861,
+      "lz77Bytes": 16303,
+      "selectedBytes": 12882,
+      "palette": "ordinary",
+      "squeeze": false,
+      "squeezeProbe": {
+        "rawBytes": 2166,
+        "squeezeBytes": 4141,
+        "selected": false
+      },
+      "candidates": [
+        {
+          "tool": "raw",
+          "bytes": 41627
+        },
+        {
+          "tool": "palette",
+          "bytes": 12882
+        }
+      ]
+    },
+    {
+      "x": 1024,
+      "y": 0,
+      "width": 1024,
+      "height": 257,
+      "effort": 7,
+      "rct": true,
+      "predictors": [1, 4],
+      "entropy": "ans",
+      "contextModel": "learned",
+      "lz77": false,
+      "plainBytes": 13861,
+      "lz77Bytes": 16303,
+      "selectedBytes": 12882,
+      "palette": "ordinary",
+      "squeeze": false,
+      "squeezeProbe": {
+        "rawBytes": 2166,
+        "squeezeBytes": 4141,
+        "selected": false
+      },
+      "candidates": [
+        {
+          "tool": "raw",
+          "bytes": 41627
+        },
+        {
+          "tool": "palette",
+          "bytes": 12882
+        }
+      ]
+    },
+    {
+      "x": 2048,
+      "y": 0,
+      "width": 2,
+      "height": 257,
+      "effort": 7,
+      "rct": true,
+      "predictors": [1, 4],
+      "entropy": "ans",
+      "contextModel": "channel",
+      "lz77": true,
+      "plainBytes": 533,
+      "lz77Bytes": 375,
+      "selectedBytes": 366,
+      "palette": "ordinary",
+      "squeeze": false,
+      "candidates": [
+        {
+          "tool": "raw",
+          "bytes": 381
+        },
+        {
+          "tool": "palette",
+          "bytes": 366
+        },
+        {
+          "tool": "squeeze",
+          "bytes": 1121
+        }
+      ]
+    }
+  ],
+  "ordinaryGroupPayloadBytes": 26130,
+  "ordinaryBitsPerPixelLowerBound": 0.3967732751257474,
+  "ordinaryBitsPerSampleLowerBound": 0.1322577583752491,
+  "policy": "Existing ordinary-frame group evidence from the exact copied baseline. Sum of selected local payloads excludes headers/global sections and is only a lower bound on regular whole-frame cost. The selected final patched file is separately byte-identical to the prior full independent/public proof. No new encoder selection, speed or adoption claim."
+}

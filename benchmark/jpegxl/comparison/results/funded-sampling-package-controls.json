@@ -1,0 +1,138 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "72fb3bbc0a53596a8c8d3a4810fe35ebc0c486017cad22401bf3d95a5b971b95",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-funded-package-261.ts",
+      "sha256": "7da6c6ae4c204ae3d6932f0ceb2166b73cd6a43a4feb63203023eecb97f8d34a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-funded-package-261.ts",
+      "sha256": "16ed5e698f23612b96e0a344a1ad90f929f94c1515e8c083e757c15b2aadfe80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-funded-package-261.json",
+      "sha256": "5aed94171c8c3d72e1406a25bfb03600fa673eb98c83253ac52a4e96a0f6f0f5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/manifest.json",
+      "sha256": "b63201fd4aed024f159abfe7743779f629954ac8cb584d675c963710de798d7a"
+    },
+    {
+      "path": "scripts/bundle-size.ts",
+      "sha256": "76e9975739b6880e44afda36378a862f926aabe3cf5d2068fe2074a7bd56c32c"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "02b1aeb19f59365875c69c1b45ac38b78a685638f8b7c56c29b55c79ebd5492f"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "ac95adc921bd39be25fec1b7129de724760862fe932505915c8e357f04760ef8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-modular-encode.ts",
+      "sha256": "fa34e8270aee19fafc5229d614809c01abe0c21ecb8fdb015bcd35738860cf5f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "aacb713ecaf3a308953a12e3d8df055f98ff773931c4dcbe7c2642ef8041ec08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-neighbors-257/candidate/jpegxl-modular-tree.ts",
+      "sha256": "6958cc610f3ac1926ccfdb001351cf5040525c7783b3eeec594f17f864e0dbda"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "bb417152bb724ee5f5e66ad507522dc047b498fbeb11332f4665abeb4c33f4d1"
+    }
+  ],
+  "results": [
+    {
+      "target": "jpegxl-specialized",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-package-261/jpegxl-specialized-baseline.js",
+      "artifactSha256": "1dfd3cc3391a5ad468db4813da652317c451e2d45736495843d7936e548f50d4",
+      "bytes": 613284,
+      "previousBytes": 613284,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "target": "jpegxl-specialized",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-package-261/jpegxl-specialized-candidate.js",
+      "artifactSha256": "d0c9e910707e2017e696b73c947b1adfa676e1f05c2b67fce7de140af7084f2b",
+      "bytes": 613578,
+      "previousBytes": 613284,
+      "deltaBytes": 294,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-package-261/codec-jpegxl-baseline.js",
+      "artifactSha256": "2dad40537fe8cfc35c3d7cf77a63abcf684e49d287ed1614ed3e76a82ad33838",
+      "bytes": 540695,
+      "previousBytes": 540695,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/funded-package-261/codec-jpegxl-candidate.js",
+      "artifactSha256": "4cb31c4cf6d4e4b09faed02b8c7936ffac501e8e743a6fe57ea680ffb4e51376",
+      "bytes": 540978,
+      "previousBytes": 540695,
+      "deltaBytes": 283,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    }
+  ],
+  "policy": "Exact existing public package target and esbuild settings compare unchanged qualified source against only the six uninstrumented first-party fast16384 encoder/tree modules from257. Every baseline byte count must reproduce generated metrics, original budget baselines stay unchanged and candidate raw minified bytes are measured before any production/budget change. No release or deployment footprint claim."
+}

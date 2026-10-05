@@ -1,0 +1,340 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-color-selection-279.ts",
+      "sha256": "afcd7d8ba3f3520adb4939a3c7495c3fac561aec29d2033254d216d42c3430a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-color-selection-profile-279.ts",
+      "sha256": "f6280236949ea5d9d04355a21b330b2a21a583308e63e77f051187f733be074c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-color-selection-profile-279.json",
+      "sha256": "339a9aaca079edc30be4232cc3737016e1e8270a44657f3147437c530ca5a6b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/color-selection-profile-279/manifest.json",
+      "sha256": "585a5d0484d58d9d94fdc5501190e333019490d90a69e30b3a43e3513a52fc0d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-investigation-final-gates.json",
+      "sha256": "d1ebee3f97dd918398603c59319caf95a54cb276c9696be1301117bce5edbf24"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/color-selection-profile-279/jpegxl-modular-encode.ts",
+      "sha256": "badc695d16520a063790993cc4cd5783d5dc281eff57b6ac1082ebab4d5eabf7"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/color-selection-profile-279/jpegxl-modular-rct.ts",
+      "sha256": "714fb2ee6110b53715bcd7367ef1f707e32740d6fe8e3bbd32552249b00b8a73"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+      "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2400-diagnostic.raw",
+      "sha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2400.ppm",
+      "sha256": "4b8de9a0cdd9f743434a96510ab5eb51d1b2078640e48a144c240783e5fdaaba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5032-diagnostic.raw",
+      "sha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5032.ppm",
+      "sha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5034-diagnostic.raw",
+      "sha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5034.ppm",
+      "sha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5052-diagnostic.raw",
+      "sha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5052.ppm",
+      "sha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5334-diagnostic.raw",
+      "sha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5334.ppm",
+      "sha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/alpha_triangles/ref.png",
+      "sha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/gray8.raw",
+      "sha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/grayscale/ref.png",
+      "sha256": "9d8d45dc6158ba173694f9e3075242c4a1e941649ed0eb9538479f83c8fed63f"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "width": 1024,
+      "height": 768,
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "originalTransforms": {
+        "useRct": true
+      },
+      "current": 6,
+      "selected": 6,
+      "preferred": 10,
+      "bestScore": 28502.79481977127,
+      "currentScore": 28618.971370492323,
+      "samples": 4085,
+      "sampledRgbColors": 1857,
+      "bestEstimatedBitsPerPixel": 6.977428352453187,
+      "currentEstimatedBitsPerPixel": 7.005868144551364
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "width": 1024,
+      "height": 768,
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "originalTransforms": {
+        "useRct": true
+      },
+      "current": 6,
+      "selected": 40,
+      "preferred": 40,
+      "bestScore": 31831.059808527876,
+      "currentScore": 32558.701380590497,
+      "samples": 4085,
+      "sampledRgbColors": 3259,
+      "bestEstimatedBitsPerPixel": 7.792181103678795,
+      "currentEstimatedBitsPerPixel": 7.970306335517869
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "originalTransforms": {
+        "useRct": true
+      },
+      "current": 6,
+      "selected": 10,
+      "preferred": 10,
+      "bestScore": 25460.539930568313,
+      "currentScore": 26258.778466102645,
+      "samples": 4087,
+      "sampledRgbColors": 882,
+      "bestEstimatedBitsPerPixel": 6.229640305986864,
+      "currentEstimatedBitsPerPixel": 6.424951912430302
+    },
+    {
+      "fixture": "im26-2400-diagnostic",
+      "width": 766,
+      "height": 1024,
+      "inputSha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207",
+      "originalTransforms": {
+        "useRct": false
+      },
+      "current": 0,
+      "selected": 0,
+      "preferred": 15,
+      "bestScore": 30604.528440760452,
+      "currentScore": 30630.643842512287,
+      "samples": 4085,
+      "sampledRgbColors": 1336,
+      "bestEstimatedBitsPerPixel": 7.491928626869144,
+      "currentEstimatedBitsPerPixel": 7.4983216260739995
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "originalTransforms": {
+        "useRct": true
+      },
+      "current": 6,
+      "selected": 40,
+      "preferred": 40,
+      "bestScore": 8815.855353363857,
+      "currentScore": 9298.143531686977,
+      "samples": 4087,
+      "sampledRgbColors": 231,
+      "bestEstimatedBitsPerPixel": 2.157048043397078,
+      "currentEstimatedBitsPerPixel": 2.2750534699503246
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "originalTransforms": {
+        "useRct": false,
+        "palette": {
+          "channelCount": 4,
+          "colorCount": 269,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      },
+      "current": 0,
+      "selected": 20,
+      "preferred": 20,
+      "bestScore": 4717.029342302273,
+      "currentScore": 10241.887368110074,
+      "samples": 4087,
+      "sampledRgbColors": 131,
+      "bestEstimatedBitsPerPixel": 1.154154475728474,
+      "currentEstimatedBitsPerPixel": 2.505967058505034
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "originalTransforms": {
+        "useRct": false,
+        "palette": {
+          "channelCount": 4,
+          "colorCount": 251,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      },
+      "current": 0,
+      "selected": 20,
+      "preferred": 20,
+      "bestScore": 5227.676740149339,
+      "currentScore": 11611.117723110696,
+      "samples": 4087,
+      "sampledRgbColors": 129,
+      "bestEstimatedBitsPerPixel": 1.2790987864324295,
+      "currentEstimatedBitsPerPixel": 2.840987943017053
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "originalTransforms": {
+        "useRct": false,
+        "palette": {
+          "channelCount": 4,
+          "colorCount": 512,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      },
+      "current": 0,
+      "selected": 5,
+      "preferred": 5,
+      "bestScore": 3397.199168986958,
+      "currentScore": 6994.279083165643,
+      "samples": 4087,
+      "sampledRgbColors": 111,
+      "bestEstimatedBitsPerPixel": 0.8312207411272223,
+      "currentEstimatedBitsPerPixel": 1.7113479528176274
+    },
+    {
+      "fixture": "alpha_triangles",
+      "width": 1024,
+      "height": 1024,
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "originalTransforms": {
+        "useRct": false,
+        "palette": {
+          "channelCount": 4,
+          "colorCount": 0,
+          "deltaCount": 15,
+          "predictor": 5
+        }
+      },
+      "current": 0,
+      "selected": 0,
+      "preferred": 0,
+      "bestScore": 5435.471730103562,
+      "currentScore": 5435.471730103562,
+      "samples": 4087,
+      "sampledRgbColors": 4087,
+      "bestEstimatedBitsPerPixel": 1.3299417005391636,
+      "currentEstimatedBitsPerPixel": 1.3299417005391636
+    },
+    {
+      "fixture": "gray8",
+      "width": 200,
+      "height": 200,
+      "inputSha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798",
+      "originalTransforms": {
+        "useRct": false,
+        "palette": {
+          "channelCount": 4,
+          "colorCount": 256,
+          "deltaCount": 0,
+          "predictor": 0
+        }
+      },
+      "current": 0,
+      "selected": 3,
+      "preferred": 3,
+      "bestScore": 4171.110885218401,
+      "currentScore": 12513.332655655206,
+      "samples": 4056,
+      "sampledRgbColors": 255,
+      "bestEstimatedBitsPerPixel": 1.0283803957639055,
+      "currentEstimatedBitsPerPixel": 3.0851411872917174
+    }
+  ],
+  "policy": "Read-only original single-group preparation and bounded sampled RCT scores on all ten pinned RGBA8 single-group inputs. Scores estimate literal rate and omit learned/palette/header costs. A selected transform or high sampled color count is a hypothesis for a group policy, not proof of smaller complete output or overhead. No production or parity claim."
+}

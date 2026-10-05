@@ -1,0 +1,638 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-guarded-selective-trees-340.ts",
+      "sha256": "fa25e5112593e654b02f02db0f956f7285d7ec2a528c55e8f077e94807869a7d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/analyze-guarded-profile-338.ts",
+      "sha256": "ec04ba1c04202b95e337c689a0268d7ec2e883b299bc2ddf377f4b61acbc7b40"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-cpu-sample-profile-typed.json",
+      "sha256": "ab55772981499923260d7eb49824fb5fe311856194ac1ea918200cce042634d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-predictor-tree-controls.json",
+      "sha256": "a9607f4702451ac6b9abfac55639815ed3289c377ffd51c24fabedd082f5f0f7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-program-profile.json",
+      "sha256": "4a4a48a38315396fda4e6c4a78fef80828a503ec3a01feb6987796f84604ec90"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-guarded-selective-trees-340.ts",
+      "sha256": "e72b9109bf6dbedf8e8dd8a435cb08a604fbdceaefeeff004b6448f39878a1a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-guarded-selective-trees-340.json",
+      "sha256": "1c8f01222c92291772aeaac68c28beaafffdc5b0ee9576af824b490c4092d0d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/manifest.json",
+      "sha256": "a70ba6f3541b4a519503cea6494f4bed376d1f03c584966e4269f9dc0a357218"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-fragment-340.ts",
+      "sha256": "d85e31eb6549048a5826cb1da449be56b9cfd664e5060d6a45d69faa5121eda3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-final-gates.json",
+      "sha256": "0fbf33f6b69a851c46409b0b83d8063891049fdd505d3a5a79011cac06fcfbfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/manifest.json",
+      "sha256": "e11590e829783a401677546dc8636c9c993293227cb97be5d2cba20ffba20174"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/refined-predictor-tree-final-gates.json",
+      "sha256": "a5527766aac986f93e8f123c543140f521ccbc509b0a636d1c82a943fbd6ff7a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-refined-pooled-trees-313b.ts",
+      "sha256": "933e5c5b8b5742e848aa6da43142853f1af55174a777553a672f13ff13b34145"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-local-rct-275-output/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "sha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "sha256": "a3eb8d688558206da2f0139697464f321a929977c3486f23dbedc9b6639d0af8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "sha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281-output/photo-1416-boundary-513-baseline.jxl",
+      "sha256": "9af3fc22804d066787aff3c90550931f703a39c81d97bfb1da03b4e839db83e1"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-modular-encode.ts",
+      "sha256": "76ec4680a4e963b08c956fcfe5105d72c87f6a8e79e34417e2db0c7ed98d2877"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-modular-tree.ts",
+      "sha256": "3bfb51b8b38ed5203e35343ae4587845d84c2c47773df2d1485e5e476279ae58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/baseline/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-modular-encode.ts",
+      "sha256": "5c092f5eadf6b636fe0b135392b7c854871806a35fb7d7369c59467b74b35b10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "sha256": "3c8f008d57b343449a72163bb1b8c8985df0e64ebde099e3198b9bc82cc873f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-modular-tree.ts",
+      "sha256": "dce69cb3acf718626a8b888f5109af6d02ef5190a5be3173fc7389225ba74280"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "sha256": "dce69cb3acf718626a8b888f5109af6d02ef5190a5be3173fc7389225ba74280"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340/guarded/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-baseline.jxl",
+      "encodedSha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d",
+      "bytes": 649404,
+      "baselineBytes": 649404,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": 0,
+      "policy": "baseline",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Original sampled choices",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 132979807,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 27773.4123,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "guarded",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-guarded.jxl",
+      "encodedSha256": "f755c7898706162d3612647b96277d8b2b415655886ff15ea3c4b5d8ffa5cd28",
+      "bytes": 648383,
+      "baselineBytes": 649404,
+      "changeBytes": -1021,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -1021,
+      "policy": "guarded",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Fused scoring/sparse cache/exhaustive skip; optional per-histogram refinement only after complete original non-LZ group selection",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 115647847,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-guarded.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-1416-diagnostic-guarded.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 30376.500668000004,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-baseline.jxl",
+      "encodedSha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586",
+      "bytes": 613268,
+      "baselineBytes": 613268,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 0,
+      "policy": "baseline",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Original sampled choices",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 173946841,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 33136.85088199999,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "guarded",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-guarded.jxl",
+      "encodedSha256": "36feffc6ed5f04d0909bf84c64e190a49f442436ce7ac38d8a40bf07e101beaf",
+      "bytes": 612152,
+      "baselineBytes": 613268,
+      "changeBytes": -1116,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": -1116,
+      "policy": "guarded",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Fused scoring/sparse cache/exhaustive skip; optional per-histogram refinement only after complete original non-LZ group selection",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 151766023,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-guarded.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/im26-2018-diagnostic-guarded.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 36433.57420600002,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "encodedSha256": "a3eb8d688558206da2f0139697464f321a929977c3486f23dbedc9b6639d0af8",
+      "bytes": 617106,
+      "baselineBytes": 617106,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 0,
+      "policy": "baseline",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Original sampled choices",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 174039153,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-baseline.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-baseline.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 34448.555421999976,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "guarded",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-guarded.jxl",
+      "encodedSha256": "5442ee0d18d3eb741798c6a34d6eb315450a2c4acc11ad638375081613bc000a",
+      "bytes": 615996,
+      "baselineBytes": 617106,
+      "changeBytes": -1110,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": -1110,
+      "policy": "guarded",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Fused scoring/sparse cache/exhaustive skip; optional per-histogram refinement only after complete original non-LZ group selection",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 151789064,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-guarded.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-2018-red-one-level-dither-guarded.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 36623.086801,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "baseline",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-baseline.jxl",
+      "encodedSha256": "9af3fc22804d066787aff3c90550931f703a39c81d97bfb1da03b4e839db83e1",
+      "bytes": 227797,
+      "baselineBytes": 227797,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": 0,
+      "policy": "baseline",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Original sampled choices",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 47284910,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-baseline.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-baseline.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 10670.436516999995,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "guarded",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-guarded.jxl",
+      "encodedSha256": "6b37daaf61165088e0d5dd60355087aad49b570a792f971c2a1a9cbe3ca507e6",
+      "bytes": 227749,
+      "baselineBytes": 227797,
+      "changeBytes": -48,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -48,
+      "policy": "guarded",
+      "trainingPolicy": "Original ordinary65536 or existing patch16384 deterministic training positions; unchanged selected grouping/color/palette/squeeze",
+      "predictorSelection": "Fused scoring/sparse cache/exhaustive skip; optional per-histogram refinement only after complete original non-LZ group selection",
+      "leafBudget": "Original up to256 leaves per channel",
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "lzCachePolicy": "Original262144 or existing patch32768 entries",
+      "ownedPeak": 41387258,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 1,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-guarded.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/guarded-selective-trees-340-output/photo-1416-boundary-513-guarded.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 11852.436452000024,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Four frozen original inputs compare actual fac188 with optional fused fixed-leaf refinement encoded once through per-histogram coding only when complete original selected learned group is non-LZ. All original candidate/hybrid/model/group/palette/squeeze choices preserved through complete previous group fallback. Only repeated newly added refined plain/global/LZ search removed after actual335CPU profile and319all-four physical non-LZ evidence. Shared scoring/sparse weighted cache/exhaustive skip unchanged from334. Require byte-exact318floor files, native/Rust/public every original sample/input hashes/geometry/closed ownership. One-off timings, not paired5percent cost/minimum-memory/package/browser/matrix/production/parity adoption."
+}

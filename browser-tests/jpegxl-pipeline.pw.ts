@@ -1,24 +1,563 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import { object } from '../benchmark/jpegxl/comparison/model.ts'
 import {
   runJpegXlPipelines,
+  verifyDenseLosslessTraining,
+  verifyFastLosslessChannels,
+  verifyFlatPaletteGraphic,
   verifyFloatJpegXl,
+  verifyGroupedLosslessSearch,
+  verifyJpegXlAlphaEntropy,
+  verifyJpegXlArtwork,
+  verifyJpegXlCoefficientOrders,
+  verifyJpegXlDcAllocationRecovery,
+  verifyJpegXlDcModel,
+  verifyJpegXlFamilyContexts,
   verifyJpegXlLargeDocumentSelection,
   verifyJpegXlLocalContrast,
+  verifyJpegXlPatchFeatures,
   verifyJpegXlRateDistortionSelection,
   verifyJpegXlScreenshotPatch,
+  verifyJpegXlTreeEntropy,
   verifyLazyJpegXl,
+  verifyLearnedLosslessFixture,
+  verifyLearnedPalette,
   verifyLevelTenJpegXl,
   verifyLosslessPaletteRgba,
+  verifyLosslessPatchFixture,
   verifyM7EffortOneGroups,
   verifyM7EffortSevenAlpha,
   verifyM7EffortSevenPq,
   verifyM7ExactRgbaFallback,
   verifyM7ForwardJpegXl,
   verifyM7ScalarPalettes,
+  verifyOpaqueJpegXlGradient,
+  verifyRepeatedLosslessColors,
+  verifyReversibleLosslessColor,
+  verifySampledZeroLearning,
+  verifySmallGroupPatch,
 } from './jpegxl-pipeline-harness.ts'
 
+for (const width of [512, 513] as const)
+  for (const effort of [1, 7] as const)
+    test(`JPEG XL grouped lossless preserves hidden RGBA across runtimes, width=${width}, effort=${effort}`, async ({
+      page,
+    }) => {
+      const expected = await verifyGroupedLosslessSearch(width, effort)
+      expect(expected).toMatchObject({
+        samples: width * 512 * 4,
+        ownedLive: 0,
+        ownedAllocations: 0,
+      })
+      await page.goto('/compatibility.html')
+      const actual: unknown = await page.evaluate(
+        async ({ width, effort }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyGroupedLosslessSearch(width, effort)
+        },
+        { width, effort },
+      )
+      expect(actual).toEqual(expected)
+    })
+
+for (const maxWorkingBytes of [undefined, 15_989_965]) {
+  test(`JPEG XL dense training and original working fallback agree across runtimes, budget=${maxWorkingBytes}`, async ({
+    page,
+  }) => {
+    const expected = await verifyDenseLosslessTraining(maxWorkingBytes)
+    expect(expected).toMatchObject({
+      bytes: maxWorkingBytes === undefined ? 17_033 : 17_116,
+      encodedChecksum: maxWorkingBytes === undefined ? 1_356_082_369 : 1_452_409_174,
+      samples: 513 * 257 * 3,
+      ownedLive: 0,
+      ownedAllocations: 0,
+    })
+    if (maxWorkingBytes !== undefined)
+      expect(expected.ownedPeak).toBeLessThanOrEqual(maxWorkingBytes)
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(async (maxWorkingBytes) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyDenseLosslessTraining(maxWorkingBytes)
+    }, maxWorkingBytes)
+    expect(actual).toEqual(expected)
+  })
+}
+
+test('JPEG XL weighted DC compression preserves textured gradients across runtimes', async ({
+  page,
+}) => {
+  const expected = await verifyJpegXlDcModel()
+  expect(expected.bytes).toBe(4191)
+  expect(expected.encodedChecksum).toBe(1900552218)
+  expect(expected.inputChecksum).toBe(3720133924)
+  expect(expected.decodedChecksum).toBe(142860718)
+  expect(expected.samples).toBe(513 * 257 * 4)
+  expect(expected.alphaError).toBe(0)
+  expect(expected.ownedLive).toBe(0)
+  expect(expected.ownedAllocations).toBe(0)
+  expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)
+  await page.goto('/codec-validation.html')
+  const result: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlDcModel()
+  })
+  expect(object(result)).toEqual(expected)
+})
+
+for (const asynchronous of [false, true]) {
+  test(
+    'JPEG XL optional DC allocation recovery agrees across runtimes, async=' + asynchronous,
+    async ({ page }) => {
+      const expected = await verifyJpegXlDcAllocationRecovery(asynchronous)
+      expect(expected.bytes).toBe(4829)
+      expect(expected.encodedChecksum).toBe(728017318)
+      expect(expected.inputChecksum).toBe(3720133924)
+      expect(expected.decodedChecksum).toBe(142860718)
+      expect(expected.alphaError).toBe(0)
+      expect(expected.rejectedAllocations).toBeGreaterThan(0)
+      expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)
+      expect(expected.ownedLive).toBe(0)
+      expect(expected.ownedAllocations).toBe(0)
+      await page.goto('/codec-validation.html')
+      const result: unknown = await page.evaluate(async (asynchronous) => {
+        const path = '/jpegxl-pipeline.js'
+        return (await import(path)).verifyJpegXlDcAllocationRecovery(asynchronous)
+      }, asynchronous)
+      expect(object(result)).toEqual(expected)
+    },
+  )
+}
+
+for (const maxWorkingBytes of [268435456, 1500000] as const)
+  test(`JPEG XL flat palette compression and natural working fallback agree across runtimes, budget=${maxWorkingBytes}`, async ({
+    page,
+  }) => {
+    const expected = await verifyFlatPaletteGraphic(maxWorkingBytes)
+    expect(expected.bytes).toBe(maxWorkingBytes === 1500000 ? 10986 : 771)
+    expect(expected.maximumAlphaError).toBe(0)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    expect(expected.ownedPeak).toBeLessThanOrEqual(maxWorkingBytes)
+    await page.goto('/codec-validation.html')
+    const result: unknown = await page.evaluate(async (maxWorkingBytes) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyFlatPaletteGraphic(maxWorkingBytes)
+    }, maxWorkingBytes)
+    const actual = object(result)
+    expect(actual.bytes).toBe(expected.bytes)
+    expect(actual.encodedChecksum).toBe(expected.encodedChecksum)
+    expect(actual.inputChecksum).toBe(expected.inputChecksum)
+    expect(actual.maximumAlphaError).toBe(0)
+    expect(actual.ownedLive).toBe(0)
+    expect(actual.ownedAllocations).toBe(0)
+    expect(actual.ownedPeak).toBeLessThanOrEqual(maxWorkingBytes)
+    if (maxWorkingBytes === 1500000) {
+      // Native original-color error is ten; portable reconstruction may differ by one level.
+      expect(actual.maximumColorError).toBeLessThanOrEqual(11)
+    } else {
+      expect(actual.decodedChecksum).toBe(2495421557)
+      expect(actual.maximumColorError).toBe(8)
+      expect(actual.preservedColorOccurrences).toBeGreaterThan(16)
+      expect(actual.changedPreservedColors).toBe(0)
+    }
+  })
+
+for (const maxSamples of [8192, 16384] as const)
+  test(`JPEG XL sampled zero and mixed channel learning agree in Node and Chromium with ${maxSamples} samples`, async ({
+    page,
+  }) => {
+    const expected = verifySampledZeroLearning(maxSamples)
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(async (maxSamples) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifySampledZeroLearning(maxSamples)
+    }, maxSamples)
+    expect(actual).toEqual(expected)
+  })
+
+for (const format of ['rgb8', 'rgba8'] as const)
+  test(`JPEG XL small patch groups and DC boundaries agree in Node and Chromium for ${format}`, async ({
+    page,
+  }) => {
+    const expected = await verifySmallGroupPatch(format)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (format) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifySmallGroupPatch(format)
+    }, format)
+    expect(actual).toEqual(expected)
+  })
+
+for (const [offset, wide, limit, bits] of [
+  [0, false, 1048576, 6783],
+  [7, false, 1048576, 6783],
+  [7, true, 1048576, 14966],
+  [7, false, 5915, 9612],
+] as const)
+  test(`JPEG XL tree entropy fields and working fallback agree in Node and Chromium, offset=${offset}, wide=${wide}, limit=${limit}`, async ({
+    page,
+  }) => {
+    const expected = verifyJpegXlTreeEntropy(offset, wide, limit)
+    expect(expected.bits).toBe(bits)
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(
+      async ({ offset, wide, limit }) => {
+        const path = '/jpegxl-pipeline.js'
+        return (await import(path)).verifyJpegXlTreeEntropy(offset, wide, limit)
+      },
+      { offset, wide, limit },
+    )
+    expect(actual).toEqual(expected)
+  })
+
+for (const options of [
+  { depth: 8, channels: 3 },
+  { depth: 8, channels: 4 },
+  { depth: 16, channels: 3 },
+  { depth: 8, channels: 3, maxWorkingBytes: 1_883_954 },
+  { depth: 8, channels: 4, maxWorkingBytes: 2_088_939 },
+  { depth: 8, channels: 4, width: 1025 },
+  { depth: 16, channels: 4, width: 1025 },
+] as const)
+  test(`JPEG XL learned palette samples and working limits agree in Node and Chromium, ${JSON.stringify(options)}`, async ({
+    page,
+  }) => {
+    const expected = await verifyLearnedPalette(options)
+    expect(expected.decodedChecksum).toBe(expected.inputChecksum)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(async (options) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyLearnedPalette(options)
+    }, options)
+    expect(actual).toEqual(expected)
+  })
+
+test('JPEG XL alternate palette learning keeps exact visible artwork in Node and Chromium', async ({
+  page,
+}) => {
+  const expected = await verifyJpegXlArtwork({ alpha: 'varying' })
+  expect(expected.bytes).toBe(13_807)
+  expect(expected.encodedChecksum).toBe(1_526_632_822)
+  expect(expected.decodedChecksum).toBe(2_516_035_649)
+  expect(expected.visibleError).toBe(0)
+  expect(expected.alphaError).toBe(0)
+  expect(expected.ownedLive).toBe(0)
+  expect(expected.ownedAllocations).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlArtwork({ alpha: 'varying' })
+  })
+  expect(actual).toEqual(expected)
+})
+
+for (const extraChannels of [0, 1] as const)
+  for (const bounded of [false, true])
+    test(`JPEG XL patch metadata agrees in Node and Chromium, extraChannels=${extraChannels}, bounded=${bounded}`, async ({
+      page,
+    }) => {
+      const maxWorkingBytes = bounded ? (extraChannels === 0 ? 23_373 : 27_981) : 1_048_576
+      const expected = verifyJpegXlPatchFeatures(extraChannels, maxWorkingBytes)
+      expect(expected.ownedLive).toBe(0)
+      expect(expected.ownedAllocations).toBe(0)
+      await page.goto('/compatibility.html')
+      const actual: unknown = await page.evaluate(
+        async ({ extraChannels, maxWorkingBytes }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyJpegXlPatchFeatures(extraChannels, maxWorkingBytes)
+        },
+        { extraChannels, maxWorkingBytes },
+      )
+      expect(actual).toEqual(expected)
+    })
+
+for (const maxWorkingBytes of [8_388_608, 16_777_216])
+  test(`JPEG XL artwork candidate and storage fallback agree in Node and Chromium, budget=${maxWorkingBytes}`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlArtwork({ maxWorkingBytes })
+    expect(expected.alphaError).toBe(0)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    if (maxWorkingBytes === 16_777_216) {
+      expect(expected.bytes).toBeLessThan(1_000)
+      expect(expected.visibleError).toBe(0)
+    } else {
+      expect(expected.bytes).toBe(3159)
+      expect(expected.encodedChecksum).toBe(2065653775)
+    }
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(async (maxWorkingBytes) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlArtwork({ maxWorkingBytes })
+    }, maxWorkingBytes)
+    expect(actual).toEqual(expected)
+  })
+
+test('JPEG XL family context budget fallback agrees in Node and Chromium', async ({ page }) => {
+  const expected = await verifyJpegXlFamilyContexts(8, false, false, 10_000_000)
+  expect(expected.bytes).toBe(17_950)
+  expect(expected.alphaError).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlFamilyContexts(8, false, false, 10_000_000)
+  })
+  expect(actual).toEqual(expected)
+})
+
+for (const depth of [8, 16] as const)
+  for (const progressive of [false, true])
+    for (const opaque of [false, true])
+      test(`JPEG XL family contexts agree in Node and Chromium, depth=${depth}, progressive=${progressive}, opaque=${opaque}`, async ({
+        page,
+      }) => {
+        const expected = await verifyJpegXlFamilyContexts(depth, progressive, opaque, 16_777_216)
+        expect(expected.alphaError).toBe(0)
+        const exactPaletteFloor = depth === 8 && !progressive && opaque
+        if (exactPaletteFloor) {
+          expect(expected.bytes).toBe(2262)
+          expect(expected.decodedChecksum).toBe(1714441565)
+        }
+        await page.goto(exactPaletteFloor ? '/codec-validation.html' : '/compatibility.html')
+        const actual: unknown = await page.evaluate(
+          async ({ depth, progressive, opaque }) => {
+            const path = '/jpegxl-pipeline.js'
+            return (await import(path)).verifyJpegXlFamilyContexts(
+              depth,
+              progressive,
+              opaque,
+              16_777_216,
+            )
+          },
+          { depth, progressive, opaque },
+        )
+        expect(actual).toEqual(expected)
+      })
+
+test('JPEG XL adaptive order budget fallback agrees in Node and Chromium', async ({ page }) => {
+  const expected = await verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
+  expect(expected.bytes).toBe(12_943)
+  expect(expected.encodedChecksum).toBe(32179657)
+  expect(expected.alphaError).toBe(0)
+  await page.goto('/compatibility.html')
+  const actual: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
+  })
+  expect(actual).toEqual(expected)
+})
+
+for (const depth of [8, 16] as const)
+  for (const progressive of [false, true])
+    for (const opaque of [false, true])
+      test(`JPEG XL adaptive coefficient orders agree in Node and Chromium, depth=${depth}, progressive=${progressive}, opaque=${opaque}`, async ({
+        page,
+      }) => {
+        const expected = await verifyJpegXlCoefficientOrders(depth, progressive, opaque)
+        expect(expected.alphaError).toBe(0)
+        await page.goto('/compatibility.html')
+        const actual: unknown = await page.evaluate(
+          async ({ depth, progressive, opaque }) => {
+            const path = '/jpegxl-pipeline.js'
+            return (await import(path)).verifyJpegXlCoefficientOrders(depth, progressive, opaque)
+          },
+          { depth, progressive, opaque },
+        )
+        expect(actual).toEqual(expected)
+      })
+
+for (const depth of [8, 16] as const)
+  test(`JPEG XL ${depth}-bit binary alpha bands agree in Node and Chromium`, async ({ page }) => {
+    const expected = await verifyJpegXlAlphaEntropy(depth, true, true, 16_777_216, 'binary-bands')
+    expect(expected.alphaError).toBe(0)
+    expect(expected.bytes).toBeLessThan(1_600)
+    await page.goto('/compatibility.html')
+    const actual: unknown = await page.evaluate(async (depth) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlAlphaEntropy(
+        depth,
+        true,
+        true,
+        16_777_216,
+        'binary-bands',
+      )
+    }, depth)
+    if (depth === 16) {
+      expect(actual).toEqual(expected)
+      return
+    }
+    const { decodedChecksum: _nodeChecksum, decodedPixels: reference, ...nodeFields } = expected
+    const {
+      decodedChecksum: _browserChecksum,
+      decodedPixels: pixels,
+      ...browserFields
+    } = object(actual)
+    expect(browserFields).toEqual(nodeFields)
+    if (!reference || !Array.isArray(pixels) || pixels.length !== reference.length)
+      throw new Error('Missing complete binary-alpha pixel grids')
+    let maximumVisibleError = 0,
+      maximumHiddenColorError = 0
+    for (let index = 0; index < reference.length; index++) {
+      const actual: unknown = pixels[index]
+      const value = reference[index]
+      if (typeof actual !== 'number' || value === undefined) throw new Error('Invalid pixel sample')
+      if (index % 4 === 3 || reference[(index & ~3) + 3] !== 0)
+        maximumVisibleError = Math.max(maximumVisibleError, Math.abs(actual - value))
+      else maximumHiddenColorError = Math.max(maximumHiddenColorError, Math.abs(actual - value))
+    }
+    // Existing XYB-to-sRGB rounding differs by one level only at zero-alpha pixels.
+    expect(maximumVisibleError).toBe(0)
+    expect(maximumHiddenColorError).toBeLessThanOrEqual(1)
+  })
+
+for (const depth of [8, 16] as const)
+  for (const progressive of [false, true])
+    test(`JPEG XL repeated ${depth}-bit alpha agrees in Node and Chromium, progressive=${progressive}`, async ({
+      page,
+    }) => {
+      const expected = await verifyJpegXlAlphaEntropy(depth, progressive, true)
+      expect(expected.alphaError).toBe(0)
+      expect(expected.bytes).toBeLessThan(1_500)
+      await page.goto('/compatibility.html')
+      const actual = await page.evaluate(
+        async ({ depth, progressive }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyJpegXlAlphaEntropy(depth, progressive, true)
+        },
+        { depth, progressive },
+      )
+      expect(actual).toEqual(expected)
+    })
+
+for (const depth of [8, 16] as const)
+  test(`JPEG XL ${depth}-bit repeat scratch fallback agrees in Node and Chromium`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlAlphaEntropy(depth, true, true, 3_145_728)
+    const ordinary = await verifyJpegXlAlphaEntropy(depth, true, true)
+    expect(expected.alphaError).toBe(0)
+    expect(expected.decodedChecksum).toBe(ordinary.decodedChecksum)
+    expect(expected.bytes).toBeGreaterThan(ordinary.bytes * 2)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (depth) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlAlphaEntropy(depth, true, true, 3_145_728)
+    }, depth)
+    expect(actual).toEqual(expected)
+  })
+
+for (const depth of [8, 16] as const) {
+  test(`JPEG XL reversible ${depth}-bit color agrees in Node and Chromium`, async ({ page }) => {
+    const expected = await verifyReversibleLosslessColor(depth, 1)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (depth) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyReversibleLosslessColor(depth, 1)
+    }, depth)
+    expect(actual).toEqual(expected)
+  })
+}
+
+for (const format of ['rgb8', 'rgba8'] as const) {
+  for (const background of ['pale', 'flat'] as const) {
+    test(`JPEG XL exact lossless ${background} patches agree in Node and Chromium for ${format}`, async ({
+      page,
+    }) => {
+      const expected = await verifyLosslessPatchFixture(format, background)
+      await page.goto('/compatibility.html')
+      const actual = await page.evaluate(
+        async ({ format, background }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyLosslessPatchFixture(format, background)
+        },
+        { format, background },
+      )
+      expect(actual).toEqual(expected)
+    })
+  }
+}
+
+for (const depth of [8, 16] as const) {
+  for (const width of [1024, 1025] as const) {
+    test(`JPEG XL learned ${depth}-bit lossless agrees in Node and browser at width ${width}`, async ({
+      page,
+    }) => {
+      const expected = await verifyLearnedLosslessFixture(depth, width)
+      await page.goto('/compatibility.html')
+      const actual = await page.evaluate(
+        async ({ depth, width }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyLearnedLosslessFixture(depth, width)
+        },
+        { depth, width },
+      )
+      expect(actual).toEqual(expected)
+    })
+  }
+}
+
+for (const depth of [8, 16] as const) {
+  for (const constrained of [false, true]) {
+    test(`JPEG XL effort-1 repeated ${depth}-bit colors and working recovery agree across runtimes, constrained=${constrained}`, async ({
+      page,
+    }) => {
+      const budget = constrained ? (depth === 8 ? 2305794 : 2476162) : undefined
+      const expected = await verifyRepeatedLosslessColors(depth, budget)
+      expect(expected.bytes).toBe(
+        constrained ? (depth === 8 ? 19594 : 36492) : depth === 8 ? 474 : 559,
+      )
+      expect(expected.inputChecksum).toBe(depth === 8 ? 794717347 : 4090140113)
+      if (budget !== undefined) expect(expected.ownedPeak).toBeLessThanOrEqual(budget)
+      await page.goto('/compatibility.html')
+      const actual: unknown = await page.evaluate(
+        async ({ depth, budget }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyRepeatedLosslessColors(depth, budget)
+        },
+        { depth, budget },
+      )
+      expect(actual).toEqual(expected)
+    })
+  }
+  test(`JPEG XL effort-1 ${depth}-bit channel models agree in Node and browser`, async ({
+    page,
+  }) => {
+    const expected = await verifyFastLosslessChannels(depth)
+    await page.goto('/compatibility.html')
+    const actual = await page.evaluate(async (depth) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyFastLosslessChannels(depth)
+    }, depth)
+    expect(actual).toEqual(expected)
+  })
+}
+
 for (const progressive of [false, true]) {
+  for (const partialAlpha of [false, true]) {
+    test(`JPEG XL opaque gradients and final partial alpha agree in Node and Chromium, progressive=${progressive}, partialAlpha=${partialAlpha}`, async ({
+      page,
+    }) => {
+      const expected = await verifyOpaqueJpegXlGradient(progressive, partialAlpha)
+      expect(expected.alphaError).toBe(0)
+      expect(expected.samples).toBe(129 * 65 * 3)
+      expect(expected.meanColorError).toBeLessThan(partialAlpha ? 1.5 : 0.85)
+      expect(expected.liveBytes).toBe(0)
+      await page.goto('/compatibility.html')
+      const actual = await page.evaluate(
+        async ({ progressive, partialAlpha }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyOpaqueJpegXlGradient(progressive, partialAlpha)
+        },
+        { progressive, partialAlpha },
+      )
+      expect(actual).toEqual(expected)
+    })
+  }
+
   test(`JPEG XL local contrast transition agrees in Node and browser, progressive=${progressive}`, async ({
     page,
   }) => {

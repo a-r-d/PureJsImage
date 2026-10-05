@@ -1,0 +1,1892 @@
+{
+  "schemaVersion": 1,
+  "policy": "Bounded first-party alpha entropy investigation; preserve each source identity and distinguish diagnostic group costs from exact complete public outputs.",
+  "publicBefore": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "59e21206a661db05875743beab75c5d64c535f00054aa2dc3f6c82f170c7a58d",
+    "implementationDirty": true,
+    "policy": "Public alpha entropy comparison; exact alpha and unchanged decoded colors in both pinned independent decoders.",
+    "harnessSha256": "7e1d4a9544914c488082036aa2fc034ba64e2731ebe621dc4dcdfbf8f4de53a5",
+    "results": [
+      {
+        "key": "alpha_triangles-1-false",
+        "bytes": 167431,
+        "artifactSha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-1-true",
+        "bytes": 168271,
+        "artifactSha256": "02573fa142144a0e556519a81b987cfd80d1373cb4555a0a055dbb960598009e",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-false",
+        "bytes": 159653,
+        "artifactSha256": "27350fd11d8426cdd14c24fe2fa3df4b3102ff9050b92cfcc7fa6397c9c5ab8b",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-true",
+        "bytes": 159775,
+        "artifactSha256": "83fa23014e732ee5312ce78f74b01c4518689be6f4d7535af0240a3e8be0d2a8",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-false",
+        "bytes": 122141,
+        "artifactSha256": "af5106091b9913f7156d7f5f2ce05da3bbfa4df2501372b12b8666042ef1f443",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-true",
+        "bytes": 137929,
+        "artifactSha256": "b383ae70c567e7081111765003939348006472982961aeffd53f61e4525f6c26",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-false",
+        "bytes": 55631,
+        "artifactSha256": "b320452686ffa1ac640e7bb4ef54acf8e63ef913dd586a3ad4c38d3d942ec67c",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-true",
+        "bytes": 60053,
+        "artifactSha256": "89a03968ce26fcaae89dc94051cde8a10a2bbb7a5fbce22b313716a0fe838cb8",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      }
+    ]
+  },
+  "publicAfter": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "implementationDirty": true,
+    "policy": "Public alpha entropy comparison; exact alpha and unchanged decoded colors in both pinned independent decoders.",
+    "harnessSha256": "7e1d4a9544914c488082036aa2fc034ba64e2731ebe621dc4dcdfbf8f4de53a5",
+    "results": [
+      {
+        "key": "alpha_triangles-1-false",
+        "bytes": 65587,
+        "artifactSha256": "25684cbdddeab95500d735e09564bd43c4d1fce26d81851cd23924b412852f7d",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-1-true",
+        "bytes": 66427,
+        "artifactSha256": "78315df5494347c7303b2adafe1d1fbd8f199e53c61408b0512fb2c42431fc9f",
+        "nativePixelsSha256": "4186675889b3114279f3ee305213d686df4a20a13ec4b043abbfc7ea212b1380",
+        "rustPixelsSha256": "4275d71dea2a45a4734082aad125ae5b1c5f0e4df54dcbe888774b7e7d3c35bf",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-false",
+        "bytes": 57809,
+        "artifactSha256": "fd2f21d37344a1c8e1df2dab6522354f1e45f48b89e278611085531f9373e420",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "alpha_triangles-3-true",
+        "bytes": 57931,
+        "artifactSha256": "5f4853ffc848d98499f6bc247e78b194ffa6c68c9a403f83ed8b0d455528f728",
+        "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+        "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-false",
+        "bytes": 122141,
+        "artifactSha256": "af5106091b9913f7156d7f5f2ce05da3bbfa4df2501372b12b8666042ef1f443",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-1-true",
+        "bytes": 137929,
+        "artifactSha256": "b383ae70c567e7081111765003939348006472982961aeffd53f61e4525f6c26",
+        "nativePixelsSha256": "f7a6ba1044e4ba9aa74b5ce32833c86145b04ed41e3c0a3a0bf4dd4ca95c693d",
+        "rustPixelsSha256": "e43a1626e269d0f659da56bad5f6c83f68d4520b536b7d73cc3f720f4a2f941c",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-false",
+        "bytes": 55631,
+        "artifactSha256": "b320452686ffa1ac640e7bb4ef54acf8e63ef913dd586a3ad4c38d3d942ec67c",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      },
+      {
+        "key": "sunset_logo-3-true",
+        "bytes": 60053,
+        "artifactSha256": "89a03968ce26fcaae89dc94051cde8a10a2bbb7a5fbce22b313716a0fe838cb8",
+        "nativePixelsSha256": "3cd7cf0f2ac42983c5326c5109321b688c9b44f5b91bcf0a9ecbf0255f9850f2",
+        "rustPixelsSha256": "b22b7ae968f90e5a6035e2c9748dd8c43ab3b0d1d083cb65e40b7445e8bb5d54",
+        "alphaError": 0,
+        "maximumDecoderError": 1
+      }
+    ]
+  },
+  "nativeFixtures": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "implementationDirty": true,
+    "baselineSourceSha256": "59e21206a661db05875743beab75c5d64c535f00054aa2dc3f6c82f170c7a58d",
+    "harnessSha256": "d98c7c5cb6ba08696e0efd845ae154bff6f38442371e64e39ccacc82c7fc4751",
+    "policy": "Native 8/16-bit exact alpha at all five input levels, regular/progressive and edge groups. Both independent normalized float grids must retain their complete baseline hashes.",
+    "results": [
+      {
+        "key": "8-false-false",
+        "depth": 8,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "2a5f4c7b2e443072b64b042cead4777259853b0582113c2c4f5da1be2d477042",
+        "baselineBytes": 334,
+        "currentBytes": 334,
+        "baselineSha256": "1124f675233b8b0b752a596856cabe5ebd1150512a997a7567649a594346ea1c",
+        "currentSha256": "1124f675233b8b0b752a596856cabe5ebd1150512a997a7567649a594346ea1c",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "f2e60af89b0b5865b0bfbb5ee8bbcd15965a16c0fc02962cf6d423a6e1578925",
+              "f2e60af89b0b5865b0bfbb5ee8bbcd15965a16c0fc02962cf6d423a6e1578925"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "92b533170facd1d58a80643a7b99bb130eef9eb8b599f584a0fd85480353dc5c",
+              "92b533170facd1d58a80643a7b99bb130eef9eb8b599f584a0fd85480353dc5c"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-false-true",
+        "depth": 8,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "80cb42f23b24f4c5ef2ea31b4503436ac644b90e55f814bd988a5fcef725e777",
+        "baselineBytes": 415,
+        "currentBytes": 415,
+        "baselineSha256": "00ca8c846f01a9548e025a248dc4b2d87997f8fe8d9bf7a1ebaa53c43460f7f6",
+        "currentSha256": "00ca8c846f01a9548e025a248dc4b2d87997f8fe8d9bf7a1ebaa53c43460f7f6",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "5b5f58fa1339c4d09ec9784dd3b15a3bea7e552b6d3d29726df56e59b20bd013",
+              "5b5f58fa1339c4d09ec9784dd3b15a3bea7e552b6d3d29726df56e59b20bd013"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "4ea7d4f90e9087e821788b5509f7b3e997b38c01b12fb5ede9ef8cffe488c06c",
+              "4ea7d4f90e9087e821788b5509f7b3e997b38c01b12fb5ede9ef8cffe488c06c"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "8-true-false",
+        "depth": 8,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "2a5f4c7b2e443072b64b042cead4777259853b0582113c2c4f5da1be2d477042",
+        "baselineBytes": 3632,
+        "currentBytes": 694,
+        "baselineSha256": "b3d6f8eeea602ab567419ab7708e9c19a5ad7243c34b322272ab8a575212807e",
+        "currentSha256": "9c755864d10377cc957742b1daaa2acddf2a8ffba9a2c48e1bef11339870c714",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "b037844edc5f877794db1deaeee04689ed5f823d74e0c74d3eaa5df67f3e1aa5",
+              "b037844edc5f877794db1deaeee04689ed5f823d74e0c74d3eaa5df67f3e1aa5"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "0d479cca85dabceb13eac3ac6ae15b62115b62bd86ca67fca4e4b77e8f074ae7",
+              "0d479cca85dabceb13eac3ac6ae15b62115b62bd86ca67fca4e4b77e8f074ae7"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "8-true-true",
+        "depth": 8,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "80cb42f23b24f4c5ef2ea31b4503436ac644b90e55f814bd988a5fcef725e777",
+        "baselineBytes": 6980,
+        "currentBytes": 1000,
+        "baselineSha256": "d67b2858dbaea043343a993eac021926f6ac13cd67fe296e11516227e1205752",
+        "currentSha256": "64a8eb8f21475e34272fe2dbdcaf1aa2d8771e2258645cf608cafee939a3b6e6",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "09fa23d6b092e541a47e8130a77ee24bf0274dc21aeadc73abece782d5c92dd3",
+              "09fa23d6b092e541a47e8130a77ee24bf0274dc21aeadc73abece782d5c92dd3"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6691d00fbc040ecee701f5a7939094fc91ecdefb5e06502bf272efac6c3c1844",
+              "6691d00fbc040ecee701f5a7939094fc91ecdefb5e06502bf272efac6c3c1844"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-false-false",
+        "depth": 16,
+        "progressive": false,
+        "grouped": false,
+        "inputSha256": "5949ea901045c03ac45b7c4af9da425df3231643a1dbbb720c129e1801c3ddcb",
+        "baselineBytes": 5271,
+        "currentBytes": 732,
+        "baselineSha256": "bd90b6c1f84dfa2568ea8728da31928404a1f39b0acb2ffd9cc9536c69227493",
+        "currentSha256": "633a2ae33f43487544b224abca622844f9a22aef3937d634ae4784a264882d04",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10",
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de",
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-false-true",
+        "depth": 16,
+        "progressive": false,
+        "grouped": true,
+        "inputSha256": "a514a282e5cf8c1763fe2e2f4625bf361a94fd82fe560b48b82a839503e3b490",
+        "baselineBytes": 10247,
+        "currentBytes": 1021,
+        "baselineSha256": "8f3c43fc2a5e5c4424a930a233afabc3978eb86794463f9b99aabcac9a4cc6b6",
+        "currentSha256": "c13ec91a2c4d3c3362cbd0f6908352c81606480fefb5b4e48b8f44d72ec35efa",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617",
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba",
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      },
+      {
+        "key": "16-true-false",
+        "depth": 16,
+        "progressive": true,
+        "grouped": false,
+        "inputSha256": "5949ea901045c03ac45b7c4af9da425df3231643a1dbbb720c129e1801c3ddcb",
+        "baselineBytes": 5282,
+        "currentBytes": 744,
+        "baselineSha256": "d0e35219d10eda12a93dd342b6fa097d7aaf7e7da35bfb6fad6e6860eda01c29",
+        "currentSha256": "5802e8aac713cb18215d1115820b7e80c65b7041a76c00173aef32a672d17cdc",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10",
+              "7f71be3e390b1a5edeb087abeb4914c22d6aed0256cb356e29751aeff1654b10"
+            ],
+            "exactAlphaSamples": 16641
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de",
+              "5985e4661ad5ee9323308310e1e015e7d5a7c23b5771fcb6abdd7bfaedfba6de"
+            ],
+            "exactAlphaSamples": 16641
+          }
+        ]
+      },
+      {
+        "key": "16-true-true",
+        "depth": 16,
+        "progressive": true,
+        "grouped": true,
+        "inputSha256": "a514a282e5cf8c1763fe2e2f4625bf361a94fd82fe560b48b82a839503e3b490",
+        "baselineBytes": 10254,
+        "currentBytes": 1028,
+        "baselineSha256": "3001ba8eaf368599e51b555e99ae82814402b15d87d7673e83ee45e495f33c94",
+        "currentSha256": "e86b9af52cde415782479b19282d76381f2201b82ef723fd7e197ab382846f7e",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617",
+              "1dba82258e59e7bc143c77f62fbd8630b7f37b3aa77df90cb7a6cdb95c7f3617"
+            ],
+            "exactAlphaSamples": 33153
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba",
+              "6e5c0200679c5161a6d1a8e072f2dca0dec957425205aad1235caba31a08edba"
+            ],
+            "exactAlphaSamples": 33153
+          }
+        ]
+      }
+    ]
+  },
+  "memoryControls": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "dcdd5d5187bb5e391ed8dd63b516a6ddf663d67bb8143e088fc96e0b4d0226e1",
+    "implementationDirty": true,
+    "baselineSourceSha256": "59e21206a661db05875743beab75c5d64c535f00054aa2dc3f6c82f170c7a58d",
+    "policy": "Copied retained first-party baseline encoder controls; repeated-alpha regression must fail on old source. Exact native alpha, unchanged decoded colors, and explicit memory limits.",
+    "rows": [
+      {
+        "baseline": {
+          "depth": 8,
+          "progressive": false,
+          "grouped": false,
+          "bytes": 334,
+          "encodedChecksum": 3376355986,
+          "decodedChecksum": 1538298503,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": false,
+          "grouped": false,
+          "bytes": 334,
+          "encodedChecksum": 3376355986,
+          "decodedChecksum": 1538298503,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 8,
+          "progressive": false,
+          "grouped": true,
+          "bytes": 415,
+          "encodedChecksum": 949589653,
+          "decodedChecksum": 2458012369,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": false,
+          "grouped": true,
+          "bytes": 415,
+          "encodedChecksum": 949589653,
+          "decodedChecksum": 2458012369,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": false,
+          "bytes": 3632,
+          "encodedChecksum": 512287719,
+          "decodedChecksum": 4030572276,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": false,
+          "bytes": 694,
+          "encodedChecksum": 3521396985,
+          "decodedChecksum": 4030572276,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 1000,
+          "encodedChecksum": 664826123,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 16,
+          "progressive": false,
+          "grouped": false,
+          "bytes": 5271,
+          "encodedChecksum": 397005283,
+          "decodedChecksum": 3234384510,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 16,
+          "progressive": false,
+          "grouped": false,
+          "bytes": 732,
+          "encodedChecksum": 3958889008,
+          "decodedChecksum": 3234384510,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 16,
+          "progressive": false,
+          "grouped": true,
+          "bytes": 10247,
+          "encodedChecksum": 3974520973,
+          "decodedChecksum": 2668673099,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 16,
+          "progressive": false,
+          "grouped": true,
+          "bytes": 1021,
+          "encodedChecksum": 534619525,
+          "decodedChecksum": 2668673099,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 16,
+          "progressive": true,
+          "grouped": false,
+          "bytes": 5282,
+          "encodedChecksum": 1857365010,
+          "decodedChecksum": 3234384510,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 16,
+          "progressive": true,
+          "grouped": false,
+          "bytes": 744,
+          "encodedChecksum": 4109075159,
+          "decodedChecksum": 3234384510,
+          "alphaSamples": 16641,
+          "alphaError": 0
+        }
+      },
+      {
+        "baseline": {
+          "depth": 16,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 10254,
+          "encodedChecksum": 1950615040,
+          "decodedChecksum": 2668673099,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 16,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 1028,
+          "encodedChecksum": 234005702,
+          "decodedChecksum": 2668673099,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      }
+    ],
+    "memoryControls": [
+      {
+        "maxWorkingBytes": 1048576,
+        "error": "LIMIT_EXCEEDED"
+      },
+      {
+        "maxWorkingBytes": 1572864,
+        "error": "LIMIT_EXCEEDED"
+      },
+      {
+        "maxWorkingBytes": 2097152,
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6953,
+          "encodedChecksum": 3248432825,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "maxWorkingBytes": 3145728,
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6953,
+          "encodedChecksum": 3248432825,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "maxWorkingBytes": 4194304,
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6953,
+          "encodedChecksum": 3248432825,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "maxWorkingBytes": 6291456,
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 1000,
+          "encodedChecksum": 664826123,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      },
+      {
+        "maxWorkingBytes": 8388608,
+        "baseline": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 6980,
+          "encodedChecksum": 2708397166,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        },
+        "current": {
+          "depth": 8,
+          "progressive": true,
+          "grouped": true,
+          "bytes": 1000,
+          "encodedChecksum": 664826123,
+          "decodedChecksum": 2993440786,
+          "alphaSamples": 33153,
+          "alphaError": 0
+        }
+      }
+    ]
+  },
+  "groupCosts": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "59e21206a661db05875743beab75c5d64c535f00054aa2dc3f6c82f170c7a58d",
+    "implementationDirty": true,
+    "policy": "Group-local alpha entropy controls using first-party Modular writer; no emitted public artifact or quality ranking.",
+    "harnessSha256": "15070b6ec32d275fad0b6051033cdc7ec4f18f1e14002972c41df8d149591cab",
+    "diagnosticModuleSha256": "7b3620a65ef842b14dce417b90f2deb97e5005873093a0d0c7f2c2c19a64a0b6",
+    "results": [
+      {
+        "fixture": "alpha_triangles",
+        "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+        "totals": [
+          ["channel-plain", 148546],
+          ["channel-repeat", 50906],
+          ["gradient-plain", 138978],
+          ["gradient-repeat", 46772]
+        ],
+        "groups": [
+          {
+            "left": 0,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 12,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 21,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11436,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4161,
+                "tokens": 4145
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10663,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3807,
+                "tokens": 4145
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11750,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4096,
+                "tokens": 4018
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10905,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3767,
+                "tokens": 4018
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11436,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4161,
+                "tokens": 4145
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10663,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3807,
+                "tokens": 4145
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 13935,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4441,
+                "tokens": 4445
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 13152,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 4088,
+                "tokens": 4445
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 13934,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4443,
+                "tokens": 4447
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 13151,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 4093,
+                "tokens": 4447
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11750,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4096,
+                "tokens": 4018
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10905,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3767,
+                "tokens": 4018
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11437,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4160,
+                "tokens": 4143
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10664,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3801,
+                "tokens": 4143
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11750,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4097,
+                "tokens": 4022
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10904,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3764,
+                "tokens": 4022
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 12,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 25,
+                "tokens": 3
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 21,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 28,
+                "tokens": 3
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11437,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4160,
+                "tokens": 4143
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10664,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3801,
+                "tokens": 4143
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 13934,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4443,
+                "tokens": 4447
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 13151,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 4093,
+                "tokens": 4447
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 13935,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4441,
+                "tokens": 4445
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 13152,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 4088,
+                "tokens": 4445
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 11750,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 4097,
+                "tokens": 4022
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 10904,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 3764,
+                "tokens": 4022
+              }
+            ]
+          }
+        ],
+        "peakOwnedBytes": 3831112,
+        "liveBytes": 0
+      },
+      {
+        "fixture": "sunset_logo",
+        "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+        "totals": [
+          ["channel-plain", 438],
+          ["channel-repeat", 720],
+          ["gradient-plain", 678],
+          ["gradient-repeat", 912]
+        ],
+        "groups": [
+          {
+            "left": 0,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 0,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 0,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 39936
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 39936
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 256,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 256,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 39936
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 39936
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 512,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 512,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 39936
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 39936
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 768,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 768,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 39936
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 39936
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 1024,
+            "width": 256,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 19,
+                "tokens": 65536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 29,
+                "tokens": 65536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 1024,
+            "width": 156,
+            "height": 256,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 39936
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 39936
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 0,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 27136
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 27136
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 256,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 27136
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 27136
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 512,
+            "top": 1280,
+            "width": 256,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 27136
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 27136
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          },
+          {
+            "left": 768,
+            "top": 1280,
+            "width": 156,
+            "height": 106,
+            "costs": [
+              {
+                "mode": "channel-plain",
+                "bytes": 17,
+                "tokens": 16536
+              },
+              {
+                "mode": "channel-repeat",
+                "bytes": 30,
+                "tokens": 4
+              },
+              {
+                "mode": "gradient-plain",
+                "bytes": 27,
+                "tokens": 16536
+              },
+              {
+                "mode": "gradient-repeat",
+                "bytes": 38,
+                "tokens": 4
+              }
+            ]
+          }
+        ],
+        "peakOwnedBytes": 3804454,
+        "liveBytes": 0
+      }
+    ]
+  }
+}

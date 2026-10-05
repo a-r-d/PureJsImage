@@ -1,0 +1,105 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-palette-order-public-176.ts",
+      "sha256": "6d195720cfb540fcd917c29a60c18f6dddfd61b9ca421ca8a877f6efdf38fa59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-palette-order-public-shard-176.ts",
+      "sha256": "f7cc7f381899fb72857f88dacb1de239096f7bef9499fb311bbf87904770f246"
+    }
+  ],
+  "partialReportPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/palette-order-public-176-im26-5052-diagnostic.json",
+      "sha256": "4df8a34dfe7c46de4d35147f4281de42a642fbd2686a20f387519bc3a6c80748"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/palette-order-public-176-im26-5034-diagnostic.json",
+      "sha256": "579613b76cb2a3d1d359930bb465173d6599915f64fdfcf61b5c63792a75d8f4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/palette-order-public-176-im26-5334-diagnostic.json",
+      "sha256": "8973617442a954ba1c7d8b4230895a7c73e177433fb78c0fd4b01e2888a77588"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/palette-order-public-176-im26-5032-diagnostic.json",
+      "sha256": "64ff265716cec6d4e3bde2fd773980ef76ac9698b0998ac906906a9ca3de0ec3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/palette-order-public-176-im26-8160-original.json",
+      "sha256": "c2e6e5d637ce03af5bfb2ab84e49e98a8847f92fd53e682e8695ac88b37529b4"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-5052-diagnostic",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-order-public-176/im26-5052-diagnostic.jxl",
+      "artifactSha256": "0bd49ab5b55e99ac991700dabc8506913f25329ea1c536e947abe8e4a14c522c",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "bytes": 17475,
+      "baselineBytes": 19124,
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "elapsedMs": 87917.509351
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-order-public-176/im26-5034-diagnostic.jxl",
+      "artifactSha256": "4b77ec777ad921a7acdff36b152edaf29e17441e003894b4c0b25fa6c8056392",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "bytes": 37940,
+      "baselineBytes": 41926,
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "elapsedMs": 152549.31677900002
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-order-public-176/im26-5334-diagnostic.jxl",
+      "artifactSha256": "2326066f612d7159d37a34fa3f7158d3a0cd1b7c103d639d99cafe2ca79c7a1b",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "bytes": 19312,
+      "baselineBytes": 21608,
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "elapsedMs": 122809.73722000001
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-order-public-176/im26-5032-diagnostic.jxl",
+      "artifactSha256": "27f1b7bcccd3122738847cc77dde0389f94a2f5b7b0722aaae3d765a32bb3030",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "bytes": 133981,
+      "baselineBytes": 134581,
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "elapsedMs": 62569.084571
+    },
+    {
+      "fixture": "im26-8160-original",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-order-public-176/im26-8160-original.jxl",
+      "artifactSha256": "25de474b434b3b66b9b01ba154335ef1375415866f254e65bab9447dfc0282be",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "sourceSha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389",
+      "bytes": 417739,
+      "baselineBytes": 417785,
+      "nativePixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "rustPixelsSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "maximumSampleError": 0,
+      "elapsedMs": 37989.870333
+    }
+  ],
+  "policy": "Five actual compiled public lossless adapter runs in disjoint development processes in one bounded service. Both independent complete grids preserve every original sample. Each complete file preserves the previous qualified floor and reproduces the independently exact palette-order prototype byte for byte. This is not a speed comparison."
+}

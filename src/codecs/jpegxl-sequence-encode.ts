@@ -5,14 +5,14 @@ import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '
 import { pixelBytesPerPixel } from '../pixel.ts'
 import { Uint8ArraySink } from '../sink.ts'
 import { MemorySource } from '../source.ts'
-import { createJpegXlFloatEncoder } from './jpegxl-float-encode.ts'
-import { writeJpegXlNativeImageHeader } from './jpegxl-native-encode.ts'
 import { inspectJpegXlSource } from './jpegxl-container.ts'
 import {
   type JpegXlAnimationHeader,
   type JpegXlFrameStructure,
   readJpegXlSourceFrameStructure,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { createJpegXlFloatEncoder } from './jpegxl-float-encode.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   createJpegXlModularEncoder,
@@ -21,6 +21,7 @@ import {
   jpegXlStreamingContainerPrefix,
   writeU32,
 } from './jpegxl-modular-encode.ts'
+import { writeJpegXlNativeImageHeader } from './jpegxl-native-encode.ts'
 
 export interface JpegXlAnimationInputFrame {
   readonly data: Uint8Array
@@ -88,7 +89,7 @@ const frameHeader = (
       (input.x ?? 0) + input.width < options.width ||
       (input.y ?? 0) + input.height < options.height)
   )
-    throw invalidInput('JPEG XL pre-transform reference requires a nonfinal full replacement frame')
+    throw invalidJpegXlInput('pre-transform reference requires a nonfinal full replacement frame')
   const writer = new JpegXlBitWriter()
   writer.writeBits(0, 1)
   writeU32(writer, 0, enums)
@@ -198,7 +199,7 @@ export async function* encodeJpegXlAnimation(
     encodedPixels = 0
   try {
     let current = await iterator.next()
-    if (current.done) throw invalidInput('JPEG XL animation must contain a frame')
+    if (current.done) throw invalidJpegXlInput('animation must contain a frame')
     while (!current.done) {
       throwIfAborted(options.signal)
       const frame = current.value
@@ -215,11 +216,11 @@ export async function* encodeJpegXlAnimation(
             frame.timecode < 0 ||
             frame.timecode > 0xffffffff))
       )
-        throw invalidInput('JPEG XL frame timing exceeds its 32-bit field')
+        throw invalidJpegXlInput('frame timing exceeds its 32-bit field')
       if (!Number.isSafeInteger(frame.x ?? 0) || !Number.isSafeInteger(frame.y ?? 0))
-        throw invalidInput('JPEG XL animation origin must be an integer')
+        throw invalidJpegXlInput('animation origin must be an integer')
       if (frame.blend === 'blend' && !options.pixelFormat.startsWith('rgba'))
-        throw invalidInput('JPEG XL alpha blending requires an alpha channel')
+        throw invalidJpegXlInput('alpha blending requires an alpha channel')
       if (
         count === 1 &&
         ((frame.x ?? 0) !== 0 ||
@@ -228,15 +229,15 @@ export async function* encodeJpegXlAnimation(
           frame.height !== options.height ||
           (frame.blend ?? 'replace') !== 'replace')
       )
-        throw invalidInput('JPEG XL animation starts with a full replacement frame')
+        throw invalidJpegXlInput('animation starts with a full replacement frame')
       const stride = frame.width * pixelBytesPerPixel(options.pixelFormat)
       if (frame.data.byteLength !== stride * frame.height)
-        throw invalidInput('JPEG XL animation input buffer size is invalid')
+        throw invalidJpegXlInput('animation input buffer size is invalid')
       if (
         frame.blend !== undefined &&
         !['replace', 'add', 'blend', 'multiply'].includes(frame.blend)
       )
-        throw invalidInput('JPEG XL animation blend mode is invalid')
+        throw invalidJpegXlInput('animation blend mode is invalid')
       const frameOutputLimit = Math.min(maximum - emitted, frame.data.byteLength * 4 + 65536)
       const availableWorkingBytes =
         limits.maxDecodedBytes -
@@ -253,7 +254,7 @@ export async function* encodeJpegXlAnimation(
           !Number.isSafeInteger(requestedWorkingBytes) ||
           requestedWorkingBytes < 1)
       )
-        throw invalidInput('JPEG XL animation maxWorkingBytes is invalid')
+        throw invalidJpegXlInput('animation maxWorkingBytes is invalid')
       const sink = new Uint8ArraySink()
       const encoder = await (floating ? createJpegXlFloatEncoder : createJpegXlModularEncoder)(
         sink,
@@ -294,7 +295,7 @@ export async function* encodeJpegXlAnimation(
         const structure = await inspectJpegXlSource(encodedSource, resolveJpegXlLimits(), {})
         const segment = structure.codestreamSegments[0]
         if (!segment || structure.codestreamSegments.length !== 1)
-          throw invalidInput('JPEG XL animation frame container is fragmented')
+          throw invalidJpegXlInput('animation frame container is fragmented')
         frameCodestream = encoded.subarray(segment.offset, segment.offset + segment.length)
       }
       const frameSource = new MemorySource(frameCodestream)

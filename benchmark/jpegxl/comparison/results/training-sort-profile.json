@@ -1,0 +1,147 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "72fb3bbc0a53596a8c8d3a4810fe35ebc0c486017cad22401bf3d95a5b971b95",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-training-sort-252.ts",
+      "sha256": "ae2f13846a39b6b171cb9afb007c0b9bc5ca8c9c8c1d7a4494c162d65d90f3b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-training-sort-252.ts",
+      "sha256": "a6b7a36b7d78dc5ae4f4de923958f60f0aa466556e73f86ed433c28da126c539"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-training-sort-252.json",
+      "sha256": "1f933ba127de654f8e4ef9298364708f62b9a5906ab10c568a7c803944936643"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/manifest.json",
+      "sha256": "20b91ff63dd314abadff70ff522e626923a18ac88cc9cb45cf68fc313fa36d75"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "sha256": "1de329d75493e614568efb649c2a97c11542c4ba16bf811cf1256aa75bbb05c1"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-modular-encode.ts",
+      "sha256": "2b1e8ef926d733eaf5d8f8b7ce530b3ef6cee8ba4a3fd47ce2859887f4926d03"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "aacb713ecaf3a308953a12e3d8df055f98ff773931c4dcbe7c2642ef8041ec08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-jpeg-encode.ts",
+      "sha256": "8271024c05dea4f150951f92752fcd9da5ee6148eb658cec5b7969c69423dd71"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-vardct-encode.ts",
+      "sha256": "f23fe331781f241ca94a82db54a120974f7edf33c43e3c24819e7d74a501bbd2"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "bad72956f5849240a9b1fc2852faf59b0f24faea26b8e59e9dcfa63fbd61f324"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/training-sort-252/jpegxl-modular-tree.ts",
+      "sha256": "c8fd63289076a38848a0fcde879c460faa097cfcd94d9726a6aa318c49efd11f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "bb417152bb724ee5f5e66ad507522dc047b498fbeb11332f4665abeb4c33f4d1"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/training-sort-profile-252-output/im26-8160-original-baseline.jxl",
+      "encodedSha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d",
+      "bytes": 407341,
+      "baselineBytes": 407341,
+      "changeBytes": 0,
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 40,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/training-sort-profile-252-output/im26-8160-original-baseline.jxl.native.npy",
+          "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/training-sort-profile-252-output/im26-8160-original-baseline.jxl.rust.npy",
+          "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        }
+      ],
+      "trainingSortProfile": {
+        "small": {
+          "sorts": 15420,
+          "keys": 16476036,
+          "eligibleSorts": 9659,
+          "eligibleKeys": 14835388,
+          "descendingInputs": 0
+        },
+        "other": {
+          "sorts": 10836,
+          "keys": 28191168,
+          "eligibleSorts": 6734,
+          "eligibleKeys": 24930086,
+          "descendingInputs": 0
+        }
+      },
+      "publicSamples": 8294400,
+      "maximumSampleError": 0,
+      "elapsedMs": 33808.587457,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Diagnostic counters around unchanged Float64 feature sorting, split by current8192-sample groups versus ordinary/reference learning. Count bounded integral feature ranges and ascending sample order as evidence for a stable counting-sort hypothesis. Require exact current407341 file, every independent/public original sample and owned closure. Counters do not measure speed, RSS or compression; no production change."
+}

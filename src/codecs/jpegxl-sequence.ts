@@ -1,7 +1,7 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecoderOptions, ImageDecoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import { type ImageLimitOptions, resolveLimits } from '../limits.ts'
 import type { ImageSource } from '../source.ts'
@@ -21,6 +21,7 @@ import {
   jpegXlSourceColorSemantics,
   jpegXlXybOutputIsLinear,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlFrameFeatures } from './jpegxl-frame-features.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import { floatSample } from './jpegxl-native-samples.ts'
@@ -43,7 +44,7 @@ const normalizedReferenceAlpha = (
   header: Readonly<JpegXlFrameStructure>,
 ): Float64Array => {
   const depth = header.extraChannels[header.selectedAlphaChannel ?? 0]?.bitDepth
-  if (!depth) throw invalidInput('JPEG XL reference alpha descriptor is missing')
+  if (!depth) throw invalidJpegXlInput('reference alpha descriptor is missing')
   const output = new Float64Array(source.length)
   const maximum = 2 ** depth.bits - 1
   for (let index = 0; index < source.length; index++) {
@@ -52,7 +53,7 @@ const normalizedReferenceAlpha = (
         ? floatSample(source[index] ?? 0, depth.bits, depth.exponentBits)
         : (source[index] ?? 0) / maximum
     if (!Number.isFinite(sample))
-      throw invalidInput('JPEG XL reference alpha rejects NaN and infinity')
+      throw invalidJpegXlInput('reference alpha rejects NaN and infinity')
     output[index] = sample
   }
   return output
@@ -139,13 +140,13 @@ const composite = (
     const background = references[blend.source]
     const output = background?.[channel]?.slice() ?? new Float64Array(header.width * header.height)
     const foreground = layer[channel]
-    if (!foreground) throw invalidInput('JPEG XL composition channel is missing')
+    if (!foreground) throw invalidJpegXlInput('composition channel is missing')
     const alphaIndex = colorCount + blend.alphaChannel
     const alpha = layer[alphaIndex]
     const backgroundAlpha = background?.[alphaIndex]
     const associated = header.extraChannels[blend.alphaChannel]?.associatedAlpha ?? false
     if ((blend.mode === 2 || blend.mode === 3) && !alpha)
-      throw invalidInput('JPEG XL composition alpha channel is missing')
+      throw invalidJpegXlInput('composition alpha channel is missing')
     const firstX = Math.max(0, -header.frameOriginX)
     const lastX = Math.min(header.frameWidth, header.width - header.frameOriginX)
     const firstY = Math.max(0, -header.frameOriginY)
@@ -193,7 +194,7 @@ export const openJpegXlSequence = async (
   const jpegLimits = resolveJpegXlLimits(options.limits)
   const maxDecodedPixels = options.maxDecodedPixels ?? limits.maxPixels
   if (!Number.isSafeInteger(maxDecodedPixels) || maxDecodedPixels < 1)
-    throw invalidInput('JPEG XL maxDecodedPixels must be a positive safe integer')
+    throw invalidJpegXlInput('maxDecodedPixels must be a positive safe integer')
   const source = await createImageSource(input, limits, options)
   const logical = new JpegXlCodestreamSource(
     source,
@@ -319,7 +320,7 @@ export const openJpegXlSequence = async (
       let layer: readonly Float64Array[]
       if (header.frameType === 'dc') {
         const global = sections[0]
-        if (!global) throw invalidInput('JPEG XL DC global section is missing')
+        if (!global) throw invalidJpegXlInput('DC global section is missing')
         if (header.codedWidth * header.codedHeight * 128 + compressedBytes > remaining)
           throw limitExceeded('JPEG XL DC dependency exceeds maxDecodedBytes')
         if (header.encoding === 'modular') {
@@ -332,7 +333,7 @@ export const openJpegXlSequence = async (
               )
             : decodeJpegXlMultiGroupModularDcFrameSections(sections, header, active)
         } else {
-          if (!dcPlanes) throw invalidInput('JPEG XL DC dependency is missing')
+          if (!dcPlanes) throw invalidJpegXlInput('DC dependency is missing')
           const memory = new JpegXlVarDctMemoryLedger(remaining)
           try {
             const decoded = await decodeJpegXlDct8SectionCancellable(
@@ -348,7 +349,7 @@ export const openJpegXlSequence = async (
             )
             try {
               if (!decoded.dcPlanes)
-                throw invalidInput('JPEG XL reconstructed DC dependency is missing')
+                throw invalidJpegXlInput('reconstructed DC dependency is missing')
               dcPlanes = decoded.dcPlanes
             } finally {
               decoded.release()
@@ -368,7 +369,7 @@ export const openJpegXlSequence = async (
             'JPEG XL sequence VarDCT native channels require RGB and at most one alpha',
           )
         const global = sections[0]
-        if (!global) throw invalidInput('JPEG XL VarDCT global section is missing')
+        if (!global) throw invalidJpegXlInput('VarDCT global section is missing')
         const memory = new JpegXlVarDctMemoryLedger(remaining)
         try {
           const decoded = await decodeJpegXlDct8SectionCancellable(
@@ -389,8 +390,7 @@ export const openJpegXlSequence = async (
           )
           try {
             if (header.frameType === 'reference' || header.saveBeforeColorTransform) {
-              if (!decoded.dcPlanes)
-                throw invalidInput('JPEG XL native reference output is missing')
+              if (!decoded.dcPlanes) throw invalidJpegXlInput('native reference output is missing')
               const encodedAlpha = decoded.nativeExtraPlanes?.[header.selectedAlphaChannel ?? 0]
               const alpha =
                 decoded.referenceAlpha ??
@@ -419,7 +419,7 @@ export const openJpegXlSequence = async (
               )
               for (let channel = 0; channel < header.channelCount; channel++) {
                 const plane = output[channel]
-                if (!plane) throw invalidInput('JPEG XL VarDCT output channel is missing')
+                if (!plane) throw invalidJpegXlInput('VarDCT output channel is missing')
                 const sourceChannel = channel < header.colorChannels ? channel : 3
                 if (channel < header.colorChannels && !linearComposition)
                   for (let i = 0; i < plane.length; i++)
@@ -453,7 +453,7 @@ export const openJpegXlSequence = async (
           const y = native.planes[0],
             x = native.planes[1],
             b = native.planes[2]
-          if (!x || !y || !b) throw invalidInput('JPEG XL native XYB color planes are missing')
+          if (!x || !y || !b) throw invalidJpegXlInput('native XYB color planes are missing')
           const outputX = new Float64Array(x.length),
             outputY = new Float64Array(y.length),
             outputB = new Float64Array(b.length)
@@ -470,7 +470,7 @@ export const openJpegXlSequence = async (
             channel < colorCount
               ? header.bitDepth
               : header.extraChannels[channel - colorCount]?.bitDepth.bits
-          if (depth === undefined) throw invalidInput('JPEG XL native channel depth is missing')
+          if (depth === undefined) throw invalidJpegXlInput('native channel depth is missing')
           const scale = 1 / (2 ** depth - 1)
           const floating =
             channel < colorCount
@@ -489,7 +489,7 @@ export const openJpegXlSequence = async (
                 )
               : plane[i]! * scale
             if (!Number.isFinite(value))
-              throw invalidInput('JPEG XL composed planes reject NaN and infinity')
+              throw invalidJpegXlInput('composed planes reject NaN and infinity')
             output[i] = value
           }
           working.push(output)
@@ -498,7 +498,7 @@ export const openJpegXlSequence = async (
           for (let c = 0; c < colorCount; c++) {
             const plane = working[c],
               layout = native.layouts[c]
-            if (!plane || !layout) throw invalidInput('JPEG XL native chroma layout is missing')
+            if (!plane || !layout) throw invalidJpegXlInput('native chroma layout is missing')
             working[c] = reconstructJpegXlChroma(
               plane,
               layout.width,
@@ -521,7 +521,7 @@ export const openJpegXlSequence = async (
           for (let i = 0; i < extraFactors.length; i++) {
             const factor = extraFactors[i]!,
               plane = working[colorCount + i]
-            if (!plane) throw invalidInput('JPEG XL native extra plane is missing')
+            if (!plane) throw invalidJpegXlInput('native extra plane is missing')
             working[colorCount + i] = upsampleJpegXlNativePlane(
               plane,
               Math.ceil(header.frameWidth / factor),
@@ -545,7 +545,7 @@ export const openJpegXlSequence = async (
           const reference = xyb
             ? xybReferences.get(patch.referenceId)
             : nativeReferences.get(patch.referenceId)
-          if (!reference) throw invalidInput('JPEG XL Modular patch reference is missing')
+          if (!reference) throw invalidJpegXlInput('Modular patch reference is missing')
           const source =
             xyb && 'alpha' in reference && reference.alpha
               ? [...reference.planes, reference.alpha]
@@ -566,7 +566,7 @@ export const openJpegXlSequence = async (
         if (header.upsampling !== 1)
           for (let c = 0; c < (lateExtras ? working.length : colorCount); c++) {
             const plane = working[c]
-            if (!plane) throw invalidInput('JPEG XL native upsampling input is missing')
+            if (!plane) throw invalidJpegXlInput('native upsampling input is missing')
             working[c] = upsampleJpegXlNativePlane(
               plane,
               header.codedWidth,
@@ -594,8 +594,7 @@ export const openJpegXlSequence = async (
           const first = working[0],
             second = working[1],
             third = working[2]
-          if (!first || !second || !third)
-            throw invalidInput('JPEG XL native XYB output is missing')
+          if (!first || !second || !third) throw invalidJpegXlInput('native XYB output is missing')
           const planes = [first, second, third] as const
           if (header.frameType === 'reference' || header.saveBeforeColorTransform) {
             const alpha = working[3 + (header.selectedAlphaChannel ?? 0)]
@@ -679,7 +678,7 @@ export const openJpegXlSequence = async (
       if (linearComposition)
         for (let channel = 0; channel < header.colorChannels; channel++) {
           const plane = output[channel]
-          if (!plane) throw invalidInput('JPEG XL composed color plane is missing')
+          if (!plane) throw invalidJpegXlInput('composed color plane is missing')
           for (let i = 0; i < plane.length; i++) {
             if ((i & 65535) === 0) throwIfAborted(active)
             plane[i] = jpegXlLinearToSrgb(plane[i] ?? 0)
@@ -752,7 +751,7 @@ export const openJpegXlSequence = async (
       }
       if (header.encoding === 'vardct') {
         const global = sections[0]
-        if (!global) throw invalidInput('JPEG XL native VarDCT global section is missing')
+        if (!global) throw invalidJpegXlInput('native VarDCT global section is missing')
         const memory = new JpegXlVarDctMemoryLedger(available - bytes)
         try {
           const decoded = await decodeJpegXlDct8SectionCancellable(
@@ -767,7 +766,7 @@ export const openJpegXlSequence = async (
             references,
           )
           try {
-            if (!decoded.dcPlanes) throw invalidInput('JPEG XL native XYB output is missing')
+            if (!decoded.dcPlanes) throw invalidJpegXlInput('native XYB output is missing')
             if (header.frameType === 'dc' || saving) {
               const copied = [
                 decoded.dcPlanes[0].slice(),
@@ -827,7 +826,7 @@ export const openJpegXlSequence = async (
       )
       if (header.frameType === 'dc') {
         const global = sections[0]
-        if (!global) throw invalidInput('JPEG XL native DC global section is missing')
+        if (!global) throw invalidJpegXlInput('native DC global section is missing')
         dcPlanes = sections.slice(1).every((section) => section.length === 0)
           ? decodeJpegXlModularDcFrameSection(global, header.codedWidth, header.codedHeight, active)
           : decodeJpegXlMultiGroupModularDcFrameSections(sections, header, active)
@@ -835,7 +834,7 @@ export const openJpegXlSequence = async (
         const y = decoded.planes[0],
           x = decoded.planes[1],
           b = decoded.planes[2]
-        if (!x || !y || !b) throw invalidInput('JPEG XL native reference planes are missing')
+        if (!x || !y || !b) throw invalidJpegXlInput('native reference planes are missing')
         const outputX = new Float64Array(x.length),
           outputY = new Float64Array(y.length),
           outputB = new Float64Array(b.length)
@@ -871,7 +870,7 @@ export const openJpegXlSequence = async (
         }
         for (const patch of decoded.frameFeatures?.patches ?? []) {
           const reference = references.get(patch.referenceId)
-          if (!reference) throw invalidInput('JPEG XL native patch reference is missing')
+          if (!reference) throw invalidJpegXlInput('native patch reference is missing')
           applyJpegXlPatch(
             alpha ? [...planes, alpha] : planes,
             header.codedWidth,
@@ -956,9 +955,9 @@ export const openJpegXlSequence = async (
     layers: (signal?: AbortSignal) => serialize(() => layers(signal)),
     async frame(index: number, signal?: AbortSignal): Promise<JpegXlSequenceFrame> {
       if (!Number.isSafeInteger(index) || index < 0)
-        throw invalidInput('JPEG XL frame index is invalid')
+        throw invalidJpegXlInput('frame index is invalid')
       for await (const frame of serialFrames(signal)) if (frame.index === index) return frame
-      throw invalidInput('JPEG XL frame index is outside the sequence')
+      throw invalidJpegXlInput('frame index is outside the sequence')
     },
     async frameAtTicks(ticks: bigint | string, signal?: AbortSignal): Promise<JpegXlSequenceFrame> {
       if (
@@ -966,14 +965,14 @@ export const openJpegXlSequence = async (
           (typeof ticks !== 'string' || !/^(0|[1-9][0-9]*)$/.test(ticks))) ||
         ticks.toString().length > 32
       )
-        throw invalidInput('JPEG XL seek time must be a nonnegative integer tick count')
+        throw invalidJpegXlInput('seek time must be a nonnegative integer tick count')
       const target = BigInt(ticks)
-      if (target < 0n) throw invalidInput('JPEG XL seek time must be nonnegative')
+      if (target < 0n) throw invalidJpegXlInput('seek time must be nonnegative')
       for await (const frame of serialFrames(signal)) {
         const start = BigInt(frame.startTicks)
         if (target >= start && target < start + BigInt(frame.durationTicks)) return frame
       }
-      throw invalidInput('JPEG XL seek time is outside the first animation loop')
+      throw invalidJpegXlInput('seek time is outside the first animation loop')
     },
     async close(): Promise<void> {
       controller.abort()
@@ -996,7 +995,7 @@ export const createJpegXlSequenceFrameDecoder = async (
     )
   const index = options.frame
   if (index === undefined || !Number.isSafeInteger(index) || index < 0)
-    throw invalidInput('JPEG XL animation requires an explicit nonnegative displayed frame index')
+    throw invalidJpegXlInput('animation requires an explicit nonnegative displayed frame index')
   if (header.extraChannels.length > 1 || header.extraChannels.some((channel) => channel.type !== 0))
     throw unsupportedOperation('JPEG XL animation extra channels require the explicit sequence API')
   const pixelFormat =
@@ -1043,7 +1042,7 @@ export const createJpegXlSequenceFrameDecoder = async (
         x + width > header.width ||
         y + height > header.height
       )
-        throw invalidInput('JPEG XL sequence crop is invalid')
+        throw invalidJpegXlInput('sequence crop is invalid')
       const signal = combineAbortSignals(options.signal, request.signal)
       const sequence = await openJpegXlSequence(source, { limits, ...(signal ? { signal } : {}) })
       try {
@@ -1072,7 +1071,7 @@ export const createJpegXlSequenceFrameDecoder = async (
                     ? Math.sign(normalized) * nclxToLinear(13, Math.abs(normalized)) * linearScale
                     : normalized
                 if (!Number.isFinite(Math.fround(sample)))
-                  throw invalidInput('JPEG XL sequence float samples overflow binary32')
+                  throw invalidJpegXlInput('sequence float samples overflow binary32')
                 view.setFloat32(offset, sample, false)
               } else if (bytes === 2) view.setUint16(offset, value, false)
               else data[offset] = value

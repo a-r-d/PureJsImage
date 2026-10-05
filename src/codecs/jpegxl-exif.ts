@@ -1,4 +1,5 @@
-import { invalidInput, limitExceeded } from '../errors.ts'
+import { limitExceeded } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 export interface JpegXlExifSummary {
   readonly pixelDensity?: Readonly<{ x: number; y: number; unit: 'inch' | 'centimeter' }>
@@ -11,7 +12,7 @@ export const summarizeJpegXlExif = (bytes: Uint8Array): JpegXlExifSummary => {
   const little = bytes[0] === 0x49 && bytes[1] === 0x49
   const big = bytes[0] === 0x4d && bytes[1] === 0x4d
   if (bytes.length < 8 || (!little && !big) || view.getUint16(2, little) !== 42)
-    throw invalidInput('JPEG XL Exif TIFF header is invalid')
+    throw invalidJpegXlInput('Exif TIFF header is invalid')
   const extent = (offset: number, length: number): void => {
     if (
       !Number.isSafeInteger(offset) ||
@@ -20,7 +21,7 @@ export const summarizeJpegXlExif = (bytes: Uint8Array): JpegXlExifSummary => {
       length < 0 ||
       offset > bytes.length - length
     )
-      throw invalidInput('JPEG XL Exif field exceeds its payload')
+      throw invalidJpegXlInput('Exif field exceeds its payload')
   }
   const pending = [view.getUint32(4, little)]
   const visited = new Set<number>()
@@ -31,7 +32,7 @@ export const summarizeJpegXlExif = (bytes: Uint8Array): JpegXlExifSummary => {
   while (pending.length > 0) {
     const offset = pending.pop()
     if (offset === undefined || offset === 0) continue
-    if (visited.has(offset)) throw invalidInput('JPEG XL Exif IFD cycle is invalid')
+    if (visited.has(offset)) throw invalidJpegXlInput('Exif IFD cycle is invalid')
     visited.add(offset)
     if (visited.size > 2) throw limitExceeded('JPEG XL Exif summary exceeds its IFD budget')
     extent(offset, 2)
@@ -50,14 +51,14 @@ export const summarizeJpegXlExif = (bytes: Uint8Array): JpegXlExifSummary => {
         const denominator = view.getUint32(value + 4, little)
         const numerator = view.getUint32(value, little)
         if (denominator === 0 || numerator === 0)
-          throw invalidInput('JPEG XL Exif density is invalid')
+          throw invalidJpegXlInput('Exif density is invalid')
         if (tag === 0x11a) x = numerator / denominator
         else y = numerator / denominator
       } else if (tag === 0x128 && type === 3 && elements === 1) {
         const encodedUnit = view.getUint16(entry + 8, little)
         unit = encodedUnit === 2 ? 'inch' : encodedUnit === 3 ? 'centimeter' : undefined
       } else if ((tag === 0x132 || tag === 0x9003 || tag === 0x9004) && type === 2) {
-        if (elements !== 20) throw invalidInput('JPEG XL Exif timestamp must contain 20 bytes')
+        if (elements !== 20) throw invalidJpegXlInput('Exif timestamp must contain 20 bytes')
         extent(value, elements)
         const text = String.fromCharCode(...bytes.subarray(value, value + 19))
         if (
@@ -66,7 +67,7 @@ export const summarizeJpegXlExif = (bytes: Uint8Array): JpegXlExifSummary => {
             text,
           )
         )
-          throw invalidInput('JPEG XL Exif timestamp is invalid')
+          throw invalidJpegXlInput('Exif timestamp is invalid')
         if (tag === 0x132) timestamps.modified = text
         else if (tag === 0x9003) timestamps.original = text
         else timestamps.digitized = text

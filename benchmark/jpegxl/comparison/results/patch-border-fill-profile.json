@@ -1,0 +1,357 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "72fb3bbc0a53596a8c8d3a4810fe35ebc0c486017cad22401bf3d95a5b971b95",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "sha256": "1de329d75493e614568efb649c2a97c11542c4ba16bf811cf1256aa75bbb05c1"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-patch-border-250.ts",
+      "sha256": "10814d1f4b50de6d96a2a7f55f32b6c371646fe59ac73af3c84fd35b188490f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-border-250.json",
+      "sha256": "8727c995f5b6dd2851c51c6d56c86884f8ac388ab105fe3ff080682c4570f3f3"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "aacb713ecaf3a308953a12e3d8df055f98ff773931c4dcbe7c2642ef8041ec08"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "d37500c884d1fd5e2c4aaee0850207fd50f59f53c08d9b0a24e9f642b8dce844"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgb-dc-edge.raw",
+      "sha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-hidden-edge.raw",
+      "sha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-opaque-portrait.raw",
+      "sha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "sha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "sha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "sha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "sha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-transposed.raw",
+      "sha256": "8118d0a7b5ab014dac6c3de61da86331bdd11ea12bf37ead3b768806677af1e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-hidden-last-row.raw",
+      "sha256": "8954e9982fbc0ff3f910f89962840ef0246688a59eeaefd0a4c5c3601669c86d"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "groups": 91,
+      "placements": 368,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 519,
+      "modeBorderMismatch": 519,
+      "examples": [],
+      "ownedPeak": 29030400,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "sunset_logo",
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "width": 924,
+      "height": 1386,
+      "channels": 4,
+      "groups": 0,
+      "placements": 0,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 0,
+      "modeBorderMismatch": 0,
+      "examples": [],
+      "ownedPeak": 17929296,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "flat-rgb-dc-edge",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgb-dc-edge.raw",
+      "inputSha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa",
+      "width": 2050,
+      "height": 257,
+      "channels": 3,
+      "groups": 56,
+      "placements": 2049,
+      "changed": 1,
+      "changedPixels": 64,
+      "strictMajorityChanged": 1,
+      "oldBorderMismatch": 16,
+      "modeBorderMismatch": 0,
+      "examples": [
+        {
+          "patch": {
+            "x": 0,
+            "y": 0,
+            "width": 8,
+            "height": 8
+          },
+          "old": 4289027607,
+          "selected": 4285024296,
+          "oldCount": 0,
+          "modeCount": 16,
+          "count": 16
+        }
+      ],
+      "ownedPeak": 7375900,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "flat-rgba-hidden-edge",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-hidden-edge.raw",
+      "inputSha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "groups": 57,
+      "placements": 1029,
+      "changed": 4,
+      "changedPixels": 200,
+      "strictMajorityChanged": 4,
+      "oldBorderMismatch": 74,
+      "modeBorderMismatch": 8,
+      "examples": [
+        {
+          "patch": {
+            "x": 512,
+            "y": 0,
+            "width": 8,
+            "height": 8
+          },
+          "old": 6834216,
+          "selected": 4285024296,
+          "oldCount": 8,
+          "modeCount": 16,
+          "count": 24
+        },
+        {
+          "patch": {
+            "x": 0,
+            "y": 0,
+            "width": 8,
+            "height": 8
+          },
+          "old": 10837527,
+          "selected": 4285024296,
+          "oldCount": 0,
+          "modeCount": 16,
+          "count": 16
+        },
+        {
+          "patch": {
+            "x": 512,
+            "y": 16,
+            "width": 8,
+            "height": 8
+          },
+          "old": 6834216,
+          "selected": 4285024296,
+          "oldCount": 0,
+          "modeCount": 32,
+          "count": 32
+        },
+        {
+          "patch": {
+            "x": 1024,
+            "y": 16,
+            "width": 1,
+            "height": 8
+          },
+          "old": 6834216,
+          "selected": 4285024296,
+          "oldCount": 0,
+          "modeCount": 10,
+          "count": 10
+        }
+      ],
+      "ownedPeak": 3687950,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "flat-rgba-opaque-portrait",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227-checks/flat-rgba-opaque-portrait.raw",
+      "inputSha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "groups": 49,
+      "placements": 1003,
+      "changed": 1,
+      "changedPixels": 64,
+      "strictMajorityChanged": 1,
+      "oldBorderMismatch": 16,
+      "modeBorderMismatch": 0,
+      "examples": [
+        {
+          "patch": {
+            "x": 0,
+            "y": 0,
+            "width": 8,
+            "height": 8
+          },
+          "old": 4289027607,
+          "selected": 4285024296,
+          "oldCount": 0,
+          "modeCount": 16,
+          "count": 16
+        }
+      ],
+      "ownedPeak": 3687950,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgba-dc-edge",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "inputSha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b",
+      "width": 2050,
+      "height": 1080,
+      "channels": 4,
+      "groups": 91,
+      "placements": 368,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 519,
+      "modeBorderMismatch": 519,
+      "examples": [],
+      "ownedPeak": 30996000,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgb-dc-edge",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "inputSha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de",
+      "width": 2050,
+      "height": 1080,
+      "channels": 3,
+      "groups": 91,
+      "placements": 368,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 519,
+      "modeBorderMismatch": 519,
+      "examples": [],
+      "ownedPeak": 30996000,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgba-portrait",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "inputSha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "groups": 1,
+      "placements": 2,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 0,
+      "modeBorderMismatch": 0,
+      "examples": [],
+      "ownedPeak": 3687950,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgba-hidden-edge",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "inputSha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "groups": 1,
+      "placements": 2,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 0,
+      "modeBorderMismatch": 0,
+      "examples": [],
+      "ownedPeak": 3687950,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgba-transposed",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-transposed.raw",
+      "inputSha256": "8118d0a7b5ab014dac6c3de61da86331bdd11ea12bf37ead3b768806677af1e6",
+      "width": 1080,
+      "height": 1920,
+      "channels": 4,
+      "groups": 91,
+      "placements": 368,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 519,
+      "modeBorderMismatch": 519,
+      "examples": [],
+      "ownedPeak": 29030400,
+      "ownedLive": 0
+    },
+    {
+      "fixture": "screenshot-rgba-hidden-last-row",
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-alpha-portrait-229/screenshot-rgba-hidden-last-row.raw",
+      "inputSha256": "8954e9982fbc0ff3f910f89962840ef0246688a59eeaefd0a4c5c3601669c86d",
+      "width": 2050,
+      "height": 1080,
+      "channels": 4,
+      "groups": 91,
+      "placements": 368,
+      "changed": 0,
+      "changedPixels": 0,
+      "strictMajorityChanged": 0,
+      "oldBorderMismatch": 519,
+      "modeBorderMismatch": 519,
+      "examples": [],
+      "ownedPeak": 30996000,
+      "ownedLive": 0
+    }
+  ],
+  "policy": "Read-only whole-input patch placement profile comparing the retained diagonal placeholder with the mode of original exterior border pixels including alpha. Border mismatch counts are structural diagnostics, not encoded-byte savings, RSS or timing qualification. No production change or parity claim."
+}

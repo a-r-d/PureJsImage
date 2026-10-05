@@ -1,0 +1,102 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-tree-entropy-package-196.ts",
+      "sha256": "a00036bcefa97788d54e05128346a4c90262d9794e0f1182ef78f0a23bde5188"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-tree-entropy-production-copy-196.ts",
+      "sha256": "ef6939c906f9fb8319126b659dac24b363856a233455bc66cc46c8c32804e6ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-policy-production-196.txt",
+      "sha256": "5355805695c254e821e6bffa8e9856625606f060af49e63bd170193f2583b7d9"
+    },
+    {
+      "path": "scripts/bundle-size.ts",
+      "sha256": "76e9975739b6880e44afda36378a862f926aabe3cf5d2068fe2074a7bd56c32c"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "58eb32ee1341d7ee8f5a4703543a4860b014a1c39433d65135567202d14fd5c8"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "57d6fed10bd6bbccf27fe568651c7ca98d595ee20da9b3f8bbe77f260d48f545"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/encoder/jpegxl-modular-encode.ts",
+      "sha256": "fc9bfbb982812c1a96ce97419c37fd0b36df3c4942e631d0a6fa24390b6a704d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/encoder/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/encoder/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/encoder/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/encoder/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    }
+  ],
+  "results": [
+    {
+      "target": "jpegxl-specialized",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/jpegxl-specialized-baseline.js",
+      "artifactSha256": "875b5e8e0d3c7f4f265645260a7445a2ceafb755c0d8a121356c64d86c6c3102",
+      "bytes": 611492,
+      "previousBytes": 611492,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 612000
+    },
+    {
+      "target": "jpegxl-specialized",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/jpegxl-specialized-candidate.js",
+      "artifactSha256": "a95101342cdf37471d72bb604aefc74083eba206e0272114798298b56fe8171c",
+      "bytes": 613014,
+      "previousBytes": 611492,
+      "deltaBytes": 1522,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 612000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/codec-jpegxl-baseline.js",
+      "artifactSha256": "df9fac234e29a5d9440007e8ab67be38ef85b31197c75b1ed000488c2904241b",
+      "bytes": 538905,
+      "previousBytes": 538905,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 539000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-production-196/codec-jpegxl-candidate.js",
+      "artifactSha256": "fc7a1693108a49a15b8f246f75cf9542122436f54cc46cdf86058335847571dd",
+      "bytes": 540427,
+      "previousBytes": 538905,
+      "deltaBytes": 1522,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 539000
+    }
+  ],
+  "policy": "Exact existing public package target and esbuild settings compare unchanged qualified source against only the five first-party de-instrumented copied encoder modules. Every baseline byte count must reproduce generated metrics, original budget baselines stay unchanged and candidate raw minified bytes are measured before any production/budget change. No release or deployment footprint claim."
+}

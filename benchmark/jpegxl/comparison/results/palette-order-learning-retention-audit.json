@@ -1,0 +1,50 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "streams": 166,
+  "uniqueStreams": 94,
+  "pins": 132,
+  "bands": 52,
+  "qualityStreams": 91,
+  "newlyEncoded": 91,
+  "smaller": 24,
+  "changed": 1,
+  "adequate": 11,
+  "unresolved": 13,
+  "extraPins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/postverify-palette-order-180.ts",
+      "sha256": "63d56366c9fc88a1828bce75d71071914f4f720d95cbc54dabed27a7fbf85840"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-palette-order-audit-180.ts",
+      "sha256": "7db1bc32a4548b54bd93a89b1fa52e806299b04c332a0b572d2c0c0eaa9d0b2a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-palette-order-public-176.ts",
+      "sha256": "9c03a69b75b2aa77087a0714e3c95f96c77b79a1db18398ec5576242a7983766"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-palette-order-quality-177.ts",
+      "sha256": "98960f9ada6feeb74cc1329a3442bcf2a2590a18cce5d5eff5625e2017d9df6a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-palette-order-artwork-175.ts",
+      "sha256": "a22d8e204a510b0e630cb9fc1fd209a79d75c6bc03c7343e43b7a5191b3aa50b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-palette-order-boundaries-174b.ts",
+      "sha256": "c0b3d02d0a2fe67377805bc45f51781e13af791681b9e7e96d8fc38271aad6da"
+    },
+    {
+      "path": "tests/helpers/jpegxl-learned-palette.ts",
+      "sha256": "ffd1b4383dce089ac95ff8f46ca3cdb7da2db049561f622422eea7aa88f395b4"
+    },
+    {
+      "path": "tests/helpers/jpegxl-artwork.ts",
+      "sha256": "dba445f9ecb427fef0a2222f6b0f0498c59fe7b71c1ba4618b3ea31731b10dee"
+    }
+  ],
+  "policy": "Post-run complete artifact/grids and source/input/output/tool/module/report/harness audit. All 91 fixed quality settings preserve prior full grids and scores except the scoped smaller exact graphic replacements. All 91 settings are freshly encoded through the same frozen ordinary public source/modules and identical API. Changed streams shrink. All five public lossless and 64 prototype boundary observations preserve every original sample and complete size/storage floors. All three current artwork cases preserve exact visible color/alpha. Full-cohort bands, inversions and original 0.25-score adequacy/null ratios are recomputed. Prototype controls retain their original qualified-source boundary separately. No speed or general parity claim."
+}

@@ -1,0 +1,454 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-small-group-active-neighbors-228.ts",
+      "sha256": "013dab3a9282b62ac676e5c60a3de0c793c1f8b76d2527ac2ecce2229368fb2a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-small-group-active-neighbors-228.ts",
+      "sha256": "21addb978d3b719ebdbd0ffcc46e42e32b6808341ac9bac01bf4bb955daf857a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/cheap-group-cost-profile.json",
+      "sha256": "f17fa97fddd5f08e1225d7dc6586610a2bc75fe680ed91f9350a8c4d29973cf1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cost-guard-controls.json",
+      "sha256": "e857a05332c29df430339cdb37f107cd459a8724d0df6b16bf7b7b4d5bf017dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-small-group-pixel-guard-227.ts",
+      "sha256": "254e2d20eedea4216c2340f379aaf33dbf9d220ff97a03ec4b82b771dd36f5c0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-neighbor-controls.json",
+      "sha256": "21069bffde89151d783393d46ffb5dc7e32f265fde32ed4ebede6af1a265a6ab"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-midpoint-controls.json",
+      "sha256": "b97bfa3ac7301957f7b9fff872f36febb12e3523e3114e885b8eb5f4ff7aafa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-small-group-active-neighbors-228.json",
+      "sha256": "8680fc876046704a9ddfb40fa24cfaeb01d27df1c2b76575966affc9fc105b65"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-pixel-guard-controls.json",
+      "sha256": "a4920a6975c4d582da00e13cd9ecbbf5e7fa14fb00d471e2141f9b914f6881fc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-performance-controls.json",
+      "sha256": "d0e0f1377a201dc1c25b3830346da0f98367f176f1cccffdedcc3fe4c544f50f"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "sha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "sha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "sha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "sha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/baseline/jpegxl-modular-tree.ts",
+      "sha256": "d51f35579013d15531886780df9c160a02045ed636a692b05e21ccf69cd48616"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-modular-encode.ts",
+      "sha256": "eed5b8c41f6cf591244608db04d473e8e3c72f60d36009d8879f5275fd1aa744"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-pixel-guard-227/candidate/jpegxl-modular-tree.ts",
+      "sha256": "9a9a488dc3cdc0bd7246f2cfb5e6aabeb50a46dd075fda80e41651044c5e10cc"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "screenshot-rgba-dc-edge",
+      "variant": "baseline",
+      "width": 2050,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "inputSha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-baseline.jxl",
+      "encodedSha256": "4199d8e4c847647941276e03f566b175f973055148f842471e7764e36f3198c9",
+      "bytes": 417230,
+      "baselineBytes": 417230,
+      "changeBytes": 0,
+      "ownedPeak": 138406343,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 6,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-baseline.jxl.native.npy",
+          "sha256": "59f521320e5a77cbbbf50789484c379585597a7ecf4005f8aa83dc2e885dc1c1",
+          "samples": 8856000,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-baseline.jxl.rust.npy",
+          "sha256": "b7643b1adae116aa43502dcd77540cf2d10f6047bce502c36e2abdacad72b388",
+          "samples": 8856000,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 8856000,
+      "maximumSampleError": 0,
+      "elapsedMs": 34513.86059,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgba-dc-edge",
+      "variant": "candidate",
+      "width": 2050,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge.raw",
+      "inputSha256": "183728772cda15c2dbaf0e2877fecf56d6fb6888a75339b746e5fec39ee4400b",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-candidate.jxl",
+      "encodedSha256": "4ae16bce353f1954f9a1cdd736ca87b042d900e8b5826d4ba58e1b2f5d0f2849",
+      "bytes": 407550,
+      "baselineBytes": 417230,
+      "changeBytes": -9680,
+      "ownedPeak": 129191316,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 45,
+      "selectedDcGroups": 2,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-candidate.jxl.native.npy",
+          "sha256": "59f521320e5a77cbbbf50789484c379585597a7ecf4005f8aa83dc2e885dc1c1",
+          "samples": 8856000,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-dc-edge-candidate.jxl.rust.npy",
+          "sha256": "b7643b1adae116aa43502dcd77540cf2d10f6047bce502c36e2abdacad72b388",
+          "samples": 8856000,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 8856000,
+      "maximumSampleError": 0,
+      "elapsedMs": 34953.842691000005,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgb-dc-edge",
+      "variant": "baseline",
+      "width": 2050,
+      "height": 1080,
+      "channels": 3,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "inputSha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-baseline.jxl",
+      "encodedSha256": "8679afa260474958528a5e912b391fd38fdb48d6af36342d8f7e54a033cb0468",
+      "bytes": 417862,
+      "baselineBytes": 417862,
+      "changeBytes": 0,
+      "ownedPeak": 104593282,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 6,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-baseline.jxl.native.npy",
+          "sha256": "2e34b4be20c24c5cc5bebbc8dd4923540560f9c7365375c8976de407284db805",
+          "samples": 6642000,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-baseline.jxl.rust.npy",
+          "sha256": "49cc685372b0a67cf92895de4aba19a50d78cf78875385e8a6a79597bd18e6d4",
+          "samples": 6642000,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 6642000,
+      "maximumSampleError": 0,
+      "elapsedMs": 27551.737521000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgb-dc-edge",
+      "variant": "candidate",
+      "width": 2050,
+      "height": 1080,
+      "channels": 3,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge.raw",
+      "inputSha256": "05acceaa801d4d52f4e0a28595a0193ba3ab275f724175e17104e8bb3f8f51de",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-candidate.jxl",
+      "encodedSha256": "4d723738fc5ee38e8791e2639d562e1ed057adf5e6a02ec61cf60dd24d66df2b",
+      "bytes": 408004,
+      "baselineBytes": 417862,
+      "changeBytes": -9858,
+      "ownedPeak": 97616410,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 45,
+      "selectedDcGroups": 2,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-candidate.jxl.native.npy",
+          "sha256": "2e34b4be20c24c5cc5bebbc8dd4923540560f9c7365375c8976de407284db805",
+          "samples": 6642000,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgb-dc-edge-candidate.jxl.rust.npy",
+          "sha256": "49cc685372b0a67cf92895de4aba19a50d78cf78875385e8a6a79597bd18e6d4",
+          "samples": 6642000,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 6642000,
+      "maximumSampleError": 0,
+      "elapsedMs": 28289.123730000007,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgba-portrait",
+      "variant": "baseline",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "inputSha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-baseline.jxl",
+      "encodedSha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726",
+      "bytes": 48173,
+      "baselineBytes": 48173,
+      "changeBytes": 0,
+      "ownedPeak": 32370660,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-baseline.jxl.native.npy",
+          "sha256": "8592b161ea0a0e042e3cb23cdc56a5a71a4700bc7c844cd4726d7d14d7d83d0e",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-baseline.jxl.rust.npy",
+          "sha256": "f7d857908c9a3346d8bbd307ea221e9c671dd8211f13c01093fa4b9d805f5fcc",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2552.5632039999764,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgba-portrait",
+      "variant": "candidate",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait.raw",
+      "inputSha256": "34f4420443e4c9517dbcb017f2ca338510dc634b81fd5361d66c93ec8edf691f",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-candidate.jxl",
+      "encodedSha256": "94f5ae6110b4b54866b56cbb9a4fd582863b1ff6c37effc6e2778c0f3466d726",
+      "bytes": 48173,
+      "baselineBytes": 48173,
+      "changeBytes": 0,
+      "ownedPeak": 32370660,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-candidate.jxl.native.npy",
+          "sha256": "8592b161ea0a0e042e3cb23cdc56a5a71a4700bc7c844cd4726d7d14d7d83d0e",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-portrait-candidate.jxl.rust.npy",
+          "sha256": "f7d857908c9a3346d8bbd307ea221e9c671dd8211f13c01093fa4b9d805f5fcc",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2526.7817869999853,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgba-hidden-edge",
+      "variant": "baseline",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "inputSha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-baseline.jxl",
+      "encodedSha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559",
+      "bytes": 50012,
+      "baselineBytes": 50012,
+      "changeBytes": 0,
+      "ownedPeak": 32227294,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-baseline.jxl.native.npy",
+          "sha256": "75a61941ed63d16ba3e38deae7a67057ab8489b46ab22554ce558347224b337a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-baseline.jxl.rust.npy",
+          "sha256": "d614db44ea28d6cf9b1ff6be20c47e54222ff741000d267c2f06cce460bc49db",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2706.883563999989,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "screenshot-rgba-hidden-edge",
+      "variant": "candidate",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge.raw",
+      "inputSha256": "5b9afddaee34de512f010aa266a06b2f7c6b9281a405d4b7c6a24fa226d67238",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-candidate.jxl",
+      "encodedSha256": "162bc7c6debe1cf73489d1127e08b5ba8cfb0d785a2f9f35f650e38467b37559",
+      "bytes": 50012,
+      "baselineBytes": 50012,
+      "changeBytes": 0,
+      "ownedPeak": 32227294,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-candidate.jxl.native.npy",
+          "sha256": "75a61941ed63d16ba3e38deae7a67057ab8489b46ab22554ce558347224b337a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-active-neighbors-228/screenshot-rgba-hidden-edge-candidate.jxl.rust.npy",
+          "sha256": "d614db44ea28d6cf9b1ff6be20c47e54222ff741000d267c2f06cce460bc49db",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2740.87352199998,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Copied per-pixel-guarded primary 8192-sample policy versus exact current baseline on first-party deterministic derivatives of the pinned original screenshot: RGB/RGBA across a second DC group, transposed portrait, and sparse zero-alpha pixels retaining original hidden RGB. Report any growth rather than hide it. Verify every original native/Rust and public sample with complete nonduplicate coverage, actual final grouping/DC/reference frames, unchanged inputs and owned closure. The already encoded ordinary-frame guard uses one half bit per pixel, independent of RGB/RGBA channel count, and skips very cheap inputs; it is a heuristic, not a universal no-growth proof. Fresh guarded-policy pair overhead and original-limit qualification remain separate; no production adoption or overall parity claim."
+}

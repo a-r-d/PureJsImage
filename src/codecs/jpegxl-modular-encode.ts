@@ -15,6 +15,7 @@ import type { ImageSink } from '../sink.ts'
 import {
   defaultJpegXlWeightedPredictor,
   type JpegXlAnimationHeader,
+  type JpegXlModularNode,
   JpegXlWeightedPredictor,
 } from './jpegxl-decode.ts'
 import {
@@ -24,9 +25,18 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
+import {
+  applyJpegXlModularRct as applyModularRct,
+  chooseJpegXlModularRct,
+} from './jpegxl-modular-rct.ts'
+import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
 import { encodeJpegXlVarDct8Async } from './jpegxl-vardct-encode.ts'
+
+const isLimitExceeded = (error: unknown): error is ImageError =>
+  error instanceof ImageError && error.code === 'LIMIT_EXCEEDED'
 
 export class JpegXlBitWriter {
   #bytes: Uint8Array<ArrayBuffer>
@@ -44,6 +54,22 @@ export class JpegXlBitWriter {
   #bitPosition = 0
   #finished: Uint8Array | undefined
 
+  get bitPosition(): number {
+    return this.#bitPosition
+  }
+
+  /** Append an exact entropy section without introducing byte padding. */
+  writeEncodedBits(bytes: Uint8Array, bitCount: number): void {
+    if (!Number.isSafeInteger(bitCount) || bitCount < 0 || bitCount > bytes.length * 8)
+      throw invalidJpegXlInput('encoded bit extent is invalid')
+    this.#ensure(this.#bitPosition + bitCount)
+    const wholeBytes = Math.floor(bitCount / 8)
+    for (let index = 0; index < wholeBytes; index++) this.writeBits(bytes[index] ?? 0, 8)
+    const remaining = bitCount & 7
+    if (remaining !== 0)
+      this.writeBits((bytes[wholeBytes] ?? 0) & ((1 << remaining) - 1), remaining)
+  }
+
   writeBits(value: number, count: number): void {
     if (
       !Number.isSafeInteger(value) ||
@@ -53,7 +79,7 @@ export class JpegXlBitWriter {
       value < 0 ||
       value >= 2 ** count
     ) {
-      throw invalidInput('JPEG XL output bit field is invalid')
+      throw invalidJpegXlInput('output bit field is invalid')
     }
     this.#ensure(this.#bitPosition + count)
     if (count === 0) return
@@ -90,11 +116,11 @@ export class JpegXlBitWriter {
 
   #ensure(bits: number): void {
     const bytes = Math.ceil(bits / 8)
-    if (bytes <= this.#bytes.byteLength) return
-    if (this.#finished) throw invalidInput('JPEG XL bit writer is finished')
+    if (bytes <= this.#bytes.length) return
+    if (this.#finished) throw invalidJpegXlInput('bit writer is finished')
     if (bytes > this.outputLimit)
       throw limitExceeded('JPEG XL encoded output exceeds maxOutputBytes')
-    let length = this.#bytes.byteLength
+    let length = this.#bytes.length
     while (length < bytes) length *= 2
     length = Math.min(length, this.outputLimit)
     const grown = this.memory
@@ -128,7 +154,7 @@ export const writeU32 = (
     writer.writeBits(encoded, distribution.bits)
     return
   }
-  throw invalidInput('JPEG XL output integer is outside its distribution')
+  throw invalidJpegXlInput('output integer is outside its distribution')
 }
 
 const writeZeroU64 = (writer: JpegXlBitWriter): void => writer.writeBits(0, 2)
@@ -153,7 +179,7 @@ interface ModularGroupSearchEvidence {
   readonly rct: boolean
   readonly predictors: readonly number[]
   readonly entropy: 'ans'
-  readonly contextModel: 'channel' | 'gradient'
+  readonly contextModel: 'channel' | 'gradient' | 'learned'
   readonly lz77: boolean
   readonly plainBytes: number
   readonly lz77Bytes?: number
@@ -204,7 +230,7 @@ export const writePositiveF16 = (writer: JpegXlBitWriter, value: number): void =
       ? Math.round(value * 2 ** 24)
       : (exponent + 15) * 1024 + Math.round((value / 2 ** exponent - 1) * 1024)
   if (encoded <= 0 || encoded >= 0x7c00)
-    throw invalidInput('JPEG XL tone mapping value is outside finite positive half precision')
+    throw invalidJpegXlInput('tone mapping value is outside finite positive half precision')
   writer.writeBits(encoded, 16)
 }
 
@@ -321,7 +347,7 @@ const writeVarUint16 = (writer: JpegXlBitWriter, value: number): void => {
     return
   }
   const bits = Math.floor(Math.log2(value))
-  if (bits > 15) throw invalidInput('JPEG XL prefix alphabet is too large')
+  if (bits > 15) throw invalidJpegXlInput('prefix alphabet is too large')
   writer.writeBits(bits, 4)
   writer.writeBits(value - 2 ** bits, bits)
 }
@@ -335,7 +361,7 @@ const codeLengthStatic = new Map<number, Readonly<{ key: number; bits: number }>
 
 const writeCodeLengthStaticSymbol = (writer: JpegXlBitWriter, symbol: 0 | 1 | 4 | 5): void => {
   const code = codeLengthStatic.get(symbol)
-  if (!code) throw invalidInput('JPEG XL code-length symbol is unavailable')
+  if (!code) throw invalidJpegXlInput('code-length symbol is unavailable')
   writer.writeBits(code.key, code.bits)
 }
 
@@ -380,7 +406,7 @@ const canonicalEncoding = (lengths: Uint8Array, memory?: JpegXlEncoderMemory): P
 
 const validateHybridValue = (value: number): void => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 0xffff_ffff) {
-    throw invalidInput('JPEG XL Modular residual is outside the supported encoder range')
+    throw invalidJpegXlInput('Modular residual is outside the supported encoder range')
   }
 }
 
@@ -402,7 +428,7 @@ export const writeHybridUint = (
     key === undefined ||
     (length === 0 && encoding.singleSymbol !== token)
   ) {
-    throw invalidInput('JPEG XL Modular entropy token is missing from its prefix code')
+    throw invalidJpegXlInput('Modular entropy token is missing from its prefix code')
   }
   writer.writeBits(key, length)
   if (value >= 256) {
@@ -417,7 +443,7 @@ export const writeModularTree = (writer: JpegXlBitWriter, predictor = 1): void =
   const memory = writer.memory
   withJpegXlMemory(memory, () => {
     if (!Number.isSafeInteger(predictor) || predictor < 0 || predictor > 13) {
-      throw invalidInput('JPEG XL Modular predictor is invalid')
+      throw invalidJpegXlInput('Modular predictor is invalid')
     }
     const frequencies = allocateJpegXlArray(memory, Uint32Array, Math.max(2, predictor + 1))
     frequencies[0] = predictor === 0 ? 5 : 4
@@ -451,7 +477,7 @@ const huffmanLengths = (
       )
       const left = nodes.shift()
       const right = nodes.shift()
-      if (!left || !right) throw invalidInput('JPEG XL Huffman tree is incomplete')
+      if (!left || !right) throw invalidJpegXlInput('Huffman tree is incomplete')
       nodes.push({
         weight: left.weight + right.weight,
         minimumSymbol: Math.min(left.minimumSymbol, right.minimumSymbol),
@@ -470,7 +496,7 @@ const huffmanLengths = (
         lengths[node.symbol] = depth
         return
       }
-      if (!node.left || !node.right) throw invalidInput('JPEG XL Huffman node is incomplete')
+      if (!node.left || !node.right) throw invalidJpegXlInput('Huffman node is incomplete')
       visit(node.left, depth + 1)
       visit(node.right, depth + 1)
     }
@@ -486,7 +512,7 @@ const codeLengthEncoding = (memory?: JpegXlEncoderMemory): PrefixEncoding => {
     const lengths = allocateJpegXlArray(memory, Uint8Array, 18)
     for (let index = 0; index < codeLengthOrder.length; index += 1) {
       const symbol = codeLengthOrder[index]
-      if (symbol === undefined) throw invalidInput('JPEG XL code-length order is incomplete')
+      if (symbol === undefined) throw invalidJpegXlInput('code-length order is incomplete')
       lengths[symbol] = index < 14 ? 4 : 5
     }
     return canonicalEncoding(lengths, memory)
@@ -554,18 +580,20 @@ const writeSimpleHuffmanCode = (
   })
 }
 
-export const writePrefixCode = (
+const prefixAlphabetSize = (frequencies: Uint32Array): number => {
+  let maximumSymbol = frequencies.length - 1
+  while (maximumSymbol > 0 && frequencies[maximumSymbol] === 0) maximumSymbol -= 1
+  return maximumSymbol + 1
+}
+
+const writePrefixHistogram = (
   writer: JpegXlBitWriter,
-  contexts: number,
   frequencies: Uint32Array,
 ): PrefixEncoding => {
   const memory = writer.memory
   return withJpegXlMemory(memory, () => {
-    let maximumSymbol = frequencies.length - 1
-    while (maximumSymbol > 0 && frequencies[maximumSymbol] === 0) maximumSymbol -= 1
-    const alphabetSize = maximumSymbol + 1
+    const alphabetSize = prefixAlphabetSize(frequencies)
     if (alphabetSize === 1) {
-      writeEntropyHeader(writer, contexts, alphabetSize)
       return Object.freeze({
         keys: allocateJpegXlArray(memory, Uint16Array, 1),
         lengths: copyJpegXlArray(memory, Uint8Array, [0]),
@@ -577,7 +605,6 @@ export const writePrefixCode = (
       if ((frequencies[symbol] ?? 0) > 0) symbols.push(symbol)
     }
     if (symbols.length <= 4) {
-      writeEntropyHeader(writer, contexts, alphabetSize)
       return writeSimpleHuffmanCode(writer, alphabetSize, symbols, frequencies)
     }
     let lengths = huffmanLengths(frequencies.subarray(0, alphabetSize), memory)
@@ -599,14 +626,45 @@ export const writePrefixCode = (
         }
         lengths = huffmanLengths(weights, memory)
         if (!lengths && floor === maximum)
-          throw invalidInput('JPEG XL bounded Huffman tree is unavailable')
+          throw invalidJpegXlInput('bounded Huffman tree is unavailable')
         floor = Math.min(maximum, floor * 2)
       }
     }
-    writeEntropyHeader(writer, contexts, alphabetSize)
     writeComplexHuffmanCode(writer, lengths)
     return canonicalEncoding(lengths, memory)
   })
+}
+
+export const writePrefixCode = (
+  writer: JpegXlBitWriter,
+  contexts: number,
+  frequencies: Uint32Array,
+): PrefixEncoding => {
+  writeEntropyHeader(writer, contexts, prefixAlphabetSize(frequencies))
+  return writePrefixHistogram(writer, frequencies)
+}
+
+const writeChannelPrefixCode = (
+  writer: JpegXlBitWriter,
+  contextToChannel: Uint8Array,
+  frequencies: readonly Uint32Array[],
+): readonly PrefixEncoding[] => {
+  writer.writeBits(0, 1)
+  if (contextToChannel.length > 1) {
+    const channelBits = Math.ceil(Math.log2(frequencies.length))
+    writer.writeBits(1, 1)
+    writer.writeBits(channelBits, 2)
+    for (const channel of contextToChannel) writer.writeBits(channel, channelBits)
+  }
+  writer.writeBits(1, 1)
+  for (let channel = 0; channel < frequencies.length; channel++) {
+    writer.writeBits(8, 4)
+    writer.writeBits(0, 4)
+    writer.writeBits(0, 4)
+  }
+  // The format places all alphabet sizes before any of the prefix codes.
+  for (const counts of frequencies) writeVarUint16(writer, prefixAlphabetSize(counts) - 1)
+  return Object.freeze(frequencies.map((counts) => writePrefixHistogram(writer, counts)))
 }
 
 export interface HybridUintEncoding {
@@ -644,7 +702,7 @@ export const hybridTokenForEncoding = (
 
 const writeVarUint8 = (writer: JpegXlBitWriter, value: number): void => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 255) {
-    throw invalidInput('JPEG XL ANS histogram integer is invalid')
+    throw invalidJpegXlInput('ANS histogram integer is invalid')
   }
   if (value === 0) {
     writer.writeBits(0, 1)
@@ -735,7 +793,7 @@ const normalizedAnsFrequencies = (
         output[symbol] = (output[symbol] ?? 0) - reduction
         excess -= reduction
       }
-      if (excess !== 0) throw invalidInput('JPEG XL ANS histogram cannot be normalized')
+      if (excess !== 0) throw invalidJpegXlInput('ANS histogram cannot be normalized')
     } else {
       output[omitted] = (output[omitted] ?? 0) + 4_096 - assigned
     }
@@ -800,7 +858,7 @@ const writeAnsHistogram = (writer: JpegXlBitWriter, frequencies: Uint16Array): U
         }
         if (repeated >= 4) {
           const repeatCode = histogramLogCodes.get(12)
-          if (!repeatCode) throw invalidInput('JPEG XL ANS repeat code is unavailable')
+          if (!repeatCode) throw invalidJpegXlInput('ANS repeat code is unavailable')
           writer.writeBits(repeatCode.key, repeatCode.bits)
           writeVarUint8(writer, repeated - 4)
           symbol += repeated
@@ -808,7 +866,7 @@ const writeAnsHistogram = (writer: JpegXlBitWriter, frequencies: Uint16Array): U
         }
       }
       const code = histogramLogCodes.get(logCount)
-      if (!code) throw invalidInput('JPEG XL ANS log-count code is unavailable')
+      if (!code) throw invalidJpegXlInput('ANS log-count code is unavailable')
       writer.writeBits(code.key, code.bits)
       symbol += 1
     }
@@ -858,7 +916,7 @@ const ansHistogramEncoding = (
         const over = overfull.pop()
         const under = underfull.pop()
         if (over === undefined || under === undefined) {
-          throw invalidInput('JPEG XL ANS alias table is invalid')
+          throw invalidJpegXlInput('ANS alias table is invalid')
         }
         const missing = entrySize - (cutoff[under] ?? 0)
         cutoff[over] = (cutoff[over] ?? 0) - missing
@@ -888,7 +946,7 @@ const ansHistogramEncoding = (
       }
       const table = residuals[symbol]
       if (!table || offset < 0 || offset >= table.length) {
-        throw invalidInput('JPEG XL ANS encoding table is invalid')
+        throw invalidJpegXlInput('ANS encoding table is invalid')
       }
       table[offset] = residual
     }
@@ -899,6 +957,7 @@ const ansHistogramEncoding = (
 export interface AnsEncoding {
   readonly contextMap: Uint8Array
   readonly config: HybridUintEncoding
+  readonly histogramConfigs?: readonly HybridUintEncoding[]
   readonly histograms: readonly AnsHistogramEncoding[]
 }
 
@@ -908,6 +967,7 @@ export const writeAnsCode = (
   frequencies: readonly Uint32Array[],
   config: Readonly<HybridUintEncoding>,
   lz77 = false,
+  histogramConfigs?: readonly HybridUintEncoding[],
 ): AnsEncoding => {
   const memory = writer.memory
   return withJpegXlMemory(memory, () => {
@@ -916,9 +976,10 @@ export const writeAnsCode = (
       frequencies.length < 1 ||
       frequencies.length > 256 ||
       (contextMap.length === 1 && frequencies.length !== 1) ||
-      (lz77 && contextMap.length < 2)
+      (lz77 && contextMap.length < 2) ||
+      (histogramConfigs !== undefined && histogramConfigs.length !== frequencies.length)
     ) {
-      throw invalidInput('JPEG XL ANS encoding shape is invalid')
+      throw invalidJpegXlInput('ANS encoding shape is invalid')
     }
     writer.writeBits(lz77 ? 1 : 0, 1)
     if (lz77) {
@@ -937,7 +998,7 @@ export const writeAnsCode = (
       writer.writeBits(0, 4)
     }
     if (contextMap.length === 1) {
-      if (contextMap[0] !== 0) throw invalidInput('JPEG XL single ANS context is invalid')
+      if (contextMap[0] !== 0) throw invalidJpegXlInput('single ANS context is invalid')
     } else if (frequencies.length <= 8) {
       const histogramBits = Math.ceil(Math.log2(frequencies.length))
       writer.writeBits(1, 1)
@@ -949,7 +1010,7 @@ export const writeAnsCode = (
       const alphabet = Array.from({ length: 256 }, (_, index) => index)
       const encodedContextMap = copyJpegXlArray(memory, Uint8Array, contextMap, (histogram) => {
         const position = alphabet.indexOf(histogram)
-        if (position < 0) throw invalidInput('JPEG XL ANS context map is invalid')
+        if (position < 0) throw invalidJpegXlInput('ANS context map is invalid')
         alphabet.splice(position, 1)
         alphabet.unshift(histogram)
         return position
@@ -976,12 +1037,13 @@ export const writeAnsCode = (
     writer.writeBits(0, 1)
     writer.writeBits(3, 2)
     for (let histogram = 0; histogram < frequencies.length; histogram += 1) {
-      writer.writeBits(config.splitExponent, 4)
-      if (config.splitExponent !== 8) {
-        writer.writeBits(config.msbInToken, Math.ceil(Math.log2(config.splitExponent + 1)))
+      const hybrid = histogramConfigs?.[histogram] ?? config
+      writer.writeBits(hybrid.splitExponent, 4)
+      if (hybrid.splitExponent !== 8) {
+        writer.writeBits(hybrid.msbInToken, Math.ceil(Math.log2(hybrid.splitExponent + 1)))
         writer.writeBits(
-          config.lsbInToken,
-          Math.ceil(Math.log2(config.splitExponent - config.msbInToken + 1)),
+          hybrid.lsbInToken,
+          Math.ceil(Math.log2(hybrid.splitExponent - hybrid.msbInToken + 1)),
         )
       }
     }
@@ -990,6 +1052,7 @@ export const writeAnsCode = (
     return Object.freeze({
       contextMap,
       config: Object.freeze({ ...config }),
+      ...(histogramConfigs ? { histogramConfigs } : {}),
       histograms: Object.freeze(
         serialized.map((histogram) => ansHistogramEncoding(histogram, memory)),
       ),
@@ -1007,12 +1070,20 @@ export const writeAnsValues = (
   const memory = writer.memory
   withJpegXlMemory(memory, () => {
     if (count < 1 || count > values.length || count > contexts.length) {
-      throw invalidInput('JPEG XL ANS token count is invalid')
+      throw invalidJpegXlInput('ANS token count is invalid')
     }
     const packedValues = allocateJpegXlArray(memory, Uint32Array, count)
-    for (let index = 0; index < count; index += 1) {
-      packedValues[index] = encodeHybridUintPacked(values[index] ?? 0, encoding.config)
-    }
+    if (encoding.histogramConfigs)
+      for (let index = 0; index < count; index += 1) {
+        const histogram = encoding.contextMap[contexts[index] ?? 0]
+        const config = histogram === undefined ? undefined : encoding.histogramConfigs[histogram]
+        if (!config) throw invalidJpegXlInput('ANS hybrid configuration is missing')
+        packedValues[index] = encodeHybridUintPacked(values[index] ?? 0, config)
+      }
+    else
+      for (let index = 0; index < count; index += 1) {
+        packedValues[index] = encodeHybridUintPacked(values[index] ?? 0, encoding.config)
+      }
     writeAnsPackedValues(writer, packedValues, contexts, count, encoding)
   })
 }
@@ -1028,26 +1099,30 @@ export const writeAnsPackedValues = (
   const memory = writer.memory
   withJpegXlMemory(memory, () => {
     const renormalizedWords = scratch ?? allocateJpegXlArray(memory, Int32Array, count)
-    if (renormalizedWords.length < count) throw invalidInput('JPEG XL ANS scratch is too small')
+    if (renormalizedWords.length < count) throw invalidJpegXlInput('ANS scratch is too small')
     renormalizedWords.fill(-1, 0, count)
     let state = 0x13_0000
+    let requiredBits = writer.bitPosition + 32
     for (let index = count - 1; index >= 0; index -= 1) {
       const context = contexts[index]
       const histogramIndex = context === undefined ? undefined : encoding.contextMap[context]
       const histogram =
         histogramIndex === undefined ? undefined : encoding.histograms[histogramIndex]
-      if (!histogram) throw invalidInput('JPEG XL ANS token is incomplete')
+      if (!histogram) throw invalidJpegXlInput('ANS token is incomplete')
       const token = (packedValues[index] ?? 0) & 255
       const frequency = histogram.frequencies[token] ?? 0
       const residuals = histogram.residuals[token]
-      if (frequency === 0 || !residuals) throw invalidInput('JPEG XL ANS token has zero frequency')
+      if (frequency === 0 || !residuals) throw invalidJpegXlInput('ANS token has zero frequency')
       if (state >= frequency * 1_048_576) {
         renormalizedWords[index] = state & 0xffff
         state = Math.floor(state / 65_536)
+        requiredBits += 16
+        if (requiredBits > writer.outputLimit * 8)
+          throw limitExceeded('JPEG XL encoded output exceeds maxOutputBytes')
       }
       const offset = state % frequency
       const residual = residuals[offset]
-      if (residual === undefined) throw invalidInput('JPEG XL ANS residual is missing')
+      if (residual === undefined) throw invalidJpegXlInput('ANS residual is missing')
       state = 4_096 * Math.floor(state / frequency) + residual
     }
     writer.writeBits(state >>> 0, 32)
@@ -1055,12 +1130,15 @@ export const writeAnsPackedValues = (
       const word = renormalizedWords[index]
       if (word !== undefined && word >= 0) writer.writeBits(word, 16)
       const packed = packedValues[index] ?? 0
-      writer.writeBits(packed >>> 13, (packed >>> 8) & 31)
+      if (packed >= 256) writer.writeBits(packed >>> 13, (packed >>> 8) & 31)
     }
   })
 }
 
 type ModularPixelFormat = 'gray8' | 'gray16' | 'rgb8' | 'rgb16' | 'rgba8' | 'rgba16'
+
+const isRgb8 = (format: ModularPixelFormat): format is 'rgb8' | 'rgba8' =>
+  format === 'rgb8' || format === 'rgba8'
 
 const leftResidualFrequencies = (
   pixels: Uint8Array,
@@ -1150,6 +1228,7 @@ interface ModularPlanes {
 
 interface ModularTransforms {
   readonly useRct: boolean
+  readonly rctType?: number
   readonly scalarPalettes?: readonly number[]
   readonly indexRct?: boolean
   readonly palette?: Readonly<{
@@ -1173,24 +1252,6 @@ interface PreparedModularPlanes {
   readonly transforms: ModularTransforms
 }
 
-const applyModularRct = (values: readonly Int32Array[], beginChannel = 0): void => {
-  const red = values[beginChannel]
-  const green = values[beginChannel + 1]
-  const blue = values[beginChannel + 2]
-  if (!red || !green || !blue) throw invalidInput('JPEG XL RCT planes are unavailable')
-  for (let position = 0; position < red.length; position += 1) {
-    const redSample = red[position] ?? 0
-    const greenSample = green[position] ?? 0
-    const blueSample = blue[position] ?? 0
-    const second = redSample - blueSample
-    const base = blueSample + (second >> 1)
-    const third = greenSample - base
-    red[position] = base + (third >> 1)
-    green[position] = second
-    blue[position] = third
-  }
-}
-
 const createModularPlanes = (
   pixels: Uint8Array,
   imageWidth: number,
@@ -1212,7 +1273,7 @@ const createModularPlanes = (
     )
     for (let channel = 0; channel < channels; channel += 1) {
       const plane = values[channel]
-      if (!plane) throw invalidInput('JPEG XL Modular plane is unavailable')
+      if (!plane) throw invalidJpegXlInput('Modular plane is unavailable')
       for (let y = 0; y < height; y += 1) {
         for (let x = 0; x < width; x += 1) {
           const position =
@@ -1247,13 +1308,13 @@ const palettePlanes = (
     const blue = planes.values[2]
     const alpha = planes.values[3]
     if (!green || !blue || (channelCount === 4 && !alpha))
-      throw invalidInput('JPEG XL Palette source channels are missing')
+      throw invalidJpegXlInput('Palette source channels are missing')
     if (
       green.length !== first.length ||
       blue.length !== first.length ||
       (channelCount === 4 && alpha?.length !== first.length)
     )
-      throw invalidInput('JPEG XL Palette source channel extents differ')
+      throw invalidJpegXlInput('Palette source channel extents differ')
     const colors = allocateJpegXlArray(memory, Int32Array, maximumColors * 4)
     const lookup = allocateJpegXlArray(memory, Int32Array, 2048)
     lookup.fill(-1)
@@ -1334,7 +1395,7 @@ const reorderPalettePlanes = (
     const sourceIndices = prepared.planes.values[1]
     const transform = prepared.transforms.palette
     if (!sourcePalette || !sourceIndices || !transform || transform.deltaCount !== 0)
-      throw invalidInput('JPEG XL regular palette is unavailable')
+      throw invalidJpegXlInput('regular palette is unavailable')
     const { colorCount, channelCount } = transform
     const order = allocateJpegXlArray(memory, Uint16Array, colorCount)
     const keys = new Array<number>(colorCount)
@@ -1527,7 +1588,7 @@ const squeezePlanes = (
         const planeWidth = widths[channel]
         const planeHeight = heights[channel]
         if (!plane || planeWidth === undefined || planeHeight === undefined) {
-          throw invalidInput('JPEG XL Squeeze source plane is missing')
+          throw invalidJpegXlInput('Squeeze source plane is missing')
         }
         const [average, residual] = horizontal
           ? horizontalSqueeze(plane, planeWidth, planeHeight, memory)
@@ -1595,7 +1656,7 @@ const prepareSingleGroupPlanes = (
       const red = raw.values[0]
       const green = raw.values[1]
       const blue = raw.values[2]
-      if (!red || !green || !blue) throw invalidInput('JPEG XL correlation planes are missing')
+      if (!red || !green || !blue) throw invalidJpegXlInput('correlation planes are missing')
       const step = Math.max(1, Math.floor(red.length / 4_096))
       let difference = 0
       let samples = 0
@@ -1608,9 +1669,13 @@ const prepareSingleGroupPlanes = (
       const sampleScale = format.endsWith('16') ? 257 : 1
       useRct = difference / Math.max(1, samples) < 128 * sampleScale
     }
-    const transformed = useRct
-      ? createModularPlanes(pixels, width, 0, 0, width, height, format, true, memory)
-      : raw
+    // Effort one can transform its existing planes after source preparation is complete.
+    // Preserve the original higher-effort preparation paths and every input sample.
+    if (effort === 1 && useRct) applyModularRct(raw.values)
+    const transformed =
+      useRct && effort !== 1
+        ? createModularPlanes(pixels, width, 0, 0, width, height, format, true, memory)
+        : raw
     return Object.freeze({
       planes: transformed,
       transforms: Object.freeze({ useRct }),
@@ -1680,7 +1745,7 @@ const visitPlaneResiduals = (
       const height = planes.heights[channel]
       const predictor = predictors[channel]
       if (!plane || width === undefined || height === undefined || predictor === undefined) {
-        throw invalidInput('JPEG XL predictor plane is missing')
+        throw invalidJpegXlInput('predictor plane is missing')
       }
       const weightedPredictor =
         predictor === 6
@@ -1762,7 +1827,7 @@ function deltaPalettePlanes(
       (packedResidual, channel) => {
         const position = positions[channel] ?? 0
         const output = residualPlanes[channel]
-        if (!output) throw invalidInput('JPEG XL delta Palette residual plane is missing')
+        if (!output) throw invalidJpegXlInput('delta Palette residual plane is missing')
         output[position] = (packedResidual >>> 1) ^ -(packedResidual & 1)
         positions[channel] = position + 1
       },
@@ -1776,7 +1841,7 @@ function deltaPalettePlanes(
       const delta: number[] = []
       for (let channel = 0; channel < channelCount; channel += 1) {
         const sample = residualPlanes[channel]?.[position]
-        if (sample === undefined) throw invalidInput('JPEG XL delta Palette sample is missing')
+        if (sample === undefined) throw invalidJpegXlInput('delta Palette sample is missing')
         delta.push(sample)
         key += `${sample},`
       }
@@ -1838,6 +1903,8 @@ const choosePredictors = (
   memory?: JpegXlEncoderMemory,
 ): readonly number[] => {
   return withJpegXlMemory(memory, () => {
+    // Effort one has exactly one allowed predictor; scoring cannot change it.
+    if (effort === 1) return Object.freeze(new Array<number>(planes.values.length).fill(1))
     const candidates = predictorCandidatesForPlanes(planes, effort)
     const selected: number[] = []
     for (let channel = 0; channel < planes.values.length; channel += 1) {
@@ -1845,7 +1912,7 @@ const choosePredictors = (
       const width = planes.widths[channel]
       const height = planes.heights[channel]
       if (!plane || width === undefined || height === undefined) {
-        throw invalidInput('JPEG XL predictor search plane is missing')
+        throw invalidJpegXlInput('predictor search plane is missing')
       }
       const singlePlane = Object.freeze({
         values: Object.freeze([plane]),
@@ -1890,7 +1957,7 @@ const chooseGroupPredictors = (
   for (let channel = 0; channel < planes.values.length; channel++) {
     const plane = planes.values[channel]
     const width = planes.widths[channel]
-    if (!plane || width === undefined) throw invalidInput('JPEG XL group search plane is missing')
+    if (!plane || width === undefined) throw invalidJpegXlInput('group search plane is missing')
     const samples = Math.min(plane.length, budget)
     let bestPredictor = candidates[0] ?? 1
     let bestScore = Number.POSITIVE_INFINITY
@@ -1930,7 +1997,7 @@ const chooseGroupPredictors = (
     }
     if (effort >= 5) {
       const height = planes.heights[channel]
-      if (height === undefined) throw invalidInput('JPEG XL group search height is missing')
+      if (height === undefined) throw invalidJpegXlInput('group search height is missing')
       const bandHeight = Math.min(height, 16)
       const bands = height <= bandHeight ? 1 : effort === 7 ? 4 : 2
       let weightedScore = 0
@@ -1999,7 +2066,7 @@ const modularTreeSymbols = (
   }[] = [{ first: 0, last: channels - 1 }]
   while (pending.length > 0) {
     const range = pending.shift()
-    if (!range) throw invalidInput('JPEG XL channel tree range is missing')
+    if (!range) throw invalidJpegXlInput('channel tree range is missing')
     if (range.first === range.last) {
       if (!gradientContexts || range.stage === 2 || range.stage === 3 || range.stage === 4) {
         symbols.push({
@@ -2028,6 +2095,7 @@ export const writeChannelTree = (
   writer: JpegXlBitWriter,
   predictors: readonly number[],
   gradientContexts = false,
+  offsets?: Int32Array,
 ): Uint8Array => {
   const memory = writer.memory
   return withJpegXlMemory(memory, () => {
@@ -2037,9 +2105,11 @@ export const writeChannelTree = (
       frequencies[node.propertyPlusOne] = (frequencies[node.propertyPlusOne] ?? 0) + 1
       if (node.propertyPlusOne === 0) {
         const predictor = predictors[node.channel ?? -1]
-        if (predictor === undefined) throw invalidInput('JPEG XL channel predictor is missing')
+        if (predictor === undefined) throw invalidJpegXlInput('channel predictor is missing')
         frequencies[predictor] = (frequencies[predictor] ?? 0) + 1
-        frequencies[0] = (frequencies[0] ?? 0) + 3
+        const offsetToken = hybridToken(packSigned(offsets?.[node.channel ?? -1] ?? 0))
+        frequencies[offsetToken] = (frequencies[offsetToken] ?? 0) + 1
+        frequencies[0] = (frequencies[0] ?? 0) + 2
       } else {
         frequencies[packSigned(node.split ?? 0)] =
           (frequencies[packSigned(node.split ?? 0)] ?? 0) + 1
@@ -2053,9 +2123,10 @@ export const writeChannelTree = (
         const channel = node.channel
         const predictor = channel === undefined ? undefined : predictors[channel]
         if (channel === undefined || predictor === undefined) {
-          throw invalidInput('JPEG XL channel tree leaf is incomplete')
+          throw invalidJpegXlInput('channel tree leaf is incomplete')
         }
-        for (const symbol of [predictor, 0, 0, 0]) writeHybridUint(writer, symbol, encoding)
+        for (const symbol of [predictor, packSigned(offsets?.[channel] ?? 0), 0, 0])
+          writeHybridUint(writer, symbol, encoding)
         contextToChannel.push(gradientContexts ? channel * 3 + (node.bucket ?? 0) : channel)
       } else {
         writeHybridUint(writer, packSigned(node.split ?? 0), encoding)
@@ -2086,6 +2157,8 @@ interface ModularEntropyPlan {
   readonly packedValues: Uint32Array
   readonly contexts: Uint16Array
   readonly lz77: boolean
+  readonly treeOffsets?: Int32Array
+  readonly treeNodes?: readonly JpegXlModularNode[]
 }
 
 interface ModularResidualPlan {
@@ -2098,6 +2171,13 @@ interface ModularResidualPlan {
   readonly clustered: boolean
   readonly histogramCount: number
   readonly distanceMultiplier: number
+  readonly treeOffsets?: Int32Array
+  readonly treeNodes?: readonly JpegXlModularNode[]
+}
+
+interface SingleGroupPredictorSearch {
+  readonly predictors: readonly number[]
+  clusteredPredictor?: number
 }
 
 const buildResidualPlan = (
@@ -2105,38 +2185,43 @@ const buildResidualPlan = (
   effort: JpegXlLosslessEffort,
   memory?: JpegXlEncoderMemory,
   selectedPredictors?: readonly number[],
+  treeOffsets?: Int32Array,
+  cachedSearch?: SingleGroupPredictorSearch,
 ): ModularResidualPlan => {
   return withJpegXlMemory(memory, () => {
     const clustered =
       selectedPredictors === undefined &&
       (planes.values.length > 8 ||
         (planes.values.length === 2 && planes.values.some((plane) => plane.length < 1_024)))
-    let predictors = selectedPredictors ?? choosePredictors(planes, effort, memory)
+    let predictors =
+      selectedPredictors ?? cachedSearch?.predictors ?? choosePredictors(planes, effort, memory)
     let treePredictors = predictors
     if (clustered) {
-      let bestPredictor = 1
+      let bestPredictor = cachedSearch?.clusteredPredictor ?? 1
       let bestScore = Number.POSITIVE_INFINITY
-      for (const candidate of predictorCandidatesForPlanes(planes, effort)) {
-        let score = 0
-        const trial = Array.from({ length: planes.values.length }, () => candidate)
-        visitPlaneResiduals(
-          planes,
-          trial,
-          (packedResidual) => {
-            score += Math.log2(packedResidual + 2)
-          },
-          memory,
-        )
-        if (score < bestScore) {
-          bestScore = score
-          bestPredictor = candidate
+      if (cachedSearch?.clusteredPredictor === undefined)
+        for (const candidate of predictorCandidatesForPlanes(planes, effort)) {
+          let score = 0
+          const trial = Array.from({ length: planes.values.length }, () => candidate)
+          visitPlaneResiduals(
+            planes,
+            trial,
+            (packedResidual) => {
+              score += Math.log2(packedResidual + 2)
+            },
+            memory,
+          )
+          if (score < bestScore) {
+            bestScore = score
+            bestPredictor = candidate
+          }
         }
-      }
+      if (cachedSearch) cachedSearch.clusteredPredictor = bestPredictor
       predictors = Object.freeze(Array.from({ length: planes.values.length }, () => bestPredictor))
       treePredictors = Object.freeze([bestPredictor])
     }
     const leafWriter = new JpegXlBitWriter(memory)
-    const leafToChannel = writeChannelTree(leafWriter, treePredictors)
+    const leafToChannel = writeChannelTree(leafWriter, treePredictors, false, treeOffsets)
     const channelContexts = allocateJpegXlArray(memory, Uint16Array, planes.values.length)
     for (let context = 0; context < leafToChannel.length; context += 1) {
       channelContexts[leafToChannel[context] ?? 0] = context
@@ -2145,16 +2230,38 @@ const buildResidualPlan = (
     const residuals = allocateJpegXlArray(memory, Uint32Array, originalCount)
     const residualContexts = allocateJpegXlArray(memory, Uint16Array, originalCount)
     let residualPosition = 0
-    visitPlaneResiduals(
-      planes,
-      predictors,
-      (packedResidual, channel) => {
-        residuals[residualPosition] = packedResidual
-        residualContexts[residualPosition] = channelContexts[channel] ?? 0
-        residualPosition += 1
-      },
-      memory,
-    )
+    if (effort === 1 && predictors.every((predictor) => predictor === 1)) {
+      for (let channel = 0; channel < planes.values.length; channel++) {
+        const plane = planes.values[channel],
+          width = planes.widths[channel],
+          height = planes.heights[channel]
+        if (!plane || width === undefined || height === undefined)
+          throw invalidJpegXlInput('left residual plane is missing')
+        const context = channelContexts[channel] ?? 0
+        for (let y = 0; y < height; y++) {
+          const row = y * width
+          let left = y > 0 ? (plane[row - width] ?? 0) : 0
+          for (let x = 0; x < width; x++) {
+            const value = plane[row + x] ?? 0
+            residuals[residualPosition] = packSigned(value - left)
+            residualContexts[residualPosition++] = context
+            left = value
+          }
+        }
+      }
+    } else {
+      visitPlaneResiduals(
+        planes,
+        predictors,
+        (packedResidual, channel) => {
+          residuals[residualPosition] =
+            treeOffsets && predictors[channel] === 0 ? 0 : packedResidual
+          residualContexts[residualPosition] = channelContexts[channel] ?? 0
+          residualPosition += 1
+        },
+        memory,
+      )
+    }
     return Object.freeze({
       predictors,
       treePredictors,
@@ -2165,6 +2272,7 @@ const buildResidualPlan = (
       clustered,
       histogramCount: clustered ? 1 : planes.values.length,
       distanceMultiplier: planes.widths.reduce((maximum, width) => Math.max(maximum, width), 0),
+      ...(treeOffsets ? { treeOffsets } : {}),
     })
   })
 }
@@ -2187,7 +2295,7 @@ const gradientResidualPlan = (
     const width = planes.widths[channel]
     const height = planes.heights[channel]
     if (!plane || width === undefined || height === undefined)
-      throw invalidInput('JPEG XL context plane is missing')
+      throw invalidJpegXlInput('context plane is missing')
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const offset = y * width + x
@@ -2213,6 +2321,7 @@ const buildTokenPlan = (
   allowLz77: boolean,
   memory?: JpegXlEncoderMemory,
   config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
+  maxLz77Entries = 262_144,
 ): ModularEntropyPlan => {
   return withJpegXlMemory(memory, () => {
     const {
@@ -2229,13 +2338,18 @@ const buildTokenPlan = (
     const originalCount = residuals.length
     const useLz77 = allowLz77 && effort >= 5 && originalCount >= 64
     const packedValues = allocateJpegXlArray(memory, Uint32Array, originalCount)
-    const contexts = allocateJpegXlArray(memory, Uint16Array, packedValues.length)
+    const contexts = useLz77
+      ? allocateJpegXlArray(memory, Uint16Array, packedValues.length)
+      : residualContexts
     // Every match consumes at least three residuals and emits two tokens, so
     // token capacity never exceeds the original residual count.
     // All groups use a fixed-capacity match cache; collisions evict old history.
     const histories = effort === 7 ? 4 : 1
     const capacity = useLz77
-      ? Math.min(2 ** Math.ceil(Math.log2(originalCount * 2)), effort === 7 ? 262_144 : 65_536)
+      ? Math.min(
+          2 ** Math.ceil(Math.log2(originalCount * 2)),
+          effort === 7 ? maxLz77Entries : 65_536,
+        )
       : 0
     const matchKeys = allocateJpegXlArray(memory, Uint32Array, capacity)
     const matchPositions = allocateJpegXlArray(memory, Int32Array, capacity * histories).fill(-1)
@@ -2256,78 +2370,98 @@ const buildTokenPlan = (
         (residuals[position + 2] ?? 0)) >>>
       0
     let count = 0
-    for (let position = 0; position < originalCount; ) {
-      const value = residuals[position] ?? 0
-      let matchPosition = -1
-      let matchLength = 0
-      if (useLz77 && position + 2 < originalCount) {
-        const hash = matchHash(position)
-        const slot = matchSlot(hash)
-        for (let history = 0; history < histories; history += 1) {
-          if (matchKeys[slot] !== hash) break
-          const candidate = matchPositions[slot * histories + history] ?? -1
-          if (candidate < 0 || position - candidate > 1_048_576) continue
-          let candidateLength = 0
-          // Long constant runs can cross channel planes. Split them before the
-          // packed hybrid token's extra bits exceed its 32-bit storage bound.
-          const maximumMatchLength = Math.min(originalCount - position, 1_048_576)
-          while (
-            candidateLength < maximumMatchLength &&
-            (residuals[candidate + candidateLength] ?? 0) ===
-              (residuals[position + candidateLength] ?? 0)
-          ) {
-            candidateLength += 1
-          }
-          if (candidateLength > matchLength) {
-            matchLength = candidateLength
-            matchPosition = candidate
-          }
+    if (
+      !useLz77 &&
+      config.splitExponent === 4 &&
+      config.msbInToken === 2 &&
+      config.lsbInToken === 0
+    ) {
+      count = originalCount
+      for (let position = 0; position < originalCount; position++) {
+        const value = residuals[position] ?? 0
+        if (value < 16) packedValues[position] = value
+        else {
+          const extra = 29 - Math.clz32(value)
+          const token = 4 + extra * 4 + (value >>> extra)
+          const bits = value & ((1 << extra) - 1)
+          packedValues[position] = token + extra * 256 + bits * 8192
         }
-        remember(matchSlot(hash), hash, position)
-        if (matchLength < 3) matchPosition = -1
       }
-      if (matchPosition >= 0) {
-        const lengthPacked = encodeHybridUintPacked(matchLength - 3, {
-          splitExponent: 0,
-          msbInToken: 0,
-          lsbInToken: 0,
-        })
-        packedValues[count] = (lengthPacked & ~255) | (224 + (lengthPacked & 255))
+    } else {
+      for (let position = 0; position < originalCount; ) {
+        const value = residuals[position] ?? 0
+        let matchPosition = -1
+        let matchLength = 0
+        if (useLz77 && position + 2 < originalCount) {
+          const hash = matchHash(position)
+          const slot = matchSlot(hash)
+          for (let history = 0; history < histories; history += 1) {
+            if (matchKeys[slot] !== hash) break
+            const candidate = matchPositions[slot * histories + history] ?? -1
+            if (candidate < 0 || position - candidate > 1_048_576) continue
+            let candidateLength = 0
+            // Long constant runs can cross channel planes. Split them before the
+            // packed hybrid token's extra bits exceed its 32-bit storage bound.
+            const maximumMatchLength = Math.min(originalCount - position, 1_048_576)
+            while (
+              candidateLength < maximumMatchLength &&
+              (residuals[candidate + candidateLength] ?? 0) ===
+                (residuals[position + candidateLength] ?? 0)
+            ) {
+              candidateLength += 1
+            }
+            if (candidateLength > matchLength) {
+              matchLength = candidateLength
+              matchPosition = candidate
+              if (candidateLength === maximumMatchLength) break
+            }
+          }
+          remember(matchSlot(hash), hash, position)
+          if (matchLength < 3) matchPosition = -1
+        }
+        if (matchPosition >= 0) {
+          const lengthPacked = encodeHybridUintPacked(matchLength - 3, {
+            splitExponent: 0,
+            msbInToken: 0,
+            lsbInToken: 0,
+          })
+          packedValues[count] = (lengthPacked & ~255) | (224 + (lengthPacked & 255))
+          contexts[count] = residualContexts[position] ?? 0
+          count += 1
+          const distance = position - matchPosition
+          const distanceCode =
+            distance === distanceMultiplier
+              ? 0
+              : distance === 1
+                ? 1
+                : distance === distanceMultiplier + 1
+                  ? 2
+                  : distance === distanceMultiplier - 1
+                    ? 3
+                    : distance === distanceMultiplier * 2
+                      ? 4
+                      : distance === 2
+                        ? 5
+                        : distance + 119
+          packedValues[count] = encodeHybridUintPacked(distanceCode, config)
+          contexts[count] = leafToChannel.length
+          count += 1
+          const matchEnd = position + matchLength
+          position += 1
+          while (position < matchEnd) {
+            if (position + 2 < originalCount) {
+              const hash = matchHash(position)
+              remember(matchSlot(hash), hash, position)
+            }
+            position += 1
+          }
+          continue
+        }
+        packedValues[count] = encodeHybridUintPacked(value, config)
         contexts[count] = residualContexts[position] ?? 0
         count += 1
-        const distance = position - matchPosition
-        const distanceCode =
-          distance === distanceMultiplier
-            ? 0
-            : distance === 1
-              ? 1
-              : distance === distanceMultiplier + 1
-                ? 2
-                : distance === distanceMultiplier - 1
-                  ? 3
-                  : distance === distanceMultiplier * 2
-                    ? 4
-                    : distance === 2
-                      ? 5
-                      : distance + 119
-        packedValues[count] = encodeHybridUintPacked(distanceCode, config)
-        contexts[count] = leafToChannel.length
-        count += 1
-        const matchEnd = position + matchLength
         position += 1
-        while (position < matchEnd) {
-          if (position + 2 < originalCount) {
-            const hash = matchHash(position)
-            remember(matchSlot(hash), hash, position)
-          }
-          position += 1
-        }
-        continue
       }
-      packedValues[count] = encodeHybridUintPacked(value, config)
-      contexts[count] = residualContexts[position] ?? 0
-      count += 1
-      position += 1
     }
     const frequencies = Array.from({ length: histogramCount }, () =>
       allocateJpegXlArray(memory, Uint32Array, 256),
@@ -2344,7 +2478,7 @@ const buildTokenPlan = (
     for (let position = 0; position < count; position += 1) {
       const context = contexts[position] ?? 0
       const histogram = frequencies[entropyContextMap[context] ?? 0]
-      if (!histogram) throw invalidInput('JPEG XL Modular histogram is missing')
+      if (!histogram) throw invalidJpegXlInput('Modular histogram is missing')
       const token = (packedValues[position] ?? 0) & 255
       histogram[token] = (histogram[token] ?? 0) + 1
     }
@@ -2364,6 +2498,8 @@ const buildTokenPlan = (
           ? contexts
           : copyJpegXlArray(memory, Uint16Array, contexts.subarray(0, count)),
       lz77: useLz77,
+      ...(residualPlan.treeOffsets ? { treeOffsets: residualPlan.treeOffsets } : {}),
+      ...(residualPlan.treeNodes ? { treeNodes: residualPlan.treeNodes } : {}),
     })
   })
 }
@@ -2374,13 +2510,18 @@ const buildEntropyPlan = (
   allowLz77 = true,
   memory?: JpegXlEncoderMemory,
   gradientContexts = false,
+  cachedSearch?: SingleGroupPredictorSearch,
 ): ModularEntropyPlan =>
   withJpegXlMemory(memory, () => {
     const base = buildResidualPlan(
       planes,
       effort,
       memory,
-      gradientContexts ? choosePredictors(planes, effort, memory) : undefined,
+      gradientContexts
+        ? (cachedSearch?.predictors ?? choosePredictors(planes, effort, memory))
+        : undefined,
+      undefined,
+      cachedSearch,
     )
     const residualPlan =
       gradientContexts && !base.clustered ? gradientResidualPlan(base, planes, memory) : base
@@ -2404,7 +2545,7 @@ const writeAnsPixels = (
   })
 }
 
-const writeModularRct = (writer: JpegXlBitWriter, beginChannel: number): void => {
+const writeModularRct = (writer: JpegXlBitWriter, beginChannel: number, type = 6): void => {
   writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
   writeU32(writer, beginChannel, [
     { bits: 3, offset: 0 },
@@ -2412,7 +2553,7 @@ const writeModularRct = (writer: JpegXlBitWriter, beginChannel: number): void =>
     { bits: 10, offset: 72 },
     { bits: 13, offset: 1_096 },
   ])
-  writeU32(writer, 6, [
+  writeU32(writer, type, [
     { value: 6 },
     { bits: 2, offset: 0 },
     { bits: 4, offset: 2 },
@@ -2477,7 +2618,7 @@ export const writeModularHeader = (
     { bits: 4, offset: 2 },
     { bits: 8, offset: 18 },
   ])
-  if (transforms.useRct) writeModularRct(writer, 0)
+  if (transforms.useRct) writeModularRct(writer, 0, transforms.rctType ?? 6)
   if (transforms.palette) writeModularPalette(writer, 0, transforms.palette)
   if (transforms.scalarPalettes) {
     for (let channel = 0; channel < transforms.scalarPalettes.length; channel++)
@@ -2522,6 +2663,7 @@ const encodeFastSingleGroupSection = (
   height: number,
   format: ModularPixelFormat,
   memory?: JpegXlEncoderMemory,
+  sizeFloor?: Uint8Array,
 ): Uint8Array => {
   return withJpegXlMemory(memory, () => {
     const writer = new JpegXlBitWriter(memory)
@@ -2529,14 +2671,34 @@ const encodeFastSingleGroupSection = (
     writer.writeBits(0, 1)
     writeModularHeader(writer, false)
     writeModularTree(writer)
-    const encoding = writePrefixCode(
-      writer,
-      1,
-      leftResidualFrequencies(pixels, width, 0, 0, width, height, format, memory),
-    )
+    const frequencies = leftResidualFrequencies(pixels, width, 0, 0, width, height, format, memory)
+    const encoding = writePrefixCode(writer, 1, frequencies)
+    if (sizeFloor) {
+      let bits = writer.bitPosition
+      for (let token = 0; token < frequencies.length; token++) {
+        bits +=
+          (frequencies[token] ?? 0) *
+          ((encoding.lengths[token] ?? 0) + (token >= 256 ? token - 248 : 0))
+      }
+      // Strictly larger payloads lose; equal byte lengths retain the original prefix tie.
+      if (bits > sizeFloor.length * 8) return sizeFloor
+    }
     writeLeftResiduals(writer, pixels, width, 0, 0, width, height, format, encoding)
     return writer.finish()
   })
+}
+
+const writeModularGlobalHeader = (
+  writer: JpegXlBitWriter,
+  frequencies: Uint32Array,
+  useRct = false,
+) => {
+  writer.writeBits(1, 1)
+  writer.writeBits(1, 1)
+  writeModularTree(writer)
+  const encoding = writePrefixCode(writer, 1, frequencies)
+  writeModularHeader(writer, true, { useRct })
+  return encoding
 }
 
 const encodeFastFrameSections = (
@@ -2550,9 +2712,6 @@ const encodeFastFrameSections = (
     const groupDimension = 1_024
     const groupsAcross = Math.ceil(width / groupDimension)
     const groupsDown = Math.ceil(height / groupDimension)
-    if (groupsAcross * groupsDown === 1) {
-      return Object.freeze([encodeFastSingleGroupSection(pixels, width, height, format, memory)])
-    }
     const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
     for (let groupY = 0; groupY < groupsDown; groupY += 1) {
       for (let groupX = 0; groupX < groupsAcross; groupX += 1) {
@@ -2574,11 +2733,7 @@ const encodeFastFrameSections = (
       }
     }
     const globalWriter = new JpegXlBitWriter(memory)
-    globalWriter.writeBits(1, 1)
-    globalWriter.writeBits(1, 1)
-    writeModularTree(globalWriter)
-    const encoding = writePrefixCode(globalWriter, 1, frequencies)
-    writeModularHeader(globalWriter, true)
+    const encoding = writeModularGlobalHeader(globalWriter, frequencies)
     const dcGroupDimension = groupDimension * 8
     const dcGroupCount = Math.ceil(width / dcGroupDimension) * Math.ceil(height / dcGroupDimension)
     const sections: Uint8Array[] = [
@@ -2587,7 +2742,7 @@ const encodeFastFrameSections = (
     ]
     for (let index = 0; index < dcGroupCount; index += 1)
       sections.push(allocateJpegXlArray(memory, Uint8Array, 0))
-    let sectionBytes = sections.reduce((sum, section) => sum + section.byteLength, 0)
+    let sectionBytes = sections.reduce((sum, section) => sum + section.length, 0)
     for (let groupY = 0; groupY < groupsDown; groupY += 1) {
       for (let groupX = 0; groupX < groupsAcross; groupX += 1) {
         const originX = groupX * groupDimension
@@ -2612,11 +2767,201 @@ const encodeFastFrameSections = (
         )
         const section = writer.finish()
         sections.push(section)
-        sectionBytes += section.byteLength
+        sectionBytes += section.length
       }
     }
     return Object.freeze(sections)
   })
+}
+
+const fastPlanePrediction = (
+  predictor: number,
+  left: number,
+  top: number,
+  topLeft: number,
+): number =>
+  predictor === 1
+    ? left
+    : predictor === 2
+      ? top
+      : Math.max(Math.min(left, top), Math.min(Math.max(left, top), left + top - topLeft))
+
+const encodeChannelPrefixGroup = (
+  planes: Readonly<ModularPlanes>,
+  useRct: boolean,
+  memory?: JpegXlEncoderMemory,
+): { bytes: Uint8Array; predictors: readonly number[]; offsets: Int32Array } => {
+  return withJpegXlMemory(memory, () => {
+    const predictors = [...chooseGroupPredictors(planes, 3, memory)]
+    const offsets = allocateJpegXlArray(memory, Int32Array, planes.values.length)
+    const frequencies: Uint32Array[] = []
+    for (let channel = 0; channel < planes.values.length; channel++) {
+      const plane = planes.values[channel]
+      const width = planes.widths[channel]
+      const height = planes.heights[channel]
+      const predictor = predictors[channel]
+      if (!plane || width === undefined || height === undefined || predictor === undefined)
+        throw invalidJpegXlInput('prefix group plane is missing')
+      const counts = allocateJpegXlArray(memory, Uint32Array, 512)
+      const first = plane[0] ?? 0
+      let constant = true
+      for (let y = 0; y < height; y++) {
+        const row = y * width
+        const previous = row - width
+        let left = y > 0 ? (plane[previous] ?? 0) : 0
+        for (let x = 0; x < width; x++) {
+          const sample = plane[row + x] ?? 0
+          const top = y > 0 ? (plane[previous + x] ?? 0) : left
+          const topLeft = x > 0 && y > 0 ? (plane[previous + x - 1] ?? 0) : left
+          const residual = packSigned(sample - fastPlanePrediction(predictor, left, top, topLeft))
+          const token = hybridToken(residual)
+          counts[token] = (counts[token] ?? 0) + 1
+          if (sample !== first) constant = false
+          left = sample
+        }
+      }
+      if (constant) {
+        // A leaf offset makes every residual zero, including the first sample.
+        // Merely giving a constant alpha plane its own histogram still costs a bit per pixel.
+        predictors[channel] = 0
+        offsets[channel] = first
+        counts.fill(0)
+        counts[0] = plane.length
+      }
+      frequencies.push(counts)
+    }
+    const writer = new JpegXlBitWriter(memory)
+    writeModularHeader(writer, false, { useRct })
+    const contexts = writeChannelTree(writer, predictors, false, offsets)
+    const encodings = writeChannelPrefixCode(writer, contexts, frequencies)
+    for (let channel = 0; channel < planes.values.length; channel++) {
+      const plane = planes.values[channel]
+      const width = planes.widths[channel]
+      const height = planes.heights[channel]
+      const predictor = predictors[channel]
+      const encoding = encodings[channel]
+      if (
+        !plane ||
+        width === undefined ||
+        height === undefined ||
+        predictor === undefined ||
+        !encoding
+      )
+        throw invalidJpegXlInput('prefix group encoding is missing')
+      if (predictor === 0) continue
+      for (let y = 0; y < height; y++) {
+        const row = y * width
+        const previous = row - width
+        let left = y > 0 ? (plane[previous] ?? 0) : 0
+        for (let x = 0; x < width; x++) {
+          const sample = plane[row + x] ?? 0
+          const top = y > 0 ? (plane[previous + x] ?? 0) : left
+          const topLeft = x > 0 && y > 0 ? (plane[previous + x - 1] ?? 0) : left
+          writeHybridUint(
+            writer,
+            packSigned(sample - fastPlanePrediction(predictor, left, top, topLeft)),
+            encoding,
+          )
+          left = sample
+        }
+      }
+    }
+    return { bytes: writer.finish(), predictors, offsets }
+  })
+}
+
+const encodeFastChannelGroup = (
+  planes: Readonly<ModularPlanes>,
+  useRct: boolean,
+  outputLimit: number,
+  memory?: JpegXlEncoderMemory,
+  checkpoint?: () => Promise<void>,
+): Promise<Uint8Array> =>
+  withJpegXlMemoryAsync(memory, async () => {
+    const prefix = encodeChannelPrefixGroup(planes, useRct, memory)
+    await checkpoint?.()
+    const residualPlan = buildResidualPlan(planes, 3, memory, prefix.predictors, prefix.offsets)
+    const transforms = { useRct }
+    const ans = encodeAdaptiveGroup(residualPlan, 1, false, outputLimit, memory, transforms)
+    await checkpoint?.()
+    // One match history gives repeated residuals a bounded alternative to literal coding.
+    const lz = encodeAdaptiveGroup(residualPlan, 5, true, outputLimit, memory, transforms)
+    let selected = ans.length < prefix.bytes.length ? ans : prefix.bytes
+    if (lz.length < selected.length) selected = lz
+    return selected
+  })
+
+const encodeChannelPrefixFrameSections = (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  format: ModularPixelFormat,
+  memory?: JpegXlEncoderMemory,
+  checkpoint?: () => Promise<void>,
+  groupDimension = 1024,
+): Promise<readonly Uint8Array[]> => {
+  return withJpegXlMemoryAsync(memory, async () => {
+    const globalWriter = new JpegXlBitWriter(memory)
+    writeModularGlobalHeader(globalWriter, copyJpegXlArray(memory, Uint32Array, [1]))
+    const sections: Uint8Array[] = [
+      globalWriter.finish(),
+      allocateJpegXlArray(memory, Uint8Array, 0),
+    ]
+    const dcDimension = groupDimension * 8
+    const dcGroups = Math.ceil(width / dcDimension) * Math.ceil(height / dcDimension)
+    for (let group = 0; group < dcGroups; group++)
+      sections.push(allocateJpegXlArray(memory, Uint8Array, 0))
+    for (let originY = 0; originY < height; originY += groupDimension) {
+      for (let originX = 0; originX < width; originX += groupDimension) {
+        await checkpoint?.()
+        const section = await withJpegXlMemoryAsync(memory, async () => {
+          const planes = createModularPlanes(
+            pixels,
+            width,
+            originX,
+            originY,
+            Math.min(groupDimension, width - originX),
+            Math.min(groupDimension, height - originY),
+            format,
+            false,
+            memory,
+          )
+          const limit =
+            resolveJpegXlLimits().maxCodestreamBytes -
+            sections.reduce((sum, section) => sum + section.length, 0)
+          const raw = await encodeFastChannelGroup(planes, false, limit, memory, checkpoint)
+          if (planes.values.length < 3) return raw
+          applyModularRct(planes.values)
+          const rct = await encodeFastChannelGroup(planes, true, limit, memory, checkpoint)
+          return rct.length < raw.length ? rct : raw
+        })
+        sections.push(section)
+      }
+    }
+    return Object.freeze(sections)
+  })
+}
+
+const hasRepeatedColorResiduals = (residuals: Uint32Array, channels: number): boolean => {
+  const count = residuals.length / channels
+  if (count <= 32_768) return true
+  const colorChannels = channels === 4 ? 3 : channels
+  // Above 32,768 pixels, the bounded sample count is always 2,048.
+  const samples = 2048
+  let repeated = 0
+  for (let sample = 0; sample < samples; sample++) {
+    const position = Math.floor((sample * (count - 2)) / samples)
+    let same = true
+    for (let channel = 0; channel < colorChannels; channel++) {
+      const at = channel * count + position
+      if (residuals[at] !== residuals[at + 1] || residuals[at] !== residuals[at + 2]) {
+        same = false
+        break
+      }
+    }
+    if (same) repeated++
+  }
+  return repeated >= 512
 }
 
 const encodeSingleGroupSection = (
@@ -2631,29 +2976,52 @@ const encodeSingleGroupSection = (
 ): Promise<Uint8Array> => {
   return withJpegXlMemoryAsync(memory, async () => {
     const candidateLimit = resolveJpegXlLimits().maxCodestreamBytes
+    const predictorSearches = new WeakMap<
+      Readonly<PreparedModularPlanes>,
+      SingleGroupPredictorSearch
+    >()
+    let effortOneResiduals: Readonly<ModularResidualPlan> | undefined
+    let effortOneRepeated = false
     const encodePrepared = (
       prepared: Readonly<PreparedModularPlanes>,
       allowLz77: boolean,
       gradientContexts = false,
+      outputLimit = candidateLimit,
     ): Uint8Array => {
       return withJpegXlMemory(memory, () => {
-        const plan = buildEntropyPlan(prepared.planes, effort, allowLz77, memory, gradientContexts)
-        const writer = new JpegXlBitWriter(memory, candidateLimit)
-        writer.writeBits(1, 1)
-        writer.writeBits(0, 1)
-        writeModularHeader(writer, false, prepared.transforms)
-        writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
-        const encoding = writeAnsCode(
-          writer,
-          plan.entropyContextMap,
-          plan.frequencies,
-          { splitExponent: 4, msbInToken: 2, lsbInToken: 0 },
-          plan.lz77,
+        let search = predictorSearches.get(prepared)
+        if (!search) {
+          search = { predictors: choosePredictors(prepared.planes, effort, memory) }
+          predictorSearches.set(prepared, search)
+        }
+        const plan = effortOneResiduals
+          ? buildTokenPlan(effortOneResiduals, allowLz77 ? 5 : 1, allowLz77, memory)
+          : buildEntropyPlan(prepared.planes, effort, allowLz77, memory, gradientContexts, search)
+        return serializeModularAnsGroup(
+          plan,
+          outputLimit,
+          memory,
+          prepared.transforms,
+          defaultModularHybridConfiguration,
+          true,
         )
-        writeAnsPixels(writer, plan, encoding)
-        return writer.finish()
       })
     }
+    const encodeSpatial = (
+      planes: Readonly<ModularPlanes>,
+      transforms: Readonly<ModularTransforms>,
+      searches: JpegXlLosslessEffort = 3,
+    ) =>
+      encodeAdaptiveGroup(
+        buildResidualPlan(planes, 1, memory, chooseGroupPredictors(planes, searches, memory)),
+        7,
+        true,
+        candidateLimit,
+        memory,
+        transforms,
+        defaultModularHybridConfiguration,
+        true,
+      )
     const prepared = prepareSingleGroupPlanes(
       pixels,
       width,
@@ -2664,16 +3032,143 @@ const encodeSingleGroupSection = (
       maximumPaletteColors,
     )
     if (effort !== 1) await checkpoint?.()
-    const candidates = [encodePrepared(prepared, false)]
-    if (effort >= 5) {
-      await checkpoint?.()
-      candidates.push(encodePrepared(prepared, true))
+    const candidates: Uint8Array[] = []
+    let spatial = false
+    try {
+      const initial = withJpegXlMemory(memory, () => {
+        if (effort === 1) effortOneResiduals = buildResidualPlan(prepared.planes, effort, memory)
+        let repeated: Uint8Array | undefined
+        if (
+          effort === 1 &&
+          effortOneResiduals &&
+          effortOneResiduals.residuals.length >= 64 &&
+          hasRepeatedColorResiduals(effortOneResiduals.residuals, prepared.planes.values.length)
+        ) {
+          try {
+            repeated = encodePrepared(prepared, true)
+          } catch (error) {
+            if (!isLimitExceeded(error)) throw error
+          }
+        }
+        let bytes: Uint8Array
+        try {
+          bytes = encodePrepared(prepared, false, false, repeated?.length ?? candidateLimit)
+        } catch (error) {
+          if (
+            !repeated ||
+            !isLimitExceeded(error) ||
+            error.message !== 'JPEG XL encoded output exceeds maxOutputBytes'
+          )
+            throw error
+          bytes = repeated
+        }
+        if (repeated && repeated.length < bytes.length) bytes = repeated
+        return { bytes, residuals: effortOneResiduals, repeated: repeated !== undefined }
+      })
+      candidates.push(initial.bytes)
+      effortOneRepeated = initial.repeated
+    } catch (error) {
+      if (effort !== 1 || !effortOneResiduals || !isLimitExceeded(error)) throw error
+      // The failed scope has already released the optional cache; preserve the former stream.
+      effortOneResiduals = undefined
+      candidates.push(encodePrepared(prepared, false))
+    }
+    if (
+      effort >= 5 ||
+      (effortOneResiduals &&
+        effortOneResiduals.residuals.length >= 64 &&
+        hasRepeatedColorResiduals(effortOneResiduals.residuals, prepared.planes.values.length))
+    ) {
+      if (effort !== 1) await checkpoint?.()
+      try {
+        if (!effortOneRepeated) candidates.push(encodePrepared(prepared, true))
+        if (effort === 1) {
+          candidates.push(
+            withJpegXlMemory(memory, () => encodeSpatial(prepared.planes, prepared.transforms)),
+          )
+          spatial = true
+        }
+      } catch (error) {
+        if (effort !== 1 || !isLimitExceeded(error)) throw error
+      }
     }
     if (effort >= 5 && !prepared.transforms.squeeze && prepared.planes.values.length <= 4) {
       await checkpoint?.()
       candidates.push(encodePrepared(prepared, false, true))
       await checkpoint?.()
       candidates.push(encodePrepared(prepared, true, true))
+    }
+    const learnedEligible =
+      effort === 7 &&
+      prepared.planes.values.length <= 4 &&
+      !prepared.transforms.squeeze &&
+      !prepared.transforms.scalarPalettes
+    if (learnedEligible) {
+      await checkpoint?.()
+      try {
+        const learned = await encodeGroupCandidate(
+          prepared,
+          effort,
+          candidateLimit,
+          memory,
+          checkpoint,
+          true,
+        )
+        if (prepared.transforms.palette) {
+          const smallest = candidates.reduce((smallest, candidate) =>
+            candidate.length < smallest.length ? candidate : smallest,
+          )
+          if (learned.bytes.length < smallest.length) {
+            memory?.release(smallest)
+            candidates[candidates.indexOf(smallest)] = learned.bytes
+          } else memory?.release(learned.bytes)
+        } else candidates.push(learned.bytes)
+      } catch (error) {
+        if (!prepared.transforms.palette || !isLimitExceeded(error)) throw error
+      }
+    }
+    if (
+      (spatial || learnedEligible) &&
+      !prepared.transforms.palette &&
+      format !== 'gray8' &&
+      format !== 'gray16'
+    ) {
+      const current = prepared.transforms.useRct ? 6 : 0
+      try {
+        const type = chooseJpegXlModularRct(pixels, width, height, format, current, memory)
+        if (type !== current) {
+          await checkpoint?.()
+          const alternative = await withJpegXlMemoryAsync(memory, async () => {
+            const transforms = { useRct: type !== 0, rctType: type }
+            const planes = createModularPlanes(
+              pixels,
+              width,
+              0,
+              0,
+              width,
+              height,
+              format,
+              false,
+              memory,
+            )
+            if (type !== 0) applyModularRct(planes.values, 0, type)
+            if (effort === 1) return encodeSpatial(planes, transforms, 5)
+            return (
+              await encodeGroupCandidate(
+                { planes, transforms },
+                effort,
+                candidateLimit,
+                memory,
+                checkpoint,
+                true,
+              )
+            ).bytes
+          })
+          candidates.push(alternative)
+        }
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+      }
     }
     if (prepared.transforms.squeeze) {
       const channelCount = format.startsWith('rgba') ? 4 : format.startsWith('rgb') ? 3 : 1
@@ -2699,7 +3194,7 @@ const encodeSingleGroupSection = (
     if (
       effort === 7 &&
       format === 'rgba8' &&
-      width * height <= 262_144 &&
+      width * height <= 1_048_576 &&
       prepared.transforms.palette?.deltaCount === 0
     ) {
       // Actual encoded bytes choose the order; the original palette remains a size floor.
@@ -2712,8 +3207,29 @@ const encodeSingleGroupSection = (
           variants.push(encodePrepared(ordered, false, true))
           await checkpoint?.()
           variants.push(encodePrepared(ordered, true, true))
+          await checkpoint?.()
+          try {
+            const extra = await withJpegXlMemoryAsync(memory, async () => {
+              const floor = variants.reduce((smallest, value) =>
+                value.length < smallest.length ? value : smallest,
+              )
+              const candidate = await encodeGroupCandidate(
+                ordered,
+                effort,
+                candidateLimit,
+                memory,
+                checkpoint,
+                true,
+              )
+              if (candidate.bytes.length >= floor.length) return undefined
+              return candidate.bytes
+            })
+            if (extra) variants.push(extra)
+          } catch (error) {
+            if (!isLimitExceeded(error)) throw error
+          }
           return variants.reduce((smallest, variant) =>
-            variant.byteLength < smallest.byteLength ? variant : smallest,
+            variant.length < smallest.length ? variant : smallest,
           )
         })
         candidates.push(candidate)
@@ -2736,7 +3252,7 @@ const encodeSingleGroupSection = (
       )
     }
     return candidates.reduce((smallest, candidate) =>
-      candidate.byteLength < smallest.byteLength ? candidate : smallest,
+      candidate.length < smallest.length ? candidate : smallest,
     )
   })
 }
@@ -2768,20 +3284,23 @@ const chooseMultiGroupRct = (pixels: Uint8Array, format: ModularPixelFormat): bo
   return difference / Math.max(1, samples) < 128 * (high ? 257 : 1)
 }
 
-const encodeAdaptiveGroup = (
-  residualPlan: Readonly<ModularResidualPlan>,
-  effort: JpegXlLosslessEffort,
-  allowLz77: boolean,
+const serializeModularAnsGroup = (
+  plan: Readonly<ModularEntropyPlan>,
   outputLimit: number,
-  memory?: JpegXlEncoderMemory,
-  transforms: Readonly<ModularTransforms> = { useRct: false },
-  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
+  memory: JpegXlEncoderMemory | undefined,
+  transforms: Readonly<ModularTransforms>,
+  config: Readonly<HybridUintEncoding>,
+  singleGroup: boolean,
 ): Uint8Array =>
   withJpegXlMemory(memory, () => {
-    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory, config)
     const writer = new JpegXlBitWriter(memory, outputLimit)
+    if (singleGroup) {
+      writer.writeBits(1, 1)
+      writer.writeBits(0, 1)
+    }
     writeModularHeader(writer, false, transforms)
-    writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
+    if (plan.treeNodes) writeLearnedTree(writer, plan.treeNodes)
+    else writeChannelTree(writer, plan.treePredictors, plan.gradientContexts, plan.treeOffsets)
     const encoding = writeAnsCode(
       writer,
       plan.entropyContextMap,
@@ -2793,8 +3312,300 @@ const encodeAdaptiveGroup = (
     return writer.finish()
   })
 
+const encodeAdaptiveGroup = (
+  residualPlan: Readonly<ModularResidualPlan>,
+  effort: JpegXlLosslessEffort,
+  allowLz77: boolean,
+  outputLimit: number,
+  memory?: JpegXlEncoderMemory,
+  transforms: Readonly<ModularTransforms> = { useRct: false },
+  config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
+  singleGroup = false,
+  maxLz77Entries = 262_144,
+): Uint8Array =>
+  withJpegXlMemory(memory, () => {
+    const plan = buildTokenPlan(residualPlan, effort, allowLz77, memory, config, maxLz77Entries)
+    return serializeModularAnsGroup(plan, outputLimit, memory, transforms, config, singleGroup)
+  })
+
+/** Candidate for the separate VarDCT alpha plane, retaining the former complete-bit cost. */
+export const encodeRepeatedJpegXlAlphaGroup = (
+  values: Int32Array,
+  width: number,
+  height: number,
+  originalBits: number,
+  config: Readonly<HybridUintEncoding>,
+  memory: JpegXlEncoderMemory | undefined,
+  outputLimit: number,
+): Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined =>
+  withJpegXlMemory(memory, () => {
+    const planes = { values: [values], widths: [width], heights: [height] }
+    let selected: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
+    let smallestBits = originalBits
+    for (const predictor of [5, 1]) {
+      try {
+        const alternative = withJpegXlMemory(memory, () => {
+          const base = buildResidualPlan(planes, 7, memory, [predictor])
+          let chosen: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
+          let bits = smallestBits
+          for (const gradientContexts of [false, true]) {
+            const candidate = withJpegXlMemory(memory, () => {
+              const residuals = gradientContexts ? gradientResidualPlan(base, planes, memory) : base
+              const plan = buildTokenPlan(residuals, 7, true, memory, config)
+              const writer = new JpegXlBitWriter(memory, outputLimit)
+              writeModularHeader(writer, false)
+              writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
+              const encoding = writeAnsCode(
+                writer,
+                plan.entropyContextMap,
+                plan.frequencies,
+                config,
+                plan.lz77,
+              )
+              writeAnsPixels(writer, plan, encoding)
+              const bitLength = writer.bitPosition
+              return { bytes: writer.finish(), bitLength }
+            })
+            if (candidate.bitLength < bits) {
+              chosen = candidate
+              bits = candidate.bitLength
+            }
+          }
+          return chosen
+        })
+        if (alternative) {
+          selected = alternative
+          smallestBits = alternative.bitLength
+        }
+      } catch (error) {
+        // The extra predictor must not discard the qualified gradient candidate.
+        if (predictor === 5 || !isLimitExceeded(error)) throw error
+      }
+    }
+    return selected
+  })
+
+const encodeHistogramHybridGroup = (
+  plan: Readonly<ModularResidualPlan>,
+  outputLimit: number,
+  memory: JpegXlEncoderMemory | undefined,
+  transforms: Readonly<ModularTransforms>,
+  singleGroup: boolean,
+): Uint8Array =>
+  withJpegXlMemory(memory, () => {
+    if (!plan.treeNodes || plan.clustered)
+      throw invalidJpegXlInput('histogram hybrid search requires a learned tree')
+    const configurations: readonly HybridUintEncoding[] = [
+      ...modularHybridConfigurations,
+      { splitExponent: 2, msbInToken: 0, lsbInToken: 1 },
+      { splitExponent: 4, msbInToken: 1, lsbInToken: 2 },
+      { splitExponent: 0, msbInToken: 0, lsbInToken: 0 },
+    ]
+    const bestCosts = allocateJpegXlArray(memory, Float64Array, plan.histogramCount).fill(
+      Number.POSITIVE_INFINITY,
+    )
+    const choices = allocateJpegXlArray(memory, Uint8Array, plan.histogramCount)
+    for (let mode = 0; mode < configurations.length; mode++) {
+      const config = configurations[mode]
+      if (!config) throw invalidJpegXlInput('histogram hybrid candidate is missing')
+      withJpegXlMemory(memory, () => {
+        const counts = allocateJpegXlArray(memory, Uint32Array, plan.histogramCount * 256)
+        const extraBits = allocateJpegXlArray(memory, Float64Array, plan.histogramCount)
+        for (let position = 0; position < plan.residuals.length; position++) {
+          const histogram = plan.leafToChannel[plan.residualContexts[position] ?? 0] ?? 0
+          const packed = encodeHybridUintPacked(plan.residuals[position] ?? 0, config)
+          const at = histogram * 256 + (packed & 255)
+          counts[at] = (counts[at] ?? 0) + 1
+          extraBits[histogram] = (extraBits[histogram] ?? 0) + ((packed >>> 8) & 31)
+        }
+        for (let histogram = 0; histogram < plan.histogramCount; histogram++) {
+          withJpegXlMemory(memory, () => {
+            const frequencies = counts.subarray(histogram * 256, (histogram + 1) * 256)
+            const writer = new JpegXlBitWriter(memory)
+            const serialized = writeAnsHistogram(
+              writer,
+              normalizedAnsFrequencies(frequencies, memory),
+            )
+            let cost =
+              writer.finish().length * 8 +
+              4 +
+              Math.ceil(Math.log2(config.splitExponent + 1)) +
+              Math.ceil(Math.log2(config.splitExponent - config.msbInToken + 1)) +
+              (extraBits[histogram] ?? 0)
+            for (let token = 0; token < frequencies.length; token++) {
+              const count = frequencies[token] ?? 0
+              if (count) cost += count * (12 - Math.log2(serialized[token] ?? 0))
+            }
+            if (cost < (bestCosts[histogram] ?? Number.POSITIVE_INFINITY)) {
+              bestCosts[histogram] = cost
+              choices[histogram] = mode
+            }
+          })
+        }
+      })
+    }
+    const histogramConfigs: HybridUintEncoding[] = []
+    const frequencies: Uint32Array[] = []
+    for (let histogram = 0; histogram < plan.histogramCount; histogram++) {
+      const config = configurations[choices[histogram] ?? 0]
+      if (!config) throw invalidJpegXlInput('selected histogram hybrid is missing')
+      histogramConfigs.push(config)
+      frequencies.push(allocateJpegXlArray(memory, Uint32Array, 256))
+    }
+    const packedValues = allocateJpegXlArray(memory, Uint32Array, plan.residuals.length)
+    for (let position = 0; position < plan.residuals.length; position++) {
+      const histogram = plan.leafToChannel[plan.residualContexts[position] ?? 0] ?? 0
+      const config = histogramConfigs[histogram]
+      const counts = frequencies[histogram]
+      if (!config || !counts) throw invalidJpegXlInput('selected histogram is missing')
+      const packed = encodeHybridUintPacked(plan.residuals[position] ?? 0, config)
+      packedValues[position] = packed
+      const token = packed & 255
+      counts[token] = (counts[token] ?? 0) + 1
+    }
+    const writer = new JpegXlBitWriter(memory, outputLimit)
+    if (singleGroup) {
+      writer.writeBits(1, 1)
+      writer.writeBits(0, 1)
+    }
+    writeModularHeader(writer, false, transforms)
+    writeLearnedTree(writer, plan.treeNodes)
+    const encoding = writeAnsCode(
+      writer,
+      plan.leafToChannel,
+      frequencies,
+      defaultModularHybridConfiguration,
+      false,
+      histogramConfigs,
+    )
+    writeAnsPackedValues(writer, packedValues, plan.residualContexts, packedValues.length, encoding)
+    return writer.finish()
+  })
+
+const writeLearnedTreePrefix = (
+  writer: JpegXlBitWriter,
+  nodes: readonly JpegXlModularNode[],
+): void => {
+  withJpegXlMemory(writer.memory, () => {
+    const frequencies = allocateJpegXlArray(writer.memory, Uint32Array, 512)
+    for (const node of nodes) {
+      const symbols =
+        node.kind === 'leaf'
+          ? [0, node.predictor, 0, 0, 0]
+          : [node.property + 1, packSigned(node.split)]
+      for (const symbol of symbols) {
+        const token = hybridToken(symbol)
+        frequencies[token] = (frequencies[token] ?? 0) + 1
+      }
+    }
+    const encoding = writePrefixCode(writer, 6, frequencies)
+    for (const node of nodes) {
+      const symbols =
+        node.kind === 'leaf'
+          ? [0, node.predictor, 0, 0, 0]
+          : [node.property + 1, packSigned(node.split)]
+      for (const symbol of symbols) writeHybridUint(writer, symbol, encoding)
+    }
+  })
+}
+
+export const writeLearnedTree = (
+  writer: JpegXlBitWriter,
+  nodes: readonly JpegXlModularNode[],
+): void => {
+  for (const node of nodes)
+    if (
+      node.kind === 'branch' &&
+      (!Number.isSafeInteger(node.split) || !Number.isSafeInteger(node.property))
+    )
+      throw invalidJpegXlInput('tree branch fields must be integers')
+  if (nodes.length < 16) {
+    writeLearnedTreePrefix(writer, nodes)
+    return
+  }
+  try {
+    withJpegXlMemory(writer.memory, () => {
+      const baseline = new JpegXlBitWriter(writer.memory, writer.outputLimit)
+      writeLearnedTreePrefix(baseline, nodes)
+      const baselineBits = baseline.bitPosition
+      let bits = baselineBits,
+        bytes = baseline.finish()
+      let count = nodes.length * 2
+      for (const node of nodes) if (node.kind === 'leaf') count += 3
+      const values = allocateJpegXlArray(writer.memory, Uint32Array, count)
+      const contexts = allocateJpegXlArray(writer.memory, Uint16Array, count)
+      let position = 0
+      for (const node of nodes) {
+        contexts[position] = 1
+        values[position++] = node.kind === 'leaf' ? 0 : node.property + 1
+        if (node.kind === 'leaf') {
+          contexts[position] = 2
+          values[position++] = node.predictor
+          contexts[position] = 3
+          values[position++] = 0
+          contexts[position] = 4
+          values[position++] = 0
+          contexts[position] = 5
+          values[position++] = 0
+        } else {
+          contexts[position] = 0
+          values[position++] = packSigned(node.split)
+        }
+      }
+      if (position !== count) throw invalidInput('Tree entropy symbol count changed')
+      for (let trialVariant = 1; trialVariant <= 3; trialVariant++) {
+        const candidate = withJpegXlMemory(writer.memory, () => {
+          const map = allocateJpegXlArray(writer.memory, Uint8Array, 6)
+          if (trialVariant !== 1) map.set([0, 1, 2, 3, 3, 3])
+          const frequencies = Array.from({ length: trialVariant === 1 ? 1 : 4 }, () =>
+            allocateJpegXlArray(writer.memory, Uint32Array, 256),
+          )
+          const config = { splitExponent: 4, msbInToken: 2, lsbInToken: 0 }
+          const configs =
+            trialVariant === 3
+              ? [
+                  { splitExponent: 0, msbInToken: 0, lsbInToken: 0 },
+                  { splitExponent: 5, msbInToken: 0, lsbInToken: 0 },
+                  { splitExponent: 4, msbInToken: 0, lsbInToken: 0 },
+                  { splitExponent: 0, msbInToken: 0, lsbInToken: 0 },
+                ]
+              : undefined
+          for (let index = 0; index < count; index++) {
+            const histogramId = map[contexts[index] ?? 0] ?? 0
+            const histogram = frequencies[histogramId]
+            if (!histogram) throw invalidInput('Tree entropy histogram missing')
+            const packed = encodeHybridUintPacked(
+              values[index] ?? 0,
+              configs?.[histogramId] ?? config,
+            )
+            if (packed > 0xffff_ffff) return undefined
+            const token = packed & 255
+            histogram[token] = (histogram[token] ?? 0) + 1
+          }
+          const trial = new JpegXlBitWriter(writer.memory, writer.outputLimit)
+          const encoding = writeAnsCode(trial, map, frequencies, config, false, configs)
+          writeAnsValues(trial, values, contexts, count, encoding)
+          const trialBits = trial.bitPosition
+          return trialBits < bits ? { bytes: trial.finish(), bits: trialBits } : undefined
+        })
+        if (candidate) {
+          writer.memory?.release(bytes)
+          bytes = candidate.bytes
+          bits = candidate.bits
+        }
+      }
+      // The writer reserves the full append before touching bits. Any optional
+      // LIMIT unwinds all staged buffers before the direct legacy fallback.
+      writer.writeEncodedBits(bytes, bits)
+    })
+  } catch (error) {
+    if (!isLimitExceeded(error)) throw error
+    writeLearnedTreePrefix(writer, nodes)
+  }
+}
+
 interface EncodedModularCandidate {
-  readonly contextModel: 'channel' | 'gradient'
+  readonly contextModel: 'channel' | 'gradient' | 'learned'
   readonly bytes: Uint8Array
   readonly predictors: readonly number[]
   readonly transforms: Readonly<ModularTransforms>
@@ -2809,27 +3620,153 @@ const encodeGroupCandidate = (
   limit: number,
   memory?: JpegXlEncoderMemory,
   checkpoint?: () => Promise<void>,
+  singleGroup = false,
+  learnedFloorBytes = Number.POSITIVE_INFINITY,
+  paletteSearch: 'select' | 'baseline' | 'learned' = 'select',
+  maxTrainingSamples = 65536,
+  expandedTraining = true,
+  splitOverhead = 1,
 ): Promise<EncodedModularCandidate> =>
   withJpegXlMemoryAsync(memory, async () => {
     const { planes, transforms } = prepared
+    if (
+      expandedTraining &&
+      effort === 7 &&
+      planes.values.length <= 4 &&
+      !transforms.squeeze &&
+      !transforms.scalarPalettes &&
+      planes.values.some((plane) => plane.length > maxTrainingSamples)
+    ) {
+      const baseline = await encodeGroupCandidate(
+        prepared,
+        effort,
+        limit,
+        memory,
+        checkpoint,
+        singleGroup,
+        learnedFloorBytes,
+        paletteSearch,
+        maxTrainingSamples,
+        false,
+        splitOverhead,
+      )
+      if (baseline.bytes.length * 256 < planes.values.reduce((sum, plane) => sum + plane.length, 0))
+        return baseline
+      try {
+        const expanded = await withJpegXlMemoryAsync(memory, async () => {
+          const candidate = await encodeGroupCandidate(
+            prepared,
+            effort,
+            limit,
+            memory,
+            checkpoint,
+            singleGroup,
+            learnedFloorBytes,
+            paletteSearch,
+            maxTrainingSamples * 4,
+            false,
+            splitOverhead,
+          )
+          return candidate.bytes.length < baseline.bytes.length ? candidate : undefined
+        })
+        if (expanded) {
+          memory?.release(baseline.bytes)
+          return expanded
+        }
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+      }
+      return baseline
+    }
+    if (effort === 7 && transforms.palette && paletteSearch === 'select') {
+      // Preserve the complete previous group policy while optional palette training runs.
+      const baseline = await encodeGroupCandidate(
+        prepared,
+        effort,
+        limit,
+        memory,
+        checkpoint,
+        singleGroup,
+        learnedFloorBytes,
+        'baseline',
+        maxTrainingSamples,
+        expandedTraining,
+        splitOverhead,
+      )
+      const samples = planes.values.reduce((sum, plane) => sum + plane.length, 0)
+      if (baseline.bytes.length * 256 < samples) return baseline
+      try {
+        const learned = await withJpegXlMemoryAsync(memory, async () => {
+          const candidate = await encodeGroupCandidate(
+            prepared,
+            effort,
+            limit,
+            memory,
+            checkpoint,
+            singleGroup,
+            learnedFloorBytes,
+            'learned',
+            maxTrainingSamples,
+            expandedTraining,
+            splitOverhead,
+          )
+          // Losing output and scratch close here; only a smaller complete group escapes.
+          return candidate.bytes.length < baseline.bytes.length ? candidate : undefined
+        })
+        if (learned) {
+          memory?.release(baseline.bytes)
+          return learned
+        }
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+      }
+      return baseline
+    }
+    const encode = (
+      plan: Readonly<ModularResidualPlan>,
+      allowLz77: boolean,
+      config: Readonly<HybridUintEncoding> = defaultModularHybridConfiguration,
+    ): Uint8Array =>
+      encodeAdaptiveGroup(
+        plan,
+        effort,
+        allowLz77,
+        limit,
+        memory,
+        transforms,
+        config,
+        singleGroup,
+        // Smaller patch groups bound repeated learner and match-cache scratch.
+        maxTrainingSamples === 16384 ? 32768 : 262_144,
+      )
     const predictors = chooseGroupPredictors(planes, effort, memory)
     const residualPlan = buildResidualPlan(planes, effort, memory, predictors)
-    const plain = encodeAdaptiveGroup(residualPlan, effort, false, limit, memory, transforms)
-    let lz77: Uint8Array | undefined
-    if (effort >= 5) {
-      await checkpoint?.()
-      lz77 = encodeAdaptiveGroup(residualPlan, effort, true, limit, memory, transforms)
+    const encodePair = async (
+      plan: Readonly<ModularResidualPlan>,
+      contextModel: 'channel' | 'gradient' | 'learned',
+    ) => {
+      const plain = encode(plan, false)
+      let lz77: Uint8Array | undefined
+      if (effort >= 5) {
+        await checkpoint?.()
+        lz77 = encode(plan, true)
+      }
+      return Object.freeze({
+        plan,
+        bytes: lz77 && lz77.length < plain.length ? lz77 : plain,
+        contextModel,
+        predictors,
+        transforms,
+        lz77:
+          lz77 !== undefined &&
+          lz77.length < plain.length &&
+          (contextModel === 'learned' || plan.residuals.length >= 64),
+        plainBytes: plain.length,
+        ...(lz77 ? { lz77Bytes: lz77.length } : {}),
+      })
     }
     let selectedPlan = residualPlan
-    let selected: EncodedModularCandidate = {
-      bytes: lz77 && lz77.length < plain.length ? lz77 : plain,
-      contextModel: 'channel',
-      predictors,
-      transforms,
-      lz77: lz77 !== undefined && lz77.length < plain.length && residualPlan.residuals.length >= 64,
-      plainBytes: plain.length,
-      ...(lz77 ? { lz77Bytes: lz77.length } : {}),
-    }
+    let selected: EncodedModularCandidate = await encodePair(residualPlan, 'channel')
     if (
       effort >= 5 &&
       (planes.values.length <= 4 || transforms.scalarPalettes !== undefined) &&
@@ -2838,19 +3775,7 @@ const encodeGroupCandidate = (
       await checkpoint?.()
       const contextual = await withJpegXlMemoryAsync(memory, async () => {
         const plan = gradientResidualPlan(residualPlan, planes, memory)
-        const plain = encodeAdaptiveGroup(plan, effort, false, limit, memory, transforms)
-        await checkpoint?.()
-        const lz77 = encodeAdaptiveGroup(plan, effort, true, limit, memory, transforms)
-        return Object.freeze({
-          plan,
-          bytes: lz77.length < plain.length ? lz77 : plain,
-          contextModel: 'gradient',
-          predictors,
-          transforms,
-          lz77: lz77.length < plain.length && plan.residuals.length >= 64,
-          plainBytes: plain.length,
-          lz77Bytes: lz77.length,
-        })
+        return encodePair(plan, 'gradient')
       })
       if (contextual.bytes.length < selected.bytes.length) {
         selected = contextual
@@ -2858,26 +3783,76 @@ const encodeGroupCandidate = (
       }
     }
     if (effort === 7) {
+      if (
+        planes.values.length <= 4 &&
+        // A near-zero raw stream, or a smaller palette below half a bit per residual,
+        // already handles repeats without an expensive learned raw model.
+        selected.bytes.length * 256 >= residualPlan.residuals.length &&
+        (learnedFloorBytes >= selected.bytes.length ||
+          learnedFloorBytes * 16 >= residualPlan.residuals.length) &&
+        (!transforms.palette || paletteSearch === 'learned') &&
+        !transforms.scalarPalettes &&
+        !transforms.squeeze
+      ) {
+        await checkpoint?.()
+        const learned = await withJpegXlMemoryAsync(memory, async () => {
+          const tree = learnJpegXlModularTree(
+            planes.values,
+            planes.widths,
+            predictors,
+            residualPlan.residuals,
+            memory,
+            maxTrainingSamples,
+            splitOverhead,
+          )
+          if (!tree) return undefined
+          const plan: ModularResidualPlan = {
+            ...residualPlan,
+            gradientContexts: false,
+            treeNodes: tree.nodes,
+            residuals: tree.residuals,
+            residualContexts: tree.contexts,
+            histogramCount: tree.histogramCount,
+            leafToChannel: tree.histogramMap,
+          }
+          return encodePair(plan, 'learned')
+        })
+        if (learned && learned.bytes.length < selected.bytes.length) {
+          selected = learned
+          selectedPlan = learned.plan
+        }
+      }
       for (let index = 1; index < modularHybridConfigurations.length; index++) {
         const config = modularHybridConfigurations[index]
-        if (!config) throw invalidInput('JPEG XL Modular hybrid configuration is missing')
+        if (!config) throw invalidJpegXlInput('Modular hybrid configuration is missing')
         await checkpoint?.()
-        const candidate = encodeAdaptiveGroup(
-          selectedPlan,
-          effort,
-          selected.lz77,
-          limit,
-          memory,
-          transforms,
-          config,
-        )
+        const candidate = encode(selectedPlan, selected.lz77, config)
         if (candidate.length < selected.bytes.length) {
           memory?.release(selected.bytes)
           selected = { ...selected, bytes: candidate }
         } else memory?.release(candidate)
       }
+      if (selectedPlan.treeNodes && !selected.lz77) {
+        await checkpoint?.()
+        try {
+          const candidate = encodeHistogramHybridGroup(
+            selectedPlan,
+            limit,
+            memory,
+            transforms,
+            singleGroup,
+          )
+          if (candidate.length < selected.bytes.length) {
+            memory?.release(selected.bytes)
+            selected = { ...selected, bytes: candidate }
+          } else memory?.release(candidate)
+        } catch (error) {
+          if (!isLimitExceeded(error)) throw error
+        }
+      }
     }
-    return Object.freeze(selected)
+    // Residual plans are scratch for selecting bytes and must not escape the group.
+    return Object.freeze({ ...selected, plan: undefined })
   })
 
 const hasSparse16BitChannels = (pixels: Uint8Array, memory?: JpegXlEncoderMemory): boolean =>
@@ -2962,28 +3937,29 @@ const encodeAdaptiveFrameSections = (
   memory?: JpegXlEncoderMemory,
   checkpoint?: () => Promise<void>,
   evidence?: ModularGroupSearchEvidence[],
+  groupDimension = 1_024,
+  maxTrainingSamples = 65536,
+  localColor = false,
+  rctSamples = 4096,
+  splitOverhead = 1,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
-    const groupDimension = 1_024
-    const useRct = chooseMultiGroupRct(pixels, format)
+    const useRct = !localColor && chooseMultiGroupRct(pixels, format)
     const scalarSearch =
       format === 'rgb16' && effort === 7 && hasSparse16BitChannels(pixels, memory)
     const globalWriter = new JpegXlBitWriter(memory)
-    globalWriter.writeBits(1, 1)
-    globalWriter.writeBits(1, 1)
-    writeModularTree(globalWriter)
     const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
     frequencies[0] = 1
-    writePrefixCode(globalWriter, 1, frequencies)
-    writeModularHeader(globalWriter, true, { useRct: useRct && !scalarSearch })
-    const dcGroupCount = Math.ceil(width / 8_192) * Math.ceil(height / 8_192)
+    writeModularGlobalHeader(globalWriter, frequencies, useRct && !scalarSearch)
+    const dcGroupCount =
+      Math.ceil(width / (groupDimension * 8)) * Math.ceil(height / (groupDimension * 8))
     const sections: Uint8Array[] = [
       globalWriter.finish(),
       allocateJpegXlArray(memory, Uint8Array, 0),
     ]
     for (let index = 0; index < dcGroupCount; index++)
       sections.push(allocateJpegXlArray(memory, Uint8Array, 0))
-    let sectionBytes = sections[0]?.byteLength ?? 0
+    let sectionBytes = sections[0]?.length ?? 0
     for (let y = 0; y < height; y += groupDimension) {
       for (let x = 0; x < width; x += groupDimension) {
         await checkpoint?.()
@@ -2999,22 +3975,32 @@ const encodeAdaptiveFrameSections = (
             useRct,
             memory,
           )
+          const rctType =
+            localColor && isRgb8(format)
+              ? chooseJpegXlModularRct(
+                  pixels,
+                  Math.min(groupDimension, width - x),
+                  Math.min(groupDimension, height - y),
+                  format,
+                  6,
+                  memory,
+                  x,
+                  y,
+                  width,
+                  rctSamples,
+                )
+              : 6
+          if (localColor && rctType !== 0) applyModularRct(planes.values, 0, rctType)
+          const transforms = {
+            useRct: localColor ? rctType !== 0 : useRct && scalarSearch,
+            rctType,
+          }
           const limit = resolveJpegXlLimits().maxCodestreamBytes - sectionBytes
-          let selected = await encodeGroupCandidate(
-            { planes, transforms: { useRct: useRct && scalarSearch } },
-            effort,
-            limit,
-            memory,
-            checkpoint,
-          )
-          const candidates: {
-            tool: 'raw' | 'palette' | 'delta-palette' | 'squeeze' | 'scalar-palette'
-            bytes: number
-          }[] = [{ tool: 'raw', bytes: selected.bytes.length }]
           const channelCount = planes.values.length
+          let paletteCandidate: EncodedModularCandidate | undefined
           if (effort >= 5 && (channelCount === 3 || channelCount === 4)) {
             await checkpoint?.()
-            const candidate = await withJpegXlMemoryAsync(memory, async () => {
+            paletteCandidate = await withJpegXlMemoryAsync(memory, async () => {
               const prepared =
                 palettePlanes(planes, channelCount, memory) ??
                 deltaPalettePlanes(planes, channelCount, memory)
@@ -3022,26 +4008,50 @@ const encodeAdaptiveFrameSections = (
                 ? encodeGroupCandidate(
                     {
                       ...prepared,
-                      transforms: { ...prepared.transforms, useRct: useRct && scalarSearch },
+                      transforms: { ...prepared.transforms, ...transforms },
                     },
                     effort,
                     limit,
                     memory,
                     checkpoint,
+                    false,
+                    undefined,
+                    'select',
+                    maxTrainingSamples,
+                    true,
+                    splitOverhead,
                   )
                 : undefined
             })
-            if (candidate) {
-              candidates.push({
-                tool:
-                  (candidate.transforms.palette?.deltaCount ?? 0) > 0 ? 'delta-palette' : 'palette',
-                bytes: candidate.bytes.length,
-              })
-              if (candidate.bytes.length < selected.bytes.length) {
-                memory?.release(selected.bytes)
-                selected = candidate
-              } else memory?.release(candidate.bytes)
-            }
+          }
+          let selected = await encodeGroupCandidate(
+            { planes, transforms: transforms },
+            effort,
+            limit,
+            memory,
+            checkpoint,
+            false,
+            paletteCandidate?.bytes.length,
+            'select',
+            maxTrainingSamples,
+            true,
+            splitOverhead,
+          )
+          const candidates: {
+            tool: 'raw' | 'palette' | 'delta-palette' | 'squeeze' | 'scalar-palette'
+            bytes: number
+          }[] = [{ tool: 'raw', bytes: selected.bytes.length }]
+          if (paletteCandidate) {
+            const candidate = paletteCandidate
+            candidates.push({
+              tool:
+                (candidate.transforms.palette?.deltaCount ?? 0) > 0 ? 'delta-palette' : 'palette',
+              bytes: candidate.bytes.length,
+            })
+            if (candidate.bytes.length < selected.bytes.length) {
+              memory?.release(selected.bytes)
+              selected = candidate
+            } else memory?.release(candidate.bytes)
           }
           if (scalarSearch) {
             const candidate = await withJpegXlMemoryAsync(memory, async () => {
@@ -3114,7 +4124,7 @@ const encodeAdaptiveFrameSections = (
                 heights: values.map(() => height),
               }
               const raw = await encodeGroupCandidate(
-                { planes: sample, transforms: { useRct: useRct && scalarSearch } },
+                { planes: sample, transforms: transforms },
                 3,
                 limit,
                 memory,
@@ -3124,7 +4134,7 @@ const encodeAdaptiveFrameSections = (
               const encoded = await encodeGroupCandidate(
                 {
                   planes: squeezed.planes,
-                  transforms: { useRct: useRct && scalarSearch, squeeze: squeezed.parameters },
+                  transforms: { ...transforms, squeeze: squeezed.parameters },
                 },
                 3,
                 limit,
@@ -3146,7 +4156,7 @@ const encodeAdaptiveFrameSections = (
               return encodeGroupCandidate(
                 {
                   planes: squeezed.planes,
-                  transforms: { useRct: useRct && scalarSearch, squeeze: squeezed.parameters },
+                  transforms: { ...transforms, squeeze: squeezed.parameters },
                 },
                 effort,
                 limit,
@@ -3174,7 +4184,9 @@ const encodeAdaptiveFrameSections = (
               effort,
               rct: selected.transforms.scalarPalettes
                 ? selected.transforms.indexRct === true
-                : useRct,
+                : localColor
+                  ? rctType !== 0
+                  : useRct,
               predictors: selected.predictors,
               entropy: 'ans',
               contextModel: selected.contextModel,
@@ -3219,8 +4231,20 @@ const encodeFrameSections = (
     const groupsDown = Math.ceil(height / groupDimension)
     const groupCount = groupsAcross * groupsDown
     if (effort === 1) {
-      const fast = encodeFastFrameSections(pixels, width, height, format, memory)
-      if (groupCount !== 1) return fast
+      if (groupCount !== 1) {
+        const fast = encodeFastFrameSections(pixels, width, height, format, memory)
+        const channelPrefix = await encodeChannelPrefixFrameSections(
+          pixels,
+          width,
+          height,
+          format,
+          memory,
+          checkpoint,
+        )
+        const fastBytes = frameSectionBytes(fast)
+        const channelBytes = frameSectionBytes(channelPrefix)
+        return channelBytes < fastBytes ? channelPrefix : fast
+      }
       const ans = await encodeSingleGroupSection(
         pixels,
         width,
@@ -3230,9 +4254,9 @@ const encodeFrameSections = (
         memory,
         checkpoint,
       )
-      const fastSection = fast[0]
-      if (!fastSection) throw invalidInput('JPEG XL fast Modular section is missing')
-      return Object.freeze([ans.byteLength < fastSection.byteLength ? ans : fastSection])
+      return Object.freeze([
+        encodeFastSingleGroupSection(pixels, width, height, format, memory, ans),
+      ])
     }
     if (groupCount === 1) {
       return Object.freeze([
@@ -3252,14 +4276,25 @@ const encodeFrameSections = (
   })
 }
 
+const frameSectionBytes = (sections: readonly Uint8Array[]): number => {
+  let payloadBytes = 0
+  let tableBits = 0
+  for (const section of sections) {
+    payloadBytes += section.length
+    tableBits +=
+      section.length < 1024 ? 12 : section.length < 17408 ? 16 : section.length < 4211712 ? 24 : 32
+  }
+  return payloadBytes + Math.ceil(tableBits / 8)
+}
+
 const concatenate = (parts: readonly Uint8Array[], memory?: JpegXlEncoderMemory): Uint8Array => {
   return withJpegXlMemory(memory, () => {
-    const length = parts.reduce((sum, part) => sum + part.byteLength, 0)
+    const length = parts.reduce((sum, part) => sum + part.length, 0)
     const output = allocateJpegXlArray(memory, Uint8Array, length)
     let offset = 0
     for (const part of parts) {
       output.set(part, offset)
-      offset += part.byteLength
+      offset += part.length
     }
     return output
   })
@@ -3348,7 +4383,7 @@ export const encodedJpegXlMetadataBoxes = (
         ? (metadata.exif[2] ?? 0) + (metadata.exif[3] ?? 0) * 256
         : (metadata.exif[2] ?? 0) * 256 + (metadata.exif[3] ?? 0)
       if (metadata.exif.byteLength < 8 || (!littleEndian && !bigEndian) || magic !== 42) {
-        throw invalidInput('JPEG XL Exif metadata requires a valid TIFF header')
+        throw invalidJpegXlInput('Exif metadata requires a valid TIFF header')
       }
       normalizeExifOrientation(
         metadata.exif,
@@ -3364,7 +4399,7 @@ export const encodedJpegXlMetadataBoxes = (
         [copyJpegXlArray(memory, Uint8Array, [0, 0, 0, 0]), metadata.exif],
         memory,
       )
-      boxes.push(concatenate([boxHeader('Exif', payload.byteLength, memory), payload], memory))
+      boxes.push(concatenate([boxHeader('Exif', payload.length, memory), payload], memory))
     }
     if (metadata.xmp) {
       boxes.push(
@@ -3376,7 +4411,7 @@ export const encodedJpegXlMetadataBoxes = (
         concatenate([boxHeader('jumb', metadata.jumbf.byteLength, memory), metadata.jumbf], memory),
       )
     }
-    const metadataBytes = boxes.reduce((sum, box) => sum + box.byteLength, 0)
+    const metadataBytes = boxes.reduce((sum, box) => sum + box.length, 0)
     if (metadataBytes > resolveJpegXlLimits().maxMetadataBytes) {
       throw limitExceeded('JPEG XL preserved metadata exceeds maxMetadataBytes')
     }
@@ -3531,8 +4566,89 @@ interface EncodedJpegXlCodestream {
   readonly byteLength: number
 }
 
-// Keep the exact lossy candidate for artwork with a bounded visible-color palette.
-const hasSmallVisiblePalette = (pixels: Uint8Array, memory?: JpegXlEncoderMemory): boolean => {
+const quantizeFlatPalette = (
+  pixels: Uint8Array,
+  width: number,
+  distance: number,
+  memory: JpegXlEncoderMemory,
+): Uint8Array | undefined => {
+  if (distance < 2 || width < 2 || pixels.length < width * 8) return undefined
+  const keys = allocateJpegXlArray(memory, Uint32Array, 4096)
+  const mapped = allocateJpegXlArray(memory, Uint32Array, 4096)
+  const flags = allocateJpegXlArray(memory, Uint8Array, 4096)
+  try {
+    const stride = width * 4,
+      step = distance * 8
+    let count = 0
+    for (let offset = 0; offset < pixels.length; offset += 4) {
+      if (pixels[offset + 3] !== 255) return undefined
+      const color =
+        ((pixels[offset] ?? 0) << 16) | ((pixels[offset + 1] ?? 0) << 8) | (pixels[offset + 2] ?? 0)
+      let slot = (Math.imul(color ^ (color >>> 16), 0x9e3779b1) >>> 0) & 4095
+      while (flags[slot] && keys[slot] !== color) slot = (slot + 1) & 4095
+      if (!flags[slot]) {
+        keys[slot] = color
+        flags[slot] = 1
+        if (++count > 2048) return undefined
+      }
+      if (offset < pixels.length - stride && offset % stride < stride - 4) {
+        let flat = true
+        for (let channel = 0; channel < 4; channel++) {
+          const value = pixels[offset + channel]
+          if (
+            value !== pixels[offset + 4 + channel] ||
+            value !== pixels[offset + stride + channel] ||
+            value !== pixels[offset + stride + 4 + channel]
+          ) {
+            flat = false
+            break
+          }
+        }
+        if (flat) flags[slot] = 3
+      }
+    }
+    let changed = false
+    for (let slot = 0; slot < flags.length; slot++)
+      if (flags[slot]) {
+        const color = keys[slot] ?? 0,
+          green = (color >>> 8) & 255
+        const delta =
+          flags[slot] === 3
+            ? 0
+            : Math.min(255, Math.floor((green + step / 2) / step) * step) - green
+        const red = Math.max(0, Math.min(255, (color >>> 16) + delta)) | 0
+        const nextGreen = Math.max(0, Math.min(255, green + delta)) | 0
+        const blue = Math.max(0, Math.min(255, (color & 255) + delta)) | 0
+        const next = (red << 16) | (nextGreen << 8) | blue
+        mapped[slot] = next
+        if (next !== color) changed = true
+      }
+    if (!changed) return undefined
+    const output = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+    for (let offset = 0; offset < pixels.length; offset += 4) {
+      const color =
+        ((pixels[offset] ?? 0) << 16) | ((pixels[offset + 1] ?? 0) << 8) | (pixels[offset + 2] ?? 0)
+      let slot = (Math.imul(color ^ (color >>> 16), 0x9e3779b1) >>> 0) & 4095
+      while (keys[slot] !== color) slot = (slot + 1) & 4095
+      const next = mapped[slot] ?? 0
+      output[offset] = next >>> 16
+      output[offset + 1] = next >>> 8
+      output[offset + 2] = next
+      output[offset + 3] = 255
+    }
+    return output
+  } finally {
+    memory.release(flags)
+    memory.release(mapped)
+    memory.release(keys)
+  }
+}
+
+// Keep a Modular candidate for artwork with a bounded visible-color palette.
+export const hasSmallVisiblePalette = (
+  pixels: Uint8Array,
+  memory?: JpegXlEncoderMemory,
+): boolean => {
   const colors = allocateJpegXlArray(memory, Uint32Array, 4_096)
   let occupied: Uint8Array | undefined
   try {
@@ -3620,13 +4736,14 @@ const findDocumentPatches = (
   width: number,
   height: number,
   memory: JpegXlEncoderMemory,
+  channels: 3 | 4 = 3,
 ): DocumentPatchGroup[] => {
   const count = width * height
   const visited = allocateJpegXlArray(memory, Uint8Array, count)
   const stack = allocateJpegXlArray(memory, Int32Array, count)
   const byShape = new Map<string, DocumentPatch[]>()
   const foreground = (index: number): boolean => {
-    const offset = index * 3
+    const offset = index * channels
     return (
       (pixels[offset] ?? 255) < 245 ||
       (pixels[offset + 1] ?? 255) < 245 ||
@@ -3638,7 +4755,11 @@ const findDocumentPatches = (
     for (let x = 0; x < width; x++) {
       const start = y * width + x
       if (visited[start] || !foreground(start)) continue
-      if (++componentCount > 20_000) return []
+      if (++componentCount > 20_000) {
+        memory.release(stack)
+        memory.release(visited)
+        return []
+      }
       visited[start] = 1
       stack[0] = start
       let stackSize = 1
@@ -3685,12 +4806,13 @@ const findDocumentPatches = (
   const same = (left: DocumentPatch, right: DocumentPatch): boolean => {
     for (let y = 0; y < left.height; y++) {
       for (let x = 0; x < left.width; x++) {
-        const a = ((left.y + y) * width + left.x + x) * 3
-        const b = ((right.y + y) * width + right.x + x) * 3
+        const a = ((left.y + y) * width + left.x + x) * channels
+        const b = ((right.y + y) * width + right.x + x) * channels
         if (
           pixels[a] !== pixels[b] ||
           pixels[a + 1] !== pixels[b + 1] ||
-          pixels[a + 2] !== pixels[b + 2]
+          pixels[a + 2] !== pixels[b + 2] ||
+          (channels === 4 && pixels[a + 3] !== pixels[b + 3])
         )
           return false
       }
@@ -3704,10 +4826,11 @@ const findDocumentPatches = (
       let hash = 2_166_136_261
       for (let y = 0; y < patch.height; y++) {
         for (let x = 0; x < patch.width; x++) {
-          const offset = ((patch.y + y) * width + patch.x + x) * 3
+          const offset = ((patch.y + y) * width + patch.x + x) * channels
           hash = Math.imul(hash ^ (pixels[offset] ?? 0), 16_777_619)
           hash = Math.imul(hash ^ (pixels[offset + 1] ?? 0), 16_777_619)
           hash = Math.imul(hash ^ (pixels[offset + 2] ?? 0), 16_777_619)
+          if (channels === 4) hash = Math.imul(hash ^ (pixels[offset + 3] ?? 0), 16_777_619)
         }
       }
       const bucket = byHash.get(hash) ?? []
@@ -3738,64 +4861,153 @@ export const writeDocumentPatchFeatures = (
   section: Uint8Array,
   groups: readonly DocumentPatchGroup[],
   memory: JpegXlEncoderMemory,
+  extraChannels: 0 | 1 = 0,
 ): Uint8Array => {
-  const placements = groups.reduce((sum, group) => sum + group.placements.length, 0)
-  const values = allocateJpegXlArray(memory, Uint32Array, 1 + groups.length * 6 + placements * 3)
-  let count = 0
-  values[count++] = groups.length
-  const signed = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
-  for (const group of groups) {
-    values[count++] = 3
-    values[count++] = group.atlasX
-    values[count++] = group.atlasY
-    values[count++] = group.source.width - 1
-    values[count++] = group.source.height - 1
-    values[count++] = group.placements.length - 1
-    let previousX = 0,
-      previousY = 0
-    for (let index = 0; index < group.placements.length; index++) {
-      const patch = group.placements[index]!
-      values[count++] = index === 0 ? patch.x : signed(patch.x - previousX)
-      values[count++] = index === 0 ? patch.y : signed(patch.y - previousY)
-      values[count++] = 1 // Replace all three color channels from the reference.
-      previousX = patch.x
-      previousY = patch.y
+  return withJpegXlMemory(memory, () => {
+    const placements = groups.reduce((sum, group) => sum + group.placements.length, 0)
+    const values = allocateJpegXlArray(
+      memory,
+      Uint32Array,
+      1 + groups.length * 6 + placements * (3 + extraChannels),
+    )
+    let count = 0
+    values[count++] = groups.length
+    const signed = (value: number): number => (value < 0 ? -2 * value - 1 : 2 * value)
+    for (const group of groups) {
+      values[count++] = 3
+      values[count++] = group.atlasX
+      values[count++] = group.atlasY
+      values[count++] = group.source.width - 1
+      values[count++] = group.source.height - 1
+      values[count++] = group.placements.length - 1
+      let previousX = 0,
+        previousY = 0
+      for (let index = 0; index < group.placements.length; index++) {
+        const patch = group.placements[index]!
+        values[count++] = index === 0 ? patch.x : signed(patch.x - previousX)
+        values[count++] = index === 0 ? patch.y : signed(patch.y - previousY)
+        values[count++] = 1 // Replace all three color channels from the reference.
+        if (extraChannels === 1) values[count++] = 1 // Preserve the exact alpha sample too.
+        previousX = patch.x
+        previousY = patch.y
+      }
     }
-  }
-  if (count !== values.length) throw invalidInput('JPEG XL document patch token count is invalid')
-  const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
-  for (let index = 0; index < count; index++) {
-    const token = hybridToken(values[index] ?? 0)
-    frequencies[token] = (frequencies[token] ?? 0) + 1
-  }
-  const writer = new JpegXlBitWriter(memory)
-  const encoding = writePrefixCode(writer, 10, frequencies)
-  for (let index = 0; index < count; index++) writeHybridUint(writer, values[index] ?? 0, encoding)
-  for (const byte of section) writer.writeBits(byte, 8)
-  memory.release(frequencies)
-  memory.release(values)
-  return writer.finish()
+    if (count !== values.length) throw invalidJpegXlInput('document patch token count is invalid')
+    const baseline = withJpegXlMemory(memory, () => {
+      const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
+      for (let index = 0; index < count; index++) {
+        const token = hybridToken(values[index] ?? 0)
+        frequencies[token] = (frequencies[token] ?? 0) + 1
+      }
+      const writer = new JpegXlBitWriter(memory)
+      const encoding = writePrefixCode(writer, 10, frequencies)
+      for (let index = 0; index < count; index++)
+        writeHybridUint(writer, values[index] ?? 0, encoding)
+      const bits = writer.bitPosition
+      memory.release(frequencies)
+      memory.release(encoding.keys)
+      memory.release(encoding.lengths)
+      return { bytes: writer.finish(), bits }
+    })
+    let selected = baseline
+    try {
+      selected = withJpegXlMemory(memory, () => {
+        const contexts = allocateJpegXlArray(memory, Uint8Array, count)
+        let at = 1
+        for (const group of groups) {
+          contexts[at++] = 1
+          contexts[at++] = 3
+          contexts[at++] = 3
+          contexts[at++] = 2
+          contexts[at++] = 2
+          contexts[at++] = 7
+          for (let index = 0; index < group.placements.length; index++) {
+            contexts[at++] = index === 0 ? 4 : 6
+            contexts[at++] = index === 0 ? 4 : 6
+            contexts[at++] = 5
+            if (extraChannels === 1) contexts[at++] = 5
+          }
+        }
+        if (at !== count) throw invalidJpegXlInput('document patch context count is invalid')
+        const contextMap = copyJpegXlArray(memory, Uint8Array, [0, 1, 3, 0, 0, 2, 0, 0, 1, 1])
+        const frequencies = Array.from({ length: 4 }, () =>
+          allocateJpegXlArray(memory, Uint32Array, 512),
+        )
+        for (let index = 0; index < count; index++) {
+          const counts = frequencies[contextMap[contexts[index] ?? 0] ?? 0]
+          if (!counts) throw invalidJpegXlInput('document patch histogram is missing')
+          const token = hybridToken(values[index] ?? 0)
+          counts[token] = (counts[token] ?? 0) + 1
+        }
+        const numeric = frequencies[0],
+          sizes = frequencies[3]
+        if (!numeric || !sizes) throw invalidJpegXlInput('document patch field models are missing')
+        let best = baseline
+        for (const models of [4, 3]) {
+          if (models === 3) {
+            contextMap[2] = 0
+            for (let token = 0; token < 512; token++)
+              numeric[token] = (numeric[token] ?? 0) + (sizes[token] ?? 0)
+          }
+          const candidate = withJpegXlMemory(memory, () => {
+            const writer = new JpegXlBitWriter(memory)
+            const encodings = writeChannelPrefixCode(
+              writer,
+              contextMap,
+              frequencies.slice(0, models),
+            )
+            for (let index = 0; index < count; index++) {
+              const encoding = encodings[contextMap[contexts[index] ?? 0] ?? 0]
+              if (!encoding) throw invalidJpegXlInput('document patch prefix code is missing')
+              writeHybridUint(writer, values[index] ?? 0, encoding)
+            }
+            const bits = writer.bitPosition
+            for (const encoding of encodings) {
+              memory.release(encoding.keys)
+              memory.release(encoding.lengths)
+            }
+            return { bytes: writer.finish(), bits }
+          })
+          if (candidate.bits < best.bits) {
+            if (best !== baseline) memory.release(best.bytes)
+            best = candidate
+          } else memory.release(candidate.bytes)
+        }
+        return best
+      })
+    } catch (error) {
+      if (!isLimitExceeded(error)) throw error
+    }
+    memory.release(values)
+    const writer = new JpegXlBitWriter(memory)
+    writer.writeEncodedBits(selected.bytes, selected.bits)
+    for (const byte of section) writer.writeBits(byte, 8)
+    return writer.finish()
+  })
 }
 
-const writeDocumentFrameHeader = (
+const writeModularFrameHeader = (
+  writer: JpegXlBitWriter,
   reference: boolean,
   width: number,
   height: number,
   sections: readonly Uint8Array[],
-  memory: JpegXlEncoderMemory,
-): Uint8Array => {
-  const writer = new JpegXlBitWriter(memory)
+  hasAlpha = false,
+  groupShift = 3,
+  patches = false,
+): void => {
   writer.writeBits(0, 1)
   writeU32(writer, reference ? 2 : 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
   writer.writeBits(1, 1) // Modular.
-  if (reference) writeZeroU64(writer)
+  if (reference || !patches) writeZeroU64(writer)
   else {
     writer.writeBits(1, 2)
     writer.writeBits(1, 4) // Patch dictionary frame flag, value 2.
   }
   writer.writeBits(0, 1) // RGB, without an XYB color transform.
   writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
-  writer.writeBits(3, 2) // 1,024 pixel Modular groups.
+  if (hasAlpha) writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+  writer.writeBits(groupShift, 2) // Modular group dimension.
   if (!reference)
     writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 3 }, { bits: 3, offset: 4 }])
   writer.writeBits(reference ? 1 : 0, 1)
@@ -3816,6 +5028,8 @@ const writeDocumentFrameHeader = (
     writer.writeBits(1, 1) // Patch reference is stored before color transform.
   } else {
     writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    if (hasAlpha)
+      writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
     writer.writeBits(1, 1) // Final displayed frame.
   }
   writeName(writer)
@@ -3833,6 +5047,20 @@ const writeDocumentFrameHeader = (
       { bits: 22, offset: 17_408 },
       { bits: 30, offset: 4_211_712 },
     ])
+  writer.alignToByte()
+}
+
+const writeDocumentFrameHeader = (
+  reference: boolean,
+  width: number,
+  height: number,
+  sections: readonly Uint8Array[],
+  memory: JpegXlEncoderMemory,
+  hasAlpha = false,
+  groupShift = 3,
+): Uint8Array => {
+  const writer = new JpegXlBitWriter(memory)
+  writeModularFrameHeader(writer, reference, width, height, sections, hasAlpha, groupShift, true)
   return writer.finish()
 }
 
@@ -3843,8 +5071,16 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   options: Readonly<ResolvedJpegXlEncodeOptions>,
   memory: JpegXlEncoderMemory,
   checkpoint: () => Promise<void>,
+  format: 'rgb8' | 'rgba8' = 'rgb8',
+  finder: 'document' | 'flat' = 'document',
+  allowSmallGroups = false,
+  localColorSamples = 0,
 ): Promise<EncodedJpegXlCodestream | undefined> => {
-  const groups = findDocumentPatches(pixels, width, height, memory)
+  const channels = format === 'rgba8' ? 4 : 3
+  const groups =
+    finder === 'flat'
+      ? findFlatScreenshotPatches(pixels, width, height, memory, channels)
+      : findDocumentPatches(pixels, width, height, memory, channels)
   let placements = 0,
     covered = 0,
     atlasPixels = 0
@@ -3856,9 +5092,9 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   if (
     groups.length === 0 ||
     groups.length > 1_024 ||
-    placements < 500 ||
-    covered < width * height * 0.05 ||
-    atlasPixels > 1_000_000
+    placements < (options.mode === 'lossless' ? 40 : 500) ||
+    covered < width * height * (finder === 'flat' ? 0.005 : 0.05) ||
+    atlasPixels > (finder === 'flat' ? 262_144 : 1_000_000)
   )
     return undefined
   groups.sort(
@@ -3883,50 +5119,81 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   }
   const atlasHeight = shelfY + shelfHeight
   if (atlasHeight > 1_024) return undefined
-  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * channels)
   const display = copyJpegXlArray(memory, Uint8Array, pixels)
   atlas.fill(255)
   for (const group of groups) {
     const source = group.source
     for (let y = 0; y < source.height; y++) {
-      const from = ((source.y + y) * width + source.x) * 3
-      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
-      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+      const from = ((source.y + y) * width + source.x) * channels
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * channels
+      atlas.set(pixels.subarray(from, from + source.width * channels), to)
     }
     for (const patch of group.placements) {
-      for (let y = 0; y < patch.height; y++) {
-        const start = ((patch.y + y) * width + patch.x) * 3
-        display.fill(255, start, start + patch.width * 3)
+      if (finder === 'document')
+        for (let y = 0; y < patch.height; y++) {
+          const start = ((patch.y + y) * width + patch.x) * channels
+          display.fill(255, start, start + patch.width * channels)
+        }
+      else {
+        const background = (Math.max(0, patch.y - 1) * width + Math.max(0, patch.x - 1)) * channels
+        for (let y = 0; y < patch.height; y++)
+          for (let x = 0; x < patch.width; x++) {
+            const at = ((patch.y + y) * width + patch.x + x) * channels
+            for (let channel = 0; channel < channels; channel++)
+              display[at + channel] = pixels[background + channel] ?? 0
+          }
       }
     }
   }
-  for (let index = 0; index < display.length; index++)
-    display[index] = Math.min(255, ((display[index] ?? 0) + 2) & ~3)
+  if (options.mode === 'lossy')
+    for (let index = 0; index < display.length; index++)
+      display[index] = Math.min(255, ((display[index] ?? 0) + 2) & ~3)
   await checkpoint()
   const referenceSections = await encodeFrameSections(
     atlas,
     atlasWidth,
     atlasHeight,
-    'rgb8',
-    3,
+    format,
+    options.mode === 'lossless' ? options.effort : 3,
     memory,
     checkpoint,
   )
-  const displaySections = await encodeFrameSections(
-    display,
-    width,
-    height,
-    'rgb8',
-    options.effort,
-    memory,
-    checkpoint,
-  )
+  const smallGroups =
+    allowSmallGroups &&
+    options.mode === 'lossless' &&
+    options.effort === 7 &&
+    finder === 'flat' &&
+    Math.max(width, height) > 1_024 &&
+    Math.ceil(width / 256) * Math.ceil(height / 256) <= 64
+  const displaySections = smallGroups
+    ? await encodeAdaptiveFrameSections(
+        display,
+        width,
+        height,
+        format,
+        7,
+        memory,
+        checkpoint,
+        undefined,
+        256,
+        16384,
+        localColorSamples > 0,
+        localColorSamples || 4096,
+        localColorSamples > 0 ? 0.5 : 1,
+      )
+    : await encodeFrameSections(display, width, height, format, options.effort, memory, checkpoint)
   const firstDisplaySection = displaySections[0]
-  if (!firstDisplaySection) throw invalidInput('JPEG XL document display section is missing')
-  const patchedSection = writeDocumentPatchFeatures(firstDisplaySection, groups, memory)
+  if (!firstDisplaySection) throw invalidJpegXlInput('document display section is missing')
+  const patchedSection = writeDocumentPatchFeatures(
+    firstDisplaySection,
+    groups,
+    memory,
+    channels === 4 ? 1 : 0,
+  )
   const patchedDisplaySections = [patchedSection, ...displaySections.slice(1)]
   const imageWriter = new JpegXlBitWriter(memory)
-  writeImageHeader(imageWriter, width, height, 'rgb8', options, false)
+  writeImageHeader(imageWriter, width, height, format, options, false)
   const imageHeader = imageWriter.finish()
   const referenceHeader = writeDocumentFrameHeader(
     true,
@@ -3934,6 +5201,7 @@ export const encodeJpegXlDocumentPatchCandidate = async (
     atlasHeight,
     referenceSections,
     memory,
+    channels === 4,
   )
   const displayHeader = writeDocumentFrameHeader(
     false,
@@ -3941,6 +5209,8 @@ export const encodeJpegXlDocumentPatchCandidate = async (
     height,
     patchedDisplaySections,
     memory,
+    channels === 4,
+    smallGroups ? 1 : 3,
   )
   const header = concatenate([imageHeader, referenceHeader], memory)
   const sections = [...referenceSections, displayHeader, ...patchedDisplaySections]
@@ -4059,7 +5329,7 @@ const encodeJpegXlScreenshotPatchCandidate = async (
     { patchGlobalSection: (section) => writeDocumentPatchFeatures(section, groups, memory) },
   )
   const header = reference[0]
-  if (!header) throw invalidInput('JPEG XL screenshot reference header is missing')
+  if (!header) throw invalidJpegXlInput('screenshot reference header is missing')
   const sections = [...reference.slice(1), ...displayed]
   return {
     header,
@@ -4105,54 +5375,82 @@ const encodeLossyCodestream = (
       limits,
     )
     const header = parts[0]
-    if (!header) throw invalidInput('JPEG XL forward header is missing')
+    if (!header) throw invalidJpegXlInput('forward header is missing')
     const primary = {
       header,
       sections: parts.slice(1),
-      byteLength: parts.reduce((sum, part) => sum + part.byteLength, 0),
+      byteLength: parts.reduce((sum, part) => sum + part.length, 0),
     }
     let selected: EncodedJpegXlCodestream = primary
     if (
       format === 'rgba8' &&
       options.effort === 7 &&
       !options.progressive &&
-      width * height <= 262_144 &&
+      width * height <= 1_048_576 &&
       options.sampleBitDepth === 8 &&
       options.alphaBitDepth === 8 &&
       options.colorSemantics.primaries === 'srgb' &&
-      options.colorSemantics.transfer.kind === 'srgb' &&
-      hasSmallVisiblePalette(pixels, memory)
+      options.colorSemantics.transfer.kind === 'srgb'
     ) {
-      let normalized: Uint8Array | undefined
+      let smallPalette = false
       try {
-        for (let offset = 0; offset < pixels.length; offset += 4) {
-          if (
-            pixels[offset + 3] === 0 &&
-            ((pixels[offset] ?? 0) | (pixels[offset + 1] ?? 0) | (pixels[offset + 2] ?? 0)) !== 0
-          ) {
-            normalized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
-            normalized.set(pixels)
-            break
+        const modular = await withJpegXlMemoryAsync(memory, async () => {
+          await checkpoint()
+          if (!hasSmallVisiblePalette(pixels, memory)) return undefined
+          smallPalette = true
+          let normalized: Uint8Array | undefined
+          for (let offset = 0; offset < pixels.length; offset += 4) {
+            if (
+              pixels[offset + 3] === 0 &&
+              ((pixels[offset] ?? 0) | (pixels[offset + 1] ?? 0) | (pixels[offset + 2] ?? 0)) !== 0
+            ) {
+              normalized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+              normalized.set(pixels)
+              break
+            }
           }
-        }
-        if (normalized)
-          for (let offset = 0; offset < normalized.length; offset += 4)
-            if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
-        const exact = await encodeCodestream(
-          normalized ?? pixels,
-          width,
-          height,
-          format,
-          { ...options, mode: 'lossless' },
-          memory,
-          checkpoint,
-        )
-        // Preserve visible color and exact alpha when Modular also saves bytes.
-        if (exact.byteLength * 20 <= primary.byteLength * 19) selected = exact
+          if (normalized)
+            for (let offset = 0; offset < normalized.length; offset += 4)
+              if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
+          const candidate = await encodeCodestream(
+            normalized ?? pixels,
+            width,
+            height,
+            format,
+            { ...options, mode: 'lossless' },
+            memory,
+            checkpoint,
+          )
+          // Promote only winning output; all optional scratch and losing output close here.
+          return candidate.byteLength * 20 <= primary.byteLength * 19 ? candidate : undefined
+        })
+        // Keep exact alpha when the optional Modular candidate saves bytes.
+        if (modular) selected = modular
       } catch (error) {
-        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
-      } finally {
-        if (normalized) memory.release(normalized)
+        if (!isLimitExceeded(error)) throw error
+      }
+      if (smallPalette && options.distance >= 2) {
+        try {
+          const quantized = await withJpegXlMemoryAsync(memory, async () => {
+            await checkpoint()
+            const normalized = quantizeFlatPalette(pixels, width, options.distance, memory)
+            if (!normalized) return undefined
+            const candidate = await encodeCodestream(
+              normalized,
+              width,
+              height,
+              format,
+              { ...options, mode: 'lossless' },
+              memory,
+              checkpoint,
+            )
+            // Preserve the previous Modular winner as well as the VarDCT size floor.
+            return candidate.byteLength * 20 <= selected.byteLength * 19 ? candidate : undefined
+          })
+          if (quantized) selected = quantized
+        } catch (error) {
+          if (!isLimitExceeded(error)) throw error
+        }
       }
     }
     if (
@@ -4186,16 +5484,16 @@ const encodeLossyCodestream = (
           { strategyPolicy: 'rate-distortion' },
         )
         const alternateHeader = alternateParts[0]
-        if (!alternateHeader) throw invalidInput('JPEG XL alternate header is missing')
+        if (!alternateHeader) throw invalidJpegXlInput('alternate header is missing')
         const alternate: EncodedJpegXlCodestream = {
           header: alternateHeader,
           sections: alternateParts.slice(1),
-          byteLength: alternateParts.reduce((sum, part) => sum + part.byteLength, 0),
+          byteLength: alternateParts.reduce((sum, part) => sum + part.length, 0),
         }
         // Compare actual streams; the block-level bit estimate misses entropy contexts.
         if (alternate.byteLength * 100 <= selected.byteLength * 99) selected = alternate
       } catch (error) {
-        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        if (!isLimitExceeded(error)) throw error
       }
     }
     if (
@@ -4224,7 +5522,7 @@ const encodeLossyCodestream = (
         if (screenshot && screenshot.byteLength * 200 <= selected.byteLength * 199)
           selected = screenshot
       } catch (error) {
-        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        if (!isLimitExceeded(error)) throw error
       }
     }
     if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return selected
@@ -4257,11 +5555,11 @@ const encodeLossyCodestream = (
           ? patched
           : documentSelected
       } catch (error) {
-        if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return documentSelected
+        if (isLimitExceeded(error)) return documentSelected
         throw error
       }
     } catch (error) {
-      if (error instanceof ImageError && error.code === 'LIMIT_EXCEEDED') return selected
+      if (isLimitExceeded(error)) return selected
       throw error
     }
   })
@@ -4275,19 +5573,45 @@ const encodeCodestream = (
   memory?: JpegXlEncoderMemory,
   checkpoint?: () => Promise<void>,
   evidence?: ModularGroupSearchEvidence[],
+  localColor = false,
+  smallFast = false,
 ): Promise<EncodedJpegXlCodestream> => {
   return withJpegXlMemoryAsync(memory, async () => {
-    const sections = await encodeFrameSections(
-      pixels,
-      width,
-      height,
-      format,
-      options.effort,
-      memory,
-      checkpoint,
-      evidence,
-    )
-    const sectionBytes = sections.reduce((sum, section) => sum + section.byteLength, 0)
+    const sections = smallFast
+      ? await encodeChannelPrefixFrameSections(
+          pixels,
+          width,
+          height,
+          format,
+          memory,
+          checkpoint,
+          256,
+        )
+      : localColor
+        ? await encodeAdaptiveFrameSections(
+            pixels,
+            width,
+            height,
+            format,
+            options.effort,
+            memory,
+            checkpoint,
+            evidence,
+            512,
+            65536,
+            true,
+          )
+        : await encodeFrameSections(
+            pixels,
+            width,
+            height,
+            format,
+            options.effort,
+            memory,
+            checkpoint,
+            evidence,
+          )
+    const sectionBytes = sections.reduce((sum, section) => sum + section.length, 0)
     const remainingOutputBytes = (memory?.outputLimit ?? 134_217_728) - sectionBytes
     if (remainingOutputBytes < 1)
       throw limitExceeded('JPEG XL encoded output exceeds maxOutputBytes')
@@ -4296,46 +5620,120 @@ const encodeCodestream = (
 
     writeImageHeader(writer, width, height, format, options)
 
-    writer.writeBits(0, 1)
-    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
-    writer.writeBits(1, 1)
-    writeZeroU64(writer)
-    writer.writeBits(0, 1)
-    writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
-    if (hasAlpha) {
-      writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
-    }
-    writer.writeBits(3, 2)
-    writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 3 }, { bits: 3, offset: 4 }])
-    writer.writeBits(0, 1)
-    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-    if (hasAlpha) {
-      writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-    }
-    writer.writeBits(1, 1)
-    writeName(writer)
-    writer.writeBits(0, 1)
-    writer.writeBits(0, 1)
-    writer.writeBits(0, 2)
-    writeZeroU64(writer)
-    writeZeroU64(writer)
-    writer.writeBits(0, 1)
-    writer.alignToByte()
-    for (const section of sections) {
-      writeU32(writer, section.byteLength, [
-        { bits: 10, offset: 0 },
-        { bits: 14, offset: 1_024 },
-        { bits: 22, offset: 17_408 },
-        { bits: 30, offset: 4_211_712 },
-      ])
-    }
-    writer.alignToByte()
+    writeModularFrameHeader(
+      writer,
+      false,
+      width,
+      height,
+      sections,
+      hasAlpha,
+      smallFast ? 1 : localColor ? 2 : 3,
+    )
     const header = writer.finish()
-    return Object.freeze({
+    const selected = Object.freeze({
       header,
       sections,
-      byteLength: sections.reduce((sum, section) => sum + section.byteLength, header.byteLength),
+      byteLength: sections.reduce((sum, section) => sum + section.length, header.length),
     })
+    if (
+      localColor ||
+      options.mode !== 'lossless' ||
+      (options.effort !== 7 && options.effort !== 1) ||
+      !isRgb8(format) ||
+      width * height < 262_144 ||
+      width * height > 4_194_304 ||
+      options.sampleBitDepth !== 8 ||
+      options.colorSemantics.primaries !== 'srgb' ||
+      options.colorSemantics.transfer.kind !== 'srgb' ||
+      !memory ||
+      !checkpoint
+    )
+      return selected
+    const fast = options.effort === 1
+    const search = (localEvidence?: ModularGroupSearchEvidence[]) =>
+      memory.runAsync(() =>
+        encodeCodestream(
+          pixels,
+          width,
+          height,
+          format,
+          options,
+          memory,
+          checkpoint,
+          localEvidence,
+          !fast,
+          fast,
+        ),
+      )
+    const channels = format === 'rgba8' ? 4 : 3
+    let white = 0,
+      sampled = 0
+    for (let offset = 0; offset < pixels.length; offset += channels * 64) {
+      sampled++
+      if (
+        (pixels[offset] ?? 0) >= 245 &&
+        (pixels[offset + 1] ?? 0) >= 245 &&
+        (pixels[offset + 2] ?? 0) >= 245
+      )
+        white++
+    }
+    if (fast) {
+      if (smallFast) return selected
+      try {
+        const candidate = await search()
+        return candidate.byteLength < selected.byteLength ? candidate : selected
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+        return selected
+      }
+    }
+    let best = selected
+    for (const finder of ['document', 'flat'] as const) {
+      if (
+        finder === 'document'
+          ? white * 2 < sampled
+          : !hasFlatScreenshotBackground(pixels, width, height, channels)
+      )
+        continue
+      for (const localColorSamples of finder === 'flat' ? [0, 16384] : [0]) {
+        try {
+          const patched = await memory.runAsync(() =>
+            encodeJpegXlDocumentPatchCandidate(
+              pixels,
+              width,
+              height,
+              options,
+              memory,
+              checkpoint,
+              format,
+              finder,
+              // Cheap ordinary frames already compress below half a bit per pixel.
+              selected.byteLength * 16 >= width * height,
+              localColorSamples,
+            ),
+          )
+          if (patched && patched.byteLength < best.byteLength) best = patched
+        } catch (error) {
+          if (!isLimitExceeded(error)) throw error
+        }
+      }
+    }
+    if (width > 512 || height > 512) {
+      try {
+        const localEvidence: ModularGroupSearchEvidence[] | undefined = evidence ? [] : undefined
+        const candidate = await search(localEvidence)
+        if (candidate.byteLength < best.byteLength) {
+          best = candidate
+          if (evidence && localEvidence) {
+            evidence.length = 0
+            evidence.push(...localEvidence)
+          }
+        }
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+      }
+    }
+    return best
   })
 }
 
@@ -4365,7 +5763,7 @@ export const resolveJpegXlEncodeOptions = (
   height: number,
 ): Readonly<ResolvedJpegXlEncodeOptions> => {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    throw invalidInput('JPEG XL encoder options must be an object')
+    throw invalidJpegXlInput('encoder options must be an object')
   }
   const options = value as Readonly<Record<string, unknown>>
   for (const key of Object.keys(options)) {
@@ -4393,7 +5791,7 @@ export const resolveJpegXlEncodeOptions = (
       !Number.isSafeInteger(options.maxWorkingBytes) ||
       options.maxWorkingBytes < 1)
   )
-    throw invalidInput('JPEG XL maxWorkingBytes must be a positive safe integer')
+    throw invalidJpegXlInput('maxWorkingBytes must be a positive safe integer')
   if (
     options.maxOutputBytes !== undefined &&
     (typeof options.maxOutputBytes !== 'number' ||
@@ -4401,17 +5799,17 @@ export const resolveJpegXlEncodeOptions = (
       options.maxOutputBytes < 1 ||
       options.maxOutputBytes > resolveJpegXlLimits().maxCodestreamBytes)
   )
-    throw invalidInput('JPEG XL maxOutputBytes must be a positive integer at most 134217728')
+    throw invalidJpegXlInput('maxOutputBytes must be a positive integer at most 134217728')
   if (options.mode !== undefined && options.mode !== 'lossless' && options.mode !== 'lossy') {
-    throw invalidInput('JPEG XL encoder mode must be lossless or lossy')
+    throw invalidJpegXlInput('encoder mode must be lossless or lossy')
   }
   if (
     options.progressive !== undefined &&
     (typeof options.progressive !== 'boolean' || options.mode !== 'lossy')
   )
-    throw invalidInput('JPEG XL progressive requires a boolean and mode: lossy')
+    throw invalidJpegXlInput('progressive requires a boolean and mode: lossy')
   if (options.distance !== undefined && options.mode !== 'lossy')
-    throw invalidInput('JPEG XL distance requires mode: lossy')
+    throw invalidJpegXlInput('distance requires mode: lossy')
   if (
     options.distance !== undefined &&
     (typeof options.distance !== 'number' ||
@@ -4419,7 +5817,7 @@ export const resolveJpegXlEncodeOptions = (
       options.distance < 0.25 ||
       options.distance > 25)
   )
-    throw invalidInput('JPEG XL lossy distance must be between 0.25 and 25')
+    throw invalidJpegXlInput('lossy distance must be between 0.25 and 25')
   if (
     options.effort !== undefined &&
     options.effort !== 1 &&
@@ -4427,10 +5825,10 @@ export const resolveJpegXlEncodeOptions = (
     options.effort !== 5 &&
     options.effort !== 7
   ) {
-    throw invalidInput('JPEG XL encoder effort must be 1, 3, 5, or 7')
+    throw invalidJpegXlInput('encoder effort must be 1, 3, 5, or 7')
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
-    throw invalidInput('JPEG XL encoder container must be a boolean')
+    throw invalidJpegXlInput('encoder container must be a boolean')
   }
   if (
     options.codestreamLevel !== undefined &&
@@ -4438,7 +5836,7 @@ export const resolveJpegXlEncodeOptions = (
     options.codestreamLevel !== 5 &&
     options.codestreamLevel !== 10
   ) {
-    throw invalidInput('JPEG XL codestreamLevel must be auto, 5, or 10')
+    throw invalidJpegXlInput('codestreamLevel must be auto, 5, or 10')
   }
   if (
     options.orientation !== undefined &&
@@ -4447,7 +5845,7 @@ export const resolveJpegXlEncodeOptions = (
       options.orientation < 1 ||
       options.orientation > 8)
   ) {
-    throw invalidInput('JPEG XL encoder orientation must be an integer from 1 to 8')
+    throw invalidJpegXlInput('encoder orientation must be an integer from 1 to 8')
   }
   const declaredColorDepth = sampleBitDepth('sampleBitDepth', options.sampleBitDepth)
   let intrinsicSize: Readonly<{ width: number; height: number }> | undefined
@@ -4468,7 +5866,7 @@ export const resolveJpegXlEncodeOptions = (
       size.width > 1_073_741_824 ||
       size.height > 1_073_741_824
     )
-      throw invalidInput('JPEG XL intrinsicSize requires positive bounded width and height')
+      throw invalidJpegXlInput('intrinsicSize requires positive bounded width and height')
     intrinsicSize = Object.freeze({ width: size.width, height: size.height })
   }
   let toneMapping: ResolvedJpegXlEncodeOptions['toneMapping'] = Object.freeze({
@@ -4506,7 +5904,7 @@ export const resolveJpegXlEncodeOptions = (
       tone.minNits > tone.intensityTarget ||
       (tone.relativeToMaxDisplay && tone.linearBelow > 1)
     )
-      throw invalidInput('JPEG XL toneMapping is invalid')
+      throw invalidJpegXlInput('toneMapping is invalid')
     toneMapping = Object.freeze({
       intensityTarget: tone.intensityTarget,
       minNits: tone.minNits,
@@ -4526,11 +5924,11 @@ export const resolveJpegXlEncodeOptions = (
     )
   }
   if (!hasAlpha && declaredAlphaDepth !== undefined) {
-    throw invalidInput('JPEG XL alphaBitDepth requires RGBA input')
+    throw invalidJpegXlInput('alphaBitDepth requires RGBA input')
   }
   const resolvedAlphaDepth = hasAlpha ? (declaredAlphaDepth ?? resolvedColorDepth) : undefined
   if (resolvedAlphaDepth !== undefined && (highStorage ? false : resolvedAlphaDepth !== 8)) {
-    throw invalidInput('JPEG XL 8-bit RGBA storage alphaBitDepth must be 8')
+    throw invalidJpegXlInput('8-bit RGBA storage alphaBitDepth must be 8')
   }
   const mode = options.mode ?? 'lossless'
   if (width > 1_073_741_824 || height > 1_073_741_824 || width * height > 1_099_511_627_776)
@@ -4541,11 +5939,11 @@ export const resolveJpegXlEncodeOptions = (
     width * height > 268_435_456 ||
     (mode === 'lossy' && resolvedAlphaDepth !== undefined && resolvedAlphaDepth > 12)
   if (requiresLevelTen && options.codestreamLevel === 5)
-    throw invalidInput('JPEG XL input requires codestream Level 10')
+    throw invalidJpegXlInput('input requires codestream Level 10')
   const codestreamLevel = options.codestreamLevel === 10 || requiresLevelTen ? 10 : 5
   const container = options.container ?? true
   if (codestreamLevel === 10 && !container)
-    throw invalidInput('JPEG XL Level 10 requires container output')
+    throw invalidJpegXlInput('Level 10 requires container output')
   return Object.freeze({
     ...(options.maxWorkingBytes === undefined ? {} : { maxWorkingBytes: options.maxWorkingBytes }),
     ...(options.maxOutputBytes === undefined ? {} : { maxOutputBytes: options.maxOutputBytes }),
@@ -4573,7 +5971,7 @@ const validateDeclaredSamples = (
   const channels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
   const colorMaximum = 2 ** options.sampleBitDepth - 1
   const alphaMaximum = 2 ** (options.alphaBitDepth ?? options.sampleBitDepth) - 1
-  for (let offset = 0; offset < pixels.byteLength; offset += channels * 2) {
+  for (let offset = 0; offset < pixels.length; offset += channels * 2) {
     for (let channel = 0; channel < channels; channel += 1) {
       const sample =
         (pixels[offset + channel * 2] ?? 0) * 256 + (pixels[offset + channel * 2 + 1] ?? 0)
@@ -4717,10 +6115,10 @@ class JpegXlModularEncoder implements ImageEncoder {
         block.stride < this.#rowBytes ||
         block.data.byteLength < block.stride * (block.height - 1) + this.#rowBytes
       ) {
-        throw invalidInput('JPEG XL encoder requires ordered, full-width pixel blocks')
+        throw invalidJpegXlInput('encoder requires ordered, full-width pixel blocks')
       }
       const pixels = this.#pixels
-      if (!pixels) throw invalidInput('JPEG XL encoder pixel storage is unavailable')
+      if (!pixels) throw invalidJpegXlInput('encoder pixel storage is unavailable')
       for (let row = 0; row < block.height; row += 1) {
         const source = row * block.stride
         pixels.set(
@@ -4736,7 +6134,7 @@ class JpegXlModularEncoder implements ImageEncoder {
   }
 
   async finish(): Promise<void> {
-    if (this.#state !== 'open') throw invalidInput('JPEG XL encoder is already closed')
+    if (this.#state !== 'open') throw invalidJpegXlInput('encoder is already closed')
     this.#state = 'finishing'
     this.#finishingActive = true
     try {
@@ -4752,7 +6150,7 @@ class JpegXlModularEncoder implements ImageEncoder {
         )
       }
       const pixels = this.#pixels
-      if (!pixels) throw invalidInput('JPEG XL encoder pixel storage is unavailable')
+      if (!pixels) throw invalidJpegXlInput('encoder pixel storage is unavailable')
       validateDeclaredSamples(pixels, this.#request.pixelFormat, this.#options)
       let nextYield = 0
       const checkpoint = async () => {
@@ -4793,8 +6191,8 @@ class JpegXlModularEncoder implements ImageEncoder {
         this.#options.container,
         this.#memory,
       )
-      const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.byteLength, 0)
-      const outputBytes = codestream.byteLength + (prefix?.byteLength ?? 0) + metadataBytes
+      const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.length, 0)
+      const outputBytes = codestream.byteLength + (prefix?.length ?? 0) + metadataBytes
       const jpegXlLimits = resolveJpegXlLimits()
       if (outputBytes > (this.#options.maxOutputBytes ?? jpegXlLimits.maxCodestreamBytes)) {
         throw limitExceeded(
@@ -4808,7 +6206,7 @@ class JpegXlModularEncoder implements ImageEncoder {
       await this.#sink.write(codestream.header)
       for (const section of codestream.sections) {
         this.#checkActive()
-        if (section.byteLength > 0) await this.#sink.write(section)
+        if (section.length > 0) await this.#sink.write(section)
       }
       for (const box of metadataBoxes) {
         this.#checkActive()

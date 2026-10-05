@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "7f2b8a050f2e410e794f23374df269045f5ee739f0b6635e0da166520bb5c7b1",
+  "implementationDirty": true,
+  "harnessSha256": "8debe94a5b6e77d48cf64867a0ef40ba78ccb958be0a3a7d949833ebea792976",
+  "policy": "Reproduce prior public complete files at frozen family/order allocation limits. Current files must not grow, and both complete native Float32 grids must exactly equal the qualified parent fixtures with exact original alpha. This does not assert that the metadata-specific optional allocation failure was reached.",
+  "results": [
+    {
+      "name": "family",
+      "limit": 10000000,
+      "reportPath": "benchmark/jpegxl/comparison/results/family-context-fixtures.json",
+      "reportSha256": "08952cc0c675393fcc62a20e326ee7e2ae5d276ea7485614aad178c562884a2e",
+      "inputSha256": "3f65bdc3ecfca21dd5334e7a61cbe4e02d975d9fd35db7a1713b0fb02f9420ab",
+      "observations": [
+        {
+          "variant": "baseline",
+          "bytes": 18662,
+          "artifact": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-baseline.jxl",
+          "artifactSha256": "1bf87b31baea76905602167f74a80950d891fd714edf7d438581a834c5b78584",
+          "decoders": [
+            {
+              "name": "libjxl",
+              "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+              "normalizedHash": "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-baseline.jxl.libjxl.npy",
+              "exactAlphaSamples": 131841
+            },
+            {
+              "name": "jxl-rs",
+              "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+              "normalizedHash": "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-baseline.jxl.jxl-rs.npy",
+              "exactAlphaSamples": 131841
+            }
+          ]
+        },
+        {
+          "variant": "current",
+          "bytes": 18412,
+          "artifact": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-current.jxl",
+          "artifactSha256": "2a0b34caff132a1211841fbeda7e0b31da08bdd11bc3459d9d9c470b64523285",
+          "decoders": [
+            {
+              "name": "libjxl",
+              "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+              "normalizedHash": "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-current.jxl.libjxl.npy",
+              "exactAlphaSamples": 131841
+            },
+            {
+              "name": "jxl-rs",
+              "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+              "normalizedHash": "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/family-current.jxl.jxl-rs.npy",
+              "exactAlphaSamples": 131841
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "orders",
+      "limit": 7350000,
+      "reportPath": "benchmark/jpegxl/comparison/results/family-context-order-fixtures.json",
+      "reportSha256": "668006c6fb215e7dbff7c3432f56c323a85b2cd41e1c6278a0ede4f5248e6ff4",
+      "inputSha256": "d84bc6d012ea7dffe0c85a51dea0575ff4d0670b40cb705766d612ac5f1969fa",
+      "observations": [
+        {
+          "variant": "baseline",
+          "bytes": 12945,
+          "artifact": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-baseline.jxl",
+          "artifactSha256": "0dcabdf3035546fe9c5e14bf60ea56684c1d9fa4925738a6ae81bab671b50615",
+          "decoders": [
+            {
+              "name": "libjxl",
+              "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+              "normalizedHash": "331da0cbd83efae6421ac35056ba68ec69dd46ce8b920bd229b20b654008eb15",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-baseline.jxl.libjxl.npy",
+              "exactAlphaSamples": 66177
+            },
+            {
+              "name": "jxl-rs",
+              "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+              "normalizedHash": "e346eba78892889b3317899f550628530cb79e0375b24857269d7a6da159b23f",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-baseline.jxl.jxl-rs.npy",
+              "exactAlphaSamples": 66177
+            }
+          ]
+        },
+        {
+          "variant": "current",
+          "bytes": 12943,
+          "artifact": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-current.jxl",
+          "artifactSha256": "11a0d04cd86a9c3d18866b3eab2c5785f53e05c6e104d2cf514dc3c362aecb59",
+          "decoders": [
+            {
+              "name": "libjxl",
+              "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+              "normalizedHash": "331da0cbd83efae6421ac35056ba68ec69dd46ce8b920bd229b20b654008eb15",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-current.jxl.libjxl.npy",
+              "exactAlphaSamples": 66177
+            },
+            {
+              "name": "jxl-rs",
+              "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+              "normalizedHash": "e346eba78892889b3317899f550628530cb79e0375b24857269d7a6da159b23f",
+              "output": ".tmp/jpegxl-comparison-v1/metadata-prediction-139/budgets/orders-current.jxl.jxl-rs.npy",
+              "exactAlphaSamples": 66177
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

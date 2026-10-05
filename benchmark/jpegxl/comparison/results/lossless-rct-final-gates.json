@@ -1,0 +1,3396 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "239bf2414446881c31cb4a5936c1fa56b55e8e11ed38dfbb3e4b3e5edb7689df",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "repositoryCheckPassed": true,
+  "compressionFirstAuthorized": true,
+  "passingTestFiles": 270,
+  "passingTests": 3637,
+  "existingSkippedFiles": 1,
+  "existingSkippedTests": 3,
+  "focusedTests": 176,
+  "realBrowserCases": 18,
+  "browserPortabilityCheckPassed": true,
+  "packageMetricsRefreshed": true,
+  "documentationRefreshed": true,
+  "completeIndependentColorGrids": 112,
+  "unchangedOriginalColorHashes": 56,
+  "unchangedEffort7Files": 16,
+  "completeIndependentEffort7Grids": 32,
+  "originalPackageCeilingsPreserved": true,
+  "originalWorkingBudgetsRecovered": true,
+  "physicallyReverifiedProductionPins": 777,
+  "physicalReadsSequential": true,
+  "readChunkBytes": 65536,
+  "productionProofPath": "benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json",
+  "receipts": [
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1060.json",
+      "sha256": "feaeac001a46b1c3d71a58f821406e78ff4393290f6d85ecd2377c1595985084",
+      "receipt": {
+        "startedAt": "2026-10-05T04:22:13.659Z",
+        "finishedAt": "2026-10-05T04:22:15.327Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 45409058816,
+        "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "args": [
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "browser:check"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 1.640s\n             CPU time consumed: 7.394s\n                   Memory peak: 626.8M (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1061.json",
+      "sha256": "b9e8ea4cfa6da7996e684303e29035320c4f4c8474d0574c775480feabf95271",
+      "receipt": {
+        "startedAt": "2026-10-05T04:22:49.812Z",
+        "finishedAt": "2026-10-05T04:23:33.321Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 45458333696,
+        "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "args": [
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "size"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 0f61a2c61daf48a89ecf309679bb965d\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 43.481s\n             CPU time consumed: 1min 3.735s\n                   Memory peak: 1G (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1062.json",
+      "sha256": "a01a8e14036e02dee2507b7280057713b908769d9aecb11eeccfaa4857907152",
+      "receipt": {
+        "startedAt": "2026-10-05T04:23:48.970Z",
+        "finishedAt": "2026-10-05T04:23:50.075Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 45447741440,
+        "executable": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "args": [
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "documentation:write"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 6df93c5a68d6470caaf3d37918bbebaf\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 1.081s\n             CPU time consumed: 1.465s\n                   Memory peak: 113.7M (swap: 0B)\n"
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1063.json",
+      "sha256": "2fede546f25ca27aed6702e7cbde71e395b9731a8bd6d11da1dc1ca5de694474",
+      "receipt": {
+        "startedAt": "2026-10-05T04:25:30.049Z",
+        "finishedAt": "2026-10-05T04:32:18.038Z",
+        "policy": {
+          "memoryMaxBytes": 8589934592,
+          "memoryHighBytes": 8053063680,
+          "minimumAvailableBytes": 19327352832,
+          "swapMaxBytes": 0,
+          "maximumTasks": 256,
+          "cpuQuotaPercent": 800,
+          "oomScoreAdjust": 1000,
+          "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "runtime": "v24.16.0",
+          "unit": "purejsimage-m7-bounded",
+          "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+        },
+        "availableBytes": 45470289920,
+        "executable": "/usr/bin/env",
+        "args": [
+          "VITEST_MAX_WORKERS=2",
+          "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+          "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "check"
+        ],
+        "code": 0,
+        "signal": null,
+        "status": "completed",
+        "diagnostics": "Running as unit: purejsimage-m7-bounded.service\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:160:42 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    158 │   timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 │ }\n  > 160 │ await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\\n', { flag: 'wx' })\n        │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    161 │ const results: object[] = []\n    162 │ let failures = 0\n  \n  i Unsafe fix: Use a template literal.\n  \n    158 158 │     timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 159 │   }\n    160     │ - await·writeFile(`${root}/protocol.json`,·JSON.stringify(protocol,·null,·2)·+·'\\n',·{·flag:·'wx'·})\n        160 │ + await·writeFile(`${root}/protocol.json`,·`${JSON.stringify(protocol,·null,·2)}\\n`,·{·flag:·'wx'·})\n    161 161 │   const results: object[] = []\n    162 162 │   let failures = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:99:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n     97 │ await writeFile(\n     98 │   `${directory}/manifest.json`,\n   > 99 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 100 │     {\n         ...\n  > 112 │     2,\n  > 113 │   ) + '\\n',\n        │   ^^^^^^^^\n    114 │ )\n    115 │ \n  \n  i Unsafe fix: Use a template literal.\n  \n     97  97 │   await writeFile(\n     98  98 │     `${directory}/manifest.json`,\n     99     │ - ··JSON.stringify(\n         99 │ + ··`${JSON.stringify(\n    100 100 │       {\n    101 101 │         encoderHash,\n    ······· │ \n    111 111 │       null,\n    112 112 │       2,\n    113     │ - ··)·+·'\\n',\n        113 │ + ··)}\\n`,\n    114 114 │   )\n    115 115 │   \n  \n\nbenchmark/jpegxl/generate-m6-preview.ts:147:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    145 │ await writeFile(\n    146 │   `${directory}/provenance.json`,\n  > 147 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 148 │     {\n         ...\n  > 159 │     2,\n  > 160 │   ) + '\\n',\n        │   ^^^^^^^^\n    161 │ )\n    162 │ console.log(\n  \n  i Unsafe fix: Use a template literal.\n  \n    145 145 │   await writeFile(\n    146 146 │     `${directory}/provenance.json`,\n    147     │ - ··JSON.stringify(\n        147 │ + ··`${JSON.stringify(\n    148 148 │       {\n    149 149 │         encoderHash,\n    ······· │ \n    158 158 │       null,\n    159 159 │       2,\n    160     │ - ··)·+·'\\n',\n        160 │ + ··)}\\n`,\n    161 161 │   )\n    162 162 │   console.log(\n  \n\nbenchmark/jpegxl/comparison/profile-lossy-sections.ts:59:13 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    57 │         const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n    58 │         const frame = frames.at(-1)\n  > 59 │         if (!frame || frame.encoding !== 'vardct' || frame.frameType !== 'regular')\n       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    60 │           throw new Error('Expected a final VarDCT display frame')\n    61 │         // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     57  57 │           const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n     58  58 │           const frame = frames.at(-1)\n     59     │ - ········if·(!frame·||·frame.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n         59 │ + ········if·(frame?.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n     60  60 │             throw new Error('Expected a final VarDCT display frame')\n     61  61 │           // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json lint ━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json lint ━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:36:5 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    34 │   )\n    35 │ const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n  > 36 │ if (!entry || entry.status !== 'verified')\n       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    37 │   throw new Error('Source is outside the selected frozen HDR cohort')\n    38 │ const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     34  34 │     )\n     35  35 │   const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n     36     │ - if·(!entry·||·entry.status·!==·'verified')\n         36 │ + if·(entry?.status·!==·'verified')\n     37  37 │     throw new Error('Source is outside the selected frozen HDR cohort')\n     38  38 │   const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:255:11 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    253 │         defaultImageLimits,\n    254 │       )\n  > 255 │       if (!decoder || decoder.pixelFormat !== 'rgbf32')\n        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    256 │         throw new Error('Missing native-light decoder')\n    257 │       maximumOwnDifference = 0\n  \n  i Unsafe fix: Change to an optional chain.\n  \n    253 253 │           defaultImageLimits,\n    254 254 │         )\n    255     │ - ······if·(!decoder·||·decoder.pixelFormat·!==·'rgbf32')\n        255 │ + ······if·(decoder?.pixelFormat·!==·'rgbf32')\n    256 256 │           throw new Error('Missing native-light decoder')\n    257 257 │         maximumOwnDifference = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:50:3 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    48 │ const dc = frames[0]\n    49 │ if (\n  > 50 │   !dc ||\n       │   ^^^^^^\n  > 51 │   dc.frameType !== 'dc' ||\n       │   ^^^^^^^^^^^^^^^^^^^^^\n    52 │   dc.passCount < 2 ||\n    53 │   dc.sections.slice(1).every((section) => section.length === 0)\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     48  48 │   const dc = frames[0]\n     49  49 │   if (\n     50     │ - ··!dc·||\n     51     │ - ··dc.frameType·!==·'dc'·||\n         50 │ + ··dc?.frameType·!==·'dc'·||\n     52  51 │     dc.passCount < 2 ||\n     53  52 │     dc.sections.slice(1).every((section) => section.length === 0)\n  \n\nbenchmark/jpegxl/generate-m8-custom-filters.ts:27:7 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━\n\n  ! This variable positive is unused.\n  \n    25 │   { bits: 30, offset: 18688 },\n    26 │ ] as const\n  > 27 │ const positive = (value: number, name: string, allowZero = false): void => {\n       │       ^^^^^^^^\n    28 │   if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n    29 │     throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.\n  \n  i Unsafe fix: If this is intentional, prepend positive with an underscore.\n  \n     25  25 │     { bits: 30, offset: 18688 },\n     26  26 │   ] as const\n     27     │ - const·positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n         27 │ + const·_positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n     28  28 │     if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n     29  29 │       throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n\nbenchmark/jpegxl/generate-m8-weighted-patches.ts:208:73 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━\n\n  ! Forbidden non-null assertion.\n  \n    206 │     const samples = []\n    207 │     for (let c = 0; c < 4; c++)\n  > 208 │       for (let i = c; i < front.length; i += 4) samples.push(packSigned(front[i]!))\n        │                                                                         ^^^^^^^^^\n    209 │     const counts = new Uint32Array(280)\n    210 │     for (const sample of samples) {\n  \n\nbiome.json:14:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    12 │       \"!!benchmark/corpus/files\",\n    13 │       \"!!benchmark/results\",\n  > 14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4.\n  \n    14 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │                                                                 ---  \n\nbiome.json:15:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    13 │       \"!!benchmark/results\",\n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n  > 15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5.\n  \n    15 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │                                                                 ---  \n\nbiome.json:16:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n  > 16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5.\n  \n    16 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:17:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  > 17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5.\n  \n    17 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:18:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  > 18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4.\n  \n    18 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │                                                                   ---  \n\nbiome.json:19:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  > 19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n    21 │       \"!!src/scientific/browser-reader-catalog.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4.\n  \n    19 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │                                                                  ---  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json format ━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json format ━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json format ━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-capped052.json format ━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 6.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-integrated054.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 4.4 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-holdout-capped052.json format ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 5.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-prompt2-artifacts.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 3.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 6min 47.959s\n             CPU time consumed: 16min 49.776s\n                   Memory peak: 2.2G (swap: 0B)\n"
+      }
+    }
+  ],
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039.json",
+      "sha256": "dd51b54d5f0542fca4ceba7d8953f54d28d61d55c89a19685e0b1e5e0984b5c2"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/probe-rct-floor-full-1039.ts",
+      "sha256": "57c736865853959dc4b847069515fd3f9734c2c6ab634e5287f4d33424d822ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-rct-floor-full-1039.ts",
+      "sha256": "a186f46464e273393f629fb96782e0cc7a71f75d052c3359d0db4f74f0b83996"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-funded-rct-floor-1035.ts",
+      "sha256": "aebff4255273430412282349c1acf8d58efdce2d3e589bc83feb29cdd1713955"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-full-1039.json",
+      "sha256": "49001c92f1be82c68669572b688eb2a3ff5b0b7e0c05b0551edad7dea0ca8e6f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-rct-floor-1035/manifest.json",
+      "sha256": "adcc49632e7b1e40d8ec236392cfd12a2a37f7b1e90b43bb18fc1a8ba78f7ffa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-spatial-lossless-production-959.json",
+      "sha256": "0e759453b12090b6afedc4e481170df1bf8cd1046ff9dd13a9493d8ff808b01b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947.json",
+      "sha256": "f1366b3e27425fd60893212586451db9356e86096bc14aba9ccbc9b086e49b99"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-compression-first-adoption-1047/original/jpegxl-modular-encode.ts",
+      "sha256": "9ab3bc7ce9bc1a3c6752a001bcec18f149a8636281ebbd578b2db959697e32ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-rct-floor-1035/candidate/jpegxl-modular-encode.ts",
+      "sha256": "5ef8baa962e2ed4f08cc49af9ff8d9c4afa6a83bfabde0008fe2dd74948e1ee7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-predictors-controls-1009.json",
+      "sha256": "7b18bebb0c2fc948e1255608ee414a6051377290a4028975949f24f3755450cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-common-rct-controls-1003.json",
+      "sha256": "a94848dd1fe85d1ce34f5aa7d3b479aada68c0a4f11dc5e6c7344853ad919dbb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/fixtures.json",
+      "sha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "edb08052806c426456db90e31c3ff174016a758d5e588282ebd4f38b3d956f08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-spatial-lossless-production-959/jpegxl-specialized.js",
+      "sha256": "22c2c5797c14fea49cdebf756c168b181c50489cddbf691c2c1dff0760f2ef91"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/jpegxl-specialized.js",
+      "sha256": "206c0b57962d65298b6e78ef8bdc6eaa22ec81fdc11afcd8056793de8c006b87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-spatial-lossless-production-959/codec-jpegxl.js",
+      "sha256": "aef2f80c0b6ad33196c9dbf709e159f7c3ea0affba18f61d58b74a6952798c09"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/codec-jpegxl.js",
+      "sha256": "a7483da332e8d0703bc7eedd260e22214a430e9acabaa806a32077f5081b4d04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-full-controls-1011.json",
+      "sha256": "39d5ee662fd6a9a1ad2aa7b5035e339e32a9b27fdbe9bdac0e75e931de02b3ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/alpha_triangles/ref.png",
+      "sha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/alpha_triangles-candidate.jxl",
+      "sha256": "3ee12e222b8eceb35cc66a7abd6532556be0e5ad97e8b74a65be518e262416bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-baseline.jxl",
+      "sha256": "3ee12e222b8eceb35cc66a7abd6532556be0e5ad97e8b74a65be518e262416bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-baseline.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-baseline.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-candidate.jxl",
+      "sha256": "293fc2e88ea73ac30187862a9aea57c85766c840f0829701b37083d71a79ce17"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/gray16-default.raw",
+      "sha256": "f5bc19b8fde7676446fc9646a09c5ba80e27058997161e607790eb31a39432e3"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/gray16-default.oracle.pnm",
+      "sha256": "ce1aa5c037583491e7ff718fdda02e599643d4be51c5d67e0b03ef557583e596"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray16-default-candidate.jxl",
+      "sha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-baseline.jxl",
+      "sha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-baseline.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-baseline.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-candidate.jxl",
+      "sha256": "70020be2ff1d84ed88c1a437642ba1e60ac455366888e09a5a4b86483e04cb81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/gray8.raw",
+      "sha256": "3a00cff419e598d20a8d2285a0dd64be426f4e20cbbee95c7df2c9640da07798"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/grayscale/ref.png",
+      "sha256": "9d8d45dc6158ba173694f9e3075242c4a1e941649ed0eb9538479f83c8fed63f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray8-candidate.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-baseline.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-baseline.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-baseline.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-candidate.jxl",
+      "sha256": "9ce70ac4209482dfba9b576973179522c1ccb08e15a0721c52b98ef2ac6ecacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+      "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-baseline.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-baseline.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "573bef82621a44ebca1f6c028b3c23e5b6c19c1b171a4388817398e2516b8d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-baseline.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "951fb5584fc77dcaa27bf1d266ed81ef44c65702a13b05357a304d2dcfe2e002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.raw",
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+      "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-original-candidate.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-baseline.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-baseline.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-baseline.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-candidate.jxl",
+      "sha256": "a0d98920efa74676af6f35e4f6764d5a747708feaf6bd89124e92db896a46205"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-baseline.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-baseline.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "1136f23f5e05cf54a9cfdb65da7f5ae9b74694423d3568d6eb00e743054e1ed1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2400-diagnostic.raw",
+      "sha256": "4f1dac51a79922995a35d58a15bf473d4a39a76041ab9411871b26484adc7207"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2400.ppm",
+      "sha256": "4b8de9a0cdd9f743434a96510ab5eb51d1b2078640e48a144c240783e5fdaaba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-baseline.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-baseline.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "66064ba836be428df517c9a904c3e571afe41eb9570e53bbf72d9a4fb2282121"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5032-diagnostic.raw",
+      "sha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5032.ppm",
+      "sha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "a6d0003756e695e131029f9c73ef37150b2ed6f9b70cc0afbac167d900695807"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-baseline.jxl",
+      "sha256": "a6d0003756e695e131029f9c73ef37150b2ed6f9b70cc0afbac167d900695807"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-baseline.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "fe3fc8a5f8c71a3ca569f454174ac2942cb2fdf9ac849528707c6fbc3faff7b8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5034-diagnostic.raw",
+      "sha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5034.ppm",
+      "sha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "a0145005648193aa17615e9dbaafda63d6b2c951aba840a994cdacc305944203"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-baseline.jxl",
+      "sha256": "a0145005648193aa17615e9dbaafda63d6b2c951aba840a994cdacc305944203"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-baseline.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "b9d9813de74de61597393b62955e9901e76cb1b07b394b5da264607339111567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5052-diagnostic.raw",
+      "sha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5052.ppm",
+      "sha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "a13ef4c837f0c310981e7e813383e7d036ad904b7ffdcb234e6f202791e60705"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-baseline.jxl",
+      "sha256": "a13ef4c837f0c310981e7e813383e7d036ad904b7ffdcb234e6f202791e60705"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-baseline.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "dcb68eb9f158d16c89c310ab133e4b539867d4e71caf4cd124c2374e5ad94368"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5334-diagnostic.raw",
+      "sha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5334.ppm",
+      "sha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "7b2ac82a22b24b20ae8dbc629a9477b9e4b670c821e42ec559ba22a000b0abd4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-baseline.jxl",
+      "sha256": "7b2ac82a22b24b20ae8dbc629a9477b9e4b670c821e42ec559ba22a000b0abd4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-baseline.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-baseline.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "7b2ac82a22b24b20ae8dbc629a9477b9e4b670c821e42ec559ba22a000b0abd4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-8160-original-candidate.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-baseline.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-baseline.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-baseline.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-candidate.jxl",
+      "sha256": "5f2a91bccd10873768b5b14af922b222d9dd379a7bfae887b11773c0a4772fc8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/rgb16-default.raw",
+      "sha256": "c91fdf3f727a47a8b42f68616234905b20563ec9e72bd446ea1fb135b35ef786"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgb16-default.oracle.pnm",
+      "sha256": "babd659d24d9b42e82ce8e9ce9b11bfef364f5cea5049260f1496dfdcd4a7d27"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgb16-default-candidate.jxl",
+      "sha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-baseline.jxl",
+      "sha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-baseline.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-baseline.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-candidate.jxl",
+      "sha256": "34450b82b50d91312c4a16c636d92a4e7edf2d5d2c8a28a446aea80d419b8031"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/rgba16-straight.raw",
+      "sha256": "b6dd7b2084e26ffb364f21989008ad6edf91246beea5f269873a4cf9542a8c76"
+    },
+    {
+      "path": "benchmark/fixtures/jpegxl/generated-lossless-v0.12.0/rgba16-straight.oracle.pam",
+      "sha256": "c98699c78b512b21c6a0d2040348aa36f594ef721fe168fe8e847ec2352914e5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgba16-straight-candidate.jxl",
+      "sha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-baseline.jxl",
+      "sha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-baseline.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-baseline.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-candidate.jxl",
+      "sha256": "db7e4f8b86740ce56b565739271adfb06ca8f5460b9079660ca059534b195a0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/sunset_logo/ref.png",
+      "sha256": "c974b5a5c4232b22780c90fad60679d79bfb6088999cd5fbc6f5ebdd2f05f908"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/sunset_logo-candidate.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-baseline.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-baseline.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-baseline.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-default-full-controls-947/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-candidate.jxl",
+      "sha256": "0b3cedb25683cdd6e2a8ca887af8e9172e7ce8fb56da3749049e7935e606f6ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-full-controls-1039/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-cost-audit-1043.json",
+      "sha256": "ffe1d576f08215833bfa50d761ace1e6b0237ddafcebd798d238d29ef77929b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-cost-1042.json",
+      "sha256": "1cbf4adf14729525b2907415eecf44cad653b56a3685cbf13f5cf195763d1c57"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-rct-floor-map-cost-1042.ts",
+      "sha256": "ad0b008762cdb3ebdd7620dd1f9891e0afece04d8338199a8fe99004337d5947"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-map-worker-1041.ts",
+      "sha256": "b2b5c7d198a2ad3e45856954eb43558c55c68003fd5b211c9ef28a57fb800f2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-map-cost-1041-1042.json",
+      "sha256": "017b027a54140360d38b9963a98bbbe6b414eed42c891e761023735348723191"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-cost-inventory-1040.json",
+      "sha256": "6a3b16d6e2bcfe8e1756d6a1f82678f8fd4d8625d95045d6d38bdfc884f81d52"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-0.json",
+      "sha256": "ea609cfd527dcf5d5638042fe0dd4317c8d926951f31723752dc2d1bfd3c8399"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-0.json",
+      "sha256": "edc08d266b440062cc6867d0437595648186c92020a94b97eeb4ad565d79066d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-1.json",
+      "sha256": "25da19d2e1f0d727de4058884442a650dc7900a4deb53ae47c9de3334777dbc1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-1.json",
+      "sha256": "ff40feb7e59c9384b9749a3e54042f2c73c0bf6d7d8bfcf24dff48bde0686a62"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-2.json",
+      "sha256": "b8474b8d3f9ab5b20111615eaaf1f450674fc18fe17f911d90cf801248966a79"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-2.json",
+      "sha256": "7bbc7d0346088efbca938b7a977ec5995d0a0a3d0d99d4d4ffef35325b3795c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-3.json",
+      "sha256": "d5da7c24b732eb88d2f6e8d6f8c741149e6c5d7997b6ac18c721c80bd2a403b2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-3.json",
+      "sha256": "bdc5a0e824ad63f1fd67a7bdf86a07b50b705628fe4bc5be7c7167d479ea01c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-4.json",
+      "sha256": "65549546d6e702809a2186426c7ed195d3184af68210bb1bd8261253247125a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-4.json",
+      "sha256": "0886823fa1a8d7f2ea1673e1add5d81c6fc1466007deee45e6f87c863e01cb0c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-5.json",
+      "sha256": "e44a6b4795d79916c8c02e78b9846fd2f61a6838de8030e911c21bac90707f70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-5.json",
+      "sha256": "33853804c4971ec6c9fd458e0fd9f2cf1820a206fe447d43a1842deedc4798f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-6.json",
+      "sha256": "64715c1b2b8ece645d7d21e572b8ecef25e227006d26f9da3b3eaf5e1c34c430"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-6.json",
+      "sha256": "5e599e49d9750e68acd6e8e26cf69f20b280be3f15cf49be8b353d954fe8f0e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-7.json",
+      "sha256": "b1f789053d17df8dffddba1571f44146eaae10617521d79915158fb32a955637"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-7.json",
+      "sha256": "c0ecc8d626ee1c8f51bf458e94070dae6f0b17a8ca56a9c483aa812147229c18"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-8.json",
+      "sha256": "15be4bee5fa86c1bf707ac4f2605358a3f95f33dbfe2068b44b682d83ca72a8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-8.json",
+      "sha256": "e48bf686b344d3cb7d46098ceefc4a5265e74f90abd48edd667fc624127c6e8c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-9.json",
+      "sha256": "b1d2baf1f16a0c14379682eabaf25b6c785b142698cfc6e4d652332126639d93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-9.json",
+      "sha256": "1d7eeab41f72a4bdeb7c67df4c6b4d0c8a02263c2f2231ae8884beddd0c157b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-10.json",
+      "sha256": "8b313d82b5053d2ad628a6f8cd6d560a1eb9816baf331908db25024c809f2c6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-10.json",
+      "sha256": "3df5870e9d6317b7290c0cc22fd7749b4541fb207a1bfdca31852d20b0961ac5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-11.json",
+      "sha256": "9b737e46704b1fa919d5138b6bc7aa648b8e61031ac7ca17a95a811f297a5021"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-11.json",
+      "sha256": "abb70674af8e182fa9b331e59be1491f40167c02670415d2e5a74285def6ed8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-12.json",
+      "sha256": "a67a9b03aff2fa60e7fe65c4a708e0c1fa408a6649556a2267c40c9d18af69a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-12.json",
+      "sha256": "8e778a07c5a12e065ce797d97254f2c5ae45ef108d4c0b0d407b08c6e0f01547"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-13.json",
+      "sha256": "814b1e9cadce1a0b81d0db6748199b87697b381aaaae83a1c84419e001216004"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-13.json",
+      "sha256": "52cf9830642307dda77330ba61d6681c619d72972c8900a821087b6c6eff6b19"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-14.json",
+      "sha256": "8dd9021392bee618675747dc5fc90947dc1216cec120b5623e42436b2f8766d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-14.json",
+      "sha256": "8678e2116899b54d59cdb0ec555337775f58ab54efc08e5576e620558e4529c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-15.json",
+      "sha256": "23e3aa1aded78928f0f8985ac885a9aae450d7521b0f47bf9dfd594f50aed9e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-15.json",
+      "sha256": "67f904d62584d048633e3d4f02f799ed08e9dd7788340e63f96ea1fca167365e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-16.json",
+      "sha256": "ac0a43123813833340f98294d801d88afbe0300b577ed8ac8b79dea6e51ee2c6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-16.json",
+      "sha256": "d67d0e320fc564f06ec6a356ce9d723f8afd15a02ef9bafc5bed57d8aeacfd76"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-17.json",
+      "sha256": "ef16913fa2527f0357170e2c65140c08367bc639ad5d5844725ba1deff158aaf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-17.json",
+      "sha256": "b8e2b20e874908bc7fd3009be42d8380bd919028cebabc97e010d17387d60d80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-18.json",
+      "sha256": "4173ce2e9926da6dde120b6c2cbed2379bbfd30bffacded18e54950f51f53ef2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-18.json",
+      "sha256": "23d9da003142b577ee336e0fc0220332acec7c402120caac34b881471215b8cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-19.json",
+      "sha256": "58790c7594b580c1c5ade7c6c8a4dab4d54568a51ed42d0c98deb9d8316be1b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-19.json",
+      "sha256": "b8f443dfd021316645520e912a1d2134ca4c005596949be999fba8f861d5e19b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-baseline-20.json",
+      "sha256": "df88848e17b0c122f7419ad5b130a921c8c4fd874756fc8cc0d009b3a5ac154d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-map-performance-1041-candidate-20.json",
+      "sha256": "bd910358fa2286d062c5bf136778743cb8ee99404c06202b81ea9aa3b62b9865"
+    },
+    {
+      "path": "src/codecs/jpegxl-bitstream.ts",
+      "sha256": "e6b0e85e016cc66d851f909a17a334de805cdc3bbf02214b90c1af3f36710076"
+    },
+    {
+      "path": "src/codecs/jpegxl-chroma.ts",
+      "sha256": "65f981931247f009ef2c2fb9c0cf3869d1bfbc80d4b19cecebb7b607e0e4ab42"
+    },
+    {
+      "path": "src/codecs/jpegxl-color.ts",
+      "sha256": "2b2db1fd3ef93432da744b538e0c432e3cf7d5e1f99e3692d70b0a41e2e7018c"
+    },
+    {
+      "path": "src/codecs/jpegxl-container.ts",
+      "sha256": "ca254c6f07b427c20ece7faafe063f309e147db6788193961495eb0984f5acf9"
+    },
+    {
+      "path": "src/codecs/jpegxl-decode.ts",
+      "sha256": "d4dbba5954bff8d009d84777967fd4260a86aa00a9eb75035c6331ca526b026d"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "3d5d4dba24c88a59ad04d72ea6ce92f3e0b17d9f5a0b848f83d16a0805bc5869"
+    },
+    {
+      "path": "src/codecs/jpegxl-exif.ts",
+      "sha256": "cbf19f2338045c045c4209befe6ebf18c1853fa76d923167736fb6ed340e4de6"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-color.ts",
+      "sha256": "58051df0e321a3e1decf879be1b916e03e86ead75e2e7c524bb9438fecd66eac"
+    },
+    {
+      "path": "src/codecs/jpegxl-float-encode.ts",
+      "sha256": "22baeda7d43ecd0e198c9d3fe21caa216e4bec392188886ccd4572ccd8410172"
+    },
+    {
+      "path": "src/codecs/jpegxl-frame-features.ts",
+      "sha256": "42767538053ed1229498c3d1197fc4ff88c284297fc859867646c0d8ce2e3739"
+    },
+    {
+      "path": "src/codecs/jpegxl-icc.ts",
+      "sha256": "7ebded0282f92d30e0e268cb551898a78b699028c4af9107f6120486fd3580a8"
+    },
+    {
+      "path": "src/codecs/jpegxl-inspect.ts",
+      "sha256": "28227218bd147413fd8cf58c786568f96cbec5f9aca7e4c949d14540fadcac6c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-data.ts",
+      "sha256": "f5432e44555295dd08297fa56635eac00bbdfb58c5b529c793c7f3e87b889341"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "aee098c79be0b38f5f91a20e21404b95751a0e7647340bd44e34cc1193dcba12"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-pixels.ts",
+      "sha256": "b348b240ee149168e2c9dc5deb73ce95904a14be2082afd97ada41fa57df7c5f"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+      "sha256": "6519711eaeefba44d51d3a9e2476a246b65c85b7cad4bbfa90beb1fef9513f3c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+      "sha256": "195e1fd5f8b29d70c0b756a4579d69d93805bf3b31983e9fe700f153dc0c012c"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+      "sha256": "3bcc0166bf5ce9de6d74d368245204202ac2d4346c9603373b1addafb23a1413"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-transcode.ts",
+      "sha256": "50540cef781af542d7173a1d78b4d7dc6d2b802e03bd64ddaaf455c8d8a2d7ee"
+    },
+    {
+      "path": "src/codecs/jpegxl-level10.ts",
+      "sha256": "76adaaa05232156f79de86d0e762cc2b695f012e6c8b832b9ca42b9d9220a58d"
+    },
+    {
+      "path": "src/codecs/jpegxl-limits.ts",
+      "sha256": "c2b8bf339c8ec40b9180ac999c105eb58eeba7651d812fc48fef0624bef7c2f7"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "c465202fc15b54782c25fb87a10489f925028313c4353c04c8a411684a706423"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "00e14f14eead03391d1bb5965aba8a8e98f77b62428540d7724c44423034954c"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-encode.ts",
+      "sha256": "91ebc48ecf4de1401eb5d0ad0265e266229a8d734f5471c206c7e88ecf9ee7cb"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-pixel.ts",
+      "sha256": "654b07d4180ef87aad3fa4663da48d6d090d5a674f6e68e4a97607246b21e644"
+    },
+    {
+      "path": "src/codecs/jpegxl-native-samples.ts",
+      "sha256": "f3dad73c25bd8d83ab9e7b7a0feff1302b1f166c03a53504cb6359968edb16fd"
+    },
+    {
+      "path": "src/codecs/jpegxl-patch-blend.ts",
+      "sha256": "1a1de4be6b0791e72be162d9747036033de1d16271dc504cb67a201096ea409c"
+    },
+    {
+      "path": "src/codecs/jpegxl-progressive-plan.ts",
+      "sha256": "e8e17dec70bd5fc2a2f5a5ba717619ee266fbd83c2c8bbaf900b051ffe1f7ee6"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence-encode.ts",
+      "sha256": "850483b190fb151e57e688bd54dde061fd3f2114a676e54deff0c0c88653eb28"
+    },
+    {
+      "path": "src/codecs/jpegxl-sequence.ts",
+      "sha256": "71ac700640ec08c7f4d2aa9ba4696ea4f06c85d664563dbfd840f722cd0df47b"
+    },
+    {
+      "path": "src/codecs/jpegxl-session.ts",
+      "sha256": "e8110f4f4c3ef13d33cdadc8c07998840079e70a2ffe132e71d77117e98b6ef4"
+    },
+    {
+      "path": "src/codecs/jpegxl-splines.ts",
+      "sha256": "6b9056a839b11ec5f56c1caafc300e33d3ae96e06643edf6be0180b1f5256d60"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "576377992ff6fd5b970a6500f82d13d942c6e56cf184ae0982663a7c82bf2bff"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "a24392a90aca5a22c2f665475a50e0182529c1b2bd907ac8388fdbafed4ee4e0"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-jpeg.ts",
+      "sha256": "13f0ac7f3eac38341b84baa7afb0d6533250793bd6275eaed02af875fb8fc87c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-memory.ts",
+      "sha256": "cbc906121c669209a172e2ef3f35295080206cb0565c3c7deaf29dfe557a95d5"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-render.ts",
+      "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct.ts",
+      "sha256": "46d253e36669690b5d3be06bdae97422c79832a9d0bbc24f313789dc6163127d"
+    },
+    {
+      "path": "src/codecs/jpegxl.ts",
+      "sha256": "66d49025d914fa4146fd53841944ba23144625142f222cf57160d6b5cd4804e6"
+    },
+    {
+      "path": "src/codecs/jpegxl-errors.ts",
+      "sha256": "e43f8dab32a38e0b42c62680e768b87fb5aa4ba47b122d6171457f082f1893ca"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-rct-floor-map-worker-1041.ts",
+      "sha256": "b2b5c7d198a2ad3e45856954eb43558c55c68003fd5b211c9ef28a57fb800f2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-map-cost-1042.ts",
+      "sha256": "ad0b008762cdb3ebdd7620dd1f9891e0afece04d8338199a8fe99004337d5947"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-cost-declaration-1040.json",
+      "sha256": "596623d1722d36528d111d51bab7f51695bd83090f68afe2633ab11aa0e84144"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/run-rct-floor-cost-preparer-1040.ts",
+      "sha256": "848c3031a0ddf676b6ea3c1dce647a377e1f7c36b2a83489d10b572c83730e45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-graphic-worker-1041.ts",
+      "sha256": "775c8dd82173fe65b2c47571baf88dd5d3dd0f88d87db8403c89e6042653b665"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-graphic-cost-1042.ts",
+      "sha256": "7f401e97f182d4e70939808e8c44402683b9929b8e294a6dede5b76f6a61350c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-graphic-cost-1041-1042.json",
+      "sha256": "43f2497f7dcd5f692e450cb95287dee9b099962e19f9a4dc331642e5e6f32574"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-photo-worker-1041.ts",
+      "sha256": "ed0eb871744fb6158ad275e0dead95165eb8b510051ff0242cdca6cff9c61ac2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-photo-cost-1042.ts",
+      "sha256": "b3a8b47ea37a3f528895b37f8573e9a76222288d5cd55c739b12cddba8b0382b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-photo-cost-1041-1042.json",
+      "sha256": "1fa25faaae79806c59642f1334c52ae4bd141a81bb3da32c7f53f027af0670d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-second-photo-worker-1041.ts",
+      "sha256": "38ccd241c7f7471c9756829c7f2ffa6d932d98be78f7383a6c066b152b61e13e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-second-photo-cost-1042.ts",
+      "sha256": "52e3e8c3079db1afcf8298bb67faffb31ef4a2c52496f9be9c183056abae1c0c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-second-photo-cost-1041-1042.json",
+      "sha256": "79ae23222a37ebd6c3e963a36cfaec871075940a4bf59128652407e3f53243ba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-logo-worker-1041.ts",
+      "sha256": "0debdfc7fcacd4160274f2d9999e1de7cd649ac3299bfb3e1da8d80587a62eed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/measure-rct-floor-logo-cost-1042.ts",
+      "sha256": "556d8c9da984f056215d5e12f150c6a05ca260ddeb31da2002989cf9776852a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-logo-cost-1041-1042.json",
+      "sha256": "de5858c4030d30248f6a3ee94263173d63f5700f7fde75c16ff13d631e741c2e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/audit-rct-floor-cost-1043.ts",
+      "sha256": "c42a3b976315f8f81c26281fbaeed3e30d6478eefb38d53d1232539b2a94a7d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-floor-cost-audit-1043.json",
+      "sha256": "71b23fa5bf7afe4cf2cff4050978a81f8861614504d8aab32ea83df25202891a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-repeated-color-gate-second-photo-cost-audit-851.json",
+      "sha256": "d8266779e02f25be4eef5d982a2aff11caf4cceeda37cc25e71f9f47fb1f4978"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-lossless-single-predictor-graphic-cost-audit-821.json",
+      "sha256": "8a603217a32d3451ae6c8d584f02fc476a2cafca76092887368348d4fb0c4350"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-rct-floor-map-cost-1042.json",
+      "sha256": "86153fafb56af53a396fc61142915bdf10d2870407f9b95e342467aa98878dcb"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-rct-floor-cost-1043.ts",
+      "sha256": "c42a3b976315f8f81c26281fbaeed3e30d6478eefb38d53d1232539b2a94a7d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-budget-boundaries-1037.json",
+      "sha256": "9477cf094fef65701de5b6dc34af2754c089c181402643eafeeefe86c46c2037"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-working-limits-1038.json",
+      "sha256": "c8e36e0ec3c639e566085542c3015e1a1c14855b5763c7d4606869fee69189d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044.json",
+      "sha256": "da37e73ef41f64f701788564f2ed75550546c0adaa20c36f71ecbd08ea482efc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-default.jxl",
+      "sha256": "d2659a013176132338cf1699c35c17ddd7d7bc62d5cc04a0b711f62cd187dbd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-default.jxl.native.npy",
+      "sha256": "53885fb1358449044f0e3443c845e97cd331cf9a1618f817fd831a106fa6d0d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-default.jxl.rust.npy",
+      "sha256": "8cd4e0bdcdf999455b64e847c7e86134ca6ade79d25aea0ca2bf302796f626d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-2305794.jxl",
+      "sha256": "4d863a7cbf285e09e24246e613df29fa5b57188f1a2366100911d2fbd81c78d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-2305794.jxl.native.npy",
+      "sha256": "53885fb1358449044f0e3443c845e97cd331cf9a1618f817fd831a106fa6d0d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/8-2305794.jxl.rust.npy",
+      "sha256": "8cd4e0bdcdf999455b64e847c7e86134ca6ade79d25aea0ca2bf302796f626d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-default.jxl",
+      "sha256": "030c9ed84ebf0ae847d1cea006c7c000c3e6911d1b65797a332836a996f821ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-default.jxl.native.npy",
+      "sha256": "dc615b3e60a038ea85ce13a9632b84ad163bd17e06078aeca6f7cbd5401cbea6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-default.jxl.rust.npy",
+      "sha256": "8c0cb1316dd9c7f3429b75d68706e0c0be916b0c6fac5f0964bad1b0866bd0bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-2476162.jxl",
+      "sha256": "3aa52722307e2040222be223b8072d7f40e1e1dad10c66d4c7bb9de29cce91e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-2476162.jxl.native.npy",
+      "sha256": "dc615b3e60a038ea85ce13a9632b84ad163bd17e06078aeca6f7cbd5401cbea6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-floor-native-working-1044/16-2476162.jxl.rust.npy",
+      "sha256": "8c0cb1316dd9c7f3429b75d68706e0c0be916b0c6fac5f0964bad1b0866bd0bb"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-rct-floor-native-working-1044.ts",
+      "sha256": "8ea0994a6548573fafa01e9806b48a4440d141d6ae929ac9b3d233cadc28a93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-rct-floor-controls-1036.json",
+      "sha256": "c6fc1a13074e76b040ec6ddbb5e58191a1e1d31abd51e6978407e3f948d4860e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-rct-floor-controls-1036/codec-jpegxl.js",
+      "sha256": "a7483da332e8d0703bc7eedd260e22214a430e9acabaa806a32077f5081b4d04"
+    },
+    {
+      "path": "tests/helpers/jpegxl-fast-lossless.ts",
+      "sha256": "24405a7501eceea89ae6fe757ce9acf3d409dd65bd699851ca01935c5fe940ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-rct-production-1048/jpegxl-specialized.js",
+      "sha256": "206c0b57962d65298b6e78ef8bdc6eaa22ec81fdc11afcd8056793de8c006b87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-rct-production-1048/codec-jpegxl.js",
+      "sha256": "a7483da332e8d0703bc7eedd260e22214a430e9acabaa806a32077f5081b4d04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-compression-first-adoption-1047/result.json",
+      "sha256": "ee7a66bb40f473f120ba9ad991ef52d9941669d1a610bd1af6b1b40712c5eed5"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-actual-rct-production-1048.ts",
+      "sha256": "167d392c69dca40a25407c32ff3e1c5432a93db9aabe3dd077efe89c71afcae1"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "ad6617e2d91fb7efc99ba8b9abe239306cdc8fb184661bf788352f215fe1a289"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/actual-rct-production-1048.json",
+      "sha256": "428fe4eec6f670de7cc4dc5084264801d606d7059f9f28664c8a642d5b9bffed"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-rct-browser-1052.ts",
+      "sha256": "39fc4c9e35fd3a093a15ab8d1ba0da7455d258721bcd6f083c191e8445ee044b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-rct-production-gates-1049.ts",
+      "sha256": "e963feac4f4a756d6033285d79e02761be8747509a07c6709148543a17d98fac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-verify-rct-browser-1052.json",
+      "sha256": "1fba5d9ecf29654db598cd873e932a863fde5736555e74eac764d36ab273acad"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "51f1ee89584daa360edbcb4faaef343db83bd2d4c7b386c9eb63ba37d66bca1e"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "70d19ac8aab448d5fbe39444a9af9e9bc2d7b92a015e50fa7743fd42db4b3359"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "d15a525bacb70ffcc9fec021e0925a68496911c26558b1c45548fcf36c43d339"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-production-browser-results-1052.json",
+      "sha256": "06f18cafbd39217f4a37ab42c3cc1ac4ea655f138f317a0e8d914c40c894f319"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "9cd7d4d33b4c4c7d85556d9a8e5751a0a8f5162e4f6363036ee0d12dc7c3bc78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "e145ab94b80d4af5d1dd45462dae2b828f3e10a0195631ae5f921e18a93d975e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "7eaae8bc066ec91ef77364bccbd42f2bdadf1021253d4c8f61565892faa2ad29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "d6375ce5097e57b1a463c8ee1c79780decbd304925147f6087e1aed80909509d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "d3a7424b86233854b7fd923fe9963a6352d211c030eb484279be6ab7738defa0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "d0d3256d66dfaa444eba72ba09a4152bb59706b32390e82a5d4e7cef596e7bee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "4079c35b24f7803e0f8da4f1e4f672242efd9da3ad77553ab6222555eca910c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "a0465cb3bf7fa689705c134944852a44e1e53c86c304c6b4c5e2a6c72c8880f9"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-rct-effort7-1050.ts",
+      "sha256": "2db61bb6d92472d4eef8ca382cec57de65c786776eaa3605f3d611fd8f3cc408"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-verify-rct-effort7-1050.json",
+      "sha256": "23aba72604d022b6bb5eb7e4a7c9e4c5f47ac9ff4eb2b3258e744433fca77bbf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972.json",
+      "sha256": "b5833a8a899e08f662cc8564062248358fa39edbbea8a6e3c0c06c990e906f80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/alpha_triangles-candidate.jxl",
+      "sha256": "1d042c8040f07375581dbf6785f9d79eca0b86824ecf01f966b975fa581a06d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/alpha_triangles-candidate.jxl",
+      "sha256": "1d042c8040f07375581dbf6785f9d79eca0b86824ecf01f966b975fa581a06d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/alpha_triangles-candidate.jxl.native.npy",
+      "sha256": "78f064b6c6c1e85696a96a97505aef7c9b7404408e77acd66106851eba31c7bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/alpha_triangles-candidate.jxl.rust.npy",
+      "sha256": "8ba2f1adce73fd76fe1f3b53e3a06ef6327e4da9301a99370c56755668696fb8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray16-default-candidate.jxl",
+      "sha256": "943b06a7df1733dd2e52574a1d154de35e36b960ae69b42c724678ea6b3fc498"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray16-default-candidate.jxl",
+      "sha256": "943b06a7df1733dd2e52574a1d154de35e36b960ae69b42c724678ea6b3fc498"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray16-default-candidate.jxl.native.npy",
+      "sha256": "6dfc74617bd03315707027281b9ddd7a2f388154bf2a966d49b4312d93491883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray16-default-candidate.jxl.rust.npy",
+      "sha256": "87830d0e3e9eb6a1be72798572a218e4e8ab40a10e838bbf41b64278a1ab1850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray8-candidate.jxl",
+      "sha256": "4fa1c25695ee9532d44968907db62761f5476fbbbd1f97d405e289bed2fa5ec1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray8-candidate.jxl",
+      "sha256": "4fa1c25695ee9532d44968907db62761f5476fbbbd1f97d405e289bed2fa5ec1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray8-candidate.jxl.native.npy",
+      "sha256": "5b7d614398369b58c37381975c86c8a9b596d57413af853f373e56a2d70a20b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/gray8-candidate.jxl.rust.npy",
+      "sha256": "01af481cdb4f6811be1729cd06fe5b7770eee0e6a7210d5f9f8510dc258c0d29"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1030-diagnostic-candidate.jxl",
+      "sha256": "060a810d5fff4aa8141125bbf056cdc2aad7ff59f82247ca0154ad56e55ec5c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1030-diagnostic-candidate.jxl.native.npy",
+      "sha256": "391fdc7f210a3af12afa31c4fe821a030c076dc7a0a9408c09a3deb8e2904fde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1030-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "f098130d101553da2d6aabd6e4fb27e1b6019bd7ecb362540f3c15fbe4384f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-diagnostic-candidate.jxl",
+      "sha256": "fa0a589801c597d8af5c9697b2fec40de237e8ebac967ee79124052897e51a9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-original-candidate.jxl",
+      "sha256": "99da34e7cfe65770bbca4ddd3d2f13417f9d53f0dd6e4820e7cf4dd1591915da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-original-candidate.jxl",
+      "sha256": "99da34e7cfe65770bbca4ddd3d2f13417f9d53f0dd6e4820e7cf4dd1591915da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-original-candidate.jxl.native.npy",
+      "sha256": "942727f9dbdda0a127dcdba11c4a0ba585b2a8a77511798d01912743ab39511e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-1416-original-candidate.jxl.rust.npy",
+      "sha256": "b1e1bd6a5434e2ac5822156b44d0c0b6a8864f2cb11135b5c2368c20aaf1ec23"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2018-diagnostic-candidate.jxl",
+      "sha256": "88177430b72e2374efc36663d57ebd7211f691243fa7231d8d12a8f88d63c586"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2018-diagnostic-candidate.jxl.native.npy",
+      "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2018-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "cfaf8aaf9a903e70ebfbc63210e2fd5d706bbb0c2fe8c9b3ebab0b9dee8058a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2400-diagnostic-candidate.jxl",
+      "sha256": "cfaf8aaf9a903e70ebfbc63210e2fd5d706bbb0c2fe8c9b3ebab0b9dee8058a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2400-diagnostic-candidate.jxl.native.npy",
+      "sha256": "d516196bb44a0ff4fd6b1df1d58a4b24613dcd72bbdf48027ed7ba950b9e75a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-2400-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "5124c4581db4293033c8b4ff594bf081be9781bdc6159f2c276bfda09935fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5032-diagnostic-candidate.jxl",
+      "sha256": "5faf66d4f9660c5b0a8838e2b5b726152582b1d0490f4e9c555248b241cc2d8e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5032-diagnostic-candidate.jxl.native.npy",
+      "sha256": "fa6924543c74fec5740c309c3e9acef550d3e05f83700c7b307d7ee2e4beba39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5032-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6bfe39e65874696c9da80f0aa1b69861e3de8194227a8397c956455837dbd258"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5034-diagnostic-candidate.jxl",
+      "sha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5034-diagnostic-candidate.jxl.native.npy",
+      "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5034-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "18b004cb1c6736cdb74cfc6bf6fe506a81c581b0e1d54064e787177f7ab00fc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5052-diagnostic-candidate.jxl",
+      "sha256": "18b004cb1c6736cdb74cfc6bf6fe506a81c581b0e1d54064e787177f7ab00fc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5052-diagnostic-candidate.jxl.native.npy",
+      "sha256": "ce3461c75487a9fd932ed9a44405e711df577189188d946db4add205c54b6567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5052-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "2ba27829af691bff67240718a5754d4940eaf3803ed089bba7a107ce901e3ae6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "5382ec025dfeca3c50046bec6bb2f94b451f8856870b74b10155d98ca5aaa0ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5334-diagnostic-candidate.jxl",
+      "sha256": "5382ec025dfeca3c50046bec6bb2f94b451f8856870b74b10155d98ca5aaa0ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5334-diagnostic-candidate.jxl.native.npy",
+      "sha256": "1e1f723477823778c521ce0204f0b55e4c7546ef0e1579d5498f9e82e552c93b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-5334-diagnostic-candidate.jxl.rust.npy",
+      "sha256": "6859798ce0bcff1bbe005a750d6478317ff095535756d614cebfbd899ec8daf1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-8160-original-candidate.jxl",
+      "sha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-8160-original-candidate.jxl",
+      "sha256": "2ed5f31731f68da51763188934a40b4000b97fbf8df049ee8b254f247db3d746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-8160-original-candidate.jxl.native.npy",
+      "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/im26-8160-original-candidate.jxl.rust.npy",
+      "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgb16-default-candidate.jxl",
+      "sha256": "1970777154dafa8da6160489f2edd10ffd476860a2c3dd93224641fe73da512f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgb16-default-candidate.jxl",
+      "sha256": "1970777154dafa8da6160489f2edd10ffd476860a2c3dd93224641fe73da512f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgb16-default-candidate.jxl.native.npy",
+      "sha256": "d589552f5b36c5dec8131260d1456d900cf16b8aef47be7482873c8dbfd347be"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgb16-default-candidate.jxl.rust.npy",
+      "sha256": "ed150f52297d1ecb7f817ba671126361deb68a09f156f58ed12f9dc7fa986045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgba16-straight-candidate.jxl",
+      "sha256": "e7c282b90c7f6a0399a734b9984da66e56a6b0b249284b7a10fb478bfae3d20f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgba16-straight-candidate.jxl",
+      "sha256": "e7c282b90c7f6a0399a734b9984da66e56a6b0b249284b7a10fb478bfae3d20f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgba16-straight-candidate.jxl.native.npy",
+      "sha256": "1c4a5e570def635ac8b828eec7ff3e0a63daa342ce3fdbd8dee58a4ee532a4e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/rgba16-straight-candidate.jxl.rust.npy",
+      "sha256": "74c1af772de7b758738770eeed5676070cf472f792811fe3eff82f927d9c0051"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/sunset_logo-candidate.jxl",
+      "sha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/sunset_logo-candidate.jxl",
+      "sha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/sunset_logo-candidate.jxl.native.npy",
+      "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/spatial-lossless-effort7-neighbor-972/sunset_logo-candidate.jxl.rust.npy",
+      "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-effort7-controls-1050.json",
+      "sha256": "11b1420465dcbb46727c2ce10a583897e1ddbc8f7806fe2e3f990e3a76ae4600"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-rct-colors-1051.ts",
+      "sha256": "9d82cbd695f9495a126f370853988ec0dee09fee70beb2a00f1c312aea76171e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-verify-rct-colors-1051.json",
+      "sha256": "2b73539963d0257cac1776538eafd3d380400c099418085a30e226c5a5a9ca84"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/manifest.json",
+      "sha256": "3a385949c64c64ff45ba911fae6526a61be2a0bf682e3d04c81fc278925041ee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-8.jxl",
+      "sha256": "290068a6f4687f1ccecc58eb7a40d5339407c8b4121affc1bcc6347f1317f8f8"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-8.jxl",
+      "sha256": "067adcb5c49d91692d6ff7d6110bd581d43e3793e69782efc8cc20bbc2721c1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-10.jxl",
+      "sha256": "47f0d1b96f37800e83c996ecf2c7fb171efa9f9f3379ff8061778cbeef7034f7"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-10.jxl",
+      "sha256": "67137f2f7b408b776fd5f5b0a195bed957c4f685684b0b49109c909da5296693"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-12.jxl",
+      "sha256": "f8ec0ec7fa1a6bbb356e013a2192baa894cc068259aa77a807e848c452a435fd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-12.jxl",
+      "sha256": "2c337d15cf9dbb2b350e79f4cbd5a414f7af854a407a749bf4c05aaa506d96c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-16.jxl",
+      "sha256": "fc62cdcebb22df4e2ab307371c912b9fcd44a1c9826f83559935a4868b6c08b5"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/srgb-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/srgb-16.jxl",
+      "sha256": "b65f5c2113bd7e18e0737e12baeef5b91932aa5e09765f986dd8ddcd66409a20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-8.jxl",
+      "sha256": "baf5ca72f3f0c26d240fd8a974733b4f47d5e2a8b92909590442d988f100f1c3"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-8.jxl",
+      "sha256": "09d66fa8dcf1202eb56d15afa9e90020c43c0bf9bc88dd82b7cc2f733bee6e0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-10.jxl",
+      "sha256": "f5e05891e61f21ecf67f2e9692c88ce4d7387563cab7bd8e105169ec6b587b58"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-10.jxl",
+      "sha256": "32236ef495505388ba211a8c328629ba45d720d5cf19a6d829f4dbb2fb4b1693"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-12.jxl",
+      "sha256": "f100b92c0df7e41d2bcfdce86a9c3485461a3a053e7e0ee273001cace51ce9d6"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-12.jxl",
+      "sha256": "e99f151c241426dde07e9ebb2401e113481122095ed2578b9bda5ed01dcf7d8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-16.jxl",
+      "sha256": "e15ea3bc5d76c25370d7da7e96bcce7992ac5b710eb5acf46f35b753937dbfcf"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/linear-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/linear-16.jxl",
+      "sha256": "6b70cbe8946dbbd6db1c59945445c2934f3f193ff7536ca74cc0610a36daff37"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-8.jxl",
+      "sha256": "edfced5ce35ecd4e7fb24a026d088c33373dcca01d5b11a4e5f9584922d58477"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-8.jxl",
+      "sha256": "9eb7d3cc900bb6e312bd75f8af9e9ac20100d876ff806700cef5fca020226e1c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-10.jxl",
+      "sha256": "aef626cf03dd93aa333526373e94292b9e8bfa6c269e8df659af4f9e852d5828"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-10.jxl",
+      "sha256": "d460f6731382999560622c5224613e0a2d35c35a93fc964ff1fdc9aaa2211a2a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-12.jxl",
+      "sha256": "2c282b833426fe1546e450b1a522e411c2e05379baa24d3312d5338f03ae1765"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-12.jxl",
+      "sha256": "a264574b54a6fee7d828e8b2acc25574107c490c5bb85d3dfd9f783e743e8c5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-16.jxl",
+      "sha256": "b101908708a0ab81e0687263a5721ebfc7661a59bc7e9f2b03c5dfd7c2df6ee2"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/p3-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/p3-16.jxl",
+      "sha256": "3fe1c4376fed8bd696d29ae97698ef557136c8c1dbd09165034cfc36513caee6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-8.jxl",
+      "sha256": "7cf25ed602eb19f60c01895238c0b5d6ca5ce08131ea51b93c18e9354f8e5508"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-8.jxl",
+      "sha256": "d99c0dd7dcad8f4fcaca4f012b8151da11d5fec871f2323463f350775aecb9e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-10.jxl",
+      "sha256": "d08a76b85ea703c6bffa44047ed1bab2e29a0aa81d32ca20dbb860bc2fa569d5"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-10.jxl",
+      "sha256": "29a0e38fc1087118e9e4e7c6894b525bd53684e10d616f2a6a70dd8ba58f7627"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-12.jxl",
+      "sha256": "683104d1b28fa4357f0f251ddbc003538e571d29a35544c4771114f9a9c70323"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-12.jxl",
+      "sha256": "6cedb00c14a3643f88d6c02a83fb130ac6e7535e524daccd76ee153c2e4a4239"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-16.jxl",
+      "sha256": "32403867d7f3a9f5313c3c1af06f4059a80a3ea74fb0c471ab6cb8a6834dd399"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/rec2020-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/rec2020-16.jxl",
+      "sha256": "b316a7ae3ddab919feba190c9bea449bf5c21d0f0eeaa4cc9f8eaa114e19a696"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-8.jxl",
+      "sha256": "ca02964497ba5c0971c748146293f83d7d9ea63714fa0c3331fdbb672f8541b0"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-8.jxl",
+      "sha256": "812327aec2701a6cf2848f60b9ef54763466dc77a7d2e92cf82caacf83cf9706"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-10.jxl",
+      "sha256": "741a47b291b0a603c459f73dec9c04e4b43e9767fd9db70ec9fc98e4e7ac212b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-10.jxl",
+      "sha256": "c5bd6aa6b78df7443c79bb2f01038bb82fce9aa7917c588af13eeadd0a48c812"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-12.jxl",
+      "sha256": "ff27b4b8172ea169c2e65d0e583269ffef1d1b2f6ddbf925c8647defcd0f7c56"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-12.jxl",
+      "sha256": "60633542c4d95353c1544d1770a535f18341f4a7639abbc1a6b6dee98a2fd831"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-16.jxl",
+      "sha256": "092bdce223edaec8fd5b544f4e01ecc6102311c84ecb4628452802653842c381"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/pq-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/pq-16.jxl",
+      "sha256": "5e3ebde14b0be2a4ee8ebe804c03e3c5f8b96cfe32faf54b6e1025fe2f944b04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-8.jxl",
+      "sha256": "e18b7d5babf28358651f1a0e9d5d5a96169ff3eddc2f9ba22ef3e26638721ddc"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-8.jxl",
+      "sha256": "7b05581b020c07f892a62f939d678d9103ab559722554f67829640e462d9edeb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-10.jxl",
+      "sha256": "e7fea89b6eba7523c3a896eb8039cea9423a80ab2d58285bb2e8cedea2726bfc"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-10.jxl",
+      "sha256": "e2553f7ebb45f17468e13629409589496601d472f3ec328034246c17cf41570f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-12.jxl",
+      "sha256": "79dd2d5477cb33ac2494a40116732cc01f54166acb505a4e3c01feecae64e6d6"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-12.jxl",
+      "sha256": "3047490d5e84e1913e1dd88c28d0c313b716c4427fadc9a31300c8752359d2fe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-16.jxl",
+      "sha256": "34f68e9f0f4a2f06fff13dcbbe88cb71d4bb3ada4be57a8e8a56b947a846fecd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/hlg-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/hlg-16.jxl",
+      "sha256": "973e03861716a1888c98ccc883faae2939eefe0480b0576dab1224798a237b27"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-8.jxl",
+      "sha256": "620cbfc9d6cf4adbb399f7e03109c9820a42dcdf0482a5e5587f3c97cd778b92"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-8.jxl",
+      "sha256": "12b703f304b2743ab20f875e0a18f453cf4d15c1ac56bf84e6d208fb1ed91ed5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-10.jxl",
+      "sha256": "f397494c0a25648650b1413adac7197632fcc8531c6c93ed85a1713ee61cc52c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-10.jxl",
+      "sha256": "24d8295b29a127a76bb58571154a6a1f252ca9c96538d73b124c08ad8fcae080"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-12.jxl",
+      "sha256": "c6bc28a129874f9009bc4d03ba8b43f2de25e5085fb12cb97678a0490c55ec46"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-12.jxl",
+      "sha256": "e679193480ec81cf079dc46da85529fdfc8be6a4bbd87cac14d8e8e855daf621"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-16.jxl",
+      "sha256": "19c8a4f6636a13289dab90b3b9e241734dfe45a786248684539767b1e4904751"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gamma-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gamma-16.jxl",
+      "sha256": "cd943f09671943380f4a9589f4fd0b6cb9ca4e0ccac8d3f68c2298029c9a3267"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-8.jxl.native.npy",
+      "sha256": "08bd8334063122429e1b3c53e4ec95ad88d39eec91eb15b294e419664410ab2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-8.jxl.rust.npy",
+      "sha256": "b3f9bf4a1b697564a0fc08de160bd42074a57ad84c5ebad7f039c8d0999e657c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-8.jxl",
+      "sha256": "1632438419373d95132416d83c86ba2cce8692ecc234cd9e6ad7fc1ad75972a5"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-8.bin",
+      "sha256": "a41aaa692f2d880f0a4a5a99df8acbcad5178da11a94e6a757034d35462331d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-8.jxl",
+      "sha256": "abf097e27df027a4d62e217e2f523c979b72820bcf4a78f5c05898cd29ea970d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-10.jxl.native.npy",
+      "sha256": "5875e7a670bc22f1a789960030741543c2464caf5fbf0b422a646d598ad7341f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-10.jxl.rust.npy",
+      "sha256": "4a894180603ab71ffe017466bedcbaa0c4570afaa5bdcc4240cbd15c5196ce87"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-10.jxl",
+      "sha256": "2837cd9c97d70191bc2c300d701458aac017bb3a6c0e939fc3b0e08b5bea22c6"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-10.bin",
+      "sha256": "edae530301763cb1571d32cfb028a713b68400384d25ed00093ce592367dee22"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-10.jxl",
+      "sha256": "1cf38ce84672e2690aaaade7808447ded89641fe84ead6216d43860800f95ee7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-12.jxl.native.npy",
+      "sha256": "28cec5b552a7e67f6c3a10af63b1bac97241ffa944356c8c88d74c2b682c1614"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-12.jxl.rust.npy",
+      "sha256": "f26fbc64dd20742731e3ae0f7f4b42dacdea27321b5221ae50713d029ca6d1bd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-12.jxl",
+      "sha256": "25a31d8db7be4587322c0b5f767d76f2389b109f9e8485b3cc6fa6464bdb5e27"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-12.bin",
+      "sha256": "baeb7eae635e45482d0269a24f2739849f47237c5825fb76d7f4008fedb0d8eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-12.jxl",
+      "sha256": "2ba6d5effa19fa1cce75ecdf3a47f8587214fa4dd207cbfd8e3a533bd491315a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-16.jxl.native.npy",
+      "sha256": "9dbd2c88e91a42e01dd16116156d5bb651f049a01b4f48247c7e7033ed121db2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-16.jxl.rust.npy",
+      "sha256": "9265847da00c9aef2a0b200e01270e70b27584e79f28fd857ff234edf09fb5b4"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-16.jxl",
+      "sha256": "a87bc4e7095cd8ffa8fff492a085dd6ed2ad33714bce2f03e65fb2ec1bae4a85"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-srgb-16.bin",
+      "sha256": "34d745125dbae7ead5c6eb85dbd70f1b8a7754a6dda992c64ddb4914218b6721"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-srgb-16.jxl",
+      "sha256": "ce1e49387d37387b9f5f1ea2aca0ef9cec77e7266fa714ae09052453f80b709e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-8.jxl.native.npy",
+      "sha256": "08bd8334063122429e1b3c53e4ec95ad88d39eec91eb15b294e419664410ab2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-8.jxl.rust.npy",
+      "sha256": "b3f9bf4a1b697564a0fc08de160bd42074a57ad84c5ebad7f039c8d0999e657c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-8.jxl",
+      "sha256": "80268377d54e54e5a9cc9db7801b89037a4f76582747e06ea3d225d5ccbc1ef7"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-8.bin",
+      "sha256": "a41aaa692f2d880f0a4a5a99df8acbcad5178da11a94e6a757034d35462331d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-8.jxl",
+      "sha256": "11a051d9ebd807c2b62b93d905725086a6cd852dfe6ada077e575e95df38f6e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-10.jxl.native.npy",
+      "sha256": "5875e7a670bc22f1a789960030741543c2464caf5fbf0b422a646d598ad7341f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-10.jxl.rust.npy",
+      "sha256": "4a894180603ab71ffe017466bedcbaa0c4570afaa5bdcc4240cbd15c5196ce87"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-10.jxl",
+      "sha256": "7be4b8e4c398d5face46235b3351d3b20a291505874aa9523ef147d664dcecc9"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-10.bin",
+      "sha256": "edae530301763cb1571d32cfb028a713b68400384d25ed00093ce592367dee22"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-10.jxl",
+      "sha256": "c0ed24914864af38fd2b97df7bb96689d0d107a722c0c6c9ae462e326cc74f40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-12.jxl.native.npy",
+      "sha256": "28cec5b552a7e67f6c3a10af63b1bac97241ffa944356c8c88d74c2b682c1614"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-12.jxl.rust.npy",
+      "sha256": "f26fbc64dd20742731e3ae0f7f4b42dacdea27321b5221ae50713d029ca6d1bd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-12.jxl",
+      "sha256": "78de96d92b4370364635794f09a60b378579f2fb308a0a15d9d157b0e3121a80"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-12.bin",
+      "sha256": "baeb7eae635e45482d0269a24f2739849f47237c5825fb76d7f4008fedb0d8eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-12.jxl",
+      "sha256": "9f5ca1667dc0c6f4144fca217b328e6d4be00e7bcfa31e99b28a6a869e1c2b48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-16.jxl.native.npy",
+      "sha256": "9dbd2c88e91a42e01dd16116156d5bb651f049a01b4f48247c7e7033ed121db2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-16.jxl.rust.npy",
+      "sha256": "9265847da00c9aef2a0b200e01270e70b27584e79f28fd857ff234edf09fb5b4"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-16.jxl",
+      "sha256": "8caaf8e94acfe2bb9c67f65996b0b5afff00615c37674cebaa015590e9e121cb"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-linear-16.bin",
+      "sha256": "34d745125dbae7ead5c6eb85dbd70f1b8a7754a6dda992c64ddb4914218b6721"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-linear-16.jxl",
+      "sha256": "401d52ff3e0871aad2f59982d44c00e167fc328b36f56f2b3d617487fda41400"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-8.jxl.native.npy",
+      "sha256": "08bd8334063122429e1b3c53e4ec95ad88d39eec91eb15b294e419664410ab2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-8.jxl.rust.npy",
+      "sha256": "b3f9bf4a1b697564a0fc08de160bd42074a57ad84c5ebad7f039c8d0999e657c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-8.jxl",
+      "sha256": "4b45efeade59c4c59043f24d81dd718d8c97ae080589c65a98cf5425fc66eb04"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-8.bin",
+      "sha256": "a41aaa692f2d880f0a4a5a99df8acbcad5178da11a94e6a757034d35462331d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-8.jxl",
+      "sha256": "4cca52e66e0daa81f514a2794e11472d5e4555cc7795cb233793045997fcf654"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-10.jxl.native.npy",
+      "sha256": "5875e7a670bc22f1a789960030741543c2464caf5fbf0b422a646d598ad7341f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-10.jxl.rust.npy",
+      "sha256": "4a894180603ab71ffe017466bedcbaa0c4570afaa5bdcc4240cbd15c5196ce87"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-10.jxl",
+      "sha256": "c861da40269b5d765cfedd0274969b4281fd64d2e4f35f05c678ae8dd5179840"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-10.bin",
+      "sha256": "edae530301763cb1571d32cfb028a713b68400384d25ed00093ce592367dee22"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-10.jxl",
+      "sha256": "3154628cc86bc92d9a5f33b7d3b9ac3f619fe937c81bee951eaaf0bf42b62fe9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-12.jxl.native.npy",
+      "sha256": "28cec5b552a7e67f6c3a10af63b1bac97241ffa944356c8c88d74c2b682c1614"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-12.jxl.rust.npy",
+      "sha256": "f26fbc64dd20742731e3ae0f7f4b42dacdea27321b5221ae50713d029ca6d1bd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-12.jxl",
+      "sha256": "53fe51ed56d9a20f7f38734548148f94bac66f465975e5566a2b88ddc9f5a30f"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-12.bin",
+      "sha256": "baeb7eae635e45482d0269a24f2739849f47237c5825fb76d7f4008fedb0d8eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-12.jxl",
+      "sha256": "fc520a82844e1125971c5de0b8b593fe44f68548d7fbcacb7756e945c8bf4cbe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-16.jxl.native.npy",
+      "sha256": "9dbd2c88e91a42e01dd16116156d5bb651f049a01b4f48247c7e7033ed121db2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-16.jxl.rust.npy",
+      "sha256": "9265847da00c9aef2a0b200e01270e70b27584e79f28fd857ff234edf09fb5b4"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-16.jxl",
+      "sha256": "d3843531173efa92f14f4732bf1be4cc006effa266c7f6caf101fe7727bdd2ee"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-pq-16.bin",
+      "sha256": "34d745125dbae7ead5c6eb85dbd70f1b8a7754a6dda992c64ddb4914218b6721"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-pq-16.jxl",
+      "sha256": "254c1717c9e4a9923de2243863b2979d48c6182ec659109591209e56effe4887"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-8.jxl.native.npy",
+      "sha256": "08bd8334063122429e1b3c53e4ec95ad88d39eec91eb15b294e419664410ab2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-8.jxl.rust.npy",
+      "sha256": "b3f9bf4a1b697564a0fc08de160bd42074a57ad84c5ebad7f039c8d0999e657c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-8.jxl",
+      "sha256": "7a006239274f332d3aaa653429e176c84c87d0b46928237478ba2292a43da064"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-8.bin",
+      "sha256": "a41aaa692f2d880f0a4a5a99df8acbcad5178da11a94e6a757034d35462331d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-8.jxl",
+      "sha256": "30260e73f38709d4b75bc0fcda1bbfb928bf46f8bd989c5308a27ef832752dde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-10.jxl.native.npy",
+      "sha256": "5875e7a670bc22f1a789960030741543c2464caf5fbf0b422a646d598ad7341f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-10.jxl.rust.npy",
+      "sha256": "4a894180603ab71ffe017466bedcbaa0c4570afaa5bdcc4240cbd15c5196ce87"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-10.jxl",
+      "sha256": "002b37da99cdcc80697d31837f7406bfaeba758fb8ba9aeeb1a1686be4fd7a3a"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-10.bin",
+      "sha256": "edae530301763cb1571d32cfb028a713b68400384d25ed00093ce592367dee22"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-10.jxl",
+      "sha256": "33e51203403735f5f2e1d3087ad52e1bc606059b2a667ff3830cf711b1189ac9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-12.jxl.native.npy",
+      "sha256": "28cec5b552a7e67f6c3a10af63b1bac97241ffa944356c8c88d74c2b682c1614"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-12.jxl.rust.npy",
+      "sha256": "f26fbc64dd20742731e3ae0f7f4b42dacdea27321b5221ae50713d029ca6d1bd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-12.jxl",
+      "sha256": "c6187b3c161108340dc5ab11f042978a4c0dab22efc91318b0d7820d07c3a92e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-12.bin",
+      "sha256": "baeb7eae635e45482d0269a24f2739849f47237c5825fb76d7f4008fedb0d8eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-12.jxl",
+      "sha256": "0a0d0e0ab2b8872c539d173ca381d9e5c7eca65e2ff22b63a64f144a0c5b093a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-16.jxl.native.npy",
+      "sha256": "9dbd2c88e91a42e01dd16116156d5bb651f049a01b4f48247c7e7033ed121db2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-16.jxl.rust.npy",
+      "sha256": "9265847da00c9aef2a0b200e01270e70b27584e79f28fd857ff234edf09fb5b4"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-16.jxl",
+      "sha256": "8007e95e3c919b97350b624c3dd30f627ff009fe5d6fcc2d407fe24c971ab3ad"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-hlg-16.bin",
+      "sha256": "34d745125dbae7ead5c6eb85dbd70f1b8a7754a6dda992c64ddb4914218b6721"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-hlg-16.jxl",
+      "sha256": "beae524c14ca0f78328d5a7869d4c16a8691fc18c081ff0ff7b2449d2f19c215"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-8.jxl.native.npy",
+      "sha256": "08bd8334063122429e1b3c53e4ec95ad88d39eec91eb15b294e419664410ab2f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-8.jxl.rust.npy",
+      "sha256": "b3f9bf4a1b697564a0fc08de160bd42074a57ad84c5ebad7f039c8d0999e657c"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-8.jxl",
+      "sha256": "7991fea8a969026878ee51b003dc157745b6891298bd246b9eb5b4e401e1d3b7"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-8.bin",
+      "sha256": "a41aaa692f2d880f0a4a5a99df8acbcad5178da11a94e6a757034d35462331d3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-8.jxl",
+      "sha256": "bdde002cd12a2c159c91d130a144a3b95614a57a70af8f918803fd391a77bd14"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-10.jxl.native.npy",
+      "sha256": "5875e7a670bc22f1a789960030741543c2464caf5fbf0b422a646d598ad7341f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-10.jxl.rust.npy",
+      "sha256": "4a894180603ab71ffe017466bedcbaa0c4570afaa5bdcc4240cbd15c5196ce87"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-10.jxl",
+      "sha256": "48af75607cc54846a451e9dd93cb5bae3cfd72e6e3793c1543ee144b6b9905b3"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-10.bin",
+      "sha256": "edae530301763cb1571d32cfb028a713b68400384d25ed00093ce592367dee22"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-10.jxl",
+      "sha256": "025d26f1c926850345fced9c8fe89f1100b0d58944066f0620bbb374d4a65d3e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-12.jxl.native.npy",
+      "sha256": "28cec5b552a7e67f6c3a10af63b1bac97241ffa944356c8c88d74c2b682c1614"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-12.jxl.rust.npy",
+      "sha256": "f26fbc64dd20742731e3ae0f7f4b42dacdea27321b5221ae50713d029ca6d1bd"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-12.jxl",
+      "sha256": "a7397f06967da9045af84c1efb77e73c0da793e80c99f82e4ae9cd00970d9482"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-12.bin",
+      "sha256": "baeb7eae635e45482d0269a24f2739849f47237c5825fb76d7f4008fedb0d8eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-12.jxl",
+      "sha256": "c46392741154038c6afce1bff64952c3d67a6f0287b7d0c8d9e701fe45fda025"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-16.jxl.native.npy",
+      "sha256": "9dbd2c88e91a42e01dd16116156d5bb651f049a01b4f48247c7e7033ed121db2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-16.jxl.rust.npy",
+      "sha256": "9265847da00c9aef2a0b200e01270e70b27584e79f28fd857ff234edf09fb5b4"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-16.jxl",
+      "sha256": "5e132d2cddd91f7fe788c9baf484ecfe347d4fc6c6f930ad75213bfd62b8075b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/gray-gamma-16.bin",
+      "sha256": "34d745125dbae7ead5c6eb85dbd70f1b8a7754a6dda992c64ddb4914218b6721"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/gray-gamma-16.jxl",
+      "sha256": "13d222960980bb0e418cbdc3a99d4512d8618e4786692e92f560ea410afb368d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-8.jxl",
+      "sha256": "b09a35985d98e10a2aaece2bfa5b605760b77d604fd2edd9a033ce3d767f7954"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-8.jxl",
+      "sha256": "489de11b0e605ec67cbe433830fdf4e782774ca47288a77f7acd7c42edfdf123"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-10.jxl",
+      "sha256": "7968b370022ae7af0e6dd09c0064e869ee2dd641517c5c80454f4ee0325b02e2"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-10.jxl",
+      "sha256": "cfda5c7b94c33af707883ecf0c5298c58e7d4b6ab6a2a57df241f637a91930f2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-12.jxl",
+      "sha256": "739a45d76453f5cad82d2ad591cf28080b58f2f9912ac21b5b16f3e1439a1a4d"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-12.jxl",
+      "sha256": "1222ca0df9f3dad3d817d2cbd6861eaab96fb00e5328e78f73660185e755b921"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-16.jxl",
+      "sha256": "6c4590b88f624b9b8dfabd69d0f05c5fa371b42ff8b41a8684b5df220f2de906"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/dci-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/dci-16.jxl",
+      "sha256": "309a01e3e68af047b4753d5f218431d83280f0e4a5a9c65e0f46dde9d14e5aba"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-8.jxl.native.npy",
+      "sha256": "b6baeeea5a49720cb6bf86a5a475c2804fb88d9580ebfc7d738081e67f5d2f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-8.jxl.rust.npy",
+      "sha256": "b1321960c7e168140f455f90e3da8129de0278d23d319b8cca66b102d949fc62"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-8.jxl",
+      "sha256": "a659f5d111e1a3010e143ede9489ef5cc5572cc8d8791a6893b3f83c0202c6f1"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-8.bin",
+      "sha256": "9c725fe580afcf0f5952455a1a2a53bcd00c0e731865f3898d75ac6de88028eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-8.jxl",
+      "sha256": "afe308970d4074c9819616cceea76f5dd89a6fe6d63b322e885899d360f35a73"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-10.jxl.native.npy",
+      "sha256": "ca81cb78e8083d412c1354e66847f3a46128d247032ac819127fd74a2ba10091"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-10.jxl.rust.npy",
+      "sha256": "3843fdf14c905e723c872505d3067fe98455eea2445a7eab8b5c94961667450b"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-10.jxl",
+      "sha256": "62cbe31caf071597fd8219f911c3587292ce9ee7316207fc2f612fad2fa37450"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-10.bin",
+      "sha256": "fc163be5b83f5c03d7fd03d3c9b9881085a776fa16d0fdfb0e2a4af7cf2305ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-10.jxl",
+      "sha256": "e115abc83c59d2963210f2342d93c04f99cf5ea35b1dbb40118111931bb2963b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-12.jxl.native.npy",
+      "sha256": "c3707b3962d85a02d35ca9913e94a834c29e5dd90062d5a7ba1975c31ad0431b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-12.jxl.rust.npy",
+      "sha256": "39581b7019819c168e05a486e6b80f8c1c20f0cc4dd9c8c8e71709cebf98bdab"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-12.jxl",
+      "sha256": "a7a60ec7386cd9fe6a6fc3093b2583bbfa7370ba775a45288388e0603ed1eb8a"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-12.bin",
+      "sha256": "47d73da9fe072ecc50049ebf4778b4da7cd92e419d26c6225cc452020f1c0719"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-12.jxl",
+      "sha256": "ca531e5b438ab909465397f13251173362d49e0596bcc662215a7eada65cb44f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-16.jxl.native.npy",
+      "sha256": "6e8a3875848d056ac6663a7dd759ee2c1fc701997737b5da238a74c08d741f81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-16.jxl.rust.npy",
+      "sha256": "ee1c85564eb4b361eb0897fa2619d7ff0bd678981e1090b0f8ab07ec6c58fb9e"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-16.jxl",
+      "sha256": "a31fd0460732d5d35d18596c7f2a279f23692986a0b7d12adc8c88c9babe5046"
+    },
+    {
+      "path": "tests/fixtures/jpegxl/m4-color/custom-16.bin",
+      "sha256": "066816f0dc406a16e81095714706004f55bcff8479a85857264ff1b990c7a378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051/custom-16.jxl",
+      "sha256": "8a09b0ae996b4cbf5e55fab8785585d76e017d84f1759b4dd31b630897a808ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-color-reencodes-1051.json",
+      "sha256": "86dc99bc2613eee54012d44c1a301027a086ce855cb40e4d0e0f303759be97c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "9a37514c6c8695d3ed38608fc43610cc45b13e90967b5c73efa61beaaf63ef56"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "e2af12b319fa6ae908375cc6ac04a9790c33158979fde48fb884717fe755b425"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "e9f47a104acf5e0d164ea3f38945ed4a6bc04dd3a91785d46bfc6aa77a82b62f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1030-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "8879b5c9ad396bb92738295cd9bf3339985ce3cc1525879827960edcb065742b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "d2dfe74da697a5f7f14ac2c3b4078e8a1ee26cd4b37441c94234a56136ad79e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "c265cc5f504a38ec073bc44cf8e76735e1173b5b77c9f68545e49d878585e905"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "7231363c959088d23bcd73d5cc4fde6a03b624842136d3fba9c69eeb22d5dd04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "a7193cb6b032f9287085764c656a84d30bac863eaebbf7ad443161f5fa841558"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "8465bea30684fb6fc4c384c19e05726750ddf08d97ede06cfbfe9433533529d6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "d463a96ecd98103a24d797c00e03447bc9744481986a3286bdc63b3c098e0e1a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "6eb90e60a4b937d326f2b7e0b45a18aed55f7b76e41a2fbfc727b69116499aeb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2018-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "6a60bd6a5a483f253faa4ceada77568306b7b56a6a0b3f142a559916b716acb6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-jsquash-encode-ll-e1.bin",
+      "sha256": "af5c73366695109ca814be68fa3ad1560fb50dacebe7acf5f543f409fceea9a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "503e7c6660edff58d4660508b4b64da98c266793fd10a46187ef7867d59442d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-vips-encode-ll-e1.bin",
+      "sha256": "8fab30528d40758f386534bffdc303fea8392c1b333a1ff6cb6e511a59c7744c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-2400-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "054b0f2998cd43d48b80c31b9169330351febf9af593f9dd9ff9c6bfa18aee54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "4d454f7d550c2caadd2689f2487f689c6688db84cefbf7a37d8154bb73cbf30e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5032-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "ea1975403c0c6cbffa35501a353052dc2984882802b8cbe4a92b6c3414998319"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "c189bce8bf4d32b5a6fdd8fd53e57d61d687c267eea86ce967e42e518e13c9b0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5034-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "655b07e5ca4ddfca780ce108905422ef27c618cead24768379ff352a558d7def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "a46ddcf21909578ad44cdda6e73a09483dc66f992f3b395de18de1d7a12bdbfc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5052-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "ad2dba4df3e230a599575ba4c09656a2034fc61d32a9de7dba88816b51055806"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-jsquash-encode-ll-e7.bin",
+      "sha256": "5581d83b8c60ca8b04fe1e8b3c8efd33cdee71550fb803cd12ea18805725dd7d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-5334-diagnostic-vips-encode-ll-e7.bin",
+      "sha256": "8520170a6f3b86afd65861edd11a5f2d291e0a0d884545b96d2efc734263656b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-original-jsquash-encode-ll-e1.bin",
+      "sha256": "3d1f857bd8929bf869c712f117ec8ca0eeb7d831e80093276352b4d5a6f5a738"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-1416-original-vips-encode-ll-e1.bin",
+      "sha256": "f6143d055e68cf36d3c9c5bc18fcdf4d17206b773c6d836ebf62f23f1108eaf0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-8160-original-jsquash-encode-ll-e1.bin",
+      "sha256": "d34b4f519284640a3862f550198da2c83714a50d618f69d9bc36dfd13466d2f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/im26-8160-original-vips-encode-ll-e1.bin",
+      "sha256": "38787ec70a89ebf0156d0bdd9656e959aa90d0c77b76500b6cb50b83597fa565"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/alpha_triangles-jsquash-encode-ll-e1.bin",
+      "sha256": "d24b27740d4931890966ccc91022b6323b64004b84e55230be02decaf2043dfd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/alpha_triangles-vips-encode-ll-e1.bin",
+      "sha256": "61f6ff8661622f1d34a7c4bad34ad7dd04e6ce78951ee955c3161780645870fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/sunset_logo-jsquash-encode-ll-e1.bin",
+      "sha256": "af74ef63910cbb01592c44ee9e58e9952cedcdf43512ce4d896393a0c4e7a512"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/sunset_logo-vips-encode-ll-e1.bin",
+      "sha256": "2591631203634894e5ecf3801e45c190cf73d113ce409a0c75dd2b6021091e4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/gray16-default-vips-encode-ll-e1.bin",
+      "sha256": "e963d3f8b949ca29a55b53c3f8c44ab68ef7d9c986ebdd0c948f04c36d8cbc6b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/rgb16-default-vips-encode-ll-e1.bin",
+      "sha256": "aca185d17bef5a4a39076ff183ab68bd94635f2a8d6e0f698134e29015be9c60"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/rgba16-straight-vips-encode-ll-e1.bin",
+      "sha256": "882811a8312dd607d39f4fd94ea6b5d7120cddfb667be289a658b23417ce8107"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/gray8-jsquash-encode-ll-e1.bin",
+      "sha256": "9983eed4940617c495ced3df99dfc39b222f4319ed1dd022fd56f4adf3aab821"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/runs/main-node/gray8-vips-encode-ll-e1.bin",
+      "sha256": "f42fa9f9b710377ea7b20e5f22ba54048c5954e977a138e1c0dde5480dd41e5d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-focused-1056.json",
+      "sha256": "89602e30243922e0227272727fd3214dfd3f3f80d554f9f58ee7f8a5c4e87f80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-focused-1056.json",
+      "sha256": "90bef413fa5ea76db62fe4eb430f2d9f229743e1a31c41728d3b5ca69ca408b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-production-browser-1052.json",
+      "sha256": "c9f193af566e4472d8b08654473c86a06933fe40cb3581d044d04c31722b5c7d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/main-node.json",
+      "sha256": "57f25253f045b1898751bf00c7f706d23c471a911e960dd7da75b943573b5b03"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/publish-rct-production-controls-1055.ts",
+      "sha256": "301d06076e5cd986e46e3d1d5b59eb449b297fcbc87ffcf73ceec07a73420c44"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-rct-website-1059.ts",
+      "sha256": "b03358ba4c8be065f93d848cfaf2f8fb38b0b6e386d6162edd77b819be094a99"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-rct-final-gates-1058.ts",
+      "sha256": "0c2c3ea96914d55ec98a532484dc56fddf37d7c2c23325636a57b953cca6f8c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-website-1059.json",
+      "sha256": "b6f97aab43d4c945c343833f22444aa9c0832ba421f100b95900fa77cf810922"
+    },
+    {
+      "path": "browser-tests/jpegxl-showcase.pw.ts",
+      "sha256": "786f087d481f43e167b52cc08e437b51b6d16060d4d2f7f130dd7bfceff78ddc"
+    },
+    {
+      "path": "docs-astro/src/pages/jpeg-xl/comparison.astro",
+      "sha256": "dc3a60e4a16a3d631bebccce59afa948c0dcf1c64f83a4bc88f8540415cf9c13"
+    },
+    {
+      "path": "scripts/jpegxl-showcase-assets.ts",
+      "sha256": "d2b8b0bb38d6359455842f56d9375fc9ba13ac1e9dbe2c5bf52c5176ccedd43d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-RCT.md",
+      "sha256": "20ae2add95d4befc36958e15a68673025457e1489302c5daa88ffadd751525a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-website-results-1059.json",
+      "sha256": "b7b3708f7d1399c0ec73f30a9e8abd90794abf3d9ce1ff66980822e8f9a0765b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1060.json",
+      "sha256": "feaeac001a46b1c3d71a58f821406e78ff4393290f6d85ecd2377c1595985084"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1061.json",
+      "sha256": "b9e8ea4cfa6da7996e684303e29035320c4f4c8474d0574c775480feabf95271"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1062.json",
+      "sha256": "a01a8e14036e02dee2507b7280057713b908769d9aecb11eeccfaa4857907152"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/rct-gate-1063.json",
+      "sha256": "2fede546f25ca27aed6702e7cbde71e395b9731a8bd6d11da1dc1ca5de694474"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/publish-rct-final-gates-1064.ts",
+      "sha256": "a217280ee7ce818e08b6b6c5e3c3ceecf18d13c85c4c31460a436006e101eaf2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-rct-final-gates-1064.json",
+      "sha256": "246c8f778813e62e70d4eb4dbb23e3f2f518173e273f9f96584b74133465aa07"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json",
+      "sha256": "a3fa6f67836001554a1052cc0559743626ee8c25939354297c2399964c7d282a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/rct-website-1059.json",
+      "sha256": "ee7e783e9264fb47c485933378df7c9a2bcd7a702dec911cddfa7ee2eca5b1d6"
+    },
+    {
+      "path": "/tmp/jpegxl-rct-check-1063.log",
+      "sha256": "57514a0c28b7c35204708fa9775f6b5607f7f908f6acdcf6210e00eaee247b58"
+    },
+    {
+      "path": "/tmp/jpegxl-rct-size-1061.log",
+      "sha256": "a0cbdaa1925da3826ec19b8235268aede46a5468e778bc231446f31e3bda63b0"
+    },
+    {
+      "path": "/tmp/jpegxl-rct-documentation-1062.log",
+      "sha256": "9217a727a6363269a80d9475c4f783474cdd4f2b15c73343cb81741832aa8831"
+    },
+    {
+      "path": "/tmp/jpegxl-rct-browser-check-1060.log",
+      "sha256": "5ef0f71e85398bf8a9c909f45cd0f700275ba6d6e9eeadd85ba5ff24f557fd73"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3bfca128ae3383812a060e629340f46a4fcbe7d667f82ee11b4cbeb3c8978eab"
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "1a41f3639e65bff9dca8323a8040f49dd8b161d4eaabf8ec08856916d92ae71c"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "9bb155f2f0d0577da1d4a1c4f9dfcaba09b6d802185af073d6a4a81f64ed7003"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-SPATIAL.md",
+      "sha256": "3962b191a0224c168192d365f18e5fee29a9c7261b8868a02fc337074b8612fa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/LOSSLESS-REPEATS.md",
+      "sha256": "1a8b543b40616c49a6e76f0040b480b48037b2661341869adb2b7483cdb1349e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "50072c590ad4dba31cb9bd132ff6f646664d1f25933db1c96f88418a683f8773"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/FILTER-AC.md",
+      "sha256": "e6c7918466a4a5b400ae0bd4caceed341561bfdbde772faed7ddb191667a917d"
+    },
+    {
+      "path": "tests/jpegxl-fast-lossless.test.ts",
+      "sha256": "7c581cae4117f8f2282f07d2b31d280c9f41ee3850cc36ba1c0435235899183c"
+    },
+    {
+      "path": "tests/jpegxl-encoder-memory.test.ts",
+      "sha256": "4730ea1af55d1f28f6170cb3305b42eff8788e40ade67570491e86cd0d04c6ba"
+    },
+    {
+      "path": "tests/jpegxl-m4-color.test.ts",
+      "sha256": "72430daf05cccbc66ebe98c44cc4fe102c9717a9ed1f6cdb4aefc2d768ed0396"
+    }
+  ],
+  "versionUnchanged": true,
+  "zeroRuntimeDependencies": true,
+  "indexEmpty": true,
+  "fullParity": false,
+  "priorFailedBrowserRunPreserved": ".tmp/jpegxl-m7/bounded-runs/parity-spatial-lossless-browser-961.json",
+  "policy": "Complete handoff gates for the adopted first-party effort1 reversible-color compression checkpoint. Four original effort1 files shrink and twelve stay exact, every original effort7 file stays byte-identical, and all native color samples, hidden RGB, alpha, caller samples, working budgets, exports and package ceilings remain preserved. Human compression-first authorization accepts the independently audited21-pair map timing and RSS cost; historical timing/RSS guard failures stay explicit and are not pooled or relabeled as passing. Full compression parity remains open. No version, release, stage, commit or push."
+}

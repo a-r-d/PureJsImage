@@ -1,0 +1,1026 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-reserved-pooled-trees-307.ts",
+      "sha256": "ee677cf8810de557a507917f47495e4d22c40d9f857d76a5ba98dba0897c45fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-reserved-pooled-trees-307.json",
+      "sha256": "d9c3625db1af7abce56188dec9a915b293b6d60d1c3c93ec67b6454215470e01"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-encode-fragment-307.ts",
+      "sha256": "df222a4599d60ed23c9e16f71882b01605404304c28fae1899677c29b3f2b887"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-program-profile.json",
+      "sha256": "f2fd1c4292b411ff21f696a17730fbd33ecc552cf65cfd05a1171a2ca7016ddc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/manifest.json",
+      "sha256": "459da9bad4e3026e92a81f724e4b1bd726eafabac1b65f322f5c2ba375006dca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-budget-pooled-trees-305.ts",
+      "sha256": "b1fbc29c22ece57b637082a377035e5e1a3c25a0de42688971e692184e47f4f0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-budget-pooled-trees-305.json",
+      "sha256": "633f4d012b461581f9ec38cc85c6435166855dd759d0bd5cda3ba179eb5b2f34"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-encode-fragment-305.ts",
+      "sha256": "cc98d4ed3442541feeff0ca581c359ff14decbc5c77ca9f64e4fd092152acbf5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-model-audit.json",
+      "sha256": "4cb078eddc70a1ab9fb87a5ba47fd5fad13f48eebbbcb169e65580906bf4e9a3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json",
+      "sha256": "ef0c0a97d95d5cd796d440fe191506450e70d7ac45f6ecdfb7a677e106194898"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-trees-298/manifest.json",
+      "sha256": "0881f65cb8da2de471705ccc9d86690fa15c6f33acf2e6e0a8a592294e5f4772"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-group-pooled-trees-298.ts",
+      "sha256": "406829e599294721c3afe15826fe53bb53c14866fd2d767e9ef21e93bbc297b7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-group-pooled-trees-298.json",
+      "sha256": "eee86cd3d7e0973a78098994866de450b164a4b5a535cd4cbe25ce7156577718"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/group-pooled-encode-fragment-298.ts",
+      "sha256": "0504367f4ecf62aa6837b07112b7a144f9a12d458fc5bb45324b0887cc2338a9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-program-profile.json",
+      "sha256": "b83157457fe693efa6abd7fbceca09e8b47a7e6fd7082ba19f7a9fb389175aa7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-trees-296/manifest.json",
+      "sha256": "79d31a2e76e7e30a75905160ee1878c424abcf76b432cc29ae4e7bfe878ddb30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-pooled-trees-296.ts",
+      "sha256": "d22d2eb439260f8324d31059c3e1695d5e4b2533f2e027e528ad7fbd102442e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-pooled-trees-296.json",
+      "sha256": "69471c511ad1c2cb18ec7829c0335be491f16b2c04fccb63980df88df71a503a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/pooled-encode-fragment-296.ts",
+      "sha256": "2bdbcc7921a26c7fb68cd197c1690a7dca5227e5264fb9fb9ca1628441e43247"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-hybrid-final-gates.json",
+      "sha256": "ba7fce97c6cb103470cdae47d292ef3351ba77ec4f31fec9736cb34688d82690"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-controls.json",
+      "sha256": "f2c0664d132c826e772ec7b9d5006eda376bb9f8ede491c7e71bfa254e77d0f5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/shared-groups-286e/manifest.json",
+      "sha256": "3593d6ffced157ccf924d2f8083dc14acce7eb2e6b102b627db10932e387e42b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-hybrid-291.ts",
+      "sha256": "6cc0eb8a2d3763665f76aa1a570ff1f182f87545f7f421cd3dd95399d6e21a7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-hybrid-291.json",
+      "sha256": "e23411b40ee22f892c9fcf404d88ed11f95a50d2a5ef9b7cb79f55faf5e71523"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286e.ts",
+      "sha256": "90a728f4a63bc075bb4798828e82b46b631f9a591a8605a97b86829c2296e553"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-final-gates.json",
+      "sha256": "fe9fc68b8361cae293a2063434e854cf0d2bdc08c41d86ca2414d9e30dc8ed10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286e.ts",
+      "sha256": "2363c793620cf280a4d826ab945cb7abb2f26c9f58fab9d2bf5ecf5823f30673"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286e.json",
+      "sha256": "738439f081cfbf10cae886b7767f5927a2bdf9cc1f97d6f6a397fdec838d461e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286c.ts",
+      "sha256": "9a91496ef8695cec8aeaafb510dcfa1d7cb97acc1b434a420fa5d3a9eee6e83d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286c.json",
+      "sha256": "4a026b2cbd3e2fc1df79f78e057a610536deb7303787a13d0b8a060dc2b40a83"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286d.json",
+      "sha256": "34e4d51996b6ef4839a004db9e85744c4842565d3d69917576e9c8816410e880"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/shared-group-model-controls.json",
+      "sha256": "e1f47c429b30637be3ee0da68254282fdf003ca6af6ac0629798a78b8da458fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286c.ts",
+      "sha256": "c1fcfc92a0a8670f6c6198d379d4990b2d53e29093bb277775b2a44a4da2655d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286c.json",
+      "sha256": "3fc65d1608f203db81824339378a835992a1edc6067b0680aa927c4a87b8a366"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286b.ts",
+      "sha256": "76e0a2655fcdc3f726c72c81e9e567e6cf75557440271aaa8291ead24c31d211"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286b.json",
+      "sha256": "7f9f1f550c91ffc495b2d10c85cea2de7a372256e3bb3dc185b80fafbd3b38c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/manifest.json",
+      "sha256": "e11590e829783a401677546dc8636c9c993293227cb97be5d2cba20ffba20174"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/verify-shared-groups-286.ts",
+      "sha256": "2469a99389fc4cf24349649247dad094a17e37f02b1a18d517246a86e8691ce7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286b.ts",
+      "sha256": "2348f58fdfa5dd1b265f3bbdc6a583bc9e14051e2968de0e0430d05889d4e46c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286b.json",
+      "sha256": "cae65318bb75efa8218ab776e3077e73ff158c1bc7cc3cd69d284fe68afc5c66"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-shared-group-model-controls-286.json",
+      "sha256": "63f2212cad85fdd1213e1d70eb1984591c03163d06ab746a0bb1eb67062c5a3a"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-reserved-pooled-trees-307.ts",
+      "sha256": "04c2f3692f5fac90995ec62301cd08d05a30d13c6d2015d239a432727f4dd4e1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-groups-286.ts",
+      "sha256": "e8076b609eae65477dbffa5023da4ea693ce126fb80e9aae0653dbf6e4cf4c3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-shared-worker-286.ts",
+      "sha256": "281490888e57f44078a96d554e462da73fc73e045402b271f4b2e68560e74378"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-shared-groups-286.json",
+      "sha256": "b11471c00f293592e511115c809e33a28019b97ac764aac325865baf38fd04d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/manifest.json",
+      "sha256": "71259d1f2067e81cdde79f81dda18bc6fa84307ca2e7e54914538681787b0d7c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-tree-fragment-307.ts",
+      "sha256": "148c83c5cc7f4c4ce4104e689950cf7a0d91863ec7873d4c43f4a870e9d9f257"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-local-rct-controls.json",
+      "sha256": "44b69557f1b63c78884614a98ce9fff40b186a6ae61e4805555d638d9a9ef6d0"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-final-gates.json",
+      "sha256": "ace0862413240a9888a3f4114ec21f49c0cd2e7426cdbf0370fe428a027d4988"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305-output/im26-1416-diagnostic-floor.jxl",
+      "sha256": "f3846ba067c50da01868f1644d48762d39d7f030e68527b70e008595ef5ca15a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "sha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-2018.ppm",
+      "sha256": "797684f1c6fc3eae59e2f99678fb2ffef49627269abe562e61b811cf13ccf69c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305-output/im26-2018-diagnostic-floor.jxl",
+      "sha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "sha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305-output/photo-2018-red-one-level-dither-floor.jxl",
+      "sha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "sha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305-output/photo-1416-boundary-513-floor.jxl",
+      "sha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-modular-encode.ts",
+      "sha256": "b32b460289ad8c2209de4d3cc1744adb6742624345451b2d6b4e4a3c80da3a84"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-modular-encode.ts",
+      "sha256": "b32b460289ad8c2209de4d3cc1744adb6742624345451b2d6b4e4a3c80da3a84"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-modular-tree.ts",
+      "sha256": "20e0787db5bb65beb652cd43dbe002cb5226eca2a902e0b627f80571717bef32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-modular-tree.ts",
+      "sha256": "20e0787db5bb65beb652cd43dbe002cb5226eca2a902e0b627f80571717bef32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/baseline/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-modular-encode.ts",
+      "sha256": "05c420546b92bd2c8dfbe31df27d8d064b756a4d42580215393a8016fed9adf4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-modular-encode.ts",
+      "sha256": "f07038a44a1d7c5668dba46cd004c0e2e2135c238c675bf71c213e40da33b5d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-modular-tree.ts",
+      "sha256": "f50e56447d3ac25406cdb5d34ec68e7ca6c8068dc59727d567c29db8d6768a5c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-modular-tree.ts",
+      "sha256": "20e0787db5bb65beb652cd43dbe002cb5226eca2a902e0b627f80571717bef32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/budget-pooled-trees-305/pooled/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-modular-encode.ts",
+      "sha256": "345834860d2a20cc5dcc00a1836c768b47c8635a05bc7aaebb02c2dc4be44546"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-modular-tree.ts",
+      "sha256": "f50e56447d3ac25406cdb5d34ec68e7ca6c8068dc59727d567c29db8d6768a5c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307/floor/jpegxl-modular-rct.ts",
+      "sha256": "21b6e31db77edfb5db5b56dbbfa29a9c6c0dc88c62c025dba7f67313f3e051b5"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-baseline.jxl",
+      "encodedSha256": "f3846ba067c50da01868f1644d48762d39d7f030e68527b70e008595ef5ca15a",
+      "bytes": 640578,
+      "baselineBytes": 640578,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8826,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Previous joined/uniform/group-aware/global-budget complete floor",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 72763183,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-baseline.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 27608.353428,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-pooled.jxl",
+      "encodedSha256": "e23b25d18ed84da53d357cb29c3be612907421b2d626aea47c53c7511d9addc2",
+      "bytes": 640549,
+      "baselineBytes": 640578,
+      "changeBytes": -29,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8855,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 64292724,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-pooled.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-pooled.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 16405.867423000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "floor",
+      "width": 1024,
+      "height": 768,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-floor.jxl",
+      "encodedSha256": "e23b25d18ed84da53d357cb29c3be612907421b2d626aea47c53c7511d9addc2",
+      "bytes": 640549,
+      "baselineBytes": 640578,
+      "changeBytes": -29,
+      "retainedCurrentBytes": 649404,
+      "changeFromRetainedBytes": -8855,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 72763183,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-floor.jxl.native.npy",
+          "sha256": "dfd9e1d3fd588cd9294bdcb3085a5177f902525257beff288032f323a0fefb8d",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-1416-diagnostic-floor.jxl.rust.npy",
+          "sha256": "03d3f1c72dfdd88f381d11fddabbe2052c5ea7441dd6a9e84ce367e881fe2c72",
+          "samples": 3145728,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 3145728,
+      "maximumSampleError": 0,
+      "elapsedMs": 33606.456317,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-baseline.jxl",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "baselineBytes": 614379,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 1111,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Previous joined/uniform/group-aware/global-budget complete floor",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92621983,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-baseline.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-baseline.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 29133.139924000003,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-pooled.jxl",
+      "encodedSha256": "d3c5918e9829913832c2affa1f578ee78c4e4227c6d6278f401079c14c0d62a4",
+      "bytes": 615917,
+      "baselineBytes": 614379,
+      "changeBytes": 1538,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 2649,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 82362971,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-pooled.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-pooled.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 17240.940209000008,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-2018-diagnostic",
+      "variant": "floor",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-2018-diagnostic.raw",
+      "inputSha256": "9912cbe68c955081e5c0603d028aa6e944913ea7c4bb9d238789adb466c67ca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-floor.jxl",
+      "encodedSha256": "c341c64b7a352689a7e8aaf52ba3b9ef204fcb1a5e447247bf65d5a16e1b0ed7",
+      "bytes": 614379,
+      "baselineBytes": 614379,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 613268,
+      "changeFromRetainedBytes": 1111,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92621983,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-floor.jxl.native.npy",
+          "sha256": "eafc46ff5d707ea3997d6727ac8bd846699eed77e1c2e9256b0f3f777dc9daa6",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/im26-2018-diagnostic-floor.jxl.rust.npy",
+          "sha256": "33ae2a840961509dd61edb16aeec08a049d9c4726ebf749b5273f78afc7260cf",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 35387.664908999985,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "baseline",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-baseline.jxl",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "baselineBytes": 619207,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 2101,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Previous joined/uniform/group-aware/global-budget complete floor",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92842369,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-baseline.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-baseline.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 30260.010739999998,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "pooled",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-pooled.jxl",
+      "encodedSha256": "c1b3ace1ed786f5ddc0142ef1ef4254d849f146dd881ddacf6560b35734b171a",
+      "bytes": 626279,
+      "baselineBytes": 619207,
+      "changeBytes": 7072,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 9173,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 82376338,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-pooled.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-pooled.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 17654.248669000022,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-2018-red-one-level-dither",
+      "variant": "floor",
+      "width": 1024,
+      "height": 1024,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-2018-red-one-level-dither.raw",
+      "inputSha256": "3c49e1c5d51d477f46bab72026ea3761355c25e1a6d05dee5dda5c9018a935f1",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-floor.jxl",
+      "encodedSha256": "d8b3c5b6cb608462497d8be9b7c24dfaf3ff2ae0845532e243d87b236f40d07f",
+      "bytes": 619207,
+      "baselineBytes": 619207,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 617106,
+      "changeFromRetainedBytes": 2101,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 92842369,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-floor.jxl.native.npy",
+          "sha256": "3078f975de463631b576b0c0c8a531725bc67e749b4482df8cba077b6227d2ed",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-2018-red-one-level-dither-floor.jxl.rust.npy",
+          "sha256": "2807358e20bb8c10c6db460361158e0cc586e5f0b6f090b3c0d500837d2a5e5f",
+          "samples": 4194304,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 4194304,
+      "maximumSampleError": 0,
+      "elapsedMs": 36458.46437899998,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "baseline",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-baseline.jxl",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "baselineBytes": 227774,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -23,
+      "policy": "baseline",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Previous joined/uniform/group-aware/global-budget complete floor",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-baseline.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-baseline.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 11815.060298999946,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "pooled",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-pooled.jxl",
+      "encodedSha256": "8d735722e30ff631251e23676ca724c4bb781fe9d76461ea55d299b67b7810e4",
+      "bytes": 227778,
+      "baselineBytes": 227774,
+      "changeBytes": 4,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -19,
+      "policy": "pooled",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-pooled.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-pooled.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 6051.510522000026,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "photo-1416-boundary-513",
+      "variant": "floor",
+      "width": 513,
+      "height": 512,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/guarded-local-color-281/inputs/photo-1416-boundary-513.raw",
+      "inputSha256": "4a244be6e329b039af20fe71f96fbfa5d7f30c3d4075a256d3c5f3480dbfa3eb",
+      "artifact": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-floor.jxl",
+      "encodedSha256": "282a2da429e8199203202fb47e1faf43f4a03a54b5e1c505a9e1a9133ba8cf48",
+      "bytes": 227774,
+      "baselineBytes": 227774,
+      "changeBytes": 0,
+      "retainedCurrentBytes": 227797,
+      "changeFromRetainedBytes": -23,
+      "policy": "floor",
+      "maxTrainingSamples": 65536,
+      "leafBudget": "Reserve up to256 beneficial leaves/channel then allocate within aggregate channelCount*256",
+      "maxTotalLeaves": 1024,
+      "maxDepth": 16,
+      "histogramCap": 128,
+      "maxLz77Entries": 262144,
+      "ownedPeak": 35031577,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 512,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-floor.jxl.native.npy",
+          "sha256": "28837565a4c2488983cac75c9658bb7706aa28e6f07b2a5deec54f5639e537ab",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/reserved-pooled-trees-307-output/photo-1416-boundary-513-floor.jxl.rust.npy",
+          "sha256": "01b7e3bbe1f705d6f43d9fb9fff38091e671fad535dfafd9c6026f72a37532dc",
+          "samples": 1050624,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1050624,
+      "maximumSampleError": 0,
+      "elapsedMs": 14411.418636000017,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Four unchanged original/frozen inputs compare exact305floor, raw reserved group-aware leaf allocation and actual complete-file floor including ToC/padding. Every channel retains original up-to256beneficial leaves before spare capacity is allocated globally within same1024RGBAceiling. Individual channels may exceed256 under explicit reserved aggregate policy. Fixed65536samples/channel/depth16/evaluator/properties/128models/local transforms/predictors/hybrids and visible scoped trainer ownership retained. Every native/Rust/public original sample/alpha/geometry, immutable pins/input, exact baseline/floor and allocation closure required. No original memory/process/cost/bundle change or source/full-parity adoption."
+}

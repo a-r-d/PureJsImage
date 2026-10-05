@@ -1,8 +1,17 @@
 ---
-import Layout from '../../layouts/JpegXlLayout.astro'
+import dcCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
+import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
+import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
+import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
+import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
+import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
+import compressionQuality from '../../../../benchmark/jpegxl/comparison/results/quality-funded-sampling-public.json'
+import supplementalQuality from '../../../../benchmark/jpegxl/comparison/results/quality-photo-frontier-extension.json'
+import subjectManifest from '../../../../benchmark/jpegxl/comparison/subjects.json'
 import raw from '../../../../benchmark/jpegxl/comparison/website-data.json'
 import crops from '../../data/jpegxl-comparison-crops.json'
-import subjectManifest from '../../../../benchmark/jpegxl/comparison/subjects.json'
+import Layout from '../../layouts/JpegXlLayout.astro'
+
 const record = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.filter(record) : [])
@@ -19,8 +28,63 @@ const names = [
 ]
 const footprints = rows(raw.footprints),
   summaries = rows(raw.summaries).filter((r) => r.runtime === 'chromium'),
-  quality = rows(raw.qualityComparisons)
-const adequate = quality.filter((r) => r.status === 'measured with adequate brackets')
+  supplements = rows(supplementalQuality.comparisons).filter(
+    (r) => r.status === 'adequate bracket',
+  ),
+  quality = rows(compressionQuality.comparisons).map((original) => {
+    const prior =
+      supplements.find(
+        (r) =>
+          r.fixture === original.fixture &&
+          r.target === original.target &&
+          r.comparator === original.comparator,
+      ) ?? original
+    const updated = rows(dcCompression.matchedFrozenPeerComparisons).find(
+      (r) =>
+        r.fixture === prior.fixture &&
+        r.target === prior.target &&
+        r.comparator === prior.comparator,
+    )
+    if (!updated) return prior
+    const band = rows(dcCompression.matchedPhotoBands).find(
+      (r) => r.fixture === prior.fixture && r.target === prior.target,
+    )
+    if (
+      !band ||
+      prior.status !== 'adequate bracket' ||
+      updated.frozenPeerBytes !== prior.comparatorBytes ||
+      updated.frozenPeerWidth !== prior.comparatorWidth ||
+      typeof updated.interpolatedBytes !== 'number' ||
+      typeof updated.ratio !== 'number' ||
+      typeof band.width !== 'number' ||
+      band.width > 0.25
+    )
+      throw new Error('Integrated DC comparison must retain the exact adequate frozen peer')
+    return {
+      ...prior,
+      pureBytes: updated.interpolatedBytes,
+      pureWidth: band.width,
+      ratio: updated.ratio,
+    }
+  })
+if (
+  supplementalQuality.implementationSourceSha256 !== compressionQuality.implementationSourceSha256
+)
+  throw new Error('Supplemental quality source differs from the full replay')
+const adequate = quality.filter((r) => r.status === 'adequate bracket')
+const unresolvedQuality = quality.filter((r) => r.status === 'unresolved').length
+if (
+  dcCompression.completed !== true ||
+  dcCompression.sourceAdopted !== true ||
+  dcCompression.fullParity !== false ||
+  dcCompression.publicComparisonCountsChanged !== false ||
+  dcCompression.scoreTolerance !== 0.25 ||
+  dcCompression.extrapolation !== false ||
+  dcCompression.matchedFrozenPeerComparisons.length !== 12 ||
+  adequate.length !== 13 ||
+  unresolvedQuality !== 11
+)
+  throw new Error('Integrated DC evidence or original comparison counts differ')
 const timings = rows(raw.timingRows).filter(
   (r) =>
     text(r.sourceReport).includes('/main-node') &&
@@ -76,16 +140,150 @@ const previews = subjects.map((subject) => {
 })
 const maxWarm = Math.max(...timings.map((r) => (record(r.warmMs) ? n(r.warmMs.median) : 0)))
 const maxBytes = Math.max(...footprints.map((f) => n(f.brotliBytes)))
+const currentPhoto = rows(compressionLossless.rows).find((r) => r.fixture === 'im26-1416-original')
+const currentPhoto7 = rows(groupLossless.effort7Rows).find(
+  (r) => r.fixture === 'im26-1416-original',
+)
+const currentScreenshot7 = rows(groupLossless.effort7Rows).find(
+  (r) => r.fixture === 'im26-8160-original',
+)
+const photoAt80 = rows(compressionQuality.comparisons).find(
+  (r) => r.fixture === 'im26-1030-diagnostic' && r.target === 80 && r.comparator === 'vips',
+)
+if (
+  !currentPhoto ||
+  typeof currentPhoto.bytes !== 'number' ||
+  !currentPhoto7 ||
+  typeof currentPhoto7.bytes !== 'number' ||
+  !currentScreenshot7 ||
+  typeof currentScreenshot7.bytes !== 'number' ||
+  !photoAt80 ||
+  photoAt80.status !== 'adequate bracket' ||
+  typeof photoAt80.ratio !== 'number' ||
+  compressionLossless.rows.length !== 16 ||
+  compressionLossless7.rows.length !== 16 ||
+  compressionLossless7.implementationSourceSha256 !==
+    compressionQuality.implementationSourceSha256 ||
+  compressionQuality.streams !== 91 ||
+  compressionLossless.implementationSourceSha256 !== compressionQuality.implementationSourceSha256
+)
+  throw new Error('Incomplete compression update')
+const currentPhotoBytes = currentPhoto.bytes.toLocaleString('en-US')
+const currentPhoto7Bytes = currentPhoto7.bytes.toLocaleString('en-US')
+const currentScreenshot7Bytes = currentScreenshot7.bytes.toLocaleString('en-US')
+const integratedPhotoAt80 = quality.find(
+  (r) => r.fixture === 'im26-1030-diagnostic' && r.target === 80 && r.comparator === 'vips',
+)
+if (!integratedPhotoAt80 || typeof integratedPhotoAt80.ratio !== 'number')
+  throw new Error('Integrated photo comparison missing')
+const photoSizeGap = ((integratedPhotoAt80.ratio - 1) * 100).toFixed(2)
+const repeatedGraphics = rows(repeatedLossless.graphics)
+if (
+  repeatedLossless.completed !== true ||
+  repeatedLossless.sourceAdopted !== true ||
+  repeatedLossless.fullParity !== false ||
+  repeatedLossless.originalFixtures !== 16 ||
+  repeatedLossless.smallerLosslessFiles !== 4 ||
+  repeatedLossless.unchangedLosslessFiles !== 12 ||
+  repeatedLossless.largerLosslessFiles !== 0 ||
+  repeatedLossless.completeIndependentNativeRustGrids !== 64 ||
+  repeatedLossless.realBrowserCases !== 18 ||
+  repeatedLossless.originalWorkingBudgetsRecovered !== true ||
+  repeatedLossless.packageCeilingsPreserved !== true ||
+  repeatedLossless.compressionFirstAuthorized !== true ||
+  repeatedLossless.timingAndRssMeasured !== true ||
+  repeatedLossless.unchangedEffort7Files !== 16 ||
+  repeatedLossless.unchangedOriginalColorHashes !== 56 ||
+  repeatedLossless.verifiedComparableLosslessCells !== 45 ||
+  repeatedLossless.atOrBelowFrozenPeerLosslessCells !== 40 ||
+  repeatedLossless.remainingMeasuredLosslessGaps.length !== 5 ||
+  repeatedGraphics.length !== 4 ||
+  repeatedGraphics.some(
+    (r) =>
+      r.allOriginalNativeSamplesExact !== true ||
+      typeof r.bytes !== 'number' ||
+      rows(r.peers).length !== 2 ||
+      rows(r.peers).some(
+        (p) => p.exactOriginalNativeSamples !== true || typeof p.bytes !== 'number',
+      ),
+  )
+)
+  throw new Error('Incomplete repeated lossless comparison')
+if (
+  denseLossless.completed !== true ||
+  denseLossless.sourceAdopted !== true ||
+  denseLossless.fullParity !== false ||
+  denseLossless.verifiedComparableLosslessCells !== 45 ||
+  denseLossless.atOrBelowFrozenPeerLosslessCells !== 43 ||
+  denseLossless.remainingMeasuredLosslessGaps.length !== 2 ||
+  denseLossless.effort7Rows.length !== 16 ||
+  denseLossless.smallerEffort7Files !== 12 ||
+  denseLossless.unchangedEffort7Files !== 4 ||
+  denseLossless.largerEffort7Files !== 0 ||
+  denseLossless.unchangedEffort1Files !== 16 ||
+  denseLossless.completeIndependentNativeRustGrids !== 64 ||
+  denseLossless.exactIndependentSamples !== 384733048 ||
+  denseLossless.realBrowserCases !== 18 ||
+  denseLossless.originalWorkingBudgetsRecovered !== true ||
+  denseLossless.packageCeilingsPreserved !== true ||
+  denseLossless.unchangedOriginalColorHashes !== 56
+)
+  throw new Error('Incomplete denser lossless production comparison')
+if (
+  groupLossless.completed !== true ||
+  groupLossless.sourceAdopted !== true ||
+  groupLossless.fullParity !== false ||
+  groupLossless.integerLosslessCorpusParity !== true ||
+  groupLossless.verifiedComparableLosslessCells !== 45 ||
+  groupLossless.atOrBelowFrozenPeerLosslessCells !== 45 ||
+  groupLossless.remainingMeasuredLosslessGaps.length !== 0 ||
+  groupLossless.additionalPeerComparisons.length !== 4 ||
+  groupLossless.rows.length !== 16 ||
+  groupLossless.effort7Rows.length !== 16 ||
+  groupLossless.smallerEffort1Files !== 6 ||
+  groupLossless.unchangedEffort1Files !== 10 ||
+  groupLossless.largerEffort1Files !== 0 ||
+  groupLossless.smallerEffort7Files !== 4 ||
+  groupLossless.unchangedEffort7Files !== 12 ||
+  groupLossless.largerEffort7Files !== 0 ||
+  groupLossless.completeIndependentNativeRustGrids !== 64 ||
+  groupLossless.exactIndependentSamples !== 384733048 ||
+  groupLossless.realBrowserCases !== 30 ||
+  groupLossless.originalWorkingBudgetsRecovered !== true ||
+  groupLossless.originalMinimumBoundariesPreserved !== true ||
+  groupLossless.packageCeilingsPreserved !== true ||
+  groupLossless.unchangedOriginalColorHashes !== 56 ||
+  groupLossless.peerComparisons.some(
+    (row) => row.currentBytes > row.peerBytes || row.exactOriginalNativeSamples !== true,
+  ) ||
+  groupLossless.additionalPeerComparisons.some(
+    (row) => row.currentBytes > row.peerBytes || row.exactOriginalNativeSamples !== true,
+  )
+)
+  throw new Error('Incomplete lossless group search comparison')
 ---
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
-<p>PureJsImage now decodes all 16 pinned lossless inputs exactly, including the seven that previously failed. It has the smallest loaded toolkit among these tested APIs and exposes native sample and exact JPEG workflows. The WASM alternatives are faster on several workloads; most lossy quality comparisons remain unresolved under the finite sampling budget.</p>
+<p>The latest integer-lossless encoding closes all three remaining measured size gaps. Every one of the 45 independently exact comparable cells in the original Node matrix now meets or beats the frozen peer size. All four separate original-size photo and screenshot controls also meet or beat peer size. This is compression parity on the pinned integer-lossless corpus. Broader lossy, float, CMYK and animation compression remains open.</p>
+<p>PureJsImage now decodes all 16 pinned lossless inputs exactly, including the seven that previously failed. It exposes native sample and exact JPEG workflows. The dated comparison below records toolkit sizes and runtime performance. The WASM alternatives are faster on several workloads; {unresolvedQuality} current lossy quality comparisons remain unresolved.</p>
+<p>Later unreleased compression changes reduce the same 4000 × 3000 lossless effort-1 photo from 15,389,193 to {currentPhotoBytes} bytes, versus the pinned 9,306,869-byte jSquash and 8,176,908-byte wasm-vips files. All 16 lossless inputs preserve every sample in two independent decoders. The integrated DC model reduces 67 of the 91 original lossy files with identical decoded samples. The later photo filter changes 27 files, making them slightly larger at the same distance setting, with no SSIMULACRA2 regressions and ten Butteraugli regressions. At matched SSIMULACRA2 80, both tested photos are now smaller than both frozen WASM peers. The first photo is {(Math.abs(Number(photoSizeGap))).toFixed(2)}% smaller than wasm-vips at score 80, but remains 3.00% larger at score 70. The combined comparison has {adequate.length} adequately matched pairs and {unresolvedQuality} unresolved pairs. Overall compression parity remains open. Separate photo and graphic cost studies for this photo checkpoint pass the unchanged 5% timing guard and authorized 10% peak RSS allowance. The speed tables below retain their earlier source. Photo checkpoint source SHA-256: <code>{dcCompression.implementationSourceSha256}</code>.</p>
+<p>The earlier reversible-color checkpoint shrinks four more of the sixteen original files and leaves twelve byte-identical to the preceding checkpoint. None grows. Bounded reversible-color search reduces the map from 289,879 to 268,214 bytes, versus 268,611 for wasm-vips and 301,588 for jSquash. All four capped graphics below are now smaller than both frozen peers. All native samples, transparent RGB and alpha stay exact across 64 complete independent decoder grids. This checkpoint prioritizes compression first. Its independently audited 21-pair map study measures 37.20% more cold encoding time, 38.07% more warm time and 16.94% more cold peak RSS than the preceding PureJsImage checkpoint. The previous cost-guard failures remain recorded. Original working-memory budgets recover their former streams, and package ceilings stay unchanged. Every preceding effort-7 file and all 56 native color encodings remain byte-identical. Reversible-color checkpoint source SHA-256: <code>{repeatedLossless.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/LOSSLESS-RCT.md" download>Reversible-color compression and remaining gaps</a>, <a href="/jpeg-xl/evidence/lossless-rct-production-controls.json" download>Reversible-color production controls</a>, and <a href="/jpeg-xl/evidence/LOSSLESS-SPATIAL.md" download>Preceding spatial checkpoint</a>.</p>
+<p>The preceding effort-7 checkpoint compares denser prediction training while retaining the previous complete group. Twelve original files shrink, four remain byte-identical, and none grows. All original native samples, transparent RGB and alpha remain exact in both independent decoders. The map falls from 133,365 to 125,561 bytes, below both frozen peers. All effort-1 files and all 56 native color encodings remain byte-identical. Original working budgets recover their exact previous streams. This adds search work and makes no paired speed claim. Eighteen changed-path cases pass in Chromium, Firefox and WebKit. Denser training checkpoint source SHA-256: <code>{denseLossless.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/DENSE-TRAINING.md" download>Denser lossless prediction checkpoint</a> and <a href="/jpeg-xl/evidence/lossless-dense-training-production-controls.json" download>Preceding production controls</a>.</p>
+<div style="overflow:auto"><table><caption>Current effort-1 lossless graphics, 1024 × 1024, bytes; each encoder retains its original settings</caption><thead><tr><th>Input</th><th>Former PureJsImage</th><th>Current PureJsImage</th><th>Pinned jSquash</th><th>Pinned wasm-vips</th></tr></thead><tbody>{repeatedGraphics.map(r=><tr><td>{text(r.fixture)}</td><td>{n(r.originalBytes).toLocaleString('en-US')}</td><td>{n(r.bytes).toLocaleString('en-US')}</td><td>{n(rows(r.peers).find(p=>p.subject==='jsquash')?.bytes).toLocaleString('en-US')}</td><td>{n(rows(r.peers).find(p=>p.subject==='vips')?.bytes).toLocaleString('en-US')}</td></tr>)}</tbody></table></div>
+<p>The latest optional group search retains every completed ordinary and patch file, then tries smaller groups with bounded local reversible color selection and a refined patch-display tree. Six effort-1 files and four effort-7 files shrink; none grows. The two remaining capped photo files become 819,166 bytes at effort 1 and 641,956 bytes at effort 7. The original screenshot becomes 386,813 bytes, below pinned jSquash at 391,394 bytes. Every original native sample, hidden RGB and alpha remains exact in both independent decoders. Existing memory limits, minimum boundaries, native color hashes, public exports and package ceilings remain preserved. Thirty changed-path cases pass in Chromium, Firefox and WebKit. This adds encoding work; no speed or RSS parity is claimed. Current lossless codec source SHA-256: <code>{groupLossless.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/GROUP-SEARCH.md" download>Lossless group search and remaining scope</a> and <a href="/jpeg-xl/evidence/lossless-group-search-production-controls.json" download>Current lossless production controls</a>.</p>
+<p>The original Node report has 45 independently exact comparable lossless cells. Current files are at or below the pinned peer size in all {groupLossless.atOrBelowFrozenPeerLosslessCells}. Three further cells have no exposed matching competitor API and remain excluded. Four additional original-size effort-7 controls retain their separate scope and all meet peer size. Overall compression parity remains open.</p>
+<p><a href="/jpeg-xl/evidence/PARITY.md" download>Compression changes and controls</a>, <a href="/jpeg-xl/evidence/parity-funded-sampling-effort1-public.json" download>current lossless results</a>, and <a href="/jpeg-xl/evidence/quality-funded-sampling-public.json" download>prior full quality replay</a>.</p>
+<p><a href="/jpeg-xl/evidence/FILTER-AC.md" download>Photo filtering and AC compression results</a>, <a href="/jpeg-xl/evidence/filter-ac-production-controls.json" download>Independent photo checkpoint controls</a>, and <a href="/jpeg-xl/evidence/DC-MODELS.md" download>earlier DC-only results</a> record the latest photo endpoints, original memory limits, package ceilings and browser checks. The frozen peer encoders were not rerun.</p>
+<p>Six additional wasm-vips files resolved two previously missing comparisons on the second 1024 × 768 photo. The integrated DC comparison uses those frozen peer estimates; the table has {adequate.length} adequately matched pairs and {unresolvedQuality} unresolved pairs. The sampler refines the same nondominated curve used for matching, with the unchanged 0.25-score bracket limit. That peer supplement preserves the original reports and adds no PureJsImage encodes or speed measurements. <a href="/jpeg-xl/evidence/FRONTIER-SAMPLING.md" download>Sampling correction and scope</a>, <a href="/jpeg-xl/evidence/quality-photo-frontier-extension.json" download>Peer measurements and matching calculations</a>, and <a href="/jpeg-xl/evidence/quality-photo-extension.json" download>Earlier five-point supplement</a>.</p>
+<p>The integrated opaque palette change improves the original 1024 × 1024 graphic. Its qualified 14,617-byte distance-8 file scores 84.390 in SSIMULACRA2 and 4.820 in Butteraugli, versus 25,580 bytes / 80.153 / 7.669 for one pinned jSquash file and 30,921 bytes / 80.459 / 5.574 for one pinned wasm-vips file. Actual candidate files beat all 24 measured wasm-vips graphic files and 23 of 24 jSquash files in size and both quality metrics. The jSquash quality-101 exception remains. These complete-file comparisons add no tight matched target or competitor speed result. Independent decoder checks, the original 123-file matrix and production tests in Node, Chromium, Firefox and WebKit pass. The runtime tables below retain their earlier source. <a href="/jpeg-xl/evidence/FLAT-PALETTE-CONFIRMATION.md" download>Palette results and limits</a>.</p>
+<div style="overflow:auto"><table><caption>Current effort-7 lossless files, bytes; effort numbers select each encoder's own policy</caption><thead><tr><th>Input</th><th>PureJsImage</th><th>Pinned jSquash</th><th>Pinned wasm-vips</th></tr></thead><tbody><tr><td>4000 × 3000 photo</td><td>{currentPhoto7Bytes}</td><td>6,899,188</td><td>6,648,964</td></tr><tr><td>1920 × 1080 screenshot</td><td>{currentScreenshot7Bytes}</td><td>391,394</td><td>422,389</td></tr></tbody></table></div>
+<p>At the preceding checkpoint, the effort-7 search reduced the original photo from 6,220,181 to 6,183,475 bytes and the screenshot from 401,990 to 400,951 bytes. At that checkpoint, the screenshot was 2.442% larger than pinned jSquash. Its two remaining main lossless gaps were 2.049% for im26-2018 at effort 1 against wasm-vips and 0.294% for im26-1416 at effort 7 against jSquash. Every original sample remains exact in both independent decoders. <a href="/jpeg-xl/evidence/lossless-dense-training-production-controls.json" download>Preceding replay controls</a> and <a href="/jpeg-xl/evidence/parity-funded-sampling-effort7-public.json" download>Earlier effort-7 results and source identities</a>.</p>
 <p>Measured {raw.generated.slice(0,10)} on one Linux workstation. PureJsImage base revision <code>{raw.implementationRevision}</code>{raw.implementationDirty ? ' with local codec changes' : ''}. Codec source SHA-256: <code>{raw.implementationSourceSha256}</code>. These results measure a local repository build.</p>
-<p>Additional fixture checks now cover multi-group global Palette and Squeeze streams, all 27 VarDCT transforms, grouped progressive alpha, and ordinary ICC and structured SDR conversion through 16-bit integer precision. Relative custom white points and primaries also convert to sRGB. Ordinary IEEE float input preserves source samples, converts supported ICC or structured SDR color to straight sRGB16, and supports explicit PQ/HLG/linear HDR conversion. Ordinary lossless output preserves binary32 samples and matching retained ICC profiles. Native Modular float and CMYK frames now compose before display conversion, including selected animation frames. Separate libjxl, LittleCMS and FFmpeg references pass in Node and three browsers. Further independent checks cover 24 mixed-alpha and wide-integer layouts, custom float fields, RGB LUT8/LUT16 XYZ profiles, relative custom HDR, integer ICC preservation, Float32 animation writing and selected HDR VarDCT frames. HLG and PQ forward writing support associated alpha and nondefault luminance targets. HDR VarDCT reference frames compose in linear color before the output transfer curve. Explicit lossy Float32 output uses Modular mantissa rounding with exact alpha. Independent native groups decode cropped bands. Remaining gaps include transformed implicit-palette prefix layouts, nonrelative custom color, wider ICC/CMYK profile families, wider integer VarDCT display, float VarDCT writing and progressive float-alpha or animation output. The speed and size comparison was rerun on the current source with the same pinned inputs and comparator versions. These additional capability checks cover cases beyond that shared comparison cohort. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md">codec support checklist</a> for the supported scope.</p>
+<p>Additional fixture checks now cover multi-group global Palette and Squeeze streams, all 27 VarDCT transforms, grouped progressive alpha, and ordinary ICC and structured SDR conversion through 16-bit integer precision. Relative custom white points and primaries also convert to sRGB. Ordinary IEEE float input preserves source samples, converts supported ICC or structured SDR color to straight sRGB16, and supports explicit PQ/HLG/linear HDR conversion. Ordinary lossless output preserves binary32 samples and matching retained ICC profiles. Native Modular float and CMYK frames now compose before display conversion, including selected animation frames. Separate libjxl, LittleCMS and FFmpeg references pass in Node and three browsers. Further independent checks cover 24 mixed-alpha and wide-integer layouts, custom float fields, RGB LUT8/LUT16 XYZ profiles, relative custom HDR, integer ICC preservation, Float32 animation writing and selected HDR VarDCT frames. HLG and PQ forward writing support associated alpha and nondefault luminance targets. HDR VarDCT reference frames compose in linear color before the output transfer curve. Explicit lossy Float32 output uses Modular mantissa rounding with exact alpha. Independent native groups decode cropped bands. Remaining gaps include transformed implicit-palette prefix layouts, nonrelative custom color, wider ICC/CMYK profile families, wider integer VarDCT display, float VarDCT writing and progressive float-alpha or animation output. The runtime tables retain the earlier source, inputs and comparator versions. The current compression results above use a later repository build and preserve their separate source identity. These additional capability checks cover cases beyond that shared comparison cohort. See the <a href="https://github.com/a-r-d/PureJsImage/blob/main/jpegxl-codec-support.md">codec support checklist</a> for the supported scope.</p>
 </section>
 <section class="jxl-card copy"><h2>Correctness and API coverage</h2><p>Chromium main set: 16 still inputs, with 13 lossy decode fixtures. Counts retain failures. Encode counts include multiple settings. “Incorrect” means the declared exact-sample or RGB8 tolerance contract failed, not a claim that the library is generally broken.</p><div style="overflow:auto"><table><caption>Verified / attempted public workflows; all other outcomes retained</caption><thead><tr><th>Library</th><th>Operation</th><th>Verified / total</th><th>API absent</th><th>Unsupported</th><th>Incorrect</th><th>Execution failure</th><th>Unavailable / not tested</th></tr></thead><tbody>{summaries.map(r=>{const c=record(r.counts)?r.counts:{};return <tr><th>{names[subjects.indexOf(text(r.subject))]}</th><td>{text(r.operation)}</td><td>{n(c.verified)} / {Object.values(c).reduce<number>((sum,v)=>sum+n(v),0)}</td><td>{n(c['API not exposed'])}</td><td>{n(c['unsupported input'])}</td><td>{n(c['incorrect output'])}</td><td>{n(c['execution failure'])}</td><td>{n(c['environment unavailable'])} / {n(c['not tested'])}</td></tr>})}</tbody></table></div><details><summary>Native, animation, metadata and access probes</summary><div style="overflow:auto"><table><thead><tr><th>Library</th><th>Feature</th><th>Status</th><th>Scope / evidence</th></tr></thead><tbody>{specialized.map(r=><tr><td>{text(r.subject)}</td><td>{text(r.feature)}</td><td>{text(r.status)}</td><td>{text(r.runtime)} · {text(r.sourceReport)}</td></tr>)}</tbody></table></div></details><p>All four initialized in Node and Chromium, with representative Firefox and WebKit checks. Lossy animation in PureJsImage remains Experimental. Exact 3/5 ms timing is a separate edge case: wasm-vips normalizes it to 100/100 ms; its 30/50 ms control passes. Oxide timing fields did not match the expected timeline; its frame access and composition passed.</p></section>
-<section class="jxl-card copy"><h2>Quality and compressed size</h2><p>{adequate.length} of {quality.length} PureJsImage/comparator/target comparisons have adequate measured brackets on both sides. The rest remain unresolved. Four diagnostics use SSIMULACRA2 70/80/90 and retain Butteraugli coordinates, monotonicity evidence and missing intervals. Each engine/source has at most six lossy points. Alpha is scored on black and white; comparator default alpha distortion remains visible.</p>{adequate.map(r=><p>At SSIMULACRA2 {n(r.target)}, <code>{text(r.fixture)}</code>: PureJsImage / {text(r.subject)} size is <strong>{n(r.pureToOtherBytesRatio).toFixed(3)}×</strong>. This capped photo does not establish original-size, HDR or transparency quality.</p>)}<div class="jxl-tool-cards">{crops.entries.map(c=><figure><img src={c.path} width="256" height="192" alt={`Actual ${c.subject} crop from the measured photo`} loading="lazy"/><figcaption>{c.subject}{'score' in c ? ` · measured SSIMULACRA2 ${c.score.toFixed(3)}, setting ${c.setting}` : ' · normalized source'}</figcaption></figure>)}</div><p>Identical 256 × 192 crop coordinates, shown without rescaling. Result crops use actual nearby measured points, not synthesized target-80 images. Source: {crops.author}, {crops.license}. <a href="/assets/jpegxl-comparison/provenance.json">Crop hashes and provenance</a>.</p><details><summary>Paired lossless size and warm-time ratios</summary><table><thead><tr><th>Runtime / comparator</th><th>Scope / effort</th><th>Pairs</th><th>Median bytes ratio</th><th>Median warm-time ratio</th></tr></thead><tbody>{rows(raw.losslessPairs).filter(r=>rows(r.pairs).length).map(r=><tr><td>{text(r.runtime)} / {text(r.other)}</td><td>{text(r.scope)} / {n(r.effort)}</td><td>{rows(r.pairs).length}</td><td>{record(r.sizeRatio)?n(r.sizeRatio.median).toFixed(3):'unavailable'}</td><td>{record(r.warmTimeRatio)?n(r.warmTimeRatio.median).toFixed(3):'unavailable'}</td></tr>)}</tbody></table><p>PureJsImage divided by comparator, verified pairs only. Complete originals, capped diagnostics and precision fixtures stay separate. Equal effort numbers do not mean equal work.</p></details></section>
+<section class="jxl-card copy"><h2>Current quality and compressed size</h2><p>{adequate.length} of {quality.length} PureJsImage/comparator/target comparisons have measured brackets no wider than 0.25 score points on both sides. The rest remain unresolved. The photo checkpoint freshly encoded 91 settings across four diagnostics at SSIMULACRA2 70/80/90 and retains Butteraugli coordinates, monotonicity evidence and missing intervals. Competitor curves retain their pinned versions and settings. Alpha is scored on black and white; comparator default alpha distortion remains visible. Exact graphic output does not substitute for a missing target bracket.</p><div style="overflow:auto"><table><caption>Current adequately matched size estimates; PureJsImage divided by comparator</caption><thead><tr><th>Input</th><th>SSIMULACRA2</th><th>Comparator</th><th>Size ratio</th></tr></thead><tbody>{adequate.map(r=><tr><td>{text(r.fixture)}</td><td>{n(r.target)}</td><td>{text(r.comparator)}</td><td>{n(r.ratio).toFixed(3)}×</td></tr>)}</tbody></table></div><p>These capped diagnostics do not establish original-size or HDR compression parity. <a href="/jpeg-xl/evidence/quality-funded-sampling-public.json" download>All measured points, brackets and unresolved pairs</a>.</p><div class="jxl-tool-cards">{crops.entries.map(c=><figure><img src={c.path} width="256" height="192" alt={`Actual ${c.subject} crop from the earlier measured photo`} loading="lazy"/><figcaption>{c.subject}{'score' in c ? ` · measured SSIMULACRA2 ${c.score.toFixed(3)}, setting ${c.setting}` : ' · normalized source'}</figcaption></figure>)}</div><p>Earlier comparison crops at identical 256 × 192 coordinates, shown without rescaling. They use actual nearby measured points rather than synthesized target-80 images and retain the earlier source. Source: {crops.author}, {crops.license}. <a href="/assets/jpegxl-comparison/provenance.json">Crop hashes and provenance</a>.</p><details><summary>Earlier paired lossless size and warm-time ratios</summary><table><thead><tr><th>Runtime / comparator</th><th>Scope / effort</th><th>Pairs</th><th>Median bytes ratio</th><th>Median warm-time ratio</th></tr></thead><tbody>{rows(raw.losslessPairs).filter(r=>rows(r.pairs).length).map(r=><tr><td>{text(r.runtime)} / {text(r.other)}</td><td>{text(r.scope)} / {n(r.effort)}</td><td>{rows(r.pairs).length}</td><td>{record(r.sizeRatio)?n(r.sizeRatio.median).toFixed(3):'unavailable'}</td><td>{record(r.warmTimeRatio)?n(r.warmTimeRatio.median).toFixed(3):'unavailable'}</td></tr>)}</tbody></table><p>These retain the earlier source used for the speed measurements. PureJsImage divided by comparator, verified pairs only. Complete originals, capped diagnostics and precision fixtures stay separate. Equal effort numbers do not mean equal work.</p></details></section>
 <section class="jxl-card copy"><h2>Warm encoding and startup</h2><p>Representative capped photo, lossless effort 1, Node. Three warm operations after initialization, outputs materialized and independently checked. These are exact-output comparisons, not equal numeric lossy distances.</p><div class="timing-bars">{timings.filter(r=>r.status==='verified').map(r=>{const ms=record(r.warmMs)?n(r.warmMs.median):0;return <div><strong>{text(r.subject)}</strong><svg viewBox="0 0 720 32" role="img" aria-label={`${text(r.subject)} ${ms.toFixed(1)} milliseconds`}><rect width={Math.max(1,ms/maxWarm*720)} height="24" fill="#7e52b7"/></svg><span>{ms.toFixed(1)} ms {record(r.warmMs)?`[${n(r.warmMs.minimum).toFixed(1)}, ${n(r.warmMs.maximum).toFixed(1)}]`:''}</span></div>})}</div><p>Oxide exposes no encoding API, so it has no encoding time.</p><h3>Cold initialization plus first encode</h3><div style="overflow:auto"><table><caption>Same Node photo workflow; median [minimum, maximum], three fresh processes</caption><thead><tr><th>Library</th><th>Status</th><th>Cold milliseconds</th><th>Peak process RSS, MiB</th></tr></thead><tbody>{cold.map(r=><tr><td>{r.subject}</td><td>{r.status}</td><td>{r.time}</td><td>{r.memory}</td></tr>)}</tbody></table></div><p>Cold reports separately include initialization and first operation, with three fresh observations for selected cells. Process/worker harness startup and input fetching are excluded. Warm operations reuse initialized modules. Small differences on this interactive host are not durable wins.</p><p>Oxide's decoder returns PNG, so its measured workflow includes mandatory PNG export. No raw-decode speed ranking equates that workflow with the other outputs.</p></section>
 <section class="jxl-card copy"><h2>Startup assets</h2><p>Loaded encode/decode toolkit, required JS, WASM and worker assets counted once. Includes the common benchmark worker; these are not minimum decode-only application bundles. Brotli quality 11 is an offline estimate; actual requests used uncompressed no-store responses.</p>{footprints.map(r=><div class="asset-bar"><strong>{text(r.subject)}</strong><svg viewBox="0 0 600 28" role="img" aria-label={`${text(r.subject)} ${n(r.brotliBytes)} Brotli bytes`}><rect width={n(r.brotliBytes)/maxBytes*600} height="24" fill="#16858a"/></svg><span>{(n(r.brotliBytes)/1024).toFixed(1)} KiB Brotli · {(n(r.uniqueDeployedBytes)/1024).toFixed(1)} KiB raw</span></div>)}<p>wasm-vips uses concurrency(1), but still starts its pthread runtime and requires cross-origin isolation. Actual repeated worker-script transfers remain in the raw report. Native libjxl is an oracle only and never enters JavaScript runtime comparisons.</p></section>
 <section class="jxl-card copy"><h2>Preview I/O and memory</h2><p>PureJsImage's scaled region and oxide's full-frame PNG preview are different workflows; their latency is not ranked. The report retains first nonempty output, requested source bytes and transferred bytes. First-preview visual fidelity was not independently scored. <a href="/jpeg-xl/progressive/">Inspect actual stages in the local tool</a>.</p><div style="overflow:auto"><table><caption>First nonempty preview, Chromium, median [minimum, maximum]. Different outputs, no speed ranking.</caption><thead><tr><th>Library</th><th>Milliseconds</th><th>Transferred source bytes</th><th>Workflow</th></tr></thead><tbody>{previews.map(r=><tr><td>{r.subject}</td><td>{r.time}</td><td>{r.bytes}</td><td>{r.scope}</td></tr>)}</tbody></table></div><p>Node peak RSS is isolated per subject process and includes the runtime, prepared source, output, WASM and worker infrastructure. It is not encoder-managed storage. WASM linear memory was not separately instrumented. Browser memory is unavailable across the tested isolation combinations. Canvas memory was not measured.</p></section>

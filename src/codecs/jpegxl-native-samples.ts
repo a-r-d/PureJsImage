@@ -1,5 +1,6 @@
 import { throwIfAborted } from '../abort.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
 import { upsampleJpegXlNativePlane } from './jpegxl-vardct-render.ts'
 
@@ -59,7 +60,7 @@ export const normalizedExtraPlane = (
   const width = layer.layouts[0]?.width ?? 0
   const height = layer.layouts[0]?.height ?? 0
   if (!descriptor || !layout || width < 1 || height < 1)
-    throw invalidInput('JPEG XL extra-channel layout is missing')
+    throw invalidJpegXlInput('extra-channel layout is missing')
   const factor =
     (layer.header.extraChannelUpsampling[descriptorIndex] ?? 1) * 2 ** descriptor.dimShift
   if (
@@ -67,7 +68,7 @@ export const normalizedExtraPlane = (
     layout.height !== Math.ceil(height / factor) ||
     source.length !== layout.width * layout.height
   )
-    throw invalidInput('JPEG XL extra-channel plane size disagrees with its layout')
+    throw invalidJpegXlInput('extra-channel plane size disagrees with its layout')
   const normalized = new Float64Array(source.length)
   if (descriptor.bitDepth.sampleFormat === 'unsigned-integer') {
     const maximum = 2 ** descriptor.bitDepth.bits - 1

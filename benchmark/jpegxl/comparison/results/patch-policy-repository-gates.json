@@ -1,0 +1,164 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-policy-documents-219b/PARITY.md",
+      "sha256": "a57a6e5c60a86530810be88e448f0198690d5977aeda8541a49931aa9477285d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-policy-documents-219b/addition.md",
+      "sha256": "cc82f1095bd0f553fd268bbc22d7cdd6c22c1a32510b9ee99ae6e6115c34b101"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/finalize-patch-policy-controls-219.ts",
+      "sha256": "8b03ad3b08651a0e8ecb0a5fab46151f88d1b883059d804e3208a6ff45d1af62"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-patch-policy-gates-219b.ts",
+      "sha256": "b401c6a0d974e3654e242ca9555fbdf47d999775c037827657d459bc4664333d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-policy-gates-219b.json",
+      "sha256": "bc9a4c7b1adde23fee8fdd7fe99ef71afdbda6cad2eac6c7b824641eae9a00ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-patch-policy-gates-219.ts",
+      "sha256": "438b6d31c981653f170129850b36ee8e1115c2e39a03b93b140ecc5413ce3c7a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-policy-gates-219.json",
+      "sha256": "26032755581cce5736f622cd1a2602907786cab67221933a6299a83ca92daab6"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "02e3bb1c0fb6a8184cf5b02c591e10e3198bfa9a962b11e0757306fae3315d8c"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-patch-policy-controls-219b.ts",
+      "sha256": "ef8321a6078894b2cb62567e2b997e3a7b627797dc526efa0b4276f0460e7a18"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-patch-policy-repository-check-219.json",
+      "sha256": "a0d0221c90ede6945d09fc87a1e2cd586f04b28480dee6a20bc69de85aee68f5"
+    },
+    {
+      "path": "/tmp/jpegxl-patch-policy-check-219.log",
+      "sha256": "6453757ba8219af8e977579a832c57afff7136d9a5a1a2b6152a53054da6d25a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-documentation-gates.json",
+      "sha256": "a7d8dbc5dbdb6048e85a3b4995725d3dfe6a11eba6f0c6bf5b1bbe09bf4672b7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-policy-controls-audit.json",
+      "sha256": "5d8bf9a9cbf968d4c1cc6f1a3d19c8ce94f8051248a230523a5cabe7c3d23542"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-controls.json",
+      "sha256": "394367f9b994eac2823ad9770b9b52205e6cc85f12885a711f2ad2294bbf525b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/spatial-tree-performance-pilot.json",
+      "sha256": "8777f62c54111ba1464cd065616c4c46f823672f7d475fa1e4409ffa18cd916b"
+    }
+  ],
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3635,
+    "filesSkipped": 1,
+    "testsSkipped": 3
+  },
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "e76fae0712f7c11e97b6db034062aaf62795b3ed2fdb5a2d88501b6d9aa8e803"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "downloadPins": [
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "02e3bb1c0fb6a8184cf5b02c591e10e3198bfa9a962b11e0757306fae3315d8c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/REPORT.md",
+      "sha256": "bc880bcfd4533147ca815acb46669276ef3597f59eed6b3ec1ae8d2371943e9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    }
+  ],
+  "originalDownloadPins": [
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "a57a6e5c60a86530810be88e448f0198690d5977aeda8541a49931aa9477285d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/REPORT.md",
+      "sha256": "bc880bcfd4533147ca815acb46669276ef3597f59eed6b3ec1ae8d2371943e9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    }
+  ],
+  "intentionalDocumentUpdate": {
+    "path": "benchmark/jpegxl/comparison/PARITY.md",
+    "originalArchive": ".tmp/jpegxl-comparison-v1/patch-policy-documents-219b/PARITY.md",
+    "originalSha256": "a57a6e5c60a86530810be88e448f0198690d5977aeda8541a49931aa9477285d",
+    "currentSha256": "02e3bb1c0fb6a8184cf5b02c591e10e3198bfa9a962b11e0757306fae3315d8c"
+  },
+  "independentSamples": 132710400,
+  "publicSamples": 66355200,
+  "ignored": [
+    ".tmp/jpegxl-comparison-v1/patch-group-policy-211",
+    ".tmp/jpegxl-comparison-v1/patch-model-reuse-213",
+    ".tmp/jpegxl-comparison-v1/patch-model-reuse-force-214",
+    ".tmp/jpegxl-comparison-v1/spatial-tree-216",
+    ".tmp/jpegxl-comparison-v1/patch-baseline-profile-215"
+  ],
+  "indexEmpty": true,
+  "policy": "Fresh full npm run check after complete copied-policy compression controls, isolated protected-cost pilots, profile analysis and read-only audit. Source and all seven qualified public modules and measured comparison results remain identical; the intentional PARITY note update preserves its exact qualified predecessor and explicit original/current pins. All eight files preserve complete independent/public pixels; all twenty-four measured hashes, raw paired observations and settled GC are audited. Production adoption and overall compression parity remain unproven. Temporary copies, grids, profiles and logs stay ignored; no dependency, version, staging, commit, push or release action."
+}

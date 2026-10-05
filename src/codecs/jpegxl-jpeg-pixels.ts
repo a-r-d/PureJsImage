@@ -1,8 +1,8 @@
 import { throwIfAborted } from '../abort.ts'
 import type { DecodeRequest } from '../codec.ts'
-import { invalidInput } from '../errors.ts'
 import type { PixelBlock } from '../pixel.ts'
 import type { JpegCoefficientComponent, JpegCoefficientImage } from './jpeg-coefficients.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 // JPEG XL reconstructs JPEG component samples without the intermediate 8-bit IDCT clip.
 // Keep two block rows per component so chroma interpolation happens before output quantization.
@@ -41,7 +41,7 @@ class ComponentRows {
   ) {
     this.#size = 8 / scale
     const basis = bases[Math.log2(scale)]
-    if (!basis) throw invalidInput('JPEG XL reduced IDCT basis is missing')
+    if (!basis) throw invalidJpegXlInput('reduced IDCT basis is missing')
     this.#basis = basis
     this.#image = image
     this.#channel = channel
@@ -57,7 +57,7 @@ class ComponentRows {
     const blockY = Math.floor(y / size)
     const slot = blockY & 1
     const output = this.#rows[slot]
-    if (!output) throw invalidInput('JPEG XL component row storage is missing')
+    if (!output) throw invalidJpegXlInput('component row storage is missing')
     if (this.#indices[slot] !== blockY) {
       const component = this.#component
       const bias =
@@ -171,7 +171,7 @@ export async function* decodeJpegXlJpegPixels(
     for (let c = 0; c < channels; c += 1) {
       const component = components[c]
       const samples = outputRows[c]
-      if (!component || !samples) throw invalidInput('JPEG XL component plane is missing')
+      if (!component || !samples) throw invalidJpegXlInput('component plane is missing')
       const coordinate = Math.max(
         0,
         Math.min(component.rows.height - 1, (originY + y + 0.5) * component.scaleY - 0.5),

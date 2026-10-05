@@ -1,0 +1,135 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-guarded-predictors-344.ts",
+      "sha256": "784a2fc1bdf0977078937dc71b65c2bbc9cea211f8f27cb0f00c89d2bc9d1950"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-guarded-final-344.ts",
+      "sha256": "34b20d9fde92526e1779c3e9818b5f5bdfe86720fd4329e1e3c522537c2b2407"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/finalize-guarded-predictors-342.ts",
+      "sha256": "ef1664b1566322703302e0a7974d76691e4de4b9ae3defc1f797f91b54f6f2b2"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-predictor-tree-repository-check-341.json",
+      "sha256": "1df4da96e2b9a5047dcfd820892dca53ad0413c591000e4f68413d57ca03fef7"
+    },
+    {
+      "path": "/tmp/jpegxl-guarded-predictor-tree-repository-check-341.log",
+      "sha256": "9d377d426f7dd39393fa50e2a96726fb537b03ba750ba70f2d920d0be9ecf993"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-native-memory-focused-342.json",
+      "sha256": "4fe3d11138c6f58594945a632b1056b384769f76fc8e293df3cfb6146c587ed5"
+    },
+    {
+      "path": "/tmp/jpegxl-guarded-native-memory-focused-342.log",
+      "sha256": "f3672b8b17d67b260992584c514ebbe40c479c6ad3ce2a3b55a14dc090113f47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-guarded-final-344.json",
+      "sha256": "8917ae78ffac81ab691894a3f902a9e8208bdb0b1a8ffbc4479ae53000510ace"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-fused-predictor-tree-final-gates.json",
+      "sha256": "98243448175acfb02de22ebbf464673608015eac29b27276e88d3944cc5acf03"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/ordinary-refined-predictor-tree-controls.json",
+      "sha256": "d686694e46c9d1db2d87580eb47e3bacb83327d253d04441c28bc26f645f9eae"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-learner-boundary-controls-retry.json",
+      "sha256": "7fa7b0cbf27ea35a8ded12f1a85e6942bc6487fbf2e5c4ba7754f7fa0092ba96"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-cpu-sample-profile-typed.json",
+      "sha256": "ab55772981499923260d7eb49824fb5fe311856194ac1ea918200cce042634d3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-PREDICTORS.md",
+      "sha256": "9ca0a33a18d1ea75f31c58b2678296f4453f3b106ab603478ec078175b39e3b0"
+    },
+    {
+      "path": "/tmp/jpegxl-guarded-predictor-tree-repository-check-343.log",
+      "sha256": "5c0fba19619f1e9862eb5bad950bc600925af1e0ed0ddce81e6c8b326ead0596"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-343.json",
+      "sha256": "b148c6f21c9a5606b257cc987ca7367f9ff1eb7454c1423cfe81109246d30888"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-predictor-tree-controls.json",
+      "sha256": "a9607f4702451ac6b9abfac55639815ed3289c377ffd51c24fabedd082f5f0f7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-selective-predictor-tree-controls.json",
+      "sha256": "e29b17f8df6af2cc8ff6165e94c3a7243b0644977c54f3eaf4be90bea91c1db8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-fused-predictor-tree-controls-334.json",
+      "sha256": "24cbf4dcab8537744845ffb1c3b882a5dd1abc0187a1065de0c3811de66d967c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-fused-predictor-tree-profile-335.json",
+      "sha256": "9b0666eb5c39ade1990a1855680db6454ce59af9fa5094fa9bd9001ed389bc5b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-fused-learner-boundaries-339.json",
+      "sha256": "a6e5f9fdcf3fbf553306b05e233919be3e2cd00516c49dfdfe548ec73b32a485"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-selective-predictor-tree-controls-340.json",
+      "sha256": "662603c944b5016b24573a379193f2f25d0cc4043550addb7a3ce83254bc922c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-predictor-tree-repository-check-343.json",
+      "sha256": "02b3780b85d773898ab14884508ef63e20574f7b316430a993d0dd30876ef82a"
+    }
+  ],
+  "qualifiedPins": 443,
+  "precedingPins": 21,
+  "originalPublicModules": 8,
+  "originalSnapshotFiles": 14,
+  "controlledFiles": 16,
+  "independentGrids": 32,
+  "independentSamples": 100679680,
+  "priorSourcePublicSamples": 50339840,
+  "controlPins": [47, 57],
+  "boundaryPins": 57,
+  "profilePins": 6,
+  "optionalEncodingSamples": 5535,
+  "exhaustiveCases": 2,
+  "noTreeFallbackCases": 2,
+  "sampledReplayCases": 1,
+  "sparseCachedSamples": 981,
+  "documentedInputs": 4,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": 4
+  },
+  "previousFullCheckTimedOut": true,
+  "focusedOriginalTestPassed": true,
+  "freshFullCheckPassed": true,
+  "productionUnchanged": true,
+  "adoptedPrototype": false,
+  "pairedCostsQualified": false,
+  "fullMemoryFallbackQualified": false,
+  "guardedPackageQualified": false,
+  "guardedBrowserQualified": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "Preserve443original qualification pins/eight built public modules/fourteen raw snapshots and preceding331boundary. Fresh guarded334/selective340sixteen files32native-Rust original grids100679680samples re-read, prior50339840source public samples separated. Every complete old encoded floor/318physical bytes/owning allocations/input/geometry/alpha/hiddenRGB passes. Exact exhaustive skip, matching no-tree fallback and981weighted sample cache match prior318full replay. Strict typed profile preserves all raw negative delta disclosures and5535optional encoding samples; every four document size/timing rows derive actual data. Full343check269files3641tests/freshactualfour-worker/resource/package/index boundaries pass. Production remains unchanged; paired cost/full-memory fallback/guarded package/browser/full matrices and broad compression parity remain unqualified. Prior341unchanged24MPtest120000ms timeout and focused342success preserved separately; no causal contention/flake claim or timeout/scheduling relaxation. No stage/commit/push/release/protection change."
+}

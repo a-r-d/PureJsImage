@@ -1,4 +1,5 @@
-import { invalidInput, truncatedInput } from '../errors.ts'
+import { truncatedInput } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 export class JpegXlBitReader {
   readonly #data: Uint8Array
@@ -19,7 +20,7 @@ export class JpegXlBitReader {
 
   readBits(count: number): number {
     if (!Number.isInteger(count) || count < 0 || count > 32) {
-      throw invalidInput('JPEG XL bit width is invalid')
+      throw invalidJpegXlInput('bit width is invalid')
     }
     if (this.#bitPosition + count > this.#data.byteLength * 8) {
       throw truncatedInput('JPEG XL codestream is truncated')
@@ -52,7 +53,7 @@ export class JpegXlBitReader {
 
   skipBits(count: number): void {
     if (!Number.isSafeInteger(count) || count < 0 || count > this.remainingBits) {
-      throw invalidInput('JPEG XL bit skip is invalid')
+      throw invalidJpegXlInput('bit skip is invalid')
     }
     this.#bitPosition += count
   }
@@ -64,7 +65,7 @@ export class JpegXlBitReader {
 }
 
 export const jpegXlCeilLog2 = (value: number): number => {
-  if (!Number.isInteger(value) || value < 1) throw invalidInput('JPEG XL integer is invalid')
+  if (!Number.isInteger(value) || value < 1) throw invalidJpegXlInput('integer is invalid')
   let bits = 0
   let limit = 1
   while (limit < value) {
@@ -103,12 +104,12 @@ export const readJpegXlHybridUintConfig = (
   if (splitExponent !== logAlphabetSize) {
     msbInToken = reader.readBits(jpegXlCeilLog2(splitExponent + 1))
     if (msbInToken > splitExponent) {
-      throw invalidInput('JPEG XL hybrid integer configuration is invalid')
+      throw invalidJpegXlInput('hybrid integer configuration is invalid')
     }
     lsbInToken = reader.readBits(jpegXlCeilLog2(splitExponent - msbInToken + 1))
   }
   if (msbInToken + lsbInToken > splitExponent) {
-    throw invalidInput('JPEG XL hybrid integer configuration is invalid')
+    throw invalidJpegXlInput('hybrid integer configuration is invalid')
   }
   return Object.freeze({
     splitExponent,
@@ -128,7 +129,7 @@ export const readJpegXlHybridUint = (
   const tokenBits = config.msbInToken + config.lsbInToken
   const extraBits = config.splitExponent - tokenBits + Math.floor(tokenPayload / 2 ** tokenBits)
   if (extraBits < 0 || extraBits > 32) {
-    throw invalidInput('JPEG XL hybrid integer is out of range')
+    throw invalidJpegXlInput('hybrid integer is out of range')
   }
   const lowMask = 2 ** config.lsbInToken - 1
   const low = token & lowMask
@@ -137,7 +138,7 @@ export const readJpegXlHybridUint = (
   const high = 2 ** config.msbInToken + (shiftedToken & tokenMask)
   const value = (high * 2 ** extraBits + reader.readBits(extraBits)) * 2 ** config.lsbInToken + low
   if (!Number.isSafeInteger(value) || value > 0xffff_ffff) {
-    throw invalidInput('JPEG XL hybrid integer exceeds the supported range')
+    throw invalidJpegXlInput('hybrid integer exceeds the supported range')
   }
   return value
 }
@@ -157,7 +158,7 @@ export class JpegXlHuffmanCode {
   readonly #maximumBits: number
 
   constructor(entries: readonly HuffmanEntry[]) {
-    if (entries.length === 0) throw invalidInput('JPEG XL Huffman code is empty')
+    if (entries.length === 0) throw invalidJpegXlInput('Huffman code is empty')
     this.#entries = entries
     this.#maximumBits = entries.reduce((maximum, entry) => Math.max(maximum, entry.bits), 0)
     this.#fastBits = Math.min(this.#maximumBits, 10)
@@ -198,7 +199,7 @@ export class JpegXlHuffmanCode {
       const symbol = this.#entriesByLength[bits]?.get(key)
       if (symbol !== undefined) return symbol
     }
-    throw invalidInput('JPEG XL Huffman symbol is invalid')
+    throw invalidJpegXlInput('Huffman symbol is invalid')
   }
 }
 
@@ -219,19 +220,19 @@ const buildHuffmanCode = (
     for (let index = 0; index < symbols.length; index += 1) {
       if (lengths[index] !== bits) continue
       const symbol = symbols[index]
-      if (symbol === undefined) throw invalidInput('JPEG XL Huffman symbol is missing')
+      if (symbol === undefined) throw invalidJpegXlInput('Huffman symbol is missing')
       entries.push(Object.freeze({ bits, key, symbol }))
       key = nextHuffmanKey(key, bits)
     }
   }
   if (entries.length === 1) {
     const entry = entries[0]
-    if (!entry) throw invalidInput('JPEG XL Huffman code is empty')
+    if (!entry) throw invalidJpegXlInput('Huffman code is empty')
     return new JpegXlHuffmanCode([Object.freeze({ bits: 0, key: 0, symbol: entry.symbol })])
   }
   if (entries.length === 0 && symbols.length === 1) {
     const symbol = symbols[0]
-    if (symbol === undefined) throw invalidInput('JPEG XL Huffman symbol is missing')
+    if (symbol === undefined) throw invalidJpegXlInput('Huffman symbol is missing')
     return new JpegXlHuffmanCode([Object.freeze({ bits: 0, key: 0, symbol })])
   }
   return new JpegXlHuffmanCode(entries)
@@ -247,7 +248,7 @@ const readSimpleHuffmanCode = (
   for (let index = 0; index < count; index += 1) {
     const symbol = reader.readBits(symbolBits)
     if (symbol >= alphabetSize || symbols.includes(symbol)) {
-      throw invalidInput('JPEG XL simple Huffman code is invalid')
+      throw invalidJpegXlInput('simple Huffman code is invalid')
     }
     symbols.push(symbol)
   }
@@ -269,7 +270,7 @@ const readSimpleHuffmanCode = (
     const tail = symbols.slice(2).sort((left, right) => left - right)
     return buildHuffmanCode([symbols[0] ?? 0, symbols[1] ?? 0, ...tail], [1, 2, 3, 3])
   }
-  throw invalidInput('JPEG XL simple Huffman code shape is invalid')
+  throw invalidJpegXlInput('simple Huffman code shape is invalid')
 }
 
 const codeLengthOrder = [1, 2, 3, 4, 0, 5, 17, 6, 16, 7, 8, 9, 10, 11, 12, 13, 14, 15]
@@ -281,7 +282,7 @@ const readCodeLengthSymbol = (reader: JpegXlBitReader): number => {
   const bits = codeLengthStaticBits[key]
   const symbol = codeLengthStaticSymbols[key]
   if (bits === undefined || symbol === undefined) {
-    throw invalidInput('JPEG XL Huffman code length is invalid')
+    throw invalidJpegXlInput('Huffman code length is invalid')
   }
   reader.skipBits(bits)
   return symbol
@@ -297,7 +298,7 @@ const readComplexHuffmanCode = (
   let count = 0
   for (let index = skip; index < codeLengthOrder.length && space > 0; index += 1) {
     const order = codeLengthOrder[index]
-    if (order === undefined) throw invalidInput('JPEG XL Huffman order is invalid')
+    if (order === undefined) throw invalidJpegXlInput('Huffman order is invalid')
     const length = readCodeLengthSymbol(reader)
     codeLengthCodeLengths[order] = length
     if (length !== 0) {
@@ -305,7 +306,7 @@ const readComplexHuffmanCode = (
       count += 1
     }
   }
-  if (count !== 1 && space !== 0) throw invalidInput('JPEG XL Huffman code is incomplete')
+  if (count !== 1 && space !== 0) throw invalidJpegXlInput('Huffman code is incomplete')
   const codeLengthSymbols = codeLengthCodeLengths.map((_, symbol) => symbol)
   const codeLengthCode = buildHuffmanCode(codeLengthSymbols, codeLengthCodeLengths)
   const lengths = new Array<number>(alphabetSize).fill(0)
@@ -336,12 +337,12 @@ const readComplexHuffmanCode = (
     if (repeat > 0) repeat = (repeat - 2) << extraBits
     repeat += reader.readBits(extraBits) + 3
     const delta = repeat - oldRepeat
-    if (symbol + delta > alphabetSize) throw invalidInput('JPEG XL Huffman repeat is invalid')
+    if (symbol + delta > alphabetSize) throw invalidJpegXlInput('Huffman repeat is invalid')
     lengths.fill(repeatedLength, symbol, symbol + delta)
     symbol += delta
     if (repeatedLength !== 0) remainingSpace -= delta << (15 - repeatedLength)
   }
-  if (remainingSpace !== 0) throw invalidInput('JPEG XL Huffman code is incomplete')
+  if (remainingSpace !== 0) throw invalidJpegXlInput('Huffman code is incomplete')
   return buildHuffmanCode(
     lengths.map((_, index) => index),
     lengths,
@@ -353,7 +354,7 @@ export const readJpegXlHuffmanCode = (
   alphabetSize: number,
 ): JpegXlHuffmanCode => {
   if (!Number.isInteger(alphabetSize) || alphabetSize < 1 || alphabetSize > 32_768) {
-    throw invalidInput('JPEG XL Huffman alphabet size is invalid')
+    throw invalidJpegXlInput('Huffman alphabet size is invalid')
   }
   const mode = reader.readBits(2)
   return mode === 1
@@ -395,7 +396,7 @@ const readJpegXlU32 = (
   )[],
 ): number => {
   const distribution = distributions[reader.readBits(2)]
-  if (!distribution) throw invalidInput('JPEG XL integer distribution is invalid')
+  if (!distribution) throw invalidJpegXlInput('integer distribution is invalid')
   return 'value' in distribution
     ? distribution.value
     : distribution.offset + reader.readBits(distribution.bits)
@@ -428,10 +429,10 @@ const inverseMoveToFront = (values: number[]): void => {
   for (let index = 0; index < values.length; index += 1) {
     const position = values[index]
     if (position === undefined || position >= alphabet.length) {
-      throw invalidInput('JPEG XL context map is invalid')
+      throw invalidJpegXlInput('context map is invalid')
     }
     const value = alphabet[position]
-    if (value === undefined) throw invalidInput('JPEG XL context map is invalid')
+    if (value === undefined) throw invalidJpegXlInput('context map is invalid')
     values[index] = value
     alphabet.splice(position, 1)
     alphabet.unshift(value)
@@ -442,7 +443,7 @@ const verifyContextMap = (contextMap: readonly number[]): number => {
   const maximum = contextMap.reduce((value, entry) => Math.max(value, entry), 0)
   const seen = new Set(contextMap)
   if (maximum >= 256 || seen.size !== maximum + 1) {
-    throw invalidInput('JPEG XL context map is incomplete')
+    throw invalidJpegXlInput('context map is incomplete')
   }
   return maximum + 1
 }
@@ -475,7 +476,7 @@ const readHistogramLogCount = (reader: JpegXlBitReader): number => {
     )
     if (entry) return entry.value - 1
   }
-  throw invalidInput('JPEG XL ANS histogram is invalid')
+  throw invalidJpegXlInput('ANS histogram is invalid')
 }
 
 const flatHistogram = (length: number): number[] => {
@@ -491,27 +492,27 @@ const readJpegXlAnsHistogram = (reader: JpegXlBitReader): number[] => {
     const maximum = symbols.reduce((value, symbol) => Math.max(value, symbol), 0)
     const frequencies = new Array<number>(maximum + 1).fill(0)
     const first = symbols[0]
-    if (first === undefined) throw invalidInput('JPEG XL ANS histogram is empty')
+    if (first === undefined) throw invalidJpegXlInput('ANS histogram is empty')
     if (count === 1) {
       frequencies[first] = 4_096
       return frequencies
     }
     const second = symbols[1]
     if (second === undefined || second === first)
-      throw invalidInput('JPEG XL ANS histogram symbols are invalid')
+      throw invalidJpegXlInput('ANS histogram symbols are invalid')
     frequencies[first] = reader.readBits(12)
     frequencies[second] = 4_096 - frequencies[first]
     return frequencies
   }
   if (reader.readBits(1) !== 0) {
     const alphabetSize = readHistogramVarUint(reader) + 1
-    if (alphabetSize > 4_096) throw invalidInput('JPEG XL flat ANS histogram is too large')
+    if (alphabetSize > 4_096) throw invalidJpegXlInput('flat ANS histogram is too large')
     return flatHistogram(alphabetSize)
   }
   let log = 0
   while (log < 3 && reader.readBits(1) !== 0) log += 1
   const shift = (reader.readBits(log) | (2 ** log)) - 1
-  if (shift > 13) throw invalidInput('JPEG XL ANS histogram shift is invalid')
+  if (shift > 13) throw invalidJpegXlInput('ANS histogram shift is invalid')
   const length = readHistogramVarUint(reader) + 3
   const frequencies = new Array<number>(length).fill(0)
   const logCounts = new Array<number>(length).fill(0)
@@ -533,7 +534,7 @@ const readJpegXlAnsHistogram = (reader: JpegXlBitReader): number[] => {
     }
   }
   if (omittedPosition < 0 || logCounts[omittedPosition + 1] === 12) {
-    throw invalidInput('JPEG XL ANS histogram has no omitted symbol')
+    throw invalidJpegXlInput('ANS histogram has no omitted symbol')
   }
   let total = 0
   let previous = 0
@@ -564,7 +565,7 @@ const readJpegXlAnsHistogram = (reader: JpegXlBitReader): number[] => {
   }
   frequencies[omittedPosition] = 4_096 - total
   if ((frequencies[omittedPosition] ?? 0) <= 0)
-    throw invalidInput('JPEG XL ANS histogram frequencies are invalid')
+    throw invalidJpegXlInput('ANS histogram frequencies are invalid')
   return frequencies
 }
 
@@ -576,7 +577,7 @@ const buildAliasTable = (
   while (frequencies.length > 0 && frequencies[frequencies.length - 1] === 0) frequencies.pop()
   if (frequencies.length === 0) frequencies.push(4_096)
   const tableSize = 2 ** logAlphabetSize
-  if (frequencies.length > tableSize) throw invalidInput('JPEG XL ANS alphabet is too large')
+  if (frequencies.length > tableSize) throw invalidJpegXlInput('ANS alphabet is too large')
   const entrySize = 4_096 / tableSize
   const cutoff = new Array<number>(tableSize).fill(0)
   const rightSymbol = new Array<number>(tableSize).fill(0)
@@ -612,7 +613,7 @@ const buildAliasTable = (
     const over = overfull.pop()
     const under = underfull.pop()
     if (over === undefined || under === undefined)
-      throw invalidInput('JPEG XL ANS alias table is invalid')
+      throw invalidJpegXlInput('ANS alias table is invalid')
     const missing = entrySize - (cutoff[under] ?? 0)
     cutoff[over] = (cutoff[over] ?? 0) - missing
     rightSymbol[under] = over
@@ -669,13 +670,13 @@ export const readJpegXlContextMap = (
       histogramCount: verifyContextMap(contextMap),
     })
   }
-  if (recursionDepth >= 4) throw invalidInput('JPEG XL context map nesting is too deep')
+  if (recursionDepth >= 4) throw invalidJpegXlInput('context map nesting is too deep')
   const useMoveToFront = reader.readBits(1) !== 0
   const sink = readJpegXlEntropyCode(reader, 1, recursionDepth + 1)
   const symbolReader = new JpegXlEntropySymbolReader(sink)
   const contextMap = Array.from({ length: contexts }, () => symbolReader.readHybridUint(0, reader))
   if (!symbolReader.hasValidFinalState()) {
-    throw invalidInput('JPEG XL context map ANS state is invalid')
+    throw invalidJpegXlInput('context map ANS state is invalid')
   }
   if (useMoveToFront) inverseMoveToFront(contextMap)
   return Object.freeze({
@@ -702,7 +703,7 @@ export const readJpegXlEntropyCode = (
     contexts < 1 ||
     contexts > maximumContexts
   ) {
-    throw invalidInput('JPEG XL entropy context count is invalid')
+    throw invalidJpegXlInput('entropy context count is invalid')
   }
   const lz77Fields = readLz77Fields(reader)
   const lengthConfig = lz77Fields.enabled
@@ -738,7 +739,7 @@ export const readJpegXlEntropyCode = (
         ),
       )
   const distanceContext = mapped.contextMap[mapped.contextMap.length - 1]
-  if (distanceContext === undefined) throw invalidInput('JPEG XL distance context is missing')
+  if (distanceContext === undefined) throw invalidJpegXlInput('distance context is missing')
   return Object.freeze({
     contextMap: mapped.contextMap,
     uintConfigs: Object.freeze(uintConfigs),
@@ -789,10 +790,10 @@ export class JpegXlEntropySymbolReader {
 
   constructor(code: JpegXlEntropyCode, maximumSymbols = 67_108_864, distanceMultiplier = 0) {
     if (!Number.isSafeInteger(maximumSymbols) || maximumSymbols < 1) {
-      throw invalidInput('JPEG XL entropy symbol limit is invalid')
+      throw invalidJpegXlInput('entropy symbol limit is invalid')
     }
     if (!Number.isSafeInteger(distanceMultiplier) || distanceMultiplier < 0) {
-      throw invalidInput('JPEG XL LZ77 distance multiplier is invalid')
+      throw invalidJpegXlInput('LZ77 distance multiplier is invalid')
     }
     this.#code = code
     this.#maximumSymbols = maximumSymbols
@@ -808,15 +809,15 @@ export class JpegXlEntropySymbolReader {
 
   readHybridUint(context: number, reader: JpegXlBitReader): number {
     if (this.#symbolsRead >= this.#maximumSymbols) {
-      throw invalidInput('JPEG XL entropy stream exceeds its symbol limit')
+      throw invalidJpegXlInput('entropy stream exceeds its symbol limit')
     }
     this.#symbolsRead += 1
     if (!this.#code.lz77.enabled) {
       const histogram = this.#code.contextMap[context]
-      if (histogram === undefined) throw invalidInput('JPEG XL entropy context is invalid')
+      if (histogram === undefined) throw invalidJpegXlInput('entropy context is invalid')
       const token = this.#readToken(histogram, reader)
       const config = this.#code.uintConfigs[histogram]
-      if (!config) throw invalidInput('JPEG XL hybrid integer configuration is missing')
+      if (!config) throw invalidJpegXlInput('hybrid integer configuration is missing')
       if (token < config.splitToken) return token
       return readJpegXlHybridUint(reader, config, token)
     }
@@ -826,14 +827,14 @@ export class JpegXlEntropySymbolReader {
   #readHybridUint(context: number, reader: JpegXlBitReader): number {
     if (this.#remainingCopies > 0) {
       const copied = this.#window?.[this.#copyPosition]
-      if (copied === undefined) throw invalidInput('JPEG XL LZ77 reference is invalid')
+      if (copied === undefined) throw invalidJpegXlInput('LZ77 reference is invalid')
       this.#copyPosition = (this.#copyPosition + 1) & this.#windowMask
       this.#remainingCopies -= 1
       this.#append(copied)
       return copied
     }
     const histogram = this.#code.contextMap[context]
-    if (histogram === undefined) throw invalidInput('JPEG XL entropy context is invalid')
+    if (histogram === undefined) throw invalidJpegXlInput('entropy context is invalid')
     const token = this.#readToken(histogram, reader)
     if (this.#code.lz77.enabled && token >= this.#code.lz77.minimumSymbol) {
       this.#remainingCopies =
@@ -843,11 +844,11 @@ export class JpegXlEntropySymbolReader {
           token - this.#code.lz77.minimumSymbol,
         ) + this.#code.lz77.minimumLength
       if (this.#remainingCopies > this.#maximumSymbols - this.#symbolsRead + 1) {
-        throw invalidInput('JPEG XL LZ77 run exceeds the entropy symbol limit')
+        throw invalidJpegXlInput('LZ77 run exceeds the entropy symbol limit')
       }
       const distanceToken = this.#readToken(this.#code.lz77.distanceContext, reader)
       const distanceConfig = this.#code.uintConfigs[this.#code.lz77.distanceContext]
-      if (!distanceConfig) throw invalidInput('JPEG XL LZ77 distance configuration is missing')
+      if (!distanceConfig) throw invalidJpegXlInput('LZ77 distance configuration is missing')
       const distanceCode = readJpegXlHybridUint(reader, distanceConfig, distanceToken)
       const distance =
         this.#distanceMultiplier === 0
@@ -857,13 +858,13 @@ export class JpegXlEntropySymbolReader {
             : distanceCode + 1 - JPEG_XL_SPECIAL_DISTANCE_COUNT
       const windowCapacity = this.#window?.length ?? 1_048_576
       if (distance > this.#windowLength || distance > windowCapacity) {
-        throw invalidInput('JPEG XL LZ77 distance is invalid')
+        throw invalidJpegXlInput('LZ77 distance is invalid')
       }
       this.#copyPosition = (this.#writePosition - distance + windowCapacity) & this.#windowMask
       return this.#readHybridUint(context, reader)
     }
     const config = this.#code.uintConfigs[histogram]
-    if (!config) throw invalidInput('JPEG XL hybrid integer configuration is missing')
+    if (!config) throw invalidJpegXlInput('hybrid integer configuration is missing')
     const value = readJpegXlHybridUint(reader, config, token)
     if (this.#code.lz77.enabled) this.#append(value)
     return value
@@ -873,12 +874,12 @@ export class JpegXlEntropySymbolReader {
     const huffman = this.#code.huffmanCodes?.[histogram]
     if (huffman) return huffman.readSymbol(reader)
     const alias = this.#code.aliasTables?.[histogram]
-    if (!alias) throw invalidInput('JPEG XL entropy histogram is missing')
+    if (!alias) throw invalidJpegXlInput('entropy histogram is missing')
     if (this.#ansState === undefined) this.#ansState = reader.readBits(32)
     const residual = this.#ansState & 4_095
     const index = residual >>> alias.logEntrySize
     const position = residual & alias.entryMask
-    if (index >= alias.cutoffs.length) throw invalidInput('JPEG XL ANS state is invalid')
+    if (index >= alias.cutoffs.length) throw invalidJpegXlInput('ANS state is invalid')
     const right = position >= (alias.cutoffs[index] ?? 0)
     const symbol = right ? (alias.rightSymbols[index] ?? 0) : index
     const frequency = right
@@ -893,7 +894,7 @@ export class JpegXlEntropySymbolReader {
   }
 
   #append(value: number): void {
-    if (!this.#window) throw invalidInput('JPEG XL LZ77 window is missing')
+    if (!this.#window) throw invalidJpegXlInput('LZ77 window is missing')
     this.#window[this.#writePosition] = value
     this.#writePosition = (this.#writePosition + 1) & this.#windowMask
     this.#windowLength = Math.min(this.#window.length, this.#windowLength + 1)

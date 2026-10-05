@@ -1,0 +1,640 @@
+{
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/analyze-guarded-profile-338.ts",
+      "sha256": "ec04ba1c04202b95e337c689a0268d7ec2e883b299bc2ddf377f4b61acbc7b40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/guarded-profile-335/guarded-335.cpuprofile",
+      "sha256": "bbabd671b7ae1b8bed05f762c60c012c9aa3a5b484da66d285ec8a48239a4507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/profile-guarded-fused-335.ts",
+      "sha256": "7bc22a02f18c8f0ac370298be4220ce608d6628bb36b7d9e23a88f58941cb844"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/analyze-guarded-profile-335.ts",
+      "sha256": "46ffbe5377a4a10a3e8937310aa9ef62b073602e9fc6f51329e35398cfc00bf8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/repair-guarded-profile-336.ts",
+      "sha256": "578cc11294134672e932641a9e5c91353f12375513bced47f8d6aed4282e433e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-profile-control.json",
+      "sha256": "1dfa878e34e9c0d66307f85a532418db0baa0e6e374a23fc0e8b403741b384f2"
+    }
+  ],
+  "profilePath": ".tmp/jpegxl-comparison-v1/guarded-profile-335/guarded-335.cpuprofile",
+  "signedMicros": 38977123,
+  "negativeDeltas": 4,
+  "negativeMicros": -7,
+  "minimumDelta": -3,
+  "maximumDelta": 12251,
+  "sampleCount": 38574,
+  "bySelf": [
+    {
+      "id": 1793,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1912,
+      "selfSamples": 3123,
+      "inclusiveSamples": 3132,
+      "selfPercent": 8.096126924871676,
+      "inclusivePercent": 8.11945870275315
+    },
+    {
+      "id": 1696,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 2795,
+      "inclusiveSamples": 5947,
+      "selfPercent": 7.245813242080158,
+      "inclusivePercent": 15.417120340125473
+    },
+    {
+      "id": 1697,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1912,
+      "selfSamples": 2696,
+      "inclusiveSamples": 2706,
+      "selfPercent": 6.989163685383938,
+      "inclusivePercent": 7.01508788303002
+    },
+    {
+      "id": 1792,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 2058,
+      "inclusiveSamples": 5199,
+      "selfPercent": 5.335199875563851,
+      "inclusivePercent": 13.477990356198475
+    },
+    {
+      "id": 2060,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 259,
+      "selfSamples": 2012,
+      "inclusiveSamples": 2031,
+      "selfPercent": 5.21594856639187,
+      "inclusivePercent": 5.265204541919427
+    },
+    {
+      "id": 2049,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 561,
+      "selfSamples": 1352,
+      "inclusiveSamples": 8079,
+      "selfPercent": 3.5049515217504017,
+      "inclusivePercent": 20.944159278270337
+    },
+    {
+      "id": 2098,
+      "function": "predict",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2352,
+      "selfSamples": 1305,
+      "inclusiveSamples": 1750,
+      "selfPercent": 3.3831077928138122,
+      "inclusivePercent": 4.536734588064499
+    },
+    {
+      "id": 2055,
+      "function": "predict",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2352,
+      "selfSamples": 949,
+      "inclusiveSamples": 1321,
+      "selfPercent": 2.460206356613263,
+      "inclusivePercent": 3.424586509047545
+    },
+    {
+      "id": 2422,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3221,
+      "selfSamples": 696,
+      "inclusiveSamples": 1385,
+      "selfPercent": 1.8043241561673666,
+      "inclusivePercent": 3.5905013739824754
+    },
+    {
+      "id": 2724,
+      "function": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 693,
+      "inclusiveSamples": 699,
+      "selfPercent": 1.7965468968735419,
+      "inclusivePercent": 1.8121014154611914
+    },
+    {
+      "id": 2723,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3221,
+      "selfSamples": 671,
+      "inclusiveSamples": 1392,
+      "selfPercent": 1.7395136620521594,
+      "inclusivePercent": 3.6086483123347333
+    },
+    {
+      "id": 2423,
+      "function": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 661,
+      "inclusiveSamples": 662,
+      "selfPercent": 1.7135894644060767,
+      "inclusivePercent": 1.7161818841706848
+    },
+    {
+      "id": 2682,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1096,
+      "selfSamples": 626,
+      "inclusiveSamples": 844,
+      "selfPercent": 1.6228547726447866,
+      "inclusivePercent": 2.1880022813293927
+    },
+    {
+      "id": 1937,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1096,
+      "selfSamples": 601,
+      "inclusiveSamples": 851,
+      "selfPercent": 1.5580442785295796,
+      "inclusivePercent": 2.206149219681651
+    },
+    {
+      "id": 2053,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 179,
+      "selfSamples": 563,
+      "inclusiveSamples": 3996,
+      "selfPercent": 1.4595323274744647,
+      "inclusivePercent": 10.359309379374709
+    },
+    {
+      "id": 2110,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 64,
+      "selfSamples": 522,
+      "inclusiveSamples": 724,
+      "selfPercent": 1.353243117125525,
+      "inclusivePercent": 1.8769119095763986
+    },
+    {
+      "id": 2605,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2278,
+      "selfSamples": 501,
+      "inclusiveSamples": 866,
+      "selfPercent": 1.298802302068751,
+      "inclusivePercent": 2.245035516150775
+    },
+    {
+      "id": 2821,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1255,
+      "selfSamples": 457,
+      "inclusiveSamples": 457,
+      "selfPercent": 1.1847358324259865,
+      "inclusivePercent": 1.1847358324259865
+    },
+    {
+      "id": 1698,
+      "function": "fixedPrediction",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1671,
+      "selfSamples": 445,
+      "inclusiveSamples": 445,
+      "selfPercent": 1.153626795250687,
+      "inclusivePercent": 1.153626795250687
+    },
+    {
+      "id": 2099,
+      "function": "#errorWeight",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2345,
+      "selfSamples": 441,
+      "inclusiveSamples": 445,
+      "selfPercent": 1.1432571161922538,
+      "inclusivePercent": 1.153626795250687
+    },
+    {
+      "id": 1911,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2278,
+      "selfSamples": 432,
+      "inclusiveSamples": 877,
+      "selfPercent": 1.1199253383107792,
+      "inclusivePercent": 2.2735521335614663
+    },
+    {
+      "id": 1670,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 416,
+      "inclusiveSamples": 444,
+      "selfPercent": 1.0784466220770468,
+      "inclusivePercent": 1.1510343754860788
+    },
+    {
+      "id": 2511,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 64,
+      "selfSamples": 391,
+      "inclusiveSamples": 736,
+      "selfPercent": 1.0136361279618396,
+      "inclusivePercent": 1.908020946751698
+    },
+    {
+      "id": 1751,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1096,
+      "selfSamples": 372,
+      "inclusiveSamples": 497,
+      "selfPercent": 0.9643801524342822,
+      "inclusivePercent": 1.2884326230103178
+    },
+    {
+      "id": 2056,
+      "function": "#errorWeight",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-decode.ts",
+      "line": 2345,
+      "selfSamples": 367,
+      "inclusiveSamples": 371,
+      "selfPercent": 0.9514180536112408,
+      "inclusivePercent": 0.9617877326696739
+    },
+    {
+      "id": 1611,
+      "function": "update",
+      "url": "node:internal/crypto/hash",
+      "line": 134,
+      "selfSamples": 361,
+      "inclusiveSamples": 361,
+      "selfPercent": 0.935863535023591,
+      "inclusivePercent": 0.935863535023591
+    },
+    {
+      "id": 1726,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2278,
+      "selfSamples": 338,
+      "inclusiveSamples": 613,
+      "selfPercent": 0.8762378804376004,
+      "inclusivePercent": 1.589153315704879
+    },
+    {
+      "id": 1655,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1255,
+      "selfSamples": 335,
+      "inclusiveSamples": 344,
+      "selfPercent": 0.8684606211437756,
+      "inclusivePercent": 0.8917923990252502
+    },
+    {
+      "id": 1912,
+      "function": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 335,
+      "inclusiveSamples": 341,
+      "selfPercent": 0.8684606211437756,
+      "inclusivePercent": 0.8840151397314253
+    },
+    {
+      "id": 2513,
+      "function": "loss",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 96,
+      "selfSamples": 330,
+      "inclusiveSamples": 344,
+      "selfPercent": 0.8554985223207342,
+      "inclusivePercent": 0.8917923990252502
+    }
+  ],
+  "byInclusive": [
+    {
+      "id": 1676,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2870,
+      "selfSamples": 1,
+      "inclusiveSamples": 16193,
+      "selfPercent": 0.0025924197646082854,
+      "inclusivePercent": 41.979053248301966
+    },
+    {
+      "id": 1902,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3438,
+      "selfSamples": 1,
+      "inclusiveSamples": 15085,
+      "selfPercent": 0.0025924197646082854,
+      "inclusivePercent": 39.10665214911599
+    },
+    {
+      "id": 1677,
+      "function": "encodePrepared",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2872,
+      "selfSamples": 0,
+      "inclusiveSamples": 13216,
+      "selfPercent": 0,
+      "inclusivePercent": 34.2614196090631
+    },
+    {
+      "id": 1680,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2877,
+      "selfSamples": 0,
+      "inclusiveSamples": 13216,
+      "selfPercent": 0,
+      "inclusivePercent": 34.2614196090631
+    },
+    {
+      "id": 1681,
+      "function": "buildEntropyPlan",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2437,
+      "selfSamples": 0,
+      "inclusiveSamples": 12643,
+      "selfPercent": 0,
+      "inclusivePercent": 32.77596308394255
+    },
+    {
+      "id": 1684,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2444,
+      "selfSamples": 1,
+      "inclusiveSamples": 12643,
+      "selfPercent": 0.0025924197646082854,
+      "inclusivePercent": 32.77596308394255
+    },
+    {
+      "id": 2042,
+      "function": "encodeLearned",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3556,
+      "selfSamples": 0,
+      "inclusiveSamples": 8832,
+      "selfPercent": 0,
+      "inclusivePercent": 22.896251361020376
+    },
+    {
+      "id": 2045,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3556,
+      "selfSamples": 0,
+      "inclusiveSamples": 8832,
+      "selfPercent": 0,
+      "inclusivePercent": 22.896251361020376
+    },
+    {
+      "id": 2046,
+      "function": "learnJpegXlModularTree",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 542,
+      "selfSamples": 0,
+      "inclusiveSamples": 8087,
+      "selfPercent": 0,
+      "inclusivePercent": 20.964898636387204
+    },
+    {
+      "id": 2049,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 561,
+      "selfSamples": 1352,
+      "inclusiveSamples": 8079,
+      "selfPercent": 3.5049515217504017,
+      "inclusivePercent": 20.944159278270337
+    },
+    {
+      "id": 1685,
+      "function": "buildResidualPlan",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2161,
+      "selfSamples": 0,
+      "inclusiveSamples": 6555,
+      "selfPercent": 0,
+      "inclusivePercent": 16.99331155700731
+    },
+    {
+      "id": 1688,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 2168,
+      "selfSamples": 0,
+      "inclusiveSamples": 6555,
+      "selfPercent": 0,
+      "inclusivePercent": 16.99331155700731
+    },
+    {
+      "id": 1689,
+      "function": "choosePredictors",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1885,
+      "selfSamples": 0,
+      "inclusiveSamples": 6078,
+      "selfPercent": 0,
+      "inclusivePercent": 15.75672732928916
+    },
+    {
+      "id": 1692,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1890,
+      "selfSamples": 0,
+      "inclusiveSamples": 6078,
+      "selfPercent": 0,
+      "inclusivePercent": 15.75672732928916
+    },
+    {
+      "id": 1693,
+      "function": "visitPlaneResiduals",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1720,
+      "selfSamples": 1,
+      "inclusiveSamples": 6078,
+      "selfPercent": 0.0025924197646082854,
+      "inclusivePercent": 15.75672732928916
+    },
+    {
+      "id": 1696,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 2795,
+      "inclusiveSamples": 5947,
+      "selfPercent": 7.245813242080158,
+      "inclusivePercent": 15.417120340125473
+    },
+    {
+      "id": 1785,
+      "function": "choosePredictors",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1885,
+      "selfSamples": 0,
+      "inclusiveSamples": 5401,
+      "selfPercent": 0,
+      "inclusivePercent": 14.001659148649349
+    },
+    {
+      "id": 1788,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1890,
+      "selfSamples": 0,
+      "inclusiveSamples": 5401,
+      "selfPercent": 0,
+      "inclusivePercent": 14.001659148649349
+    },
+    {
+      "id": 1789,
+      "function": "visitPlaneResiduals",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1720,
+      "selfSamples": 0,
+      "inclusiveSamples": 5401,
+      "selfPercent": 0,
+      "inclusivePercent": 14.001659148649349
+    },
+    {
+      "id": 1792,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1726,
+      "selfSamples": 2058,
+      "inclusiveSamples": 5199,
+      "selfPercent": 5.335199875563851,
+      "inclusivePercent": 13.477990356198475
+    },
+    {
+      "id": 2050,
+      "function": "learnPlane",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 170,
+      "selfSamples": 0,
+      "inclusiveSamples": 4019,
+      "selfPercent": 0,
+      "inclusivePercent": 10.418935033960699
+    },
+    {
+      "id": 2596,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3635,
+      "selfSamples": 1,
+      "inclusiveSamples": 4004,
+      "selfPercent": 0.0025924197646082854,
+      "inclusivePercent": 10.380048737491574
+    },
+    {
+      "id": 2053,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 179,
+      "selfSamples": 563,
+      "inclusiveSamples": 3996,
+      "selfPercent": 1.4595323274744647,
+      "inclusivePercent": 10.359309379374709
+    },
+    {
+      "id": 1793,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1912,
+      "selfSamples": 3123,
+      "inclusiveSamples": 3132,
+      "selfPercent": 8.096126924871676,
+      "inclusivePercent": 8.11945870275315
+    },
+    {
+      "id": 1697,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 1912,
+      "selfSamples": 2696,
+      "inclusiveSamples": 2706,
+      "selfPercent": 6.989163685383938,
+      "inclusivePercent": 7.01508788303002
+    },
+    {
+      "id": 2717,
+      "function": "encodeHistogramHybridGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3198,
+      "selfSamples": 0,
+      "inclusiveSamples": 2078,
+      "selfPercent": 0,
+      "inclusivePercent": 5.387048270856017
+    },
+    {
+      "id": 2720,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3205,
+      "selfSamples": 135,
+      "inclusiveSamples": 2076,
+      "selfPercent": 0.34997666822211854,
+      "inclusivePercent": 5.3818634313268
+    },
+    {
+      "id": 2416,
+      "function": "encodeHistogramHybridGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3198,
+      "selfSamples": 0,
+      "inclusiveSamples": 2054,
+      "selfPercent": 0,
+      "inclusivePercent": 5.3248301965054186
+    },
+    {
+      "id": 2419,
+      "function": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-encode.ts",
+      "line": 3205,
+      "selfSamples": 123,
+      "inclusiveSamples": 2051,
+      "selfPercent": 0.3188676310468191,
+      "inclusivePercent": 5.317052937211593
+    },
+    {
+      "id": 2057,
+      "function": "evaluate",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/guarded-fused-trees-334/guarded/jpegxl-modular-tree.ts",
+      "line": 258,
+      "selfSamples": 0,
+      "inclusiveSamples": 2042,
+      "selfPercent": 0,
+      "inclusivePercent": 5.2937211593301186
+    }
+  ],
+  "policy": "Fresh Node CPU profile of unchanged guarded334photo encoding, explicit self/inclusive sample-count shares and complete raw signed timing sum/negative/minimum/maximum deltas retained. Inclusive entries overlap and cannot be added. Diagnostic sampling shares, not elapsed CPU weights, paired runtime/RSS or adoption qualification."
+}

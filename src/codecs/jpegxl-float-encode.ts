@@ -5,6 +5,7 @@ import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } fro
 import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
 import { type PixelBlock, pixelStorage } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
   acceptsJpegXlColorSemantics,
   encodedJpegXlMetadataBoxes,
@@ -74,14 +75,14 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
     )
   const record = (value: unknown): value is Readonly<Record<string, unknown>> =>
     typeof value === 'object' && value !== null && !Array.isArray(value)
-  if (!record(request.options)) throw invalidInput('JPEG XL encoder options must be an object')
+  if (!record(request.options)) throw invalidJpegXlInput('encoder options must be an object')
   const options: Readonly<Record<string, unknown>> = request.options
   const { sampleBitDepth, alphaBitDepth, ...otherOptions } = options
   if (
     (sampleBitDepth !== undefined && typeof sampleBitDepth !== 'number') ||
     (alphaBitDepth !== undefined && (typeof alphaBitDepth !== 'number' || !alpha))
   )
-    throw invalidInput('JPEG XL sample depths must be numeric and alpha depth requires alpha')
+    throw invalidJpegXlInput('sample depths must be numeric and alpha depth requires alpha')
   const depth = floating
     ? 32
     : typeof sampleBitDepth === 'number'
@@ -106,7 +107,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
     (floating || depth > 12 || alphaDepth > 12) &&
     (options.codestreamLevel === 5 || options.container === false)
   )
-    throw invalidInput('JPEG XL floating or wide integer output requires a Level 10 container')
+    throw invalidJpegXlInput('floating or wide integer output requires a Level 10 container')
   const resolved = resolveJpegXlEncodeOptions(
     otherOptions,
     gray ? 'gray16' : alpha ? 'rgba16' : 'rgb16',
@@ -183,7 +184,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
           block.stride < rowBytes ||
           block.data.byteLength < block.stride * (block.height - 1) + rowBytes
         )
-          throw invalidInput('JPEG XL float encoder requires ordered full-width rows')
+          throw invalidJpegXlInput('float encoder requires ordered full-width rows')
         const view = new DataView(block.data.buffer, block.data.byteOffset, block.data.byteLength)
         for (let y = 0; y < block.height; y++) {
           throwIfAborted(signal)
@@ -197,9 +198,9 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
                     ? view.getUint16(offset, false)
                     : view.getUint32(offset, false)
               if (!floating && bits >= 2 ** (channel === 3 ? alphaDepth : depth))
-                throw invalidInput('JPEG XL integer sample exceeds its declared bit depth')
+                throw invalidJpegXlInput('integer sample exceeds its declared bit depth')
               if (floating && !Number.isFinite(view.getFloat32(offset, false)))
-                throw invalidInput('JPEG XL float encoding rejects NaN and infinity')
+                throw invalidJpegXlInput('float encoding rejects NaN and infinity')
               if (encodeGray && alpha && (channel === 1 || channel === 2)) {
                 if (
                   bits !==
@@ -215,7 +216,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
                 continue
               }
               const plane = planes[encodeGray && alpha && channel === 3 ? 1 : channel]
-              if (!plane) throw invalidInput('JPEG XL float plane is missing')
+              if (!plane) throw invalidJpegXlInput('float plane is missing')
               const sign = bits >= 2 ** 31 ? 2 ** 31 : 0
               const magnitude = bits - sign
               const rounded =
@@ -232,7 +233,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
       }
     },
     async finish(): Promise<void> {
-      if (state !== 'open') throw invalidInput('JPEG XL float encoder is already closed')
+      if (state !== 'open') throw invalidJpegXlInput('float encoder is already closed')
       state = 'finishing'
       try {
         if (nextY !== request.height)
@@ -243,7 +244,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
           third = planes[2],
           alphaPlane = planes[colorCount]
         if (!first || (!encodeGray && (!second || !third)) || (alpha && !alphaPlane))
-          throw invalidInput('JPEG XL float color planes are missing')
+          throw invalidJpegXlInput('float color planes are missing')
         const plane = (data: Uint32Array, bitDepth = depth) =>
           ({ data, bitDepth, sampleFormat: floating ? 'binary32' : 'unsigned-integer' }) as const
         const color = encodeGray
@@ -251,7 +252,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
           : second && third
             ? ([plane(first), plane(second), plane(third)] as const)
             : undefined
-        if (!color) throw invalidInput('JPEG XL float color is missing')
+        if (!color) throw invalidJpegXlInput('float color is missing')
         const encoded = await encodeJpegXlNative({
           width: request.width,
           height: request.height,

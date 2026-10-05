@@ -1,7 +1,7 @@
 import { combineAbortSignals, throwIfAborted } from '../abort.ts'
 import type { DecoderOptions, ImageDecoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageLimits } from '../limits.ts'
 import type { PixelFormat } from '../pixel.ts'
 import type { ImageSource } from '../source.ts'
@@ -19,6 +19,7 @@ import {
   jpegXlSourceColorSemantics,
   openJpegXlNativeGroupBands,
 } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
   createJpegXlFloatHdrTransform,
   createJpegXlFloatSdrTransfer,
@@ -49,7 +50,7 @@ export const createJpegXlNativePixelDecoder = (
     )
   const frameIndex = options.frame ?? 0
   if (!Number.isSafeInteger(frameIndex) || frameIndex < 0)
-    throw invalidInput('JPEG XL frame index is invalid')
+    throw invalidJpegXlInput('frame index is invalid')
   if (frame.animation && options.frame === undefined)
     throw unsupportedOperation('JPEG XL animation requires an explicit frame index')
   const composed =
@@ -70,27 +71,27 @@ export const createJpegXlNativePixelDecoder = (
     options.colorOutput !== 'preserve' &&
     options.colorOutput !== 'srgb'
   )
-    throw invalidInput('JPEG XL colorOutput must be preserve or srgb')
+    throw invalidJpegXlInput('colorOutput must be preserve or srgb')
   if (
     options.alphaOutput !== undefined &&
     options.alphaOutput !== 'preserve' &&
     options.alphaOutput !== 'straight'
   )
-    throw invalidInput('JPEG XL alphaOutput must be preserve or straight')
+    throw invalidJpegXlInput('alphaOutput must be preserve or straight')
   if (
     options.hdrOutput !== undefined &&
     !['encoded', 'linear-float', 'tone-map-srgb'].includes(options.hdrOutput)
   )
-    throw invalidInput('JPEG XL HDR output is invalid')
+    throw invalidJpegXlInput('HDR output is invalid')
   if (options.colorOutput === 'srgb' && options.preserveIcc)
-    throw invalidInput('JPEG XL sRGB output cannot preserve source ICC samples')
+    throw invalidJpegXlInput('sRGB output cannot preserve source ICC samples')
   const blackIndex = frame.extraChannels.findIndex((extra) => extra.type === 4)
   const cmyk = blackIndex >= 0
   const hdr = options.hdrOutput !== undefined && options.hdrOutput !== 'encoded'
   const toneMapSrgb = options.hdrOutput === 'tone-map-srgb'
   if (cmyk && hdr) throw unsupportedOperation('JPEG XL CMYK has no structured HDR transfer')
   if (hdr && options.preserveIcc)
-    throw invalidInput('JPEG XL HDR conversion cannot preserve source ICC samples')
+    throw invalidJpegXlInput('HDR conversion cannot preserve source ICC samples')
   if (
     frame.extraChannels.some((extra, index) => extra.type !== 0 && (!cmyk || index !== blackIndex))
   )
@@ -344,7 +345,7 @@ export const createJpegXlNativePixelDecoder = (
         x + width > frame.width ||
         y + height > frame.height
       )
-        throw invalidInput('JPEG XL native pixel crop is invalid')
+        throw invalidJpegXlInput('native pixel crop is invalid')
       const signal = combineAbortSignals(options.signal, request.signal)
       throwIfAborted(signal)
       const sequence = await openJpegXlSequence(source, {
@@ -451,14 +452,14 @@ export const createJpegXlNativePixelDecoder = (
         for await (const sampled of samples()) {
           const { color, alphaSamples, blackSamples, normalized } = sampled
           if (color.some((plane) => plane.length !== sampled.width * sampled.height))
-            throw invalidInput('JPEG XL native color plane sizes disagree')
+            throw invalidJpegXlInput('native color plane sizes disagree')
           const scratch = new Uint16Array(3)
           const linear = new Float64Array(3)
           const maximum = normalized ? 1 : 2 ** frame.bitDepth - 1
           const hdrScratch = new Uint8Array(4)
           const complement = (value: number, denominator: number): number => {
             if (!Number.isFinite(value))
-              throw invalidInput('JPEG XL CMYK samples reject NaN and infinity')
+              throw invalidJpegXlInput('CMYK samples reject NaN and infinity')
             return 65_535 - Math.round(Math.max(0, Math.min(1, value / denominator)) * 65_535)
           }
           for (let row = 0; row < sampled.outputHeight; row++) {
@@ -476,7 +477,7 @@ export const createJpegXlNativePixelDecoder = (
                     ? floatSample(alphaValue, alpha.bitDepth.bits, alpha.bitDepth.exponentBits)
                     : alphaValue / (2 ** alpha.bitDepth.bits - 1)
                   : alphaValue
-              if (!Number.isFinite(a)) throw invalidInput('JPEG XL alpha rejects NaN and infinity')
+              if (!Number.isFinite(a)) throw invalidJpegXlInput('alpha rejects NaN and infinity')
               const denominator = convertedAlpha ? a : 1
               const offset = column * channels * bytes
               if (transform && blackSamples) {
@@ -511,7 +512,7 @@ export const createJpegXlNativePixelDecoder = (
                   !Number.isFinite(yellow) ||
                   !Number.isFinite(k)
                 )
-                  throw invalidInput('JPEG XL CMYK samples reject NaN and infinity')
+                  throw invalidJpegXlInput('CMYK samples reject NaN and infinity')
                 if (denominator <= 0) scratch.fill(0)
                 else
                   writeCmykIcc16(
@@ -542,7 +543,7 @@ export const createJpegXlNativePixelDecoder = (
                       ? floatSample(sample, floatDepth, frame.exponentBits)
                       : sample / integerMaximum
                   if (!Number.isFinite(value))
-                    throw invalidInput('JPEG XL HDR pixels reject NaN and infinity')
+                    throw invalidJpegXlInput('HDR pixels reject NaN and infinity')
                   linear[channel] = hdrTransform.transfer(
                     denominator <= 0 ? 0 : value / denominator,
                   )
@@ -579,7 +580,7 @@ export const createJpegXlNativePixelDecoder = (
                   for (let channel = 0; channel < 3; channel++) {
                     const value = (linear[channel] ?? 0) * scale
                     if (!Number.isFinite(Math.fround(value)))
-                      throw invalidInput('JPEG XL linear HDR overflows binary32')
+                      throw invalidJpegXlInput('linear HDR overflows binary32')
                     view.setFloat32(offset + channel * 4, value, false)
                   }
                   if (alpha) view.setFloat32(offset + 12, a, false)
@@ -593,7 +594,7 @@ export const createJpegXlNativePixelDecoder = (
                       ? floatSample(sample, floatDepth, frame.exponentBits)
                       : sample / integerMaximum
                   if (!Number.isFinite(value))
-                    throw invalidInput('JPEG XL float pixels reject NaN and infinity')
+                    throw invalidJpegXlInput('float pixels reject NaN and infinity')
                   // Straighten in the source domain, then explicitly map the source to SDR.
                   linear[channel] =
                     denominator <= 0
@@ -660,10 +661,10 @@ export const createJpegXlNativePixelDecoder = (
                       ? floatSample(sample, floatDepth, frame.exponentBits)
                       : sample / integerMaximum
                   if (!Number.isFinite(value))
-                    throw invalidInput('JPEG XL float pixels reject NaN and infinity')
+                    throw invalidJpegXlInput('float pixels reject NaN and infinity')
                   const output = denominator <= 0 ? 0 : convertedAlpha ? value / denominator : value
                   if (!Number.isFinite(Math.fround(output)))
-                    throw invalidInput('JPEG XL straight float color overflows binary32')
+                    throw invalidJpegXlInput('straight float color overflows binary32')
                   view.setFloat32(offset + channel * 4, output, false)
                 }
                 if (alpha) view.setFloat32(offset + 12, a, false)

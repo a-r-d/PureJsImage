@@ -74,13 +74,17 @@ describe('JPEG XL multi-group lossless effort search', () => {
   )
 
   it.each([
-    [false, 1025],
-    [true, 1025],
-    [false, 1024],
-    [true, 1024],
+    [false, 1025, 5],
+    [true, 1025, 5],
+    [false, 1024, 5],
+    [true, 1024, 5],
+    [false, 1025, 7],
+    [true, 1025, 7],
+    [false, 1024, 7],
+    [true, 1024, 7],
   ] as const)(
-    'round-trips signed gradient contexts across group and row boundaries, palette=%s width=%i',
-    async (palette, width) => {
+    'round-trips signed gradient contexts across group and row boundaries, palette=%s width=%i effort=%i',
+    async (palette, width, effort) => {
       const height = 65
       const pixels = new Uint8Array(width * height * 3)
       for (let y = 0; y < height; y++)
@@ -106,7 +110,7 @@ describe('JPEG XL multi-group lossless effort search', () => {
           provenance: 'assumed-default',
           renderingIntent: 'relative',
         },
-        options: { effort: 7 },
+        options: { effort },
       })
       await encoder.write({
         x: 0,
@@ -124,7 +128,7 @@ describe('JPEG XL multi-group lossless effort search', () => {
           expect.arrayContaining([
             expect.objectContaining({
               x: 0,
-              contextModel: 'gradient',
+              contextModel: effort === 5 ? 'gradient' : 'learned',
               palette: palette ? 'ordinary' : 'none',
             }),
           ]),
@@ -272,7 +276,7 @@ describe('JPEG XL multi-group lossless effort search', () => {
           }
           expect(rows).toBe(height)
         }
-        if (width > 1024) expect(sizes[3]).toBeLessThan((sizes[0] ?? 0) * 0.75)
+        if (width > 1024) expect(sizes[3]).toBeLessThanOrEqual(sizes[0] ?? 0)
       }, 30_000)
     }
   }

@@ -1,0 +1,536 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-small-group-cost-guard-225.ts",
+      "sha256": "1fa7cab30e538e5e626ba037b6f43b7b17ebfa67f1272f17d1e5eb5d56cd0542"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-neighbor-controls.json",
+      "sha256": "21069bffde89151d783393d46ffb5dc7e32f265fde32ed4ebede6af1a265a6ab"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-midpoint-controls.json",
+      "sha256": "b97bfa3ac7301957f7b9fff872f36febb12e3523e3114e885b8eb5f4ff7aafa0"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-small-group-cost-guard-225.ts",
+      "sha256": "40eb07c2492bd4cfbaa7a1b841d92542d561c040eafbd23a1d315bb96eb00124"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-small-group-cost-guard-225.json",
+      "sha256": "a044edb692000e11e72ef0edb5913052998013f415dbd0ee78c9882dd5353a08"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-performance-controls.json",
+      "sha256": "d0e0f1377a201dc1c25b3830346da0f98367f176f1cccffdedcc3fe4c544f50f"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "sha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/sunset_logo/ref.png",
+      "sha256": "c974b5a5c4232b22780c90fad60679d79bfb6088999cd5fbc6f5ebdd2f05f908"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge.raw",
+      "sha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa"
+    },
+    {
+      "path": "tests/helpers/jpegxl-lossless-patches.ts",
+      "sha256": "0388b3078d29b546588fd951938fc8fbc99e11bcf68eb4988671ca3b0660b5cc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge.raw",
+      "sha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait.raw",
+      "sha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-modular-encode.ts",
+      "sha256": "64825370cc9043ade84aa20c9a5304689d571110da3565adc3cf104c6508df39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/baseline/jpegxl-modular-tree.ts",
+      "sha256": "d51f35579013d15531886780df9c160a02045ed636a692b05e21ccf69cd48616"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-modular-encode.ts",
+      "sha256": "2e8c80d874fd05f92c433ab6d8b7be7b13c1dc8b09b0e701d2aa72683cf1623b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225/candidate/jpegxl-modular-tree.ts",
+      "sha256": "9a9a488dc3cdc0bd7246f2cfb5e6aabeb50a46dd075fda80e41651044c5e10cc"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-baseline.jxl",
+      "encodedSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "bytes": 416143,
+      "baselineBytes": 416143,
+      "changeBytes": 0,
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 4,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-baseline.jxl.native.npy",
+          "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-baseline.jxl.rust.npy",
+          "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 8294400,
+      "maximumSampleError": 0,
+      "elapsedMs": 33607.437493,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "candidate",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-candidate.jxl",
+      "encodedSha256": "3cf06470fdebd1385bf51ad42b90cb3d3cedd5789fedc8fa7ebe2d3698011288",
+      "bytes": 407354,
+      "baselineBytes": 416143,
+      "changeBytes": -8789,
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 40,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-candidate.jxl.native.npy",
+          "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/im26-8160-original-candidate.jxl.rust.npy",
+          "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 8294400,
+      "maximumSampleError": 0,
+      "elapsedMs": 33733.752416999996,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "sunset_logo",
+      "variant": "baseline",
+      "width": 924,
+      "height": 1386,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-baseline.jxl",
+      "encodedSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "bytes": 550050,
+      "baselineBytes": 550050,
+      "changeBytes": 0,
+      "ownedPeak": 115646726,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-baseline.jxl.native.npy",
+          "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92",
+          "samples": 5122656,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-baseline.jxl.rust.npy",
+          "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7",
+          "samples": 5122656,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 5122656,
+      "maximumSampleError": 0,
+      "elapsedMs": 12173.597697999998,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "sunset_logo",
+      "variant": "candidate",
+      "width": 924,
+      "height": 1386,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/sunset_logo.raw",
+      "inputSha256": "36f3dcfa5a4b2d0248d96a750451a98616d87c942e259eaba9c3bef8ce0c4428",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-candidate.jxl",
+      "encodedSha256": "d3d7d3dce4e7e857889b129ff514f884775445b06af4271d5faad8d55e5dd78e",
+      "bytes": 550050,
+      "baselineBytes": 550050,
+      "changeBytes": 0,
+      "ownedPeak": 115646726,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-candidate.jxl.native.npy",
+          "sha256": "15b9e7579464e633b32b13bf07637c2f4a8761fcb9ceb867a0738f6318bcee92",
+          "samples": 5122656,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/sunset_logo-candidate.jxl.rust.npy",
+          "sha256": "db1cc461acea1677ed62857d37e590709285759ecc03146376efab3768945fe7",
+          "samples": 5122656,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 5122656,
+      "maximumSampleError": 0,
+      "elapsedMs": 11825.588462,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgb-dc-edge",
+      "variant": "baseline",
+      "width": 2050,
+      "height": 257,
+      "channels": 3,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge.raw",
+      "inputSha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-baseline.jxl",
+      "encodedSha256": "6dcb97c6507b663b4b5a64ab6e8699f0678b55eabc094f3f581d8aa4a1a2c566",
+      "bytes": 5295,
+      "baselineBytes": 5295,
+      "changeBytes": 0,
+      "ownedPeak": 23288722,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 3,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-baseline.jxl.native.npy",
+          "sha256": "9534ef0a91407f0ad5b7873666b0bdd62e8834ca1aef5cb2b44ea8249460e500",
+          "samples": 1580550,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-baseline.jxl.rust.npy",
+          "sha256": "03a5dc0371f69bf889e8a5c7f33083d426c55b99cadf2f1c9b17ef9fbae99e61",
+          "samples": 1580550,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1580550,
+      "maximumSampleError": 0,
+      "elapsedMs": 4204.156320000009,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgb-dc-edge",
+      "variant": "candidate",
+      "width": 2050,
+      "height": 257,
+      "channels": 3,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge.raw",
+      "inputSha256": "39ca64a6f5d2ac102a6a52353c0f26950ce3c0c342c544e1b145f3ddc13e26fa",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-candidate.jxl",
+      "encodedSha256": "c8e750f3f60a955f43e3612d5cbfa205514dd79d8a7e0dea37c2604995559030",
+      "bytes": 5701,
+      "baselineBytes": 5295,
+      "changeBytes": 406,
+      "ownedPeak": 23288722,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 18,
+      "selectedDcGroups": 2,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-candidate.jxl.native.npy",
+          "sha256": "9534ef0a91407f0ad5b7873666b0bdd62e8834ca1aef5cb2b44ea8249460e500",
+          "samples": 1580550,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgb-dc-edge-candidate.jxl.rust.npy",
+          "sha256": "03a5dc0371f69bf889e8a5c7f33083d426c55b99cadf2f1c9b17ef9fbae99e61",
+          "samples": 1580550,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1580550,
+      "maximumSampleError": 0,
+      "elapsedMs": 4677.1000420000055,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgba-hidden-edge",
+      "variant": "baseline",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge.raw",
+      "inputSha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-baseline.jxl",
+      "encodedSha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599",
+      "bytes": 4020,
+      "baselineBytes": 4020,
+      "changeBytes": 0,
+      "ownedPeak": 27569803,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-baseline.jxl.native.npy",
+          "sha256": "0436a7097ea346cf9767c4d5a485a8b8ca6bce43af9f5dad04dbd8dfa8aead4a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-baseline.jxl.rust.npy",
+          "sha256": "1b39404532a7f44c95c7dfa4759bda5b2be7ee41ad4f8426e1e2400bea48f59a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2748.39192200001,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgba-hidden-edge",
+      "variant": "candidate",
+      "width": 1025,
+      "height": 257,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge.raw",
+      "inputSha256": "218fba64a49497752019e1b43501402b548d9803175dd7fc91a59a1114c85602",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-candidate.jxl",
+      "encodedSha256": "c3cc7f229eba9f36ccff17e2a55031775f5bd024b861e9e022e394594dcc0599",
+      "bytes": 4020,
+      "baselineBytes": 4020,
+      "changeBytes": 0,
+      "ownedPeak": 27569803,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-candidate.jxl.native.npy",
+          "sha256": "0436a7097ea346cf9767c4d5a485a8b8ca6bce43af9f5dad04dbd8dfa8aead4a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-hidden-edge-candidate.jxl.rust.npy",
+          "sha256": "1b39404532a7f44c95c7dfa4759bda5b2be7ee41ad4f8426e1e2400bea48f59a",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2681.6382329999906,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgba-opaque-portrait",
+      "variant": "baseline",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait.raw",
+      "inputSha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-baseline.jxl",
+      "encodedSha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d",
+      "bytes": 4126,
+      "baselineBytes": 4126,
+      "changeBytes": 0,
+      "ownedPeak": 27465172,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-baseline.jxl.native.npy",
+          "sha256": "bfed4f9323869ef409d7a3d5fe64abf1b57adfddf69d1493baeeb3c0b01fc769",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-baseline.jxl.rust.npy",
+          "sha256": "09a1d3e812d104bb26b644bcfb9e7d10a8b6645dbebafe195fe2d190bdebb779",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2243.407097999996,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    },
+    {
+      "fixture": "flat-rgba-opaque-portrait",
+      "variant": "candidate",
+      "width": 257,
+      "height": 1025,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait.raw",
+      "inputSha256": "7e229a562dfe9423e6cc79381b6dc344a880766009957a1c27561d6ff03283ae",
+      "artifact": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-candidate.jxl",
+      "encodedSha256": "1f83ebfbd07def1470db1f47e2686188e62282700eb9c3fe8e3834326f42e12d",
+      "bytes": 4126,
+      "baselineBytes": 4126,
+      "changeBytes": 0,
+      "ownedPeak": 27465172,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 1024,
+      "selectedDisplayGroups": 2,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-candidate.jxl.native.npy",
+          "sha256": "bfed4f9323869ef409d7a3d5fe64abf1b57adfddf69d1493baeeb3c0b01fc769",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/small-group-cost-guard-225-checks/flat-rgba-opaque-portrait-candidate.jxl.rust.npy",
+          "sha256": "09a1d3e812d104bb26b644bcfb9e7d10a8b6645dbebafe195fe2d190bdebb779",
+          "samples": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "publicSamples": 1053700,
+      "maximumSampleError": 0,
+      "elapsedMs": 2246.0813349999953,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Copied cost-guarded primary 8192-sample policy versus exact current baseline on pinned original sunset logo plus first-party repeating RGB/hidden-alpha/opaque-portrait group-edge inputs. Report any growth rather than hide it. Verify every original native/Rust and public sample with complete nonduplicate coverage, actual final grouping/DC/reference frames, unchanged inputs and owned closure. The already encoded ordinary-frame rate guard skips very cheap inputs; it is a heuristic, not a universal no-growth proof. Fresh guarded-policy pair overhead and original-limit qualification remain separate; no production adoption or overall parity claim."
+}

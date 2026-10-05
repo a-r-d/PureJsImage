@@ -2,13 +2,22 @@ import { createHash } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { createJpegXlModularEncoder } from '../../src/codecs/jpegxl-modular-encode.ts'
 import { Uint8ArraySink } from '../../src/sink.ts'
+import { hashM8Sources } from './m8-output-digest.ts'
 
 // One isolated process per sample. Input normalization and native oracles run separately.
 const inputPath = process.argv[2]
 const outputPath = process.argv[3]
 const effort = Number(process.argv[4] ?? 7)
-if (!inputPath || !outputPath || ![1, 3, 5, 7].includes(effort))
-  throw new Error('Usage: node --expose-gc measure-m7-lossless.ts input.ppm output.jxl effort')
+const alpha = process.argv[5]
+if (
+  !inputPath ||
+  !outputPath ||
+  ![1, 3, 5, 7].includes(effort) ||
+  (alpha !== undefined && alpha !== 'rgba')
+)
+  throw new Error(
+    'Usage: node --expose-gc measure-m7-lossless.ts input.ppm output.jxl effort [rgba]',
+  )
 if (!globalThis.gc) throw new Error('Run with --expose-gc for an explicit pre-encode baseline')
 const opened = performance.now()
 const source = await readFile(inputPath)
@@ -17,13 +26,24 @@ if (!header) throw new Error('Expected normalized RGB PPM with a canonical heade
 const width = Number(header[1]),
   height = Number(header[2]),
   high = header[3] === '65535'
-const format = high ? 'rgb16' : 'rgb8'
-const rowBytes = width * (high ? 6 : 3)
-const pixels = source.subarray(header[0].length)
-if (!Number.isSafeInteger(rowBytes * height) || pixels.length !== rowBytes * height)
+const format = alpha === 'rgba' ? (high ? 'rgba16' : 'rgba8') : high ? 'rgb16' : 'rgb8'
+const sampleBytes = high ? 2 : 1
+const rgb = source.subarray(header[0].length)
+const rgbStride = width * 3 * sampleBytes
+if (!Number.isSafeInteger(rgbStride * height) || rgb.length !== rgbStride * height)
   throw new Error('Input extent does not match samples')
+const rowBytes = width * (alpha === 'rgba' ? 4 : 3) * sampleBytes
+const pixels = alpha === 'rgba' ? new Uint8Array(rowBytes * height) : rgb
+if (alpha === 'rgba') {
+  for (let position = 0; position < width * height; position++) {
+    const offset = position * 4 * sampleBytes
+    pixels.set(rgb.subarray(position * 3 * sampleBytes, (position + 1) * 3 * sampleBytes), offset)
+    pixels.fill(255, offset + 3 * sampleBytes, offset + 4 * sampleBytes)
+  }
+}
 const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
 const inputSha256 = hash(pixels)
+const implementationSourceSha256 = await hashM8Sources()
 const openMilliseconds = performance.now() - opened
 globalThis.gc()
 const baselineMemory = process.memoryUsage()
@@ -39,7 +59,7 @@ const encoder = await createJpegXlModularEncoder(sink, {
     transfer: { kind: 'srgb' },
     matrix: 'identity',
     range: 'full',
-    alpha: 'none',
+    alpha: alpha === 'rgba' ? 'straight' : 'none',
     provenance: 'assumed-default',
     renderingIntent: 'relative',
   },
@@ -62,6 +82,7 @@ console.log(
     format,
     effort,
     inputSha256,
+    implementationSourceSha256,
     outputSha256: hash(encoded),
     bytes: encoded.length,
     openMilliseconds,

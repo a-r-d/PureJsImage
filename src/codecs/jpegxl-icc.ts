@@ -1,9 +1,10 @@
-import { invalidInput, limitExceeded } from '../errors.ts'
+import { limitExceeded } from '../errors.ts'
 import {
   type JpegXlBitReader,
   JpegXlEntropySymbolReader,
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
 const ICC_CONTEXTS = 41
 const ICC_HEADER_BYTES = 128
@@ -38,7 +39,7 @@ const readU64 = (reader: JpegXlBitReader): number => {
   while (shift < 64 && reader.readBits(1) !== 0) {
     const count = Math.min(8, 64 - shift)
     result += reader.readBits(count) * 2 ** shift
-    if (!Number.isSafeInteger(result)) throw invalidInput('JPEG XL ICC size exceeds safe range')
+    if (!Number.isSafeInteger(result)) throw invalidJpegXlInput('ICC size exceeds safe range')
     shift += count
   }
   return result
@@ -68,17 +69,17 @@ const readVarint = (data: Uint8Array, position: { value: number }, end: number):
   let result = 0
   let factor = 1
   for (let index = 0; index < 10; index += 1) {
-    if (position.value >= end) throw invalidInput('JPEG XL ICC varint is truncated')
+    if (position.value >= end) throw invalidJpegXlInput('ICC varint is truncated')
     const byte = data[position.value] ?? 0
     position.value += 1
     const payload = byte & 0x7f
-    if (index === 9 && payload > 1) throw invalidInput('JPEG XL ICC varint exceeds 64 bits')
+    if (index === 9 && payload > 1) throw invalidJpegXlInput('ICC varint exceeds 64 bits')
     result += payload * factor
-    if (!Number.isSafeInteger(result)) throw invalidInput('JPEG XL ICC varint exceeds safe range')
+    if (!Number.isSafeInteger(result)) throw invalidJpegXlInput('ICC varint exceeds safe range')
     if ((byte & 0x80) === 0) return result
     factor *= 128
   }
-  throw invalidInput('JPEG XL ICC varint exceeds ten bytes')
+  throw invalidJpegXlInput('ICC varint exceeds ten bytes')
 }
 
 class IccOutput {
@@ -91,7 +92,7 @@ class IccOutput {
 
   reserve(count: number): void {
     if (!Number.isSafeInteger(count) || count < 0 || count > this.data.length - this.length) {
-      throw invalidInput('JPEG XL ICC expands beyond its declared size')
+      throw invalidJpegXlInput('ICC expands beyond its declared size')
     }
   }
 
@@ -109,7 +110,7 @@ class IccOutput {
 
 const appendU32 = (output: IccOutput, value: number): void => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 0xffff_ffff) {
-    throw invalidInput('JPEG XL ICC 32-bit value is invalid')
+    throw invalidJpegXlInput('ICC 32-bit value is invalid')
   }
   output.reserve(4)
   output.writeByte((value >>> 24) & 255)
@@ -216,20 +217,20 @@ export const decodeJpegXlIccCommands = (
   }
   const commandBytes = readVarint(encoded, commandPosition, encoded.byteLength)
   const commandEnd = commandPosition.value + commandBytes
-  if (commandEnd > encoded.byteLength) throw invalidInput('JPEG XL ICC command stream is truncated')
+  if (commandEnd > encoded.byteLength) throw invalidJpegXlInput('ICC command stream is truncated')
   const dataPosition = { value: commandEnd }
   const output = new IccOutput(outputSize)
   const prediction = initialHeader(outputSize)
   for (let index = 0; index < ICC_HEADER_BYTES && output.length < outputSize; index += 1) {
     predictHeader(output.data, prediction, index)
     if (dataPosition.value >= encoded.byteLength)
-      throw invalidInput('JPEG XL ICC header is truncated')
+      throw invalidJpegXlInput('ICC header is truncated')
     output.writeByte(((encoded[dataPosition.value] ?? 0) + (prediction[index] ?? 0)) & 255)
     dataPosition.value += 1
   }
   if (output.length === outputSize) {
     if (commandPosition.value !== commandEnd || dataPosition.value !== encoded.byteLength) {
-      throw invalidInput('JPEG XL ICC contains trailing commands or data')
+      throw invalidJpegXlInput('ICC contains trailing commands or data')
     }
     return output.data
   }
@@ -238,7 +239,7 @@ export const decodeJpegXlIccCommands = (
   if (tagsEncoded > 0) {
     const tagCount = tagsEncoded - 1
     if (tagCount > Math.floor((outputSize - ICC_HEADER_BYTES - 4) / 12)) {
-      throw invalidInput('JPEG XL ICC tag table exceeds its declared size')
+      throw invalidJpegXlInput('ICC tag table exceeds its declared size')
     }
     appendU32(output, tagCount)
     let previousStart = ICC_HEADER_BYTES + tagCount * 12
@@ -251,14 +252,14 @@ export const decodeJpegXlIccCommands = (
       let tag: string
       if (code === 1) {
         if (dataPosition.value + 4 > encoded.byteLength)
-          throw invalidInput('JPEG XL ICC tag is truncated')
+          throw invalidJpegXlInput('ICC tag is truncated')
         tag = String.fromCharCode(...encoded.subarray(dataPosition.value, dataPosition.value + 4))
         dataPosition.value += 4
       } else if (code === 2) tag = 'rTRC'
       else if (code === 3) tag = 'rXYZ'
       else {
         const named = tagNames[code - 4]
-        if (!named) throw invalidInput('JPEG XL ICC tag code is invalid')
+        if (!named) throw invalidJpegXlInput('ICC tag code is invalid')
         tag = named
       }
       appendText(output, tag)
@@ -305,30 +306,30 @@ export const decodeJpegXlIccCommands = (
       const count = readVarint(encoded, commandPosition, commandEnd)
       output.reserve(count)
       if (dataPosition.value + count > encoded.byteLength)
-        throw invalidInput('JPEG XL ICC data is truncated')
+        throw invalidJpegXlInput('ICC data is truncated')
       let bytes = encoded.subarray(dataPosition.value, dataPosition.value + count)
       if (command === 2 || command === 3) bytes = shuffled(bytes, command === 2 ? 2 : 4)
       output.append(bytes)
       dataPosition.value += count
     } else if (command === 4) {
       if (commandPosition.value >= commandEnd)
-        throw invalidInput('JPEG XL ICC predictor is truncated')
+        throw invalidJpegXlInput('ICC predictor is truncated')
       const flags = encoded[commandPosition.value] ?? 0
       commandPosition.value += 1
       const widthCode = (flags & 3) + 1
-      if (widthCode === 3) throw invalidInput('JPEG XL ICC predictor width is invalid')
+      if (widthCode === 3) throw invalidJpegXlInput('ICC predictor width is invalid')
       const width = widthCode === 1 ? 1 : widthCode === 2 ? 2 : 4
       const orderCode = (flags >>> 2) & 3
-      if (orderCode === 3) throw invalidInput('JPEG XL ICC predictor order is invalid')
+      if (orderCode === 3) throw invalidJpegXlInput('ICC predictor order is invalid')
       const order = orderCode === 0 ? 0 : orderCode === 1 ? 1 : 2
       const stride = (flags & 16) !== 0 ? readVarint(encoded, commandPosition, commandEnd) : width
       if (stride < width || output.length === 0 || stride * 4 >= output.length) {
-        throw invalidInput('JPEG XL ICC predictor stride is invalid')
+        throw invalidJpegXlInput('ICC predictor stride is invalid')
       }
       const count = readVarint(encoded, commandPosition, commandEnd)
       output.reserve(count)
       if (dataPosition.value + count > encoded.byteLength)
-        throw invalidInput('JPEG XL ICC predictor data is truncated')
+        throw invalidJpegXlInput('ICC predictor data is truncated')
       let residuals = encoded.subarray(dataPosition.value, dataPosition.value + count)
       if (width === 2 || width === 4) residuals = shuffled(residuals, width)
       output.reserve(count)
@@ -345,18 +346,17 @@ export const decodeJpegXlIccCommands = (
       appendText(output, 'XYZ ')
       appendU32(output, 0)
       if (dataPosition.value + 12 > encoded.byteLength)
-        throw invalidInput('JPEG XL ICC XYZ data is truncated')
+        throw invalidJpegXlInput('ICC XYZ data is truncated')
       output.append(encoded.subarray(dataPosition.value, dataPosition.value + 12))
       dataPosition.value += 12
     } else if (command >= 16 && command < 16 + typeNames.length) {
       appendText(output, typeNames[command - 16] ?? '')
       appendU32(output, 0)
-    } else throw invalidInput('JPEG XL ICC command is invalid')
-    if (output.length > outputSize)
-      throw invalidInput('JPEG XL ICC expands beyond its declared size')
+    } else throw invalidJpegXlInput('ICC command is invalid')
+    if (output.length > outputSize) throw invalidJpegXlInput('ICC expands beyond its declared size')
   }
   if (dataPosition.value !== encoded.byteLength || output.length !== outputSize) {
-    throw invalidInput('JPEG XL ICC decoded size is inconsistent')
+    throw invalidJpegXlInput('ICC decoded size is inconsistent')
   }
   return output.data
 }
@@ -379,17 +379,16 @@ export const readJpegXlIcc = (
     const previous = encoded[index - 1] ?? 0
     const beforePrevious = encoded[index - 2] ?? 0
     const symbol = symbols.readHybridUint(contextFor(index, previous, beforePrevious), reader)
-    if (symbol > 255) throw invalidInput('JPEG XL ICC entropy symbol exceeds one byte')
+    if (symbol > 255) throw invalidJpegXlInput('ICC entropy symbol exceeds one byte')
     encoded[index] = symbol
   }
-  if (!symbols.hasValidFinalState()) throw invalidInput('JPEG XL ICC entropy state is invalid')
+  if (!symbols.hasValidFinalState()) throw invalidJpegXlInput('ICC entropy state is invalid')
   return decodeJpegXlIccCommands(encoded, maxOutputBytes)
 }
 
 /** A bounded literal representation; entropy coding remains the caller's responsibility. */
 export const encodeJpegXlIccCommands = (profile: Uint8Array, maximumBytes: number): Uint8Array => {
-  if (profile.length < ICC_HEADER_BYTES)
-    throw invalidInput('JPEG XL ICC profile header is truncated')
+  if (profile.length < ICC_HEADER_BYTES) throw invalidJpegXlInput('ICC profile header is truncated')
   if (profile.length > maximumBytes)
     throw limitExceeded('JPEG XL ICC profile exceeds its output limit')
   const commands: number[] = []

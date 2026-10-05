@@ -1,0 +1,1333 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "d093319eb94d36b23a39014035c077bee864f6f9b91d856b72fba8f0ce653398",
+  "implementationDirty": true,
+  "harnessSha256": "011f3b3d08bac8da4ad5e34a53535a68f32128b65aeee1f7eb973799bbb8600e",
+  "candidateModuleHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/baseline/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "14de108c6429fb2e327c528b004243acf5506eafb0f79a55c0af68fb906b418a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "ee23a2a6f21d277752913e3766e58976713df20b94d12bde72403ca40a03427b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family/jpegxl-vardct-encode.ts",
+      "sha256": "14de108c6429fb2e327c528b004243acf5506eafb0f79a55c0af68fb906b418a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family/jpegxl-jpeg-encode.ts",
+      "sha256": "42e938b5004acd331aca92751e7540d3dcf14d2dec6db2ac3e00189dfc7a97bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/default/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/default/jpegxl-vardct-encode.ts",
+      "sha256": "14de108c6429fb2e327c528b004243acf5506eafb0f79a55c0af68fb906b418a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/default/jpegxl-jpeg-encode.ts",
+      "sha256": "b0904e0ccf3ab30b9305d942dcce9e46038a7141a29db2fb6b47339c8bf69fe4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family-dc/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family-dc/jpegxl-vardct-encode.ts",
+      "sha256": "14de108c6429fb2e327c528b004243acf5506eafb0f79a55c0af68fb906b418a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/block-contexts-128/family-dc/jpegxl-jpeg-encode.ts",
+      "sha256": "e8213bc0790fff3b6f3c95fe9847a46d4eb40b6460ab02450abba08cd15f7b3f"
+    }
+  ],
+  "preparationHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-block-contexts-128.ts",
+      "sha256": "3f81817fae167f692ac1da6713a47612e2bd6983b83bba3e2590a9c9c2a2fd97"
+    }
+  ],
+  "toolHashes": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "identityBoundary": "Repository source remains the qualified retained order-search checkpoint; candidateModuleHashes pin isolated first-party cluster controls separately.",
+  "policy": "Forward AC block-context controls: six channel/order-family contexts, the format-defined default context map, and twelve channel/family contexts split at the compact luminance DC median. Keep every quantized coefficient and existing pixel/order/alpha decision. Baseline reproduces current pinned artifacts and both scores. Every candidate must reproduce complete native/Rust grid hashes and exact alpha. Profile ideal/token/model/extra-bit costs only for attribution; use complete bytes for retention. No production mutation or speed claim",
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 1,
+      "bytes": 168113,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 1688.0749690000002,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 397581,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 957671.8036681402,
+          "clusteredEntropyBits": 971769.0803592443,
+          "serializedCodeBits": 971932.2574348391,
+          "normalizationPenaltyBits": 163.17707559489645,
+          "modelBits": 8630
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 389888,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 955090.3937372107,
+          "clusteredEntropyBits": 969309.1550823348,
+          "serializedCodeBits": 969415.4123864444,
+          "normalizationPenaltyBits": 106.25730410963297,
+          "modelBits": 7786
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-baseline-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family",
+      "distance": 1,
+      "bytes": 168332,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 1861.2813379999998,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 397581,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 950233.5609100542,
+          "clusteredEntropyBits": 971047.6031682073,
+          "serializedCodeBits": 971128.7112455113,
+          "normalizationPenaltyBits": 81.1080773039721,
+          "modelBits": 11869
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 389888,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 948241.0890165289,
+          "clusteredEntropyBits": 967476.104275346,
+          "serializedCodeBits": 967563.5291894326,
+          "normalizationPenaltyBits": 87.4249140865868,
+          "modelBits": 11368
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-1.jxl",
+      "artifactSha256": "c5f7dd2148f3e1798ee5ef639cacd389387aceea732df5f4826cdf9a19869acc",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "default",
+      "distance": 1,
+      "bytes": 169817,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 1732.269496,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 397581,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 952686.473384149,
+          "clusteredEntropyBits": 982493.4645277964,
+          "serializedCodeBits": 982603.5741957225,
+          "normalizationPenaltyBits": 110.10966792609543,
+          "modelBits": 10264
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 389888,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 950645.0194208932,
+          "clusteredEntropyBits": 980997.48737315,
+          "serializedCodeBits": 981139.1581901029,
+          "normalizationPenaltyBits": 141.67081695294473,
+          "modelBits": 9803
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-default-1.jxl",
+      "artifactSha256": "3887ce35e824b79fb2c7a0b80a6abf7e06fee9a1775ea04d6e377cf72771f636",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family-dc",
+      "distance": 1,
+      "bytes": 168526,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 2381.2973519999996,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 397581,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 937755.6035096438,
+          "clusteredEntropyBits": 963755.3924099676,
+          "serializedCodeBits": 963844.5170311115,
+          "normalizationPenaltyBits": 89.12462114391383,
+          "modelBits": 19656
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 389888,
+          "extraBits": 211351,
+          "unmergedEntropyBits": 936082.8570200701,
+          "clusteredEntropyBits": 961652.0837223448,
+          "serializedCodeBits": 961731.826494474,
+          "normalizationPenaltyBits": 79.74277212913148,
+          "modelBits": 18524
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-dc-1.jxl",
+      "artifactSha256": "ce10c1073bd07591cb27593d11ab6c3da6a036d9f191ed387a91a2fa50579997",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 82675,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 1387.9055450000014,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 222227,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 446387.9858713021,
+          "clusteredEntropyBits": 454349.460763054,
+          "serializedCodeBits": 454394.26493072556,
+          "normalizationPenaltyBits": 44.80416767153656,
+          "modelBits": 6071
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 220260,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 444735.84790474066,
+          "clusteredEntropyBits": 453782.4207551455,
+          "serializedCodeBits": 453822.09707560623,
+          "normalizationPenaltyBits": 39.67632046074141,
+          "modelBits": 5154
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-baseline-4.jxl",
+      "artifactSha256": "69587c6b6bc9845ae826548c2000614e25eef0fa6c8e1c1c845fb26cf7553b30",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family",
+      "distance": 4,
+      "bytes": 82862,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 1551.1106770000006,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 222227,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 440212.947666846,
+          "clusteredEntropyBits": 453058.1482976245,
+          "serializedCodeBits": 453091.3985686799,
+          "normalizationPenaltyBits": 33.25027105543995,
+          "modelBits": 8183
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 220260,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 439254.32703294186,
+          "clusteredEntropyBits": 453078.4173572277,
+          "serializedCodeBits": 453118.7536206666,
+          "normalizationPenaltyBits": 40.33626343891956,
+          "modelBits": 7421
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-4.jxl",
+      "artifactSha256": "dbc5ee7fcfc75fe8cb0a272e56541a20aebd52420d95956a704013921d2c04ca",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "default",
+      "distance": 4,
+      "bytes": 82962,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 1571.5017630000002,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 222227,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 440877.2546928678,
+          "clusteredEntropyBits": 454924.31215473183,
+          "serializedCodeBits": 454974.2045773716,
+          "normalizationPenaltyBits": 49.892422639764845,
+          "modelBits": 7915
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 220260,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 439931.1231637599,
+          "clusteredEntropyBits": 454051.8973524782,
+          "serializedCodeBits": 454111.61062400125,
+          "normalizationPenaltyBits": 59.713271523069125,
+          "modelBits": 7220
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-default-4.jxl",
+      "artifactSha256": "f5a89c1d31efb012c26804dd06a7820befedd03bd905c0292385575258b30b46",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family-dc",
+      "distance": 4,
+      "bytes": 83111,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 1823.6890810000004,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 222227,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 433006.0628118277,
+          "clusteredEntropyBits": 451873.91092845943,
+          "serializedCodeBits": 451937.3612552622,
+          "normalizationPenaltyBits": 63.450326802791096,
+          "modelBits": 12152
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 220260,
+          "extraBits": 52216,
+          "unmergedEntropyBits": 432006.70622768794,
+          "clusteredEntropyBits": 450308.67265112745,
+          "serializedCodeBits": 450353.7928020905,
+          "normalizationPenaltyBits": 45.12015096307732,
+          "modelBits": 11797
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-dc-4.jxl",
+      "artifactSha256": "8526a49901bc35e91870c2fc052ece15b6a5829ee089670d64dadcb8837afd34",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 53550,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 1415.591336999998,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 168676,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 274813.0323893482,
+          "clusteredEntropyBits": 281194.86044584494,
+          "serializedCodeBits": 281224.8836468794,
+          "normalizationPenaltyBits": 30.023201034462545,
+          "modelBits": 4787
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 165718,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 273399.179527872,
+          "clusteredEntropyBits": 279076.8256363836,
+          "serializedCodeBits": 279104.21595868986,
+          "normalizationPenaltyBits": 27.39032230625162,
+          "modelBits": 4423
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-baseline-8.jxl",
+      "artifactSha256": "1104574327e962245903692fcc16f9f106222e205f125d5acdac124c5af9c9d4",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family",
+      "distance": 8,
+      "bytes": 53646,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 1423.7147430000005,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 168676,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 270397.5564699691,
+          "clusteredEntropyBits": 278449.36721229693,
+          "serializedCodeBits": 278477.8695579005,
+          "normalizationPenaltyBits": 28.50234560359968,
+          "modelBits": 7578
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 165718,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 269521.99048703833,
+          "clusteredEntropyBits": 277066.08383078437,
+          "serializedCodeBits": 277092.6573724893,
+          "normalizationPenaltyBits": 26.573541704914533,
+          "modelBits": 7175
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-8.jxl",
+      "artifactSha256": "653c1f158ee622d59c4d98a2f5c228f28fa57ce96b41d9b92541f3e3530add40",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "default",
+      "distance": 8,
+      "bytes": 53774,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 1422.1275569999998,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 168676,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 270651.7582101979,
+          "clusteredEntropyBits": 279951.28491586423,
+          "serializedCodeBits": 279983.56866062933,
+          "normalizationPenaltyBits": 32.283744765096344,
+          "modelBits": 6652
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 165718,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 269755.9682127201,
+          "clusteredEntropyBits": 279568.5406358174,
+          "serializedCodeBits": 279620.06380283,
+          "normalizationPenaltyBits": 51.52316701260861,
+          "modelBits": 5802
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-default-8.jxl",
+      "artifactSha256": "fc8097b91a6a76b619ed34415e68d3a2bdbcc23531cd9c7de144a7fab51acfcd",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "family-dc",
+      "distance": 8,
+      "bytes": 53890,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 1676.094463999998,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 168676,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 265924.27198053297,
+          "clusteredEntropyBits": 277103.9631755178,
+          "serializedCodeBits": 277143.396223099,
+          "normalizationPenaltyBits": 39.433047581173014,
+          "modelBits": 9923
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 165718,
+          "extraBits": 22819,
+          "unmergedEntropyBits": 265198.83121145645,
+          "clusteredEntropyBits": 276610.37272619846,
+          "serializedCodeBits": 276655.4675680822,
+          "normalizationPenaltyBits": 45.09484188375063,
+          "modelBits": 9337
+        }
+      ],
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1030-diagnostic-family-dc-8.jxl",
+      "artifactSha256": "df1153b594cb52faa49c7a9ea743d5622f193d755f1d4c2f8db531762b7ce0ef",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 1,
+      "bytes": 137169,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 1840.5375660000027,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 483257,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 820989.9596591116,
+          "clusteredEntropyBits": 834121.2081658611,
+          "serializedCodeBits": 834407.1890387655,
+          "normalizationPenaltyBits": 285.9808729044162,
+          "modelBits": 9211
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 460764,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 814536.7429284594,
+          "clusteredEntropyBits": 828644.1311693096,
+          "serializedCodeBits": 828845.1727286857,
+          "normalizationPenaltyBits": 201.04155937605537,
+          "modelBits": 7660
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-baseline-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family",
+      "distance": 1,
+      "bytes": 137183,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 2082.8974759999983,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 483257,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 809505.4533736084,
+          "clusteredEntropyBits": 827739.457677793,
+          "serializedCodeBits": 828019.4307894271,
+          "normalizationPenaltyBits": 279.9731116341427,
+          "modelBits": 12337
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 460764,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 806143.6931350114,
+          "clusteredEntropyBits": 824711.8364713414,
+          "serializedCodeBits": 824902.4720831827,
+          "normalizationPenaltyBits": 190.63561184122227,
+          "modelBits": 11650
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-1.jxl",
+      "artifactSha256": "2357c0ab2cba71b9e9aad5b316df465b6882e09690f7a8dccd400ae302d1b95e",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "default",
+      "distance": 1,
+      "bytes": 137619,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 1876.6197399999946,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 483257,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 812175.3607451515,
+          "clusteredEntropyBits": 834490.5395650185,
+          "serializedCodeBits": 834794.5152649655,
+          "normalizationPenaltyBits": 303.9756999469828,
+          "modelBits": 10971
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 460764,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 808820.6845635423,
+          "clusteredEntropyBits": 829903.2235709985,
+          "serializedCodeBits": 830087.5213127619,
+          "normalizationPenaltyBits": 184.29774176341016,
+          "modelBits": 10077
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-default-1.jxl",
+      "artifactSha256": "e3a04e44017519e14397b2588e4c8cb317237653ebc42edd8d786b34f5ff496d",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family-dc",
+      "distance": 1,
+      "bytes": 137600,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 2597.5267650000023,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 483257,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 798765.1600652387,
+          "clusteredEntropyBits": 824056.8048839684,
+          "serializedCodeBits": 824348.7334907217,
+          "normalizationPenaltyBits": 291.92860675323755,
+          "modelBits": 19962
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 460764,
+          "extraBits": 104214,
+          "unmergedEntropyBits": 795270.7906484054,
+          "clusteredEntropyBits": 820453.2267885907,
+          "serializedCodeBits": 820643.1406600736,
+          "normalizationPenaltyBits": 189.91387148294598,
+          "modelBits": 18993
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-dc-1.jxl",
+      "artifactSha256": "49efaa2e6b909e48e938198ac507618e1b854c607cf3b5ce551da804079cdfea",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 4,
+      "bytes": 52532,
+      "baselineBytes": 52532,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 1493.809487999999,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 158370,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 247601.02141931327,
+          "clusteredEntropyBits": 255838.3872325773,
+          "serializedCodeBits": 255870.09444637157,
+          "normalizationPenaltyBits": 31.707213794259587,
+          "modelBits": 6396
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 144074,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 243929.83270290974,
+          "clusteredEntropyBits": 251069.96690881133,
+          "serializedCodeBits": 251101.95294304081,
+          "normalizationPenaltyBits": 31.986034229485085,
+          "modelBits": 5379
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-baseline-4.jxl",
+      "artifactSha256": "dd5c6edd89aec8aa3cf7ad390c91e2539d66fa8b2bb20fb5e2d8b3eeac06488d",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family",
+      "distance": 4,
+      "bytes": 52488,
+      "baselineBytes": 52532,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 1580.254273999999,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 158370,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 240187.4631854749,
+          "clusteredEntropyBits": 250842.1419036906,
+          "serializedCodeBits": 250888.05684899646,
+          "normalizationPenaltyBits": 45.914945305878064,
+          "modelBits": 8858
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 144074,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 239031.24214484525,
+          "clusteredEntropyBits": 247728.43008073725,
+          "serializedCodeBits": 247751.22775651803,
+          "normalizationPenaltyBits": 22.797675780777354,
+          "modelBits": 8300
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-4.jxl",
+      "artifactSha256": "430425b886e2a51bd939d5dfe165ebe6dabad994655b6310e5834a3445910672",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "default",
+      "distance": 4,
+      "bytes": 52690,
+      "baselineBytes": 52532,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 1528.3873939999976,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 158370,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 240854.76906279207,
+          "clusteredEntropyBits": 252057.73565255624,
+          "serializedCodeBits": 252097.901993396,
+          "normalizationPenaltyBits": 40.16634083975805,
+          "modelBits": 9543
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 144074,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 239735.0147291311,
+          "clusteredEntropyBits": 249939.8601702777,
+          "serializedCodeBits": 249968.7359852783,
+          "normalizationPenaltyBits": 28.875815000588773,
+          "modelBits": 7845
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-default-4.jxl",
+      "artifactSha256": "ed3a07c0c3a15ee07fe06d7211af4cd885bd5064f0512cc028f800695a41293a",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family-dc",
+      "distance": 4,
+      "bytes": 52845,
+      "baselineBytes": 52532,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 1949.2949440000011,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 158370,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 233328.6578116093,
+          "clusteredEntropyBits": 247601.94548681995,
+          "serializedCodeBits": 247659.5906155898,
+          "normalizationPenaltyBits": 57.645128769858275,
+          "modelBits": 12716
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 144074,
+          "extraBits": 19742,
+          "unmergedEntropyBits": 232205.48955314,
+          "clusteredEntropyBits": 245993.91243619565,
+          "serializedCodeBits": 246023.162520556,
+          "normalizationPenaltyBits": 29.250084360362962,
+          "modelBits": 12659
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-dc-4.jxl",
+      "artifactSha256": "5dd730bc520dab0d5b149538aecd839d97b12a00aa99ed8ef9e0c22f94b82078",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "baseline",
+      "distance": 8,
+      "bytes": 32311,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 1357.652489,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 107147,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 134466.14570995807,
+          "clusteredEntropyBits": 140191.5647075256,
+          "serializedCodeBits": 140241.3583101651,
+          "normalizationPenaltyBits": 49.79360263948911,
+          "modelBits": 4312
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 98121,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 132381.26880417904,
+          "clusteredEntropyBits": 137551.91869722746,
+          "serializedCodeBits": 137594.0227955841,
+          "normalizationPenaltyBits": 42.10409835664905,
+          "modelBits": 3969
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-baseline-8.jxl",
+      "artifactSha256": "71f42c2e9f46170801f304ef6cf7f48daa351d45946b262063c3f2ebc2196112",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family",
+      "distance": 8,
+      "bytes": 32424,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 1406.31005,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 107147,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 129885.1778687397,
+          "clusteredEntropyBits": 137135.5067395997,
+          "serializedCodeBits": 137186.6499261544,
+          "normalizationPenaltyBits": 51.14318655472016,
+          "modelBits": 6766
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 98121,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 129183.63113083977,
+          "clusteredEntropyBits": 135872.5571743932,
+          "serializedCodeBits": 135913.19114440214,
+          "normalizationPenaltyBits": 40.63397000893019,
+          "modelBits": 6523
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-8.jxl",
+      "artifactSha256": "0a62726e4d6991bda9b092f84b3752185949e35ac8dc12d29a71cde1bd373cd5",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "default",
+      "distance": 8,
+      "bytes": 32464,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 1426.008679999999,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 107147,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 130128.47476501967,
+          "clusteredEntropyBits": 138553.25942630038,
+          "serializedCodeBits": 138619.51714495348,
+          "normalizationPenaltyBits": 66.25771865309798,
+          "modelBits": 6277
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 98121,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 129415.47837834108,
+          "clusteredEntropyBits": 137001.74160705446,
+          "serializedCodeBits": 137047.9354366473,
+          "normalizationPenaltyBits": 46.19382959284121,
+          "modelBits": 5871
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-default-8.jxl",
+      "artifactSha256": "8a70a24d8d69c1fb2e8ae8494559387f6350bc9fc9086f826a010a7110c01141",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "family-dc",
+      "distance": 8,
+      "bytes": 32527,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 1593.342697,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 107147,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 125628.82535119605,
+          "clusteredEntropyBits": 134784.05702637148,
+          "serializedCodeBits": 134838.440433084,
+          "normalizationPenaltyBits": 54.383406712528085,
+          "modelBits": 9707
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 98121,
+          "extraBits": 6678,
+          "unmergedEntropyBits": 124815.81854491212,
+          "clusteredEntropyBits": 133697.29000205835,
+          "serializedCodeBits": 133732.36951522238,
+          "normalizationPenaltyBits": 35.079513164033415,
+          "modelBits": 9277
+        }
+      ],
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-1416-diagnostic-family-dc-8.jxl",
+      "artifactSha256": "9afc46945c5ed2df70b1bfcd97893accee75cbcd8894410f330e6ca3f51cd62e",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 106534,
+      "baselineBytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 1674.6595899999957,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 288542,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 522657.8491194793,
+          "clusteredEntropyBits": 539533.1016140685,
+          "serializedCodeBits": 539622.1640532647,
+          "normalizationPenaltyBits": 89.062439196161,
+          "modelBits": 7035
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 265484,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 509057.53138231864,
+          "clusteredEntropyBits": 528097.0090434335,
+          "serializedCodeBits": 528159.3344773316,
+          "normalizationPenaltyBits": 62.32543389813509,
+          "modelBits": 6750
+        }
+      ],
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-5034-diagnostic-baseline-3.jxl",
+      "artifactSha256": "c1554dcb63637ac7920bb108429268abb0d0eb10f4a128c760d03f0b56ba45d2",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "family",
+      "distance": 3,
+      "bytes": 104637,
+      "baselineBytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 1712.3595269999932,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 288542,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 499303.1768582822,
+          "clusteredEntropyBits": 519814.0784085607,
+          "serializedCodeBits": 519991.2411021504,
+          "normalizationPenaltyBits": 177.16269358969294,
+          "modelBits": 9829
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 265484,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 486308.65463364805,
+          "clusteredEntropyBits": 509919.62549667736,
+          "serializedCodeBits": 509996.812850159,
+          "normalizationPenaltyBits": 77.18735348165501,
+          "modelBits": 9729
+        }
+      ],
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-5034-diagnostic-family-3.jxl",
+      "artifactSha256": "6eca5133656f198d76eb434df42a55c7689cbf53b8b14894fbd3d2209ae6caec",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "default",
+      "distance": 3,
+      "bytes": 105473,
+      "baselineBytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 1758.2348410000122,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 288542,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 499303.1768582822,
+          "clusteredEntropyBits": 529410.2718105139,
+          "serializedCodeBits": 529573.7578959526,
+          "normalizationPenaltyBits": 163.4860854386352,
+          "modelBits": 7461
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 265484,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 486308.65463364805,
+          "clusteredEntropyBits": 518955.50116233726,
+          "serializedCodeBits": 519040.39848396747,
+          "normalizationPenaltyBits": 84.89732163021108,
+          "modelBits": 7479
+        }
+      ],
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-5034-diagnostic-default-3.jxl",
+      "artifactSha256": "5c72df61790935cab171668cee8fc3cffa1b737d223ff1e85aed349816c7cd8d",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "family-dc",
+      "distance": 3,
+      "bytes": 104839,
+      "baselineBytes": 106534,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 1756.5259179999994,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 288542,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 499303.1768582822,
+          "clusteredEntropyBits": 527007.7680990869,
+          "serializedCodeBits": 527149.9426702467,
+          "normalizationPenaltyBits": 142.1745711597614,
+          "modelBits": 7669
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 265484,
+          "extraBits": 205182,
+          "unmergedEntropyBits": 486308.65463364805,
+          "clusteredEntropyBits": 511830.1287162386,
+          "serializedCodeBits": 511951.32880810084,
+          "normalizationPenaltyBits": 121.20009186223615,
+          "modelBits": 9110
+        }
+      ],
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/im26-5034-diagnostic-family-dc-3.jxl",
+      "artifactSha256": "8630dde08f3e0971b2beba4daf091ba6a7a9117ef00d66fd1bc6ca73e4def907",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "distance": 3,
+      "bytes": 53324,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 1897.0056350000086,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        }
+      ],
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/alpha_triangles-baseline-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "family",
+      "distance": 3,
+      "bytes": 53329,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 2005.6116389999952,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        }
+      ],
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/alpha_triangles-family-3.jxl",
+      "artifactSha256": "468736a14f525bb467f1b2a97a3ae50e642ce03cb481a5545f68be5d884200f6",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "default",
+      "distance": 3,
+      "bytes": 53312,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 1993.5294710000016,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        }
+      ],
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/alpha_triangles-default-3.jxl",
+      "artifactSha256": "d5f2236fa89a5952cf0aa5260d5af92c63b8313d4577c21c7ffef1c6d31990f2",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "family-dc",
+      "distance": 3,
+      "bytes": 53361,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 2013.0945760000031,
+      "acBitProfiles": [
+        {
+          "orderLearned": false,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        },
+        {
+          "orderLearned": true,
+          "tokenCount": 49152,
+          "extraBits": 0,
+          "unmergedEntropyBits": 0,
+          "clusteredEntropyBits": 0,
+          "serializedCodeBits": 0,
+          "normalizationPenaltyBits": 0,
+          "modelBits": 18
+        }
+      ],
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/block-contexts-128/alpha_triangles-family-dc-3.jxl",
+      "artifactSha256": "bc3da90d1298e6cc146ae431bd71bdc9c09e9f876cb2244188c0c61cdf3b4e1e",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    }
+  ]
+}

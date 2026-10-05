@@ -1,0 +1,173 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "72fb3bbc0a53596a8c8d3a4810fe35ebc0c486017cad22401bf3d95a5b971b95",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-plane-weighted-254.ts",
+      "sha256": "001c7d477b40a178cc204fac6b9319e99a4b5f83b95d1ed9b793be41d8522a82"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-plane-weighted-254.ts",
+      "sha256": "88981ff2b93567676500211c90c8f45f0a9652d38f7632d82b161b54b3bd1746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-plane-weighted-254.json",
+      "sha256": "5a3a7b5b53c0524a4e6bae26ce8b3f1e1c6e9c58750cb0fe2c165ca768c6c71f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/manifest.json",
+      "sha256": "c41a554a894ac81949ebf4aebd478e14653e0bf5cda0f065ce031130bf7949c2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-cache-neighbor-controls.json",
+      "sha256": "1de329d75493e614568efb649c2a97c11542c4ba16bf811cf1256aa75bbb05c1"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-modular-encode.ts",
+      "sha256": "2b1e8ef926d733eaf5d8f8b7ce530b3ef6cee8ba4a3fd47ce2859887f4926d03"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "aacb713ecaf3a308953a12e3d8df055f98ff773931c4dcbe7c2642ef8041ec08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-jpeg-encode.ts",
+      "sha256": "8271024c05dea4f150951f92752fcd9da5ee6148eb658cec5b7969c69423dd71"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-vardct-encode.ts",
+      "sha256": "f23fe331781f241ca94a82db54a120974f7edf33c43e3c24819e7d74a501bbd2"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "bad72956f5849240a9b1fc2852faf59b0f24faea26b8e59e9dcfa63fbd61f324"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/plane-weighted-254/jpegxl-modular-tree.ts",
+      "sha256": "f37067f3f0ae735b22aa381b35f9538462066c502fbfcc9113e47a92ac939b8f"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "bb417152bb724ee5f5e66ad507522dc047b498fbeb11332f4665abeb4c33f4d1"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "width": 1920,
+      "height": 1080,
+      "channels": 4,
+      "inputPath": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "inputSha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c",
+      "artifact": ".tmp/jpegxl-comparison-v1/plane-weighted-profile-254-output/im26-8160-original-baseline.jxl",
+      "encodedSha256": "39bf26612ac5dbdebfd5a317f27af498f24b722d1d300117b9effa1e006e7f3d",
+      "bytes": 407341,
+      "baselineBytes": 407341,
+      "changeBytes": 0,
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "selectedDisplayDimension": 256,
+      "selectedDisplayGroups": 40,
+      "selectedDcGroups": 1,
+      "referenceFrames": 1,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/plane-weighted-profile-254-output/im26-8160-original-baseline.jxl.native.npy",
+          "sha256": "92d3d2e917bfa224932de97f8d1e9e15e7f08598a754106b390a1a688caeb7fd",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/plane-weighted-profile-254-output/im26-8160-original-baseline.jxl.rust.npy",
+          "sha256": "f8e0944aec4eeb403f1dda8b43536aa7faa46438caec4af24bddffd069e0a5bb",
+          "samples": 8294400,
+          "maximumSampleError": 0
+        }
+      ],
+      "planeWeightedProfile": {
+        "65536/true/true/false/branch": {
+          "planes": 11,
+          "pixels": 6067928
+        },
+        "65536/true/false/true/leaf": {
+          "planes": 3,
+          "pixels": 2016256
+        },
+        "65536/false/false/false/leaf": {
+          "planes": 1,
+          "pixels": 984
+        },
+        "65536/false/false/false/branch": {
+          "planes": 7,
+          "pixels": 114824
+        },
+        "8192/true/true/false/branch": {
+          "planes": 59,
+          "pixels": 3564152
+        },
+        "8192/true/false/true/leaf": {
+          "planes": 23,
+          "pixels": 1302528
+        },
+        "8192/true/false/false/branch": {
+          "planes": 4,
+          "pixels": 14188
+        },
+        "8192/true/false/false/leaf": {
+          "planes": 6,
+          "pixels": 133352
+        },
+        "8192/false/false/false/leaf": {
+          "planes": 3,
+          "pixels": 1016
+        },
+        "8192/false/false/false/branch": {
+          "planes": 3,
+          "pixels": 43008
+        }
+      },
+      "publicSamples": 8294400,
+      "maximumSampleError": 0,
+      "elapsedMs": 32929.306365,
+      "timingPolicy": "One diagnostic observation, not paired performance"
+    }
+  ],
+  "policy": "Read-only copied learner profile keyed by sample cap/global weighted state/channel weighted requirement/constant plane/root kind. Count full-grid weighted work that the channel decision itself cannot use. Preserve all predictors/nodes/encoded bytes and original407341 hash, every native/Rust/public sample, input and owned closure. Counters and an extra constancy scan are diagnostics, not timing or RSS evidence. No production change."
+}

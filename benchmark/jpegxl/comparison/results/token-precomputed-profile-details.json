@@ -1,0 +1,401 @@
+{
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/analyze-token-profile-details-366.ts",
+      "sha256": "4a4000185419441b0492b552a213224bf00932f3b84da69af000ae32360987b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-token-profile-details-366.json",
+      "sha256": "d959e33d85e28495b02c5740c67dd1cd632fa3970af1a3e8fcfd50c7fd595794"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "sha256": "3d40633b5ee820b1cee2494c3700ecc9dc87ccb0afcd9d0fe51b2a9a3682f049"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/token-profile-365/token-365.cpuprofile",
+      "sha256": "b3acbdae2f7ebf78d989973be8e0ef21f304d2211c8dbc2188350a61bfafe997"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/profile-token-365.ts",
+      "sha256": "51a1ce9bf07555571ef5a6031cca02132f8945a5c1d5e012854e7495887c316b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-profile-control.json",
+      "sha256": "5cb85f25af9c50c89e66344b79298298630d62c80d9c9fd122daecaa27a45bf1"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/token-precomputed-cpu-sample-profile.json",
+      "sha256": "8f0c66de8abe3b1c66853b288b5b3410ae2b43af405bd7b7bbb9bbe49ed47e37"
+    }
+  ],
+  "sourcePath": ".tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+  "callbackLine": 3226,
+  "sampleCount": 29282,
+  "negativeDeltas": 1,
+  "negativeMicros": -1,
+  "signedMicros": 29709070,
+  "shares": {
+    "histogramTrialSamples": 631,
+    "histogramTrialPercent": 2.154907451676798,
+    "fullHybridHelperSamples": 339,
+    "fullHybridHelperPercent": 1.157707806843795,
+    "fullHybridHelperWithinTrialsSamples": 99,
+    "fullHybridHelperWithinTrialsPercent": 0.33809166040571
+  },
+  "matchingFrames": [
+    {
+      "id": 1668,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 150,
+      "inclusiveSamples": 201
+    },
+    {
+      "id": 1669,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 50,
+      "inclusiveSamples": 50
+    },
+    {
+      "id": 1700,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 1699,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 1791,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 54,
+      "inclusiveSamples": 54
+    },
+    {
+      "id": 2551,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 63,
+      "inclusiveSamples": 63
+    },
+    {
+      "id": 1723,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 1815,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 207,
+      "inclusiveSamples": 278
+    },
+    {
+      "id": 1817,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 70,
+      "inclusiveSamples": 70
+    },
+    {
+      "id": 2277,
+      "name": "writeHybridUint",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 414,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2709,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 1868,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 99,
+      "inclusiveSamples": 100
+    },
+    {
+      "id": 2572,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2018,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 117,
+      "inclusiveSamples": 118
+    },
+    {
+      "id": 2039,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 2
+    },
+    {
+      "id": 2058,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2601,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2396,
+      "name": "encodeHistogramHybridGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3199,
+      "selfSamples": 0,
+      "inclusiveSamples": 930
+    },
+    {
+      "id": 2399,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3206,
+      "selfSamples": 109,
+      "inclusiveSamples": 930
+    },
+    {
+      "id": 2402,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3226,
+      "selfSamples": 233,
+      "inclusiveSamples": 318
+    },
+    {
+      "id": 2405,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3237,
+      "selfSamples": 4,
+      "inclusiveSamples": 28
+    },
+    {
+      "id": 2411,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 57,
+      "inclusiveSamples": 57
+    },
+    {
+      "id": 2422,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 94,
+      "inclusiveSamples": 99
+    },
+    {
+      "id": 2423,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3206,
+      "selfSamples": 2,
+      "inclusiveSamples": 2
+    },
+    {
+      "id": 2424,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 3,
+      "inclusiveSamples": 3
+    },
+    {
+      "id": 2448,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 2,
+      "inclusiveSamples": 2
+    },
+    {
+      "id": 2813,
+      "name": "writeHybridUint",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 414,
+      "selfSamples": 0,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2835,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2287,
+      "name": "encodeHistogramHybridGroup",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3199,
+      "selfSamples": 0,
+      "inclusiveSamples": 874
+    },
+    {
+      "id": 2290,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3206,
+      "selfSamples": 105,
+      "inclusiveSamples": 870
+    },
+    {
+      "id": 2293,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3226,
+      "selfSamples": 244,
+      "inclusiveSamples": 313
+    },
+    {
+      "id": 2297,
+      "name": "",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 3237,
+      "selfSamples": 2,
+      "inclusiveSamples": 23
+    },
+    {
+      "id": 2301,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 42,
+      "inclusiveSamples": 42
+    },
+    {
+      "id": 2315,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 96,
+      "inclusiveSamples": 97
+    },
+    {
+      "id": 2731,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2332,
+      "name": "writeHybridUint",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 414,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2345,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 2767,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 2,
+      "inclusiveSamples": 2
+    },
+    {
+      "id": 2730,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    },
+    {
+      "id": 1907,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 25,
+      "inclusiveSamples": 74
+    },
+    {
+      "id": 1908,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 46,
+      "inclusiveSamples": 46
+    },
+    {
+      "id": 2120,
+      "name": "encodeHybridUintPacked",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 686,
+      "selfSamples": 42,
+      "inclusiveSamples": 109
+    },
+    {
+      "id": 2121,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 65,
+      "inclusiveSamples": 65
+    },
+    {
+      "id": 2294,
+      "name": "encodeHybridUintWithConstants",
+      "url": "file:///media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/token-precomputed-356/guarded/jpegxl-modular-encode.ts",
+      "line": 672,
+      "selfSamples": 1,
+      "inclusiveSamples": 1
+    }
+  ],
+  "policy": "Fresh full-stack read of unchanged365source profile, with histogram callback line derived from actual unique counts allocation and each sample counted once per phase/overlap. Preserve all raw signed timing anomalies and earlier top30 report. Trial phase includes allocation/counting/normalization/serialization/scoring; helper shares cover complete function, not just removable payload arithmetic. Diagnostic sample shares do not predict measured savings or replace360actual-built cost rejection."
+}

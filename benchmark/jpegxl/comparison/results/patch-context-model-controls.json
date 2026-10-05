@@ -1,0 +1,451 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "cb91695b112d750b28036ecacc026273b0f2721f1b83a3cab36d8cc1c0aad4e8",
+  "implementationDirty": true,
+  "date": "2026-10-02T21:32:41.277Z",
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-patch-contexts-149.ts",
+      "sha256": "d299b4d4cc06185c93a1ffa215a9b15c7f45cd2a944262bc9b78f5e3a940a53e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-patch-contexts-149.ts",
+      "sha256": "bfc8efdec060c79efe0d5c48da937efc701d6d3fb75068692228f1f25f1f3e00"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/two/jpegxl-modular-encode.ts",
+      "sha256": "0dcd7832672a52e34c7265d4cce2023e14cc58f90ef68ff915565665fafbec5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/two/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/two/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/two/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/two/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/three/jpegxl-modular-encode.ts",
+      "sha256": "35da88eeeb61b0eb0d57d8d149dda287ecd0721758f00a41a420e6074c93305a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/three/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/three/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/three/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/three/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/four/jpegxl-modular-encode.ts",
+      "sha256": "7df6cca636d482e987b65fbf0132014fe8e31cb197f443642d5459fb23913e05"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/four/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/four/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/four/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-149/four/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-148/baseline/jpegxl-modular-encode.ts",
+      "sha256": "d7445c42e5e1058e5016beb1eb4b1712edd6b2caa8e79d8034ff51472e4fabe2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-148/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-148/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-148/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-contexts-148/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/patch-context-controls.json",
+      "sha256": "a8695f8efc512c227f5caf3b21c5044e668d93aa6a0fe9d1c9d197b3a8d0a6a1"
+    }
+  ],
+  "baselineReport": {
+    "path": "benchmark/jpegxl/comparison/results/parity-current-effort7-public.json",
+    "sha256": "d6f4f1ad22fd3a38c3737221b356d64239a81b59807edd9fbb802a21371974b6"
+  },
+  "policy": "Re-emit exact patch fields and frame headers from pinned production streams using copied first-party writers. The baseline must reproduce every byte. Two/three/four fixed format-defined patch-field prefix maps replace one mixed model; reference/display pixel sections remain unchanged. Full independent native/Rust samples must remain exact. Complete bytes include feature models, padding and ToC. This diagnostic is not production retention or a speed claim.",
+  "results": [
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "baseline",
+      "bytes": 21887,
+      "baselineBytes": 21887,
+      "encodedSha256": "90246f3edbef26caa0ed05e79e6db056601692dccdf172d9e25a26fb345433bf",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5052-diagnostic-baseline.jxl",
+      "featureBits": 19166,
+      "headerBytes": 7,
+      "sectionBytes": 11805,
+      "groups": 78,
+      "placements": 685,
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 40237,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "two",
+      "bytes": 21641,
+      "baselineBytes": 21887,
+      "encodedSha256": "6f103b4862bead44775902c17a9bddd4eac59674a02b2b0b5eb92fbe9d400c1e",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5052-diagnostic-two.jxl",
+      "featureBits": 17196,
+      "headerBytes": 7,
+      "sectionBytes": 11559,
+      "groups": 78,
+      "placements": 685,
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 45516,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "three",
+      "bytes": 21464,
+      "baselineBytes": 21887,
+      "encodedSha256": "58f5b7d62d931105e5482136d955176a37e1dca57d474e620825d6add9d6afc6",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5052-diagnostic-three.jxl",
+      "featureBits": 15778,
+      "headerBytes": 7,
+      "sectionBytes": 11382,
+      "groups": 78,
+      "placements": 685,
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 47570,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5052-diagnostic",
+      "variant": "four",
+      "bytes": 21418,
+      "baselineBytes": 21887,
+      "encodedSha256": "e63a09bf968cfd1906322131a9f8835b12e200855e072ecb0e199452b939c2de",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5052-diagnostic-four.jxl",
+      "featureBits": 15409,
+      "headerBytes": 7,
+      "sectionBytes": 11336,
+      "groups": 78,
+      "placements": 685,
+      "sourceSha256": "72248f2708431bf890775e18ff50b12668460cb62b878eeb48a4d73e98fdb656",
+      "inputSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "nativePixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "rustPixelsSha256": "e707696ff5dabd4e94ef4a63cc0785a873301bb1c80d50eb7a80032266c0e5a9",
+      "maximumSampleError": 0,
+      "ownedPeak": 49741,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "baseline",
+      "bytes": 46036,
+      "baselineBytes": 46036,
+      "encodedSha256": "a695daca77d227d0722d21d286ef3be6ee04618b919a40d223550c9ebbf321ea",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5034-diagnostic-baseline.jxl",
+      "featureBits": 12092,
+      "headerBytes": 8,
+      "sectionBytes": 30879,
+      "groups": 85,
+      "placements": 342,
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 64424,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "two",
+      "bytes": 45881,
+      "baselineBytes": 46036,
+      "encodedSha256": "2327131baf99be0560caab41093933d24a8a5360feb8bb0bfe52a9ab5b7713a8",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5034-diagnostic-two.jxl",
+      "featureBits": 10855,
+      "headerBytes": 8,
+      "sectionBytes": 30724,
+      "groups": 85,
+      "placements": 342,
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 64281,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "three",
+      "bytes": 45789,
+      "baselineBytes": 46036,
+      "encodedSha256": "d8364ca0b64b70ccc85f2ed5756ec8eac6c60693c84f65639ae260c2468bd211",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5034-diagnostic-three.jxl",
+      "featureBits": 10116,
+      "headerBytes": 8,
+      "sectionBytes": 30632,
+      "groups": 85,
+      "placements": 342,
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 65496,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "four",
+      "bytes": 45751,
+      "baselineBytes": 46036,
+      "encodedSha256": "2a53b78f907eb3a380a18241f34c4e4f170cf13b9f8047b3b8bdff1fbc022a94",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5034-diagnostic-four.jxl",
+      "featureBits": 9812,
+      "headerBytes": 8,
+      "sectionBytes": 30594,
+      "groups": 85,
+      "placements": 342,
+      "sourceSha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "nativePixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "rustPixelsSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "maximumSampleError": 0,
+      "ownedPeak": 67661,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "baseline",
+      "bytes": 22384,
+      "baselineBytes": 22384,
+      "encodedSha256": "04070a2ed9e55def05b6e7763d8d6a298a258568ec69ed0160fe0ca5f428e3f0",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5334-diagnostic-baseline.jxl",
+      "featureBits": 10171,
+      "headerBytes": 7,
+      "sectionBytes": 6506,
+      "groups": 73,
+      "placements": 283,
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 21397,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "two",
+      "bytes": 22251,
+      "baselineBytes": 22384,
+      "encodedSha256": "2291a12bf6c6326dd7e72c9a2fb73d2b89022c45b402f28901aa9a32821f48f3",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5334-diagnostic-two.jxl",
+      "featureBits": 9108,
+      "headerBytes": 7,
+      "sectionBytes": 6373,
+      "groups": 73,
+      "placements": 283,
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 25038,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "three",
+      "bytes": 22175,
+      "baselineBytes": 22384,
+      "encodedSha256": "9ec3f22f91632c7559e4f7b25332ba7609ce83d57bc578b8cac57b980c4b1751",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5334-diagnostic-three.jxl",
+      "featureBits": 8499,
+      "headerBytes": 7,
+      "sectionBytes": 6297,
+      "groups": 73,
+      "placements": 283,
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 27092,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5334-diagnostic",
+      "variant": "four",
+      "bytes": 22136,
+      "baselineBytes": 22384,
+      "encodedSha256": "600e52dcaffc84f6657ccf3b66d54f55227421d2cef30f970c4703798f236097",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5334-diagnostic-four.jxl",
+      "featureBits": 8189,
+      "headerBytes": 7,
+      "sectionBytes": 6258,
+      "groups": 73,
+      "placements": 283,
+      "sourceSha256": "29c8598f81465e51e37d6228e18a98172f7b1ab05050d67d3505528fa5844f32",
+      "inputSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "nativePixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "rustPixelsSha256": "381b1ec769fd975968ed52acbf0d3d5a2362d5ea4c660e95c2c3572ad717807e",
+      "maximumSampleError": 0,
+      "ownedPeak": 29269,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "baseline",
+      "bytes": 134669,
+      "baselineBytes": 134669,
+      "encodedSha256": "0a8bb1c7efc59a193f2e2ce304f9a920249cbb492c191673f1d0d5932a15ef89",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5032-diagnostic-baseline.jxl",
+      "featureBits": 5374,
+      "headerBytes": 8,
+      "sectionBytes": 130194,
+      "groups": 36,
+      "placements": 123,
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 262043,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "two",
+      "bytes": 134613,
+      "baselineBytes": 134669,
+      "encodedSha256": "e6401ea2cb4d6515a66adaf4fd4f95150fd6320034db6858ceba2eb2efd255b5",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5032-diagnostic-two.jxl",
+      "featureBits": 4923,
+      "headerBytes": 8,
+      "sectionBytes": 130138,
+      "groups": 36,
+      "placements": 123,
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 261999,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "three",
+      "bytes": 134581,
+      "baselineBytes": 134669,
+      "encodedSha256": "c25f26f1cf338a51ba7b2ba07c6bed1bf6974492c800cf90da09f856361f14cf",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5032-diagnostic-three.jxl",
+      "featureBits": 4671,
+      "headerBytes": 8,
+      "sectionBytes": 130106,
+      "groups": 36,
+      "placements": 123,
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 261973,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5032-diagnostic",
+      "variant": "four",
+      "bytes": 134595,
+      "baselineBytes": 134669,
+      "encodedSha256": "0ec60c2a11edc8d52b24e9c6be327fd1fe0e3e4f60a75cce726e17c713d6e592",
+      "artifact": ".tmp/jpegxl-comparison-v1/patch-contexts-149/output/im26-5032-diagnostic-four.jxl",
+      "featureBits": 4781,
+      "headerBytes": 8,
+      "sectionBytes": 130120,
+      "groups": 36,
+      "placements": 123,
+      "sourceSha256": "e22efad1c20fadaff06ca32731c46e132c17d3fc2997102433f527edf801daf2",
+      "inputSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "nativePixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "rustPixelsSha256": "bd06d93b7a81f73f9eb56ffc47d41f6c968165e0a39907b6daa92f6ab5fcddba",
+      "maximumSampleError": 0,
+      "ownedPeak": 262179,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    }
+  ]
+}

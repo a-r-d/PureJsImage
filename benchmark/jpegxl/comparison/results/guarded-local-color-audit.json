@@ -1,0 +1,65 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-guarded-color-audit-283.ts",
+      "sha256": "d22352c0a4374a58937abc795cfcc3fdf9245e89fd2c90d1e33a9bbd7f88395d"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-controls-280.json",
+      "sha256": "1488f5aaa5dd1b8cd22482f3592776303a715afe2ecda77a7fbf114f0226d007"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-neighbors-281.json",
+      "sha256": "50e862f6404c7fd7c959f4e71a604133c6c93776864d343de1e88a52d10c0396"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-program-profile-282.json",
+      "sha256": "5cafc75d2b9bb592c75d89e2e30b3860b5e284f364ed23104a89d89c5e88c6e9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-guarded-local-color-program-profile-282b.json",
+      "sha256": "8baece9fb4445d5441e08eedf4c86c668fcb912e9ebfe852f0eb2b71e322f38e"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-guarded-color-283.ts",
+      "sha256": "9855a1c40936b127dde3bf175f0196e90ee9d7913995e683432b0e4f722072cd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-guarded-color-audit-283.json",
+      "sha256": "c64f3664022f62ccbf732c4a7b6af018d57ac3ba0675176a703e9f53d91196dc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json",
+      "sha256": "454f55e577f489cb4c9dac5bd484da7aa530e1f00a4151da968fae61a4230442"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-program-profile.json",
+      "sha256": "aac488fd71a4f4082eb25ff516af9e1baeb00888fcafb56a4c21a81d861675f9"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-COLOR.md",
+      "sha256": "ff47a444f7bec0dae133341db09daac37cab27f054118a4272840240cbe1a1b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-controls.json",
+      "sha256": "100ec629f11564e0fbed62ea6840e575e4cdc5cb463fb9dcc3fad1b898c853ce"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-local-color-neighbor-controls.json",
+      "sha256": "7ae6a3461bd8a39a96005231afe4de189e228b640a59bcb5d602bf300192d9d3"
+    }
+  ],
+  "files": 34,
+  "grids": 68,
+  "independentSamples": 211350544,
+  "priorPublicSamples": 105675272,
+  "sourcePins": 162,
+  "completeProfileFiles": 34,
+  "completeProfileFrames": 42,
+  "fullParity": false,
+  "adoptedPrototype": false,
+  "policy": "Fresh post-control re-read of all34complete files/68independent grids and211350544original samples, including frozenRGB/RGBAderivatives/alpha/hiddenRGB. Exact current baseline hashes checked for ten original inputs; derivative baselines are fresh copied-source controls, not inherited golden streams. Every source/input/copy/parser/selector/harness/tool/report pin and42reference/display frame section-bit identity passes. Prior public105675272samples are labelled prior encode proof, not another public replay. Two growth counterexamples reject the guard; no package/paired-cost/production/parity adoption."
+}

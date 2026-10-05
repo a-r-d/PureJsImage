@@ -1,0 +1,4041 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-02T11:36:43.423Z",
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "6d27f577e22c8b3f58ce2ee431072b28a28870173901e114fdca379e32ce79d2",
+  "implementationDirty": true,
+  "harnessSha256": "09fc3d3e7ced0990b53a9171cc6e8573c1a6f4982f4cff3899d34219495cb707",
+  "refinementSha256": "008965983effd1be838ddbd78e0a0b45df646e0f86e484adca729bdfc08d19de",
+  "fixturesSha256": "2036318bf91f362062623f40c740bec726ecf66e8c8f41f94355e5731b5e5b5f",
+  "toolHashes": {
+    "ssimulacra2": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740",
+    "butteraugli_main": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+  },
+  "decoderSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+  "primaryTarget": 80,
+  "samplingTargets": [80, 70, 90],
+  "selectedFixtureIds": ["alpha_triangles"],
+  "maximumSsimBracketWidth": 0.25,
+  "maximumPointsPerSubjectFixture": 24,
+  "matching": "Existing M7 nondominated log-byte interpolation. Refine SSIMULACRA2 80, 70 and 90 separately; unresolved targets remain explicit. Butteraugli coordinates may remain missing. No extrapolation or lossless points. Alpha: minimum SSIMULACRA2 / maximum Butteraugli over explicit black and white backgrounds.",
+  "results": [
+    {
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "sourceSha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "settingBounds": {
+        "minimum": 0.25,
+        "maximum": 25,
+        "mapping": "distance"
+      },
+      "subject": "purejsimage",
+      "role": "public JavaScript API",
+      "points": [
+        {
+          "setting": 1,
+          "bytes": 167431,
+          "score": 93.11613807,
+          "butteraugli": 0.5746098161,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-1.jxl",
+          "artifactSha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa",
+          "decodedSha256": "0ec6c934cef2d2257fe4ee982c6152a785ca22f81db3f399eac02cc3d2455fe9",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 94.20002364,
+              "butteraugli": 0.5746098161
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 93.11613807,
+              "butteraugli": 0.574554503
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1
+          }
+        },
+        {
+          "setting": 4,
+          "bytes": 158889,
+          "score": 90.55154123,
+          "butteraugli": 1.3183964491,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.jxl",
+          "artifactSha256": "86d01f4476b139e8e8d111717f92202fdf5c32b5ad8374654a6af23b967240a0",
+          "decodedSha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.59214229,
+              "butteraugli": 1.3182717562
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.55154123,
+              "butteraugli": 1.3183964491
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4
+          }
+        },
+        {
+          "setting": 8,
+          "bytes": 157313,
+          "score": 85.84457729,
+          "butteraugli": 3.1505138874,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-8.jxl",
+          "artifactSha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72",
+          "decodedSha256": "c2ad47f9944a8ff5b683e34399a63e332b0088eba9a728e165dbcb977e812762",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 85.84457729,
+              "butteraugli": 3.150468111
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 86.67615123,
+              "butteraugli": 3.1505138874
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8
+          }
+        },
+        {
+          "setting": 16,
+          "bytes": 155305,
+          "score": 70.61821888,
+          "butteraugli": 7.9806900024,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.jxl",
+          "artifactSha256": "25f415c36bc1d8457e0bf070d2a51e4340603ffa2bc95efdb4f8d111ed273266",
+          "decodedSha256": "7b3a2f372cfc7ea4656d186833616459119715d0aae5f15e5eb590391d0dbcc3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.61821888,
+              "butteraugli": 7.9806890488
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 73.27678197,
+              "butteraugli": 7.9806900024
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16
+          }
+        },
+        {
+          "setting": 4.3384,
+          "bytes": 158774,
+          "score": 89.93733319,
+          "butteraugli": 1.3269935846,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+          "artifactSha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17",
+          "decodedSha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.23538491,
+              "butteraugli": 1.3269935846
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.93733319,
+              "butteraugli": 1.3269935846
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.3384
+          }
+        },
+        {
+          "setting": 10.439,
+          "bytes": 156502,
+          "score": 81.92311827,
+          "butteraugli": 5.1116018295,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-10.439.jxl",
+          "artifactSha256": "c7a4183cb450724f03f6b774b475c06bb45f2662dbf416e6d059e54eeb42f955",
+          "decodedSha256": "98551a87a647ed3ede30a102326df64eaca252fbeb24fe93a5bbbc82df19909e",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 81.92311827,
+              "butteraugli": 5.1116018295
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 83.23746556,
+              "butteraugli": 5.1116018295
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.439
+          }
+        },
+        {
+          "setting": 25,
+          "bytes": 154296,
+          "score": 50.41930541,
+          "butteraugli": 14.7064256668,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-25.jxl",
+          "artifactSha256": "bd1a429f50ed7e125315c7957de4110012a813099a1c386c5ce422af6b7b9b93",
+          "decodedSha256": "975e53c0a6b9f9b66aaeb9ba6eaf994ea2553ba023e3cbb7f486cec5d618f372",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 50.41930541,
+              "butteraugli": 14.7064256668
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 54.5757578,
+              "butteraugli": 14.7064256668
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 25
+          }
+        },
+        {
+          "setting": 4.3026,
+          "bytes": 158778,
+          "score": 90.01479488,
+          "butteraugli": 1.406440258,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3026.jxl",
+          "artifactSha256": "55a3ea87c9a6927d21c86b3144080aef38e326779093109116ae942fe6366ea5",
+          "decodedSha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.29593553,
+              "butteraugli": 1.406440258
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.01479488,
+              "butteraugli": 1.406440258
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4.3026
+          }
+        },
+        {
+          "setting": 11.226,
+          "bytes": 156284,
+          "score": 80.22202832,
+          "butteraugli": 5.4701161385,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.226.jxl",
+          "artifactSha256": "96794a961ecc79015736d9c54aa2265a46a27ab7adbafecbdec199a6c3e5250b",
+          "decodedSha256": "d328a93b523fb767e41821a39760d7024eca328b6baa3b3a45e648a015220def",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.22202832,
+              "butteraugli": 5.4692735672
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.81952288,
+              "butteraugli": 5.4701161385
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.226
+          }
+        },
+        {
+          "setting": 16.22,
+          "bytes": 155272,
+          "score": 70.22780938,
+          "butteraugli": 8.2636814117,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.22.jxl",
+          "artifactSha256": "c83c5df743aae4f278055a653a4ce191a7e93da138f2cd10e86af4112eb42917",
+          "decodedSha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 70.22780938,
+              "butteraugli": 8.2634620667
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 72.84539649,
+              "butteraugli": 8.2636814117
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16.22
+          }
+        },
+        {
+          "setting": 11.318,
+          "bytes": 156239,
+          "score": 80.47487283,
+          "butteraugli": 5.0497031212,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.318.jxl",
+          "artifactSha256": "787f178e51b160a264593d1bac7e8779f7c5107c54b670621c65a140aedf8fc4",
+          "decodedSha256": "5e8841d95236225101595fdba1aa52facfffcb9fa1d65a06d1c3b06f66664458",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.47487283,
+              "butteraugli": 5.0497031212
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 82.02441452,
+              "butteraugli": 5.0497031212
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.318
+          }
+        },
+        {
+          "setting": 13.457,
+          "bytes": 155729,
+          "score": 75.65190172,
+          "butteraugli": 5.9132466316,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-13.457.jxl",
+          "artifactSha256": "2dcfac69b640d0493989926774a8fe2c500a538921d763f8b1a0fe174494236d",
+          "decodedSha256": "bc2d2a5ef3699cc4b429b88c585f46b58b8446f965433d29245a5490077cdb5d",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 75.65190172,
+              "butteraugli": 5.9132466316
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 77.63160636,
+              "butteraugli": 5.9132466316
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 13.457
+          }
+        },
+        {
+          "setting": 20.137,
+          "bytes": 154818,
+          "score": 60.79221606,
+          "butteraugli": 11.1757087708,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-20.137.jxl",
+          "artifactSha256": "fa2c1e6c7b36fccdae6edf637cede3d45ff90f6820f7121bde3311d50dbac072",
+          "decodedSha256": "6ba535d592c3ff22f566db6403d4956c4b08d1724c5619dc5cc819bf634cbf5b",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 60.79221606,
+              "butteraugli": 11.1757087708
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 64.10287203,
+              "butteraugli": 11.1757087708
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 20.137
+          }
+        },
+        {
+          "setting": 12.341,
+          "bytes": 155948,
+          "score": 78.20249469,
+          "butteraugli": 5.8723359108,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-12.341.jxl",
+          "artifactSha256": "7544729c19219dbd4dc33857f3356d8e144275b43187c90dba7f4209be62ef11",
+          "decodedSha256": "a189c7c6f2fd6374199b10facb9c2345bdb3df61fb8007691f6e369fca5b2616",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 78.20249469,
+              "butteraugli": 5.8723359108
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 80.02531026,
+              "butteraugli": 5.8723359108
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 12.341
+          }
+        },
+        {
+          "setting": 11.818,
+          "bytes": 156088,
+          "score": 79.36468665,
+          "butteraugli": 5.115547657,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.818.jxl",
+          "artifactSha256": "7512e81dbdf0296d35f812365c154025c99389f91ee08930346a50a172203791",
+          "decodedSha256": "8d49026c5d30295037fd6a8db46d105323654e7217b6370a04b680236513f257",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.36468665,
+              "butteraugli": 5.115547657
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.08111385,
+              "butteraugli": 5.115547657
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.818
+          }
+        },
+        {
+          "setting": 18.073,
+          "bytes": 155044,
+          "score": 64.71451481,
+          "butteraugli": 9.1415710449,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-18.073.jxl",
+          "artifactSha256": "347e9172bbf9808e6e7fa9ff72da29169b58e6281c0bdb26385336fd78f691a3",
+          "decodedSha256": "c26b6553a888200c635212a7e43462cd9e06c7aa3758aecc4e726042ea3ad610",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 64.71451481,
+              "butteraugli": 9.1415710449
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 67.56869101,
+              "butteraugli": 9.1415710449
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 18.073
+          }
+        },
+        {
+          "setting": 11.565,
+          "bytes": 156152,
+          "score": 79.76807493,
+          "butteraugli": 5.2299108505,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.565.jxl",
+          "artifactSha256": "092840ae3712281b6cda23c05a38a6eb8763b5afd0ca28f2bc3207c5c644eac3",
+          "decodedSha256": "76541be2b15b10993c94acc9a42e9ca5614f227a0596bff485f43e23ef4a3a9c",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.76807493,
+              "butteraugli": 5.2299108505
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.30179445,
+              "butteraugli": 5.2299108505
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.565
+          }
+        },
+        {
+          "setting": 11.441,
+          "bytes": 156189,
+          "score": 80.11118352,
+          "butteraugli": 5.3551902771,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.441.jxl",
+          "artifactSha256": "42f8ef9eccc0018287199db825d28203df036d88a4c0be8c879a6e7eef065572",
+          "decodedSha256": "df2fc2d50b2819f0324ab2f465e44665b959325e8d69e1a55abbbff26cced8bd",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.11118352,
+              "butteraugli": 5.3551902771
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.70567809,
+              "butteraugli": 5.3551902771
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.441
+          }
+        },
+        {
+          "setting": 17.121,
+          "bytes": 155125,
+          "score": 68.41022445,
+          "butteraugli": 8.5310001373,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-17.121.jxl",
+          "artifactSha256": "a5e687029d5ccafc603c2b217297293d28fae028ecd4bcccd5bac0988a4e0631",
+          "decodedSha256": "ba79a27ddf14fdd39aa4d6f5f92751ac4a3145f8cde273d661ab4edb3c30b1d4",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 68.41022445,
+              "butteraugli": 8.5310001373
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 71.19874657,
+              "butteraugli": 8.5310001373
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 17.121
+          }
+        },
+        {
+          "setting": 11.503,
+          "bytes": 156184,
+          "score": 80.02525209,
+          "butteraugli": 4.6927223206,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.503.jxl",
+          "artifactSha256": "94196d4f996db400a567d24049f53920576c717d87bfebfd5dbf3218b657f208",
+          "decodedSha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.02525209,
+              "butteraugli": 4.6927223206
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.61704937,
+              "butteraugli": 4.6927218437
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.503
+          }
+        },
+        {
+          "setting": 11.534,
+          "bytes": 156173,
+          "score": 79.64891002,
+          "butteraugli": 5.3693385124,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.534.jxl",
+          "artifactSha256": "d07d109581c438f4244f7960e95e2c57bdf2ab12c078a019887ab2ffabb32e9c",
+          "decodedSha256": "be59d329fca93c44c9f4f9891d36476f1a47f01c32ef54a727c87720f3371f03",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.64891002,
+              "butteraugli": 5.3693380356
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.19237694,
+              "butteraugli": 5.3693385124
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.534
+          }
+        },
+        {
+          "setting": 16.664,
+          "bytes": 155197,
+          "score": 69.3607357,
+          "butteraugli": 8.6799192429,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.664.jxl",
+          "artifactSha256": "2b0e8ce33590ddb916ae77d86d676ed2d115734ac56c388ab9957097854c12a1",
+          "decodedSha256": "ad33b922fd45d29e4eef123ae2d3e8b7e1d7a641589285e1c6a7917b780878c4",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 69.3607357,
+              "butteraugli": 8.6799192429
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 72.08502572,
+              "butteraugli": 8.6799192429
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16.664
+          }
+        },
+        {
+          "setting": 11.518,
+          "bytes": 156176,
+          "score": 79.6394393,
+          "butteraugli": 4.7458925247,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.518.jxl",
+          "artifactSha256": "80470f0748d36c39a27b97e9e2f782cd02a266e9b0883ed0a32b981fa2362ea6",
+          "decodedSha256": "d320548c903dd4287f480a95ae35740d46cf8459cd8bd2d63d6a65fa5dacc837",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.6394393,
+              "butteraugli": 4.7458925247
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.18945783,
+              "butteraugli": 4.7458906174
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.518
+          }
+        },
+        {
+          "setting": 11.51,
+          "bytes": 156186,
+          "score": 79.8270734,
+          "butteraugli": 4.6574811935,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.51.jxl",
+          "artifactSha256": "edb7e3c14505e0e74a498640af409c8f5e8f34d0ace0465c7064447197c4c760",
+          "decodedSha256": "aab5eabab7b0e72da707383988a3ba3dc48b3b35e5e12f3be4a968125998ea78",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.8270734,
+              "butteraugli": 4.6574811935
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.43067129,
+              "butteraugli": 4.6574811935
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 11.51
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "wide bracket",
+          "width": 0.8670736799999901,
+          "bracket": {
+            "lower": {
+              "setting": 16.664,
+              "bytes": 155197,
+              "score": 69.3607357,
+              "butteraugli": 8.6799192429,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.664.jxl",
+              "artifactSha256": "2b0e8ce33590ddb916ae77d86d676ed2d115734ac56c388ab9957097854c12a1",
+              "decodedSha256": "ad33b922fd45d29e4eef123ae2d3e8b7e1d7a641589285e1c6a7917b780878c4",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 69.3607357,
+                  "butteraugli": 8.6799192429
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 72.08502572,
+                  "butteraugli": 8.6799192429
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 16.664
+              }
+            },
+            "upper": {
+              "setting": 16.22,
+              "bytes": 155272,
+              "score": 70.22780938,
+              "butteraugli": 8.2636814117,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.22.jxl",
+              "artifactSha256": "c83c5df743aae4f278055a653a4ce191a7e93da138f2cd10e86af4112eb42917",
+              "decodedSha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 70.22780938,
+                  "butteraugli": 8.2634620667
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 72.84539649,
+                  "butteraugli": 8.2636814117
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 16.22
+              }
+            },
+            "width": 0.8670736799999901
+          },
+          "interpolatedBytes": 155252.29147118746
+        },
+        {
+          "target": 80,
+          "status": "wide bracket",
+          "width": 0.2571771599999977,
+          "bracket": {
+            "lower": {
+              "setting": 11.565,
+              "bytes": 156152,
+              "score": 79.76807493,
+              "butteraugli": 5.2299108505,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.565.jxl",
+              "artifactSha256": "092840ae3712281b6cda23c05a38a6eb8763b5afd0ca28f2bc3207c5c644eac3",
+              "decodedSha256": "76541be2b15b10993c94acc9a42e9ca5614f227a0596bff485f43e23ef4a3a9c",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 79.76807493,
+                  "butteraugli": 5.2299108505
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 81.30179445,
+                  "butteraugli": 5.2299108505
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 11.565
+              }
+            },
+            "upper": {
+              "setting": 11.503,
+              "bytes": 156184,
+              "score": 80.02525209,
+              "butteraugli": 4.6927223206,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.503.jxl",
+              "artifactSha256": "94196d4f996db400a567d24049f53920576c717d87bfebfd5dbf3218b657f208",
+              "decodedSha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 80.02525209,
+                  "butteraugli": 4.6927223206
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 81.61704937,
+                  "butteraugli": 4.6927218437
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 11.503
+              }
+            },
+            "width": 0.2571771599999977
+          },
+          "interpolatedBytes": 156180.8576465248
+        },
+        {
+          "target": 90,
+          "status": "adequate bracket",
+          "width": 0.0774616899999927,
+          "bracket": {
+            "lower": {
+              "setting": 4.3384,
+              "bytes": 158774,
+              "score": 89.93733319,
+              "butteraugli": 1.3269935846,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+              "artifactSha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17",
+              "decodedSha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.23538491,
+                  "butteraugli": 1.3269935846
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.93733319,
+                  "butteraugli": 1.3269935846
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.3384
+              }
+            },
+            "upper": {
+              "setting": 4.3026,
+              "bytes": 158778,
+              "score": 90.01479488,
+              "butteraugli": 1.406440258,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3026.jxl",
+              "artifactSha256": "55a3ea87c9a6927d21c86b3144080aef38e326779093109116ae942fe6366ea5",
+              "decodedSha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.29593553,
+                  "butteraugli": 1.406440258
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.01479488,
+                  "butteraugli": 1.406440258
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.3026
+              }
+            },
+            "width": 0.0774616899999927
+          },
+          "interpolatedBytes": 158777.23600785012
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "wide bracket",
+          "width": 0.743786633,
+          "bracket": {
+            "lower": {
+              "setting": 4,
+              "bytes": 158889,
+              "score": -1.3183964491,
+              "butteraugli": 1.3183964491,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.jxl",
+              "artifactSha256": "86d01f4476b139e8e8d111717f92202fdf5c32b5ad8374654a6af23b967240a0",
+              "decodedSha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.59214229,
+                  "butteraugli": 1.3182717562
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.55154123,
+                  "butteraugli": 1.3183964491
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4
+              }
+            },
+            "upper": {
+              "setting": 1,
+              "bytes": 167431,
+              "score": -0.5746098161,
+              "butteraugli": 0.5746098161,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-1.jxl",
+              "artifactSha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa",
+              "decodedSha256": "0ec6c934cef2d2257fe4ee982c6152a785ca22f81db3f399eac02cc3d2455fe9",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 94.20002364,
+                  "butteraugli": 0.5746098161
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 93.11613807,
+                  "butteraugli": 0.574554503
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1
+              }
+            },
+            "width": 0.743786633
+          },
+          "interpolatedBytes": 162490.93205459873
+        },
+        {
+          "target": 2,
+          "status": "wide bracket",
+          "width": 1.8235203027999998,
+          "bracket": {
+            "lower": {
+              "setting": 8,
+              "bytes": 157313,
+              "score": -3.1505138874,
+              "butteraugli": 3.1505138874,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-8.jxl",
+              "artifactSha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72",
+              "decodedSha256": "c2ad47f9944a8ff5b683e34399a63e332b0088eba9a728e165dbcb977e812762",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 85.84457729,
+                  "butteraugli": 3.150468111
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 86.67615123,
+                  "butteraugli": 3.1505138874
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8
+              }
+            },
+            "upper": {
+              "setting": 4.3384,
+              "bytes": 158774,
+              "score": -1.3269935846,
+              "butteraugli": 1.3269935846,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+              "artifactSha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17",
+              "decodedSha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.23538491,
+                  "butteraugli": 1.3269935846
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.93733319,
+                  "butteraugli": 1.3269935846
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.3384
+              }
+            },
+            "width": 1.8235203027999998
+          },
+          "interpolatedBytes": 158233.2157907762
+        },
+        {
+          "target": 3,
+          "status": "wide bracket",
+          "width": 1.8235203027999998,
+          "bracket": {
+            "lower": {
+              "setting": 8,
+              "bytes": 157313,
+              "score": -3.1505138874,
+              "butteraugli": 3.1505138874,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-8.jxl",
+              "artifactSha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72",
+              "decodedSha256": "c2ad47f9944a8ff5b683e34399a63e332b0088eba9a728e165dbcb977e812762",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 85.84457729,
+                  "butteraugli": 3.150468111
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 86.67615123,
+                  "butteraugli": 3.1505138874
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8
+              }
+            },
+            "upper": {
+              "setting": 4.3384,
+              "bytes": 158774,
+              "score": -1.3269935846,
+              "butteraugli": 1.3269935846,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+              "artifactSha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17",
+              "decodedSha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.23538491,
+                  "butteraugli": 1.3269935846
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.93733319,
+                  "butteraugli": 1.3269935846
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 4.3384
+              }
+            },
+            "width": 1.8235203027999998
+          },
+          "interpolatedBytes": 157433.0806288131
+        }
+      ],
+      "monotonicityViolations": 3
+    },
+    {
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "sourceSha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "settingBounds": {
+        "minimum": 2,
+        "maximum": 101,
+        "mapping": "101 - quality"
+      },
+      "subject": "jsquash",
+      "role": "public JavaScript API",
+      "points": [
+        {
+          "setting": 11,
+          "bytes": 96311,
+          "score": 92.29115399,
+          "butteraugli": 0.8189682364,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-11.jxl",
+          "artifactSha256": "749e35c08ef992ab75995cdc6b2457cb47720cf07b36308c1d8d4e8693d40d97",
+          "decodedSha256": "7ab84b9e4e70aa994421db61c896b1d5f1a8c96c580c6a69fac42f23b35c6848",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 92.84831423,
+              "butteraugli": 0.8189682364
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 92.29115399,
+              "butteraugli": 0.8189682364
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 90
+          }
+        },
+        {
+          "setting": 51,
+          "bytes": 76962,
+          "score": 87.19904205,
+          "butteraugli": 1.7709875107,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-51.jxl",
+          "artifactSha256": "7db3a7ccff4f9357c5f3b8454838c1eb609539b772a0d2df10c7807283af9bf4",
+          "decodedSha256": "4ec7eebc99d43f034dc837581b296b7be33a04c7f495187851be04255638e57f",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 87.19904205,
+              "butteraugli": 1.7709875107
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.35066147,
+              "butteraugli": 1.7709875107
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 50
+          }
+        },
+        {
+          "setting": 101,
+          "bytes": 42002,
+          "score": 74.17871766,
+          "butteraugli": 7.259352684,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-101.jxl",
+          "artifactSha256": "0e4f725e2a536af4cf4d04f8893f638b23c7c10e8c8aab8417acbf59d8b08e54",
+          "decodedSha256": "4d5562223c5c20fe6de50d710f38e6ce3a0df63f9b9259abcaf9c5bc5a6a4e97",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 74.17871766,
+              "butteraugli": 7.259352684
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 80.59103988,
+              "butteraugli": 5.5592741966
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 0
+          }
+        },
+        {
+          "setting": 21.935,
+          "bytes": 87288,
+          "score": 90.95877086,
+          "butteraugli": 1.5058925152,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-21.935.jxl",
+          "artifactSha256": "03efa1aa38bc207a8702f8b96ba47d46076ae99c90965b2edb904774e5423206",
+          "decodedSha256": "d990298d59f1bd2f36af02a4c4e927cc62b8a85947be6c641bcb60f50fdc5d4d",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.95877086,
+              "butteraugli": 1.5058884621
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.11428404,
+              "butteraugli": 1.5058925152
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 79.065
+          }
+        },
+        {
+          "setting": 27.201,
+          "bytes": 81292,
+          "score": 90.88008531,
+          "butteraugli": 1.2880783081,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-27.201.jxl",
+          "artifactSha256": "e9b4a6511ebc3f6accc554d4ab3a01aebef3918fdfe5585f1c0b4e790f6d8417",
+          "decodedSha256": "1dbf39f95d8f329080f60ae8af3beb6e7c82a7c4bc3bec90dabfd693b531705a",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.88008531,
+              "butteraugli": 1.2880783081
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.57711581,
+              "butteraugli": 1.2880783081
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 73.799
+          }
+        },
+        {
+          "setting": 74.413,
+          "bytes": 67774,
+          "score": 85.96733149,
+          "butteraugli": 1.9010829926,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-74.413.jxl",
+          "artifactSha256": "0fe72cf445758c19e7dbbfa3f264cb904004d2117bc353fcfacfbb962df1a42c",
+          "decodedSha256": "4fa41f8e4a460882bb6f015c64ca18ca55229faa2a5778c3bdbe2af0318ccf40",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 85.96733149,
+              "butteraugli": 1.9010829926
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 88.82883793,
+              "butteraugli": 1.9010829926
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 26.587000000000003
+          }
+        },
+        {
+          "setting": 31.612,
+          "bytes": 83017,
+          "score": 90.4370931,
+          "butteraugli": 1.2796415091,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-31.612.jxl",
+          "artifactSha256": "d310034e3b373ca4f49efd8c7bd97d80b60dbcee475384e70e743e1bfac0acd8",
+          "decodedSha256": "7032836832458539c98967a08010cc99c00d0fe291383418e8b2f80d5fc106c3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.4370931,
+              "butteraugli": 1.2796415091
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.25294309,
+              "butteraugli": 1.279640913
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 69.388
+          }
+        },
+        {
+          "setting": 33.72,
+          "bytes": 83334,
+          "score": 90.49305959,
+          "butteraugli": 1.1811915636,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-33.72.jxl",
+          "artifactSha256": "5d97ecab1b9dff445fa0fe4dfc3e61d4a61e475b263f656a2261d47a90790ad4",
+          "decodedSha256": "cc71ea16220e45251bf0603b8375c802dcde3c789f5dcaf8e004bc4dc7ace433",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.49305959,
+              "butteraugli": 1.1811915636
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.45783766,
+              "butteraugli": 1.1811915636
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 67.28
+          }
+        },
+        {
+          "setting": 86.693,
+          "bytes": 63822,
+          "score": 84.12795413,
+          "butteraugli": 1.9395371675,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-86.693.jxl",
+          "artifactSha256": "42a39a07ecebc793953e7e64e769a876f0d6130fbfe50fa380ea98ec14ed1b48",
+          "decodedSha256": "5bed1b790c5043a940e8ab5daef6b272589c4dcee84db8e120114f81232bf28e",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 84.12795413,
+              "butteraugli": 1.9395371675
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 87.44343964,
+              "butteraugli": 1.8384141922
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 14.307000000000002
+          }
+        },
+        {
+          "setting": 41.47,
+          "bytes": 70509,
+          "score": 89.95535826,
+          "butteraugli": 1.4547142982,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-41.47.jxl",
+          "artifactSha256": "25b92a1703a26bf226af4f21e85b93c03833b307097108d8cb0654bb69865f79",
+          "decodedSha256": "6b3190db9a6342f233a0eacf697437d1da8b3300f346ebbada5e8c3d3fab6c1b",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.95535826,
+              "butteraugli": 1.4547015429
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.98492089,
+              "butteraugli": 1.4547142982
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 59.53
+          }
+        },
+        {
+          "setting": 37.395,
+          "bytes": 83225,
+          "score": 90.6090988,
+          "butteraugli": 1.408885479,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-37.395.jxl",
+          "artifactSha256": "e33ec02b3bc23c6452c38575ea3f772c10f5d8f7de88108832d9d8a04d9c07aa",
+          "decodedSha256": "0c571aff73ed2817cb22e20a073bdf2726788a61e725eb1f279314ec4c278b8f",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.6090988,
+              "butteraugli": 1.408885479
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.3191822,
+              "butteraugli": 1.408885479
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 63.605
+          }
+        },
+        {
+          "setting": 93.573,
+          "bytes": 46243,
+          "score": 83.50158515,
+          "butteraugli": 2.8958084583,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-93.573.jxl",
+          "artifactSha256": "ab529baf93dd53eece654b243645c89e6efd03fcfc91aaeea6230fc0e5f125d8",
+          "decodedSha256": "860a17d308b80351811c3fec01e3acc60b60be4ba97d5791e557fbb62720eda7",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 83.50158515,
+              "butteraugli": 2.8958084583
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 86.85362826,
+              "butteraugli": 2.7649495602
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 7.427000000000007
+          }
+        },
+        {
+          "setting": 39.38,
+          "bytes": 70631,
+          "score": 89.87466335,
+          "butteraugli": 1.2938361168,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-39.38.jxl",
+          "artifactSha256": "a8d60556c82f99e08c1b23fe9a208cc34662641bb874931c024287a9534022fc",
+          "decodedSha256": "1316cf05bfe7b5722b82a329f7fdabb2d294b07d5df48d752966c00b3a9fcfda",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.87466335,
+              "butteraugli": 1.2938361168
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.06072816,
+              "butteraugli": 1.1840227842
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 61.62
+          }
+        },
+        {
+          "setting": 38.375,
+          "bytes": 70614,
+          "score": 90.06540937,
+          "butteraugli": 1.2414233685,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-38.375.jxl",
+          "artifactSha256": "83adb7f43c55e05e7854dad6d2ad6c0b7ecee81a073e8bf2cb34cc3b60da84ff",
+          "decodedSha256": "9a0d8f233c01eb45dfcecfdbb911b879a83495ebbd6047bc070a53699c459ec5",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.06540937,
+              "butteraugli": 1.2414233685
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.994,
+              "butteraugli": 1.2414233685
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 62.625
+          }
+        },
+        {
+          "setting": 97.216,
+          "bytes": 43670,
+          "score": 80.13725401,
+          "butteraugli": 6.858373642,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.216.jxl",
+          "artifactSha256": "1f14bf07d9c6f578c14429ecc9fe60a248f0a335644d0b9ba1bf318ce148c974",
+          "decodedSha256": "185a1dd25bcaf52f6aaed352537baabf6c57af10bb0dd84c6890ce3d3110a3bb",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.13725401,
+              "butteraugli": 6.858373642
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.25480786,
+              "butteraugli": 4.0450396538
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.784000000000006
+          }
+        },
+        {
+          "setting": 99.09,
+          "bytes": 42285,
+          "score": 76.23417775,
+          "butteraugli": 8.0762405396,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-99.09.jxl",
+          "artifactSha256": "890d57eaa0572ecbbdcd275a24af18f049b0b7971a3e14ff4abc2a35a44b71cf",
+          "decodedSha256": "f3080c3f52f1162975d58e5a291f39e6e51e605cbc71a93db5b77445ada2ca85",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 76.23417775,
+              "butteraugli": 8.0762405396
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.32604361,
+              "butteraugli": 4.7174921036
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1.9099999999999966
+          }
+        },
+        {
+          "setting": 98.149,
+          "bytes": 43248,
+          "score": 75.42079014,
+          "butteraugli": 8.308426857,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-98.149.jxl",
+          "artifactSha256": "443a8328d6a88e5e58a58d0d829106b6b5c9896e89572d2a711598c55c79fba8",
+          "decodedSha256": "b0792824e0626092832cec678dbb56a5122d2ad89424e5107ba0eef93ff6c6d4",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 75.42079014,
+              "butteraugli": 8.308426857
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.32545773,
+              "butteraugli": 4.8885135651
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 2.850999999999999
+          }
+        },
+        {
+          "setting": 97.681,
+          "bytes": 41725,
+          "score": 75.60667394,
+          "butteraugli": 7.9549846649,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.681.jxl",
+          "artifactSha256": "3c8782d1ff9e64f9d4553f0ccb829b524d8777024877bf038bf930de0e51f13b",
+          "decodedSha256": "4d1152de5e9e83bd44f958a5f84bafead1b121f752db907c5d568a8dbb59f228",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 75.60667394,
+              "butteraugli": 7.9549846649
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 81.25292483,
+              "butteraugli": 5.4456939697
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.3190000000000026
+          }
+        },
+        {
+          "setting": 97.448,
+          "bytes": 43587,
+          "score": 80.46354073,
+          "butteraugli": 7.2080898285,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.448.jxl",
+          "artifactSha256": "99fa2b1a13255215058739d0d3e08a2ab5840bc04c3fd2a4ad9becff0ee67d62",
+          "decodedSha256": "04babca443cc03508f72994739fee03f378c9c2cfae98ad680eb7386f8e314e9",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.46354073,
+              "butteraugli": 7.2080898285
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.17901102,
+              "butteraugli": 4.2476940155
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.5520000000000067
+          }
+        },
+        {
+          "setting": 97.564,
+          "bytes": 43768,
+          "score": 79.58493705,
+          "butteraugli": 7.4417800903,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.564.jxl",
+          "artifactSha256": "7ef0cfa2edb802c74d163feb4f32c095bc3969b1dd99e56b7253026b5175f883",
+          "decodedSha256": "299129fbe8bea49e80158fb719ffaa4296e2b52e949bd687e517f7b564a0f8f3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.58493705,
+              "butteraugli": 7.4417800903
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 83.38073094,
+              "butteraugli": 4.2227268219
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.436000000000007
+          }
+        },
+        {
+          "setting": 97.506,
+          "bytes": 43566,
+          "score": 80.44508375,
+          "butteraugli": 7.2083625793,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.506.jxl",
+          "artifactSha256": "c483630fad3e631d11a9e90024b42f9a18f4703bcf2f932fe56aab00ae392f4e",
+          "decodedSha256": "3a520fac54724fd28dd100f8513c8b01a6220e8f64ee3c34c7e5dde19765c701",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.44508375,
+              "butteraugli": 7.2083625793
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.20428687,
+              "butteraugli": 4.4011025429
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.4939999999999998
+          }
+        },
+        {
+          "setting": 97.535,
+          "bytes": 43565,
+          "score": 80.43556707,
+          "butteraugli": 7.1835479736,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.535.jxl",
+          "artifactSha256": "3e823cdd3651ef1f43c2ebdef9316329fe60f2ecfe706e787c24e736ddf0a5c8",
+          "decodedSha256": "62c5b4cb8112526433e76d5e38e97753d29c652ae9c8d1a6fbac3660e02ca0f7",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.43556707,
+              "butteraugli": 7.1835479736
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.2090456,
+              "butteraugli": 4.3847079277
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.4650000000000034
+          }
+        },
+        {
+          "setting": 97.549,
+          "bytes": 43564,
+          "score": 80.51741146,
+          "butteraugli": 7.1867833138,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.549.jxl",
+          "artifactSha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c",
+          "decodedSha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.51741146,
+              "butteraugli": 7.1867833138
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.1621807,
+              "butteraugli": 4.3775296211
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.4509999999999934
+          }
+        },
+        {
+          "setting": 97.556,
+          "bytes": 43564,
+          "score": 80.51741146,
+          "butteraugli": 7.1867833138,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.556.jxl",
+          "artifactSha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c",
+          "decodedSha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 80.51741146,
+              "butteraugli": 7.1867833138
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 84.1621807,
+              "butteraugli": 4.3775296211
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 3.4440000000000026
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 80,
+          "status": "wide bracket",
+          "width": 4.283233710000005,
+          "bracket": {
+            "lower": {
+              "setting": 99.09,
+              "bytes": 42285,
+              "score": 76.23417775,
+              "butteraugli": 8.0762405396,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-99.09.jxl",
+              "artifactSha256": "890d57eaa0572ecbbdcd275a24af18f049b0b7971a3e14ff4abc2a35a44b71cf",
+              "decodedSha256": "f3080c3f52f1162975d58e5a291f39e6e51e605cbc71a93db5b77445ada2ca85",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 76.23417775,
+                  "butteraugli": 8.0762405396
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 81.32604361,
+                  "butteraugli": 4.7174921036
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1.9099999999999966
+              }
+            },
+            "upper": {
+              "setting": 97.549,
+              "bytes": 43564,
+              "score": 80.51741146,
+              "butteraugli": 7.1867833138,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.549.jxl",
+              "artifactSha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c",
+              "decodedSha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 80.51741146,
+                  "butteraugli": 7.1867833138
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 84.1621807,
+                  "butteraugli": 4.3775296211
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 3.4509999999999934
+              }
+            },
+            "width": 4.283233710000005
+          },
+          "interpolatedBytes": 43407.466234288986
+        },
+        {
+          "target": 90,
+          "status": "adequate bracket",
+          "width": 0.11005111000000056,
+          "bracket": {
+            "lower": {
+              "setting": 41.47,
+              "bytes": 70509,
+              "score": 89.95535826,
+              "butteraugli": 1.4547142982,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-41.47.jxl",
+              "artifactSha256": "25b92a1703a26bf226af4f21e85b93c03833b307097108d8cb0654bb69865f79",
+              "decodedSha256": "6b3190db9a6342f233a0eacf697437d1da8b3300f346ebbada5e8c3d3fab6c1b",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.95535826,
+                  "butteraugli": 1.4547015429
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.98492089,
+                  "butteraugli": 1.4547142982
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 59.53
+              }
+            },
+            "upper": {
+              "setting": 38.375,
+              "bytes": 70614,
+              "score": 90.06540937,
+              "butteraugli": 1.2414233685,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-38.375.jxl",
+              "artifactSha256": "83adb7f43c55e05e7854dad6d2ad6c0b7ecee81a073e8bf2cb34cc3b60da84ff",
+              "decodedSha256": "9a0d8f233c01eb45dfcecfdbb911b879a83495ebbd6047bc070a53699c459ec5",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.06540937,
+                  "butteraugli": 1.2414233685
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.994,
+                  "butteraugli": 1.2414233685
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 62.625
+              }
+            },
+            "width": 0.11005111000000056
+          },
+          "interpolatedBytes": 70551.57394540362
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "wide bracket",
+          "width": 0.36222332720000006,
+          "bracket": {
+            "lower": {
+              "setting": 33.72,
+              "bytes": 83334,
+              "score": -1.1811915636,
+              "butteraugli": 1.1811915636,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-33.72.jxl",
+              "artifactSha256": "5d97ecab1b9dff445fa0fe4dfc3e61d4a61e475b263f656a2261d47a90790ad4",
+              "decodedSha256": "cc71ea16220e45251bf0603b8375c802dcde3c789f5dcaf8e004bc4dc7ace433",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.49305959,
+                  "butteraugli": 1.1811915636
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 91.45783766,
+                  "butteraugli": 1.1811915636
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 67.28
+              }
+            },
+            "upper": {
+              "setting": 11,
+              "bytes": 96311,
+              "score": -0.8189682364,
+              "butteraugli": 0.8189682364,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-11.jxl",
+              "artifactSha256": "749e35c08ef992ab75995cdc6b2457cb47720cf07b36308c1d8d4e8693d40d97",
+              "decodedSha256": "7ab84b9e4e70aa994421db61c896b1d5f1a8c96c580c6a69fac42f23b35c6848",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 92.84831423,
+                  "butteraugli": 0.8189682364
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 92.29115399,
+                  "butteraugli": 0.8189682364
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 90
+              }
+            },
+            "width": 0.36222332720000006
+          },
+          "interpolatedBytes": 89590.69891689881
+        },
+        {
+          "target": 2,
+          "status": "wide bracket",
+          "width": 0.9562712908,
+          "bracket": {
+            "lower": {
+              "setting": 93.573,
+              "bytes": 46243,
+              "score": -2.8958084583,
+              "butteraugli": 2.8958084583,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-93.573.jxl",
+              "artifactSha256": "ab529baf93dd53eece654b243645c89e6efd03fcfc91aaeea6230fc0e5f125d8",
+              "decodedSha256": "860a17d308b80351811c3fec01e3acc60b60be4ba97d5791e557fbb62720eda7",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 83.50158515,
+                  "butteraugli": 2.8958084583
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 86.85362826,
+                  "butteraugli": 2.7649495602
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.427000000000007
+              }
+            },
+            "upper": {
+              "setting": 86.693,
+              "bytes": 63822,
+              "score": -1.9395371675,
+              "butteraugli": 1.9395371675,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-86.693.jxl",
+              "artifactSha256": "42a39a07ecebc793953e7e64e769a876f0d6130fbfe50fa380ea98ec14ed1b48",
+              "decodedSha256": "5bed1b790c5043a940e8ab5daef6b272589c4dcee84db8e120114f81232bf28e",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 84.12795413,
+                  "butteraugli": 1.9395371675
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 87.44343964,
+                  "butteraugli": 1.8384141922
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 14.307000000000002
+              }
+            },
+            "width": 0.9562712908
+          },
+          "interpolatedBytes": 62535.022632236585
+        },
+        {
+          "target": 3,
+          "status": "wide bracket",
+          "width": 3.9625651837,
+          "bracket": {
+            "lower": {
+              "setting": 97.216,
+              "bytes": 43670,
+              "score": -6.858373642,
+              "butteraugli": 6.858373642,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.216.jxl",
+              "artifactSha256": "1f14bf07d9c6f578c14429ecc9fe60a248f0a335644d0b9ba1bf318ce148c974",
+              "decodedSha256": "185a1dd25bcaf52f6aaed352537baabf6c57af10bb0dd84c6890ce3d3110a3bb",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 80.13725401,
+                  "butteraugli": 6.858373642
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 84.25480786,
+                  "butteraugli": 4.0450396538
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 3.784000000000006
+              }
+            },
+            "upper": {
+              "setting": 93.573,
+              "bytes": 46243,
+              "score": -2.8958084583,
+              "butteraugli": 2.8958084583,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-93.573.jxl",
+              "artifactSha256": "ab529baf93dd53eece654b243645c89e6efd03fcfc91aaeea6230fc0e5f125d8",
+              "decodedSha256": "860a17d308b80351811c3fec01e3acc60b60be4ba97d5791e557fbb62720eda7",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 83.50158515,
+                  "butteraugli": 2.8958084583
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 86.85362826,
+                  "butteraugli": 2.7649495602
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 7.427000000000007
+              }
+            },
+            "width": 3.9625651837
+          },
+          "interpolatedBytes": 46173.442958686304
+        }
+      ],
+      "monotonicityViolations": 6
+    },
+    {
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "sourceSha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "settingBounds": {
+        "minimum": 0.1,
+        "maximum": 25,
+        "mapping": "distance"
+      },
+      "subject": "vips",
+      "role": "public JavaScript API",
+      "points": [
+        {
+          "setting": 1,
+          "bytes": 16531,
+          "score": 93.19160639,
+          "butteraugli": 0.7440254688,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-1.jxl",
+          "artifactSha256": "8db2b161492293cb7aeabd3d0966a5b34e6dacb373a18a51d526a37b221f3b91",
+          "decodedSha256": "196134759d11987ed119b3c9f9b82a2bbe4e8f5a23ed2525918a1f12a01ebe1b",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 93.87575957,
+              "butteraugli": 0.7440254688
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 93.19160639,
+              "butteraugli": 0.7440254688
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1
+          }
+        },
+        {
+          "setting": 4,
+          "bytes": 10570,
+          "score": 91.23662964,
+          "butteraugli": 1.4363088608,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-4.jxl",
+          "artifactSha256": "d7b8e52ee9be719ccec297e8e6d493db73259d9c9718ca0cdda14c4b6a66fc43",
+          "decodedSha256": "6865f80b82f37cd78fa430070c67eb6b0ad269e200e9fe0aab414b29858fd8aa",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 91.23662964,
+              "butteraugli": 1.4363088608
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.79410695,
+              "butteraugli": 1.4363088608
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4
+          }
+        },
+        {
+          "setting": 8,
+          "bytes": 9069,
+          "score": 89.33190918,
+          "butteraugli": 1.8627073765,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.jxl",
+          "artifactSha256": "494584ac0e84227d27caeace2fd1d8aad2345307f46031d5baa6e303cc10e7fe",
+          "decodedSha256": "16dc37932200a44d92e5408bafdccea4a1c07e9a36b6b89e306ee2ca2b65bb7b",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.33190918,
+              "butteraugli": 1.8627073765
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.56050788,
+              "butteraugli": 1.8627073765
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8
+          }
+        },
+        {
+          "setting": 16,
+          "bytes": 3710,
+          "score": 3.67154061,
+          "butteraugli": 24.3003921509,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-16.jxl",
+          "artifactSha256": "24b898ceea3b79847f866f61874a8528a0397b36bc45bc8ecd2634a079b18796",
+          "decodedSha256": "76a6750706094bc052b42e175f9eb18fcf7474e20ac127ca0f98df8ead957458",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.67154061,
+              "butteraugli": 24.3003921509
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.65815549,
+              "butteraugli": 15.4613275528
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16
+          }
+        },
+        {
+          "setting": 6.2734,
+          "bytes": 9307,
+          "score": 90.39106717,
+          "butteraugli": 1.4729868174,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+          "artifactSha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7",
+          "decodedSha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.39106717,
+              "butteraugli": 1.4729868174
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.46119912,
+              "butteraugli": 1.4729868174
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.2734
+          }
+        },
+        {
+          "setting": 8.6275,
+          "bytes": 8888,
+          "score": 88.84726195,
+          "butteraugli": 1.9360563755,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.6275.jxl",
+          "artifactSha256": "6fdac905be427c42878abe30e6246897681c921abcb73296575017b0b8879769",
+          "decodedSha256": "a12bddd54cbc21109b5b4421279c983592bdc4903390b7d2a841849177bf8d0a",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.84726195,
+              "butteraugli": 1.9360563755
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.13482351,
+              "butteraugli": 1.9360563755
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.6275
+          }
+        },
+        {
+          "setting": 9.891,
+          "bytes": 8666,
+          "score": 87.96684782,
+          "butteraugli": 2.7105116844,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.891.jxl",
+          "artifactSha256": "149713b2013cb95fb1b25deb566dab97e42041290a8a785f9bcca6aa1d4559ef",
+          "decodedSha256": "0ff3827fff2505566fb24aff5e0583c9d0fc438308e38b59bbef4444a4072c8a",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 87.96684782,
+              "butteraugli": 2.7105116844
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.42810135,
+              "butteraugli": 2.7105116844
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.891
+          }
+        },
+        {
+          "setting": 6.8626,
+          "bytes": 9358,
+          "score": 89.86697118,
+          "butteraugli": 1.7605352402,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.8626.jxl",
+          "artifactSha256": "638fc7d68daff015bb777fced8d14d20734b453673c03fe00c690580e207d4f8",
+          "decodedSha256": "cfa17f48ef0fd057e08fa66845bf9e8913dda688f0300bd3c37d6e4275581f37",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.86697118,
+              "butteraugli": 1.7605352402
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.94806191,
+              "butteraugli": 1.7605352402
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.8626
+          }
+        },
+        {
+          "setting": 10.351,
+          "bytes": 4537,
+          "score": 3.76228236,
+          "butteraugli": 24.3758811951,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.351.jxl",
+          "artifactSha256": "ef7492a0cca8c9f8fe7a381329f596e652a5da81897233f7662a2565f75cc9bd",
+          "decodedSha256": "7cbeea2b2032c41452b0b0fade8f16302786025c84b53c706d4fd5120d179a57",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76228236,
+              "butteraugli": 24.3758811951
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.48272239,
+              "butteraugli": 15.5649728775
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.351
+          }
+        },
+        {
+          "setting": 9.9874,
+          "bytes": 8642,
+          "score": 88.10509915,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+          "artifactSha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641",
+          "decodedSha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.10509915,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.39041915,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9874
+          }
+        },
+        {
+          "setting": 6.5614,
+          "bytes": 9399,
+          "score": 89.99523027,
+          "butteraugli": 1.8708708286,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5614.jxl",
+          "artifactSha256": "b1ae1dd12b61c7a66c928821dfed2b5988b498e7e446d5b714a70757689a035c",
+          "decodedSha256": "344b21e105b924ceef822f7054b756588cfc81bd2a612336bfa60000568f7265",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.99523027,
+              "butteraugli": 1.8708708286
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.16971454,
+              "butteraugli": 1.8558679819
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.5614
+          }
+        },
+        {
+          "setting": 10.168,
+          "bytes": 4561,
+          "score": 3.77424223,
+          "butteraugli": 24.3615684509,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.168.jxl",
+          "artifactSha256": "2c19a001150106bfa56e5b07c44ba2e9465c4040ac60abada199599281a36cf9",
+          "decodedSha256": "3300612d1d725c2d7d995655d324230b77171ee3ccdc5b5c7db0779cf86a82b3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.77424223,
+              "butteraugli": 24.3615684509
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.47649355,
+              "butteraugli": 15.5320005417
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.168
+          }
+        },
+        {
+          "setting": 10.077,
+          "bytes": 4634,
+          "score": 3.76200641,
+          "butteraugli": 24.4258460999,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.077.jxl",
+          "artifactSha256": "03557912a57d8d53fc975aaf1d0bb3448506b4b32eb8a1ead645ce74fc10ea5b",
+          "decodedSha256": "06fe20f387220a6c18d2bed59ea701296bb5c8388005b3c7aa5de80fd3f48f75",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76200641,
+              "butteraugli": 24.4258460999
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.57622167,
+              "butteraugli": 15.458199501
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.077
+          }
+        },
+        {
+          "setting": 6.4158,
+          "bytes": 9382,
+          "score": 90.25584872,
+          "butteraugli": 1.8406991959,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4158.jxl",
+          "artifactSha256": "b5c4f1bf99283a9118d4fee1d1c9cd9ee66441d987a432d0c66c5fe12f621db4",
+          "decodedSha256": "8e4a415d0441f2fe8d3a5d182295f7cb086a687f4c3b20d9d1140940b01ef42b",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.25584872,
+              "butteraugli": 1.8406991959
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.12439163,
+              "butteraugli": 1.8406991959
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.4158
+          }
+        },
+        {
+          "setting": 10.032,
+          "bytes": 4608,
+          "score": 3.76020099,
+          "butteraugli": 24.3819007874,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.032.jxl",
+          "artifactSha256": "a8dd13be9c8072c979af4f72a3d9a575a23a268da6d6a09b58f31e479367ae0c",
+          "decodedSha256": "debc5a18ca1bef5038e7e7032f6fb76f85d16c3f7b6bae11c5949accc76b7ade",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76020099,
+              "butteraugli": 24.3819007874
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.53639885,
+              "butteraugli": 15.5364294052
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.032
+          }
+        },
+        {
+          "setting": 10.01,
+          "bytes": 4643,
+          "score": 3.77016511,
+          "butteraugli": 24.3441944122,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.01.jxl",
+          "artifactSha256": "3e8520ed5d7ebf8eee0b9cfbc1998c81aa351b8bcb63fe1cecb695723b3b5ab5",
+          "decodedSha256": "1a56c754491763b82e5be0fe3f398fef7720b9176363aadf1543616d9b01fdc7",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.77016511,
+              "butteraugli": 24.3441944122
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.53326787,
+              "butteraugli": 15.5441513062
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.01
+          }
+        },
+        {
+          "setting": 6.4882,
+          "bytes": 9403,
+          "score": 90.11453719,
+          "butteraugli": 1.4314550161,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4882.jxl",
+          "artifactSha256": "1722f8462c3b2b263f6f7e2f4956c8898401a6e977d5d19a201d3e60a88e6cda",
+          "decodedSha256": "3a31fe845951ea08cae4a8f86e85957c9136d1304d72e686e8d0c5047c5183a3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.11453719,
+              "butteraugli": 1.4314550161
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.16334376,
+              "butteraugli": 1.4314550161
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.4882
+          }
+        },
+        {
+          "setting": 9.9987,
+          "bytes": 8642,
+          "score": 88.11384601,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9987.jxl",
+          "artifactSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+          "decodedSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.11384601,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.37894383,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9987
+          }
+        },
+        {
+          "setting": 10.004,
+          "bytes": 4650,
+          "score": 3.7629154,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.004.jxl",
+          "artifactSha256": "a3a0e482259a992e255362f587bca64d29300ba03654996a0fc5df71ebd19e85",
+          "decodedSha256": "2038ba26c1d86accb946f43d5cd947c05ba3dd03f14f4412d7fb61b5f7448af3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.7629154,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.52168812,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.004
+          }
+        },
+        {
+          "setting": 6.5247,
+          "bytes": 9396,
+          "score": 90.2483573,
+          "butteraugli": 1.3624426126,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5247.jxl",
+          "artifactSha256": "52ae72f4672be851b048f9477319029c47c4ae2bd3207b6ba44e58b206e7b576",
+          "decodedSha256": "10aa101eb394aeb2b5ac83a32b55dc3a15ba2914de3fb759cb06aad1adc43eff",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.2483573,
+              "butteraugli": 1.362339735
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.11974366,
+              "butteraugli": 1.3624426126
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.5247
+          }
+        },
+        {
+          "setting": 10.001,
+          "bytes": 4650,
+          "score": 3.76357103,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.001.jxl",
+          "artifactSha256": "6e51cc77ea2cf8b8a9651afa7bc34780c7d3b4bd80776adad7ebb211a48a4f53",
+          "decodedSha256": "f17098251577f1cd8a19f74e8a9a0c71a7b024ef67d166cf76463b05a9f7f12f",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76357103,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.52092927,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.001
+          }
+        },
+        {
+          "setting": 9.9998,
+          "bytes": 8642,
+          "score": 88.11384601,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9998.jxl",
+          "artifactSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+          "decodedSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.11384601,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.37894383,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9998
+          }
+        },
+        {
+          "setting": 6.543,
+          "bytes": 9389,
+          "score": 89.94834499,
+          "butteraugli": 1.8658204079,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.543.jxl",
+          "artifactSha256": "2a5b1a2a89573b81e3a9cbd3d546e0af2aac6c9bf4bac82b27b6665ab096e343",
+          "decodedSha256": "7e290097d8dae3a76539aef4d2f3658a90f6b21bcf2d762b50543c46389e7535",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.94834499,
+              "butteraugli": 1.8658204079
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.0690015,
+              "butteraugli": 1.8650584221
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.543
+          }
+        },
+        {
+          "setting": 10,
+          "bytes": 4639,
+          "score": 3.76181572,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.jxl",
+          "artifactSha256": "551f59255bef18a37a3a60387774d92e25761405d476857bafc52fc634776877",
+          "decodedSha256": "8489c657402629bb02a41997b83ef73a64e3c8e329b35ba12349ac7c183bd2a2",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76181572,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.51045509,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "wide bracket",
+          "width": 84.33960378,
+          "bracket": {
+            "lower": {
+              "setting": 10.168,
+              "bytes": 4561,
+              "score": 3.77424223,
+              "butteraugli": 24.3615684509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.168.jxl",
+              "artifactSha256": "2c19a001150106bfa56e5b07c44ba2e9465c4040ac60abada199599281a36cf9",
+              "decodedSha256": "3300612d1d725c2d7d995655d324230b77171ee3ccdc5b5c7db0779cf86a82b3",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.77424223,
+                  "butteraugli": 24.3615684509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.47649355,
+                  "butteraugli": 15.5320005417
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 10.168
+              }
+            },
+            "upper": {
+              "setting": 9.9987,
+              "bytes": 8642,
+              "score": 88.11384601,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9987.jxl",
+              "artifactSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+              "decodedSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.11384601,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.37894383,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9987
+              }
+            },
+            "width": 84.33960378
+          },
+          "interpolatedBytes": 7533.611043090697
+        },
+        {
+          "target": 80,
+          "status": "wide bracket",
+          "width": 84.33960378,
+          "bracket": {
+            "lower": {
+              "setting": 10.168,
+              "bytes": 4561,
+              "score": 3.77424223,
+              "butteraugli": 24.3615684509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.168.jxl",
+              "artifactSha256": "2c19a001150106bfa56e5b07c44ba2e9465c4040ac60abada199599281a36cf9",
+              "decodedSha256": "3300612d1d725c2d7d995655d324230b77171ee3ccdc5b5c7db0779cf86a82b3",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.77424223,
+                  "butteraugli": 24.3615684509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.47649355,
+                  "butteraugli": 15.5320005417
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 10.168
+              }
+            },
+            "upper": {
+              "setting": 9.9987,
+              "bytes": 8642,
+              "score": 88.11384601,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9987.jxl",
+              "artifactSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+              "decodedSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.11384601,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.37894383,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9987
+              }
+            },
+            "width": 84.33960378
+          },
+          "interpolatedBytes": 8126.6641322940595
+        },
+        {
+          "target": 90,
+          "status": "wide bracket",
+          "width": 1.0591579900000028,
+          "bracket": {
+            "lower": {
+              "setting": 8,
+              "bytes": 9069,
+              "score": 89.33190918,
+              "butteraugli": 1.8627073765,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.jxl",
+              "artifactSha256": "494584ac0e84227d27caeace2fd1d8aad2345307f46031d5baa6e303cc10e7fe",
+              "decodedSha256": "16dc37932200a44d92e5408bafdccea4a1c07e9a36b6b89e306ee2ca2b65bb7b",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.33190918,
+                  "butteraugli": 1.8627073765
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.56050788,
+                  "butteraugli": 1.8627073765
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8
+              }
+            },
+            "upper": {
+              "setting": 6.2734,
+              "bytes": 9307,
+              "score": 90.39106717,
+              "butteraugli": 1.4729868174,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+              "artifactSha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7",
+              "decodedSha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.39106717,
+                  "butteraugli": 1.4729868174
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 91.46119912,
+                  "butteraugli": 1.4729868174
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 6.2734
+              }
+            },
+            "width": 1.0591579900000028
+          },
+          "interpolatedBytes": 9218.405799914088
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "wide bracket",
+          "width": 0.6184171438,
+          "bracket": {
+            "lower": {
+              "setting": 6.5247,
+              "bytes": 9396,
+              "score": -1.3624426126,
+              "butteraugli": 1.3624426126,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5247.jxl",
+              "artifactSha256": "52ae72f4672be851b048f9477319029c47c4ae2bd3207b6ba44e58b206e7b576",
+              "decodedSha256": "10aa101eb394aeb2b5ac83a32b55dc3a15ba2914de3fb759cb06aad1adc43eff",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.2483573,
+                  "butteraugli": 1.362339735
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 91.11974366,
+                  "butteraugli": 1.3624426126
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 6.5247
+              }
+            },
+            "upper": {
+              "setting": 1,
+              "bytes": 16531,
+              "score": -0.7440254688,
+              "butteraugli": 0.7440254688,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-1.jxl",
+              "artifactSha256": "8db2b161492293cb7aeabd3d0966a5b34e6dacb373a18a51d526a37b221f3b91",
+              "decodedSha256": "196134759d11987ed119b3c9f9b82a2bbe4e8f5a23ed2525918a1f12a01ebe1b",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 93.87575957,
+                  "butteraugli": 0.7440254688
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 93.19160639,
+                  "butteraugli": 0.7440254688
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1
+              }
+            },
+            "width": 0.6184171438
+          },
+          "interpolatedBytes": 13084.031967596293
+        },
+        {
+          "target": 2,
+          "status": "wide bracket",
+          "width": 0.4628188609999999,
+          "bracket": {
+            "lower": {
+              "setting": 9.9874,
+              "bytes": 8642,
+              "score": -2.3988752365,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+              "artifactSha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641",
+              "decodedSha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.10509915,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.39041915,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9874
+              }
+            },
+            "upper": {
+              "setting": 8.6275,
+              "bytes": 8888,
+              "score": -1.9360563755,
+              "butteraugli": 1.9360563755,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.6275.jxl",
+              "artifactSha256": "6fdac905be427c42878abe30e6246897681c921abcb73296575017b0b8879769",
+              "decodedSha256": "a12bddd54cbc21109b5b4421279c983592bdc4903390b7d2a841849177bf8d0a",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.84726195,
+                  "butteraugli": 1.9360563755
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.13482351,
+                  "butteraugli": 1.9360563755
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8.6275
+              }
+            },
+            "width": 0.4628188609999999
+          },
+          "interpolatedBytes": 8853.599865707954
+        },
+        {
+          "target": 3,
+          "status": "wide bracket",
+          "width": 21.9015169144,
+          "bracket": {
+            "lower": {
+              "setting": 16,
+              "bytes": 3710,
+              "score": -24.3003921509,
+              "butteraugli": 24.3003921509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-16.jxl",
+              "artifactSha256": "24b898ceea3b79847f866f61874a8528a0397b36bc45bc8ecd2634a079b18796",
+              "decodedSha256": "76a6750706094bc052b42e175f9eb18fcf7474e20ac127ca0f98df8ead957458",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.67154061,
+                  "butteraugli": 24.3003921509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.65815549,
+                  "butteraugli": 15.4613275528
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 16
+              }
+            },
+            "upper": {
+              "setting": 9.9874,
+              "bytes": 8642,
+              "score": -2.3988752365,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+              "artifactSha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641",
+              "decodedSha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.10509915,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.39041915,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9874
+              }
+            },
+            "width": 21.9015169144
+          },
+          "interpolatedBytes": 8443.737423390052
+        }
+      ],
+      "monotonicityViolations": 8
+    },
+    {
+      "fixture": "alpha_triangles",
+      "scope": "original",
+      "sourceSha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "settingBounds": {
+        "minimum": 0.1,
+        "maximum": 25,
+        "mapping": "distance"
+      },
+      "subject": "native-libjxl",
+      "role": "native oracle, excluded from JavaScript runtime comparisons",
+      "points": [
+        {
+          "setting": 1,
+          "bytes": 16360,
+          "score": 93.19149862,
+          "butteraugli": 0.7438696623,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-1.jxl",
+          "artifactSha256": "2f4ad70f67db422c47437ffe91ed2beff0657fbe5b1177430b820dea4a4484b9",
+          "decodedSha256": "a006c05b48986cb12433e3a7524c3d3cc88055a3ac5d217063c9e8e10367c693",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 93.8877922,
+              "butteraugli": 0.7438696623
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 93.19149862,
+              "butteraugli": 0.7438696623
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 1
+          }
+        },
+        {
+          "setting": 4,
+          "bytes": 10397,
+          "score": 91.23395617,
+          "butteraugli": 1.4363088608,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-4.jxl",
+          "artifactSha256": "bfd304f490f231cf626a694cb24c15b3e95abac648a67c6765a76518a5271f12",
+          "decodedSha256": "cd2a76f50120e2ebfe6c71592c353bf21442496239287679205ecceb373f651d",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 91.23395617,
+              "butteraugli": 1.4363088608
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.80816393,
+              "butteraugli": 1.4363088608
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 4
+          }
+        },
+        {
+          "setting": 8,
+          "bytes": 8897,
+          "score": 89.33209014,
+          "butteraugli": 1.8627073765,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.jxl",
+          "artifactSha256": "092e75ae5b056c5f17b3ed6e2f547fa2393290264a327ddeefae3310559d746a",
+          "decodedSha256": "750ede96cf7992e23a3b114a3bc648863a554dd040e50e2169733ee57647e142",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.33209014,
+              "butteraugli": 1.8627073765
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.55991791,
+              "butteraugli": 1.8627073765
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8
+          }
+        },
+        {
+          "setting": 16,
+          "bytes": 3535,
+          "score": 3.67154061,
+          "butteraugli": 24.3003921509,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-16.jxl",
+          "artifactSha256": "8f9c9d3ad6f226c433a8085710528138007530535f107b2d43bb12d8c68ab141",
+          "decodedSha256": "d89bb1cb43c6a6c4cb1a605e2dda2a283267943ff7408e9cbc32a79e877056eb",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.67154061,
+              "butteraugli": 24.3003921509
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.65815549,
+              "butteraugli": 15.4613275528
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 16
+          }
+        },
+        {
+          "setting": 6.2715,
+          "bytes": 9139,
+          "score": 90.49310841,
+          "butteraugli": 1.4143900871,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.2715.jxl",
+          "artifactSha256": "51eff54d81c38d09476fc483e88627c4ac6948d2ae0ef78d3d1ed7e268884f3f",
+          "decodedSha256": "6bd253544e7fad039c7c17b805b3eb27fbd4bd5c3917487d840788ab66eb9d66",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.49310841,
+              "butteraugli": 1.4143900871
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.17849472,
+              "butteraugli": 1.4143900871
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.2715
+          }
+        },
+        {
+          "setting": 8.6275,
+          "bytes": 8715,
+          "score": 88.85018706,
+          "butteraugli": 1.9360563755,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.6275.jxl",
+          "artifactSha256": "3e598010fe1c83e833cc157201761cfa60a6d8419566b1452aa97f17d15c9686",
+          "decodedSha256": "f359b4cb16d3f49f51dcfa080b50118e7b5d1060294a7ec46a6b72559068ca05",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.85018706,
+              "butteraugli": 1.9360563755
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.13036989,
+              "butteraugli": 1.9360563755
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 8.6275
+          }
+        },
+        {
+          "setting": 9.8911,
+          "bytes": 8493,
+          "score": 87.96684782,
+          "butteraugli": 2.7105116844,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.8911.jxl",
+          "artifactSha256": "e890d9f9902f7fd3067d109918209e6feaa02df51b10b349ad1022a7dd228611",
+          "decodedSha256": "b6be833fa70b0d28738f75fcf2c1e1c565cbce096c6bc36ebb6b97d6a0ba979e",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 87.96684782,
+              "butteraugli": 2.7105116844
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.42810135,
+              "butteraugli": 2.7105116844
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.8911
+          }
+        },
+        {
+          "setting": 6.9546,
+          "bytes": 9133,
+          "score": 89.87084302,
+          "butteraugli": 1.7422254086,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.9546.jxl",
+          "artifactSha256": "7a219a1825ea6122c0b096ce3df3569b2971378679116177b1395477e8224a64",
+          "decodedSha256": "ab045dc8ec59d85f4429c4258c86692483057c27c8d3e174f5f3f80dd09eff00",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.87084302,
+              "butteraugli": 1.7422254086
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.86686492,
+              "butteraugli": 1.7422254086
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.9546
+          }
+        },
+        {
+          "setting": 10.351,
+          "bytes": 4364,
+          "score": 3.7598079,
+          "butteraugli": 24.3758811951,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.351.jxl",
+          "artifactSha256": "c04ac6a2e0dbf2de3cd53c464c6526e5f4f875d1edabe16244439751d7d1fc41",
+          "decodedSha256": "734a672c081bf9ebdccd317977d821446f61305180d9b80dcb9e88078d94eb20",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.7598079,
+              "butteraugli": 24.3758811951
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.48066838,
+              "butteraugli": 15.5649728775
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.351
+          }
+        },
+        {
+          "setting": 9.9875,
+          "bytes": 8467,
+          "score": 88.10509915,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9875.jxl",
+          "artifactSha256": "ca0141b854bec12988633965dd2c5e82227e5fc349e0bcc7aef2889a71887e34",
+          "decodedSha256": "b61f23014f9a38d024f0bf1ac42ba9203171a08d4e7bcd2d51938b409f00f4cd",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.10509915,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.39041915,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9875
+          }
+        },
+        {
+          "setting": 6.6042,
+          "bytes": 9265,
+          "score": 90.00600755,
+          "butteraugli": 1.772134304,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6042.jxl",
+          "artifactSha256": "212c71e2d22c280240232082152f7c9105f376365313281e2a341dc79c35bb37",
+          "decodedSha256": "337b9ca920807848fa1f5451fdba10b6b24a44933391cdfc8b2c21c3a89b389f",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.00600755,
+              "butteraugli": 1.7721341848
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.89812781,
+              "butteraugli": 1.772134304
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.6042
+          }
+        },
+        {
+          "setting": 10.168,
+          "bytes": 4386,
+          "score": 3.77424223,
+          "butteraugli": 24.3615684509,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.168.jxl",
+          "artifactSha256": "8fb75d7cea84c985b98b7abf79d5c5483a782db2a49426c38e9511ea28079e17",
+          "decodedSha256": "2f2ea28d5d8b915b4789d17a5b6b587f8f3046280760708c535a921639c3f195",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.77424223,
+              "butteraugli": 24.3615684509
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.47649355,
+              "butteraugli": 15.5320005417
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.168
+          }
+        },
+        {
+          "setting": 10.077,
+          "bytes": 4459,
+          "score": 3.76200641,
+          "butteraugli": 24.4258460999,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.077.jxl",
+          "artifactSha256": "66109434a38b4c1c98f4f4322dedcca4e893d0f642272eea4c0a6fdfd883eeaa",
+          "decodedSha256": "52d1d9692c9d9cafb16285f3e50cca2d84dff9db06813b6f86f29daad05055b1",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76200641,
+              "butteraugli": 24.4258460999
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.57622167,
+              "butteraugli": 15.458199501
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.077
+          }
+        },
+        {
+          "setting": 6.7771,
+          "bytes": 9196,
+          "score": 89.95591847,
+          "butteraugli": 1.7742397785,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.7771.jxl",
+          "artifactSha256": "36aa023c2e11c835183c95cdd0f3109a74ffd2eb75e1074ac2f5845f8e6a9d12",
+          "decodedSha256": "fd41d98769a159ff265e362f2fe3ef58ff215f7b91fa14e34612890020f3871d",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.95591847,
+              "butteraugli": 1.7742397785
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.9442556,
+              "butteraugli": 1.7742397785
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.7771
+          }
+        },
+        {
+          "setting": 10.032,
+          "bytes": 4433,
+          "score": 3.76020099,
+          "butteraugli": 24.3819007874,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.032.jxl",
+          "artifactSha256": "90902a547a793b722402a0fd875a6be22948e0b189200f8d9e5f55567cd09eed",
+          "decodedSha256": "d18780a57c2eb5760cefd6c61920678d98a45e2bfe08facabedb28dc5bafe456",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76020099,
+              "butteraugli": 24.3819007874
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.53639885,
+              "butteraugli": 15.5364294052
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.032
+          }
+        },
+        {
+          "setting": 10.01,
+          "bytes": 4468,
+          "score": 3.77016511,
+          "butteraugli": 24.3441944122,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.01.jxl",
+          "artifactSha256": "256cb0db3e0671c78a90a97ed16b46d02b06ad4dc1adf46b2f91a0836123b96a",
+          "decodedSha256": "18505ac5a197990e4ae206e82998a7c45841120b7cad0b59d0d16454661213c3",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.77016511,
+              "butteraugli": 24.3441944122
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.53326787,
+              "butteraugli": 15.5441513062
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.01
+          }
+        },
+        {
+          "setting": 6.6901,
+          "bytes": 9143,
+          "score": 89.3631588,
+          "butteraugli": 1.7978662252,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6901.jxl",
+          "artifactSha256": "87da75d71512c8e50bb2dbf52846b030ff4c07a8002df2bcb0d43418a73b6cd1",
+          "decodedSha256": "5a968f85047b15bd025500f6b523d3c07f1af5ec935aa184e0cb5726e4d5595d",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.3631588,
+              "butteraugli": 1.7978662252
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.05301502,
+              "butteraugli": 1.7978662252
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.6901
+          }
+        },
+        {
+          "setting": 9.9987,
+          "bytes": 8467,
+          "score": 88.11384601,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9987.jxl",
+          "artifactSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+          "decodedSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.11384601,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.37894383,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9987
+          }
+        },
+        {
+          "setting": 10.004,
+          "bytes": 4482,
+          "score": 3.76231507,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.004.jxl",
+          "artifactSha256": "d9a462e799fdcb82a6698f6bed0b8879738d4072aca4ea67e355bc7e0731cfac",
+          "decodedSha256": "ec7901253ed661b6173553a43c963a5a234dbdf31d4763ab292ba9fdd55ebe87",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76231507,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.51932261,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.004
+          }
+        },
+        {
+          "setting": 6.647,
+          "bytes": 9255,
+          "score": 89.8844961,
+          "butteraugli": 1.6964070797,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.647.jxl",
+          "artifactSha256": "bd08663cb58462e915cf413110d2a5d8348f20afebdc9514f96918babb3064e6",
+          "decodedSha256": "e804d796280d5990e1215b5ba8df6bf4ddf3d241fef7da4bf2a97b7040e884aa",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.8844961,
+              "butteraugli": 1.6964070797
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 91.12968413,
+              "butteraugli": 1.6964070797
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.647
+          }
+        },
+        {
+          "setting": 10.001,
+          "bytes": 4482,
+          "score": 3.76391429,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.001.jxl",
+          "artifactSha256": "503abeb83570a367247a07e3636d56ce31112b29a3540c3ccd2231d1a81efb67",
+          "decodedSha256": "3712cff4947e2e245f2fa4179fbd5c27ad16c901f8edb9599c6431b10fb3f811",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76391429,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.51877987,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10.001
+          }
+        },
+        {
+          "setting": 9.9998,
+          "bytes": 8467,
+          "score": 88.11384601,
+          "butteraugli": 2.3988752365,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9998.jxl",
+          "artifactSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+          "decodedSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 88.11384601,
+              "butteraugli": 2.3988752365
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 89.37894383,
+              "butteraugli": 2.3988752365
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 9.9998
+          }
+        },
+        {
+          "setting": 6.6256,
+          "bytes": 9182,
+          "score": 90.29066915,
+          "butteraugli": 1.7495110035,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6256.jxl",
+          "artifactSha256": "013ad63f3ede1b2f7f604734df37067d34b546387e9f60584803c9f5a885cd55",
+          "decodedSha256": "bd9acb360ef9415454ba488f396f0b64c9a3302e71ccb34cf28ff0e1309a75a7",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 90.29066915,
+              "butteraugli": 1.7494423389
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 90.9856414,
+              "butteraugli": 1.7495110035
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 6.6256
+          }
+        },
+        {
+          "setting": 10,
+          "bytes": 4471,
+          "score": 3.76172507,
+          "butteraugli": 24.3910236359,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.jxl",
+          "artifactSha256": "d9e15641ed9b4a8a96a964ddd0b8de6d412bb960e812a634be58df75da0927bd",
+          "decodedSha256": "4759ff71ed2759f6f38c16499d116808c1e7d7ea1c2d53aceac3e8e2e737c5ba",
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 3.76172507,
+              "butteraugli": 24.3910236359
+            },
+            {
+              "background": "white",
+              "ssimulacra2": 27.51597312,
+              "butteraugli": 15.4592733383
+            }
+          ],
+          "options": {
+            "lossless": false,
+            "effort": 7,
+            "value": 10
+          }
+        }
+      ],
+      "failures": [],
+      "bands": [
+        {
+          "target": 70,
+          "status": "wide bracket",
+          "width": 84.33960378,
+          "bracket": {
+            "lower": {
+              "setting": 10.168,
+              "bytes": 4386,
+              "score": 3.77424223,
+              "butteraugli": 24.3615684509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.168.jxl",
+              "artifactSha256": "8fb75d7cea84c985b98b7abf79d5c5483a782db2a49426c38e9511ea28079e17",
+              "decodedSha256": "2f2ea28d5d8b915b4789d17a5b6b587f8f3046280760708c535a921639c3f195",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.77424223,
+                  "butteraugli": 24.3615684509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.47649355,
+                  "butteraugli": 15.5320005417
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 10.168
+              }
+            },
+            "upper": {
+              "setting": 9.9987,
+              "bytes": 8467,
+              "score": 88.11384601,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9987.jxl",
+              "artifactSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+              "decodedSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.11384601,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.37894383,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9987
+              }
+            },
+            "width": 84.33960378
+          },
+          "interpolatedBytes": 7351.524089127275
+        },
+        {
+          "target": 80,
+          "status": "wide bracket",
+          "width": 84.33960378,
+          "bracket": {
+            "lower": {
+              "setting": 10.168,
+              "bytes": 4386,
+              "score": 3.77424223,
+              "butteraugli": 24.3615684509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.168.jxl",
+              "artifactSha256": "8fb75d7cea84c985b98b7abf79d5c5483a782db2a49426c38e9511ea28079e17",
+              "decodedSha256": "2f2ea28d5d8b915b4789d17a5b6b587f8f3046280760708c535a921639c3f195",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.77424223,
+                  "butteraugli": 24.3615684509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.47649355,
+                  "butteraugli": 15.5320005417
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 10.168
+              }
+            },
+            "upper": {
+              "setting": 9.9987,
+              "bytes": 8467,
+              "score": 88.11384601,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9987.jxl",
+              "artifactSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+              "decodedSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.11384601,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.37894383,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9987
+              }
+            },
+            "width": 84.33960378
+          },
+          "interpolatedBytes": 7947.814168545436
+        },
+        {
+          "target": 90,
+          "status": "wide bracket",
+          "width": 0.6222653900000097,
+          "bracket": {
+            "lower": {
+              "setting": 6.9546,
+              "bytes": 9133,
+              "score": 89.87084302,
+              "butteraugli": 1.7422254086,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.9546.jxl",
+              "artifactSha256": "7a219a1825ea6122c0b096ce3df3569b2971378679116177b1395477e8224a64",
+              "decodedSha256": "ab045dc8ec59d85f4429c4258c86692483057c27c8d3e174f5f3f80dd09eff00",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 89.87084302,
+                  "butteraugli": 1.7422254086
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.86686492,
+                  "butteraugli": 1.7422254086
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 6.9546
+              }
+            },
+            "upper": {
+              "setting": 6.2715,
+              "bytes": 9139,
+              "score": 90.49310841,
+              "butteraugli": 1.4143900871,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.2715.jxl",
+              "artifactSha256": "51eff54d81c38d09476fc483e88627c4ac6948d2ae0ef78d3d1ed7e268884f3f",
+              "decodedSha256": "6bd253544e7fad039c7c17b805b3eb27fbd4bd5c3917487d840788ab66eb9d66",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.49310841,
+                  "butteraugli": 1.4143900871
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 91.17849472,
+                  "butteraugli": 1.4143900871
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 6.2715
+              }
+            },
+            "width": 0.6222653900000097
+          },
+          "interpolatedBytes": 9134.245031869106
+        }
+      ],
+      "butteraugli": [
+        {
+          "target": 0.5,
+          "status": "insufficient sampling",
+          "width": null,
+          "bracket": null,
+          "interpolatedBytes": null
+        },
+        {
+          "target": 1,
+          "status": "wide bracket",
+          "width": 0.6705204248,
+          "bracket": {
+            "lower": {
+              "setting": 6.2715,
+              "bytes": 9139,
+              "score": -1.4143900871,
+              "butteraugli": 1.4143900871,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.2715.jxl",
+              "artifactSha256": "51eff54d81c38d09476fc483e88627c4ac6948d2ae0ef78d3d1ed7e268884f3f",
+              "decodedSha256": "6bd253544e7fad039c7c17b805b3eb27fbd4bd5c3917487d840788ab66eb9d66",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 90.49310841,
+                  "butteraugli": 1.4143900871
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 91.17849472,
+                  "butteraugli": 1.4143900871
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 6.2715
+              }
+            },
+            "upper": {
+              "setting": 1,
+              "bytes": 16360,
+              "score": -0.7438696623,
+              "butteraugli": 0.7438696623,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-1.jxl",
+              "artifactSha256": "2f4ad70f67db422c47437ffe91ed2beff0657fbe5b1177430b820dea4a4484b9",
+              "decodedSha256": "a006c05b48986cb12433e3a7524c3d3cc88055a3ac5d217063c9e8e10367c693",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 93.8877922,
+                  "butteraugli": 0.7438696623
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 93.19149862,
+                  "butteraugli": 0.7438696623
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 1
+              }
+            },
+            "width": 0.6705204248
+          },
+          "interpolatedBytes": 13097.384163059573
+        },
+        {
+          "target": 2,
+          "status": "wide bracket",
+          "width": 0.4628188609999999,
+          "bracket": {
+            "lower": {
+              "setting": 9.9875,
+              "bytes": 8467,
+              "score": -2.3988752365,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9875.jxl",
+              "artifactSha256": "ca0141b854bec12988633965dd2c5e82227e5fc349e0bcc7aef2889a71887e34",
+              "decodedSha256": "b61f23014f9a38d024f0bf1ac42ba9203171a08d4e7bcd2d51938b409f00f4cd",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.10509915,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.39041915,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9875
+              }
+            },
+            "upper": {
+              "setting": 8.6275,
+              "bytes": 8715,
+              "score": -1.9360563755,
+              "butteraugli": 1.9360563755,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.6275.jxl",
+              "artifactSha256": "3e598010fe1c83e833cc157201761cfa60a6d8419566b1452aa97f17d15c9686",
+              "decodedSha256": "f359b4cb16d3f49f51dcfa080b50118e7b5d1060294a7ec46a6b72559068ca05",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.85018706,
+                  "butteraugli": 1.9360563755
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 90.13036989,
+                  "butteraugli": 1.9360563755
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 8.6275
+              }
+            },
+            "width": 0.4628188609999999
+          },
+          "interpolatedBytes": 8680.308276023692
+        },
+        {
+          "target": 3,
+          "status": "wide bracket",
+          "width": 21.9015169144,
+          "bracket": {
+            "lower": {
+              "setting": 16,
+              "bytes": 3535,
+              "score": -24.3003921509,
+              "butteraugli": 24.3003921509,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-16.jxl",
+              "artifactSha256": "8f9c9d3ad6f226c433a8085710528138007530535f107b2d43bb12d8c68ab141",
+              "decodedSha256": "d89bb1cb43c6a6c4cb1a605e2dda2a283267943ff7408e9cbc32a79e877056eb",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 3.67154061,
+                  "butteraugli": 24.3003921509
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 27.65815549,
+                  "butteraugli": 15.4613275528
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 16
+              }
+            },
+            "upper": {
+              "setting": 9.9875,
+              "bytes": 8467,
+              "score": -2.3988752365,
+              "butteraugli": 2.3988752365,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9875.jxl",
+              "artifactSha256": "ca0141b854bec12988633965dd2c5e82227e5fc349e0bcc7aef2889a71887e34",
+              "decodedSha256": "b61f23014f9a38d024f0bf1ac42ba9203171a08d4e7bcd2d51938b409f00f4cd",
+              "backgrounds": [
+                {
+                  "background": "black",
+                  "ssimulacra2": 88.10509915,
+                  "butteraugli": 2.3988752365
+                },
+                {
+                  "background": "white",
+                  "ssimulacra2": 89.39041915,
+                  "butteraugli": 2.3988752365
+                }
+              ],
+              "options": {
+                "lossless": false,
+                "effort": 7,
+                "value": 9.9875
+              }
+            },
+            "width": 21.9015169144
+          },
+          "interpolatedBytes": 8266.428578033367
+        }
+      ],
+      "monotonicityViolations": 8
+    }
+  ]
+}

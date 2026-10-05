@@ -1,0 +1,123 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "72fb3bbc0a53596a8c8d3a4810fe35ebc0c486017cad22401bf3d95a5b971b95",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-patch-mask-251.ts",
+      "sha256": "3e3a983f247d62c3c8f85ea72f3f52445634f102ab8285b3be0ee03f0c278154"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-patch-mask-251.ts",
+      "sha256": "3e4dada322534fdce8d0d1886681b41459b2dcf595dcebe3cfb9ab610a2974a4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-patch-mask-251.json",
+      "sha256": "205571d13e02a095f883298563352deed43730c1710ab4c2f5e3d83953466442"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/manifest.json",
+      "sha256": "dbef7416a6b40c031890beb1dc34c9bbbb7f3c00825032917bb1cfc16a9a95d4"
+    },
+    {
+      "path": "src/codecs/jpegxl-flat-patches.ts",
+      "sha256": "9d4c0bddec4e9a91a5097a6ebd3a64f7d760a79150b0591ef2a66c51d47fb138"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/baseline.ts",
+      "sha256": "cbe3edeaedad38e158d32f7791892adb6bf0505814851c5309af2fdd463cd029"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/exact.ts",
+      "sha256": "457a8a3dc8573cef9cbc8544f085d4c1c50909fe630f23701e1271c0896888fe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/one.ts",
+      "sha256": "d5fbf5d44b4eeca4c92b6af4dd80f291f60902bc1a428692c103c260726711bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/two.ts",
+      "sha256": "97be35f1581543c5f202339a539e994a0cc7e3b3847dcc533ed2d153a42c950c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/patch-mask-251/three.ts",
+      "sha256": "d8283261abdce3a367efd95767f39c8527f3dcb6045e1e5a6be4bf62c25ddd54"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-8160-original",
+      "variant": "baseline",
+      "groups": 91,
+      "placements": 368,
+      "coveredPixels": 41659,
+      "atlasPixels": 13060,
+      "originalSamples": 166636,
+      "maximumSampleError": 0,
+      "ownedPeak": 29030400,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "exact",
+      "groups": 87,
+      "placements": 332,
+      "coveredPixels": 41047,
+      "atlasPixels": 13417,
+      "originalSamples": 164188,
+      "maximumSampleError": 0,
+      "ownedPeak": 29030400,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "one",
+      "groups": 89,
+      "placements": 339,
+      "coveredPixels": 41405,
+      "atlasPixels": 13457,
+      "originalSamples": 165620,
+      "maximumSampleError": 0,
+      "ownedPeak": 29030400,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "two",
+      "groups": 91,
+      "placements": 368,
+      "coveredPixels": 41725,
+      "atlasPixels": 13082,
+      "originalSamples": 166900,
+      "maximumSampleError": 0,
+      "ownedPeak": 29030400,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-8160-original",
+      "variant": "three",
+      "groups": 91,
+      "placements": 368,
+      "coveredPixels": 41725,
+      "atlasPixels": 13082,
+      "originalSamples": 166900,
+      "maximumSampleError": 0,
+      "ownedPeak": 29030400,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    }
+  ],
+  "policy": "Copied color-tolerance-only mask controls on the frozen original RGBA8 screenshot. Counts and raw covered area are diagnostic; bounding rectangles may overlap. Every found source-placement sample is exact, including alpha. No encoded-byte saving, cost qualification or production change."
+}

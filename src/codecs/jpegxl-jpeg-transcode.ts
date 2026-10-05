@@ -1,5 +1,5 @@
-import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { ImageDecoder, ImageEncoder } from '../codec.ts'
+import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { EvidenceContext } from '../evidence.ts'
 import type { ImageLimitOptions } from '../limits.ts'
 import { resolveLimits } from '../limits.ts'
@@ -13,11 +13,11 @@ import {
   readExactly,
 } from '../source.ts'
 import { jpegCodec } from './jpeg.ts'
+import { type JpegCoefficientImage, parseJpegCoefficientImage } from './jpeg-coefficients.ts'
 import {
   inspectJpegExactTranscodeDisplaySemantics,
   type JpegExactTranscodeDisplaySemantics,
 } from './jpeg-display-semantics.ts'
-import { type JpegCoefficientImage, parseJpegCoefficientImage } from './jpeg-coefficients.ts'
 import { jpegxlCodec } from './jpegxl.ts'
 import { parseJpegReconstructionData } from './jpegxl-jpeg-data.ts'
 import { encodeJpegCoefficientImageAsJpegXl } from './jpegxl-jpeg-encode.ts'
@@ -657,4 +657,5 @@ export async function transcodeJpegToJpegXl(
     for (let index = leases.length - 1; index >= 0; index -= 1) leases[index]?.release()
   }
 }
+
 import { throwIfAborted, waitForPromise } from '../abort.ts'

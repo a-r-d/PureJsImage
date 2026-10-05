@@ -1,0 +1,366 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/probe-palette-quantization-401.ts",
+      "sha256": "20a0767d4adbc0a8433bb07524127cb5008e6c0937ea5510990516534ba17a7b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-palette-quantization-401.json",
+      "sha256": "987b7a2c2420f25dace466a930f59c3f11e16843a460f48852fa03c6582bf290"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-5034.ppm",
+      "sha256": "cd981a4e13650b0c700cca09d58b39c411a75f34e5bcbfd86b5746363e68e64c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5034-diagnostic.raw",
+      "sha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-5034-diagnostic.png",
+      "sha256": "9b59a9e808ad7c10a658b8e21fe1799a37ce6581ae48fdd0fa4b9961ac05a7f2"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-funded-sampling-public.json",
+      "sha256": "bd2a267d16410d569a278d1b3e22057a926637bf737a73ef13437f9cfda38cda"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 1,
+      "bytes": 37687,
+      "colors": 269,
+      "score": 100,
+      "butteraugli": 0,
+      "maximumColorError": 0,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-1.jxl",
+      "encodedSha256": "3f47913984fba103f08f60bd16692c5bfc639d3aa312945a2abbac91164b1e6b",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-1.jxl.png",
+      "decodedSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-1.jxl.native.npy",
+          "sha256": "dabdadf640773eb6e6a0487d8936e8fbef257f66fd2ef66fc6fd60c5fa25d826",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-1.jxl.rust.npy",
+          "sha256": "efaa67b80fc6ef414241da35605462d2a113e1de6e451fd5f5a2c3ba0cebd214",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 157918.98437400002,
+      "ownedPeak": 179599019,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 2,
+      "bytes": 35845,
+      "colors": 186,
+      "score": 93.34826792,
+      "butteraugli": 0.9208374619,
+      "maximumColorError": 1,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "fa7fe90da65aa8d3d0c0731aa18276f213a07af565038e69143dddf52b73f19b",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-2.jxl",
+      "encodedSha256": "c9390b5df76438498b0e591bf5b9bc1f77bea8fb3374fe68ca3d4c0aab42f22d",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-2.jxl.png",
+      "decodedSha256": "fa7fe90da65aa8d3d0c0731aa18276f213a07af565038e69143dddf52b73f19b",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-2.jxl.native.npy",
+          "sha256": "bfe008a54ec975045666d95cd11f099721ce1270573c33d097420cf1ace6edb0",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-2.jxl.rust.npy",
+          "sha256": "7565c2eb4709476ba00f6ad090ad9f143326c7e9ae38645d0e7ea35452a37574",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 87413.16746200001,
+      "ownedPeak": 56544524,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 4,
+      "bytes": 31821,
+      "colors": 111,
+      "score": 91.96837359,
+      "butteraugli": 0.9191455245,
+      "maximumColorError": 2,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "96aab52a8b0b3397a2f1abfc918b304f9e205cdf1bf68fc9ad5dbd9938e5d5f8",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-4.jxl",
+      "encodedSha256": "82b90776b374ef53a958b9541297a2799d4e2529d9f2403b6fac425b9345cb42",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-4.jxl.png",
+      "decodedSha256": "96aab52a8b0b3397a2f1abfc918b304f9e205cdf1bf68fc9ad5dbd9938e5d5f8",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-4.jxl.native.npy",
+          "sha256": "bdca8966c050c40470c9ac1e00d45078bb2c2d86f478979274324e398f8fb0fc",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-4.jxl.rust.npy",
+          "sha256": "36d06e0722b82e54eeb9c4d0071f76b5d492a4cae1cfe8462ca61db6ef412230",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 86488.57101399999,
+      "ownedPeak": 56475154,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 8,
+      "bytes": 28178,
+      "colors": 59,
+      "score": 92.3804466,
+      "butteraugli": 1.2848119736,
+      "maximumColorError": 4,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "be251eafc64f34fd706a26b91b9cfe503ff3026a002884d894a3979a2d2acea6",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-8.jxl",
+      "encodedSha256": "9e8ce6dcc8d186138879c4a2b38723283e0839263421a47fd2f97af9c99eacaf",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-8.jxl.png",
+      "decodedSha256": "be251eafc64f34fd706a26b91b9cfe503ff3026a002884d894a3979a2d2acea6",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-8.jxl.native.npy",
+          "sha256": "006e56796812749d073cdb9b85c2f0da13555b16342a285ab9002a20b0d93354",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-8.jxl.rust.npy",
+          "sha256": "afa149de66afd11a54cf45f53edc1bb8ff2c6461e5e573e6cd781b4711f9b589",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 86814.56398500002,
+      "ownedPeak": 56401536,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 16,
+      "bytes": 22214,
+      "colors": 30,
+      "score": 89.99715501,
+      "butteraugli": 6.157327652,
+      "maximumColorError": 8,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "05ea636158d5f56f09c458bf1baf8991770963a781c2388a604ff03ca17b4107",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-16.jxl",
+      "encodedSha256": "b369d161db2d2712ceb0b9328d3bf0210a721a2f04274e78f7e81de525d3bd1e",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-16.jxl.png",
+      "decodedSha256": "05ea636158d5f56f09c458bf1baf8991770963a781c2388a604ff03ca17b4107",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-16.jxl.native.npy",
+          "sha256": "330feaf0dc90209cf4bab9b27e07f5abd800ff0d0e94c100ac1c6425bcd44373",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-16.jxl.rust.npy",
+          "sha256": "9b1799fbaacfb3576939796035a43fb36663b09aa510ab1e45895531ac55a487",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 85506.052852,
+      "ownedPeak": 56297541,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 32,
+      "bytes": 15993,
+      "colors": 16,
+      "score": 86.42480051,
+      "butteraugli": 7.9276285172,
+      "maximumColorError": 16,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "33d06aa3f53977cc925d5c706ccb2fcc4c9215eee91f1241e2c4cb2b19d279d5",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-32.jxl",
+      "encodedSha256": "d5f3e6f65b1e83c447a76b2592e475194dba06cb9e30b5d0d809595c6565ddba",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-32.jxl.png",
+      "decodedSha256": "33d06aa3f53977cc925d5c706ccb2fcc4c9215eee91f1241e2c4cb2b19d279d5",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-32.jxl.native.npy",
+          "sha256": "b4779de92344b8800e3b697491d24925587fc3ac29c66e557485ae72447059e2",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-32.jxl.rust.npy",
+          "sha256": "25e4a6448fc14b605c3ca9eee11dfea8de637b6d0ee1479845f2670816aef98f",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 86877.05277200002,
+      "ownedPeak": 56175549,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 64,
+      "bytes": 11239,
+      "colors": 7,
+      "score": 59.10331871,
+      "butteraugli": 21.0518569946,
+      "maximumColorError": 32,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "ecbdc1bee28cd058b2d18e33d8977cb97f5d43f82d46d7d3ede723124343e6c6",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-64.jxl",
+      "encodedSha256": "da05a362e794bc02fc195381ad53a83c55873754b426af027d1fd375d9389473",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-64.jxl.png",
+      "decodedSha256": "ecbdc1bee28cd058b2d18e33d8977cb97f5d43f82d46d7d3ede723124343e6c6",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-64.jxl.native.npy",
+          "sha256": "6e8ec25b4c32fcf576106247f9e726173e63cf5f1333a9c2d5e340ccdf8f1e76",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-64.jxl.rust.npy",
+          "sha256": "1faae46a3d52815afc922802d3ba24d76153309ca6bab604c2aec15d9a67b52b",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 86239.077712,
+      "ownedPeak": 56055996,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "step": 128,
+      "bytes": 7916,
+      "colors": 5,
+      "score": 52.64724411,
+      "butteraugli": 40.4184494019,
+      "maximumColorError": 64,
+      "originalAlphaError": 0,
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "quantizedSha256": "4c2db25eae6d9d08cd56018a9975fffed8309ec1688ab1c5587de5387e1706a1",
+      "artifact": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-128.jxl",
+      "encodedSha256": "0f0c6bbc2548a5d149fbaaf1778efed70cfb55c644361edc7e6ceb8b89a1922d",
+      "decodedPng": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-128.jxl.png",
+      "decodedSha256": "4c2db25eae6d9d08cd56018a9975fffed8309ec1688ab1c5587de5387e1706a1",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-128.jxl.native.npy",
+          "sha256": "e36c802c7c0c43051b7da97b330814b6ce3adc2bfe5f2a297ac7a84d89ed2358",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/palette-quantization-401/step-128.jxl.rust.npy",
+          "sha256": "f3173d1ae6e27444c6f06790cc20a25937c590377b85b643f682a4a5a9af3577",
+          "samples": 4194304,
+          "maximumQuantizedSampleError": 0,
+          "originalAlphaError": 0
+        }
+      ],
+      "elapsedMs": 89978.87823899998,
+      "ownedPeak": 55947263,
+      "ownedLive": 0,
+      "ownedAllocations": 0
+    }
+  ],
+  "policy": "Private first-party rounded-sRGB quantization diagnostic followed by the unchanged public lossless effort-7 encoder. Alpha remains exact; both independent decoders must reproduce every quantized color sample exactly. Quality is measured against the immutable original graphic with pinned tools. No production lossy policy, distance mapping, matched target, speed, bounded-memory or overall parity claim follows from these eight diagnostic points. One-off timings are diagnostic only."
+}

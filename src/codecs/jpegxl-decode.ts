@@ -27,6 +27,7 @@ import {
   readJpegXlEntropyCode,
 } from './jpegxl-bitstream.ts'
 import { jpegXlChromaShifts } from './jpegxl-chroma.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { type JpegXlFrameFeatures, readJpegXlFrameFeatures } from './jpegxl-frame-features.ts'
 import { readJpegXlIcc } from './jpegxl-icc.ts'
 import { defaultJpegXlLimits, type JpegXlLimits } from './jpegxl-limits.ts'
@@ -55,7 +56,7 @@ const readU32 = (
   distributions: readonly [Distribution, Distribution, Distribution, Distribution],
 ): number => {
   const distribution = distributions[reader.readBits(2)]
-  if (!distribution) throw invalidInput('JPEG XL integer distribution is invalid')
+  if (!distribution) throw invalidJpegXlInput('integer distribution is invalid')
   if ('value' in distribution) return distribution.value
   return distribution.offset + reader.readBits(distribution.bits)
 }
@@ -71,7 +72,7 @@ const readU64 = (reader: JpegXlBitReader): number => {
     const count = Math.min(8, 64 - shift)
     result += reader.readBits(count) * 2 ** shift
     if (!Number.isSafeInteger(result)) {
-      throw invalidInput('JPEG XL 64-bit integer exceeds the safe range')
+      throw invalidJpegXlInput('64-bit integer exceeds the safe range')
     }
     shift += count
   }
@@ -93,7 +94,7 @@ const readF16 = (reader: JpegXlBitReader): number => {
   const sign = (encoded & 0x8000) === 0 ? 1 : -1
   const exponent = (encoded >>> 10) & 0x1f
   const mantissa = encoded & 0x03ff
-  if (exponent === 0x1f) throw invalidInput('JPEG XL half-precision value is not finite')
+  if (exponent === 0x1f) throw invalidJpegXlInput('half-precision value is not finite')
   if (exponent === 0) return sign * mantissa * 2 ** -24
   return sign * (1 + mantissa / 1_024) * 2 ** (exponent - 15)
 }
@@ -101,7 +102,7 @@ const readF16 = (reader: JpegXlBitReader): number => {
 const alignWithZeroPadding = (reader: JpegXlBitReader): void => {
   const padding = (8 - (reader.bitPosition & 7)) & 7
   if (padding !== 0 && reader.readBits(padding) !== 0) {
-    throw invalidInput('JPEG XL byte-alignment padding is nonzero')
+    throw invalidJpegXlInput('byte-alignment padding is nonzero')
   }
 }
 
@@ -113,18 +114,18 @@ const readPermutation = (reader: JpegXlBitReader, size: number): Uint32Array => 
   const symbols = new JpegXlEntropySymbolReader(code, size + 1)
   const lehmer = new Uint32Array(size)
   const end = symbols.readHybridUint(permutationContext(size), reader)
-  if (end > size) throw invalidInput('JPEG XL table-of-contents permutation size is invalid')
+  if (end > size) throw invalidJpegXlInput('table-of-contents permutation size is invalid')
   let last = 0
   for (let index = 0; index < end; index += 1) {
     const value = symbols.readHybridUint(permutationContext(last), reader)
     if (value >= size - index) {
-      throw invalidInput('JPEG XL table-of-contents Lehmer code is invalid')
+      throw invalidJpegXlInput('table-of-contents Lehmer code is invalid')
     }
     lehmer[index] = value
     last = value
   }
   if (!symbols.hasValidFinalState()) {
-    throw invalidInput('JPEG XL table-of-contents permutation ANS state is invalid')
+    throw invalidJpegXlInput('table-of-contents permutation ANS state is invalid')
   }
 
   const logSize = Math.ceil(Math.log2(size))
@@ -149,7 +150,7 @@ const readPermutation = (reader: JpegXlBitReader, size: number): Uint32Array => 
       }
     }
     if (selected >= size) {
-      throw invalidInput('JPEG XL table-of-contents permutation index is invalid')
+      throw invalidJpegXlInput('table-of-contents permutation index is invalid')
     }
     permutation[index] = selected
     let position = selected + 1
@@ -163,13 +164,13 @@ const readPermutation = (reader: JpegXlBitReader, size: number): Uint32Array => 
 
 const readName = (reader: JpegXlBitReader): string => {
   const length = readU32(reader, [value(0), bits(4), bits(5, 16), bits(10, 48)])
-  if (length > 1_071) throw invalidInput('JPEG XL name is too long')
+  if (length > 1_071) throw invalidJpegXlInput('name is too long')
   const bytes = new Uint8Array(length)
   for (let index = 0; index < length; index++) bytes[index] = reader.readBits(8)
   try {
     return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
   } catch {
-    throw invalidInput('JPEG XL name is not UTF-8')
+    throw invalidJpegXlInput('name is not UTF-8')
   }
 }
 
@@ -186,14 +187,14 @@ const readBitDepth = (reader: JpegXlBitReader): JpegXlBitDepth => {
     : readU32(reader, [value(8), value(10), value(12), bits(6, 1)])
   if (!floatingPoint) {
     if (depth < 1 || depth > 31) {
-      throw invalidInput('JPEG XL integer depth is invalid')
+      throw invalidJpegXlInput('integer depth is invalid')
     }
     return Object.freeze({ bits: depth, exponentBits: 0, sampleFormat: 'unsigned-integer' })
   }
   const exponentBits = reader.readBits(4) + 1
   const mantissaBits = depth - exponentBits - 1
   if (exponentBits < 2 || exponentBits > 8 || mantissaBits < 2 || mantissaBits > 23) {
-    throw invalidInput('JPEG XL floating-point sample depth is invalid')
+    throw invalidJpegXlInput('floating-point sample depth is invalid')
   }
   return Object.freeze({ bits: depth, exponentBits, sampleFormat: 'floating-point' })
 }
@@ -209,7 +210,7 @@ const fixedAspectWidth = (height: number, ratio: number): number => {
     [2, 1],
   ] as const
   const selected = ratios[ratio - 1]
-  if (!selected) throw invalidInput('JPEG XL fixed aspect ratio is invalid')
+  if (!selected) throw invalidJpegXlInput('fixed aspect ratio is invalid')
   return Math.floor((height * selected[0]) / selected[1])
 }
 
@@ -265,16 +266,16 @@ const readBlending = (
 ): JpegXlBlending => {
   const mode = readU32(reader, [value(0), value(1), value(2), bits(2, 3)])
   if (mode !== 0 && mode !== 1 && mode !== 2 && mode !== 3 && mode !== 4)
-    throw invalidInput('JPEG XL blend mode is invalid')
+    throw invalidJpegXlInput('blend mode is invalid')
   const usesAlpha = extraChannels > 0 && (mode === 2 || mode === 3)
   const alphaChannel = usesAlpha ? readU32(reader, [value(0), value(1), value(2), bits(3, 3)]) : 0
   if (usesAlpha && alphaChannel >= extraChannels)
-    throw invalidInput('JPEG XL blend alpha channel is invalid')
+    throw invalidJpegXlInput('blend alpha channel is invalid')
   const clamp = (usesAlpha || mode === 4) && reader.readBits(1) !== 0
   const source =
     mode !== 0 || partial ? readU32(reader, [value(0), value(1), value(2), value(3)]) : 0
   if (source !== 0 && source !== 1 && source !== 2 && source !== 3)
-    throw invalidInput('JPEG XL blend source is invalid')
+    throw invalidJpegXlInput('blend source is invalid')
   return Object.freeze({ mode, alphaChannel, clamp, source })
 }
 
@@ -407,7 +408,7 @@ const readChromaticity = (reader: JpegXlBitReader): JpegXlChromaticity => {
   const x = coordinate()
   const y = coordinate()
   if (Math.abs(x) >= 4 || Math.abs(y) >= 4) {
-    throw invalidInput('JPEG XL custom chromaticity is outside its bounded range')
+    throw invalidJpegXlInput('custom chromaticity is outside its bounded range')
   }
   return Object.freeze({ x, y })
 }
@@ -466,7 +467,7 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
     whitePointCode !== 10 &&
     whitePointCode !== 11
   ) {
-    throw invalidInput('JPEG XL white-point enum is invalid')
+    throw invalidJpegXlInput('white-point enum is invalid')
   }
   const whitePoint =
     whitePointCode === 2
@@ -490,7 +491,7 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
         readChromaticity(reader),
         readChromaticity(reader),
       ])
-    } else throw invalidInput('JPEG XL primaries enum is invalid')
+    } else throw invalidJpegXlInput('primaries enum is invalid')
   }
 
   const haveGamma = reader.readBits(1) !== 0
@@ -498,7 +499,7 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
   if (haveGamma) {
     const gamma = reader.readBits(24)
     if (gamma < Math.ceil(10_000_000 / 8_192) || gamma > 10_000_000) {
-      throw invalidInput('JPEG XL custom gamma is outside its bounded range')
+      throw invalidJpegXlInput('custom gamma is outside its bounded range')
     }
     transfer = Object.freeze({ kind: 'gamma', exponent: 10_000_000 / gamma })
   } else {
@@ -513,10 +514,10 @@ const readColorEncoding = (reader: JpegXlBitReader): JpegXlColorEncoding => {
       throw unsupportedOperation(`JPEG XL transfer function ${transferFunction} is not supported`)
   }
   const renderingIntent = readEnum(reader)
-  if (renderingIntent > 3) throw invalidInput('JPEG XL rendering intent is invalid')
+  if (renderingIntent > 3) throw invalidJpegXlInput('rendering intent is invalid')
   const renderingIntents = ['perceptual', 'relative', 'saturation', 'absolute'] as const
   const parsedRenderingIntent = renderingIntents[renderingIntent]
-  if (!parsedRenderingIntent) throw invalidInput('JPEG XL rendering intent is invalid')
+  if (!parsedRenderingIntent) throw invalidJpegXlInput('rendering intent is invalid')
 
   return Object.freeze({
     colorChannels: colorSpace === 1 ? 1 : 3,
@@ -556,7 +557,7 @@ const readToneMapping = (reader: JpegXlBitReader): JpegXlToneMapping => {
     linearBelow < 0 ||
     (relativeToMaxDisplay && linearBelow > 1)
   ) {
-    throw invalidInput('JPEG XL tone-mapping metadata is invalid')
+    throw invalidJpegXlInput('tone-mapping metadata is invalid')
   }
   return Object.freeze({ intensityTarget, minNits, relativeToMaxDisplay, linearBelow })
 }
@@ -639,7 +640,7 @@ const readHeader = (
     animation = previousFrame.animation
   } else {
     if (codestream[0] !== 0xff || codestream[1] !== 0x0a) {
-      throw invalidInput('JPEG XL codestream signature is missing')
+      throw invalidJpegXlInput('codestream signature is missing')
     }
     reader = new JpegXlBitReader(codestream, 16)
     ;({ width, height } = readSize(reader))
@@ -760,8 +761,8 @@ const readHeader = (
           const cfaChannel =
             type === 5 ? readU32(reader, [value(1), bits(2), bits(4, 3), bits(8, 19)]) : undefined
           if (type > 16 || (type >= 7 && type <= 15))
-            throw invalidInput('JPEG XL extra-channel type is reserved or unknown')
-          if (dimShift > 3) throw invalidInput('JPEG XL extra-channel dimension shift exceeds 3')
+            throw invalidJpegXlInput('extra-channel type is reserved or unknown')
+          if (dimShift > 3) throw invalidJpegXlInput('extra-channel dimension shift exceeds 3')
           extras.push(
             Object.freeze({
               index,
@@ -780,7 +781,7 @@ const readHeader = (
       const alphaChannels = parsedExtraChannels.filter(({ type }) => type === 0)
       const requestedAlpha = decoderOptions.alphaChannel ?? 0
       if (!Number.isSafeInteger(requestedAlpha) || requestedAlpha < 0) {
-        throw invalidInput('JPEG XL alphaChannel must be a nonnegative safe integer')
+        throw invalidJpegXlInput('alphaChannel must be a nonnegative safe integer')
       }
       const selectedAlpha = alphaChannels[requestedAlpha]
       if (decoderOptions.alphaChannel !== undefined && !selectedAlpha) {
@@ -836,7 +837,7 @@ const readHeader = (
         colorEncoding.colorChannels === 3 &&
         parsedExtraChannels.some((channel) => channel.type === 4)
       if (!cmyk && profileSpace !== (colorEncoding.colorChannels === 1 ? 'GRAY' : 'RGB ')) {
-        throw invalidInput('JPEG XL ICC color space conflicts with its color channels')
+        throw invalidJpegXlInput('ICC color space conflicts with its color channels')
       }
     }
     alignWithZeroPadding(reader)
@@ -911,10 +912,10 @@ const readHeader = (
           | 4
           | 8
         if (extraUpsampling * 2 ** (parsedExtraChannels[index]?.dimShift ?? 0) < upsampling) {
-          throw invalidInput('JPEG XL extra-channel upsampling is smaller than color upsampling')
+          throw invalidJpegXlInput('extra-channel upsampling is smaller than color upsampling')
         }
         if (extraUpsampling * 2 ** (parsedExtraChannels[index]?.dimShift ?? 0) > 8)
-          throw invalidInput('JPEG XL combined extra-channel upsampling exceeds eight')
+          throw invalidJpegXlInput('combined extra-channel upsampling exceeds eight')
         extraChannelUpsampling.push(extraUpsampling)
       }
     }
@@ -931,26 +932,26 @@ const readHeader = (
     if (frameType !== 'reference' && passCount !== 1) {
       const downsampleCount = readU32(reader, [value(0), value(1), value(2), bits(1, 3)])
       if (downsampleCount > passCount)
-        throw invalidInput('JPEG XL progressive downsample count exceeds its pass count')
+        throw invalidJpegXlInput('progressive downsample count exceeds its pass count')
       for (let index = 0; index < passCount - 1; index += 1) passShifts[index] = reader.readBits(2)
       let previousDownsample = 9
       for (let index = 0; index < downsampleCount; index += 1) {
         const downsample = readU32(reader, [value(1), value(2), value(4), value(8)])
         if (downsample >= previousDownsample)
-          throw invalidInput('JPEG XL progressive downsample factors are not decreasing')
+          throw invalidJpegXlInput('progressive downsample factors are not decreasing')
         previousDownsample = downsample
         if (downsample !== 1 && downsample !== 2 && downsample !== 4 && downsample !== 8)
-          throw invalidInput('JPEG XL progressive downsample factor is invalid')
+          throw invalidJpegXlInput('progressive downsample factor is invalid')
         progressiveResolutions.push({ downsampling: downsample, lastPass: 0 })
       }
       let previousPass = -1
       for (let index = 0; index < downsampleCount; index += 1) {
         const lastPass = readU32(reader, [value(0), value(1), value(2), bits(3)])
         if (lastPass <= previousPass || lastPass >= passCount)
-          throw invalidInput('JPEG XL progressive pass boundary is invalid')
+          throw invalidJpegXlInput('progressive pass boundary is invalid')
         previousPass = lastPass
         const resolution = progressiveResolutions[index]
-        if (!resolution) throw invalidInput('JPEG XL progressive resolution is missing')
+        if (!resolution) throw invalidJpegXlInput('progressive resolution is missing')
         resolution.lastPass = lastPass
       }
     }
@@ -958,7 +959,7 @@ const readHeader = (
     isLast = false
     if (frameType !== 'dc') {
       const customSizeOrOrigin = reader.readBits(1) !== 0
-      if (customSizeOrOrigin && isPreview) throw invalidInput('JPEG XL preview has custom geometry')
+      if (customSizeOrOrigin && isPreview) throw invalidJpegXlInput('preview has custom geometry')
       if (customSizeOrOrigin) {
         const frameGeometry = [bits(8), bits(11, 256), bits(14, 2_304), bits(30, 18_688)] as const
         if (frameType === 'regular' || frameType === 'skip-progressive') {
@@ -968,7 +969,7 @@ const readHeader = (
         frameWidth = readU32(reader, frameGeometry)
         frameHeight = readU32(reader, frameGeometry)
         if (frameWidth < 1 || frameHeight < 1) {
-          throw invalidInput('JPEG XL custom frame dimensions are invalid')
+          throw invalidJpegXlInput('custom frame dimensions are invalid')
         }
       }
     }
@@ -986,7 +987,7 @@ const readHeader = (
         isPreview &&
         (partial || blending.mode !== 0 || extraChannelBlending.some((blend) => blend.mode !== 0))
       )
-        throw invalidInput('JPEG XL preview has blending')
+        throw invalidJpegXlInput('preview has blending')
       if (animation) {
         duration = readU32(reader, [value(0), value(1), bits(8), bits(32)])
         if (animation.haveTimecodes) timecode = reader.readBits(32)
@@ -1023,7 +1024,7 @@ const readHeader = (
         gaborishWeights = readWeights(6)
         for (let c = 0; c < 3; c++) {
           if (Math.abs(1 + 4 * (gaborishWeights[c * 2]! + gaborishWeights[c * 2 + 1]!)) < 1e-8)
-            throw invalidInput('JPEG XL Gaborish weights have zero normalization')
+            throw invalidJpegXlInput('Gaborish weights have zero normalization')
         }
       }
       epfIterations = reader.readBits(2)
@@ -1036,7 +1037,7 @@ const readHeader = (
         }
         if (encoding === 'modular') {
           modularEpfSigma = readF16(reader)
-          if (modularEpfSigma < 1e-8) throw invalidInput('JPEG XL Modular EPF sigma is too small')
+          if (modularEpfSigma < 1e-8) throw invalidJpegXlInput('Modular EPF sigma is too small')
         }
       }
       requireValue(readU64(reader), 0, 'loop-filter extensions')
@@ -1075,7 +1076,7 @@ const readHeader = (
     }
   }
   if (isPreview && frameType !== 'regular')
-    throw invalidInput('JPEG XL preview is not a regular frame')
+    throw invalidJpegXlInput('preview is not a regular frame')
   const sectionCount =
     groupCount === 1 && passCount === 1 ? 1 : 2 + dcGroupCount + groupCount * passCount
   if (sectionCount > 65_536) throw limitExceeded('JPEG XL frame has too many sections')
@@ -1092,7 +1093,7 @@ const readHeader = (
   const physicalSections: JpegXlSection[] = []
   for (const sectionLength of sectionLengths) {
     if (sectionOffset + sectionLength > codestreamBytes) {
-      throw invalidInput('JPEG XL frame section extent is invalid')
+      throw invalidJpegXlInput('frame section extent is invalid')
     }
     physicalSections.push(Object.freeze({ offset: sectionOffset, length: sectionLength }))
     sectionOffset += sectionLength
@@ -1102,11 +1103,11 @@ const readHeader = (
       ? physicalSections
       : Array.from(permutation, (index) => {
           const section = physicalSections[index]
-          if (!section) throw invalidInput('JPEG XL table-of-contents permutation is invalid')
+          if (!section) throw invalidJpegXlInput('table-of-contents permutation is invalid')
           return section
         })
   if ((sections[0]?.length ?? 0) < 1) {
-    throw invalidInput('JPEG XL frame global section is empty')
+    throw invalidJpegXlInput('frame global section is empty')
   }
   const visible =
     !isPreview &&
@@ -1243,7 +1244,7 @@ const readTree = (
         multiplierLog >= 31 ||
         multiplierBits >= 2 ** (31 - multiplierLog) - 1
       ) {
-        throw invalidInput('JPEG XL Modular tree leaf is invalid')
+        throw invalidJpegXlInput('Modular tree leaf is invalid')
       }
       nodes.push(
         Object.freeze({
@@ -1273,7 +1274,7 @@ const readTree = (
     )
     pending += 2
   }
-  if (!symbols.hasValidFinalState()) throw invalidInput('JPEG XL Modular tree ANS state is invalid')
+  if (!symbols.hasValidFinalState()) throw invalidJpegXlInput('Modular tree ANS state is invalid')
   return Object.freeze({ nodes: Object.freeze(nodes), leaves })
 }
 
@@ -1406,7 +1407,7 @@ const defaultSqueezeParameters = (
   const normalChannelCount = layouts.length - metaChannelCount
   const first = layouts[metaChannelCount]
   if (!first || normalChannelCount < 1) {
-    throw invalidInput('JPEG XL default Squeeze has no normal channels')
+    throw invalidJpegXlInput('default Squeeze has no normal channels')
   }
   let width = first.width
   let height = first.height
@@ -1485,7 +1486,7 @@ const applySqueezeLayouts = (
     const endChannel = parameter.beginChannel + parameter.channelCount - 1
     if (parameter.beginChannel < metaChannelCount) {
       if (!parameter.inPlace) {
-        throw invalidInput('JPEG XL meta-channel Squeeze must store residuals in place')
+        throw invalidJpegXlInput('meta-channel Squeeze must store residuals in place')
       }
       metaChannelCount += parameter.channelCount
     }
@@ -1493,7 +1494,7 @@ const applySqueezeLayouts = (
     for (let channel = parameter.beginChannel; channel <= endChannel; channel += 1) {
       const layout = layouts[channel]
       if (!layout || layout.width < 1 || layout.height < 1) {
-        throw invalidInput('JPEG XL Squeeze channel dimensions are invalid')
+        throw invalidJpegXlInput('Squeeze channel dimensions are invalid')
       }
       inverseTransformBytes += BigInt(layout.width) * BigInt(layout.height) * 4n
       const hshift = (layout.hshift ?? 0) + (parameter.horizontal ? 1 : 0)
@@ -1550,7 +1551,7 @@ const readModularTransforms = (
           .slice(beginChannel, beginChannel + 3)
           .some((layout) => !sameLayout(firstLayout, layout))
       ) {
-        throw invalidInput('JPEG XL RCT parameters are invalid')
+        throw invalidJpegXlInput('RCT parameters are invalid')
       }
       transforms.push(Object.freeze({ kind: 'rct', beginChannel, type }))
     } else if (transform === 1) {
@@ -1560,7 +1561,7 @@ const readModularTransforms = (
       const deltaCount = readU32(reader, [value(0), bits(8, 1), bits(10, 257), bits(16, 1_281)])
       const predictor = reader.readBits(4)
       if (predictor > 13) {
-        throw invalidInput('JPEG XL Palette transform is invalid')
+        throw invalidJpegXlInput('Palette transform is invalid')
       }
       validateTransformRange(
         channelLayouts,
@@ -1576,7 +1577,7 @@ const readModularTransforms = (
           .slice(beginChannel, beginChannel + paletteChannelCount)
           .some((layout) => !sameLayout(firstLayout, layout))
       ) {
-        throw invalidInput('JPEG XL Palette channel dimensions do not match')
+        throw invalidJpegXlInput('Palette channel dimensions do not match')
       }
       if (beginChannel >= metaChannelCount) metaChannelCount += 1
       else metaChannelCount += 2 - paletteChannelCount
@@ -1619,7 +1620,7 @@ const readModularTransforms = (
       inverseTransformBytes += squeeze.inverseTransformBytes
       transforms.push(Object.freeze({ kind: 'squeeze', parameters }))
     } else {
-      throw invalidInput('JPEG XL Modular transform is invalid')
+      throw invalidJpegXlInput('Modular transform is invalid')
     }
   }
   return Object.freeze({
@@ -1652,7 +1653,7 @@ const readJpegXlModularProgram = (
   if (!defaultDcQuantization) {
     for (let channel = 0; channel < 3; channel += 1) {
       const quantization = readF16(reader) / 128
-      if (quantization < 1e-8) throw invalidInput('JPEG XL DC quantization is too small')
+      if (quantization < 1e-8) throw invalidJpegXlInput('DC quantization is too small')
       dcQuantization[channel] = quantization
     }
   }
@@ -1661,7 +1662,7 @@ const readJpegXlModularProgram = (
   const globalPixelCode = globalTree ? readJpegXlEntropyCode(reader, globalTree.leaves) : undefined
   const useGlobalTree = reader.readBits(1) !== 0
   if (useGlobalTree && (!globalTree || !globalPixelCode)) {
-    throw invalidInput('JPEG XL Modular group references a missing global tree')
+    throw invalidJpegXlInput('Modular group references a missing global tree')
   }
   const weightedPredictor = readWeightedPredictor(reader)
   const channelLayouts: ModularChannelLayout[] =
@@ -1673,9 +1674,9 @@ const readJpegXlModularProgram = (
     0,
   )
   const tree = useGlobalTree ? globalTree : readTree(reader)
-  if (!tree) throw invalidInput('JPEG XL Modular tree is missing')
+  if (!tree) throw invalidJpegXlInput('Modular tree is missing')
   const pixelCode = useGlobalTree ? globalPixelCode : readJpegXlEntropyCode(reader, tree.leaves)
-  if (!pixelCode) throw invalidInput('JPEG XL Modular entropy code is missing')
+  if (!pixelCode) throw invalidJpegXlInput('Modular entropy code is missing')
   for (const node of tree.nodes) {
     if (node.kind === 'leaf' && node.predictor > 13) {
       throw unsupportedOperation(`JPEG XL Modular predictor ${node.predictor} is not supported`)
@@ -1746,10 +1747,10 @@ const readStandaloneModularProgram = (
     startingBitPosition < 0 ||
     startingBitPosition > section.byteLength * 8
   ) {
-    throw invalidInput('JPEG XL Modular starting bit position is invalid')
+    throw invalidJpegXlInput('Modular starting bit position is invalid')
   }
   if (!Number.isSafeInteger(groupId) || groupId < 0) {
-    throw invalidInput('JPEG XL Modular group identifier is invalid')
+    throw invalidJpegXlInput('Modular group identifier is invalid')
   }
   if (
     channelLayoutsInput.length > 1_024 ||
@@ -1767,13 +1768,13 @@ const readStandaloneModularProgram = (
   const reader = new JpegXlBitReader(section, startingBitPosition)
   const useGlobalTree = reader.readBits(1) !== 0
   if (useGlobalTree && !globalCode) {
-    throw invalidInput('JPEG XL standalone Modular stream references a missing global tree')
+    throw invalidJpegXlInput('standalone Modular stream references a missing global tree')
   }
   const weightedPredictor = readWeightedPredictor(reader)
   const channelLayouts = channelLayoutsInput.map((layout) => ({ ...layout }))
   const { transforms, metaChannelCount } = readModularTransforms(reader, channelLayouts, 0)
   const tree = useGlobalTree ? globalCode : readTree(reader)
-  if (!tree) throw invalidInput('JPEG XL standalone Modular tree is missing')
+  if (!tree) throw invalidJpegXlInput('standalone Modular tree is missing')
   const pixelCode =
     useGlobalTree && globalCode ? globalCode.pixelCode : readJpegXlEntropyCode(reader, tree.leaves)
   const usesWeightedPrediction = tree.nodes.some(
@@ -1897,7 +1898,7 @@ export class JpegXlGroupedModularPlanes {
     const selected: { channel: number; x: number; y: number; width: number; height: number }[] = []
     for (let channel = this.#firstGroup; channel < this.transformedLayouts.length; channel++) {
       const layout = this.transformedLayouts[channel]
-      if (!layout) throw invalidInput('JPEG XL grouped channel layout is missing')
+      if (!layout) throw invalidJpegXlInput('grouped channel layout is missing')
       const hs = layout.hshift ?? 0,
         vs = layout.vshift ?? 0
       if (Math.min(hs, vs) < minimumShift || Math.min(hs, vs) > maximumShift) continue
@@ -1922,11 +1923,11 @@ export class JpegXlGroupedModularPlanes {
     for (let index = 0; index < selected.length; index++) {
       const region = selected[index],
         source = decoded.planes[index]
-      if (!region || !source) throw invalidInput('JPEG XL grouped channel output is missing')
+      if (!region || !source) throw invalidJpegXlInput('grouped channel output is missing')
       const destination = this.#planes[region.channel],
         layout = this.transformedLayouts[region.channel]
       if (!destination || !layout || source.length !== region.width * region.height)
-        throw invalidInput('JPEG XL grouped channel output has invalid dimensions')
+        throw invalidJpegXlInput('grouped channel output has invalid dimensions')
       this.#finishedPlanes = undefined
       for (let row = 0; row < region.height; row++)
         destination.set(
@@ -1999,11 +2000,11 @@ const readMultiGroupFoundation = (
   const expectedSections =
     2 + header.dcGroupCount + header.groupsAcross * header.groupsDown * header.passCount
   if (header.sections.length !== expectedSections) {
-    throw invalidInput('JPEG XL multi-group section count is inconsistent')
+    throw invalidJpegXlInput('multi-group section count is inconsistent')
   }
   const globalSection = header.sections[0]
   if (!globalSection || globalData.byteLength !== globalSection.length) {
-    throw invalidInput('JPEG XL global section data is missing')
+    throw invalidJpegXlInput('global section data is missing')
   }
   const globalProgram = readJpegXlModularProgram(
     globalData,
@@ -2213,7 +2214,7 @@ export const openJpegXlNativeGroupBands = async (
   )
     return undefined
   const section = frame.sections[0]
-  if (!section) throw invalidInput('JPEG XL native global section is missing')
+  if (!section) throw invalidJpegXlInput('native global section is missing')
   const global = await readExactly(source, section.offset, section.length, signal ? { signal } : {})
   const foundation = readMultiGroupFoundation(global, frame, limits)
   if (
@@ -2254,7 +2255,7 @@ export const openJpegXlNativeGroupBands = async (
       ) {
         const id = groupY * frame.groupsAcross + groupX
         const entry = frame.sections[groupedFoundation.firstGroupSection + id]
-        if (!entry) throw invalidInput('JPEG XL native group section is missing')
+        if (!entry) throw invalidJpegXlInput('native group section is missing')
         if (bandBytes + groupBytes + entry.length * 4 > limits.maxDecodedBytes)
           throw limitExceeded('JPEG XL native group section exceeds maxDecodedBytes')
         const data = await readExactly(source, entry.offset, entry.length, signal ? { signal } : {})
@@ -2268,13 +2269,13 @@ export const openJpegXlNativeGroupBands = async (
         ).planes
         const decoded = inverseModularTransforms(coded, group.program, frame.bitDepth)
         if (decoded.length !== planes.length)
-          throw invalidInput('JPEG XL native group channel count differs')
+          throw invalidJpegXlInput('native group channel count differs')
         const left = Math.max(region.x, group.x),
           right = Math.min(region.x + region.width, group.x + group.width)
         for (let channel = 0; channel < planes.length; channel++) {
           const input = decoded[channel],
             output = planes[channel]
-          if (!input || !output) throw invalidInput('JPEG XL native group plane is missing')
+          if (!input || !output) throw invalidJpegXlInput('native group plane is missing')
           for (let row = 0; row < height; row++)
             output.set(
               input.subarray(
@@ -2295,13 +2296,13 @@ const treeLeaf = (nodes: readonly ModularNode[], properties: Int32Array): Modula
   let index = 0
   for (let depth = 0; depth < 4_096; depth += 1) {
     const node = nodes[index]
-    if (!node) throw invalidInput('JPEG XL Modular tree points outside its node table')
+    if (!node) throw invalidJpegXlInput('Modular tree points outside its node table')
     if (node.kind === 'leaf') return node
     const property = properties[node.property]
-    if (property === undefined) throw invalidInput('JPEG XL Modular property is invalid')
+    if (property === undefined) throw invalidJpegXlInput('Modular property is invalid')
     index = property > node.split ? node.greater : node.lessOrEqual
   }
-  throw invalidInput('JPEG XL Modular tree is too deep')
+  throw invalidJpegXlInput('Modular tree is too deep')
 }
 
 const clampedGradient = (left: number, top: number, topLeft: number): number => {
@@ -2345,7 +2346,7 @@ export class JpegXlWeightedPredictor {
   #errorWeight(error: number, maximumWeight: number): number {
     const shift = Math.max(0, Math.floor(Math.log2(error + 1)) - 5)
     const divisor = weightedDivision[Math.floor(error / 2 ** shift)]
-    if (divisor === undefined) throw invalidInput('JPEG XL weighted predictor state is invalid')
+    if (divisor === undefined) throw invalidJpegXlInput('weighted predictor state is invalid')
     return 4 + Math.floor((maximumWeight * divisor) / 2 ** shift)
   }
 
@@ -2370,7 +2371,7 @@ export class JpegXlWeightedPredictor {
     const thirdErrors = this.#predictionErrors[2]
     const fourthErrors = this.#predictionErrors[3]
     if (!firstErrors || !secondErrors || !thirdErrors || !fourthErrors) {
-      throw invalidInput('JPEG XL weighted predictor state is missing')
+      throw invalidJpegXlInput('weighted predictor state is missing')
     }
     const firstWeight = this.#errorWeight(
       ((firstErrors[topPosition] ?? 0) +
@@ -2448,7 +2449,7 @@ export class JpegXlWeightedPredictor {
       (this.#predictions[2] ?? 0) * thirdScaledWeight +
       (this.#predictions[3] ?? 0) * fourthScaledWeight
     const divisor = weightedDivision[weightSum - 1]
-    if (divisor === undefined) throw invalidInput('JPEG XL weighted predictor sum is invalid')
+    if (divisor === undefined) throw invalidJpegXlInput('weighted predictor sum is invalid')
     this.#prediction = Math.floor((weightedSum * divisor) / 16_777_216)
 
     if (((topError ^ leftError) | (topError ^ topLeftError)) <= 0) {
@@ -2467,7 +2468,7 @@ export class JpegXlWeightedPredictor {
     this.#errors[position] = this.#prediction - scaledSample
     for (let index = 0; index < 4; index += 1) {
       const errors = this.#predictionErrors[index]
-      if (!errors) throw invalidInput('JPEG XL weighted predictor state is missing')
+      if (!errors) throw invalidJpegXlInput('weighted predictor state is missing')
       const error = Math.floor((Math.abs((this.#predictions[index] ?? 0) - scaledSample) + 3) / 8)
       errors[position] = error
       errors[previousRow + x + 1] = ((errors[previousRow + x + 1] ?? 0) + error) >>> 0
@@ -2603,7 +2604,7 @@ function* decodeModularPlaneSteps(
       program.pixelCode.aliasTables !== undefined &&
       reader.readBits(32) !== 0x13_0000
     )
-      throw invalidInput('JPEG XL empty residual ANS state is invalid')
+      throw invalidJpegXlInput('empty residual ANS state is invalid')
     if (requirePadding) requireZeroSectionPadding(reader, allowPartialByte)
     return Object.freeze({ planes, endingBitPosition: reader.bitPosition })
   }
@@ -2618,7 +2619,7 @@ function* decodeModularPlaneSteps(
     program.pixelCode.aliasTables !== undefined &&
     reader.readBits(32) !== 0x13_0000
   ) {
-    throw invalidInput('JPEG XL empty Modular residual ANS state is invalid')
+    throw invalidJpegXlInput('empty Modular residual ANS state is invalid')
   }
   const propertyCount = program.nodes.reduce(
     (maximum, node) => (node.kind === 'branch' ? Math.max(maximum, node.property + 1) : maximum),
@@ -2627,12 +2628,12 @@ function* decodeModularPlaneSteps(
   const properties = new Int32Array(propertyCount)
   for (let channel = firstChannel; channel < program.channelLayouts.length; channel += 1) {
     const layout = program.channelLayouts[channel]
-    if (!layout) throw invalidInput('JPEG XL channel layout is missing')
+    if (!layout) throw invalidJpegXlInput('channel layout is missing')
     const weightedPredictor = program.usesWeightedPrediction
       ? new JpegXlWeightedPredictor(layout.width, program.weightedPredictor)
       : undefined
     const plane = planes[channel]
-    if (!plane) throw invalidInput('JPEG XL channel buffer is missing')
+    if (!plane) throw invalidJpegXlInput('channel buffer is missing')
     const previousChannels: Int32Array[] = []
     for (
       let earlier = channel - 1;
@@ -2695,7 +2696,7 @@ function* decodeModularPlaneSteps(
           ) ?? 0
         for (let reference = 0; reference < previousChannels.length; reference++) {
           const values = previousChannels[reference]
-          if (!values) throw invalidInput('JPEG XL Modular property channel is missing')
+          if (!values) throw invalidJpegXlInput('Modular property channel is missing')
           const sample = values[row + x] ?? 0
           const west = x === 0 ? 0 : (values[row + x - 1] ?? 0)
           const north = y === 0 ? west : (values[previous + x] ?? 0)
@@ -2724,7 +2725,7 @@ function* decodeModularPlaneSteps(
           leaf.offset +
           residual * leaf.multiplier
         if (!Number.isSafeInteger(reconstructedWide)) {
-          throw invalidInput('JPEG XL Modular sample is outside the signed 32-bit range')
+          throw invalidJpegXlInput('Modular sample is outside the signed 32-bit range')
         }
         const unsigned = ((reconstructedWide % 2 ** 32) + 2 ** 32) % 2 ** 32
         const reconstructed = unsigned >= 2 ** 31 ? unsigned - 2 ** 32 : unsigned
@@ -2734,7 +2735,7 @@ function* decodeModularPlaneSteps(
     }
   }
   if (!symbols.hasValidFinalState()) {
-    throw invalidInput('JPEG XL Modular residual ANS state is invalid')
+    throw invalidJpegXlInput('Modular residual ANS state is invalid')
   }
   if (requirePadding) requireZeroSectionPadding(reader, allowPartialByte)
   return Object.freeze({ planes, endingBitPosition: reader.bitPosition })
@@ -2867,7 +2868,7 @@ const inversePalette = (
   const palette = encodedPlanes[0]
   const indexPosition = transform.beginChannel + 1
   const indices = encodedPlanes[indexPosition]
-  if (!palette || !indices) throw invalidInput('JPEG XL Palette channels are missing')
+  if (!palette || !indices) throw invalidJpegXlInput('Palette channels are missing')
   const paletteWidth = transform.colorCount + transform.deltaCount
   const restored = encodedPlanes.slice(1)
   const channels: Int32Array[] = []
@@ -2951,7 +2952,7 @@ const smoothSqueezeTendency = (previous: number, average: number, next: number):
 
 const requireModularSample = (sample: number): number => {
   if (!Number.isSafeInteger(sample) || sample < -2_147_483_648 || sample > 2_147_483_647) {
-    throw invalidInput('JPEG XL inverse Modular transform exceeds the signed 32-bit range')
+    throw invalidJpegXlInput('inverse Modular transform exceeds the signed 32-bit range')
   }
   return sample
 }
@@ -2969,7 +2970,7 @@ const inverseHorizontalSqueeze = (
     average.length !== averageLayout.width * averageLayout.height ||
     residual.length !== residualLayout.width * residualLayout.height
   ) {
-    throw invalidInput('JPEG XL horizontal Squeeze channel geometry is invalid')
+    throw invalidJpegXlInput('horizontal Squeeze channel geometry is invalid')
   }
   const outputWidth = averageLayout.width + residualLayout.width
   const output = new Int32Array(outputWidth * averageLayout.height)
@@ -3011,7 +3012,7 @@ const inverseVerticalSqueeze = (
     average.length !== averageLayout.width * averageLayout.height ||
     residual.length !== residualLayout.width * residualLayout.height
   ) {
-    throw invalidInput('JPEG XL vertical Squeeze channel geometry is invalid')
+    throw invalidJpegXlInput('vertical Squeeze channel geometry is invalid')
   }
   const outputHeight = averageLayout.height + residualLayout.height
   const output = new Int32Array(averageLayout.width * outputHeight)
@@ -3055,7 +3056,7 @@ const inverseSqueeze = (
   let metaChannelCount = initialMetaChannelCount
   for (let index = transform.parameters.length - 1; index >= 0; index -= 1) {
     const parameter = transform.parameters[index]
-    if (!parameter) throw invalidInput('JPEG XL Squeeze parameter is missing')
+    if (!parameter) throw invalidJpegXlInput('Squeeze parameter is missing')
     validateTransformRange(
       layouts,
       metaChannelCount,
@@ -3077,7 +3078,7 @@ const inverseSqueeze = (
       const residual = planes[residualChannel]
       const residualLayout = layouts[residualChannel]
       if (!average || !averageLayout || !residual || !residualLayout) {
-        throw invalidInput('JPEG XL Squeeze channel is missing')
+        throw invalidJpegXlInput('Squeeze channel is missing')
       }
       const restored = parameter.horizontal
         ? inverseHorizontalSqueeze(average, averageLayout, residual, residualLayout)
@@ -3108,7 +3109,7 @@ const inverseRctPlanes = (
     !sameLayout(firstLayout, layouts[transform.beginChannel + 1] ?? { width: -1, height: -1 }) ||
     !sameLayout(firstLayout, layouts[transform.beginChannel + 2] ?? { width: -1, height: -1 })
   ) {
-    throw invalidInput('JPEG XL inverse RCT channels are invalid')
+    throw invalidJpegXlInput('inverse RCT channels are invalid')
   }
   const restored = new Int32Array(3)
   for (let position = 0; position < first.length; position += 1) {
@@ -3135,7 +3136,7 @@ const inverseModularTransforms = (
   let metaChannelCount = program.metaChannelCount
   for (let index = program.transforms.length - 1; index >= 0; index -= 1) {
     const transform = program.transforms[index]
-    if (!transform) throw invalidInput('JPEG XL Modular transform is missing')
+    if (!transform) throw invalidJpegXlInput('Modular transform is missing')
     if (transform.kind === 'rct') {
       inverseRctPlanes(planes, layouts, transform)
       continue
@@ -3146,7 +3147,7 @@ const inverseModularTransforms = (
     }
     const indexLayout = layouts[transform.beginChannel + 1]
     if (!indexLayout || metaChannelCount < 1) {
-      throw invalidInput('JPEG XL inverse Palette layout is invalid')
+      throw invalidJpegXlInput('inverse Palette layout is invalid')
     }
     planes = inversePalette(
       planes,
@@ -3169,7 +3170,7 @@ const inverseModularTransforms = (
         : metaChannelCount - (2 - transform.channelCount)
   }
   if (metaChannelCount !== 0) {
-    throw invalidInput('JPEG XL Modular transforms leave unresolved meta channels')
+    throw invalidJpegXlInput('Modular transforms leave unresolved meta channels')
   }
   if (program.globalInverse) {
     return inverseModularTransforms(
@@ -3216,7 +3217,7 @@ export const decodeJpegXlModularDcFrameSection = (
   const encodedB = encoded[2]
   const quantization = program.dcQuantization
   if (!encodedX || !encodedY || !encodedB || !quantization) {
-    throw invalidInput('JPEG XL Modular DC frame channel is missing')
+    throw invalidJpegXlInput('Modular DC frame channel is missing')
   }
   const outputX = new Float64Array(encodedX.length)
   const outputY = new Float64Array(encodedY.length)
@@ -3267,7 +3268,7 @@ function* decodeGroupedModularSteps(
     const selected: { channel: number; x: number; y: number; width: number; height: number }[] = []
     for (let channel = firstGroup; channel < layouts.length; channel++) {
       const layout = layouts[channel]
-      if (!layout) throw invalidInput('JPEG XL progressive DC layout is missing')
+      if (!layout) throw invalidJpegXlInput('progressive DC layout is missing')
       const hs = layout.hshift ?? 0,
         vs = layout.vshift ?? 0
       const shift = Math.min(hs, vs)
@@ -3279,9 +3280,9 @@ function* decodeGroupedModularSteps(
       if (width > 0 && height > 0) selected.push({ channel, x: left, y: top, width, height })
     }
     const data = sections[sectionId]
-    if (!data) throw invalidInput('JPEG XL progressive DC section is missing')
+    if (!data) throw invalidJpegXlInput('progressive DC section is missing')
     if (!selected.length) {
-      if (data.length) throw invalidInput('JPEG XL empty progressive DC group has payload')
+      if (data.length) throw invalidJpegXlInput('empty progressive DC group has payload')
       return
     }
     const decoded = decodeJpegXlStandaloneModular(
@@ -3300,11 +3301,10 @@ function* decodeGroupedModularSteps(
       const target = selected[index],
         source = decoded.planes[index]
       if (!target || !source || source.length !== target.width * target.height)
-        throw invalidInput('JPEG XL progressive DC group shape is inconsistent')
+        throw invalidJpegXlInput('progressive DC group shape is inconsistent')
       const destination = planes[target.channel],
         layout = layouts[target.channel]
-      if (!destination || !layout)
-        throw invalidInput('JPEG XL progressive DC destination is missing')
+      if (!destination || !layout) throw invalidJpegXlInput('progressive DC destination is missing')
       for (let row = 0; row < target.height; row++)
         destination.set(
           source.subarray(row * target.width, (row + 1) * target.width),
@@ -3379,9 +3379,9 @@ function* decodeNativeModularSteps(
   signal?: AbortSignal,
   allowPatches = false,
 ): Generator<void, JpegXlNativeModularPlanes> {
-  if (frame.encoding !== 'modular') throw invalidInput('JPEG XL native Modular frame expected')
+  if (frame.encoding !== 'modular') throw invalidJpegXlInput('native Modular frame expected')
   const global = sections[0]
-  if (!global) throw invalidInput('JPEG XL global Modular section is missing')
+  if (!global) throw invalidJpegXlInput('global Modular section is missing')
   const colorChannels = frame.colorTransform === 'xyb' ? 3 : frame.colorChannels
   const chroma =
     frame.colorTransform === 'ycbcr' ? jpegXlChromaShifts(frame.chromaSubsampling) : undefined
@@ -3396,7 +3396,7 @@ function* decodeNativeModularSteps(
   })
   for (let index = 0; index < frame.extraChannels.length; index++) {
     const channel = frame.extraChannels[index]
-    if (!channel) throw invalidInput('JPEG XL extra channel descriptor is missing')
+    if (!channel) throw invalidJpegXlInput('extra channel descriptor is missing')
     const factor = (frame.extraChannelUpsampling[index] ?? 1) * 2 ** channel.dimShift
     layouts.push({
       width: Math.ceil(frame.frameWidth / factor),
@@ -3455,8 +3455,8 @@ function* decodeNativeModularSteps(
         plane.length !== (layouts[index]?.width ?? 0) * (layouts[index]?.height ?? 0),
     )
   )
-    throw invalidInput('JPEG XL native Modular output dimensions are inconsistent')
-  if (!program.dcQuantization) throw invalidInput('JPEG XL Modular quantization is missing')
+    throw invalidJpegXlInput('native Modular output dimensions are inconsistent')
+  if (!program.dcQuantization) throw invalidJpegXlInput('Modular quantization is missing')
   return Object.freeze({
     planes: Object.freeze(planes),
     layouts: Object.freeze(layouts),
@@ -3491,7 +3491,7 @@ const decodeProgressiveModularDc = (
   signal?: AbortSignal,
 ): readonly [Float64Array, Float64Array, Float64Array] => {
   const global = sections[0]
-  if (!global) throw invalidInput('JPEG XL progressive DC global data is missing')
+  if (!global) throw invalidJpegXlInput('progressive DC global data is missing')
   const program = readJpegXlModularProgram(
     global,
     3,
@@ -3500,13 +3500,13 @@ const decodeProgressiveModularDc = (
     frame.frameFlags,
   )
   const quantization = program.dcQuantization
-  if (!quantization) throw invalidInput('JPEG XL progressive DC quantization is missing')
+  if (!quantization) throw invalidJpegXlInput('progressive DC quantization is missing')
   const restored = decodeGroupedModularPlanes(sections, frame, program, 8, signal)
   const y = restored[0],
     x = restored[1],
     b = restored[2]
   if (!x || !y || !b || restored.length !== 3)
-    throw invalidInput('JPEG XL progressive DC output channels are missing')
+    throw invalidJpegXlInput('progressive DC output channels are missing')
   const output = [
     new Float64Array(x.length),
     new Float64Array(y.length),
@@ -3613,7 +3613,7 @@ class JpegXlModularDecoder implements ImageDecoder {
       regionX + regionWidth > this.width ||
       regionY + regionHeight > this.height
     ) {
-      throw invalidInput('JPEG XL decode region is invalid')
+      throw invalidJpegXlInput('decode region is invalid')
     }
     const planes = this.#loadPlanes
       ? await this.#loadPlanes(request.signal)
@@ -3644,7 +3644,7 @@ class JpegXlModularDecoder implements ImageDecoder {
       for (let channel = 0; channel < 3; channel += 1) {
         const source = splinePlanes[channel]
         const destination = planes[channel]
-        if (!source || !destination) throw invalidInput('JPEG XL spline color plane is missing')
+        if (!source || !destination) throw invalidJpegXlInput('spline color plane is missing')
         for (let index = 0; index < source.length; index += 1) {
           destination[index] = Math.round((source[index] ?? 0) * maximum)
         }
@@ -3652,7 +3652,7 @@ class JpegXlModularDecoder implements ImageDecoder {
     }
 
     const firstPlane = planes[0]
-    if (!firstPlane) throw invalidInput('JPEG XL color channel buffer is missing')
+    if (!firstPlane) throw invalidJpegXlInput('color channel buffer is missing')
     const colorMaximum = 2 ** this.#header.bitDepth - 1
     if (this.#header.colorChannels === 1 && this.#header.alphaBitDepth === undefined) {
       const highDepth = this.pixelFormat === 'gray16'
@@ -3690,7 +3690,7 @@ class JpegXlModularDecoder implements ImageDecoder {
         : planes[this.#header.colorChannels + this.#header.selectedAlphaChannel]
     const grayscaleWithAlpha = this.#header.colorChannels === 1
     if (!grayscaleWithAlpha && (!secondPlane || !thirdPlane)) {
-      throw invalidInput('JPEG XL color channel buffer is missing')
+      throw invalidJpegXlInput('color channel buffer is missing')
     }
     const alphaMaximum =
       this.#header.alphaBitDepth === undefined ? 65_535 : 2 ** this.#header.alphaBitDepth - 1
@@ -3881,12 +3881,12 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
         const beforePrevious = ((y + 1) % 3) * this.width
         for (let channel = 0; channel < 3; channel++) {
           const row = rows[channel]
-          if (!row) throw invalidInput('JPEG XL palette row is missing')
+          if (!row) throw invalidJpegXlInput('palette row is missing')
           for (let groupX = 0; groupX < indices.length; groupX++) {
             const groupLeft = groupX * this.#header.groupDimension
             const groupWidth = Math.min(this.#header.groupDimension, this.width - groupLeft)
             const plane = indices[groupX]
-            if (!plane) throw invalidInput('JPEG XL palette index band is missing')
+            if (!plane) throw invalidJpegXlInput('palette index band is missing')
             const sourceRow = (y - bandY) * groupWidth
             for (let localX = 0; localX < groupWidth; localX++) {
               const x = groupLeft + localX
@@ -3960,7 +3960,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
       regionX + regionWidth > this.width ||
       regionY + regionHeight > this.height
     ) {
-      throw invalidInput('JPEG XL decode region is invalid')
+      throw invalidJpegXlInput('decode region is invalid')
     }
     const regionRight = regionX + regionWidth
     const regionBottom = regionY + regionHeight
@@ -4055,7 +4055,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
           for (const source of active) {
             const result = await source.iterator.next()
             if (result.done) {
-              throw invalidInput('JPEG XL Modular group ended before its declared height')
+              throw invalidJpegXlInput('Modular group ended before its declared height')
             }
             const block = result.value
             if (
@@ -4066,7 +4066,7 @@ class JpegXlMultiGroupModularDecoder implements ImageDecoder {
               block.format !== this.pixelFormat
             ) {
               block.release?.()
-              throw invalidInput('JPEG XL Modular group output geometry is inconsistent')
+              throw invalidJpegXlInput('Modular group output geometry is inconsistent')
             }
             output.set(block.data, source.targetX * bytesPerPixel)
             displayRanges ??= block.displayRanges
@@ -4177,7 +4177,7 @@ const alphaOutputDecoder = (
     options.alphaOutput !== 'preserve' &&
     options.alphaOutput !== 'straight'
   ) {
-    throw invalidInput('JPEG XL alphaOutput must be preserve or straight')
+    throw invalidJpegXlInput('alphaOutput must be preserve or straight')
   }
   return header.alphaAssociated && options.alphaOutput === 'straight'
     ? new JpegXlStraightAlphaDecoder(decoder, header)
@@ -4505,7 +4505,7 @@ export const configureJpegXlDecoderOutput = (
   if (options.hdrOutput === 'tone-map-srgb') {
     return new JpegXlHdrSdrDecoder(alphaConfigured, header)
   }
-  throw invalidInput('JPEG XL hdrOutput is invalid')
+  throw invalidJpegXlInput('hdrOutput is invalid')
 }
 
 export interface JpegXlDecodedDescription {
@@ -4636,7 +4636,7 @@ export async function* iterateJpegXlFrameStructures(
   iccLimits: Readonly<JpegXlIccLimits> = defaultJpegXlLimits,
 ): AsyncGenerator<JpegXlFrameStructure> {
   if (!Number.isSafeInteger(maximumHeaderBytes) || maximumHeaderBytes < 1) {
-    throw invalidInput('JPEG XL maximum header bytes is invalid')
+    throw invalidJpegXlInput('maximum header bytes is invalid')
   }
   let frameCount = 0
   let previous: JpegXlFrameStructure | undefined
@@ -4665,7 +4665,7 @@ export async function* iterateJpegXlFrameStructures(
           offset,
         )
         if (frame.codestreamEndOffset <= offset) {
-          throw invalidInput('JPEG XL internal frame extent does not advance')
+          throw invalidJpegXlInput('internal frame extent does not advance')
         }
         // The TOC may permute logical sections. Its first physical payload marks
         // the end of this header; preceding compressed frames are not headers.
@@ -4725,7 +4725,7 @@ export const readJpegXlSourceMetadata = async (
     iccLimits,
   )
   const displayFrame = frames.at(-1)
-  if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
+  if (!displayFrame) throw invalidJpegXlInput('display frame is missing')
   return Object.freeze({
     ...metadataForHeader(displayFrame),
     frames: frames.filter(
@@ -4760,7 +4760,7 @@ export const readJpegXlSourceInspectionMetadata = async (
     iccLimits,
   )
   const displayFrame = frames.at(-1)
-  if (!displayFrame) throw invalidInput('JPEG XL display frame is missing')
+  if (!displayFrame) throw invalidJpegXlInput('display frame is missing')
   return Object.freeze({
     needsFrameComposition: frames.some(
       (frame) =>
@@ -4804,7 +4804,7 @@ export const readJpegXlSourceFrameStructure = async (
     iccLimits,
   )
   const frame = frames.find((entry) => !entry.isPreview)
-  if (!frame) throw invalidInput('JPEG XL display frame is missing')
+  if (!frame) throw invalidJpegXlInput('display frame is missing')
   return frame
 }
 
@@ -4860,7 +4860,7 @@ export const decodeJpegXlFrameSource = async (
   }
   if (header.sections.length === 1) {
     const section = header.sections[0]
-    if (!section) throw invalidInput('JPEG XL frame section is missing')
+    if (!section) throw invalidJpegXlInput('frame section is missing')
     const data = await readExactly(source, section.offset, section.length, options)
     const program = readJpegXlModularProgram(
       data,
@@ -4879,7 +4879,7 @@ export const decodeJpegXlFrameSource = async (
     })
   }
   const globalSection = header.sections[0]
-  if (!globalSection) throw invalidInput('JPEG XL global section is missing')
+  if (!globalSection) throw invalidJpegXlInput('global section is missing')
   const globalData = await readExactly(source, globalSection.offset, globalSection.length, options)
   const foundation = readMultiGroupFoundation(globalData, header, limits)
   if (foundation.kind === 'full-frame') {
@@ -4924,7 +4924,7 @@ export const decodeJpegXlFrameSource = async (
       groupId < 0 ||
       groupId >= header.groupsAcross * header.groupsDown
     ) {
-      throw invalidInput('JPEG XL Modular group index is invalid')
+      throw invalidJpegXlInput('Modular group index is invalid')
     }
     const section = header.sections[foundation.firstGroupSection + groupId]
     if (!section) throw invalidInput(`JPEG XL Modular group ${groupId} section is missing`)
@@ -4956,7 +4956,7 @@ export const decodeJpegXlCodestream = (
   const header = readMainHeader(codestream, limits)
   if (header.sections.length === 1) {
     const section = header.sections[0]
-    if (!section) throw invalidInput('JPEG XL frame section is missing')
+    if (!section) throw invalidJpegXlInput('frame section is missing')
     const sectionData = codestream.subarray(section.offset, section.offset + section.length)
     const program = readJpegXlModularProgram(
       sectionData,
@@ -4978,7 +4978,7 @@ export const decodeJpegXlCodestream = (
     codestream.subarray(section.offset, section.offset + section.length),
   )
   const global = sections[0]
-  if (!global) throw invalidInput('JPEG XL global section is missing')
+  if (!global) throw invalidJpegXlInput('global section is missing')
   const foundation = readMultiGroupFoundation(global, header, limits)
   if (foundation.kind === 'full-frame')
     return Object.freeze({
@@ -4995,13 +4995,13 @@ export const decodeJpegXlCodestream = (
     })
   const groups = Array.from({ length: header.groupsAcross * header.groupsDown }, (_, groupId) => {
     const data = sections[foundation.firstGroupSection + groupId]
-    if (!data) throw invalidInput('JPEG XL Modular group section is missing')
+    if (!data) throw invalidJpegXlInput('Modular group section is missing')
     return readModularGroup(data, header, foundation, groupId)
   })
   const loadGroup: ModularGroupLoader = async (groupId, options = {}) => {
     throwIfAborted(options.signal)
     const group = groups[groupId]
-    if (!group) throw invalidInput('JPEG XL Modular group index is invalid')
+    if (!group) throw invalidJpegXlInput('Modular group index is invalid')
     return group
   }
   return Object.freeze({

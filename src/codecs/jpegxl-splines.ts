@@ -1,4 +1,4 @@
-import { invalidInput } from '../errors.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlSpline } from './jpegxl-frame-features.ts'
 
 interface SplinePoint {
@@ -48,7 +48,7 @@ const interpolateSplinePoints = (controlPoints: readonly SplinePoint[]): SplineP
     const p1 = points[start + 1]
     const p2 = points[start + 2]
     const p3 = points[start + 3]
-    if (!p0 || !p1 || !p2 || !p3) throw invalidInput('JPEG XL spline point is missing')
+    if (!p0 || !p1 || !p2 || !p3) throw invalidJpegXlInput('spline point is missing')
     output.push(p1)
     const distances = [
       Math.sqrt(Math.hypot(p1.x - p0.x, p1.y - p0.y)),

@@ -1,0 +1,146 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-fused-package-324.ts",
+      "sha256": "9fbb56abdb8df2259b717f5d92ef931ebc988315872d48c4da8a1f8d5b0dbae8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-fused-package-324.ts",
+      "sha256": "4f738a972ecf46cc4de6c10a7cd663c143a1f31620b1efd4d2469dc9fb7e4e9a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-fused-package-324.json",
+      "sha256": "5f2d6bb623cb915471583db9963aa7a98608bf6c92d6a8506481bb7a1a762e2e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/manifest.json",
+      "sha256": "c0f131a27a5725fce3f7997edaa3843b4f70ddf829ef055f012102f1ed325385"
+    },
+    {
+      "path": "scripts/bundle-size.ts",
+      "sha256": "76e9975739b6880e44afda36378a862f926aabe3cf5d2068fe2074a7bd56c32c"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8b6bf1a3a53323ced6790e2e7215f81c4b562c270619f21979d68fcbf41b3f29"
+    },
+    {
+      "path": "benchmark/generated/package-metrics.json",
+      "sha256": "9df3b1243a9ab8167d74153a696abbf3c2ac18582b8458cad2db1a36fdb06d81"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "ac95adc921bd39be25fec1b7129de724760862fe932505915c8e357f04760ef8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-modular-encode.ts",
+      "sha256": "76ec4680a4e963b08c956fcfe5105d72c87f6a8e79e34417e2db0c7ed98d2877"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "a0fa8829be9730ecda6ea08b1bb8dcbac750cd40ed46882e0c2d945891ab8b13"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-jpeg-encode.ts",
+      "sha256": "a27455c2a57ccebe45ede6de4334dce4f2b5692053a3e0c5715bbab23e4db09d"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "c938aa2847ca879fa0246ad575261ce2aa1960e60ae3cd363f7b116559ea8cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "cabaa65139f773fccf2f27ebddaca72eb876662bb6e4666151e06472e4603e49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "7e1dc99bda2b76735e5ca9dbf13f826405563801ad43d5d76e80d52a7f5a4def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-modular-tree.ts",
+      "sha256": "d22c37b16a54933cd068160514c62e9ac5f730ca91499ce2f16c392112aeb706"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-tree.ts",
+      "sha256": "0fffd13b61e203a747b6aa60d3e73ceb958cc2a4593f708675e2220cf3317c38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fused-ordinary-trees-323/fused/jpegxl-modular-rct.ts",
+      "sha256": "cf50c3fad55c6ee47ee2ac9a56d4890dcf441e1251bab0dfa9b731cbe8538b1e"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-rct.ts",
+      "sha256": "ecdce794d384ce87f7788bc836a3629fe3cb199a87de65b8447c0bf040509fae"
+    }
+  ],
+  "results": [
+    {
+      "target": "jpegxl-specialized",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/fused-package-324/jpegxl-specialized-baseline.js",
+      "artifactSha256": "445908cf694f56437f4fecb0e2000e214890b8210bf472a79181becafd49705a",
+      "bytes": 613578,
+      "previousBytes": 613578,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "target": "jpegxl-specialized",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/fused-package-324/jpegxl-specialized-candidate.js",
+      "artifactSha256": "579516f2a287f58796714dca961ea431d16f8606b5da53f047579fcebc7e3ae9",
+      "bytes": 615445,
+      "previousBytes": 613578,
+      "deltaBytes": 1867,
+      "originalBaselineBytes": 255489,
+      "configuredCeiling": 614000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "baseline",
+      "artifact": ".tmp/jpegxl-comparison-v1/fused-package-324/codec-jpegxl-baseline.js",
+      "artifactSha256": "87b5f853e3d3c972001d03e72fa9bc7ee08c3ecc9a6d3bf4900c8257faaa2767",
+      "bytes": 540978,
+      "previousBytes": 540978,
+      "deltaBytes": 0,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    },
+    {
+      "target": "codec-jpegxl",
+      "variant": "candidate",
+      "artifact": ".tmp/jpegxl-comparison-v1/fused-package-324/codec-jpegxl-candidate.js",
+      "artifactSha256": "fb77eda50b0120a16a6a63b40531246d4f3f62eaa576a1c49b393d9836a1f11d",
+      "bytes": 542838,
+      "previousBytes": 540978,
+      "deltaBytes": 1860,
+      "originalBaselineBytes": 233093,
+      "configuredCeiling": 541000
+    }
+  ],
+  "policy": "Exact existing public package target and esbuild settings compare unchanged qualified source against only the seven uninstrumented first-party fused ordinary encoder/tree modules from323. Every baseline byte count must reproduce generated metrics, original budget baselines stay unchanged and candidate raw minified bytes are measured before any production/budget change. No release or deployment footprint claim."
+}

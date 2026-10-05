@@ -1,0 +1,166 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-whole-group-fallback-355.ts",
+      "sha256": "4daa1decc4d7c8a22b3d82879241e4aec904204292c8e0dcad4b7bbbb6793429"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-whole-group-fallback-audit-355.json",
+      "sha256": "70a0ca65d344610adfc204a1805cfafe4754428666f129ff7497a697f5d5e3d2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-predictor-tree-final-gates.json",
+      "sha256": "0bf7dd9d3d1672042bfcc38aa8eb8e28add69f6ed13f0418d25efd8c6778391b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-controls.json",
+      "sha256": "3d113542a4ebc376d8e5d0b540acbe10a5c23b2d61b1e6141dd851f85a5fc71c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-fallback-controls.json",
+      "sha256": "1dfe9dee8a0da0b401ba8d949632d18586f46a4ddc96899f4101fbcfb4d88b0c"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-injected-controls-retry.json",
+      "sha256": "b9c737f751c7a999b6661890774589dec7e152c4bab44d06fba4ad1fe80c7b1d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-fallback-package-controls.json",
+      "sha256": "bc339b025598d009f1f59ecde3ab111165c48df5ac59df03a96dcfa01d95d77c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/funded-whole-package-347/error-proof.json",
+      "sha256": "c011c83be5eb75c29117057fee5cb4d706ab9cdd019f95ae69c659b6e2483f5f"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/GUARDED-FALLBACK.md",
+      "sha256": "050358205e195e174b0a2c682a0e11e8c9fbdb0d7c9252b52b40b7813dc264a2"
+    },
+    {
+      "path": "/tmp/jpegxl-whole-group-fallback-repository-check-353.log",
+      "sha256": "10af9ee35247d464bef0aad73df0236e662752cc923c04ef20996bdd58774d44"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-353.json",
+      "sha256": "9a41202fc8c05ee722e05f80f12378ddad509b1fcacf9fce8aff96c7595208ab"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/whole-group-memory-injected-controls.json",
+      "sha256": "6169fac7a6f5d94b203bbeb4eb9ff99b66561f94ab39fc6d88b73b38b376f7b4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-whole-group-public-controls.json",
+      "sha256": "3237920448865035084a785fcc38de0e975409630aae460fded218e882340594"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-fallback-controls-345.json",
+      "sha256": "f172d1d0b0e9e96bdb818aa96ef1f526113b0a5c731d7f7f5292008779627559"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-fallback-package-controls-348.json",
+      "sha256": "494406452f396efbb6b71f50012890cb2253bd7876191a3bb4c08a8d4d481f6e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-memory-injected-controls-350.json",
+      "sha256": "a2aa5345ac36f24787b0935de96a824ac73bbb829d26610bb889a0a51e7dd1a8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-whole-group-public-controls-352.json",
+      "sha256": "b80469bbec9e8d61a97ab6f60c86ab20b28baf777dc167081e5e0b9b57e91869"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-fallback-repository-check-353.json",
+      "sha256": "31bf18ce097269ba4df745126650ee13d08caeb02211e9e6f62b4bc868ae63e9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-memory-fallback-controls-346.json",
+      "sha256": "619ffc298dd31f2fb68f765ab33ece704dfcad80fb7f031fe8229280e7e27114"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-whole-group-memory-injected-controls-349.json",
+      "sha256": "4887f93369e155380044e0622789dac3822ddda2fd1b983cb08b89e011fb8714"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-funded-whole-group-public-controls-351.json",
+      "sha256": "254059fd09f4dcd6c3b5db1ee009645205566857529e512c8310d6c429762728"
+    }
+  ],
+  "qualifiedPins": 443,
+  "previousPins": 23,
+  "originalPublicModules": 8,
+  "originalSnapshotFiles": 14,
+  "cohorts": [
+    {
+      "report": "whole-group-fallback-controls.json",
+      "pins": 59,
+      "outcomes": 8,
+      "supportedFiles": 8,
+      "independentGrids": 16,
+      "independentSamples": 50339840,
+      "priorPublicSamples": 25169920
+    },
+    {
+      "report": "whole-group-memory-fallback-controls.json",
+      "pins": 81,
+      "outcomes": 49,
+      "supportedFiles": 33,
+      "independentGrids": 66,
+      "independentSamples": 60973056,
+      "priorPublicSamples": 30486528
+    },
+    {
+      "report": "whole-group-memory-injected-controls-retry.json",
+      "pins": 99,
+      "outcomes": 6,
+      "supportedFiles": 5,
+      "independentGrids": 10,
+      "independentSamples": 6322176,
+      "priorPublicSamples": 3161088
+    },
+    {
+      "report": "funded-whole-group-public-controls.json",
+      "pins": 221,
+      "outcomes": 8,
+      "supportedFiles": 8,
+      "independentGrids": 16,
+      "independentSamples": 50339840,
+      "priorPublicSamples": 25169920
+    }
+  ],
+  "independentSamples": 167974912,
+  "priorPublicSamples": 83987456,
+  "originalCropWorkingMinimum": 36853881,
+  "originalTinyWorkingMinimum": 221988,
+  "naturalSupportedRetryPairs": 4,
+  "naturalSweepCompleted": false,
+  "naturalLaterHybridBranchObserved": false,
+  "injectedWholeGroupRetries": 2,
+  "injectedInvalidErrorPropagates": true,
+  "guardedPackageQualified": true,
+  "packagePins": 152,
+  "proofPins": 140,
+  "convertedErrorLiterals": 1367,
+  "actualBuiltPublicFiles": 8,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": 4
+  },
+  "productionUnchanged": true,
+  "adoptedPrototype": false,
+  "pairedCostsQualified": false,
+  "fullMemoryFallbackQualified": false,
+  "guardedBrowserQualified": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "Fresh original-sample audit across immutable345nominal/346natural/350injected/352actual built public encodes. Preserve443original qualification pins/eight public modules/fourteen snapshots and344adoption boundary. Natural crop original minimum and four same-budget retry pairs retain previous support/floors;346coverage failure remains completed:false because later original-hybrid branch did not occur naturally. Injected actual managed LIMIT at both enabled groups restores exact whole previous frame; INVALID_INPUT propagates/no partial output/all owned state closes. Actual prefix-funded345guarded bundles/full export inventories/1367literal ImageError proofs fit unchanged541000/614000ceilings and public factory hashes/peaks/sample outputs match. Failed349single-injection frame expectation and351prototype-cloning harness errors stay preserved separately. Fresh full353check and actual four-worker/resource/version/no-runtime-dependency/index boundaries pass. Paired costs/full-memory/browser/full matrices and overall compression parity remain unqualified; no production/stage/commit/push/release/protection change."
+}

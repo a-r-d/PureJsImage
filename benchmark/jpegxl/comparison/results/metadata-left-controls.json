@@ -1,0 +1,1283 @@
+{
+  "schemaVersion": 1,
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "4e9b84f0e04f83764f1688ef0497aa212231387ab7f5859e620b5ae892a88f23",
+  "implementationDirty": true,
+  "harnessSha256": "9d72037d71bdbf0ba21fe26e9382b94722911ea396412a9165c65a2064efa36f",
+  "candidateModuleHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-baseline/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-baseline/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "6754ef0bf2ba2246d11a2edc2e6f6bcb33ff57c348681374d5ddd1ecb2e4de5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-left/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-left/jpegxl-vardct-encode.ts",
+      "sha256": "8634bf339671694eab19e2869c3167eca0c29015a38906982ba90170e0d1515c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-left/jpegxl-jpeg-encode.ts",
+      "sha256": "55bacf95e69333bf40d6ecfdb4d6dae27a1854c3908a2fd4c63ced6108031598"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-left/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/qualified-left/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-baseline/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-baseline/jpegxl-vardct-encode.ts",
+      "sha256": "0a2cd3cacc1c21f24c534e78bf1dad43c7d6a91bd50cdce13f3adf4471942d66"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "f85cafe7a0f1710fa010fdc7cb4b709d944f814087f81dd11991b856c17fc28e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "4d1d6c04444b29beb848a92d372f840491434aa97730d4982040de1241502f45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "bd6bfcd68f32f437ae004f6bd06b968d291be2f333028be62acd1f5f83e694cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-left/jpegxl-modular-encode.ts",
+      "sha256": "c3cfd2387d684ba9d6cf649999d1ac63c2bf269327c0979634579ea1fbac2cc9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-left/jpegxl-vardct-encode.ts",
+      "sha256": "0a2cd3cacc1c21f24c534e78bf1dad43c7d6a91bd50cdce13f3adf4471942d66"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-left/jpegxl-jpeg-encode.ts",
+      "sha256": "9a4c0fbd6eecd2d76d4fd560c1241347a422141c95625dd924014efd38886393"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-left/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "4d1d6c04444b29beb848a92d372f840491434aa97730d4982040de1241502f45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/metadata-left-138/dct16-left/jpegxl-vardct-quantization.ts",
+      "sha256": "bd6bfcd68f32f437ae004f6bd06b968d291be2f333028be62acd1f5f83e694cb"
+    }
+  ],
+  "preparationHashes": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-metadata-left-138.ts",
+      "sha256": "0eb0327c6be89daa35e9c2aace02d9a574b6f2233a9364a322be0b0108b44c5e"
+    }
+  ],
+  "sourceReportHashes": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/family-context-public-controls.json",
+      "sha256": "74ddbfe5955b14e319381a52bb4f4834bd2dbdbda9acd14dcffcd959d20301ff"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-rate-controls.json",
+      "sha256": "4d33d776b7e19776f6e3d2bf3e3cdf810074d93cf5ed516372ae074defc63623"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/dct16-dc-bit-profile.json",
+      "sha256": "9b3bd8e16bfb8635035e32c8b0c86d21e32967983b865401862d50dec08cce01"
+    }
+  ],
+  "toolHashes": [
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "identityBoundary": "Production remains qualified 4e9b84f; copied qualified and rejected DCT16 modules are pinned independently. DCT16 results are diagnostic prototype compression, not public API rankings.",
+  "policy": "Test left prediction on the two-row combined strategy/quantizer metadata plane, retaining gradient prediction on correlation and sharpness planes. Keep coefficient/transform/quantizer/filter decisions identical within each parent. Require baseline artifact and both scores reproduced, exact complete native/Rust grid equality and original alpha. Measure complete file and metadata bit costs; growth prevents retention. No speed or overall parity claim.",
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 1,
+      "bytes": 168113,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 2977.39512,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-baseline-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-left",
+      "distance": 1,
+      "bytes": 167443,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 3186.3881979999996,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-left-1.jxl",
+      "artifactSha256": "7b1c80438bcdaa8bd678059664bd3e0fece662842dcea6a51e1490e61fc99a01",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 1,
+      "bytes": 168113,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 3129.9141099999997,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 13376
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-baseline-1.jxl",
+      "artifactSha256": "f8ab61ef68e634ed0b23808053b2adba1c3c09074924ec7c9587c21d433f028c",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-left",
+      "distance": 1,
+      "bytes": 167443,
+      "baselineBytes": 168113,
+      "score": 90.43416953,
+      "butteraugli": 0.8373051882,
+      "encodeMilliseconds": 3075.4509230000003,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8017
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-left-1.jxl",
+      "artifactSha256": "7b1c80438bcdaa8bd678059664bd3e0fece662842dcea6a51e1490e61fc99a01",
+      "nativePixelsSha256": "d997c7d651fc08cbf5d03bc363b6bc2f1fa949fa6e65181d8a6f1f8a4829ec6f",
+      "rustPixelsSha256": "92a0cd6903bb5f83093587bd50d2fce5bdf633c63344fd07792b6b9829328660",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 4,
+      "bytes": 82675,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 2479.8698079999995,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 16190
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 16190
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 16190
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 16190
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-baseline-4.jxl",
+      "artifactSha256": "69587c6b6bc9845ae826548c2000614e25eef0fa6c8e1c1c845fb26cf7553b30",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-left",
+      "distance": 4,
+      "bytes": 81849,
+      "baselineBytes": 82675,
+      "score": 81.91149348,
+      "butteraugli": 2.2308251858,
+      "encodeMilliseconds": 2494.4326180000025,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 9587
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 9587
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 9587
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 9587
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-left-4.jxl",
+      "artifactSha256": "893742f4b522cb06893c610e8485b74502e8072dad9b10efb9ee5f49ba551d7b",
+      "nativePixelsSha256": "03518b0fb4d8e46ea7c131f058b19a08f4da7b37d189d6b4d1710356812fca69",
+      "rustPixelsSha256": "5704b14385742a566788543e5559fc627639403201a26c78fdb310b0e500de7a",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 4,
+      "bytes": 83341,
+      "baselineBytes": 83341,
+      "score": 82.31775458,
+      "butteraugli": 2.2291667461,
+      "encodeMilliseconds": 3516.8308799999977,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29855
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29855
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29855
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29855
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-baseline-4.jxl",
+      "artifactSha256": "a5190c357440009b33e90363343490a031750044725a1cbcb6d4033dad7815f1",
+      "nativePixelsSha256": "f27157aeb18737c7ebe2f832d451135e85a5b7951a955f7465426e5dbe66d3d6",
+      "rustPixelsSha256": "88eb0c57fe8589ac794e769cc946221b04363cda24a1435c5ce2f0c0c3f82215",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-left",
+      "distance": 4,
+      "bytes": 82666,
+      "baselineBytes": 83341,
+      "score": 82.31775458,
+      "butteraugli": 2.2291667461,
+      "encodeMilliseconds": 3575.3222700000006,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 24456
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 24456
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 24456
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 24456
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-left-4.jxl",
+      "artifactSha256": "1de8310ae508fe5655beddbd679b8ef7acc4d97b48f06ded937f21301680e6e8",
+      "nativePixelsSha256": "f27157aeb18737c7ebe2f832d451135e85a5b7951a955f7465426e5dbe66d3d6",
+      "rustPixelsSha256": "88eb0c57fe8589ac794e769cc946221b04363cda24a1435c5ce2f0c0c3f82215",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 8,
+      "bytes": 53550,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 2299.7952920000025,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 14812
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 14812
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 14812
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 14812
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-baseline-8.jxl",
+      "artifactSha256": "1104574327e962245903692fcc16f9f106222e205f125d5acdac124c5af9c9d4",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "qualified-left",
+      "distance": 8,
+      "bytes": 52798,
+      "baselineBytes": 53550,
+      "score": 71.47567721,
+      "butteraugli": 3.6673517227,
+      "encodeMilliseconds": 2298.9064519999956,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8789
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8789
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8789
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 8789
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-qualified-left-8.jxl",
+      "artifactSha256": "583904bf576a0a76920a4db8aa642f14b87699e0105d55de3e9f632e64a985f4",
+      "nativePixelsSha256": "c60a7356c7b2947d0398c2979334a4540e9c00df0965e513addd8eb2a815f6ab",
+      "rustPixelsSha256": "dd6072ada0dd732b19e3e234bd7641c414b0e1e0d347e3edeef3d3baa14ba03c",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 8,
+      "bytes": 54610,
+      "baselineBytes": 54610,
+      "score": 72.09347898,
+      "butteraugli": 3.6629447937,
+      "encodeMilliseconds": 3277.8453100000042,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 26985
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 26985
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 26985
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 26985
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-baseline-8.jxl",
+      "artifactSha256": "8759298727e5ee1a7425b132704e12b5908a01b2e0d57e6211cad73a2e625c4a",
+      "nativePixelsSha256": "3c413fad565d4b2d3f0a10759c0307d7816ca08d8211c9a844662d595c95decd",
+      "rustPixelsSha256": "c11fbdbe08f5f39f893a7d573b22eb386871554ece6c6680a102e93cff0620ec",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "variant": "dct16-left",
+      "distance": 8,
+      "bytes": 53979,
+      "baselineBytes": 54610,
+      "score": 72.09347898,
+      "butteraugli": 3.6629447937,
+      "encodeMilliseconds": 3377.402044000002,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 21941
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 21941
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 21941
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 21941
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1030-diagnostic-dct16-left-8.jxl",
+      "artifactSha256": "28563be77bcca41f6a2278fdc95f7b8d0a908c96ab6eef77f08579e441a8048e",
+      "nativePixelsSha256": "3c413fad565d4b2d3f0a10759c0307d7816ca08d8211c9a844662d595c95decd",
+      "rustPixelsSha256": "c11fbdbe08f5f39f893a7d573b22eb386871554ece6c6680a102e93cff0620ec",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 1,
+      "bytes": 137169,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 3723.6458839999977,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-baseline-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-left",
+      "distance": 1,
+      "bytes": 136168,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 3207.4026930000036,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-left-1.jxl",
+      "artifactSha256": "acd7841fc6737627c737801296c9b5a897866f0b93d76c3484cb19d7d34f3d17",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 1,
+      "bytes": 137169,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 3047.065220999997,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 19313
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-baseline-1.jxl",
+      "artifactSha256": "a4f939128cdaa2af70e45888a1fdfd46704ba164bee4f6ed10f6cde2ff29d699",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-left",
+      "distance": 1,
+      "bytes": 136168,
+      "baselineBytes": 137169,
+      "score": 91.25570839,
+      "butteraugli": 1.0002689362,
+      "encodeMilliseconds": 3178.6014639999994,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 11310
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-left-1.jxl",
+      "artifactSha256": "acd7841fc6737627c737801296c9b5a897866f0b93d76c3484cb19d7d34f3d17",
+      "nativePixelsSha256": "db485e70fd920c531dae0621d5d480f227ec498dd3824a005b7d337922e32e72",
+      "rustPixelsSha256": "764c269c6450dc0ef1e77e74ec7b34340c133ad5275d0a12be2bc57b368f7ebd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 4,
+      "bytes": 52488,
+      "baselineBytes": 52488,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 2412.3435860000027,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 17369
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 17369
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 17369
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 17369
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-baseline-4.jxl",
+      "artifactSha256": "430425b886e2a51bd939d5dfe165ebe6dabad994655b6310e5834a3445910672",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-left",
+      "distance": 4,
+      "bytes": 51593,
+      "baselineBytes": 52488,
+      "score": 81.60550903,
+      "butteraugli": 1.9219129086,
+      "encodeMilliseconds": 2401.668602000005,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 10214
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 10214
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 10214
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 10214
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-left-4.jxl",
+      "artifactSha256": "75a303acec876cc75e6a4e67f852eb68de3e146399305171155f181debd88863",
+      "nativePixelsSha256": "7607113d6d4a2e412da621161cc1dceed82e9c84d11a95a63ad9d2fc8b0f6245",
+      "rustPixelsSha256": "0c619d68563f2aecb3cffbbc76c75ecb211f92a8069a5b26284f60abfbf4ea9e",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 4,
+      "bytes": 53364,
+      "baselineBytes": 53364,
+      "score": 82.01284302,
+      "butteraugli": 1.9219756126,
+      "encodeMilliseconds": 3493.9870809999993,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29045
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29045
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29045
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 29045
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-baseline-4.jxl",
+      "artifactSha256": "ce3a45f2d9e80b1b89f4f220e309b5ac1a6cbad473d3309d64e2c150e05da1d4",
+      "nativePixelsSha256": "6043fccd65bd8bfaac61326ddc9db7e6fba76ba56bc758a80cbcd62e74ebb3b0",
+      "rustPixelsSha256": "12d5ce515f50399a79ceadca213c88774f8da743123b625644f59aa235a35841",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-left",
+      "distance": 4,
+      "bytes": 52624,
+      "baselineBytes": 53364,
+      "score": 82.01284302,
+      "butteraugli": 1.9219756126,
+      "encodeMilliseconds": 3480.8492049999913,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 23125
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 23125
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 23125
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 23125
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-left-4.jxl",
+      "artifactSha256": "eba2615119321b6866a95cf2ec5f6aabda71572e4eed7526c3a282b958941096",
+      "nativePixelsSha256": "6043fccd65bd8bfaac61326ddc9db7e6fba76ba56bc758a80cbcd62e74ebb3b0",
+      "rustPixelsSha256": "12d5ce515f50399a79ceadca213c88774f8da743123b625644f59aa235a35841",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 8,
+      "bytes": 32311,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 2184.7874919999886,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 12447
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 12447
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 12447
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 12447
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-baseline-8.jxl",
+      "artifactSha256": "71f42c2e9f46170801f304ef6cf7f48daa351d45946b262063c3f2ebc2196112",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "qualified-left",
+      "distance": 8,
+      "bytes": 31689,
+      "baselineBytes": 32311,
+      "score": 70.24746584,
+      "butteraugli": 3.0908069611,
+      "encodeMilliseconds": 2233.587063999992,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 7465
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 7465
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 7465
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 7465
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-qualified-left-8.jxl",
+      "artifactSha256": "f536dad874065df6a137d8275dc3cf1c72f57650d3281400adaf309f03492d95",
+      "nativePixelsSha256": "754b23faeed29cdbeec8ae95cc5352859e4ea30fedada4882f83696a383cb54b",
+      "rustPixelsSha256": "031c901f863d552ab1abceaff0437331e5af61e5cbf146566618a1122195c525",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 8,
+      "bytes": 33184,
+      "baselineBytes": 33184,
+      "score": 70.828143,
+      "butteraugli": 2.9800391197,
+      "encodeMilliseconds": 3203.903495999999,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 22101
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 22101
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 22101
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 22101
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-baseline-8.jxl",
+      "artifactSha256": "28e95b6e45b86e332e24318888c082c170c65647cec6b8d29a93a1c4a2e62dd7",
+      "nativePixelsSha256": "8a80bdf13e2cff61273e538c8b86ae0ffc326c1f6dfb3bad4590429f4dec09df",
+      "rustPixelsSha256": "11b7886fab69af7ecc0990c776b520a115c0a3c0283e38a4e4a9cafda2df97a5",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "variant": "dct16-left",
+      "distance": 8,
+      "bytes": 32658,
+      "baselineBytes": 33184,
+      "score": 70.828143,
+      "butteraugli": 2.9800391197,
+      "encodeMilliseconds": 3212.4970719999983,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 17890
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 17890
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 17890
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 17890
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-1416-diagnostic-dct16-left-8.jxl",
+      "artifactSha256": "a701714ace279ab51ed17c62ea975853aa9644a0a2149262b75c1474f2fa6c10",
+      "nativePixelsSha256": "8a80bdf13e2cff61273e538c8b86ae0ffc326c1f6dfb3bad4590429f4dec09df",
+      "rustPixelsSha256": "11b7886fab69af7ecc0990c776b520a115c0a3c0283e38a4e4a9cafda2df97a5",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "qualified-baseline",
+      "distance": 3,
+      "bytes": 104637,
+      "baselineBytes": 104637,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 2836.6415200000047,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-5034-diagnostic-qualified-baseline-3.jxl",
+      "artifactSha256": "6eca5133656f198d76eb434df42a55c7689cbf53b8b14894fbd3d2209ae6caec",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "qualified-left",
+      "distance": 3,
+      "bytes": 102205,
+      "baselineBytes": 104637,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 2796.7020760000014,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-5034-diagnostic-qualified-left-3.jxl",
+      "artifactSha256": "3e8bbb97b35c1737441c77d82b605dfb4ec0dd91300a7ee0a83e4b4a9c601517",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "dct16-baseline",
+      "distance": 3,
+      "bytes": 104637,
+      "baselineBytes": 104637,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 2859.869219,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 47057
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-5034-diagnostic-dct16-baseline-3.jxl",
+      "artifactSha256": "6eca5133656f198d76eb434df42a55c7689cbf53b8b14894fbd3d2209ae6caec",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "im26-5034-diagnostic",
+      "variant": "dct16-left",
+      "distance": 3,
+      "bytes": 102205,
+      "baselineBytes": 104637,
+      "score": 89.87659223,
+      "butteraugli": 1.1886094809,
+      "encodeMilliseconds": 2873.284055000011,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 27598
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "5b259e326af957fbb15772e85aa38c157a8a77172ae38ccd2b18dca3c0fcdc1f",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/im26-5034-diagnostic-dct16-left-3.jxl",
+      "artifactSha256": "3e8bbb97b35c1737441c77d82b605dfb4ec0dd91300a7ee0a83e4b4a9c601517",
+      "nativePixelsSha256": "b3f4eabedde57db2852df309732924f82efdce1f11240a6e1ae18f96fd7b5664",
+      "rustPixelsSha256": "a9306d0ff4c2a087a7e4ba47ebe7248f67d719b66147a3ec130647c4146551dd",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "qualified-baseline",
+      "distance": 3,
+      "bytes": 53324,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 3270.3477180000045,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/alpha_triangles-qualified-baseline-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "qualified-left",
+      "distance": 3,
+      "bytes": 53324,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 3291.1676420000003,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        }
+      ],
+      "parent": "qualified",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/alpha_triangles-qualified-left-3.jxl",
+      "artifactSha256": "e6d952ac5c94eb6d76dd0429e27aef39f9023f43d4fb0c74b7cd4b9f6e8aa400",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "dct16-baseline",
+      "distance": 3,
+      "bytes": 53324,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 3504.893513999996,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 5, 5],
+          "bits": 2689
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/alpha_triangles-dct16-baseline-3.jxl",
+      "artifactSha256": "934b05a88cf6a4f3c73141ba4658b03f2f325081841df23eef28f42e39fb77cf",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "dct16-left",
+      "distance": 3,
+      "bytes": 53324,
+      "baselineBytes": 53324,
+      "score": 91.53156472,
+      "butteraugli": 1.1114339828,
+      "encodeMilliseconds": 3467.5178129999986,
+      "metadataPrediction": [
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        },
+        {
+          "predictors": [5, 5, 1, 5],
+          "bits": 2689
+        }
+      ],
+      "parent": "dct16",
+      "inputSha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497",
+      "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/metadata-left-138/alpha_triangles-dct16-left-3.jxl",
+      "artifactSha256": "e6d952ac5c94eb6d76dd0429e27aef39f9023f43d4fb0c74b7cd4b9f6e8aa400",
+      "nativePixelsSha256": "d6f36e6982c46919e1f3bc55f61d65647ac51ac3b38fab79b634d873d34159c0",
+      "rustPixelsSha256": "aa75d7f762ae4164d3e3f087c91641838797448f8ca4e7d371b5c04cfb0654f4",
+      "maximumDecoderError": 1,
+      "alphaError": 0
+    }
+  ]
+}

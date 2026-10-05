@@ -1,0 +1,102 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-residual-controls-210.ts",
+      "sha256": "5a953509b5ce6e03ab61feb2b3100cfcf8c9b36f6fcfec14f6e64ef0db460dca"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-residual-repository-check-210.json",
+      "sha256": "2a5e04942b3e1aa79399162f6b52ab1de223cc0b8ab49cb46b88d50b8094c955"
+    },
+    {
+      "path": "/tmp/jpegxl-residual-check-210.log",
+      "sha256": "744dd7060ed4cef317ac97008fcd12db8f9fc9180f2c8d6791618e02412165fc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/learned-tree-entropy-documentation-gates.json",
+      "sha256": "a7d8dbc5dbdb6048e85a3b4995725d3dfe6a11eba6f0c6bf5b1bbe09bf4672b7"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/residual-group-controls-audit.json",
+      "sha256": "bd8f76e0cede36a89bb4bc04c0b15c898a7099fdbbd90017510ff892f8d5573a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/native-add-residual-model-controls-retry2.json",
+      "sha256": "2cf661886007a6111ee4623f1de36f902d8e2b5df61015a8f2a7a792bab3fd62"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/current-patch-residual-group-controls.json",
+      "sha256": "630458c899da718f16268bfa99e7120704805054e6cdeb74b0e304f623c03b55"
+    }
+  ],
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3635,
+    "filesSkipped": 1,
+    "testsSkipped": 3
+  },
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "e76fae0712f7c11e97b6db034062aaf62795b3ed2fdb5a2d88501b6d9aa8e803"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    }
+  ],
+  "downloadPins": [
+    {
+      "path": "benchmark/jpegxl/comparison/PARITY.md",
+      "sha256": "a57a6e5c60a86530810be88e448f0198690d5977aeda8541a49931aa9477285d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/REPORT.md",
+      "sha256": "bc880bcfd4533147ca815acb46669276ef3597f59eed6b3ec1ae8d2371943e9a"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort1-public.json",
+      "sha256": "4574e012b49bb600fa09931e088e1ca55bf51a0665e76e982aa05cc9630c9114"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-tree-entropy-effort7-public.json",
+      "sha256": "04ae6b1a5e83d16ce15c1c67916656cd6c0da277b2e83387da2b3f3b3f2dddbe"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-tree-entropy-public.json",
+      "sha256": "9d5e7ec4c41f2ae44d29955126a12066a3e6d1c89f5dd2df09f4a52433dd8be4"
+    }
+  ],
+  "independentSamples": 132710400,
+  "publicSamples": 66355200,
+  "ignored": [
+    ".tmp/jpegxl-comparison-v1/native-residual-control-207c",
+    ".tmp/jpegxl-comparison-v1/current-residual-control-208",
+    ".tmp/jpegxl-comparison-v1/residual-controls-before-format-209"
+  ],
+  "indexEmpty": true,
+  "policy": "Fresh full npm run check after completed isolated attribution controls. Source, all seven qualified public modules and current comparison downloads remain identical. All eight controlled files and their independent/public sample proofs remain pinned; copied encoders, grids, logs and exact original raw evidence are ignored. The 402110-byte first-party screenshot candidate is promising and unadopted pending complete public-policy/runtime qualification. No speed, overall compression parity, version, dependency, staging, commit or push claim."
+}

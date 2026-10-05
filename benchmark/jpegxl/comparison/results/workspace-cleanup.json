@@ -1,0 +1,39 @@
+{
+  "completed": "2026-10-05",
+  "policy": "Unreferenced intermediate reports are retained locally under ignored temporary storage. Maintained qualification, failed controls and linked diagnostics remain in the repository. Archive records preserve hashes and original status without upgrading any verdict.",
+  "archives": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/guarded-fused-cpu-sample-profile.json",
+      "archivePath": ".tmp/jpegxl-comparison-v1/commit-cleanup-2026-10-05/guarded-fused-cpu-sample-profile.json",
+      "bytes": 23361,
+      "sha256": "ae2bace98b18898f9850c0acae620682bb5954b871333649513d0b21a98f69f7",
+      "reason": "Superseded by the referenced typed CPU profile. Signed-delta diagnostics remain in the local archive.",
+      "implementationSourceSha256": null,
+      "policy": "Fresh Node CPU profile of unchanged guarded334photo encoding, explicit self/inclusive sample-count shares and complete raw signed timing sum/negative/minimum/maximum deltas retained. Inclusive entries overlap and cannot be added. Diagnostic sampling shares, not elapsed CPU weights, paired runtime/RSS or adoption qualification.",
+      "originalRowCount": null,
+      "negativeDeltas": 4
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-effort1-public.json",
+      "archivePath": ".tmp/jpegxl-comparison-v1/commit-cleanup-2026-10-05/parity-palette-order-effort1-public.json",
+      "bytes": 44733,
+      "sha256": "622267417f027ab32d025492fdfeb5188e9ce29cdcaeb32c294ef1804208f123",
+      "reason": "Unreferenced intermediate effort-1 replay. The referenced retry2 reports retain the qualified matrix.",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "policy": "All 16 pinned native uint8/uint16 inputs are freshly encoded through the rebuilt actual public package at effort 1. Every original sample, alpha and hidden RGB remains exact in both independently pinned decoders. Every changed complete stream must shrink against the last full qualified matrix. Four disjoint development processes use one bounded service; runtime encoding remains single-threaded. This is compression evidence, not a speed comparison.",
+      "originalRowCount": 16,
+      "negativeDeltas": null
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/parity-palette-order-retry-effort1-public.json",
+      "archivePath": ".tmp/jpegxl-comparison-v1/commit-cleanup-2026-10-05/parity-palette-order-retry-effort1-public.json",
+      "bytes": 44786,
+      "sha256": "be81ee2f30c46e3632ba7c97b173ebb590f39d0cbdf4efdd2b60c5f7fc85dd5c",
+      "reason": "Unreferenced intermediate effort-1 replay. The referenced retry2 reports retain the qualified matrix.",
+      "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+      "policy": "All 16 pinned native uint8/uint16 inputs are freshly encoded through the rebuilt actual public package at effort 1. Every original sample, alpha and hidden RGB remains exact in both independently pinned decoders. Every changed complete stream must shrink against the last full qualified matrix. Four disjoint development processes use one bounded service; runtime encoding remains single-threaded. This is compression evidence, not a speed comparison.",
+      "originalRowCount": 16,
+      "negativeDeltas": null
+    }
+  ]
+}

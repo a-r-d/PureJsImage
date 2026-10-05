@@ -1,0 +1,2758 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/profile-small-group-allocations-233.ts",
+      "sha256": "c923eeaa5122277978278f630c7b14a709651152517b4efeba68fc60e6683a0b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-small-group-allocations-233.ts",
+      "sha256": "2b125b7150b26fd0755e704b91ca984d82761df112e035837ec58c57ee91b75e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-small-group-allocations-233.json",
+      "sha256": "368308122f0d0b2b13aa372bf9ba1231d1d0f66f7d3242de40e4820de84d07af"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-pixel-guard-controls.json",
+      "sha256": "a4920a6975c4d582da00e13cd9ecbbf5e7fa14fb00d471e2141f9b914f6881fc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-controls-audit.json",
+      "sha256": "1bb6b077b59ba8dca5cdf8df779ebe986f23fd052e527e2c28260bb7b76d4d95"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/small-group-paired-controls-audit.json",
+      "sha256": "31309484bb3d1f5d2232409c6b4cbef184c76c9afee218fedb2e1f7ad19ef67a"
+    },
+    {
+      "path": "src/codecs/jpegxl-encoder-memory.ts",
+      "sha256": "d37500c884d1fd5e2c4aaee0850207fd50f59f53c08d9b0a24e9f642b8dce844"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-8160.ppm",
+      "sha256": "041d4bea89b8fe839c6b29d452947f53e534002922315a245617293d5c9f2389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-8160-original.raw",
+      "sha256": "dd171e0dde47e61e40e7874a74989b099b2b7748f121fab1787cd87f71a8ef2c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-modular-encode.ts",
+      "sha256": "faa742c1b2ddd547c1e5990e8d4fa93b94169ab6f8e902b090bca6627c32f278"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-jpeg-encode.ts",
+      "sha256": "72565927c634f655ce4a6732d7dd8a733e1437940c83fe060c89cba382fdda78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-vardct-encode.ts",
+      "sha256": "c4d47300f866d3cd04b596f87192f4e21fa722af93c4d20aaa09d1a6eb2eea54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-modular-tree.ts",
+      "sha256": "f791cc6908fecc745b3db6693a4229ad98c8669cd7fb53bda4a7470017cd3e99"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/baseline/jpegxl-encoder-memory.ts",
+      "sha256": "2b4d025220b6b4d789ddc26c5d9d31db80b6d22c80edb6d3ecad3848305e49e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-modular-encode.ts",
+      "sha256": "68b6dbb82e886eead8e6ddced673ded014b0a8a2f3d1cde63b40c591bc982c24"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-jpeg-encode.ts",
+      "sha256": "72565927c634f655ce4a6732d7dd8a733e1437940c83fe060c89cba382fdda78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-vardct-encode.ts",
+      "sha256": "c4d47300f866d3cd04b596f87192f4e21fa722af93c4d20aaa09d1a6eb2eea54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-vardct-forward-transforms.ts",
+      "sha256": "5adbf7ee6e4572808605ce4bdf09512edc9f8f2ef6c4dee883596d5a33afc2b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-vardct-quantization.ts",
+      "sha256": "3834d56d069666d062962fcc3034c79067d5f1e1fdd76884c4eb91d39695079f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-modular-tree.ts",
+      "sha256": "6d866e08287584335b3f529d8167a2dee9c9fe592c316acbdb85551525fb6f4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/small-group-allocations-233/candidate/jpegxl-encoder-memory.ts",
+      "sha256": "2b4d025220b6b4d789ddc26c5d9d31db80b6d22c80edb6d3ecad3848305e49e4"
+    }
+  ],
+  "results": [
+    {
+      "variant": "baseline",
+      "phase": "cold",
+      "bytes": 416143,
+      "encodedSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "allocations": 171246,
+      "allocatedBytes": 2327423477,
+      "bins": [
+        {
+          "key": "Uint32Array:24",
+          "calls": 44,
+          "bytes": 692060160,
+          "largest": 16777216
+        },
+        {
+          "key": "Int32Array:24",
+          "calls": 24,
+          "bytes": 377487360,
+          "largest": 16777216
+        },
+        {
+          "key": "Uint16Array:23",
+          "calls": 44,
+          "bytes": 346030080,
+          "largest": 8388608
+        },
+        {
+          "key": "Int32Array:22",
+          "calls": 66,
+          "bytes": 266338304,
+          "largest": 4194304
+        },
+        {
+          "key": "Int32Array:21",
+          "calls": 49,
+          "bytes": 80052264,
+          "largest": 2097152
+        },
+        {
+          "key": "Int32Array:20",
+          "calls": 66,
+          "bytes": 64613572,
+          "largest": 1048576
+        },
+        {
+          "key": "Uint32Array:20",
+          "calls": 68,
+          "bytes": 62942404,
+          "largest": 1048576
+        },
+        {
+          "key": "Float64Array:19",
+          "calls": 140,
+          "bytes": 57286136,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:18",
+          "calls": 252,
+          "bytes": 56871988,
+          "largest": 262144
+        },
+        {
+          "key": "Int32Array:23",
+          "calls": 3,
+          "bytes": 24883200,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:11",
+          "calls": 9489,
+          "bytes": 18986692,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:19",
+          "calls": 44,
+          "bytes": 18757218,
+          "largest": 458752
+        },
+        {
+          "key": "Uint8Array:18",
+          "calls": 82,
+          "bytes": 18663750,
+          "largest": 262144
+        },
+        {
+          "key": "Uint8Array:23",
+          "calls": 2,
+          "bytes": 16588800,
+          "largest": 8294400
+        },
+        {
+          "key": "Float64Array:22",
+          "calls": 4,
+          "bytes": 13550472,
+          "largest": 3864200
+        },
+        {
+          "key": "Uint32Array:12",
+          "calls": 4182,
+          "bytes": 12796684,
+          "largest": 4084
+        },
+        {
+          "key": "Uint32Array:17",
+          "calls": 150,
+          "bytes": 12554672,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:13",
+          "calls": 1740,
+          "bytes": 11006244,
+          "largest": 8192
+        },
+        {
+          "key": "Int32Array:18",
+          "calls": 49,
+          "bytes": 10803456,
+          "largest": 254592
+        },
+        {
+          "key": "Uint32Array:19",
+          "calls": 21,
+          "bytes": 10243584,
+          "largest": 524288
+        },
+        {
+          "key": "Uint8Array:19",
+          "calls": 24,
+          "bytes": 10207617,
+          "largest": 524288
+        },
+        {
+          "key": "Float64Array:20",
+          "calls": 16,
+          "bytes": 8388736,
+          "largest": 524296
+        },
+        {
+          "key": "Uint8Array:17",
+          "calls": 66,
+          "bytes": 8282112,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:9",
+          "calls": 18575,
+          "bytes": 8075482,
+          "largest": 512
+        },
+        {
+          "key": "Uint32Array:21",
+          "calls": 6,
+          "bytes": 6848552,
+          "largest": 1191504
+        },
+        {
+          "key": "Uint16Array:17",
+          "calls": 50,
+          "bytes": 5959112,
+          "largest": 127296
+        },
+        {
+          "key": "Uint32Array:16",
+          "calls": 120,
+          "bytes": 5783052,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:14",
+          "calls": 538,
+          "bytes": 4905892,
+          "largest": 16368
+        },
+        {
+          "key": "Uint16Array:12",
+          "calls": 1653,
+          "bytes": 4842798,
+          "largest": 4096
+        },
+        {
+          "key": "Uint32Array:13",
+          "calls": 711,
+          "bytes": 4726256,
+          "largest": 8192
+        },
+        {
+          "key": "Uint16Array:16",
+          "calls": 123,
+          "bytes": 4719982,
+          "largest": 39364
+        },
+        {
+          "key": "Uint32Array:10",
+          "calls": 4750,
+          "bytes": 4605852,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:10",
+          "calls": 6250,
+          "bytes": 4507312,
+          "largest": 1024
+        },
+        {
+          "key": "Int32Array:16",
+          "calls": 88,
+          "bytes": 4410584,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:21",
+          "calls": 2,
+          "bytes": 4147200,
+          "largest": 2073600
+        },
+        {
+          "key": "Int32Array:10",
+          "calls": 3934,
+          "bytes": 4017688,
+          "largest": 1024
+        },
+        {
+          "key": "Float64Array:17",
+          "calls": 42,
+          "bytes": 3957512,
+          "largest": 127304
+        },
+        {
+          "key": "Uint16Array:11",
+          "calls": 2784,
+          "bytes": 3939734,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:20",
+          "calls": 6,
+          "bytes": 3424276,
+          "largest": 595752
+        },
+        {
+          "key": "Uint8Array:14",
+          "calls": 221,
+          "bytes": 3132968,
+          "largest": 16384
+        },
+        {
+          "key": "Int32Array:17",
+          "calls": 39,
+          "bytes": 3007452,
+          "largest": 78728
+        },
+        {
+          "key": "Uint8Array:16",
+          "calls": 47,
+          "bytes": 2908680,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:15",
+          "calls": 142,
+          "bytes": 2864012,
+          "largest": 32064
+        },
+        {
+          "key": "Float64Array:18",
+          "calls": 16,
+          "bytes": 2855384,
+          "largest": 224832
+        },
+        {
+          "key": "Float64Array:16",
+          "calls": 62,
+          "bytes": 2818424,
+          "largest": 64128
+        },
+        {
+          "key": "Float64Array:15",
+          "calls": 117,
+          "bytes": 2816256,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:13",
+          "calls": 366,
+          "bytes": 2149992,
+          "largest": 8168
+        },
+        {
+          "key": "Float64Array:14",
+          "calls": 189,
+          "bytes": 2090664,
+          "largest": 16272
+        },
+        {
+          "key": "Uint16Array:8",
+          "calls": 10916,
+          "bytes": 2017814,
+          "largest": 256
+        },
+        {
+          "key": "Uint16Array:15",
+          "calls": 78,
+          "bytes": 1902156,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:14",
+          "calls": 169,
+          "bytes": 1858836,
+          "largest": 16384
+        },
+        {
+          "key": "Uint8Array:15",
+          "calls": 61,
+          "bytes": 1855117,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:12",
+          "calls": 567,
+          "bytes": 1651344,
+          "largest": 4096
+        },
+        {
+          "key": "Int32Array:13",
+          "calls": 213,
+          "bytes": 1596000,
+          "largest": 8192
+        },
+        {
+          "key": "Int32Array:19",
+          "calls": 4,
+          "bytes": 1527552,
+          "largest": 381888
+        },
+        {
+          "key": "Int32Array:15",
+          "calls": 70,
+          "bytes": 1392060,
+          "largest": 31824
+        },
+        {
+          "key": "Uint16Array:7",
+          "calls": 14051,
+          "bytes": 1295732,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:13",
+          "calls": 148,
+          "bytes": 1188967,
+          "largest": 8192
+        },
+        {
+          "key": "Float64Array:11",
+          "calls": 817,
+          "bytes": 1178936,
+          "largest": 2048
+        },
+        {
+          "key": "Uint8Array:12",
+          "calls": 229,
+          "bytes": 889083,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:8",
+          "calls": 3400,
+          "bytes": 868260,
+          "largest": 256
+        },
+        {
+          "key": "Float64Array:10",
+          "calls": 1156,
+          "bytes": 847552,
+          "largest": 1024
+        },
+        {
+          "key": "Uint8Array:11",
+          "calls": 345,
+          "bytes": 659746,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:6",
+          "calls": 14230,
+          "bytes": 644564,
+          "largest": 64
+        },
+        {
+          "key": "Uint32Array:9",
+          "calls": 1198,
+          "bytes": 437492,
+          "largest": 512
+        },
+        {
+          "key": "Uint32Array:8",
+          "calls": 1886,
+          "bytes": 337524,
+          "largest": 256
+        },
+        {
+          "key": "Int32Array:12",
+          "calls": 75,
+          "bytes": 306064,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:10",
+          "calls": 301,
+          "bytes": 293118,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:5",
+          "calls": 10826,
+          "bytes": 267770,
+          "largest": 32
+        },
+        {
+          "key": "Int8Array:8",
+          "calls": 871,
+          "bytes": 204362,
+          "largest": 245
+        },
+        {
+          "key": "Int32Array:11",
+          "calls": 107,
+          "bytes": 191096,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:14",
+          "calls": 20,
+          "bytes": 181850,
+          "largest": 9726
+        },
+        {
+          "key": "Uint8Array:9",
+          "calls": 300,
+          "bytes": 140653,
+          "largest": 512
+        },
+        {
+          "key": "Float64Array:4",
+          "calls": 8500,
+          "bytes": 136000,
+          "largest": 16
+        },
+        {
+          "key": "Float64Array:5",
+          "calls": 3880,
+          "bytes": 93616,
+          "largest": 32
+        },
+        {
+          "key": "Uint16Array:4",
+          "calls": 6720,
+          "bytes": 86682,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:9",
+          "calls": 120,
+          "bytes": 53768,
+          "largest": 512
+        },
+        {
+          "key": "Int8Array:6",
+          "calls": 1314,
+          "bytes": 52962,
+          "largest": 57
+        },
+        {
+          "key": "Uint32Array:3",
+          "calls": 6136,
+          "bytes": 49088,
+          "largest": 8
+        },
+        {
+          "key": "Int8Array:5",
+          "calls": 2303,
+          "bytes": 47220,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:5",
+          "calls": 1525,
+          "bytes": 33624,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:4",
+          "calls": 2765,
+          "bytes": 33208,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:3",
+          "calls": 3968,
+          "bytes": 27600,
+          "largest": 8
+        },
+        {
+          "key": "Uint32Array:7",
+          "calls": 169,
+          "bytes": 21448,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:6",
+          "calls": 466,
+          "bytes": 20778,
+          "largest": 61
+        },
+        {
+          "key": "Int8Array:4",
+          "calls": 1492,
+          "bytes": 19047,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:8",
+          "calls": 72,
+          "bytes": 18032,
+          "largest": 256
+        },
+        {
+          "key": "Int32Array:6",
+          "calls": 270,
+          "bytes": 17280,
+          "largest": 64
+        },
+        {
+          "key": "Uint8Array:4",
+          "calls": 1270,
+          "bytes": 16420,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:1",
+          "calls": 7058,
+          "bytes": 14116,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:9",
+          "calls": 26,
+          "bytes": 13312,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:2",
+          "calls": 2345,
+          "bytes": 9380,
+          "largest": 4
+        },
+        {
+          "key": "Uint8Array:7",
+          "calls": 56,
+          "bytes": 5444,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:3",
+          "calls": 469,
+          "bytes": 2886,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:7",
+          "calls": 24,
+          "bytes": 2264,
+          "largest": 112
+        },
+        {
+          "key": "Int8Array:3",
+          "calls": 313,
+          "bytes": 2208,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:8",
+          "calls": 5,
+          "bytes": 912,
+          "largest": 240
+        },
+        {
+          "key": "Uint8Array:2",
+          "calls": 153,
+          "bytes": 554,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:7",
+          "calls": 4,
+          "bytes": 512,
+          "largest": 128
+        },
+        {
+          "key": "Float64Array:6",
+          "calls": 7,
+          "bytes": 448,
+          "largest": 64
+        },
+        {
+          "key": "Uint8Array:1",
+          "calls": 85,
+          "bytes": 170,
+          "largest": 2
+        },
+        {
+          "key": "Uint32Array:6",
+          "calls": 3,
+          "bytes": 152,
+          "largest": 56
+        },
+        {
+          "key": "Int8Array:2",
+          "calls": 17,
+          "bytes": 54,
+          "largest": 4
+        },
+        {
+          "key": "Uint8Array:0",
+          "calls": 27,
+          "bytes": 23,
+          "largest": 1
+        },
+        {
+          "key": "Uint32Array:0",
+          "calls": 95,
+          "bytes": 0,
+          "largest": 0
+        },
+        {
+          "key": "Int32Array:0",
+          "calls": 95,
+          "bytes": 0,
+          "largest": 0
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "phase": "warm",
+      "bytes": 416143,
+      "encodedSha256": "99545f111cba89c90ee11e4fadbe8b4f1be9ab65fbd3436fb68091b06b09be7e",
+      "ownedPeak": 137282142,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "allocations": 171246,
+      "allocatedBytes": 2327423477,
+      "bins": [
+        {
+          "key": "Uint32Array:24",
+          "calls": 44,
+          "bytes": 692060160,
+          "largest": 16777216
+        },
+        {
+          "key": "Int32Array:24",
+          "calls": 24,
+          "bytes": 377487360,
+          "largest": 16777216
+        },
+        {
+          "key": "Uint16Array:23",
+          "calls": 44,
+          "bytes": 346030080,
+          "largest": 8388608
+        },
+        {
+          "key": "Int32Array:22",
+          "calls": 66,
+          "bytes": 266338304,
+          "largest": 4194304
+        },
+        {
+          "key": "Int32Array:21",
+          "calls": 49,
+          "bytes": 80052264,
+          "largest": 2097152
+        },
+        {
+          "key": "Int32Array:20",
+          "calls": 66,
+          "bytes": 64613572,
+          "largest": 1048576
+        },
+        {
+          "key": "Uint32Array:20",
+          "calls": 68,
+          "bytes": 62942404,
+          "largest": 1048576
+        },
+        {
+          "key": "Float64Array:19",
+          "calls": 140,
+          "bytes": 57286136,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:18",
+          "calls": 252,
+          "bytes": 56871988,
+          "largest": 262144
+        },
+        {
+          "key": "Int32Array:23",
+          "calls": 3,
+          "bytes": 24883200,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:11",
+          "calls": 9489,
+          "bytes": 18986692,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:19",
+          "calls": 44,
+          "bytes": 18757218,
+          "largest": 458752
+        },
+        {
+          "key": "Uint8Array:18",
+          "calls": 82,
+          "bytes": 18663750,
+          "largest": 262144
+        },
+        {
+          "key": "Uint8Array:23",
+          "calls": 2,
+          "bytes": 16588800,
+          "largest": 8294400
+        },
+        {
+          "key": "Float64Array:22",
+          "calls": 4,
+          "bytes": 13550472,
+          "largest": 3864200
+        },
+        {
+          "key": "Uint32Array:12",
+          "calls": 4182,
+          "bytes": 12796684,
+          "largest": 4084
+        },
+        {
+          "key": "Uint32Array:17",
+          "calls": 150,
+          "bytes": 12554672,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:13",
+          "calls": 1740,
+          "bytes": 11006244,
+          "largest": 8192
+        },
+        {
+          "key": "Int32Array:18",
+          "calls": 49,
+          "bytes": 10803456,
+          "largest": 254592
+        },
+        {
+          "key": "Uint32Array:19",
+          "calls": 21,
+          "bytes": 10243584,
+          "largest": 524288
+        },
+        {
+          "key": "Uint8Array:19",
+          "calls": 24,
+          "bytes": 10207617,
+          "largest": 524288
+        },
+        {
+          "key": "Float64Array:20",
+          "calls": 16,
+          "bytes": 8388736,
+          "largest": 524296
+        },
+        {
+          "key": "Uint8Array:17",
+          "calls": 66,
+          "bytes": 8282112,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:9",
+          "calls": 18575,
+          "bytes": 8075482,
+          "largest": 512
+        },
+        {
+          "key": "Uint32Array:21",
+          "calls": 6,
+          "bytes": 6848552,
+          "largest": 1191504
+        },
+        {
+          "key": "Uint16Array:17",
+          "calls": 50,
+          "bytes": 5959112,
+          "largest": 127296
+        },
+        {
+          "key": "Uint32Array:16",
+          "calls": 120,
+          "bytes": 5783052,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:14",
+          "calls": 538,
+          "bytes": 4905892,
+          "largest": 16368
+        },
+        {
+          "key": "Uint16Array:12",
+          "calls": 1653,
+          "bytes": 4842798,
+          "largest": 4096
+        },
+        {
+          "key": "Uint32Array:13",
+          "calls": 711,
+          "bytes": 4726256,
+          "largest": 8192
+        },
+        {
+          "key": "Uint16Array:16",
+          "calls": 123,
+          "bytes": 4719982,
+          "largest": 39364
+        },
+        {
+          "key": "Uint32Array:10",
+          "calls": 4750,
+          "bytes": 4605852,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:10",
+          "calls": 6250,
+          "bytes": 4507312,
+          "largest": 1024
+        },
+        {
+          "key": "Int32Array:16",
+          "calls": 88,
+          "bytes": 4410584,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:21",
+          "calls": 2,
+          "bytes": 4147200,
+          "largest": 2073600
+        },
+        {
+          "key": "Int32Array:10",
+          "calls": 3934,
+          "bytes": 4017688,
+          "largest": 1024
+        },
+        {
+          "key": "Float64Array:17",
+          "calls": 42,
+          "bytes": 3957512,
+          "largest": 127304
+        },
+        {
+          "key": "Uint16Array:11",
+          "calls": 2784,
+          "bytes": 3939734,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:20",
+          "calls": 6,
+          "bytes": 3424276,
+          "largest": 595752
+        },
+        {
+          "key": "Uint8Array:14",
+          "calls": 221,
+          "bytes": 3132968,
+          "largest": 16384
+        },
+        {
+          "key": "Int32Array:17",
+          "calls": 39,
+          "bytes": 3007452,
+          "largest": 78728
+        },
+        {
+          "key": "Uint8Array:16",
+          "calls": 47,
+          "bytes": 2908680,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:15",
+          "calls": 142,
+          "bytes": 2864012,
+          "largest": 32064
+        },
+        {
+          "key": "Float64Array:18",
+          "calls": 16,
+          "bytes": 2855384,
+          "largest": 224832
+        },
+        {
+          "key": "Float64Array:16",
+          "calls": 62,
+          "bytes": 2818424,
+          "largest": 64128
+        },
+        {
+          "key": "Float64Array:15",
+          "calls": 117,
+          "bytes": 2816256,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:13",
+          "calls": 366,
+          "bytes": 2149992,
+          "largest": 8168
+        },
+        {
+          "key": "Float64Array:14",
+          "calls": 189,
+          "bytes": 2090664,
+          "largest": 16272
+        },
+        {
+          "key": "Uint16Array:8",
+          "calls": 10916,
+          "bytes": 2017814,
+          "largest": 256
+        },
+        {
+          "key": "Uint16Array:15",
+          "calls": 78,
+          "bytes": 1902156,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:14",
+          "calls": 169,
+          "bytes": 1858836,
+          "largest": 16384
+        },
+        {
+          "key": "Uint8Array:15",
+          "calls": 61,
+          "bytes": 1855117,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:12",
+          "calls": 567,
+          "bytes": 1651344,
+          "largest": 4096
+        },
+        {
+          "key": "Int32Array:13",
+          "calls": 213,
+          "bytes": 1596000,
+          "largest": 8192
+        },
+        {
+          "key": "Int32Array:19",
+          "calls": 4,
+          "bytes": 1527552,
+          "largest": 381888
+        },
+        {
+          "key": "Int32Array:15",
+          "calls": 70,
+          "bytes": 1392060,
+          "largest": 31824
+        },
+        {
+          "key": "Uint16Array:7",
+          "calls": 14051,
+          "bytes": 1295732,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:13",
+          "calls": 148,
+          "bytes": 1188967,
+          "largest": 8192
+        },
+        {
+          "key": "Float64Array:11",
+          "calls": 817,
+          "bytes": 1178936,
+          "largest": 2048
+        },
+        {
+          "key": "Uint8Array:12",
+          "calls": 229,
+          "bytes": 889083,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:8",
+          "calls": 3400,
+          "bytes": 868260,
+          "largest": 256
+        },
+        {
+          "key": "Float64Array:10",
+          "calls": 1156,
+          "bytes": 847552,
+          "largest": 1024
+        },
+        {
+          "key": "Uint8Array:11",
+          "calls": 345,
+          "bytes": 659746,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:6",
+          "calls": 14230,
+          "bytes": 644564,
+          "largest": 64
+        },
+        {
+          "key": "Uint32Array:9",
+          "calls": 1198,
+          "bytes": 437492,
+          "largest": 512
+        },
+        {
+          "key": "Uint32Array:8",
+          "calls": 1886,
+          "bytes": 337524,
+          "largest": 256
+        },
+        {
+          "key": "Int32Array:12",
+          "calls": 75,
+          "bytes": 306064,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:10",
+          "calls": 301,
+          "bytes": 293118,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:5",
+          "calls": 10826,
+          "bytes": 267770,
+          "largest": 32
+        },
+        {
+          "key": "Int8Array:8",
+          "calls": 871,
+          "bytes": 204362,
+          "largest": 245
+        },
+        {
+          "key": "Int32Array:11",
+          "calls": 107,
+          "bytes": 191096,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:14",
+          "calls": 20,
+          "bytes": 181850,
+          "largest": 9726
+        },
+        {
+          "key": "Uint8Array:9",
+          "calls": 300,
+          "bytes": 140653,
+          "largest": 512
+        },
+        {
+          "key": "Float64Array:4",
+          "calls": 8500,
+          "bytes": 136000,
+          "largest": 16
+        },
+        {
+          "key": "Float64Array:5",
+          "calls": 3880,
+          "bytes": 93616,
+          "largest": 32
+        },
+        {
+          "key": "Uint16Array:4",
+          "calls": 6720,
+          "bytes": 86682,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:9",
+          "calls": 120,
+          "bytes": 53768,
+          "largest": 512
+        },
+        {
+          "key": "Int8Array:6",
+          "calls": 1314,
+          "bytes": 52962,
+          "largest": 57
+        },
+        {
+          "key": "Uint32Array:3",
+          "calls": 6136,
+          "bytes": 49088,
+          "largest": 8
+        },
+        {
+          "key": "Int8Array:5",
+          "calls": 2303,
+          "bytes": 47220,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:5",
+          "calls": 1525,
+          "bytes": 33624,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:4",
+          "calls": 2765,
+          "bytes": 33208,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:3",
+          "calls": 3968,
+          "bytes": 27600,
+          "largest": 8
+        },
+        {
+          "key": "Uint32Array:7",
+          "calls": 169,
+          "bytes": 21448,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:6",
+          "calls": 466,
+          "bytes": 20778,
+          "largest": 61
+        },
+        {
+          "key": "Int8Array:4",
+          "calls": 1492,
+          "bytes": 19047,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:8",
+          "calls": 72,
+          "bytes": 18032,
+          "largest": 256
+        },
+        {
+          "key": "Int32Array:6",
+          "calls": 270,
+          "bytes": 17280,
+          "largest": 64
+        },
+        {
+          "key": "Uint8Array:4",
+          "calls": 1270,
+          "bytes": 16420,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:1",
+          "calls": 7058,
+          "bytes": 14116,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:9",
+          "calls": 26,
+          "bytes": 13312,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:2",
+          "calls": 2345,
+          "bytes": 9380,
+          "largest": 4
+        },
+        {
+          "key": "Uint8Array:7",
+          "calls": 56,
+          "bytes": 5444,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:3",
+          "calls": 469,
+          "bytes": 2886,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:7",
+          "calls": 24,
+          "bytes": 2264,
+          "largest": 112
+        },
+        {
+          "key": "Int8Array:3",
+          "calls": 313,
+          "bytes": 2208,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:8",
+          "calls": 5,
+          "bytes": 912,
+          "largest": 240
+        },
+        {
+          "key": "Uint8Array:2",
+          "calls": 153,
+          "bytes": 554,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:7",
+          "calls": 4,
+          "bytes": 512,
+          "largest": 128
+        },
+        {
+          "key": "Float64Array:6",
+          "calls": 7,
+          "bytes": 448,
+          "largest": 64
+        },
+        {
+          "key": "Uint8Array:1",
+          "calls": 85,
+          "bytes": 170,
+          "largest": 2
+        },
+        {
+          "key": "Uint32Array:6",
+          "calls": 3,
+          "bytes": 152,
+          "largest": 56
+        },
+        {
+          "key": "Int8Array:2",
+          "calls": 17,
+          "bytes": 54,
+          "largest": 4
+        },
+        {
+          "key": "Uint8Array:0",
+          "calls": 27,
+          "bytes": 23,
+          "largest": 1
+        },
+        {
+          "key": "Uint32Array:0",
+          "calls": 95,
+          "bytes": 0,
+          "largest": 0
+        },
+        {
+          "key": "Int32Array:0",
+          "calls": 95,
+          "bytes": 0,
+          "largest": 0
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "phase": "cold",
+      "bytes": 407354,
+      "encodedSha256": "3cf06470fdebd1385bf51ad42b90cb3d3cedd5789fedc8fa7ebe2d3698011288",
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "allocations": 318674,
+      "allocatedBytes": 3309788568,
+      "bins": [
+        {
+          "key": "Int32Array:22",
+          "calls": 200,
+          "bytes": 833617920,
+          "largest": 4194304
+        },
+        {
+          "key": "Uint32Array:20",
+          "calls": 463,
+          "bytes": 481343024,
+          "largest": 1048576
+        },
+        {
+          "key": "Uint32Array:24",
+          "calls": 22,
+          "bytes": 346030080,
+          "largest": 16777216
+        },
+        {
+          "key": "Int32Array:20",
+          "calls": 184,
+          "bytes": 190674480,
+          "largest": 1048576
+        },
+        {
+          "key": "Int32Array:24",
+          "calls": 12,
+          "bytes": 188743680,
+          "largest": 16777216
+        },
+        {
+          "key": "Uint16Array:23",
+          "calls": 22,
+          "bytes": 173015040,
+          "largest": 8388608
+        },
+        {
+          "key": "Uint16Array:19",
+          "calls": 297,
+          "bytes": 153574168,
+          "largest": 524288
+        },
+        {
+          "key": "Int32Array:21",
+          "calls": 70,
+          "bytes": 135526944,
+          "largest": 2097152
+        },
+        {
+          "key": "Int32Array:18",
+          "calls": 405,
+          "bytes": 94625796,
+          "largest": 262144
+        },
+        {
+          "key": "Uint32Array:19",
+          "calls": 244,
+          "bytes": 86807004,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:18",
+          "calls": 294,
+          "bytes": 63756140,
+          "largest": 262144
+        },
+        {
+          "key": "Int32Array:19",
+          "calls": 116,
+          "bytes": 43524012,
+          "largest": 524288
+        },
+        {
+          "key": "Uint16Array:13",
+          "calls": 5413,
+          "bytes": 38074614,
+          "largest": 8192
+        },
+        {
+          "key": "Uint16Array:18",
+          "calls": 208,
+          "bytes": 32079934,
+          "largest": 262144
+        },
+        {
+          "key": "Float64Array:19",
+          "calls": 72,
+          "bytes": 29020344,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:12",
+          "calls": 10094,
+          "bytes": 27617084,
+          "largest": 4096
+        },
+        {
+          "key": "Int32Array:23",
+          "calls": 3,
+          "bytes": 24883200,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:11",
+          "calls": 12135,
+          "bytes": 23424892,
+          "largest": 2048
+        },
+        {
+          "key": "Uint32Array:16",
+          "calls": 341,
+          "bytes": 19140116,
+          "largest": 65536
+        },
+        {
+          "key": "Uint16Array:9",
+          "calls": 41998,
+          "bytes": 18605738,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:17",
+          "calls": 178,
+          "bytes": 18382874,
+          "largest": 127296
+        },
+        {
+          "key": "Uint32Array:17",
+          "calls": 190,
+          "bytes": 17617480,
+          "largest": 131072
+        },
+        {
+          "key": "Float64Array:16",
+          "calls": 320,
+          "bytes": 17188336,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:23",
+          "calls": 2,
+          "bytes": 16588800,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:15",
+          "calls": 578,
+          "bytes": 15798892,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:16",
+          "calls": 238,
+          "bytes": 13282556,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:10",
+          "calls": 11634,
+          "bytes": 11323120,
+          "largest": 1024
+        },
+        {
+          "key": "Int32Array:10",
+          "calls": 10271,
+          "bytes": 10418188,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:12",
+          "calls": 3406,
+          "bytes": 10102226,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:18",
+          "calls": 42,
+          "bytes": 9609545,
+          "largest": 262144
+        },
+        {
+          "key": "Float64Array:17",
+          "calls": 123,
+          "bytes": 9267888,
+          "largest": 127304
+        },
+        {
+          "key": "Uint16Array:11",
+          "calls": 6032,
+          "bytes": 8625530,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:10",
+          "calls": 11944,
+          "bytes": 8625078,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:15",
+          "calls": 291,
+          "bytes": 8404510,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:17",
+          "calls": 82,
+          "bytes": 7979048,
+          "largest": 131072
+        },
+        {
+          "key": "Uint8Array:15",
+          "calls": 277,
+          "bytes": 7635772,
+          "largest": 32768
+        },
+        {
+          "key": "Uint8Array:14",
+          "calls": 488,
+          "bytes": 7204708,
+          "largest": 16384
+        },
+        {
+          "key": "Float64Array:22",
+          "calls": 2,
+          "bytes": 7019272,
+          "largest": 3864200
+        },
+        {
+          "key": "Uint8Array:17",
+          "calls": 56,
+          "bytes": 6517295,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:16",
+          "calls": 151,
+          "bytes": 6197316,
+          "largest": 65456
+        },
+        {
+          "key": "Uint8Array:16",
+          "calls": 93,
+          "bytes": 5446908,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:19",
+          "calls": 12,
+          "bytes": 5167342,
+          "largest": 524288
+        },
+        {
+          "key": "Int32Array:14",
+          "calls": 356,
+          "bytes": 5075156,
+          "largest": 16384
+        },
+        {
+          "key": "Int32Array:13",
+          "calls": 564,
+          "bytes": 4264948,
+          "largest": 8192
+        },
+        {
+          "key": "Uint32Array:14",
+          "calls": 425,
+          "bytes": 4244080,
+          "largest": 16368
+        },
+        {
+          "key": "Uint16Array:8",
+          "calls": 22857,
+          "bytes": 4243462,
+          "largest": 256
+        },
+        {
+          "key": "Uint32Array:13",
+          "calls": 676,
+          "bytes": 4227500,
+          "largest": 8160
+        },
+        {
+          "key": "Float64Array:15",
+          "calls": 167,
+          "bytes": 4202872,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:20",
+          "calls": 8,
+          "bytes": 4194368,
+          "largest": 524296
+        },
+        {
+          "key": "Uint8Array:21",
+          "calls": 2,
+          "bytes": 4147200,
+          "largest": 2073600
+        },
+        {
+          "key": "Int32Array:15",
+          "calls": 147,
+          "bytes": 3738232,
+          "largest": 32736
+        },
+        {
+          "key": "Uint32Array:21",
+          "calls": 3,
+          "bytes": 3504672,
+          "largest": 1191504
+        },
+        {
+          "key": "Int32Array:12",
+          "calls": 1302,
+          "bytes": 3494288,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:13",
+          "calls": 434,
+          "bytes": 3347648,
+          "largest": 8192
+        },
+        {
+          "key": "Float64Array:13",
+          "calls": 461,
+          "bytes": 2667744,
+          "largest": 8168
+        },
+        {
+          "key": "Float64Array:14",
+          "calls": 233,
+          "bytes": 2607296,
+          "largest": 16320
+        },
+        {
+          "key": "Uint16Array:7",
+          "calls": 26889,
+          "bytes": 2496736,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:12",
+          "calls": 510,
+          "bytes": 1990608,
+          "largest": 4096
+        },
+        {
+          "key": "Float64Array:12",
+          "calls": 678,
+          "bytes": 1973664,
+          "largest": 4096
+        },
+        {
+          "key": "Float64Array:18",
+          "calls": 10,
+          "bytes": 1848040,
+          "largest": 224832
+        },
+        {
+          "key": "Uint16Array:20",
+          "calls": 3,
+          "bytes": 1752336,
+          "largest": 595752
+        },
+        {
+          "key": "Float64Array:11",
+          "calls": 1070,
+          "bytes": 1550552,
+          "largest": 2048
+        },
+        {
+          "key": "Uint8Array:8",
+          "calls": 5829,
+          "bytes": 1475219,
+          "largest": 256
+        },
+        {
+          "key": "Uint8Array:11",
+          "calls": 596,
+          "bytes": 1175160,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:6",
+          "calls": 25481,
+          "bytes": 1170382,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:11",
+          "calls": 698,
+          "bytes": 1126148,
+          "largest": 2048
+        },
+        {
+          "key": "Float64Array:10",
+          "calls": 1403,
+          "bytes": 1029496,
+          "largest": 1024
+        },
+        {
+          "key": "Uint32Array:9",
+          "calls": 2433,
+          "bytes": 806132,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:14",
+          "calls": 63,
+          "bytes": 776744,
+          "largest": 15900
+        },
+        {
+          "key": "Uint8Array:10",
+          "calls": 717,
+          "bytes": 696574,
+          "largest": 1024
+        },
+        {
+          "key": "Uint32Array:8",
+          "calls": 2761,
+          "bytes": 472704,
+          "largest": 256
+        },
+        {
+          "key": "Uint8Array:9",
+          "calls": 1023,
+          "bytes": 467132,
+          "largest": 512
+        },
+        {
+          "key": "Int8Array:8",
+          "calls": 1964,
+          "bytes": 460980,
+          "largest": 245
+        },
+        {
+          "key": "Uint16Array:5",
+          "calls": 18042,
+          "bytes": 446546,
+          "largest": 32
+        },
+        {
+          "key": "Int32Array:9",
+          "calls": 660,
+          "bytes": 268064,
+          "largest": 512
+        },
+        {
+          "key": "Float64Array:5",
+          "calls": 6427,
+          "bytes": 156232,
+          "largest": 32
+        },
+        {
+          "key": "Float64Array:4",
+          "calls": 9275,
+          "bytes": 148400,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:4",
+          "calls": 11026,
+          "bytes": 142202,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:6",
+          "calls": 1859,
+          "bytes": 118744,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:8",
+          "calls": 531,
+          "bytes": 114904,
+          "largest": 256
+        },
+        {
+          "key": "Int8Array:6",
+          "calls": 2105,
+          "bytes": 82999,
+          "largest": 63
+        },
+        {
+          "key": "Int8Array:5",
+          "calls": 3641,
+          "bytes": 75540,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:5",
+          "calls": 2786,
+          "bytes": 60620,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:7",
+          "calls": 603,
+          "bytes": 57148,
+          "largest": 128
+        },
+        {
+          "key": "Uint32Array:4",
+          "calls": 4485,
+          "bytes": 53904,
+          "largest": 16
+        },
+        {
+          "key": "Uint32Array:3",
+          "calls": 6609,
+          "bytes": 52872,
+          "largest": 8
+        },
+        {
+          "key": "Uint16Array:3",
+          "calls": 7786,
+          "bytes": 52850,
+          "largest": 8
+        },
+        {
+          "key": "Uint8Array:6",
+          "calls": 914,
+          "bytes": 40203,
+          "largest": 63
+        },
+        {
+          "key": "Float64Array:9",
+          "calls": 66,
+          "bytes": 29704,
+          "largest": 512
+        },
+        {
+          "key": "Uint8Array:4",
+          "calls": 2326,
+          "bytes": 29132,
+          "largest": 16
+        },
+        {
+          "key": "Int8Array:4",
+          "calls": 2305,
+          "bytes": 28610,
+          "largest": 16
+        },
+        {
+          "key": "Uint8Array:7",
+          "calls": 274,
+          "bytes": 26335,
+          "largest": 128
+        },
+        {
+          "key": "Uint16Array:1",
+          "calls": 10278,
+          "bytes": 20556,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:8",
+          "calls": 75,
+          "bytes": 15688,
+          "largest": 248
+        },
+        {
+          "key": "Uint16Array:2",
+          "calls": 3523,
+          "bytes": 14092,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:7",
+          "calls": 129,
+          "bytes": 10656,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:3",
+          "calls": 1293,
+          "bytes": 7765,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:7",
+          "calls": 69,
+          "bytes": 6304,
+          "largest": 128
+        },
+        {
+          "key": "Int8Array:3",
+          "calls": 790,
+          "bytes": 5349,
+          "largest": 8
+        },
+        {
+          "key": "Uint8Array:2",
+          "calls": 581,
+          "bytes": 2129,
+          "largest": 4
+        },
+        {
+          "key": "Uint32Array:5",
+          "calls": 66,
+          "bytes": 1696,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:6",
+          "calls": 33,
+          "bytes": 1432,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:5",
+          "calls": 32,
+          "bytes": 864,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:1",
+          "calls": 338,
+          "bytes": 676,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:6",
+          "calls": 12,
+          "bytes": 576,
+          "largest": 56
+        },
+        {
+          "key": "Int8Array:7",
+          "calls": 5,
+          "bytes": 342,
+          "largest": 71
+        },
+        {
+          "key": "Int8Array:2",
+          "calls": 92,
+          "bytes": 306,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:4",
+          "calls": 9,
+          "bytes": 144,
+          "largest": 16
+        },
+        {
+          "key": "Uint8Array:0",
+          "calls": 21,
+          "bytes": 17,
+          "largest": 1
+        },
+        {
+          "key": "Uint32Array:0",
+          "calls": 421,
+          "bytes": 0,
+          "largest": 0
+        },
+        {
+          "key": "Int32Array:0",
+          "calls": 421,
+          "bytes": 0,
+          "largest": 0
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "phase": "warm",
+      "bytes": 407354,
+      "encodedSha256": "3cf06470fdebd1385bf51ad42b90cb3d3cedd5789fedc8fa7ebe2d3698011288",
+      "ownedPeak": 128629716,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "allocations": 318674,
+      "allocatedBytes": 3309788568,
+      "bins": [
+        {
+          "key": "Int32Array:22",
+          "calls": 200,
+          "bytes": 833617920,
+          "largest": 4194304
+        },
+        {
+          "key": "Uint32Array:20",
+          "calls": 463,
+          "bytes": 481343024,
+          "largest": 1048576
+        },
+        {
+          "key": "Uint32Array:24",
+          "calls": 22,
+          "bytes": 346030080,
+          "largest": 16777216
+        },
+        {
+          "key": "Int32Array:20",
+          "calls": 184,
+          "bytes": 190674480,
+          "largest": 1048576
+        },
+        {
+          "key": "Int32Array:24",
+          "calls": 12,
+          "bytes": 188743680,
+          "largest": 16777216
+        },
+        {
+          "key": "Uint16Array:23",
+          "calls": 22,
+          "bytes": 173015040,
+          "largest": 8388608
+        },
+        {
+          "key": "Uint16Array:19",
+          "calls": 297,
+          "bytes": 153574168,
+          "largest": 524288
+        },
+        {
+          "key": "Int32Array:21",
+          "calls": 70,
+          "bytes": 135526944,
+          "largest": 2097152
+        },
+        {
+          "key": "Int32Array:18",
+          "calls": 405,
+          "bytes": 94625796,
+          "largest": 262144
+        },
+        {
+          "key": "Uint32Array:19",
+          "calls": 244,
+          "bytes": 86807004,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:18",
+          "calls": 294,
+          "bytes": 63756140,
+          "largest": 262144
+        },
+        {
+          "key": "Int32Array:19",
+          "calls": 116,
+          "bytes": 43524012,
+          "largest": 524288
+        },
+        {
+          "key": "Uint16Array:13",
+          "calls": 5413,
+          "bytes": 38074614,
+          "largest": 8192
+        },
+        {
+          "key": "Uint16Array:18",
+          "calls": 208,
+          "bytes": 32079934,
+          "largest": 262144
+        },
+        {
+          "key": "Float64Array:19",
+          "calls": 72,
+          "bytes": 29020344,
+          "largest": 524288
+        },
+        {
+          "key": "Uint32Array:12",
+          "calls": 10094,
+          "bytes": 27617084,
+          "largest": 4096
+        },
+        {
+          "key": "Int32Array:23",
+          "calls": 3,
+          "bytes": 24883200,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:11",
+          "calls": 12135,
+          "bytes": 23424892,
+          "largest": 2048
+        },
+        {
+          "key": "Uint32Array:16",
+          "calls": 341,
+          "bytes": 19140116,
+          "largest": 65536
+        },
+        {
+          "key": "Uint16Array:9",
+          "calls": 41998,
+          "bytes": 18605738,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:17",
+          "calls": 178,
+          "bytes": 18382874,
+          "largest": 127296
+        },
+        {
+          "key": "Uint32Array:17",
+          "calls": 190,
+          "bytes": 17617480,
+          "largest": 131072
+        },
+        {
+          "key": "Float64Array:16",
+          "calls": 320,
+          "bytes": 17188336,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:23",
+          "calls": 2,
+          "bytes": 16588800,
+          "largest": 8294400
+        },
+        {
+          "key": "Uint32Array:15",
+          "calls": 578,
+          "bytes": 15798892,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:16",
+          "calls": 238,
+          "bytes": 13282556,
+          "largest": 65536
+        },
+        {
+          "key": "Uint32Array:10",
+          "calls": 11634,
+          "bytes": 11323120,
+          "largest": 1024
+        },
+        {
+          "key": "Int32Array:10",
+          "calls": 10271,
+          "bytes": 10418188,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:12",
+          "calls": 3406,
+          "bytes": 10102226,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:18",
+          "calls": 42,
+          "bytes": 9609545,
+          "largest": 262144
+        },
+        {
+          "key": "Float64Array:17",
+          "calls": 123,
+          "bytes": 9267888,
+          "largest": 127304
+        },
+        {
+          "key": "Uint16Array:11",
+          "calls": 6032,
+          "bytes": 8625530,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:10",
+          "calls": 11944,
+          "bytes": 8625078,
+          "largest": 1024
+        },
+        {
+          "key": "Uint16Array:15",
+          "calls": 291,
+          "bytes": 8404510,
+          "largest": 32768
+        },
+        {
+          "key": "Int32Array:17",
+          "calls": 82,
+          "bytes": 7979048,
+          "largest": 131072
+        },
+        {
+          "key": "Uint8Array:15",
+          "calls": 277,
+          "bytes": 7635772,
+          "largest": 32768
+        },
+        {
+          "key": "Uint8Array:14",
+          "calls": 488,
+          "bytes": 7204708,
+          "largest": 16384
+        },
+        {
+          "key": "Float64Array:22",
+          "calls": 2,
+          "bytes": 7019272,
+          "largest": 3864200
+        },
+        {
+          "key": "Uint8Array:17",
+          "calls": 56,
+          "bytes": 6517295,
+          "largest": 131072
+        },
+        {
+          "key": "Uint16Array:16",
+          "calls": 151,
+          "bytes": 6197316,
+          "largest": 65456
+        },
+        {
+          "key": "Uint8Array:16",
+          "calls": 93,
+          "bytes": 5446908,
+          "largest": 65536
+        },
+        {
+          "key": "Uint8Array:19",
+          "calls": 12,
+          "bytes": 5167342,
+          "largest": 524288
+        },
+        {
+          "key": "Int32Array:14",
+          "calls": 356,
+          "bytes": 5075156,
+          "largest": 16384
+        },
+        {
+          "key": "Int32Array:13",
+          "calls": 564,
+          "bytes": 4264948,
+          "largest": 8192
+        },
+        {
+          "key": "Uint32Array:14",
+          "calls": 425,
+          "bytes": 4244080,
+          "largest": 16368
+        },
+        {
+          "key": "Uint16Array:8",
+          "calls": 22857,
+          "bytes": 4243462,
+          "largest": 256
+        },
+        {
+          "key": "Uint32Array:13",
+          "calls": 676,
+          "bytes": 4227500,
+          "largest": 8160
+        },
+        {
+          "key": "Float64Array:15",
+          "calls": 167,
+          "bytes": 4202872,
+          "largest": 32768
+        },
+        {
+          "key": "Float64Array:20",
+          "calls": 8,
+          "bytes": 4194368,
+          "largest": 524296
+        },
+        {
+          "key": "Uint8Array:21",
+          "calls": 2,
+          "bytes": 4147200,
+          "largest": 2073600
+        },
+        {
+          "key": "Int32Array:15",
+          "calls": 147,
+          "bytes": 3738232,
+          "largest": 32736
+        },
+        {
+          "key": "Uint32Array:21",
+          "calls": 3,
+          "bytes": 3504672,
+          "largest": 1191504
+        },
+        {
+          "key": "Int32Array:12",
+          "calls": 1302,
+          "bytes": 3494288,
+          "largest": 4096
+        },
+        {
+          "key": "Uint8Array:13",
+          "calls": 434,
+          "bytes": 3347648,
+          "largest": 8192
+        },
+        {
+          "key": "Float64Array:13",
+          "calls": 461,
+          "bytes": 2667744,
+          "largest": 8168
+        },
+        {
+          "key": "Float64Array:14",
+          "calls": 233,
+          "bytes": 2607296,
+          "largest": 16320
+        },
+        {
+          "key": "Uint16Array:7",
+          "calls": 26889,
+          "bytes": 2496736,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:12",
+          "calls": 510,
+          "bytes": 1990608,
+          "largest": 4096
+        },
+        {
+          "key": "Float64Array:12",
+          "calls": 678,
+          "bytes": 1973664,
+          "largest": 4096
+        },
+        {
+          "key": "Float64Array:18",
+          "calls": 10,
+          "bytes": 1848040,
+          "largest": 224832
+        },
+        {
+          "key": "Uint16Array:20",
+          "calls": 3,
+          "bytes": 1752336,
+          "largest": 595752
+        },
+        {
+          "key": "Float64Array:11",
+          "calls": 1070,
+          "bytes": 1550552,
+          "largest": 2048
+        },
+        {
+          "key": "Uint8Array:8",
+          "calls": 5829,
+          "bytes": 1475219,
+          "largest": 256
+        },
+        {
+          "key": "Uint8Array:11",
+          "calls": 596,
+          "bytes": 1175160,
+          "largest": 2048
+        },
+        {
+          "key": "Uint16Array:6",
+          "calls": 25481,
+          "bytes": 1170382,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:11",
+          "calls": 698,
+          "bytes": 1126148,
+          "largest": 2048
+        },
+        {
+          "key": "Float64Array:10",
+          "calls": 1403,
+          "bytes": 1029496,
+          "largest": 1024
+        },
+        {
+          "key": "Uint32Array:9",
+          "calls": 2433,
+          "bytes": 806132,
+          "largest": 512
+        },
+        {
+          "key": "Uint16Array:14",
+          "calls": 63,
+          "bytes": 776744,
+          "largest": 15900
+        },
+        {
+          "key": "Uint8Array:10",
+          "calls": 717,
+          "bytes": 696574,
+          "largest": 1024
+        },
+        {
+          "key": "Uint32Array:8",
+          "calls": 2761,
+          "bytes": 472704,
+          "largest": 256
+        },
+        {
+          "key": "Uint8Array:9",
+          "calls": 1023,
+          "bytes": 467132,
+          "largest": 512
+        },
+        {
+          "key": "Int8Array:8",
+          "calls": 1964,
+          "bytes": 460980,
+          "largest": 245
+        },
+        {
+          "key": "Uint16Array:5",
+          "calls": 18042,
+          "bytes": 446546,
+          "largest": 32
+        },
+        {
+          "key": "Int32Array:9",
+          "calls": 660,
+          "bytes": 268064,
+          "largest": 512
+        },
+        {
+          "key": "Float64Array:5",
+          "calls": 6427,
+          "bytes": 156232,
+          "largest": 32
+        },
+        {
+          "key": "Float64Array:4",
+          "calls": 9275,
+          "bytes": 148400,
+          "largest": 16
+        },
+        {
+          "key": "Uint16Array:4",
+          "calls": 11026,
+          "bytes": 142202,
+          "largest": 16
+        },
+        {
+          "key": "Int32Array:6",
+          "calls": 1859,
+          "bytes": 118744,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:8",
+          "calls": 531,
+          "bytes": 114904,
+          "largest": 256
+        },
+        {
+          "key": "Int8Array:6",
+          "calls": 2105,
+          "bytes": 82999,
+          "largest": 63
+        },
+        {
+          "key": "Int8Array:5",
+          "calls": 3641,
+          "bytes": 75540,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:5",
+          "calls": 2786,
+          "bytes": 60620,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:7",
+          "calls": 603,
+          "bytes": 57148,
+          "largest": 128
+        },
+        {
+          "key": "Uint32Array:4",
+          "calls": 4485,
+          "bytes": 53904,
+          "largest": 16
+        },
+        {
+          "key": "Uint32Array:3",
+          "calls": 6609,
+          "bytes": 52872,
+          "largest": 8
+        },
+        {
+          "key": "Uint16Array:3",
+          "calls": 7786,
+          "bytes": 52850,
+          "largest": 8
+        },
+        {
+          "key": "Uint8Array:6",
+          "calls": 914,
+          "bytes": 40203,
+          "largest": 63
+        },
+        {
+          "key": "Float64Array:9",
+          "calls": 66,
+          "bytes": 29704,
+          "largest": 512
+        },
+        {
+          "key": "Uint8Array:4",
+          "calls": 2326,
+          "bytes": 29132,
+          "largest": 16
+        },
+        {
+          "key": "Int8Array:4",
+          "calls": 2305,
+          "bytes": 28610,
+          "largest": 16
+        },
+        {
+          "key": "Uint8Array:7",
+          "calls": 274,
+          "bytes": 26335,
+          "largest": 128
+        },
+        {
+          "key": "Uint16Array:1",
+          "calls": 10278,
+          "bytes": 20556,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:8",
+          "calls": 75,
+          "bytes": 15688,
+          "largest": 248
+        },
+        {
+          "key": "Uint16Array:2",
+          "calls": 3523,
+          "bytes": 14092,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:7",
+          "calls": 129,
+          "bytes": 10656,
+          "largest": 128
+        },
+        {
+          "key": "Uint8Array:3",
+          "calls": 1293,
+          "bytes": 7765,
+          "largest": 8
+        },
+        {
+          "key": "Float64Array:7",
+          "calls": 69,
+          "bytes": 6304,
+          "largest": 128
+        },
+        {
+          "key": "Int8Array:3",
+          "calls": 790,
+          "bytes": 5349,
+          "largest": 8
+        },
+        {
+          "key": "Uint8Array:2",
+          "calls": 581,
+          "bytes": 2129,
+          "largest": 4
+        },
+        {
+          "key": "Uint32Array:5",
+          "calls": 66,
+          "bytes": 1696,
+          "largest": 32
+        },
+        {
+          "key": "Uint32Array:6",
+          "calls": 33,
+          "bytes": 1432,
+          "largest": 64
+        },
+        {
+          "key": "Int32Array:5",
+          "calls": 32,
+          "bytes": 864,
+          "largest": 32
+        },
+        {
+          "key": "Uint8Array:1",
+          "calls": 338,
+          "bytes": 676,
+          "largest": 2
+        },
+        {
+          "key": "Float64Array:6",
+          "calls": 12,
+          "bytes": 576,
+          "largest": 56
+        },
+        {
+          "key": "Int8Array:7",
+          "calls": 5,
+          "bytes": 342,
+          "largest": 71
+        },
+        {
+          "key": "Int8Array:2",
+          "calls": 92,
+          "bytes": 306,
+          "largest": 4
+        },
+        {
+          "key": "Int32Array:4",
+          "calls": 9,
+          "bytes": 144,
+          "largest": 16
+        },
+        {
+          "key": "Uint8Array:0",
+          "calls": 21,
+          "bytes": 17,
+          "largest": 1
+        },
+        {
+          "key": "Uint32Array:0",
+          "calls": 421,
+          "bytes": 0,
+          "largest": 0
+        },
+        {
+          "key": "Int32Array:0",
+          "calls": 421,
+          "bytes": 0,
+          "largest": 0
+        }
+      ]
+    }
+  ],
+  "policy": "Count successful original-manager backing allocations through a copied first-party subclass in complete unchanged baseline/candidate cold/warm encodes. Outputs, inputs and owned peaks/closure must match the prior independent/public proof. Buckets are constructor plus ceil(log2(max(1,bytes))). These counts exclude JS heap, unowned arrays, caller/sink and allocator internals. Instrumentation is diagnostic; no speed/RSS causality or production/parity qualification."
+}

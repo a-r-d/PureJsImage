@@ -1,0 +1,458 @@
+{
+  "schemaVersion": 1,
+  "policy": "Eight pinned mixed-transform fixtures before and after optional six-family entropy contexts. Both full independent Float32 grids and exact native alpha match, and complete file sizes cannot grow. Preserve both original source identities and measured outputs.",
+  "baseline": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "d093319eb94d36b23a39014035c077bee864f6f9b91d856b72fba8f0ce653398",
+    "implementationDirty": true,
+    "harnessSha256": "ab03f6479f9d387afba40cabeb2851add6f97678fab49f43d3c0870cdb86c2de",
+    "fixtureSha256": "ea7dba1d2abcca25e79cf5986e48fde08b059b8eb7234f7252aa66818444b506",
+    "policy": "Asymmetric color texture and exact varying/opaque native 8/16-bit alpha, regular/progressive and partial edge groups. Adaptive scan changes must not enlarge complete streams. An optional baseline additionally requires identical complete independently decoded Float32 grids.",
+    "baselinePath": null,
+    "results": [
+      {
+        "key": "8-false-false",
+        "depth": 8,
+        "progressive": false,
+        "opaque": false,
+        "inputSha256": "3f65bdc3ecfca21dd5334e7a61cbe4e02d975d9fd35db7a1713b0fb02f9420ab",
+        "currentBytes": 18662,
+        "currentSha256": "1bf87b31baea76905602167f74a80950d891fd714edf7d438581a834c5b78584",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-false-true",
+        "depth": 8,
+        "progressive": false,
+        "opaque": true,
+        "inputSha256": "d456aaa25796240f4bfc85d5024d7daa26feee5c42e01389a01acd72b70e6399",
+        "currentBytes": 2316,
+        "currentSha256": "894e5c739be228da7b787b3a91ecc6f59d69691660b3beef5d3dc417bca86ec9",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "64adcf0d02fe5ae5ecde0d7cd2e9f180a56c2df8f63c49d87cf654b2feef66ac"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "0452e3fb4bedb129756471dded6c4abaf8f29ad3174ec27d63bccae19d147d4c"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-true-false",
+        "depth": 8,
+        "progressive": true,
+        "opaque": false,
+        "inputSha256": "3f65bdc3ecfca21dd5334e7a61cbe4e02d975d9fd35db7a1713b0fb02f9420ab",
+        "currentBytes": 20888,
+        "currentSha256": "f3657b4bd8095b0fc4fafbd33d759e4914ed5789db9fa0e42faffe176984d07d",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-true-true",
+        "depth": 8,
+        "progressive": true,
+        "opaque": true,
+        "inputSha256": "d456aaa25796240f4bfc85d5024d7daa26feee5c42e01389a01acd72b70e6399",
+        "currentBytes": 9674,
+        "currentSha256": "6f86e436269a1614b123126587e9944e283f55b2b41749969951b8c3220b4836",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "a1f0453612649f9763f4946f56f7c674f03b0ff0a9fac6021b9f7ac4147eed6e"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "a92e684f68a0db30a5a0e4054b5b14202096e575da1036b97941b6ac6d94d505"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-false-false",
+        "depth": 16,
+        "progressive": false,
+        "opaque": false,
+        "inputSha256": "0f0ecda9078f2b9de38d13e14a90c64af9161d6276caa0292fb49cd66b16a750",
+        "currentBytes": 20291,
+        "currentSha256": "161ffb70cecbbb7d0811dbd5215c18ad3dba46b10552f5685b751da74e96fb05",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1e44b2b9dfbacf5faa854789ed43987b6d3fa842e68ff547cb56633b84bd75a7"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "f615a29b5eda3fc9b0eb1f57ce4fa6ec2a4f95c5e03c3d4cb16350e75f47da73"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-false-true",
+        "depth": 16,
+        "progressive": false,
+        "opaque": true,
+        "inputSha256": "55610be9e1264f79a827f80bb8efc86913bdba9ff754c9654e3b95f648fc7e13",
+        "currentBytes": 9916,
+        "currentSha256": "5f16c74432002d2eb8127a4d751b543404493dd48acb569d9d529e07a5fdd368",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "3764e641e97f50c9b02f1605d3e12cfffff3e6dd0906bdd1444f8662323120b2"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "53e0fc5e150ec8385e6846a286601cc764bb25b5746188790d819032d1673f62"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-true-false",
+        "depth": 16,
+        "progressive": true,
+        "opaque": false,
+        "inputSha256": "0f0ecda9078f2b9de38d13e14a90c64af9161d6276caa0292fb49cd66b16a750",
+        "currentBytes": 21843,
+        "currentSha256": "c0f113b5b0d6e063d3019a27bfe5909e40d8780419358309fa88aabce0f7de01",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1e44b2b9dfbacf5faa854789ed43987b6d3fa842e68ff547cb56633b84bd75a7"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "f615a29b5eda3fc9b0eb1f57ce4fa6ec2a4f95c5e03c3d4cb16350e75f47da73"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-true-true",
+        "depth": 16,
+        "progressive": true,
+        "opaque": true,
+        "inputSha256": "55610be9e1264f79a827f80bb8efc86913bdba9ff754c9654e3b95f648fc7e13",
+        "currentBytes": 11297,
+        "currentSha256": "850f4bae0215aff5443149ec1d93b65f9a068330922840793811a2612f86780e",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "3764e641e97f50c9b02f1605d3e12cfffff3e6dd0906bdd1444f8662323120b2"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "53e0fc5e150ec8385e6846a286601cc764bb25b5746188790d819032d1673f62"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      }
+    ]
+  },
+  "nativeFixtures": {
+    "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+    "implementationSourceSha256": "4e9b84f0e04f83764f1688ef0497aa212231387ab7f5859e620b5ae892a88f23",
+    "implementationDirty": true,
+    "harnessSha256": "ab03f6479f9d387afba40cabeb2851add6f97678fab49f43d3c0870cdb86c2de",
+    "fixtureSha256": "ea7dba1d2abcca25e79cf5986e48fde08b059b8eb7234f7252aa66818444b506",
+    "policy": "Asymmetric color texture and exact varying/opaque native 8/16-bit alpha, regular/progressive and partial edge groups. Adaptive scan changes must not enlarge complete streams. An optional baseline additionally requires identical complete independently decoded Float32 grids.",
+    "baselinePath": ".tmp/jpegxl-comparison-v1/family-fixtures-baseline-132.json",
+    "results": [
+      {
+        "key": "8-false-false",
+        "depth": 8,
+        "progressive": false,
+        "opaque": false,
+        "inputSha256": "3f65bdc3ecfca21dd5334e7a61cbe4e02d975d9fd35db7a1713b0fb02f9420ab",
+        "currentBytes": 17954,
+        "currentSha256": "b6c962dc3bb8aac4933ae6cb3a0bf0eaa947f5ba1064fb723e140dd264788f1b",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-false-true",
+        "depth": 8,
+        "progressive": false,
+        "opaque": true,
+        "inputSha256": "d456aaa25796240f4bfc85d5024d7daa26feee5c42e01389a01acd72b70e6399",
+        "currentBytes": 2316,
+        "currentSha256": "894e5c739be228da7b787b3a91ecc6f59d69691660b3beef5d3dc417bca86ec9",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "64adcf0d02fe5ae5ecde0d7cd2e9f180a56c2df8f63c49d87cf654b2feef66ac"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "0452e3fb4bedb129756471dded6c4abaf8f29ad3174ec27d63bccae19d147d4c"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-true-false",
+        "depth": 8,
+        "progressive": true,
+        "opaque": false,
+        "inputSha256": "3f65bdc3ecfca21dd5334e7a61cbe4e02d975d9fd35db7a1713b0fb02f9420ab",
+        "currentBytes": 20465,
+        "currentSha256": "2750f24fb2da47dc5cedf3552b0340b6d5565c6d0c0e24dc0423d78d62e1c8c7",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "056bd5159c1287e881503e5597769e4591c3036fa0ccbd84a22322dd91ae5b65"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "9888e11303ad7833f6cce0294a94bb4ec2f38a76d4117b0a0c519a190852d0a8"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "8-true-true",
+        "depth": 8,
+        "progressive": true,
+        "opaque": true,
+        "inputSha256": "d456aaa25796240f4bfc85d5024d7daa26feee5c42e01389a01acd72b70e6399",
+        "currentBytes": 9071,
+        "currentSha256": "37d3e83ffd703b756a12f1d70d34cfc533bdce444b659d2812b6c25b3c4cb22b",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "a1f0453612649f9763f4946f56f7c674f03b0ff0a9fac6021b9f7ac4147eed6e"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "a92e684f68a0db30a5a0e4054b5b14202096e575da1036b97941b6ac6d94d505"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-false-false",
+        "depth": 16,
+        "progressive": false,
+        "opaque": false,
+        "inputSha256": "0f0ecda9078f2b9de38d13e14a90c64af9161d6276caa0292fb49cd66b16a750",
+        "currentBytes": 19811,
+        "currentSha256": "3398edac05a9c188234c4f05dbff2d5fa8664f74b1ad290b8637ce9cbe22e44c",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1e44b2b9dfbacf5faa854789ed43987b6d3fa842e68ff547cb56633b84bd75a7"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "f615a29b5eda3fc9b0eb1f57ce4fa6ec2a4f95c5e03c3d4cb16350e75f47da73"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-false-true",
+        "depth": 16,
+        "progressive": false,
+        "opaque": true,
+        "inputSha256": "55610be9e1264f79a827f80bb8efc86913bdba9ff754c9654e3b95f648fc7e13",
+        "currentBytes": 9916,
+        "currentSha256": "5f16c74432002d2eb8127a4d751b543404493dd48acb569d9d529e07a5fdd368",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "3764e641e97f50c9b02f1605d3e12cfffff3e6dd0906bdd1444f8662323120b2"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "53e0fc5e150ec8385e6846a286601cc764bb25b5746188790d819032d1673f62"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-true-false",
+        "depth": 16,
+        "progressive": true,
+        "opaque": false,
+        "inputSha256": "0f0ecda9078f2b9de38d13e14a90c64af9161d6276caa0292fb49cd66b16a750",
+        "currentBytes": 21521,
+        "currentSha256": "3fc5c3d0e6748a118c96187f0044f39a73b3fd82805e155fa1a917452edf9512",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "1e44b2b9dfbacf5faa854789ed43987b6d3fa842e68ff547cb56633b84bd75a7"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "f615a29b5eda3fc9b0eb1f57ce4fa6ec2a4f95c5e03c3d4cb16350e75f47da73"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      },
+      {
+        "key": "16-true-true",
+        "depth": 16,
+        "progressive": true,
+        "opaque": true,
+        "inputSha256": "55610be9e1264f79a827f80bb8efc86913bdba9ff754c9654e3b95f648fc7e13",
+        "currentBytes": 11297,
+        "currentSha256": "850f4bae0215aff5443149ec1d93b65f9a068330922840793811a2612f86780e",
+        "decoders": [
+          {
+            "name": "libjxl",
+            "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+            "normalizedHashes": [
+              "3764e641e97f50c9b02f1605d3e12cfffff3e6dd0906bdd1444f8662323120b2"
+            ],
+            "exactAlphaSamples": 131841
+          },
+          {
+            "name": "jxl-rs",
+            "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+            "normalizedHashes": [
+              "53e0fc5e150ec8385e6846a286601cc764bb25b5746188790d819032d1673f62"
+            ],
+            "exactAlphaSamples": 131841
+          }
+        ]
+      }
+    ]
+  }
+}

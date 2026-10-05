@@ -1,0 +1,178 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-budget-trees-311b.ts",
+      "sha256": "09d7f61341f0cf6fb469d19b173ed08f56662b42070e27f0af69e1e70bbe1f05"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-budget-tree-final-311.ts",
+      "sha256": "2f3ad8a17711addeb832d9f9199636fe02a8ce847934aab5544cd909e5caeedd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-budget-final-311b.json",
+      "sha256": "73eaddeb904612fea243b30e589af9457df8cf468086b31d8f001907c2023141"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-budget-final-311.json",
+      "sha256": "fe160524e82ad42248d99f14da8d861634555295f46fe5488776d6c5c3c0c6a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/finalize-budget-trees-311.ts",
+      "sha256": "08317bacd886421875331a8a7772fbf298a64bf3dcb3d40d7eef401187f44ee7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/repair-budget-tree-final-311b.ts",
+      "sha256": "946ce6e8d0884ac6298fc1d0e35d322da9a749e22034cbab1f36b8b17513a89f"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-predictor-tree-final-gates-311.json",
+      "sha256": "9fc6e636c8aee71b0d9e8dfac3d55b22ace6eafff8ac3891e1713611b58890d2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/funded-sampling-production-final-gates.json",
+      "sha256": "815dfc5209f8f9708d705b409d4f9041d133ab6a7c29155edcdb90dbecd80138"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-predictor-tree-final-gates.json",
+      "sha256": "dcc632eefc6687328ae83d8a242889a6db9b60a202f02db9345c71d7f410df52"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-predictor-tree-audit.json",
+      "sha256": "6a9ccc3377170e38a09a949859b1332926879e0f8e38fe2f65622c6673a9821f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/check-worker-environment-310.json",
+      "sha256": "32ee7d4db9654b5a65c937bcb890fe280c6ad49e459526f8a601e25b957f44af"
+    },
+    {
+      "path": "/tmp/jpegxl-budget-predictor-tree-repository-check-310.log",
+      "sha256": "0391ce0418f975a3c514565c174325321d3e507ace889d9d9972b38afea52f7d"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/RESIDUAL-MODELS.md",
+      "sha256": "f50dabd51382b05ea947a69b65805fa886acb3adb9c342bf73ae24c323c02242"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-cost-profile-303b.json",
+      "sha256": "5a1d181f324c2816d38b17a2180cb88c6ba9c352395372f7f927a60a5471228a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-leaf-cost-profile-303c.json",
+      "sha256": "53f3fabc7d59a5d1c9ec9c776c2548c67758c71f3abeefc9babbb41564fd45f4"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-model-audit-304b.json",
+      "sha256": "129dfeefa6564dc35c5d01a022067790730e52322c4ad843565b8c764ee6bb8e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-pooled-predictor-tree-controls-305.json",
+      "sha256": "3745fa6b37ee1a03fa164408fbd8f777ab1c4c6b798d963fa5dac5075cc45fd8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-pooled-predictor-tree-profile-306.json",
+      "sha256": "4f503a996ecab4efee49c898b04bd779ff635797581ff5a7c8798f5c72dec895"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-reserved-pooled-predictor-tree-controls-307.json",
+      "sha256": "5bccd4764b79ec9b26267024ffd92ba85318e67003e65bcf21c80818794ca8d9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-reserved-pooled-predictor-tree-profile-308.json",
+      "sha256": "8b57575950788d67f02cd5f86bd2a1ae3665845afdce75a4638973860425f176"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-predictor-tree-audit-309.json",
+      "sha256": "edf6bc0e0fb36c6a6dd42e71041248cfb20371bc3b82d6ad79669db5b515c1b2"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-predictor-tree-repository-check-310.json",
+      "sha256": "5699280265379df57a448b2c1bb832d73f2d828d3e19fbd5c575ef491fa70252"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-model-audit.json",
+      "sha256": "4cb078eddc70a1ab9fb87a5ba47fd5fad13f48eebbbcb169e65580906bf4e9a3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json",
+      "sha256": "ab25a37bca153cd26637eee15285240bd6034fbdad6c0b230ddd9c93d2988590"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json",
+      "sha256": "ef0c0a97d95d5cd796d440fe191506450e70d7ac45f6ecdfb7a677e106194898"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-controls.json",
+      "sha256": "f2c0664d132c826e772ec7b9d5006eda376bb9f8ede491c7e71bfa254e77d0f5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-program-profile.json",
+      "sha256": "f2fd1c4292b411ff21f696a17730fbd33ecc552cf65cfd05a1171a2ca7016ddc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-controls.json",
+      "sha256": "d99f52a4452195c2fab5c76ad164f2fd2ca2f57e89a9b6147738290ed8dfc396"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-program-profile.json",
+      "sha256": "1a95220ab119e12024234ba68bc7811934984a784aaf6ca1c41be376fbb0271b"
+    }
+  ],
+  "productionUnchanged": true,
+  "priorQualificationPins": 443,
+  "publicModules": [
+    {
+      "path": "dist/codecs/jpegxl.js",
+      "sha256": "4652174d6a5a739a6b7ba858125ffedc181a3fc8aa20e9d07f875367395b0121"
+    },
+    {
+      "path": "dist/browser.js",
+      "sha256": "7056242d39e5dfd2f03ecd9f0f6c596e2d560ac5bf86905eea87d372b5833f6c"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-encode.js",
+      "sha256": "1fb68f2abcacd434d0f0cc0730a1d08d6efdd629e9c80aa8808ac0abe93fba12"
+    },
+    {
+      "path": "dist/codecs/jpegxl-jpeg-encode.js",
+      "sha256": "7f6abb3457b3365607779cbab857e51388b5ebcb0707e9b217397e762a10bdd0"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-encode.js",
+      "sha256": "95da347347fb43785296be00bcda0456d6866e57848bc8e6cdfdf6dc94075062"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-forward-transforms.js",
+      "sha256": "ae68512e6ca381ee8163431fd4a44f5b2e01a3872ced6cb59c07100854504359"
+    },
+    {
+      "path": "dist/codecs/jpegxl-vardct-quantization.js",
+      "sha256": "068a6da8b6d1dd2bd676e01e831d95406c4dc514a2d85db72eb80651f1c718b5"
+    },
+    {
+      "path": "dist/codecs/jpegxl-modular-tree.js",
+      "sha256": "14a1433b9fe5a5e61f290683714dea096d609c7c9d1af9189aa1858acd95cd33"
+    }
+  ],
+  "retainedFiles": 14,
+  "controlledFiles": 24,
+  "independentGrids": 48,
+  "independentSamples": 151019520,
+  "freshControlProfilePins": 243,
+  "residualProfileFiles": 24,
+  "priorProfiledGroups": 84,
+  "priorProfileReconstructedSamples": 75509760,
+  "tests": {
+    "filesPassed": 269,
+    "testsPassed": 3641,
+    "filesSkipped": 1,
+    "testsSkipped": 3,
+    "workers": "Four verified in actual child and installed Vitest resolver"
+  },
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "indexEmpty": true,
+  "policy": "Every443prior qualification pin/eight rebuilt public modules/fourteen retained raw source/build files and prior302boundaries remain unchanged. Both physical residual profiles/static allocation audit,24newcomplete files/48independent grids/151019520original samples, actual full repository check/fresh worker proof and all243newcontrol/profile pins pass. All8residual delta rows/four original allocation rows/eight candidate header/remaining/leaf tables directly match physical reports. Global and reserved budget hypotheses do not close two ordinary photo gaps; combined first-photo experimental floor improves only48bytes. No source, protected cost/memory/package, index, commit/push/release or overall-parity adoption. Further sample/evaluator/model investigation remains open."
+}

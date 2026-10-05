@@ -1,0 +1,88 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "fac18835564faddab14698f2832612e85aeaaaedc965f413e04725a85061b567",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/audit-budget-trees-309.ts",
+      "sha256": "e1100094f71d5fcc9b0fbefe29b8c16670bd8d65982a48815c779c9f34a3567d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/prepare-budget-tree-audit-309.ts",
+      "sha256": "98b5432dda528966148f539d053010e0eec9437b8a1f435c56e87bde4a349dbf"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-model-audit.json",
+      "sha256": "4cb078eddc70a1ab9fb87a5ba47fd5fad13f48eebbbcb169e65580906bf4e9a3"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json",
+      "sha256": "ab25a37bca153cd26637eee15285240bd6034fbdad6c0b230ddd9c93d2988590"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json",
+      "sha256": "ef0c0a97d95d5cd796d440fe191506450e70d7ac45f6ecdfb7a677e106194898"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-budget-audit-309.json",
+      "sha256": "61f14464b73c2c1ee907a47f62f0d72b84c225d3258b4b563c57acd7b1674a36"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/RESIDUAL-MODELS.md",
+      "sha256": "f50dabd51382b05ea947a69b65805fa886acb3adb9c342bf73ae24c323c02242"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-pooled-residual-model-audit-304b.json",
+      "sha256": "129dfeefa6564dc35c5d01a022067790730e52322c4ad843565b8c764ee6bb8e"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-pooled-predictor-tree-controls-305.json",
+      "sha256": "3745fa6b37ee1a03fa164408fbd8f777ab1c4c6b798d963fa5dac5075cc45fd8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-budget-pooled-predictor-tree-profile-306.json",
+      "sha256": "4f503a996ecab4efee49c898b04bd779ff635797581ff5a7c8798f5c72dec895"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-reserved-pooled-predictor-tree-controls-307.json",
+      "sha256": "5bccd4764b79ec9b26267024ffd92ba85318e67003e65bcf21c80818794ca8d9"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/parity-reserved-pooled-predictor-tree-profile-308.json",
+      "sha256": "8b57575950788d67f02cd5f86bd2a1ae3665845afdce75a4638973860425f176"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-controls.json",
+      "sha256": "f2c0664d132c826e772ec7b9d5006eda376bb9f8ede491c7e71bfa254e77d0f5"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-program-profile.json",
+      "sha256": "f2fd1c4292b411ff21f696a17730fbd33ecc552cf65cfd05a1171a2ca7016ddc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/group-pooled-predictor-tree-controls.json",
+      "sha256": "2dca92c4ccc792f114d44964668e13e6c9f94be49b9f577cb9fc1616258df086"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-controls.json",
+      "sha256": "d99f52a4452195c2fab5c76ad164f2fd2ca2f57e89a9b6147738290ed8dfc396"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/reserved-pooled-predictor-tree-program-profile.json",
+      "sha256": "1a95220ab119e12024234ba68bc7811934984a784aaf6ca1c41be376fbb0271b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/budget-pooled-predictor-tree-controls.json",
+      "sha256": "f2c0664d132c826e772ec7b9d5006eda376bb9f8ede491c7e71bfa254e77d0f5"
+    }
+  ],
+  "files": 24,
+  "grids": 48,
+  "independentSamples": 151019520,
+  "priorPublicSamples": 75509760,
+  "sourcePins": 243,
+  "completeProfileFiles": 24,
+  "adoptedPrototype": false,
+  "fullParity": false,
+  "policy": "Fresh physical re-read of all24complete files/48independent original sample grids and151019520samples across global and reserved leaf-budget controls. Prior75509760public samples labelled prior encodes. All source/copy/helper/harness/input/tool pins, exact prior/floor hashes, selected transforms, actual inherited global models and complete section/outer accounts pass. Two ordinary floors still regress after both budget policies; individual channels can exceed256 only within the same aggregate1024RGBAceiling; production/cost/package/full-parity adoption remains open."
+}

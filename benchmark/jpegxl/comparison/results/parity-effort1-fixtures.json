@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "implementationSourceSha256": "ea30935f43c9dde7bbedcb7c6c7ce38d6145f33a99034bae44af5724e985a428",
+  "verifierSha256": "ce34101b9081bb99043157c7249b46006382d2b21c4ba01daa1d8d563e0375a5",
+  "policy": "Deterministic exact 8/16-bit samples, hidden RGB, constant alpha, vertical groups and independent noise crossing the DC group boundary. Decode to normalized Float32 and round to the original integer grid.",
+  "rows": [
+    {
+      "kind": "transparent",
+      "depth": 8,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba8",
+      "inputSha256": "6db51b5695c4e6e2ff395571f92b792fa80b8a5bb61984e6eb2b97e58c6d136b",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/transparent-8.jxl",
+      "bytes": 1239,
+      "encodedSha256": "7349db7bc33be69847302c0981d83525ce861a533a1d0c15327b171905616ba3",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "e549d662ac376a827b879fa3920aad9ce9b01845d1b5779952818301361d6892",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "4722d848bf8471469d01421ac98a5ce32bf588e3fb706d55470505b9fbc2be79",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "half-alpha",
+      "depth": 8,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba8",
+      "inputSha256": "31c9d307342650999e65a9991ec522bb260802fd855d9aeaa0a3fef000f1dca0",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/half-alpha-8.jxl",
+      "bytes": 1499,
+      "encodedSha256": "6b9c0d67a57c13774ae108af2995a6d91da4a6d377ca0d3dccc89a85e67eef19",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "461bb8f7eddd8e616e786729688fc07328d31ed535cd7f4611d5fe69b90c67f8",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "b7d77db3238cb6769a5c2585567599ad1dfa1e8a292b3ec9852fbc20b30c7744",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "opaque",
+      "depth": 8,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba8",
+      "inputSha256": "57660f3ebab881e9831408f7e395c39242e9c4d6fec291ba0d3ae5b6fdc8a1a8",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/opaque-8.jxl",
+      "bytes": 1499,
+      "encodedSha256": "c2abf16b7893a58153ce29ccf029238870d7cb5d12decb74e69b2cc12889b32e",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "9267711493a3ce9f107b3c9f2bf087c9f029b78dfef34b2316952120f81c3aa1",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "50ad84dcf52ea59a5c370798eba9d6488e21869d3b8e5caf1267d64275eb1953",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "gray",
+      "depth": 8,
+      "width": 3,
+      "height": 1025,
+      "format": "gray8",
+      "inputSha256": "2b90561ca5e0bcd995d9bf0a15eda1bb94d1af6c6f9d40737a23c0e8b1189eb6",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/gray-8.jxl",
+      "bytes": 91,
+      "encodedSha256": "561647759b797345ea7f96d6a8d63af82a28f8d29e9a99ad3230b50997bf40cc",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "b5995a3ef7e0bd772f91d3e5124230996fbc0934daa5f553f15c2f10f4d2d0a4",
+          "samplesCompared": 3075,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "c6aa4a793728eda32fac0e081a94a45eb0266bb42152822801c0e9d67c5d355a",
+          "samplesCompared": 3075,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "noise",
+      "depth": 8,
+      "width": 8193,
+      "height": 3,
+      "format": "rgba8",
+      "inputSha256": "aac71cb4535c789062df506d245983250e69b300dcf056fa9ac250d3b8a710aa",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/noise-8.jxl",
+      "bytes": 108512,
+      "encodedSha256": "8e3bff9948a10e5cf2b0191e123d030cba1a8b563a18fc68b366dec87ac72ce7",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "e10d30a98a6970659a713dcd1ccae7b3383b2a63970915fcadf8c935c80740d6",
+          "samplesCompared": 98316,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "5fe521ce0d19fb614aff297c81a373ae06e6f50ff30ae2ace511f188f398da15",
+          "samplesCompared": 98316,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "transparent",
+      "depth": 16,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba16",
+      "inputSha256": "2788920f04e5da59b04b1a0ec563ce87b2cf547376d67093ff586dd952ed26fc",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/transparent-16.jxl",
+      "bytes": 278,
+      "encodedSha256": "a91a5963da08620da25358bc6eb673dd6a3e22fcec43a1e1ed195ce375dce40c",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "4d4bfbe06447b69c27586f2e6c615366c6968b493654eeba90a6dfcc75cea885",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "37bddc31aa4e830105cbcade69d26cf197305c3bf8493b78e2aeaa2f3c26113a",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "half-alpha",
+      "depth": 16,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba16",
+      "inputSha256": "2f340e08a54166d9b743c5ba8102f81dd6251ced4ee95a1091ceaf720f1def96",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/half-alpha-16.jxl",
+      "bytes": 469,
+      "encodedSha256": "06d245d88c9e07b48b87bc5b832ae88bbd4b461cbaa04e11c4715ab8f5a7df3b",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "bea31e576b61269d5b7f32501bc8a9a648b11d4e09bad88332550227ea76cf20",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "06be41f995d5cda787630a10aa62f74366f5239989391047b287f1e293dffdbf",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "opaque",
+      "depth": 16,
+      "width": 1025,
+      "height": 41,
+      "format": "rgba16",
+      "inputSha256": "8e058f1721f11cbb08f8681337c172ca4b65003809214a78a44a7feaeac24eef",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/opaque-16.jxl",
+      "bytes": 469,
+      "encodedSha256": "722f5eeebfdc328e8d28dba720d3dcda3bbe006df75ae210d00dd65e2558f051",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "3c7430c02d1fddde15a25872d5e317a5ec9dd5fd776a85774fd3ab60c954fdc5",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "4ddc2ff16dc912cd116da81fd4c938904580690a3455eae86a1ef5d6382c6c66",
+          "samplesCompared": 168100,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "gray",
+      "depth": 16,
+      "width": 3,
+      "height": 1025,
+      "format": "gray16",
+      "inputSha256": "6232b3feebebb1264270ebdc3370a5d4b5c37e7de22d93e97f06ace83f6ae7ec",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/gray-16.jxl",
+      "bytes": 93,
+      "encodedSha256": "d2546df08508e04ba5f5eb8fa7373b7cf135b8bf17fe269e95b056f5ec58a51b",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "8bd8bcb241d944299351b5b5044f747ebae930fceb9a9cae1be86004cf6973bb",
+          "samplesCompared": 3075,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "d5ab661891e7d80a622206a4e63b75cff1b865af646f2d1901a04a116d7e6699",
+          "samplesCompared": 3075,
+          "maximumSampleError": 0
+        }
+      ]
+    },
+    {
+      "kind": "noise",
+      "depth": 16,
+      "width": 8193,
+      "height": 3,
+      "format": "rgba16",
+      "inputSha256": "3ea773d5acc7bdaa9b1473c04475688cf8755041f16d43377ae04f6ea0cc3555",
+      "artifact": ".tmp/jpegxl-comparison-v1/parity-fast-fixtures/noise-16.jxl",
+      "bytes": 206906,
+      "encodedSha256": "645c9912b9fea68503f7639d2064e481a50a4f6e844cd5e54556d38998f0d116",
+      "status": "verified",
+      "oracles": [
+        {
+          "oracle": "libjxl",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+          "normalizedFloatSha256": "bab74581d4ca30ddd02ae205e8c6284c88b4bec47e96553465b06e2f084003de",
+          "samplesCompared": 98316,
+          "maximumSampleError": 0
+        },
+        {
+          "oracle": "jxl-rs",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+          "normalizedFloatSha256": "a775389f7a62923bec1b83f4cd0a6ce1dc65bdbcac07134836fd9bb02c95564c",
+          "samplesCompared": 98316,
+          "maximumSampleError": 0
+        }
+      ]
+    }
+  ]
+}

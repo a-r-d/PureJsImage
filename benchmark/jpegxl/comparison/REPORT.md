@@ -1,5 +1,56 @@
 # Public JavaScript JPEG XL comparison
 
+The current [lossless group search](GROUP-SEARCH.md) meets or beats the pinned
+peer size in all 45 independently exact comparable integer-lossless corpus
+cells and all four separate original-size controls. Three cells without a
+matching exposed competitor API remain excluded. The original screenshot is
+386,813 bytes at effort 7, below jSquash's 391,394 bytes. The 12 MP photo is
+7,452,825 / 6,183,475 bytes at efforts 1/7, below both tested peers. All original
+native 8-bit and 16-bit samples, alpha and hidden RGB match in libjxl and Rust.
+The current codec source SHA-256 is
+`792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f`.
+
+The latest qualified [lossy photo checkpoint](FILTER-AC.md) retains 13 adequately
+matched pairs and 11 unresolved pairs. Both tested photos are smaller than both
+pinned peers at SSIMULACRA2 80 and 90. The first photo at score 70 remains 3.00%
+larger than wasm-vips and 2.28% larger than jSquash. Float, CMYK and animation
+compression still need comparable evidence. Overall compression parity remains
+open. These compression results are separate from the frozen speed tables.
+
+## Earlier compression checkpoints
+
+The earlier [learned-tree metadata qualification](PARITY.md#learned-tree-metadata-production) compares prefix and ANS coding for the same learned trees. All thirteen changed effort-7 files are strictly smaller; the other three retain their complete bytes. Every effort-1 file stays unchanged. All sixteen inputs at both efforts preserve every original native uint8/uint16 sample, alpha and hidden RGB in libjxl and Rust. The 12 MP photo is 7,452,825 / 6,220,181 bytes at efforts 1/7, below both pinned WASM files. The screenshot at that checkpoint is 416,143 bytes at effort 7, 6.32% above jSquash.
+
+At that checkpoint, all 91 lossy settings were encoded through the same public build. 24 complete files shrink and the other 67 keep identical encoded hashes; all full independent grids and quality scores remain unchanged. Eleven matched pairs remain adequate and thirteen unresolved. The first photo exceeds wasm-vips by 4.51% at score 80. Checkpoint source
+`31996a26477cada593b663b62075fe983975bffba76e74c9bd3f67792d0fd222`
+is separate from the earlier performance measurements below. Overall compression parity remains open. The metadata search adds encoding work and does not establish a speed gain.
+
+The earlier [artwork qualification](PARITY.md#artwork-production-qualification)
+extends the exact effort-7 candidate to one megapixel with a complete-size
+floor and scoped storage cleanup. Three distance-3 graphics shrink 55–82%
+and preserve every original sample. In the full 91-setting public replay,
+eighteen files become smaller and exact; the other 73 preserve their encoded
+hashes, independent grids and quality scores. Eleven matched pairs and
+thirteen unresolved pairs remain. The extra exact search adds substantial
+encoding work.
+
+The later [patch metadata controls](PARITY.md#patch-metadata-controls) isolate
+another small compression cost. Three or four field models save 88–469 bytes
+on four exact graphics and 283 bytes on the original screenshot, preserving
+every sample in both independent decoders. Several jSquash gaps remain.
+The separate skyline packing control is rejected after saving only 16–61 bytes.
+
+The qualified [learned palette controls](PARITY.md#learned-palette-controls)
+address an exclusion in the existing prediction search. Three actual public
+lossless graphics shrink another 2.4–10.7%, preserving every sample in native
+and Rust decoding. One closes its pinned jSquash size gap; another remains
+3.3% larger. Original working limits, hidden samples and browser behavior pass
+focused checks. The complete 91-setting replay verifies 23 smaller files,
+including five improved exact graphic selections; 68 hashes stay unchanged.
+Eleven matched-quality pairs remain adequate and thirteen unresolved. Both
+independent decoders, the full repository gate, the original minimum memory
+boundary and rebuilt public-module identity pass. Overall parity remains open.
+
 ## Scope
 
 This is a manual comparison of PureJsImage, `@jsquash/jxl` 1.3.0,
@@ -19,6 +70,84 @@ Raw reports live in [results](results). The [artifact index](results/artifact-in
 pins the measured binaries and harness files. The [quality validation](results/quality-correctness.json)
 checks all 87 scored artifacts; five retain nonzero alpha error from comparator defaults. The website dataset is generated from
 those reports. No overall winner score is calculated.
+
+The separate [compression investigation](COMPRESSION.md) explains the large-image
+effort-1 lossless policy, opaque-alpha overhead and remaining encoder tool gaps.
+It adds exact same-input effort-3/7 controls and native filter controls at measured
+lossy quality. These diagnostics retain the frozen public comparison and its
+unresolved quality targets.
+
+[Compression parity progress](PARITY.md) records the subsequent effort-1 channel
+models, effort-7 learned prediction trees, reversible color search and exact
+lossless patches on pale and colored flat backgrounds, independently exact outputs and
+increased encoding cost. Those results are separate from the frozen performance
+and quality tables. The current integer-lossless result is documented in
+[lossless group search](GROUP-SEARCH.md); the lossy comparison still has gaps.
+
+The earlier [tighter quality curves](PARITY.md#tighter-lossy-quality-comparisons)
+resolve eleven of 24 public comparator/target pairs at SSIMULACRA2 70, 80 and
+90, using brackets no wider than 0.25. On the first photo PureJsImage is
+4.51% larger than wasm-vips at score 80 after the DC, coefficient-order and metadata corrections;
+on the second it is 26.45% smaller
+at score 90. After the alpha entropy and coefficient-order corrections, the transparency
+score-90 estimate is 25.66% smaller than jSquash,
+with identical independently decoded pixels.
+Thirteen pairs remain unresolved. These newer measurements preserve the
+frozen tables below and do not establish an overall quality winner.
+
+Later [coefficient controls](PARITY.md#coefficient-rounding-allocation-and-order-controls)
+reject the tested rounding and AC allocation policies. Adaptive scan-order
+prototypes preserve every independently decoded pixel. The subsequent
+[qualified order search](PARITY.md#adaptive-forward-coefficient-orders) adds a
+complete file-size guard, allocation fallback and native-depth/progressive/
+browser checks. All 91 public quality points retain their decoded hashes and
+scores; 85 files shrink and six remain unchanged. These newer measurements
+keep the frozen public tables intact and leave compression parity open.
+
+The subsequent [AC entropy investigation](PARITY.md#ac-entropy-and-block-context-investigation)
+verifies 96 isolated streams without changing the qualified encoder.
+Frequency rounding costs only a few photo bytes. Tested histogram and block-context
+changes mostly fail to reduce complete photo sizes. Family contexts save 1.78%
+on the checked graphic, but that control still needs broader qualification.
+Transform, quantization and restoration decisions remain open compression work.
+
+The [Gaborish preconditioning controls](PARITY.md#gaborish-preconditioning-controls)
+test restoration with bounded first-order and fuller inverse approximations.
+All 152 measured streams pass independent decoding and exact alpha. Tighter
+curves make every adequately matched estimate larger than the qualified encoder,
+so none of these policies is retained. These diagnostics keep the public
+comparison unchanged and do not establish compression parity.
+
+The [qualified family-context search](PARITY.md#optional-transform-family-entropy-models)
+now retains the graphic opportunity behind a complete file-size guard.
+It preserves all independently decoded pixels and exact alpha, including native
+depths, progressive output, cancellation, Chromium and allocation fallback.
+All 91 prior public quality points keep their scores and grids; 29 files shrink
+and 62 are unchanged. This adds entropy-encoding work and scratch. The first
+photo's score-80 gap at that checkpoint was 6.41%, with thirteen public pairs still unresolved.
+
+The [larger-transform cost controls](PARITY.md#larger-transform-coding-cost-controls)
+test two isolated DCT16 selectors on 98 independently decoded streams. AC-only
+selection saves AC bytes but adds more DC-group bytes. Including DC residual
+cost removes most of that growth, but both policies regress at protected
+matched-quality points and are rejected. Those selectors were not retained.
+
+The [strategy/quantizer metadata correction](PARITY.md#strategy-and-quantizer-metadata-prediction)
+uses left prediction only when the complete local metadata requires fewer bits.
+All 91 replayed public settings preserve both complete independent grids and
+quality scores; 67 files shrink and 24 are unchanged. The original 12 MP photo
+saves 2.92% at the same distance and quality. Native-depth/progressive, Chromium,
+cancellation and working-storage checks pass. The first capped photo's score-80
+gap falls to 5.23% versus wasm-vips. Thirteen pairs remain unresolved, the frozen
+performance tables below stay unchanged, and general compression parity is open.
+
+The [separate strategy and quantizer models](PARITY.md#separate-strategy-and-quantizer-models)
+remove another shared-model cost while retaining only smaller complete metadata.
+All 91 fixed quality settings preserve both independent grids, both metrics and
+exact alpha; 67 files shrink and 24 are unchanged. The original 12 MP photo saves
+another 1.93% at the same distance and quality. The first capped photo's score-80
+gap falls to 4.51% versus wasm-vips. The same thirteen pairs remain unresolved.
+These results preserve the frozen performance tables and leave general parity open.
 
 ## Supported conclusions
 

@@ -10,6 +10,7 @@ import {
   writeRgbIcc16,
 } from './icc.ts'
 import { jpegXlSourceColorSemantics } from './jpegxl-decode.ts'
+import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { floatSample, integerPlane, normalizedExtraPlane } from './jpegxl-native-samples.ts'
 import type { JpegXlNativeLayer } from './jpegxl-sequence.ts'
 
@@ -170,7 +171,7 @@ export const convertJpegXlIccLayerToRgba16 = (
   const header = layer.header
   const profile = header.iccProfile
   if (layer.domain !== 'modular' || !profile)
-    throw invalidInput('JPEG XL native layer has no ICC profile')
+    throw invalidJpegXlInput('native layer has no ICC profile')
   if (header.sampleFormat !== 'unsigned-integer' || header.bitDepth < 8 || header.bitDepth > 16)
     throw unsupportedOperation('High-depth ICC conversion requires 8- through 16-bit integer color')
   const width = layer.layouts[0]?.width ?? 0
@@ -182,7 +183,7 @@ export const convertJpegXlIccLayerToRgba16 = (
     integerPlane(layer, index),
   )
   if (color.some((plane) => plane.length !== pixels))
-    throw invalidInput('JPEG XL ICC color planes must be full-size')
+    throw invalidJpegXlInput('ICC color planes must be full-size')
   const blackIndex = header.extraChannels.findIndex((channel) => channel.type === 4)
   if (
     blackIndex >= 0 &&
@@ -200,7 +201,7 @@ export const convertJpegXlIccLayerToRgba16 = (
     throw unsupportedOperation('ICC native display needs GRAY, RGB, or CMYK')
   const alpha = displayAlpha(layer)
   if (alpha && alpha.samples.length !== pixels)
-    throw invalidInput('JPEG XL ICC alpha plane size disagrees')
+    throw invalidJpegXlInput('ICC alpha plane size disagrees')
   const output = new Uint16Array(pixels * 4)
   const colorMaximum = 2 ** header.bitDepth - 1
   const toIndex = (value: number, alphaValue: number): number =>

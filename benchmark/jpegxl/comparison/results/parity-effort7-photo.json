@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 1,
+  "fixture": "im26-1416-original",
+  "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
+  "implementationSourceSha256": "5a09ad8e5bd6d11280a4d991225d6721096c2f3b565c632681db085994a39e73",
+  "measurementHarnessSha256": "14e6c2f0c0c2b220ae63aaa35364f68e9e9879ec5bbdf9c376727c379addc7da",
+  "verifierSha256": "f6332cfa2bfe0e63c8f59951a6def19831b956cde2c1ade9a3c28dc05c5c0ab7",
+  "artifact": ".tmp/jpegxl-comparison-v1/compression-investigation/parity-learned-current-photo.jxl",
+  "encodedSha256": "2faa2b4f2e0aae321bc7b955429e48c11e6100c4d300bc9cc8fbdae899e14fdf",
+  "bytes": 6275239,
+  "measurement": {
+    "runtime": "v24.16.0",
+    "width": 4000,
+    "height": 3000,
+    "format": "rgba8",
+    "effort": 7,
+    "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+    "implementationSourceSha256": "5a09ad8e5bd6d11280a4d991225d6721096c2f3b565c632681db085994a39e73",
+    "outputSha256": "2faa2b4f2e0aae321bc7b955429e48c11e6100c4d300bc9cc8fbdae899e14fdf",
+    "bytes": 6275239,
+    "openMilliseconds": 1465.240975,
+    "coreMilliseconds": 82214.75027799999,
+    "encodeOutputMilliseconds": 82236.754691,
+    "openEncodeOutputMilliseconds": 83701.99566599999,
+    "moduleReadySeconds": 0.180586293,
+    "peakRssBytes": 462049280,
+    "baselineMemory": {
+      "rss": 189767680,
+      "heapTotal": 20299776,
+      "heapUsed": 10135960,
+      "external": 97766071,
+      "arrayBuffers": 84037112
+    },
+    "finalMemory": {
+      "rss": 439566336,
+      "heapTotal": 26800128,
+      "heapUsed": 9241272,
+      "external": 199700400,
+      "arrayBuffers": 187327600
+    },
+    "managedPeakBytes": 172298618,
+    "managedLiveBytes": 0,
+    "groupSearchEvidence": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 443212,
+        "lz77Bytes": 644921,
+        "selectedBytes": 443212,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1513,
+          "squeezeBytes": 2214,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 443212
+          }
+        ]
+      },
+      {
+        "x": 1024,
+        "y": 0,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 476212,
+        "lz77Bytes": 709622,
+        "selectedBytes": 476212,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1458,
+          "squeezeBytes": 1922,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 476212
+          }
+        ]
+      },
+      {
+        "x": 2048,
+        "y": 0,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 543973,
+        "lz77Bytes": 817578,
+        "selectedBytes": 543973,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1389,
+          "squeezeBytes": 1949,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 543973
+          }
+        ]
+      },
+      {
+        "x": 3072,
+        "y": 0,
+        "width": 928,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 424547,
+        "lz77Bytes": 644001,
+        "selectedBytes": 424547,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1768,
+          "squeezeBytes": 2475,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 424547
+          }
+        ]
+      },
+      {
+        "x": 0,
+        "y": 1024,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 463754,
+        "lz77Bytes": 688160,
+        "selectedBytes": 463754,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1854,
+          "squeezeBytes": 2621,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 463754
+          }
+        ]
+      },
+      {
+        "x": 1024,
+        "y": 1024,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 486422,
+        "lz77Bytes": 737921,
+        "selectedBytes": 486422,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1680,
+          "squeezeBytes": 2339,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 486422
+          }
+        ]
+      },
+      {
+        "x": 2048,
+        "y": 1024,
+        "width": 1024,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 484226,
+        "lz77Bytes": 746561,
+        "selectedBytes": 484226,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1393,
+          "squeezeBytes": 1967,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 484226
+          }
+        ]
+      },
+      {
+        "x": 3072,
+        "y": 1024,
+        "width": 928,
+        "height": 1024,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 3, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 540606,
+        "lz77Bytes": 867613,
+        "selectedBytes": 540606,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 3030,
+          "squeezeBytes": 3835,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 540606
+          }
+        ]
+      },
+      {
+        "x": 0,
+        "y": 2048,
+        "width": 1024,
+        "height": 952,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 473743,
+        "lz77Bytes": 721942,
+        "selectedBytes": 473743,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 1412,
+          "squeezeBytes": 1962,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 473743
+          }
+        ]
+      },
+      {
+        "x": 1024,
+        "y": 2048,
+        "width": 1024,
+        "height": 952,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 5, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 629596,
+        "lz77Bytes": 1004367,
+        "selectedBytes": 629596,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 3807,
+          "squeezeBytes": 4638,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 629596
+          }
+        ]
+      },
+      {
+        "x": 2048,
+        "y": 2048,
+        "width": 1024,
+        "height": 952,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 6, 6, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 845916,
+        "lz77Bytes": 1240464,
+        "selectedBytes": 845916,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 2982,
+          "squeezeBytes": 3859,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 845916
+          }
+        ]
+      },
+      {
+        "x": 3072,
+        "y": 2048,
+        "width": 928,
+        "height": 952,
+        "effort": 7,
+        "rct": true,
+        "predictors": [6, 5, 3, 1],
+        "entropy": "ans",
+        "contextModel": "learned",
+        "lz77": false,
+        "plainBytes": 462931,
+        "lz77Bytes": 797458,
+        "selectedBytes": 462931,
+        "palette": "none",
+        "squeeze": false,
+        "squeezeProbe": {
+          "rawBytes": 3641,
+          "squeezeBytes": 4496,
+          "selected": false
+        },
+        "candidates": [
+          {
+            "tool": "raw",
+            "bytes": 462931
+          }
+        ]
+      }
+    ],
+    "correctness": "independent verification required after measurement"
+  },
+  "containerOverheadBytes": 40,
+  "oracles": [
+    {
+      "oracle": "libjxl",
+      "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788",
+      "decodedRgbaSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "maximumSampleError": 0,
+      "samplesCompared": 48000000
+    },
+    {
+      "oracle": "jxl-rs",
+      "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416",
+      "decodedRgbaSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "maximumSampleError": 0,
+      "samplesCompared": 48000000
+    }
+  ],
+  "status": "verified",
+  "comparisonInput": "identical pinned RGBA8, including hidden color and alpha",
+  "timingScope": "Single isolated observation, not a speed comparison. Encoder core and output exclude input preparation and independent decoding.",
+  "runtime": "v24.16.0"
+}

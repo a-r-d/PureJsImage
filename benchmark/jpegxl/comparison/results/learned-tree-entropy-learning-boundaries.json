@@ -1,0 +1,1580 @@
+{
+  "implementationRevision": "6947e2659c10508fb72a89510535327ecaec08ee",
+  "implementationSourceSha256": "82534d5e1babbea16a6c11359b358969d02cabb0ab1fa3eee90630798de32254",
+  "implementationDirty": true,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/investigate-tree-entropy-learned-191.ts",
+      "sha256": "915a6d8a86bb9b9e6bd52ff4b9978011be20394372a3a3ce07cf00d768a6d6a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/investigate-tree-entropy-learned-shard-191.ts",
+      "sha256": "de0c97016098c2454111213f502c2b39639788743d5111c54eb2b661ed88c447"
+    }
+  ],
+  "partialReportPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-8-1024.json",
+      "sha256": "4db81d93dc62481cd056b3e5e290272da669ce8ff0a383dc1cf3e6859714b599"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-8-1025.json",
+      "sha256": "be164b13f1a67342d7d0643639951c04e4f35b53e468b26e5c2af76424cdf432"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-0.json",
+      "sha256": "d6dd50191ba4dee945f2223b3e6a131b07853bcce9b590654cf3ba0b462e240b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-1.json",
+      "sha256": "dd7412dcee3c9ac6c6f1d784e82c68a20cfcca2e1a7711945d047dfd52fb4b02"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-8-2.json",
+      "sha256": "e0d1ebde7571fabca956098de27d057d1be231df515864fa987f9dcdc6cb188d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-16-1024.json",
+      "sha256": "e00bada74330f7288d6f1c97f7bd15f2d9e7004d73a8e99d496d321acb59381a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-learned-16-1025.json",
+      "sha256": "c67a3ad406648900cb3fd3efb49889a0e570ed57cb2942acfbc2772f105b456b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-0.json",
+      "sha256": "3b8cd4d0bdcf44c289b1560e5cc109f69ebb2c9d867f635e873da883ae151233"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-1.json",
+      "sha256": "3499fed05c340a802f83b2f2c3691da8df6f4189ba2d3dc853b94ebf6472983c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191-color-16-2.json",
+      "sha256": "ad31b36f2b13349090a762d4df491407f289f5234fef1a9146d14df47da344d4"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "learned-8-1024",
+      "variant": "baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "4c8e6b5eed3587550aebdb2b13983cdabdd586e1d7ccb56b80523edb29d964c5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline.jxl",
+      "artifactSha256": "811197fa2799a580cea701cac076c8b505900994a27093e4a55f7ab71843e76c",
+      "bytes": 431370,
+      "baselineBytes": 431370,
+      "maxWorkingBytes": 268435456,
+      "peak": 39122625,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline-native.npy",
+          "artifactSha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-baseline-rust.npy",
+          "artifactSha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 9894.548191
+    },
+    {
+      "fixture": "learned-8-1024",
+      "variant": "candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "4c8e6b5eed3587550aebdb2b13983cdabdd586e1d7ccb56b80523edb29d964c5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate.jxl",
+      "artifactSha256": "0f1105fc3fb6ad0810aed0d99d155c47bc8b17dcc81616619e22c0c354712e02",
+      "bytes": 430875,
+      "baselineBytes": 431370,
+      "maxWorkingBytes": 268435456,
+      "peak": 39122130,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate-native.npy",
+          "artifactSha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-candidate-rust.npy",
+          "artifactSha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 5,
+      "treeSelections": 5,
+      "fieldSelections": 5,
+      "optionalFallbacks": 0,
+      "elapsedMs": 10090.407865000001
+    },
+    {
+      "fixture": "learned-8-1024",
+      "variant": "bounded-baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "4c8e6b5eed3587550aebdb2b13983cdabdd586e1d7ccb56b80523edb29d964c5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline.jxl",
+      "artifactSha256": "811197fa2799a580cea701cac076c8b505900994a27093e4a55f7ab71843e76c",
+      "bytes": 431370,
+      "baselineBytes": 431370,
+      "maxWorkingBytes": 39122625,
+      "peak": 39122625,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline-native.npy",
+          "artifactSha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-baseline-rust.npy",
+          "artifactSha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 9242.681529999998
+    },
+    {
+      "fixture": "learned-8-1024",
+      "variant": "bounded-candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "4c8e6b5eed3587550aebdb2b13983cdabdd586e1d7ccb56b80523edb29d964c5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate.jxl",
+      "artifactSha256": "0f1105fc3fb6ad0810aed0d99d155c47bc8b17dcc81616619e22c0c354712e02",
+      "bytes": 430875,
+      "baselineBytes": 431370,
+      "maxWorkingBytes": 39122625,
+      "peak": 39122130,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate-native.npy",
+          "artifactSha256": "a5bb53be52f4b5184b896a58877624d625ff2d0f46bd1f6a28229cda334f26c9",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1024-bounded-candidate-rust.npy",
+          "artifactSha256": "9dbe6256f238ba982c9011a8bca9c96e1e3605b72bcbb9a5f245b87f5fcc3cf3",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 5,
+      "treeSelections": 5,
+      "fieldSelections": 5,
+      "optionalFallbacks": 0,
+      "elapsedMs": 8666.090468000002
+    },
+    {
+      "fixture": "learned-8-1025",
+      "variant": "baseline",
+      "depth": 8,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "1518af676143c7d73c4a52a99c84d529e3cccba6cbd196927c6fd2c5c9cc56a5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline.jxl",
+      "artifactSha256": "87a939c474c8c6ee7481fe3ecdabedfbd7a673204f0f841b3ffc3c7ab2c1fd93",
+      "bytes": 435066,
+      "baselineBytes": 435066,
+      "maxWorkingBytes": 268435456,
+      "peak": 37881004,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline-native.npy",
+          "artifactSha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-baseline-rust.npy",
+          "artifactSha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 5900.648853
+    },
+    {
+      "fixture": "learned-8-1025",
+      "variant": "candidate",
+      "depth": 8,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "1518af676143c7d73c4a52a99c84d529e3cccba6cbd196927c6fd2c5c9cc56a5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate.jxl",
+      "artifactSha256": "fca357b83ebe8ccfd8fed8510f3daa59dda9da861b2f7157c99a6499bc2fcf06",
+      "bytes": 434767,
+      "baselineBytes": 435066,
+      "maxWorkingBytes": 268435456,
+      "peak": 37880705,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate-native.npy",
+          "artifactSha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-candidate-rust.npy",
+          "artifactSha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 5,
+      "treeSelections": 5,
+      "fieldSelections": 5,
+      "optionalFallbacks": 0,
+      "elapsedMs": 7343.490581
+    },
+    {
+      "fixture": "learned-8-1025",
+      "variant": "bounded-baseline",
+      "depth": 8,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "1518af676143c7d73c4a52a99c84d529e3cccba6cbd196927c6fd2c5c9cc56a5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline.jxl",
+      "artifactSha256": "87a939c474c8c6ee7481fe3ecdabedfbd7a673204f0f841b3ffc3c7ab2c1fd93",
+      "bytes": 435066,
+      "baselineBytes": 435066,
+      "maxWorkingBytes": 37881004,
+      "peak": 37881004,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline-native.npy",
+          "artifactSha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-baseline-rust.npy",
+          "artifactSha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 5775.566450000002
+    },
+    {
+      "fixture": "learned-8-1025",
+      "variant": "bounded-candidate",
+      "depth": 8,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba8",
+      "inputSha256": "1518af676143c7d73c4a52a99c84d529e3cccba6cbd196927c6fd2c5c9cc56a5",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate.jxl",
+      "artifactSha256": "fca357b83ebe8ccfd8fed8510f3daa59dda9da861b2f7157c99a6499bc2fcf06",
+      "bytes": 434767,
+      "baselineBytes": 435066,
+      "maxWorkingBytes": 37881004,
+      "peak": 37880705,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate-native.npy",
+          "artifactSha256": "ec84c085051e3187dba86e9707c0deec18b98a5c07daa20570669e23e2abc855",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-8-1025-bounded-candidate-rust.npy",
+          "artifactSha256": "f07aaaa3de0057ce0e2f7c53dda797eda3d9500e0fee0a05ac05f7ce562a293e",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 5,
+      "treeSelections": 5,
+      "fieldSelections": 5,
+      "optionalFallbacks": 0,
+      "elapsedMs": 6263.603089
+    },
+    {
+      "fixture": "color-8-0",
+      "variant": "baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "2dee11b58216cdf0782d0360cdab603461048f08cc8e88998528e6996f434c99",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline.jxl",
+      "artifactSha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02",
+      "bytes": 76446,
+      "baselineBytes": 76446,
+      "maxWorkingBytes": 268435456,
+      "peak": 15888634,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline-native.npy",
+          "artifactSha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-baseline-rust.npy",
+          "artifactSha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2909.902864
+    },
+    {
+      "fixture": "color-8-0",
+      "variant": "candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "2dee11b58216cdf0782d0360cdab603461048f08cc8e88998528e6996f434c99",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate.jxl",
+      "artifactSha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02",
+      "bytes": 76446,
+      "baselineBytes": 76446,
+      "maxWorkingBytes": 268435456,
+      "peak": 15888634,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate-native.npy",
+          "artifactSha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-candidate-rust.npy",
+          "artifactSha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3471.883083
+    },
+    {
+      "fixture": "color-8-0",
+      "variant": "bounded-baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "2dee11b58216cdf0782d0360cdab603461048f08cc8e88998528e6996f434c99",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline.jxl",
+      "artifactSha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02",
+      "bytes": 76446,
+      "baselineBytes": 76446,
+      "maxWorkingBytes": 15888634,
+      "peak": 15888634,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline-native.npy",
+          "artifactSha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-baseline-rust.npy",
+          "artifactSha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2956.9561650000005
+    },
+    {
+      "fixture": "color-8-0",
+      "variant": "bounded-candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "2dee11b58216cdf0782d0360cdab603461048f08cc8e88998528e6996f434c99",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate.jxl",
+      "artifactSha256": "a15a7b2365352365bc05b304caddbb4c83a14b1403f4dbb9d84050064f37ad02",
+      "bytes": 76446,
+      "baselineBytes": 76446,
+      "maxWorkingBytes": 15888634,
+      "peak": 15888634,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate-native.npy",
+          "artifactSha256": "52e49498844a7fae10907a766cd1f8f75cfb6afbda0d3113e8c61c17c6ead085",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-0-bounded-candidate-rust.npy",
+          "artifactSha256": "fdf05393429a60cbc22fa8f0a77be9850a57c3902d55600e3df618462e7bd4ec",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3167.3641609999995
+    },
+    {
+      "fixture": "color-8-1",
+      "variant": "baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "78d8ac175dce8981f878369d5af21e49ef27eb0f55baca0bc3f8395c2c121651",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline.jxl",
+      "artifactSha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3",
+      "bytes": 74422,
+      "baselineBytes": 74422,
+      "maxWorkingBytes": 268435456,
+      "peak": 15955984,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline-native.npy",
+          "artifactSha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-baseline-rust.npy",
+          "artifactSha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2870.1904750000003
+    },
+    {
+      "fixture": "color-8-1",
+      "variant": "candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "78d8ac175dce8981f878369d5af21e49ef27eb0f55baca0bc3f8395c2c121651",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate.jxl",
+      "artifactSha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3",
+      "bytes": 74422,
+      "baselineBytes": 74422,
+      "maxWorkingBytes": 268435456,
+      "peak": 15955984,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate-native.npy",
+          "artifactSha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-candidate-rust.npy",
+          "artifactSha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3436.8911060000005
+    },
+    {
+      "fixture": "color-8-1",
+      "variant": "bounded-baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "78d8ac175dce8981f878369d5af21e49ef27eb0f55baca0bc3f8395c2c121651",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline.jxl",
+      "artifactSha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3",
+      "bytes": 74422,
+      "baselineBytes": 74422,
+      "maxWorkingBytes": 15955984,
+      "peak": 15955984,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline-native.npy",
+          "artifactSha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-baseline-rust.npy",
+          "artifactSha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3282.432465000001
+    },
+    {
+      "fixture": "color-8-1",
+      "variant": "bounded-candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "78d8ac175dce8981f878369d5af21e49ef27eb0f55baca0bc3f8395c2c121651",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate.jxl",
+      "artifactSha256": "90429a8c22f88bbc07a5491072435af3a1ee3304d71dcb7eb2464cf8a6d326c3",
+      "bytes": 74422,
+      "baselineBytes": 74422,
+      "maxWorkingBytes": 15955984,
+      "peak": 15955984,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate-native.npy",
+          "artifactSha256": "8bec40d5a11dbc75f12e932c4f429db13e498d1edf8b03530d99c597c976de97",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-1-bounded-candidate-rust.npy",
+          "artifactSha256": "650dc2fccd98767b7a314d5f3c1646ce79b8eddf72cb7c66431ee26183ce92ab",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3463.3547629999994
+    },
+    {
+      "fixture": "color-8-2",
+      "variant": "baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "e7d4958196a88f8dac17c7dbd96759bd5b52487d8818d14f9adc0981dd00301d",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline.jxl",
+      "artifactSha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084",
+      "bytes": 74731,
+      "baselineBytes": 74731,
+      "maxWorkingBytes": 268435456,
+      "peak": 15941815,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline-native.npy",
+          "artifactSha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-baseline-rust.npy",
+          "artifactSha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3110.69268
+    },
+    {
+      "fixture": "color-8-2",
+      "variant": "candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "e7d4958196a88f8dac17c7dbd96759bd5b52487d8818d14f9adc0981dd00301d",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate.jxl",
+      "artifactSha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084",
+      "bytes": 74731,
+      "baselineBytes": 74731,
+      "maxWorkingBytes": 268435456,
+      "peak": 15941815,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate-native.npy",
+          "artifactSha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-candidate-rust.npy",
+          "artifactSha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3481.5972600000005
+    },
+    {
+      "fixture": "color-8-2",
+      "variant": "bounded-baseline",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "e7d4958196a88f8dac17c7dbd96759bd5b52487d8818d14f9adc0981dd00301d",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline.jxl",
+      "artifactSha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084",
+      "bytes": 74731,
+      "baselineBytes": 74731,
+      "maxWorkingBytes": 15941815,
+      "peak": 15941815,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline-native.npy",
+          "artifactSha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-baseline-rust.npy",
+          "artifactSha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3288.595554999999
+    },
+    {
+      "fixture": "color-8-2",
+      "variant": "bounded-candidate",
+      "depth": 8,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba8",
+      "inputSha256": "e7d4958196a88f8dac17c7dbd96759bd5b52487d8818d14f9adc0981dd00301d",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate.jxl",
+      "artifactSha256": "579c2d52694d39c2988bb54f61a298c2083895568260241a84890ddca4cb0084",
+      "bytes": 74731,
+      "baselineBytes": 74731,
+      "maxWorkingBytes": 15941815,
+      "peak": 15941815,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate-native.npy",
+          "artifactSha256": "1cfce8ab80c7f3c3935f6641f2aed42fc9f75a1ff74de6ce014526f4e23500c4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-8-2-bounded-candidate-rust.npy",
+          "artifactSha256": "d711f146c8c7b601d5e7450ab8fbc803ad43acfee287cc66ef26072ba95119d3",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3822.7799620000005
+    },
+    {
+      "fixture": "learned-16-1024",
+      "variant": "baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "26c1943941c8a648251dfb88de3b41b919f8cb2311410b84315b1714322e1fe2",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline.jxl",
+      "artifactSha256": "b926c5be914726d108adb790e5545b532e1299db853188d2a45528da62f06c76",
+      "bytes": 1202947,
+      "baselineBytes": 1202947,
+      "maxWorkingBytes": 268435456,
+      "peak": 47576317,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline-native.npy",
+          "artifactSha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-baseline-rust.npy",
+          "artifactSha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 10279.911183999999
+    },
+    {
+      "fixture": "learned-16-1024",
+      "variant": "candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "26c1943941c8a648251dfb88de3b41b919f8cb2311410b84315b1714322e1fe2",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate.jxl",
+      "artifactSha256": "8e002c5c2f1d980a72e37796638de9a3ac565ab8996d7ea60e914ea86746b97c",
+      "bytes": 1202484,
+      "baselineBytes": 1202947,
+      "maxWorkingBytes": 268435456,
+      "peak": 47575854,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate-native.npy",
+          "artifactSha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-candidate-rust.npy",
+          "artifactSha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 4,
+      "treeSelections": 4,
+      "fieldSelections": 4,
+      "optionalFallbacks": 0,
+      "elapsedMs": 9828.788966
+    },
+    {
+      "fixture": "learned-16-1024",
+      "variant": "bounded-baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "26c1943941c8a648251dfb88de3b41b919f8cb2311410b84315b1714322e1fe2",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline.jxl",
+      "artifactSha256": "b926c5be914726d108adb790e5545b532e1299db853188d2a45528da62f06c76",
+      "bytes": 1202947,
+      "baselineBytes": 1202947,
+      "maxWorkingBytes": 47576317,
+      "peak": 47576317,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline-native.npy",
+          "artifactSha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-baseline-rust.npy",
+          "artifactSha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 9309.268058000001
+    },
+    {
+      "fixture": "learned-16-1024",
+      "variant": "bounded-candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "26c1943941c8a648251dfb88de3b41b919f8cb2311410b84315b1714322e1fe2",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate.jxl",
+      "artifactSha256": "8e002c5c2f1d980a72e37796638de9a3ac565ab8996d7ea60e914ea86746b97c",
+      "bytes": 1202484,
+      "baselineBytes": 1202947,
+      "maxWorkingBytes": 47576317,
+      "peak": 47575854,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate-native.npy",
+          "artifactSha256": "e6db5ddbedf7a72f793044d45b9d3b71f6ee4d49cf0c3571ef58c914df60930f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1024-bounded-candidate-rust.npy",
+          "artifactSha256": "9b451b63ab79640f41cf7832d72d4ff376c6c94983b17738a9c7ba6999158a0f",
+          "samplesCompared": 1052672,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 4,
+      "treeSelections": 4,
+      "fieldSelections": 4,
+      "optionalFallbacks": 0,
+      "elapsedMs": 8986.662634000004
+    },
+    {
+      "fixture": "learned-16-1025",
+      "variant": "baseline",
+      "depth": 16,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "3da6e7849c28a04b5213ab1da0fd89c6a1912a1655748cb879fc683ad5764f35",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline.jxl",
+      "artifactSha256": "af6a204445fe87a6d9a1954fe3039f32747cff215cf0cb891f21d74547d62eac",
+      "bytes": 1206660,
+      "baselineBytes": 1206660,
+      "maxWorkingBytes": 268435456,
+      "peak": 43227053,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline-native.npy",
+          "artifactSha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-baseline-rust.npy",
+          "artifactSha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 6786.649404
+    },
+    {
+      "fixture": "learned-16-1025",
+      "variant": "candidate",
+      "depth": 16,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "3da6e7849c28a04b5213ab1da0fd89c6a1912a1655748cb879fc683ad5764f35",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate.jxl",
+      "artifactSha256": "932cc9d3908aae211c1d4b12a1c916e5af662309d9f9a00e4c5b7856ec055b92",
+      "bytes": 1206392,
+      "baselineBytes": 1206660,
+      "maxWorkingBytes": 268435456,
+      "peak": 43226785,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate-native.npy",
+          "artifactSha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-candidate-rust.npy",
+          "artifactSha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 4,
+      "treeSelections": 4,
+      "fieldSelections": 4,
+      "optionalFallbacks": 0,
+      "elapsedMs": 7210.901319999999
+    },
+    {
+      "fixture": "learned-16-1025",
+      "variant": "bounded-baseline",
+      "depth": 16,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "3da6e7849c28a04b5213ab1da0fd89c6a1912a1655748cb879fc683ad5764f35",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline.jxl",
+      "artifactSha256": "af6a204445fe87a6d9a1954fe3039f32747cff215cf0cb891f21d74547d62eac",
+      "bytes": 1206660,
+      "baselineBytes": 1206660,
+      "maxWorkingBytes": 43227053,
+      "peak": 43227053,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline-native.npy",
+          "artifactSha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-baseline-rust.npy",
+          "artifactSha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 6464.324063
+    },
+    {
+      "fixture": "learned-16-1025",
+      "variant": "bounded-candidate",
+      "depth": 16,
+      "width": 1025,
+      "height": 257,
+      "format": "rgba16",
+      "inputSha256": "3da6e7849c28a04b5213ab1da0fd89c6a1912a1655748cb879fc683ad5764f35",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate.jxl",
+      "artifactSha256": "932cc9d3908aae211c1d4b12a1c916e5af662309d9f9a00e4c5b7856ec055b92",
+      "bytes": 1206392,
+      "baselineBytes": 1206660,
+      "maxWorkingBytes": 43227053,
+      "peak": 43226785,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate-native.npy",
+          "artifactSha256": "dbac5315843701390c99cfb5bb45e572c46ca20e5d20f72d68cce13abdb4d845",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/learned-16-1025-bounded-candidate-rust.npy",
+          "artifactSha256": "cf45d7b70cb6edd454ef64ca976f25e1ed0e74cd6506f50706c79b5de907bd65",
+          "samplesCompared": 1053700,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 4,
+      "treeSelections": 4,
+      "fieldSelections": 4,
+      "optionalFallbacks": 0,
+      "elapsedMs": 6305.444188999998
+    },
+    {
+      "fixture": "color-16-0",
+      "variant": "baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e85ffebe8bef6bf41eedf33f614edf97e91762afeb5b4c424ededea6796a8287",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline.jxl",
+      "artifactSha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea",
+      "bytes": 138436,
+      "baselineBytes": 138436,
+      "maxWorkingBytes": 268435456,
+      "peak": 17165767,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline-native.npy",
+          "artifactSha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-baseline-rust.npy",
+          "artifactSha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3270.494195
+    },
+    {
+      "fixture": "color-16-0",
+      "variant": "candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e85ffebe8bef6bf41eedf33f614edf97e91762afeb5b4c424ededea6796a8287",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate.jxl",
+      "artifactSha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea",
+      "bytes": 138436,
+      "baselineBytes": 138436,
+      "maxWorkingBytes": 268435456,
+      "peak": 17165767,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate-native.npy",
+          "artifactSha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-candidate-rust.npy",
+          "artifactSha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3513.860939
+    },
+    {
+      "fixture": "color-16-0",
+      "variant": "bounded-baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e85ffebe8bef6bf41eedf33f614edf97e91762afeb5b4c424ededea6796a8287",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline.jxl",
+      "artifactSha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea",
+      "bytes": 138436,
+      "baselineBytes": 138436,
+      "maxWorkingBytes": 17165767,
+      "peak": 17165767,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline-native.npy",
+          "artifactSha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-baseline-rust.npy",
+          "artifactSha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3335.4697210000004
+    },
+    {
+      "fixture": "color-16-0",
+      "variant": "bounded-candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e85ffebe8bef6bf41eedf33f614edf97e91762afeb5b4c424ededea6796a8287",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate.jxl",
+      "artifactSha256": "fc8df80ae6c3470d03a725c3eddbfa511cd684cea71082e8e5dee2a62d8180ea",
+      "bytes": 138436,
+      "baselineBytes": 138436,
+      "maxWorkingBytes": 17165767,
+      "peak": 17165767,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate-native.npy",
+          "artifactSha256": "cbb938388b08a834efdc292dc5a511d96ba27746a96287e88a30fbbc30c303a4",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-0-bounded-candidate-rust.npy",
+          "artifactSha256": "236b0ad2970c7f2ac716ce0f593ef3334dd50fa6a70926ac58540a0123c97266",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3284.385592999999
+    },
+    {
+      "fixture": "color-16-1",
+      "variant": "baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e093d147383a070a604bc0054209f1581dbbaf12819f54054f1a9aa929762acb",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline.jxl",
+      "artifactSha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93",
+      "bytes": 140533,
+      "baselineBytes": 140533,
+      "maxWorkingBytes": 268435456,
+      "peak": 17155899,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline-native.npy",
+          "artifactSha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-baseline-rust.npy",
+          "artifactSha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2720.5670609999997
+    },
+    {
+      "fixture": "color-16-1",
+      "variant": "candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e093d147383a070a604bc0054209f1581dbbaf12819f54054f1a9aa929762acb",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate.jxl",
+      "artifactSha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93",
+      "bytes": 140533,
+      "baselineBytes": 140533,
+      "maxWorkingBytes": 268435456,
+      "peak": 17155899,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate-native.npy",
+          "artifactSha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-candidate-rust.npy",
+          "artifactSha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3015.411791
+    },
+    {
+      "fixture": "color-16-1",
+      "variant": "bounded-baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e093d147383a070a604bc0054209f1581dbbaf12819f54054f1a9aa929762acb",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline.jxl",
+      "artifactSha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93",
+      "bytes": 140533,
+      "baselineBytes": 140533,
+      "maxWorkingBytes": 17155899,
+      "peak": 17155899,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline-native.npy",
+          "artifactSha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-baseline-rust.npy",
+          "artifactSha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3881.8368370000007
+    },
+    {
+      "fixture": "color-16-1",
+      "variant": "bounded-candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "e093d147383a070a604bc0054209f1581dbbaf12819f54054f1a9aa929762acb",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate.jxl",
+      "artifactSha256": "28c5fbf5f48a626162f3ac28b530ee2e82aa425554fdb995747e73b3d5066f93",
+      "bytes": 140533,
+      "baselineBytes": 140533,
+      "maxWorkingBytes": 17155899,
+      "peak": 17155899,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate-native.npy",
+          "artifactSha256": "7d4fea6635409a1f8c30f106b0cb82a0b599c82151bde85861a85fce31f2e569",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-1-bounded-candidate-rust.npy",
+          "artifactSha256": "19d6f19a826d9a1a80b41d3c07d6e75dd4f19762234d831bacaade00920b501e",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3017.116378999999
+    },
+    {
+      "fixture": "color-16-2",
+      "variant": "baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "bb76ee1f8a2cbc5a7a9da8ef335975f567d5960f682da73dd4bc7101f1923585",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline.jxl",
+      "artifactSha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132",
+      "bytes": 146963,
+      "baselineBytes": 146963,
+      "maxWorkingBytes": 268435456,
+      "peak": 17136761,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline-native.npy",
+          "artifactSha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-baseline-rust.npy",
+          "artifactSha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2974.1077459999997
+    },
+    {
+      "fixture": "color-16-2",
+      "variant": "candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "bb76ee1f8a2cbc5a7a9da8ef335975f567d5960f682da73dd4bc7101f1923585",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate.jxl",
+      "artifactSha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132",
+      "bytes": 146963,
+      "baselineBytes": 146963,
+      "maxWorkingBytes": 268435456,
+      "peak": 17136761,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate-native.npy",
+          "artifactSha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-candidate-rust.npy",
+          "artifactSha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3089.7425530000005
+    },
+    {
+      "fixture": "color-16-2",
+      "variant": "bounded-baseline",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "bb76ee1f8a2cbc5a7a9da8ef335975f567d5960f682da73dd4bc7101f1923585",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline.jxl",
+      "artifactSha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132",
+      "bytes": 146963,
+      "baselineBytes": 146963,
+      "maxWorkingBytes": 17136761,
+      "peak": 17136761,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline-native.npy",
+          "artifactSha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-baseline-rust.npy",
+          "artifactSha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 2998.9064049999997
+    },
+    {
+      "fixture": "color-16-2",
+      "variant": "bounded-candidate",
+      "depth": 16,
+      "width": 1024,
+      "height": 65,
+      "format": "rgba16",
+      "inputSha256": "bb76ee1f8a2cbc5a7a9da8ef335975f567d5960f682da73dd4bc7101f1923585",
+      "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate.jxl",
+      "artifactSha256": "8039b01ebd21fec0f2f3ac2c8c24c33ed7a129336ed7693c014bb8d8a9a09132",
+      "bytes": 146963,
+      "baselineBytes": 146963,
+      "maxWorkingBytes": 17136761,
+      "peak": 17136761,
+      "live": 0,
+      "allocations": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate-native.npy",
+          "artifactSha256": "094b3df513964cee2d2762665e2c64d0ce35e67abe55e737e9e0b885441933f1",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        },
+        {
+          "decoder": "rust",
+          "artifact": ".tmp/jpegxl-comparison-v1/tree-entropy-learned-191/output/color-16-2-bounded-candidate-rust.npy",
+          "artifactSha256": "b65bb0653ecbcf09a1da6706bf45dfedb663651978c09edae0d19955accd6766",
+          "samplesCompared": 266240,
+          "maximumSampleError": 0
+        }
+      ],
+      "treeAttempts": 0,
+      "treeSelections": 0,
+      "fieldSelections": 0,
+      "optionalFallbacks": 0,
+      "elapsedMs": 3086.6786329999995
+    }
+  ],
+  "policy": "Forty copied complete lossless controls cover all existing 8/16-bit learned one/multiple-group and reversible primary-color fixtures, unconstrained and at each exact prior qualified managed peak. Complete candidates must never grow, bounded baselines reproduce original complete bytes, every original sample including invisible RGB and alpha is exact in native/Rust NPY grids, input bytes remain unchanged and all owned storage closes. Production remains qualified 82534d5e. No speed or production-retention claim."
+}

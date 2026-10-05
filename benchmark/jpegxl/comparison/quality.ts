@@ -1,8 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { basename, resolve } from 'node:path'
 import sharp from 'sharp'
 import { interpolateM7Quality } from '../m7-quality-curves.ts'
 import {
-  nextRecoverySetting,
   type RecoveryPoint,
   recoveryBracket,
   recoveryMonotonicityViolations,
@@ -20,7 +20,31 @@ import {
   run,
   work,
 } from './io.ts'
-import { classifyError } from './model.ts'
+import { classifyError, validateImplementationIdentity } from './model.ts'
+import { nextComparisonQualitySetting } from './quality-refinement.ts'
+
+const output = process.argv[2] ?? `${root}/results/quality.json`
+const sampling = process.argv[3] ?? 'target80'
+const fixtureId = process.argv[4]
+if (!['target80', 'all-bands'].includes(sampling) || process.argv.length > 5)
+  throw new Error(
+    'Specify an output report, target80 or all-bands sampling and optional fixture ID',
+  )
+if (sampling === 'all-bands' && resolve(output) === resolve(`${root}/results/quality.json`))
+  throw new Error(
+    'All-band refinement requires a separate report to preserve the frozen comparison',
+  )
+const targets = sampling === 'all-bands' ? [80, 70, 90] : [80]
+const maximumPoints = sampling === 'all-bands' ? 24 : 6
+const maximumWidth = sampling === 'all-bands' ? 0.25 : 2
+const directory =
+  sampling === 'all-bands'
+    ? `${work}/quality-refined/${basename(output, '.json')}`
+    : `${work}/quality`
+const identity = await implementationIdentity()
+const harnessSha256 = hash(await readFile(import.meta.filename))
+const refinementSha256 = hash(await readFile(new URL('./quality-refinement.ts', import.meta.url)))
+const fixturesSha256 = hash(await readFile(`${root}/fixtures.json`))
 
 if (!('ImageData' in globalThis))
   Object.defineProperty(globalThis, 'ImageData', {
@@ -35,16 +59,19 @@ if (!('ImageData' in globalThis))
       }
     },
   })
-const selected = (await fixtures()).filter((f) =>
-    [
-      'im26-1030-diagnostic',
-      'im26-1416-diagnostic',
-      'im26-5034-diagnostic',
-      'alpha_triangles',
-    ].includes(f.id),
+const selected = (await fixtures()).filter(
+    (f) =>
+      [
+        'im26-1030-diagnostic',
+        'im26-1416-diagnostic',
+        'im26-5034-diagnostic',
+        'alpha_triangles',
+      ].includes(f.id) &&
+      (fixtureId === undefined || f.id === fixtureId),
   ),
   results: unknown[] = []
-await mkdir(`${work}/quality`, { recursive: true })
+if (!selected.length) throw new Error('No selected quality fixture matches')
+await mkdir(directory, { recursive: true })
 const toolHashes = Object.fromEntries(
   await Promise.all(
     ['ssimulacra2', 'butteraugli_main'].map(async (tool) => [
@@ -60,7 +87,7 @@ for (const fixture of selected) {
   const source = `${work}/fixtures/${fixture.id}.png`,
     references = new Map<string, string>()
   for (const background of backgrounds) {
-    const path = `${work}/quality/${fixture.id}-${background}-source.png`
+    const path = `${directory}/${fixture.id}-${background}-source.png`
     await sharp(source).flatten({ background }).png().toFile(path)
     references.set(background, path)
   }
@@ -85,18 +112,20 @@ for (const fixture of selected) {
     try {
       const queue = subject === 'jsquash' ? [11, 51] : [1, 4],
         minimum = subject === 'jsquash' ? 2 : subject === 'purejsimage' ? 0.25 : 0.1,
-        maximum = subject === 'jsquash' ? 81 : 25
-      for (let attempt = 0; attempt < 6; attempt++) {
+        maximum = subject === 'jsquash' ? (sampling === 'all-bands' ? 101 : 81) : 25
+      for (let attempt = 0; attempt < maximumPoints; attempt++) {
         const setting =
           queue.shift() ??
-          (points.length ? nextRecoverySetting(points, 80, minimum, maximum, 2) : undefined)
+          (points.length
+            ? nextComparisonQualitySetting(points, targets, minimum, maximum, maximumWidth)
+            : undefined)
         if (setting === undefined) break
         const options = {
             lossless: false,
             effort: 7,
             value: subject === 'jsquash' ? 101 - setting : setting,
           },
-          prefix = `${work}/quality/${fixture.id}-${subject}-${setting}`
+          prefix = `${directory}/${fixture.id}-${subject}-${setting}`
         try {
           if (subject === 'native-libjxl')
             run(`${oracle}/cjxl`, [
@@ -157,7 +186,7 @@ for (const fixture of selected) {
       return {
         target,
         status: bracket
-          ? bracket.width <= 2
+          ? bracket.width <= maximumWidth
             ? 'adequate bracket'
             : 'wide bracket'
           : points.length === 0
@@ -195,6 +224,12 @@ for (const fixture of selected) {
     results.push({
       fixture: fixture.id,
       scope: fixture.scope,
+      sourceSha256: fixture.sourceSha256,
+      inputSha256: fixture.rawSha256,
+      settingBounds:
+        subject === 'jsquash'
+          ? { minimum: 2, maximum: sampling === 'all-bands' ? 101 : 81, mapping: '101 - quality' }
+          : { minimum: subject === 'purejsimage' ? 0.25 : 0.1, maximum: 25, mapping: 'distance' },
       subject,
       role:
         subject === 'native-libjxl'
@@ -206,17 +241,25 @@ for (const fixture of selected) {
       butteraugli,
       monotonicityViolations: recoveryMonotonicityViolations(points),
     })
-    await json(`${root}/results/quality.json`, {
+    validateImplementationIdentity(await implementationIdentity(), identity)
+    await json(output, {
       schemaVersion: 1,
       date: new Date().toISOString(),
-      ...(await implementationIdentity()),
+      ...identity,
+      harnessSha256,
+      refinementSha256,
+      fixturesSha256,
       toolHashes,
       decoderSha256: hash(await readFile(`${oracle}/djxl`)),
       primaryTarget: 80,
-      maximumSsimBracketWidth: 2,
-      maximumPointsPerSubjectFixture: 6,
+      samplingTargets: targets,
+      selectedFixtureIds: selected.map((fixture) => fixture.id),
+      maximumSsimBracketWidth: maximumWidth,
+      maximumPointsPerSubjectFixture: maximumPoints,
       matching:
-        'Existing M7 nondominated log-byte interpolation. Target80 refinements only; 70/90 and Butteraugli secondary coordinates may remain missing. No extrapolation or lossless points. Alpha: minimum SSIMULACRA2 / maximum Butteraugli over explicit black and white backgrounds.',
+        sampling === 'all-bands'
+          ? 'Existing M7 nondominated log-byte interpolation. Refine SSIMULACRA2 80, 70 and 90 separately; unresolved targets remain explicit. Butteraugli coordinates may remain missing. No extrapolation or lossless points. Alpha: minimum SSIMULACRA2 / maximum Butteraugli over explicit black and white backgrounds.'
+          : 'Existing M7 nondominated log-byte interpolation. Target80 refinements only; 70/90 and Butteraugli secondary coordinates may remain missing. No extrapolation or lossless points. Alpha: minimum SSIMULACRA2 / maximum Butteraugli over explicit black and white backgrounds.',
       results,
     })
   }
