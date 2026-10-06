@@ -2,6 +2,13 @@
 
 ## Current result
 
+Overall lossy parity remains open. The October 6
+[broader original-photo baseline](ORIGINAL-MATRIX.md) exposes a real
+Butteraugli gap on the unresized portrait: 10.50–28.66% larger than jSquash
+at three adequately matched targets. The same photo is competitive on
+SSIMULACRA2. Its measured gaps need encoder improvements and separate
+qualification.
+
 The October 6 [original-size photo correction](ORIGINAL-PHOTO.md) meets or
 beats both pinned WASM encoders at matched SSIMULACRA2 70, 80 and 90 on
 the original 12 MP photo. Current files are 9–13% smaller than jSquash and

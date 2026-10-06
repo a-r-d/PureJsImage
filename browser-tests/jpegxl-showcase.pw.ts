@@ -15,10 +15,13 @@ import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group
 import losslessSpatial from '../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json' with {
   type: 'json',
 }
-import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
+import portraitBaseline from '../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json' with {
   type: 'json',
 }
 import originalPhoto from '../benchmark/jpegxl/comparison/results/original-photo-production-controls.json' with {
+  type: 'json',
+}
+import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
   type: 'json',
 }
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
@@ -263,6 +266,32 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   await expect(page.locator('main')).toContainText(
     '13 adequately matched pairs and 11 unresolved pairs',
   )
+  await expect(page.locator('#jxl-original-matrix-status')).toContainText(
+    'Overall lossy compression parity remains open',
+  )
+  await expect(page.locator('#jxl-original-matrix-status')).toContainText('10.50–28.66% more bytes')
+  const portraitResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-matrix-portrait-baseline.json',
+  )
+  expect(portraitResponse.ok()).toBe(true)
+  const portraitDownloaded: unknown = await portraitResponse.json()
+  expect(portraitDownloaded).toEqual(portraitBaseline)
+  expect(portraitBaseline).toMatchObject({
+    completed: true,
+    fixture: 'portrait-2400x3000',
+    fullParity: false,
+    resolvedComparisons: 10,
+    sizeGaps: 4,
+    unresolvedComparisons: 4,
+    freshEncodedFiles: 0,
+    freshCompleteIndependentGrids: 0,
+    freshPublicDecodedSamples: 0,
+    reusedQualifiedIndependentGrids: 144,
+    reusedQualifiedPublicDecodedSamples: 691200000,
+  })
+  const portraitDocument = await page.request.get('/jpeg-xl/evidence/ORIGINAL-MATRIX.md')
+  expect(portraitDocument.ok()).toBe(true)
+  expect(await portraitDocument.text()).toContain('28.66% larger')
   for (const row of photoCompression.matchedFrozenPeerComparisons)
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
   await expect(page.locator('main')).toContainText('0.53% smaller')

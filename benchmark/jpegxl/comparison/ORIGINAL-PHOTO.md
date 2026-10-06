@@ -8,6 +8,9 @@ bytes than jSquash at all four matched Butteraugli targets and wasm-vips at
 its two resolved targets; two wasm-vips targets remain unresolved under the
 unchanged rules. Parity applies to the resolved targets on this photo;
 broader compression and quality rankings require separate evidence.
+The later [portrait baseline](ORIGINAL-MATRIX.md) exposes remaining
+Butteraugli size gaps, so this photo's result does not establish overall
+lossy parity.
 
 ## Matched quality on the original input
 

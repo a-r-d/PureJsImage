@@ -2,13 +2,14 @@
 import alphaCompression from '../../../../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json'
 import alphaDirect from '../../../../benchmark/jpegxl/comparison/results/alpha-point-production-controls.json'
 import historicalPhotoCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
-import dcCompression from '../../../../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json'
-import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
 import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
 import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
+import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
+import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
 import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
 import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
+import dcCompression from '../../../../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json'
 import compressionQuality from '../../../../benchmark/jpegxl/comparison/results/quality-funded-sampling-public.json'
 import supplementalQuality from '../../../../benchmark/jpegxl/comparison/results/quality-photo-frontier-extension.json'
 import subjectManifest from '../../../../benchmark/jpegxl/comparison/subjects.json'
@@ -22,6 +23,24 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const n = (v: unknown) => (typeof v === 'number' ? v : 0)
 const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')
 const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']
+const portraitGapPercentages = portraitBaseline.comparisons.flatMap((row) =>
+  row.comparator === 'jsquash' &&
+  row.metric === 'butteraugli' &&
+  row.status === 'adequate bracket' &&
+  typeof row.ratio === 'number'
+    ? [(row.ratio - 1) * 100]
+    : [],
+)
+if (
+  portraitBaseline.completed !== true ||
+  portraitBaseline.fullParity !== false ||
+  portraitBaseline.fixture !== 'portrait-2400x3000' ||
+  portraitGapPercentages.length !== 3 ||
+  portraitGapPercentages.some((gap) => !Number.isFinite(gap) || gap <= 0)
+)
+  throw new Error('Incomplete broader portrait baseline')
+const portraitMinimumGap = Math.min(...portraitGapPercentages).toFixed(2)
+const portraitMaximumGap = Math.max(...portraitGapPercentages).toFixed(2)
 if (
   alphaDirect.completed !== true ||
   alphaDirect.sourceAdopted !== true ||
@@ -377,6 +396,7 @@ if (
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
+<p id="jxl-original-matrix-status">Overall lossy compression parity remains open. The additional unresized 2400 × 3000 portrait baseline uses {portraitMinimumGap}–{portraitMaximumGap}% more bytes than jSquash at three separately matched Butteraugli targets, despite competitive SSIMULACRA2 results. The earlier 12 MP photo results below keep their separate scope. <a href="/jpeg-xl/evidence/ORIGINAL-MATRIX.md" download>Broader photo results and remaining gaps</a> and <a href="/jpeg-xl/evidence/original-matrix-portrait-baseline.json" download>Verified portrait baseline</a>.</p>
 <p>On the original 4000 × 3000 photo, PureJsImage uses 9–13% fewer bytes than jSquash and 8–16% fewer than wasm-vips at matched SSIMULACRA2 70, 80 and 90. It also uses fewer bytes at all four matched Butteraugli targets against jSquash and both resolved targets against wasm-vips; two wasm-vips targets remain unresolved under the unchanged rules. Parity applies to the resolved targets on this photo; other original-size photos, HDR, float, CMYK and animation need separate matched compression evidence. <a href="/jpeg-xl/evidence/ORIGINAL-PHOTO.md" download>Original-size photo results and limits</a> and <a href="/jpeg-xl/evidence/original-photo-production-controls.json" download>Current production controls</a>.</p>
 <div style="overflow:auto"><table><caption>Original 4000 × 3000 photo at matched SSIMULACRA2</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalPhotoRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString('en-US')}</td><td>{row.jsquashBytes.toLocaleString('en-US')}</td><td>{row.vipsBytes.toLocaleString('en-US')}</td><td>{row.jsquashReduction}% smaller</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
 <div style="overflow:auto"><table><caption>Same original photo at independently matched Butteraugli targets; lower error is better</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalButteraugliRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString("en-US")}</td><td>{row.jsquashBytes.toLocaleString("en-US")}</td><td>{row.vipsBytes}</td><td>{row.jsquashReduction}</td><td>{row.vipsReduction}</td></tr>)}</tbody></table></div>

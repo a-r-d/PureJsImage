@@ -1,6 +1,12 @@
 # Public JavaScript JPEG XL comparison
 
-The latest [original-size photo checkpoint](ORIGINAL-PHOTO.md) closes the
+The [broader original-photo baseline](ORIGINAL-MATRIX.md) confirms that
+overall lossy parity remains open. On the unresized portrait, PureJsImage
+uses 10.50–28.66% more bytes than jSquash at the three adequately matched
+Butteraugli targets, despite competitive SSIMULACRA2 results. This is
+separate from the earlier passing photo and frozen comparison counts.
+
+The earlier [original-size photo checkpoint](ORIGINAL-PHOTO.md) closes the
 measured SSIMULACRA2 compression gap on the original 4000 × 3000 photo.
 Current files are 9–13% smaller than jSquash and 8–16% smaller than wasm-vips
 at targets 70, 80 and 90. All six pairs pass the original quarter-score
