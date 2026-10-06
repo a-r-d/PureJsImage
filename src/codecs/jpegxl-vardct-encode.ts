@@ -17,10 +17,15 @@ import {
   type VarDctCoefficientPlane,
   varDctCodestreamParts,
 } from './jpegxl-jpeg-encode.ts'
-import { hasSmallVisiblePalette } from './jpegxl-modular-encode.ts'
+import {
+  encodeHybridUintPacked,
+  hasSmallVisiblePalette,
+  packSigned,
+} from './jpegxl-modular-encode.ts'
 import {
   defaultJpegXlDct4x8Dequantization,
   defaultJpegXlDct8Dequantization,
+  defaultJpegXlDct16Dequantization,
   defaultJpegXlHornussDequantization,
   defaultJpegXlQuantizationBiases,
 } from './jpegxl-vardct-quantization.ts'
@@ -70,6 +75,7 @@ const lookupCubeRoot = (linear: number, table: Float32Array): number => {
 
 import {
   forwardJpegXlDct8,
+  forwardJpegXlDct16,
   forwardJpegXlDctHalves,
   forwardJpegXlHornuss,
 } from './jpegxl-vardct-forward-transforms.ts'
@@ -77,6 +83,7 @@ import {
 export { forwardJpegXlDct8 } from './jpegxl-vardct-forward-transforms.ts'
 
 const strategyCandidates = Uint8Array.of(1, 12, 13)
+const dct16Quantizers = Uint8Array.of(4, 5, 6, 7, 8, 9, 10, 12, 16)
 
 // The AC writer emits each coefficient through the final nonzero scan position.
 // This natural scan is the starting order before its image-level order adaptation.
@@ -264,67 +271,77 @@ export const encodeJpegXlVarDct8 = (
 ): readonly Uint8Array[] => {
   const owned = memory ?? new JpegXlEncoderMemory(268_435_456)
   try {
-    return withJpegXlMemory(owned, () => {
-      const steps = prepare8(
-        pixels,
-        width,
-        height,
-        distance,
-        owned,
-        channels,
-        effort,
-        imageHeader,
-        sampleDepth,
-        progressive,
-        color,
-      )
-      let next = steps.next()
-      while (!next.done) next = steps.next()
-      const geometry = next.value
-      const baseline = varDctCodestreamParts(
-        { width, height },
-        geometry,
-        encodeVarDctCoefficientSections(geometry),
-      )
-      if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
-      try {
-        return withJpegXlMemory(owned, () => {
-          const learning = learnJpegXlForwardCoefficientOrders(geometry)
-          let next = learning.next()
-          while (!next.done) next = learning.next()
-          const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
-          const alternate = varDctCodestreamParts(
-            { width, height },
-            alternateGeometry,
-            encodeVarDctCoefficientSections(alternateGeometry),
-          )
-          let selected =
-            codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
-          for (const candidate of [geometry, alternateGeometry]) {
-            try {
-              selected = withJpegXlMemory(owned, () => {
-                const familyGeometry = { ...candidate, forwardFamilyContexts: true }
-                const family = varDctCodestreamParts(
-                  { width, height },
-                  familyGeometry,
-                  encodeVarDctCoefficientSections(familyGeometry),
-                )
-                return codestreamPartBytes(family) < codestreamPartBytes(selected)
-                  ? family
-                  : selected
-              })
-            } catch (error) {
-              if (!isJpegXlLimitExceeded(error)) throw error
-              break
+    const encode = (compressionSearch: boolean) =>
+      withJpegXlMemory(owned, () => {
+        const steps = prepare8(
+          pixels,
+          width,
+          height,
+          distance,
+          owned,
+          channels,
+          effort,
+          imageHeader,
+          sampleDepth,
+          progressive,
+          color,
+          defaultImageLimits,
+          'conservative',
+          compressionSearch,
+        )
+        let next = steps.next()
+        while (!next.done) next = steps.next()
+        const geometry = next.value
+        const baseline = varDctCodestreamParts(
+          { width, height },
+          geometry,
+          encodeVarDctCoefficientSections(geometry),
+        )
+        if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
+        try {
+          return withJpegXlMemory(owned, () => {
+            const learning = learnJpegXlForwardCoefficientOrders(geometry)
+            let next = learning.next()
+            while (!next.done) next = learning.next()
+            const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
+            const alternate = varDctCodestreamParts(
+              { width, height },
+              alternateGeometry,
+              encodeVarDctCoefficientSections(alternateGeometry),
+            )
+            let selected =
+              codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
+            for (const candidate of [geometry, alternateGeometry]) {
+              try {
+                selected = withJpegXlMemory(owned, () => {
+                  const familyGeometry = { ...candidate, forwardFamilyContexts: true }
+                  const family = varDctCodestreamParts(
+                    { width, height },
+                    familyGeometry,
+                    encodeVarDctCoefficientSections(familyGeometry),
+                  )
+                  return codestreamPartBytes(family) < codestreamPartBytes(selected)
+                    ? family
+                    : selected
+                })
+              } catch (error) {
+                if (!isJpegXlLimitExceeded(error)) throw error
+                break
+              }
             }
-          }
-          return selected
-        })
-      } catch (error) {
-        if (!isJpegXlLimitExceeded(error)) throw error
-        return baseline
-      }
-    })
+            return selected
+          })
+        } catch (error) {
+          if (!isJpegXlLimitExceeded(error)) throw error
+          return baseline
+        }
+      })
+    try {
+      return encode(true)
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      return encode(false)
+    }
   } finally {
     if (!memory) owned.close()
   }
@@ -334,6 +351,7 @@ export interface JpegXlForwardFrameOptions {
   readonly reference?: boolean
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
   readonly strategyPolicy?: 'rate-distortion'
+  readonly compressionSearch?: boolean
 }
 
 const usesForwardCoefficientOrderSearch = (
@@ -365,7 +383,7 @@ const forwardFrameParts = (
   })
 }
 
-export const encodeJpegXlVarDct8Async = (
+const encodeJpegXlVarDct8CandidateAsync = (
   pixels: Uint8Array,
   width: number,
   height: number,
@@ -396,6 +414,7 @@ export const encodeJpegXlVarDct8Async = (
       color,
       limits,
       frame.strategyPolicy ?? 'conservative',
+      frame.compressionSearch !== false,
     )
     await checkpoint()
     let next = steps.next()
@@ -460,6 +479,60 @@ export const encodeJpegXlVarDct8Async = (
     }
   })
 
+export const encodeJpegXlVarDct8Async = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  distance: number,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+  channels: 1 | 3 | 4 = 3,
+  effort: 1 | 3 | 5 | 7 = 3,
+  imageHeader?: Uint8Array,
+  sampleDepth = 8,
+  progressive = false,
+  color?: JpegXlForwardColor,
+  limits: Readonly<ImageLimits> = defaultImageLimits,
+  frame: Readonly<JpegXlForwardFrameOptions> = {},
+): Promise<readonly Uint8Array[]> => {
+  try {
+    return await encodeJpegXlVarDct8CandidateAsync(
+      pixels,
+      width,
+      height,
+      distance,
+      memory,
+      checkpoint,
+      channels,
+      effort,
+      imageHeader,
+      sampleDepth,
+      progressive,
+      color,
+      limits,
+      frame,
+    )
+  } catch (error) {
+    if (!isJpegXlLimitExceeded(error) || frame.compressionSearch === false) throw error
+    return encodeJpegXlVarDct8CandidateAsync(
+      pixels,
+      width,
+      height,
+      distance,
+      memory,
+      checkpoint,
+      channels,
+      effort,
+      imageHeader,
+      sampleDepth,
+      progressive,
+      color,
+      limits,
+      { ...frame, compressionSearch: false },
+    )
+  }
+}
+
 function* prepare8(
   pixels: Uint8Array,
   width: number,
@@ -474,6 +547,7 @@ function* prepare8(
   color: JpegXlForwardColor | undefined,
   limits: Readonly<ImageLimits> = defaultImageLimits,
   strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
+  compressionSearch = true,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidJpegXlInput('dimensions must be positive safe integers')
@@ -967,6 +1041,31 @@ function* prepare8(
       forwardJpegXlDctHalves(plane, intermediate, transformed, strategy === 13)
     else forwardJpegXlDct8(plane, intermediate, transformed)
   }
+  const coarse =
+    compressionSearch &&
+    moderateSdrDc &&
+    effort === 7 &&
+    distance >= 6 &&
+    channels === 4 &&
+    !progressive &&
+    width * height <= 4_194_304
+  const rateAwareAc = (normalized: number, channel: number): number => {
+    const bias = defaultJpegXlQuantizationBiases[channel] ?? 1
+    const weight = channel === 1 ? 0.05 : 0.02
+    const magnitude = Math.abs(normalized),
+      lower = Math.floor(magnitude),
+      upper = lower + 1
+    const lowValue = lower === 0 ? 0 : lower === 1 ? bias : lower - 0.145 / lower
+    const highValue = upper === 1 ? bias : upper - 0.145 / upper
+    const lowCost =
+      (magnitude - lowValue) ** 2 + weight * (lower === 0 ? 0 : 1 + 2 * Math.log2(1 + lower))
+    const highCost = (magnitude - highValue) ** 2 + weight * (1 + 2 * Math.log2(1 + upper))
+    const value = highCost < lowCost ? upper : lower
+    return normalized < 0 ? -value : value
+  }
+  const quantizeAc: (normalized: number, channel: number) => number = coarse
+    ? rateAwareAc
+    : Math.round
   const epfMaximumSharpness = channels === 4 ? 2 : 3
   let epfSharpnessMap =
     blockStrategyMap &&
@@ -997,7 +1096,7 @@ function* prepare8(
         coefficientErrors[0] = 0
         for (let position = 1; position < 64; position++) {
           const step = localScale * (table[position] ?? 0)
-          const value = Math.round((transformed[position] ?? 0) / step)
+          const value = quantizeAc((transformed[position] ?? 0) / step, channel)
           if (Math.abs(value) > 4095) return Infinity
           const decoded =
             value === 0
@@ -1151,6 +1250,301 @@ function* prepare8(
     }
   }
   const groupsAcross = Math.ceil(fullBlockWidth / 32)
+  // Estimate transform cost from natural-order hybrid tokens, zeros and nonzero counts.
+  const dct16Eligible = coarse && blockStrategyMap !== undefined
+  const dct16Planes = dct16Eligible
+    ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
+    : undefined
+  const dct16Intermediate = dct16Eligible
+    ? allocateJpegXlArray(memory, Float32Array, 256)
+    : undefined
+  const dct16Transformed = dct16Eligible
+    ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
+    : undefined
+  const fillDct16 = (blockX: number, blockY: number, correlated: boolean): void => {
+    if (!dct16Planes) throw invalidInput('Missing DCT16 tile')
+    for (let dy = 0; dy < 2; dy++)
+      for (let dx = 0; dx < 2; dx++) {
+        if (correlated) fillCorrelated(blockX + dx, blockY + dy)
+        else fill(blockX + dx, blockY + dy)
+        for (let channel = 0; channel < 3; channel++) {
+          const source = planes[channel],
+            destination = dct16Planes[channel]
+          if (!source || !destination) throw invalidInput('Missing DCT16 color')
+          for (let y = 0; y < 8; y++)
+            for (let x = 0; x < 8; x++)
+              destination[(dy * 8 + y) * 16 + dx * 8 + x] = source[y * 8 + x] ?? 0
+        }
+      }
+  }
+  if (dct16Eligible && dct16Planes && dct16Intermediate && dct16Transformed && blockStrategyMap) {
+    const counts = allocateJpegXlArray(memory, Uint32Array, 3 * 9 * 256),
+      totals = allocateJpegXlArray(memory, Uint32Array, 3 * 9)
+    const costs = allocateJpegXlArray(memory, Float64Array, 3 * 9 * 256)
+    const quantized8 = allocateJpegXlArray(memory, Int16Array, 3 * 64),
+      quantized16 = allocateJpegXlArray(memory, Int16Array, 3 * 256)
+    const error8 = allocateJpegXlArray(memory, Float64Array, 3 * 64),
+      error16 = allocateJpegXlArray(memory, Float64Array, 3 * 256)
+    const baselineError = allocateJpegXlArray(memory, Float64Array, 3),
+      candidateError = allocateJpegXlArray(memory, Float64Array, 3)
+    const dc16 = allocateJpegXlArray(memory, Int32Array, 3 * 4),
+      dcErrors = allocateJpegXlArray(memory, Float64Array, 3)
+    const order8 = allocateJpegXlArray(memory, Uint16Array, 64),
+      order16 = allocateJpegXlArray(memory, Uint16Array, 256)
+    for (let position = 0; position < 64; position++)
+      order8[naturalAcScanRank[position] ?? 0] = position
+    let nextOrder = 4
+    for (let diagonal = 0; diagonal < 31; diagonal++)
+      for (let step = 0; step <= diagonal; step++) {
+        let x = step,
+          y = diagonal - step
+        if ((diagonal & 1) !== 0) [x, y] = [y, x]
+        if (x >= 16 || y >= 16) continue
+        if (x < 2 && y < 2) order16[y * 2 + x] = y * 16 + x
+        else order16[nextOrder++] = y * 16 + x
+      }
+    if (nextOrder !== 256) throw invalidInput('DCT16 rate order incomplete')
+    const config = { splitExponent: 3, msbInToken: 1, lsbInToken: 0 }
+    const decoded = (value: number, channel: number): number =>
+      value === 0
+        ? 0
+        : Math.abs(value) === 1
+          ? Math.sign(value) * (defaultJpegXlQuantizationBiases[channel] ?? 1)
+          : value - 0.145 / value
+    const tokens = (
+      values: Int16Array,
+      channel: number,
+      order: Uint16Array,
+      area: number,
+      learn: boolean,
+    ): number => {
+      const offset = channel * order.length
+      let last = area - 1,
+        nonzero = 0,
+        bits = 0
+      for (let scan = area; scan < order.length; scan++)
+        if ((values[offset + (order[scan] ?? 0)] ?? 0) !== 0) {
+          last = scan
+          nonzero++
+        }
+      const countPacked = encodeHybridUintPacked(nonzero, config),
+        countContext = channel * 9 + 8
+      if (learn) {
+        const at = countContext * 256 + (countPacked & 255)
+        counts[at] = (counts[at] ?? 0) + 1
+        totals[countContext] = (totals[countContext] ?? 0) + 1
+      } else
+        bits += (costs[countContext * 256 + (countPacked & 255)] ?? 16) + ((countPacked >>> 8) & 31)
+      for (let scan = area; scan <= last; scan++) {
+        const value = values[offset + (order[scan] ?? 0)] ?? 0,
+          packed = encodeHybridUintPacked(packSigned(value), config),
+          context = channel * 9 + Math.min(7, Math.floor(scan / area / 8))
+        if (learn) {
+          const at = context * 256 + (packed & 255)
+          counts[at] = (counts[at] ?? 0) + 1
+          totals[context] = (totals[context] ?? 0) + 1
+        } else bits += (costs[context * 256 + (packed & 255)] ?? 16) + ((packed >>> 8) & 31)
+      }
+      return bits
+    }
+    const quantize8 = (x: number, y: number): void => {
+      fillCorrelated(x, y)
+      const scale =
+        65536 / globalScale / (blockQuantizationMap[y * fullBlockWidth + x] ?? blockQuantization)
+      for (let channel = 0; channel < 3; channel++) {
+        const plane = planes[channel],
+          table = defaultJpegXlDct8Dequantization[channel]
+        if (!plane || !table) throw invalidInput('Missing baseline DCT8')
+        forwardJpegXlDct8(plane, intermediate, transformed)
+        quantized8[channel * 64] = 0
+        error8[channel * 64] = 0
+        for (let position = 1; position < 64; position++) {
+          const step = scale * (table[position] ?? 0),
+            value = quantizeAc((transformed[position] ?? 0) / step, channel)
+          if (Math.abs(value) > 4095)
+            throw unsupportedOperation('JPEG XL DCT8 AC coefficient exceeds 4095')
+          quantized8[channel * 64 + position] = value
+          error8[channel * 64 + position] =
+            (transformed[position] ?? 0) - decoded(value, channel) * step
+        }
+      }
+    }
+    for (let y = 0; y < fullBlockHeight; y++) {
+      for (let x = 0; x < fullBlockWidth; x++)
+        if (blockStrategyMap[y * fullBlockWidth + x] === 0) {
+          quantize8(x, y)
+          for (let channel = 0; channel < 3; channel++) tokens(quantized8, channel, order8, 1, true)
+        }
+      yield
+    }
+    for (let context = 0; context < 27; context++)
+      for (let token = 0; token < 256; token++)
+        costs[context * 256 + token] = Math.log2(
+          ((totals[context] ?? 0) + 256) / ((counts[context * 256 + token] ?? 0) + 1),
+        )
+    const resampleScale =
+      1 / (Math.cos(Math.PI / 32) * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 8))
+    for (let y = 0; y + 1 < fullBlockHeight; y += 2) {
+      for (let x = 0; x + 1 < fullBlockWidth; x += 2) {
+        const at = y * fullBlockWidth + x
+        if (
+          blockStrategyMap[at] !== 0 ||
+          blockStrategyMap[at + 1] !== 0 ||
+          blockStrategyMap[at + fullBlockWidth] !== 0 ||
+          blockStrategyMap[at + fullBlockWidth + 1] !== 0
+        )
+          continue
+        baselineError.fill(0)
+        const tile = Math.floor(y / 8) * colorTilesAcross + Math.floor(x / 8),
+          ratioX = (colorCorrelationX[tile] ?? 0) / 84,
+          ratioB = (colorCorrelationB[tile] ?? 0) / 84
+        let baselineBits = 0
+        for (let dy = 0; dy < 2; dy++)
+          for (let dx = 0; dx < 2; dx++) {
+            quantize8(x + dx, y + dy)
+            for (let channel = 0; channel < 3; channel++)
+              baselineBits += tokens(quantized8, channel, order8, 1, false)
+            for (let position = 1; position < 64; position++) {
+              const ey = error8[64 + position] ?? 0,
+                ex = (error8[position] ?? 0) + ratioX * ey,
+                eb = (error8[128 + position] ?? 0) + ratioB * ey
+              baselineError[0] = (baselineError[0] ?? 0) + (ex * ex) / 4
+              baselineError[1] = (baselineError[1] ?? 0) + (ey * ey) / 4
+              baselineError[2] = (baselineError[2] ?? 0) + (eb * eb) / 4
+            }
+            fill(x + dx, y + dy)
+            for (let channel = 0; channel < 3; channel++) {
+              const plane = planes[channel],
+                component = components[channel]
+              if (!plane || !component) throw invalidInput('Missing baseline DC')
+              let sum = 0
+              for (let p = 0; p < 64; p++) sum += plane[p] ?? 0
+              const error =
+                sum / 64 -
+                (component.coefficients[(y + dy) * fullBlockWidth + x + dx] ?? 0) *
+                  effectiveDistance *
+                  (dcQuantization[channel] ?? 0)
+              baselineError[channel] = (baselineError[channel] ?? 0) + (error * error) / 4
+            }
+          }
+        fillDct16(x, y, false)
+        for (let channel = 0; channel < 3; channel++) {
+          const plane = dct16Planes[channel],
+            coefficients = dct16Transformed[channel]
+          if (!plane || !coefficients) throw invalidInput('Missing candidate DC')
+          forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
+          const c00 = coefficients[0] ?? 0,
+            c10 = (coefficients[16] ?? 0) / resampleScale,
+            c01 = (coefficients[1] ?? 0) / resampleScale,
+            c11 = (coefficients[17] ?? 0) / (resampleScale * resampleScale),
+            step = effectiveDistance * (dcQuantization[channel] ?? 0)
+          const a = Math.round((c00 + c10 + c01 + c11) / step),
+            b = Math.round((c00 - c10 + c01 - c11) / step),
+            c = Math.round((c00 + c10 - c01 - c11) / step),
+            d = Math.round((c00 - c10 - c01 + c11) / step)
+          dc16[channel * 4] = a
+          dc16[channel * 4 + 1] = b
+          dc16[channel * 4 + 2] = c
+          dc16[channel * 4 + 3] = d
+          dcErrors[channel] =
+            (c00 - ((a + b + c + d) * step) / 4) ** 2 +
+            ((coefficients[16] ?? 0) - ((a - b + c - d) * step * resampleScale) / 4) ** 2 +
+            ((coefficients[1] ?? 0) - ((a + b - c - d) * step * resampleScale) / 4) ** 2 +
+            ((coefficients[17] ?? 0) -
+              ((a - b - c + d) * step * resampleScale * resampleScale) / 4) **
+              2
+        }
+        fillDct16(x, y, true)
+        for (let channel = 0; channel < 3; channel++) {
+          const plane = dct16Planes[channel],
+            coefficients = dct16Transformed[channel]
+          if (!plane || !coefficients) throw invalidInput('Missing candidate AC')
+          forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
+        }
+        let bestBits = baselineBits * 0.97 - 2,
+          bestQuantizer = 0
+        for (let quantizerIndex = 0; quantizerIndex < dct16Quantizers.length; quantizerIndex++) {
+          const quantizer = dct16Quantizers[quantizerIndex] ?? 4
+          const scale = 65536 / globalScale / quantizer
+          let inRange = true
+          quantized16.fill(0)
+          error16.fill(0)
+          candidateError.set(dcErrors)
+          for (let channel = 0; channel < 3; channel++) {
+            const coefficients = dct16Transformed[channel],
+              table = defaultJpegXlDct16Dequantization[channel]
+            if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
+            for (let p = 0; p < 256; p++) {
+              if (p >>> 4 < 2 && (p & 15) < 2) continue
+              const step = scale * (table[p] ?? 0),
+                value = quantizeAc((coefficients[p] ?? 0) / step, channel)
+              if (Math.abs(value) > 4095) {
+                inRange = false
+                break
+              }
+              quantized16[channel * 256 + p] = value
+              error16[channel * 256 + p] = (coefficients[p] ?? 0) - decoded(value, channel) * step
+            }
+          }
+          if (!inRange) continue
+          for (let p = 0; p < 256; p++) {
+            const ey = error16[256 + p] ?? 0,
+              ex = (error16[p] ?? 0) + ratioX * ey,
+              eb = (error16[512 + p] ?? 0) + ratioB * ey
+            candidateError[0] = (candidateError[0] ?? 0) + ex * ex
+            candidateError[1] = (candidateError[1] ?? 0) + ey * ey
+            candidateError[2] = (candidateError[2] ?? 0) + eb * eb
+          }
+          if (
+            (candidateError[0] ?? Infinity) > (baselineError[0] ?? 0) + 1e-15 ||
+            (candidateError[1] ?? Infinity) > (baselineError[1] ?? 0) + 1e-15 ||
+            (candidateError[2] ?? Infinity) > (baselineError[2] ?? 0) + 1e-15
+          )
+            continue
+          let bits = 0
+          for (let channel = 0; channel < 3; channel++)
+            bits += tokens(quantized16, channel, order16, 4, false)
+          if (bits < bestBits) {
+            bestBits = bits
+            bestQuantizer = quantizer
+          }
+        }
+        if (bestQuantizer === 0) continue
+        for (let dy = 0; dy < 2; dy++)
+          for (let dx = 0; dx < 2; dx++) {
+            const index = (y + dy) * fullBlockWidth + x + dx
+            blockStrategyMap[index] = 4
+            blockQuantizationMap[index] = bestQuantizer
+            for (let channel = 0; channel < 3; channel++) {
+              const component = components[channel]
+              if (!component) throw invalidInput('Missing selected DC')
+              component.coefficients[index] = dc16[channel * 4 + dy * 2 + dx] ?? 0
+            }
+          }
+      }
+      yield
+    }
+    for (const scratch of [
+      counts,
+      totals,
+      costs,
+      quantized8,
+      quantized16,
+      error8,
+      error16,
+      baselineError,
+      candidateError,
+      dc16,
+      dcErrors,
+      order8,
+      order16,
+    ])
+      memory.release(scratch)
+  }
+  const hasDct16 = blockStrategyMap?.includes(4) ?? false
+  const groupCoefficientOffsets = hasDct16
+    ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
+    : undefined
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
@@ -1168,15 +1562,48 @@ function* prepare8(
     const originY = Math.floor(group / groupsAcross) * 32
     const blocksAcross = Math.min(32, fullBlockWidth - originX)
     const blocksDown = Math.min(32, fullBlockHeight - originY)
+    groupCoefficientOffsets?.fill(-1, 0, blocksAcross * blocksDown)
+    let cursor = 0
     for (let y = 0; y < blocksDown; y++) {
       for (let x = 0; x < blocksAcross; x++) {
-        fillCorrelated(originX + x, originY + y)
-        const strategy = blockStrategyMap?.[(originY + y) * fullBlockWidth + originX + x] ?? 0
+        const globalIndex = (originY + y) * fullBlockWidth + originX + x,
+          strategy = blockStrategyMap?.[globalIndex] ?? 0
+        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+        const localIndex = y * blocksAcross + x,
+          offset = groupCoefficientOffsets ? cursor : localIndex * 64
+        if (groupCoefficientOffsets) {
+          groupCoefficientOffsets[localIndex] = offset
+          cursor += strategy === 4 ? 256 : 64
+        }
         const localScale =
-          65536 /
-          globalScale /
-          (blockQuantizationMap[(originY + y) * fullBlockWidth + originX + x] ?? blockQuantization)
-        const offset = (y * blocksAcross + x) * 64
+          65536 / globalScale / (blockQuantizationMap[globalIndex] ?? blockQuantization)
+        if (strategy === 4) {
+          if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
+            throw invalidInput('Missing DCT16 group scratch')
+          fillDct16(originX + x, originY + y, true)
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = dct16Planes[channel],
+              coefficients = dct16Transformed[channel],
+              destination = acStorage[channel],
+              table = defaultJpegXlDct16Dequantization[channel]
+            if (!plane || !coefficients || !destination || !table)
+              throw invalidInput('Missing DCT16 group color')
+            forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
+            destination.fill(0, offset, offset + 256)
+            for (let p = 0; p < 256; p++) {
+              if (p >>> 4 < 2 && (p & 15) < 2) continue
+              const value = quantizeAc(
+                (coefficients[p] ?? 0) / (localScale * (table[p] ?? 0)),
+                channel,
+              )
+              if (Math.abs(value) > 4095) throw unsupportedOperation('DCT16 AC range')
+              destination[offset + p] = value
+            }
+          }
+          continue
+        }
+        fillCorrelated(originX + x, originY + y)
+
         for (let channel = 0; channel < 3; channel++) {
           const plane = planes[channel]
           const destination = acStorage[channel]
@@ -1193,12 +1620,14 @@ function* prepare8(
             )
           }
           transform(strategy, plane)
+          destination[offset] = 0
           const inverse = fastAcInverse?.[channel]
           for (let position = 1; position < 64; position++) {
-            const value = Math.round(
+            const value = quantizeAc(
               inverse
                 ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
                 : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+              channel,
             )
             if (value < -4095 || value > 4095)
               throw unsupportedOperation('JPEG XL AC coefficient exceeds range')
@@ -1211,6 +1640,9 @@ function* prepare8(
       blocksPerLineForMcu: blocksAcross,
       blocksPerColumnForMcu: blocksDown,
       coefficients,
+      ...(groupCoefficientOffsets
+        ? { coefficientOffsets: groupCoefficientOffsets.subarray(0, blocksAcross * blocksDown) }
+        : {}),
     }))
   }
   const passStorage = progressive
@@ -1281,6 +1713,7 @@ function* prepare8(
     : undefined
   const geometry: VarDctCoefficientGeometry = {
     colorTransform: 'xyb',
+    forwardAdvancedModularSearch: coarse,
     ...(blockStrategyMap ? { blockStrategyMap } : {}),
     ...(epfSharpnessMap ? { epfSharpnessMap } : {}),
     chromaSubsampling: [0, 0, 0],

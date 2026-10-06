@@ -6351,3 +6351,98 @@ export const createJpegXlModularEncoder = async (
     validateImageDimensions(options.intrinsicSize.width, options.intrinsicSize.height, 1, limits)
   return new JpegXlModularEncoder(sink, request, options)
 }
+
+export const encodeForwardModularLzGroup = (
+  planes: Readonly<ModularPlanes>,
+  originalBits: number,
+  memory: JpegXlEncoderMemory | undefined,
+  outputLimit: number,
+): Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined =>
+  withJpegXlMemory(memory, () => {
+    const base = buildResidualPlan(planes, 7, memory)
+    const tree = learnJpegXlModularTree(
+      planes.values,
+      planes.widths,
+      base.predictors,
+      base.residuals,
+      memory,
+      4096,
+    )
+    const plans = [base, gradientResidualPlan(base, planes, memory)]
+    if (tree) plans.push(learnedResidualPlan(base, tree))
+    try {
+      const expanded = withJpegXlMemory(memory, () => {
+        const tree = learnJpegXlModularTree(
+          planes.values,
+          planes.widths,
+          base.predictors,
+          base.residuals,
+          memory,
+          65536,
+          0.25,
+        )
+        return tree ? learnedResidualPlan(base, tree) : undefined
+      })
+      if (expanded) plans.push(expanded)
+    } catch (error) {
+      if (!isLimitExceeded(error)) throw error
+    }
+    let selected: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
+    let smallest = originalBits
+    const retain = (candidate: Readonly<{ bytes: Uint8Array; bitLength: number }>): void => {
+      if (candidate.bitLength < smallest) {
+        if (selected) memory?.release(selected.bytes)
+        selected = candidate
+        smallest = candidate.bitLength
+      } else memory?.release(candidate.bytes)
+    }
+    for (const residuals of plans) {
+      for (const config of [
+        defaultModularHybridConfiguration,
+        { splitExponent: 3, msbInToken: 1, lsbInToken: 0 },
+      ]) {
+        for (const lz of [false, true]) {
+          try {
+            retain(
+              withJpegXlMemory(memory, () => {
+                const plan = buildTokenPlan(residuals, 7, lz, memory, config)
+                const bitLength = { value: 0 }
+                const bytes = serializeModularAnsGroup(
+                  plan,
+                  outputLimit,
+                  memory,
+                  { useRct: false },
+                  config,
+                  false,
+                  bitLength,
+                )
+                return { bytes, bitLength: bitLength.value }
+              }),
+            )
+          } catch (error) {
+            if (!isLimitExceeded(error)) throw error
+          }
+        }
+      }
+      if (!residuals.treeNodes) continue
+      try {
+        retain(
+          withJpegXlMemory(memory, () => {
+            const bitLength = { value: 0 }
+            const bytes = encodeHistogramHybridGroup(
+              residuals,
+              outputLimit,
+              memory,
+              { useRct: false },
+              false,
+              bitLength,
+            )
+            return { bytes, bitLength: bitLength.value }
+          }),
+        )
+      } catch (error) {
+        if (!isLimitExceeded(error)) throw error
+      }
+    }
+    return selected
+  })

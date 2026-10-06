@@ -1,0 +1,170 @@
+{
+  "implementationRevision": "2c212c1d66097095fa2d7d211711a9f35a9ec7e6",
+  "implementationSourceSha256": "7a57853b88290284dcbcee80e05ba5f15c861827b600c38ac5389144fc14bdb3",
+  "sourceAdopted": false,
+  "policy": "Independent private production-candidate boundary qualification before adoption. Six original synthetic full native/Rust grids are frozen for reproducible current transform, progressive and minimum-budget checks. The other protected RGB/native16/alpha/artwork/fine cases remain in the separately pinned eleven-case qualification. This baseline is carried evidence, never relabeled a fresh current decode.",
+  "results": [
+    {
+      "id": "single",
+      "width": 129,
+      "height": 65,
+      "progressive": false,
+      "budget": 16777216,
+      "originalBytes": 681,
+      "bytes": 549,
+      "inputSha256": "d51679ad2dc874d62f4eb750853de936277487b1bd395c6fb36cec55ae13e056",
+      "encodedSha256": "4756b7ea516318656d2ae66c0fdee46ac875a6de1281ce09f3bdbff5380ec7e7",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/single-candidate.jxl.native.npy",
+          "sha256": "14da2ed2b9da0cbe2edc1e25481fd6a0400159a4118ceb8bb3baeea62c8b446d",
+          "samples": 33540,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/single-candidate.jxl.rust.npy",
+          "sha256": "8af67cb8ac8014b0eb4105e17356e1d25a7d85b7e551003704c5b44fa99d0c04",
+          "samples": 33540,
+          "originalAlphaExact": true
+        }
+      ]
+    },
+    {
+      "id": "partial",
+      "width": 257,
+      "height": 129,
+      "progressive": false,
+      "budget": 16777216,
+      "originalBytes": 1721,
+      "bytes": 1402,
+      "inputSha256": "3f1b3799b33bb8323d9915a4399d0f814e48718e5b276d767a0be803f45d2b6c",
+      "encodedSha256": "8715209693f658494a3a742d3a888c5e8ba270d2e52a83af2b4b3b3ec9e33c00",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/partial-candidate.jxl.native.npy",
+          "sha256": "126ed2ea5392108c2e778e95a678ca7d5d92775827dc46e3803878916a58685d",
+          "samples": 132612,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/partial-candidate.jxl.rust.npy",
+          "sha256": "4c1dd29432f9066b011b85be06de6aca4976d0773346eca1a4ea7dcc7324d240",
+          "samples": 132612,
+          "originalAlphaExact": true
+        }
+      ]
+    },
+    {
+      "id": "wide-two-dc",
+      "width": 2065,
+      "height": 17,
+      "progressive": false,
+      "budget": 16777216,
+      "originalBytes": 2455,
+      "bytes": 2222,
+      "inputSha256": "068a1e312772969ac942d5ff7d9da23454fee4e5380eb11bd36dd2bb4f347446",
+      "encodedSha256": "fbcd0f27b4473e6b4e74e1a4d8e8665bad01c391fb173062c2f794558729355d",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/wide-two-dc-candidate.jxl.native.npy",
+          "sha256": "d999958342c4fd4ab9f6dc02413d20659f6cd67a0e544c7ada074a5d9b0e1951",
+          "samples": 140420,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/wide-two-dc-candidate.jxl.rust.npy",
+          "sha256": "198303feac4c7f2a4c54a94d342fef852b9009c97cb04013dab2e5a95f2535f1",
+          "samples": 140420,
+          "originalAlphaExact": true
+        }
+      ]
+    },
+    {
+      "id": "tall-two-dc",
+      "width": 17,
+      "height": 2065,
+      "progressive": false,
+      "budget": 16777216,
+      "originalBytes": 2768,
+      "bytes": 2483,
+      "inputSha256": "1758b0d3663078737eceeeb0f9464fc421c250fb886f2e6071b55935cd1f3628",
+      "encodedSha256": "499453e7963f65333cf1ef05e16edb9d92e26e227297b8011bc8eebbdef07d29",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/tall-two-dc-candidate.jxl.native.npy",
+          "sha256": "a8045eaaebb73d73102b1d9cef59d3683c109713dcb0f7fd204804916b33b859",
+          "samples": 140420,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/tall-two-dc-candidate.jxl.rust.npy",
+          "sha256": "15710d33b007399186a70a90760c6404fdb44fce22093587c5ad664974c68f0c",
+          "samples": 140420,
+          "originalAlphaExact": true
+        }
+      ]
+    },
+    {
+      "id": "progressive",
+      "width": 257,
+      "height": 129,
+      "progressive": true,
+      "budget": 16777216,
+      "originalBytes": 1939,
+      "bytes": 1939,
+      "inputSha256": "3f1b3799b33bb8323d9915a4399d0f814e48718e5b276d767a0be803f45d2b6c",
+      "encodedSha256": "9bbdea52a0b66fc48fb2f2c8836a6550ab02f6c8e01623718c6388653cfdf0b7",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/progressive-candidate.jxl.native.npy",
+          "sha256": "18547517ce196c343a1fa70d5b598b22890734aeeb4648d79ff17820d940829e",
+          "samples": 132612,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/progressive-candidate.jxl.rust.npy",
+          "sha256": "e71857e84175c091df2ce30720a6192e9e998f2e8127b38963738558b349ab64",
+          "samples": 132612,
+          "originalAlphaExact": true
+        }
+      ]
+    },
+    {
+      "id": "minimum",
+      "width": 129,
+      "height": 65,
+      "progressive": false,
+      "budget": 797262,
+      "originalBytes": 681,
+      "bytes": 681,
+      "inputSha256": "d51679ad2dc874d62f4eb750853de936277487b1bd395c6fb36cec55ae13e056",
+      "encodedSha256": "02280bc43429ccbe46f7a9c282b09d57e1bec851e284ac9e6f2d60f56d7663a8",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/minimum-candidate.jxl.native.npy",
+          "sha256": "af782b5149e0c1fd1f120aba97594be39313c5834ad589cba4266560cc4e9976",
+          "samples": 33540,
+          "originalAlphaExact": true
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342/minimum-candidate.jxl.rust.npy",
+          "sha256": "434c2472d8374d83a764488d65cecbdc41616dcf19aa9d7555a591d22e7ee815",
+          "samples": 33540,
+          "originalAlphaExact": true
+        }
+      ]
+    }
+  ]
+}

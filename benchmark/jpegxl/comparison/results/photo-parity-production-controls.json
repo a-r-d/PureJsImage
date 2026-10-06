@@ -1,0 +1,2450 @@
+{
+  "implementationRevision": "2c212c1d66097095fa2d7d211711a9f35a9ec7e6",
+  "implementationSourceSha256": "ce3cc0a731d114c4a5f0400fec1fe27ef228ecb874010c28db8676e20b4ef149",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "baselinePath": ".tmp/jpegxl-comparison-v1/lossy-photo-guarded-curves-1335.json",
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/jpegxl-specialized.js",
+      "bytes": 626106,
+      "sha256": "d2c82642543413c9f5461476dc0c465ed12ab4776297c9ffb8a4af486d6a3a46",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 627000,
+      "withinCeiling": true,
+      "oldCeiling": 617000,
+      "withinOldCeiling": false
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/codec-jpegxl.js",
+      "bytes": 553669,
+      "sha256": "1ed5b578c5298d4111a41d8fede571ae3d4634f517c89d3c5ce9bf71be898494",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 554000,
+      "withinCeiling": true,
+      "oldCeiling": 545000,
+      "withinOldCeiling": false
+    }
+  ],
+  "results": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 9.0819,
+      "bytes": 45453,
+      "score": 69.82768437,
+      "butteraugli": 3.765068531,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl",
+      "encodedSha256": "1954ffbb7794d51134bdef5e5cd83e7226f08610abcc72fd6308b1db259dc56e",
+      "decodedSha256": "614c208f9d342e0c8f20ff3d2f802b2338ed52b6dc149d0b33e930c93f63c7b9",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.native.npy",
+          "sha256": "56f22e38b2de50b0b92be559147286512524264c55c4434c825004ee90c2e581",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.rust.npy",
+          "sha256": "2d1212589b2bf200383bf9ca0ed8678fb0a213ec566f7097f0d96b9c7dd91a2f",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14318489,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7314.246724
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 9.0593,
+      "bytes": 45541,
+      "score": 69.88962166,
+      "butteraugli": 3.756762743,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl",
+      "encodedSha256": "5405d60e3158e3c5f251137235a9b9a23f45b6655ff33bff12a2c9d63a14e5b1",
+      "decodedSha256": "9bfc8baf56e171ea82941841d70770680e0c2cbb8914433a88a56d1f7031c51a",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.native.npy",
+          "sha256": "107983d4e1e2a0d8eaf269e92b330ce46969dea8d76663c8520c2833f9c62dd1",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.rust.npy",
+          "sha256": "5abad1edd9f01e7b982ef1c6e0cc216ccc41b794a302b0de8137d30bba11369d",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14317862,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7372.606122000001
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 4.8687,
+      "bytes": 70311,
+      "score": 79.89707564,
+      "butteraugli": 2.5073676109,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl",
+      "encodedSha256": "c49ab32f5553ccff9204cc31c0f6cb22f49e17495888de823e8b627882fe6a6c",
+      "decodedSha256": "b4380c3778decd6bd80489b85b4c49217b3a753068541c02bee2df697a2f64f3",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.native.npy",
+          "sha256": "c3c827dc3fe43cc2b36bba12f94d1bdacd92a2dc449e63f8b325ef966baf56f2",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.rust.npy",
+          "sha256": "00407c08b00b0ae495f073bf3c0591430ca8bd2e5a7e7371e37c4f84cef232fd",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12198126,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2419.0594249999995
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 4.7913,
+      "bytes": 70989,
+      "score": 80.01209625,
+      "butteraugli": 2.5158097744,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl",
+      "encodedSha256": "894334484abe215f53f0df418fe65fcb047b4ddfd659c0436e89863c409b4972",
+      "decodedSha256": "f4017727fa151805f23e0dbc3dbe58c32ddcb7f09557396f2493539b8237b78f",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.native.npy",
+          "sha256": "2b148be8762a5b7633f89232e26e57259c7a78624c0edb7a382fa32ee76deac3",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.rust.npy",
+          "sha256": "bd0b5374f2a7ebb5a277442dae2307557afa58713178bdfb07d621a4ea1904ca",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12211139,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2464.082510999997
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 1.3583,
+      "bytes": 144506,
+      "score": 89.98941074,
+      "butteraugli": 1.1245616674,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl",
+      "encodedSha256": "bba1a546b27f55c4f8dd834b97ba6e4f8b8d2b819318fe0c38ce65c24cba2fe4",
+      "decodedSha256": "fe1cdbb707efbbee08965039dbecc4dea33f49cf5582d410cb3b140d5a710c6d",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.native.npy",
+          "sha256": "817eeec35216018380b7801a09c4594f3677334187ba959b1685a00bff770631",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.rust.npy",
+          "sha256": "b54ea94cba4396ec7f968b4eac262055808352e7e5ea21c127719670bb4fbb2a",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12579990,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2554.7332769999994
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 1.3241,
+      "bytes": 146603,
+      "score": 90.14564465,
+      "butteraugli": 1.2205404043,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl",
+      "encodedSha256": "3096b3b6d11f752b71911ebd4cb8289387bfa0a3a807044eb0dfc1a7b33fbb74",
+      "decodedSha256": "a320c9a3a8b233308e1b7acc90105b236b5aff834501f4b96dce65019b2cb317",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.native.npy",
+          "sha256": "bc668554b0c2ab0d765119ff083aec66be7857d8c1b569c89062217e5b5fb2ae",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.rust.npy",
+          "sha256": "8dfd976273edb70eac03702aea1d72a7506eba3c1eb5b703e8e75215abac0845",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12587363,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2575.6829499999985
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 8.9975,
+      "bytes": 45721,
+      "score": 70.043955,
+      "butteraugli": 3.6892826557,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl",
+      "encodedSha256": "88e14e5c8f15dace9fde05eaf46489d23c6a4c93076647f45b24fbc34606dbfe",
+      "decodedSha256": "2865471d958ed625a2375404a3a5f4b04932192a9e3f226695c0e1b9123b02fd",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.native.npy",
+          "sha256": "0e5c094a8de2f88791312ab7c8dff00df12e5d26ed9349ea6de8bf074de00ef7",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.rust.npy",
+          "sha256": "4d6fa6ad45ef538c9cdb54c6a98420c183ffb80484aa5f18e9b20677d44f2d61",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14316055,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7940.744547999995
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 9.0151,
+      "bytes": 45690,
+      "score": 70.02401237,
+      "butteraugli": 3.7565627098,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl",
+      "encodedSha256": "f8cd8894765d118b66b043752eacb01358fbfdb967be00229f254f9d22ab4fab",
+      "decodedSha256": "33075baca47a0d0e8fc1e9994d0b82b136eeff7bfa8c8e029d8278f7e638f075",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.native.npy",
+          "sha256": "b424579a32384d35cbb8ec54a94b74182580e673afdc6b30082b7f2a2619706b",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.rust.npy",
+          "sha256": "3a149467bd7625705660a5e4a9dc49ef29fc9c1d484bc02644688f5169b1df06",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14316123,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7667.427127999996
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 9.0372,
+      "bytes": 45593,
+      "score": 69.96566096,
+      "butteraugli": 3.6453945637,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl",
+      "encodedSha256": "50d549717693229ee786dd9185800588d48beef6a9248d9733f771770c180579",
+      "decodedSha256": "59eaf98fe26f22a4121554ec3d4bf7ecd05e1ed34af2203c29d7439fc647382b",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.native.npy",
+          "sha256": "281075b4e43d0b3a1e5455c1fae4b340b69d49a9e9cc940c8d950ebb78d41694",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.rust.npy",
+          "sha256": "4cd81fe85e46f13b4a55a498f5d6abb7937ab38b16e13b578d3edf9f066052c4",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14316763,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7758.956367999999
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "distance": 9.0242,
+      "bytes": 45670,
+      "score": 69.99187068,
+      "butteraugli": 3.7453417778,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl",
+      "encodedSha256": "5b44158f9d760d5e053791e8c9b4ae86c900e2a1f5902a352afc00137d67197d",
+      "decodedSha256": "fea7e3efb674266965d0e32369c6f01dea881490bfddb2c2636dc6e8daf2b0c1",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.native.npy",
+          "sha256": "22f0b3f936e42e8b112d630e428a5da4a10007968c50c59b446389b52fb98876",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.rust.npy",
+          "sha256": "6734bce8b4c3e315ee35ae688563cfd38aeff3006ec558419ecefea2834b22e2",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14316729,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7741.560538999998
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.5829,
+      "bytes": 27702,
+      "score": 69.46942978,
+      "butteraugli": 3.0703148842,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl",
+      "encodedSha256": "ddacd808b27b881d2c09b1e079c8d46e58508466efad6556eff05d98a71b7223",
+      "decodedSha256": "35bb63079afe201d2df8f54b2d4f7ce1b09923d847eb127e6739a8fe58cb3541",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.native.npy",
+          "sha256": "fda6cef81505d02f0a2a3bd8aba187b37deda37dccbeb84deac49f0376479365",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.rust.npy",
+          "sha256": "d18cfd85873064b6a848737db97d785a53b11d090806c5f247e62dc6c55741c3",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14281163,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7681.284065999993
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.4985,
+      "bytes": 27900,
+      "score": 69.60687075,
+      "butteraugli": 3.0719871521,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl",
+      "encodedSha256": "38b79d7c0b7cb08d8a52ee7bd25033c0924016cfec69d5be338d6aac1db4fbd9",
+      "decodedSha256": "d69cf4bf25a6b83157a48414bb576a94cc1ab7550082d5f44d6ec381c268cc05",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.native.npy",
+          "sha256": "05c4e1724c3ca6d1e344f0e5e30b0a4897b39b2c0d82bb8a5b43c0f44ba92662",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.rust.npy",
+          "sha256": "a533c6e8a8a2a47eb6c9a4a9dd9d20e72d26f27250396a2a971d39a9354f5059",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14280982,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7719.5403309999965
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 4.6807,
+      "bytes": 44465,
+      "score": 79.95133128,
+      "butteraugli": 2.0138795376,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl",
+      "encodedSha256": "e7de5a11378e83d476c13a620a66917f35259ae348909d80581219cb0df877d0",
+      "decodedSha256": "c2c269365f7efa5f61ff21ceee83bcaf4499bfdebe19db75cf3a6c347955fc69",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.native.npy",
+          "sha256": "8905d14627c715ec540a051bc0a0655ebe1af39ee1f9ea2bda9a5b4e525f3d37",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.rust.npy",
+          "sha256": "dafa42d4db9442dfac8afc17059f639737f9182257b1084cdcd218d3fdd5ec96",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12112437,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2909.5463569999993
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 4.6513,
+      "bytes": 44557,
+      "score": 80.10324588,
+      "butteraugli": 2.0265390873,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl",
+      "encodedSha256": "9e04b15103d69579c93223f46ec82ce30d12eb21d2c9bfd444e4da0210751d6b",
+      "decodedSha256": "f0edbc16de731c3daf094406d257afa67a80d5d0e21ba93b3c6bd94f7958daa1",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.native.npy",
+          "sha256": "e0ec89ba26e9de085e85b24c34dcf2d9828249e40704f9c9778fe803b610de70",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.rust.npy",
+          "sha256": "9968895fda855b7070c3ba0cb85f0256bac3b5562931ae3c8e65de9779c4a5d5",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12102837,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2682.0346319999953
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 1.4785,
+      "bytes": 102232,
+      "score": 89.96625301,
+      "butteraugli": 1.0740840435,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl",
+      "encodedSha256": "89fc9ef486f7cd345e21550ed9b141f3b3b030fda8cc177ace0cb1b480c27a05",
+      "decodedSha256": "3b2d1939382e631b8b2d655f854617faa357d12744c7763b23b4b21a685e792b",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.native.npy",
+          "sha256": "804532de9229c69a5daba809a285b5743b6cf3e2b3e76191f15877b275beb365",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.rust.npy",
+          "sha256": "04ed4042dea8f4337a5bb7deb206dcee4e3a836e0deded9f1ec560482ea77776",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12418437,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2826.435811000003
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 1.4363,
+      "bytes": 104540,
+      "score": 90.17295658,
+      "butteraugli": 1.063475728,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl",
+      "encodedSha256": "a3c37ec6263a9b0fdc429b08ce41e37456fec14bb29cef9905d0dc359f6f62c0",
+      "decodedSha256": "2291e56bab0a8286aa3c38fe20d82cd17ccf3b17219226272e799fa60d0a4277",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.native.npy",
+          "sha256": "df8f8b96c31390b4410f456ed55612921b2b6f343fc9b996ed49fbd19ba5902e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.rust.npy",
+          "sha256": "12c83a66f67cad9590d8ac78dd705efee31471831fd51c00d60de122e97d69fb",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 12417634,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 2756.1125150000007
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.308,
+      "bytes": 28394,
+      "score": 70.13664688,
+      "butteraugli": 2.9886622429,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl",
+      "encodedSha256": "1850c726cd6db47bddec115386eedfd86c147de08290e0a0bdc3632aa30ed93c",
+      "decodedSha256": "485ce202f65528a60c1b66da78b9d240aba5beb6ed0bfd3429568a9a1105c72c",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.native.npy",
+          "sha256": "0685ce9a213d880cf151fe70b7fd279d7b363cfc2d8b9a00e879a19f805d9c9b",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.rust.npy",
+          "sha256": "059b9b6b2197e730af237efb5a6f776e0452a86551d60f9deeb0cf7a0fbd264b",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14285375,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7817.817886000004
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3567,
+      "bytes": 28335,
+      "score": 69.99482149,
+      "butteraugli": 3.1383786201,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl",
+      "encodedSha256": "065389f4fe375d485dd71719419a5ec299bf5fd94f7b215025f4d4aaede5ef45",
+      "decodedSha256": "28fadf2496c25f67fb18364c915d39e6e62c67232a01b4a5ba4e26aa2949a617",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.native.npy",
+          "sha256": "f70557bff8635af4e57a65b03b9b608420b6421045bd23b11e5481ade7f0f490",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.rust.npy",
+          "sha256": "7552175eee553f5ffdff02ac4b47b10f61c0a6355d049e1fc5488412ac04796e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14284904,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7832.615894000002
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3323,
+      "bytes": 28304,
+      "score": 70.06081331,
+      "butteraugli": 3.1218795776,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl",
+      "encodedSha256": "98f2ff4903f273cbf0f8337073e5d1984426222efacb5e6b91ffd50b88318dc7",
+      "decodedSha256": "d04d8a17aad82e5d20f54d486e96d8a6763a9045cd684909d72280a46e3ad208",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.native.npy",
+          "sha256": "4608e5b76d164a3477803a9e4f82a40a5179acbb8e1706636e86f2539be7b001",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.rust.npy",
+          "sha256": "34d61b3bb9092ac0c7861dc226c3c660d90e2573c6731e5e9a16e47c6241eeb7",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283434,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7809.696276000017
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3544,
+      "bytes": 28335,
+      "score": 69.99482149,
+      "butteraugli": 3.1383786201,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl",
+      "encodedSha256": "065389f4fe375d485dd71719419a5ec299bf5fd94f7b215025f4d4aaede5ef45",
+      "decodedSha256": "28fadf2496c25f67fb18364c915d39e6e62c67232a01b4a5ba4e26aa2949a617",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.native.npy",
+          "sha256": "f70557bff8635af4e57a65b03b9b608420b6421045bd23b11e5481ade7f0f490",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.rust.npy",
+          "sha256": "7552175eee553f5ffdff02ac4b47b10f61c0a6355d049e1fc5488412ac04796e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14284904,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7837.902709999995
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.4273,
+      "bytes": 28080,
+      "score": 69.7168503,
+      "butteraugli": 3.1046557426,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl",
+      "encodedSha256": "d8aefbb88ae85e9561d35cfb19cdd1793ccb3290b8e1719de2e3b704bc843654",
+      "decodedSha256": "183a02a0aac59bf6d0737898abc69fa389784412ae7dc4fa279dc37cf6287d7c",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.native.npy",
+          "sha256": "a36b23cccc9a4e455fbcc24866ea9cb93a9046ec5ab8503852bec81926da87a0",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.rust.npy",
+          "sha256": "19879c082a0ef5ce0a354fbae2e282f690572a4b2f2a9eee99870c0b5d4ba129",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14280706,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 8013.698921999981
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.349,
+      "bytes": 28333,
+      "score": 70.00574905,
+      "butteraugli": 3.1480643749,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl",
+      "encodedSha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466",
+      "decodedSha256": "1d6c353d542e7a203fc75153da78c8807fc9c923e489b0f52c33d2418952ccef",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.native.npy",
+          "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.rust.npy",
+          "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14282602,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7926.029972999997
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3919,
+      "bytes": 28225,
+      "score": 69.87728937,
+      "butteraugli": 3.1425380707,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl",
+      "encodedSha256": "8037df56d21dc7b89f385027373ea33507edb06219cd351615e96c133d580135",
+      "decodedSha256": "0b214ade91658148ff949a0194616d5cf06032705a6a93dc1b9e70cc706b1e8f",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.native.npy",
+          "sha256": "f0bf90bccf03a44a08667617dc9cd72295706397b5fcbaa3ab42679503f19c10",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.rust.npy",
+          "sha256": "3194038f34aee2b96e40f94a4a8cf27fea0db69d71b4412bbaa6bc3f791c7e55",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283441,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7973.404112999997
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.352,
+      "bytes": 28333,
+      "score": 70.00574905,
+      "butteraugli": 3.1480643749,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl",
+      "encodedSha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466",
+      "decodedSha256": "1d6c353d542e7a203fc75153da78c8807fc9c923e489b0f52c33d2418952ccef",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.native.npy",
+          "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.rust.npy",
+          "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14282602,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7949.885127000016
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3743,
+      "bytes": 28269,
+      "score": 69.9270681,
+      "butteraugli": 3.1170663834,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl",
+      "encodedSha256": "2500abf6d9b4c190135ec95be0c1982fe1787c6d4cb266ec1ef686bc6c128bb7",
+      "decodedSha256": "0084ce9833075cadc659237907293f00d8aac8b834715285ec20598af70e5f01",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.native.npy",
+          "sha256": "1a05638ef9bcb5fad39e35681770249e258dbc9b1da564aaad9f2e89be51760a",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.rust.npy",
+          "sha256": "f03bf5b7cd7505841ac8d43210a9241c6ab24c081531f9202b3ee095a641ef56",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283352,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7795.568370000023
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3514,
+      "bytes": 28333,
+      "score": 70.00574905,
+      "butteraugli": 3.1480643749,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl",
+      "encodedSha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466",
+      "decodedSha256": "1d6c353d542e7a203fc75153da78c8807fc9c923e489b0f52c33d2418952ccef",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.native.npy",
+          "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.rust.npy",
+          "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14282602,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 8084.5871429999825
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3655,
+      "bytes": 28283,
+      "score": 69.93180733,
+      "butteraugli": 3.1490373611,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl",
+      "encodedSha256": "e1f469a2f9656a9fd42d4b04a51238c6b4cf0aa85a443266fa5179dfa8db6798",
+      "decodedSha256": "52b55838d3d9bab5800592e565baee28ecfa28a393d93c84d6bbb2d2de1196ec",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.native.npy",
+          "sha256": "aa00842564f7ecc6c8d6ab8737e4dffebb22a8882a1214f553b94f20bfea12a0",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.rust.npy",
+          "sha256": "1524bfba525c1fc93db12abf36f0829ef5a4a9b3fdc2a916f1a387aeaa5b48ad",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14284808,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7897.873515999992
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3479,
+      "bytes": 28345,
+      "score": 70.01379879,
+      "butteraugli": 3.1077442169,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl",
+      "encodedSha256": "ab75ad8eaebb45c458e3427c642557215f5ed39ebc00263820c1589a197e251a",
+      "decodedSha256": "36fd1046044b9a727393ff8e1671ad210149760fa269632dd8ff4957c8cd0cff",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.native.npy",
+          "sha256": "6f73c0edd58009696b52d74de614b57ff03a81cb4a4326a20ba265f46d147a78",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.rust.npy",
+          "sha256": "5466db0f3885f930f5fdab84f21ef14c6cd89169e467dd6d5d015f88b6f111a1",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14282784,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7919.920132999978
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3401,
+      "bytes": 28299,
+      "score": 70.04617275,
+      "butteraugli": 3.0651891232,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl",
+      "encodedSha256": "ca96671d735e14624fe2ad1d4712d3a0dd64a232b6cec524221d3dd2c491a181",
+      "decodedSha256": "3b4c1e6300a1d4ca602c9fa6a0202d17951a4efd71588784a5e651c340d19223",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.native.npy",
+          "sha256": "b38adfec3435853108b8992092d42db30c80e257e770653e2ebdf57c2b8523a9",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.rust.npy",
+          "sha256": "c9fa74a6a46ac30ddc7efcb23020a728f437f089a93ca0dbc8170044cfaf689b",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283222,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7785.48324099998
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3503,
+      "bytes": 28333,
+      "score": 70.00574905,
+      "butteraugli": 3.1480643749,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl",
+      "encodedSha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466",
+      "decodedSha256": "1d6c353d542e7a203fc75153da78c8807fc9c923e489b0f52c33d2418952ccef",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.native.npy",
+          "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.rust.npy",
+          "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14282602,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7859.995962999994
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3611,
+      "bytes": 28287,
+      "score": 69.92709221,
+      "butteraugli": 3.1194934845,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl",
+      "encodedSha256": "b83c1b505dbd064485854cbf06bb78014db2d9687c204741bf53e00aede9584b",
+      "decodedSha256": "822d98afe53e409e5c4a31105f838d3803a7d9112a8e3dea8a01a8bcdb8b3a2a",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.native.npy",
+          "sha256": "fe19564852bb5f0dd0262d356ccc5bd64a08fdfe53a19e15dd01e57718dadde1",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.rust.npy",
+          "sha256": "fae36684e71a6ca307fa326639fc88549695f75c5f2c008d790ce1e8f1431a8d",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283524,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7848.4110539999965
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.344,
+      "bytes": 28299,
+      "score": 70.04617275,
+      "butteraugli": 3.0651891232,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl",
+      "encodedSha256": "ca96671d735e14624fe2ad1d4712d3a0dd64a232b6cec524221d3dd2c491a181",
+      "decodedSha256": "3b4c1e6300a1d4ca602c9fa6a0202d17951a4efd71588784a5e651c340d19223",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.native.npy",
+          "sha256": "b38adfec3435853108b8992092d42db30c80e257e770653e2ebdf57c2b8523a9",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.rust.npy",
+          "sha256": "c9fa74a6a46ac30ddc7efcb23020a728f437f089a93ca0dbc8170044cfaf689b",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283222,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7783.203776000009
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3589,
+      "bytes": 28287,
+      "score": 69.92709221,
+      "butteraugli": 3.1194934845,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl",
+      "encodedSha256": "b83c1b505dbd064485854cbf06bb78014db2d9687c204741bf53e00aede9584b",
+      "decodedSha256": "822d98afe53e409e5c4a31105f838d3803a7d9112a8e3dea8a01a8bcdb8b3a2a",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.native.npy",
+          "sha256": "fe19564852bb5f0dd0262d356ccc5bd64a08fdfe53a19e15dd01e57718dadde1",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.rust.npy",
+          "sha256": "fae36684e71a6ca307fa326639fc88549695f75c5f2c008d790ce1e8f1431a8d",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14283524,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7846.661442999961
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "distance": 8.3633,
+      "bytes": 28283,
+      "score": 69.93180733,
+      "butteraugli": 3.1490373611,
+      "artifact": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl",
+      "encodedSha256": "e1f469a2f9656a9fd42d4b04a51238c6b4cf0aa85a443266fa5179dfa8db6798",
+      "decodedSha256": "52b55838d3d9bab5800592e565baee28ecfa28a393d93c84d6bbb2d2de1196ec",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.native.npy",
+          "sha256": "aa00842564f7ecc6c8d6ab8737e4dffebb22a8882a1214f553b94f20bfea12a0",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.rust.npy",
+          "sha256": "1524bfba525c1fc93db12abf36f0829ef5a4a9b3fdc2a916f1a387aeaa5b48ad",
+          "samples": 3145728,
+          "originalAlphaError": 0,
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "maximumDecoderError": 1,
+      "maximumPublicError": 1,
+      "publicPixels": 786432,
+      "ownedPeak": 14284808,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 7941.319918000023
+    }
+  ],
+  "matchedPhotoBands": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 70,
+      "lower": {
+        "setting": 9.0242,
+        "bytes": 45670,
+        "score": 69.99187068
+      },
+      "upper": {
+        "setting": 9.0151,
+        "bytes": 45690,
+        "score": 70.02401237
+      },
+      "width": 0.0321416899999889,
+      "interpolatedBytes": 45675.05759997637
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 80,
+      "lower": {
+        "setting": 4.8687,
+        "bytes": 70311,
+        "score": 79.89707564
+      },
+      "upper": {
+        "setting": 4.7913,
+        "bytes": 70989,
+        "score": 80.01209625
+      },
+      "width": 0.11502061000000197,
+      "interpolatedBytes": 70917.39095683814
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 90,
+      "lower": {
+        "setting": 1.3583,
+        "bytes": 144506,
+        "score": 89.98941074
+      },
+      "upper": {
+        "setting": 1.3241,
+        "bytes": 146603,
+        "score": 90.14564465
+      },
+      "width": 0.15623390999999742,
+      "interpolatedBytes": 144647.17849768844
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 70,
+      "lower": {
+        "setting": 8.3655,
+        "bytes": 28283,
+        "score": 69.93180733
+      },
+      "upper": {
+        "setting": 8.3401,
+        "bytes": 28299,
+        "score": 70.04617275
+      },
+      "width": 0.11436541999999861,
+      "interpolatedBytes": 28292.539230952505
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 80,
+      "lower": {
+        "setting": 4.6807,
+        "bytes": 44465,
+        "score": 79.95133128
+      },
+      "upper": {
+        "setting": 4.6513,
+        "bytes": 44557,
+        "score": 80.10324588
+      },
+      "width": 0.1519145999999978,
+      "interpolatedBytes": 44494.45324391059
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 90,
+      "lower": {
+        "setting": 1.4785,
+        "bytes": 102232,
+        "score": 89.96625301
+      },
+      "upper": {
+        "setting": 1.4363,
+        "bytes": 104540,
+        "score": 90.17295658
+      },
+      "width": 0.20670357000000195,
+      "interpolatedBytes": 102605.29978537162
+    }
+  ],
+  "matchedFrozenPeerComparisons": [
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 70,
+      "comparator": "jsquash",
+      "interpolatedBytes": 45675.05759997637,
+      "frozenPeerBytes": 46242.89444892351,
+      "ratio": 0.9877205599754503,
+      "frozenPeerWidth": 0.12098480999999595
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 70,
+      "comparator": "vips",
+      "interpolatedBytes": 45675.05759997637,
+      "frozenPeerBytes": 45918.90437701019,
+      "ratio": 0.9946896211845179,
+      "frozenPeerWidth": 0.20206905999999947
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 80,
+      "comparator": "jsquash",
+      "interpolatedBytes": 70917.39095683814,
+      "frozenPeerBytes": 71738.05037012689,
+      "ratio": 0.988560332918798,
+      "frozenPeerWidth": 0.10000139999999647
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 80,
+      "comparator": "vips",
+      "interpolatedBytes": 70917.39095683814,
+      "frozenPeerBytes": 71312.01391416407,
+      "ratio": 0.9944662485931063,
+      "frozenPeerWidth": 0.1069536400000004
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 90,
+      "comparator": "jsquash",
+      "interpolatedBytes": 144647.17849768844,
+      "frozenPeerBytes": 158843.38117040563,
+      "ratio": 0.9106276725657984,
+      "frozenPeerWidth": 0.2437919900000054
+    },
+    {
+      "fixture": "im26-1030-diagnostic",
+      "target": 90,
+      "comparator": "vips",
+      "interpolatedBytes": 144647.17849768844,
+      "frozenPeerBytes": 162225.43538103014,
+      "ratio": 0.8916430284680424,
+      "frozenPeerWidth": 0.1363814199999922
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 70,
+      "comparator": "jsquash",
+      "interpolatedBytes": 28292.539230952505,
+      "frozenPeerBytes": 30102.38537799136,
+      "ratio": 0.939876985683597,
+      "frozenPeerWidth": 0.10887569999999869
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 70,
+      "comparator": "vips",
+      "interpolatedBytes": 28292.539230952505,
+      "frozenPeerBytes": 33728.89380163426,
+      "ratio": 0.8388220318563087,
+      "frozenPeerWidth": 0.08715001999999572
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 80,
+      "comparator": "jsquash",
+      "interpolatedBytes": 44494.45324391059,
+      "frozenPeerBytes": 46939.40472739048,
+      "ratio": 0.9479126014128341,
+      "frozenPeerWidth": 0.03979148999999893
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 80,
+      "comparator": "vips",
+      "interpolatedBytes": 44494.45324391059,
+      "frozenPeerBytes": 52372.51831084471,
+      "ratio": 0.8495763556723447,
+      "frozenPeerWidth": 0.1415316300000029
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 90,
+      "comparator": "jsquash",
+      "interpolatedBytes": 102605.29978537162,
+      "frozenPeerBytes": 134920.6258204098,
+      "ratio": 0.7604863908795348,
+      "frozenPeerWidth": 0.11973958000000096
+    },
+    {
+      "fixture": "im26-1416-diagnostic",
+      "target": 90,
+      "comparator": "vips",
+      "interpolatedBytes": 102605.29978537162,
+      "frozenPeerBytes": 141736.4496218159,
+      "ratio": 0.7239161137388808,
+      "frozenPeerWidth": 0.15151848000000712
+    }
+  ],
+  "maximumPointsPerPhoto": 24,
+  "scoreTolerance": 0.25,
+  "extrapolation": false,
+  "publicComparisonCountsChanged": false,
+  "fullParity": false,
+  "competitorSpeedQualified": false,
+  "pins": [
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/comparison/verify-photo-compression.ts",
+      "sha256": "b9a8e79069aa5fda7cac62e6540d23979b573c9100e003f5c8bb039a2fc603b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/lossy-photo-guarded-curves-1335.json",
+      "sha256": "f3c07459851a6386f3b3608de6aec0b67b7f7b1f23e4c35eadf35776468be07b"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/filter-ac-production-controls.json",
+      "sha256": "23162656e18ef123be163d5e48db68dd29beb6c3db2091072c5092374343e339"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "bc51803b5626cd914b799a76b53ad560940523ff55b4244f900055cc8562d629"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "6b3ff52317ba1b1c4344a3a182e30009edadf120072a92bdbb1da3e062daf81a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/jpegxl-specialized.js",
+      "sha256": "d2c82642543413c9f5461476dc0c465ed12ab4776297c9ffb8a4af486d6a3a46"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/codec-jpegxl.js",
+      "sha256": "1ed5b578c5298d4111a41d8fede571ae3d4634f517c89d3c5ce9bf71be898494"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1030.ppm",
+      "sha256": "684985b6c730e848a26e5535973468e1f03dd8cb124812ade875832050163ce9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.raw",
+      "sha256": "16e111ef8ba5d071c7551436d155c57bb6e41028e80f1326eac41736922af985"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1030-diagnostic.png",
+      "sha256": "402f85bf62877adf4f2454c11bc29c7a76e8b7aa84b7232906cffbda3b405175"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-reference.png",
+      "sha256": "7e2723bed360b4e368ada0976a6dabaf1fc59bd7771c092e2a092e34a77c2846"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl",
+      "sha256": "1954ffbb7794d51134bdef5e5cd83e7226f08610abcc72fd6308b1db259dc56e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.native.npy",
+      "sha256": "56f22e38b2de50b0b92be559147286512524264c55c4434c825004ee90c2e581"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.rust.npy",
+      "sha256": "2d1212589b2bf200383bf9ca0ed8678fb0a213ec566f7097f0d96b9c7dd91a2f"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.png",
+      "sha256": "742e528bbafe0d18e6fdcdfa52b6e26742404c69f3f87593da198ff50d9dd7fe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0819.jxl.black.png",
+      "sha256": "985132b061a5acbf0c0cae840584fb73d2df549f75017a27d7279cf99c712df2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl",
+      "sha256": "5405d60e3158e3c5f251137235a9b9a23f45b6655ff33bff12a2c9d63a14e5b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.native.npy",
+      "sha256": "107983d4e1e2a0d8eaf269e92b330ce46969dea8d76663c8520c2833f9c62dd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.rust.npy",
+      "sha256": "5abad1edd9f01e7b982ef1c6e0cc216ccc41b794a302b0de8137d30bba11369d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.png",
+      "sha256": "bac1f93c5b03160f6c7dd3842ba7b0a207e60cb0a00f4857123c255b6bbb3f19"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0593.jxl.black.png",
+      "sha256": "db4bd010e750e47ec98833cd35c7aa792876af80963b37643201c19ccf9244b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl",
+      "sha256": "c49ab32f5553ccff9204cc31c0f6cb22f49e17495888de823e8b627882fe6a6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.native.npy",
+      "sha256": "c3c827dc3fe43cc2b36bba12f94d1bdacd92a2dc449e63f8b325ef966baf56f2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.rust.npy",
+      "sha256": "00407c08b00b0ae495f073bf3c0591430ca8bd2e5a7e7371e37c4f84cef232fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.png",
+      "sha256": "602efd005cef2fa4ed970b83a5e35cda12f006c67df83fdfcfadfd26833ea183"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.8687.jxl.black.png",
+      "sha256": "8b4e732f8f0143d2a592e393e327e00c4d8f514fc3a3f3dfec528b95d904f87c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl",
+      "sha256": "894334484abe215f53f0df418fe65fcb047b4ddfd659c0436e89863c409b4972"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.native.npy",
+      "sha256": "2b148be8762a5b7633f89232e26e57259c7a78624c0edb7a382fa32ee76deac3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.rust.npy",
+      "sha256": "bd0b5374f2a7ebb5a277442dae2307557afa58713178bdfb07d621a4ea1904ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.png",
+      "sha256": "f7761cdaf86a16f0c08bd6f04e081d438d636fb8064f8bc034d6ef0c426157ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-4.7913.jxl.black.png",
+      "sha256": "81695981c7f6064b1f1972f9bd0542121283ce70900941c230ef6f11bc18928f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl",
+      "sha256": "bba1a546b27f55c4f8dd834b97ba6e4f8b8d2b819318fe0c38ce65c24cba2fe4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.native.npy",
+      "sha256": "817eeec35216018380b7801a09c4594f3677334187ba959b1685a00bff770631"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.rust.npy",
+      "sha256": "b54ea94cba4396ec7f968b4eac262055808352e7e5ea21c127719670bb4fbb2a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.png",
+      "sha256": "478392762cdf0c8be398a3d010ba1af03a31254cb7e9f64e081504cc3d2fd62e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3583.jxl.black.png",
+      "sha256": "a2b688d1f00574d663f75892e92b73eee800ae91b18fb537c8b1a5020ac6c8ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl",
+      "sha256": "3096b3b6d11f752b71911ebd4cb8289387bfa0a3a807044eb0dfc1a7b33fbb74"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.native.npy",
+      "sha256": "bc668554b0c2ab0d765119ff083aec66be7857d8c1b569c89062217e5b5fb2ae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.rust.npy",
+      "sha256": "8dfd976273edb70eac03702aea1d72a7506eba3c1eb5b703e8e75215abac0845"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.png",
+      "sha256": "390ecf700ad26323dfcf14cfedb60b8d11a29f6023b038aa0713ae1b385475c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-1.3241.jxl.black.png",
+      "sha256": "22a40ab01fce19b2ebc3b8ecbf4cda9972797a7e0d75b7690bed279ccd31098a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl",
+      "sha256": "88e14e5c8f15dace9fde05eaf46489d23c6a4c93076647f45b24fbc34606dbfe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.native.npy",
+      "sha256": "0e5c094a8de2f88791312ab7c8dff00df12e5d26ed9349ea6de8bf074de00ef7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.rust.npy",
+      "sha256": "4d6fa6ad45ef538c9cdb54c6a98420c183ffb80484aa5f18e9b20677d44f2d61"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.png",
+      "sha256": "a5251590e81c6e2c507263b2d87039a7f2081fb8bfdd7442ba1eabcbc29dfd3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-8.9975.jxl.black.png",
+      "sha256": "ce535cde7a6ca87fd10a1d33d88d37c9300117dcf86ec978ecde4bc2cbe8d29e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl",
+      "sha256": "f8cd8894765d118b66b043752eacb01358fbfdb967be00229f254f9d22ab4fab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.native.npy",
+      "sha256": "b424579a32384d35cbb8ec54a94b74182580e673afdc6b30082b7f2a2619706b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.rust.npy",
+      "sha256": "3a149467bd7625705660a5e4a9dc49ef29fc9c1d484bc02644688f5169b1df06"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.png",
+      "sha256": "9b3cda67e4b48b61d55794b9073268d9056adcc326b2d7dfb40a101aa143ee35"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0151.jxl.black.png",
+      "sha256": "24bcdfe9eb63ea29a4ce84c2b3c739dfe55caca402e795be664ecc72dd992f20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl",
+      "sha256": "50d549717693229ee786dd9185800588d48beef6a9248d9733f771770c180579"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.native.npy",
+      "sha256": "281075b4e43d0b3a1e5455c1fae4b340b69d49a9e9cc940c8d950ebb78d41694"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.rust.npy",
+      "sha256": "4cd81fe85e46f13b4a55a498f5d6abb7937ab38b16e13b578d3edf9f066052c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.png",
+      "sha256": "c5568f9d59c6f2126f959343a1470a0386691fcecb6b8f43bc1d7477cc22ffb9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0372.jxl.black.png",
+      "sha256": "cad4353d8c37ce55178bbd21fb517bdeaf48602e5207b8760a204329ed65d73f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl",
+      "sha256": "5b44158f9d760d5e053791e8c9b4ae86c900e2a1f5902a352afc00137d67197d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.native.npy",
+      "sha256": "22f0b3f936e42e8b112d630e428a5da4a10007968c50c59b446389b52fb98876"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.rust.npy",
+      "sha256": "6734bce8b4c3e315ee35ae688563cfd38aeff3006ec558419ecefea2834b22e2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.png",
+      "sha256": "6511d0a67f20638713fc7f27742baec6b86615cbde8d24cd48a8d494c011c230"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1030-diagnostic-9.0242.jxl.black.png",
+      "sha256": "1e630c12f0a7d75ef35aa8369140a4949ea0dd4d5465f86f2a78e3bdf5936cff"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/diagnostic-fixtures-v1/im26-1416.ppm",
+      "sha256": "03e50ade4999a726c535a0e065f299122b1efb9889671537faef0bfd63419d0d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.raw",
+      "sha256": "4cceb4bf7d89a6ebefea814463f15fc9dc6f5f9a2b6f966c0bd160ec2950ba7f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-diagnostic.png",
+      "sha256": "7b0667472c9c0eb4df1f76fb24c12f12f728c8911b6634e448dc0ec31e4af2e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-reference.png",
+      "sha256": "3f359e87515b0280803d0236b732802c5693c24715bf2028ffc106a9cf5782b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl",
+      "sha256": "ddacd808b27b881d2c09b1e079c8d46e58508466efad6556eff05d98a71b7223"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.native.npy",
+      "sha256": "fda6cef81505d02f0a2a3bd8aba187b37deda37dccbeb84deac49f0376479365"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.rust.npy",
+      "sha256": "d18cfd85873064b6a848737db97d785a53b11d090806c5f247e62dc6c55741c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.png",
+      "sha256": "2cff2837a4d7696bec502bd42328be6d81e857ec96df2dea44b77cc1be47b182"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.5829.jxl.black.png",
+      "sha256": "f9652e9f4ac59976253c42d6d4c9e26487a63bd7ef98f6dc286dd57ab65dfcb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl",
+      "sha256": "38b79d7c0b7cb08d8a52ee7bd25033c0924016cfec69d5be338d6aac1db4fbd9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.native.npy",
+      "sha256": "05c4e1724c3ca6d1e344f0e5e30b0a4897b39b2c0d82bb8a5b43c0f44ba92662"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.rust.npy",
+      "sha256": "a533c6e8a8a2a47eb6c9a4a9dd9d20e72d26f27250396a2a971d39a9354f5059"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.png",
+      "sha256": "0c78338c4a69b0d9f43efeb21aaf3aa1674debcb002e1699c4822186dca47c93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4985.jxl.black.png",
+      "sha256": "6db081526cefbd4252cb32d290682cbe130a72a31e9f70a67b2d04be9bc6e713"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl",
+      "sha256": "e7de5a11378e83d476c13a620a66917f35259ae348909d80581219cb0df877d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.native.npy",
+      "sha256": "8905d14627c715ec540a051bc0a0655ebe1af39ee1f9ea2bda9a5b4e525f3d37"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.rust.npy",
+      "sha256": "dafa42d4db9442dfac8afc17059f639737f9182257b1084cdcd218d3fdd5ec96"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.png",
+      "sha256": "8a0c120af3f1011e3d3c9de8bd81f89a86c6e80856bdf1dcd7df3834f03507b4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6807.jxl.black.png",
+      "sha256": "4a13eec86667591a90c8c6392ae8beb232982547494d71743ef632ceb26158b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl",
+      "sha256": "9e04b15103d69579c93223f46ec82ce30d12eb21d2c9bfd444e4da0210751d6b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.native.npy",
+      "sha256": "e0ec89ba26e9de085e85b24c34dcf2d9828249e40704f9c9778fe803b610de70"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.rust.npy",
+      "sha256": "9968895fda855b7070c3ba0cb85f0256bac3b5562931ae3c8e65de9779c4a5d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.png",
+      "sha256": "0ec5d19f9e38e6e03f5db43caadba23f7e1085bf408941d1a244bd1b007cf9bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-4.6513.jxl.black.png",
+      "sha256": "cdefa183074ffc3ab88b61acf84ea7645786c4f209db7b5f802e8a803035a693"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl",
+      "sha256": "89fc9ef486f7cd345e21550ed9b141f3b3b030fda8cc177ace0cb1b480c27a05"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.native.npy",
+      "sha256": "804532de9229c69a5daba809a285b5743b6cf3e2b3e76191f15877b275beb365"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.rust.npy",
+      "sha256": "04ed4042dea8f4337a5bb7deb206dcee4e3a836e0deded9f1ec560482ea77776"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.png",
+      "sha256": "b0c5238d95689bc53f5c20821df816507e5280484ad7a0a28556f3e1bab62348"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4785.jxl.black.png",
+      "sha256": "5d9b58c7cf764f514fbafaf841b584e5376740bb7bda2455c16c2d1cf08bc062"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl",
+      "sha256": "a3c37ec6263a9b0fdc429b08ce41e37456fec14bb29cef9905d0dc359f6f62c0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.native.npy",
+      "sha256": "df8f8b96c31390b4410f456ed55612921b2b6f343fc9b996ed49fbd19ba5902e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.rust.npy",
+      "sha256": "12c83a66f67cad9590d8ac78dd705efee31471831fd51c00d60de122e97d69fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.png",
+      "sha256": "f4be744870a46581c45e750c671ba5bf48ae9d56586b7af341dc870c3d60426d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-1.4363.jxl.black.png",
+      "sha256": "e8f64698d081f3719342d8642bf0a85c7f97e591a6ff83f81d50bfa7bd340c12"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl",
+      "sha256": "1850c726cd6db47bddec115386eedfd86c147de08290e0a0bdc3632aa30ed93c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.native.npy",
+      "sha256": "0685ce9a213d880cf151fe70b7fd279d7b363cfc2d8b9a00e879a19f805d9c9b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.rust.npy",
+      "sha256": "059b9b6b2197e730af237efb5a6f776e0452a86551d60f9deeb0cf7a0fbd264b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.png",
+      "sha256": "1c00e847e6e89e5dce45a298c4b65a3c86425e290384385167982cb7432750bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.308.jxl.black.png",
+      "sha256": "06adb273ac45e02cc489f762031d46c9e75c2fe01b75bc46398d182b58b1c202"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl",
+      "sha256": "065389f4fe375d485dd71719419a5ec299bf5fd94f7b215025f4d4aaede5ef45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.native.npy",
+      "sha256": "f70557bff8635af4e57a65b03b9b608420b6421045bd23b11e5481ade7f0f490"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.rust.npy",
+      "sha256": "7552175eee553f5ffdff02ac4b47b10f61c0a6355d049e1fc5488412ac04796e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.png",
+      "sha256": "bda1a45ecfc30fcdab6c8ca7bbe891eaa79c72a67a91f298a728fa46e4e98e68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3567.jxl.black.png",
+      "sha256": "40280df0d249d57f84b703aefc9d19847774fffbd7fc5e7370b9725742d81381"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl",
+      "sha256": "98f2ff4903f273cbf0f8337073e5d1984426222efacb5e6b91ffd50b88318dc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.native.npy",
+      "sha256": "4608e5b76d164a3477803a9e4f82a40a5179acbb8e1706636e86f2539be7b001"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.rust.npy",
+      "sha256": "34d61b3bb9092ac0c7861dc226c3c660d90e2573c6731e5e9a16e47c6241eeb7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.png",
+      "sha256": "a6a4d3fbf436d7404b5999a326a5b62da5cd1390d08ed50f59f9598f16a0e48c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3323.jxl.black.png",
+      "sha256": "c13b1063fe363f20b98a955320fa26f82c480e44e3c038f7380419298256a1ea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl",
+      "sha256": "065389f4fe375d485dd71719419a5ec299bf5fd94f7b215025f4d4aaede5ef45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.native.npy",
+      "sha256": "f70557bff8635af4e57a65b03b9b608420b6421045bd23b11e5481ade7f0f490"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.rust.npy",
+      "sha256": "7552175eee553f5ffdff02ac4b47b10f61c0a6355d049e1fc5488412ac04796e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.png",
+      "sha256": "bda1a45ecfc30fcdab6c8ca7bbe891eaa79c72a67a91f298a728fa46e4e98e68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3544.jxl.black.png",
+      "sha256": "40280df0d249d57f84b703aefc9d19847774fffbd7fc5e7370b9725742d81381"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl",
+      "sha256": "d8aefbb88ae85e9561d35cfb19cdd1793ccb3290b8e1719de2e3b704bc843654"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.native.npy",
+      "sha256": "a36b23cccc9a4e455fbcc24866ea9cb93a9046ec5ab8503852bec81926da87a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.rust.npy",
+      "sha256": "19879c082a0ef5ce0a354fbae2e282f690572a4b2f2a9eee99870c0b5d4ba129"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.png",
+      "sha256": "d51d5a868d8dd35837daa20ccbc97e509583b9cdb48db50e082801754095c169"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.4273.jxl.black.png",
+      "sha256": "3cebd82c8649438d22eba0f1a713bb84237eebf6a53e4493d23ad5573e100ea3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl",
+      "sha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.native.npy",
+      "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.rust.npy",
+      "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.png",
+      "sha256": "17f74840fea0c33b24506e5e8492f1a60019a08d42f9e75f4aa5fa3c4a750d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.349.jxl.black.png",
+      "sha256": "81d8fe11c3509bd09fdb87d433294436ceccb0b5a8053aaf87a8c4b201a25e38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl",
+      "sha256": "8037df56d21dc7b89f385027373ea33507edb06219cd351615e96c133d580135"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.native.npy",
+      "sha256": "f0bf90bccf03a44a08667617dc9cd72295706397b5fcbaa3ab42679503f19c10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.rust.npy",
+      "sha256": "3194038f34aee2b96e40f94a4a8cf27fea0db69d71b4412bbaa6bc3f791c7e55"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.png",
+      "sha256": "85a36ec56675f9a5505d6cf8eeb8a8a089a4d477550ecbc5b028da994e572e04"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3919.jxl.black.png",
+      "sha256": "597e8200e64e07abfef84522369bb34a14f5a5d385581e58936f4d6c59e6c4e2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl",
+      "sha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.native.npy",
+      "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.rust.npy",
+      "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.png",
+      "sha256": "17f74840fea0c33b24506e5e8492f1a60019a08d42f9e75f4aa5fa3c4a750d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.352.jxl.black.png",
+      "sha256": "81d8fe11c3509bd09fdb87d433294436ceccb0b5a8053aaf87a8c4b201a25e38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl",
+      "sha256": "2500abf6d9b4c190135ec95be0c1982fe1787c6d4cb266ec1ef686bc6c128bb7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.native.npy",
+      "sha256": "1a05638ef9bcb5fad39e35681770249e258dbc9b1da564aaad9f2e89be51760a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.rust.npy",
+      "sha256": "f03bf5b7cd7505841ac8d43210a9241c6ab24c081531f9202b3ee095a641ef56"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.png",
+      "sha256": "004bf746a702b8b7e9412c3defa604ab265b9f3088207dfdba94cb2157d0ad5c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3743.jxl.black.png",
+      "sha256": "52bc6a293b23d5cdf75a9cd2de40c315c604981bb36368938c52529a30c31f45"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl",
+      "sha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.native.npy",
+      "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.rust.npy",
+      "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.png",
+      "sha256": "17f74840fea0c33b24506e5e8492f1a60019a08d42f9e75f4aa5fa3c4a750d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3514.jxl.black.png",
+      "sha256": "81d8fe11c3509bd09fdb87d433294436ceccb0b5a8053aaf87a8c4b201a25e38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl",
+      "sha256": "e1f469a2f9656a9fd42d4b04a51238c6b4cf0aa85a443266fa5179dfa8db6798"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.native.npy",
+      "sha256": "aa00842564f7ecc6c8d6ab8737e4dffebb22a8882a1214f553b94f20bfea12a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.rust.npy",
+      "sha256": "1524bfba525c1fc93db12abf36f0829ef5a4a9b3fdc2a916f1a387aeaa5b48ad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.png",
+      "sha256": "729f46c84ba08f0a40cc3aed22c92387f98e3fc9a743f607b45a5e133e0f53df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3655.jxl.black.png",
+      "sha256": "fd3186a86a59c54030af103d8a6c10724cc32367b0c483beee0b5aa6798cb8f1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl",
+      "sha256": "ab75ad8eaebb45c458e3427c642557215f5ed39ebc00263820c1589a197e251a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.native.npy",
+      "sha256": "6f73c0edd58009696b52d74de614b57ff03a81cb4a4326a20ba265f46d147a78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.rust.npy",
+      "sha256": "5466db0f3885f930f5fdab84f21ef14c6cd89169e467dd6d5d015f88b6f111a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.png",
+      "sha256": "85045b32337f56c89b1add04d34ecf7c2bb4d463d24c349e58d1f663912494ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3479.jxl.black.png",
+      "sha256": "e06aa0a50d8638b493f8f2f1a28f00571c4d324884956bf650c75caa3888bf5f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl",
+      "sha256": "ca96671d735e14624fe2ad1d4712d3a0dd64a232b6cec524221d3dd2c491a181"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.native.npy",
+      "sha256": "b38adfec3435853108b8992092d42db30c80e257e770653e2ebdf57c2b8523a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.rust.npy",
+      "sha256": "c9fa74a6a46ac30ddc7efcb23020a728f437f089a93ca0dbc8170044cfaf689b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.png",
+      "sha256": "2758318b1854a13ffe562b82db6438301b87a3c68c89a8e7af97746763231a3a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3401.jxl.black.png",
+      "sha256": "8fbcd5ce29293e6394ed093a70469c3e8fef549ee76dfef291308af8cb182d1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl",
+      "sha256": "0a37973d71fe4206045a2f8f4652ba10b469e88f68304125372052082af4a466"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.native.npy",
+      "sha256": "ec945bf633f2930f3f95c7508b449bf04f6a6af2d01d87de4beba526ae01545e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.rust.npy",
+      "sha256": "4be992cb9f6a9a6ac1a44ee5bc1721738563a5a31d438acd19165209ed866d58"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.png",
+      "sha256": "17f74840fea0c33b24506e5e8492f1a60019a08d42f9e75f4aa5fa3c4a750d10"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3503.jxl.black.png",
+      "sha256": "81d8fe11c3509bd09fdb87d433294436ceccb0b5a8053aaf87a8c4b201a25e38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl",
+      "sha256": "b83c1b505dbd064485854cbf06bb78014db2d9687c204741bf53e00aede9584b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.native.npy",
+      "sha256": "fe19564852bb5f0dd0262d356ccc5bd64a08fdfe53a19e15dd01e57718dadde1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.rust.npy",
+      "sha256": "fae36684e71a6ca307fa326639fc88549695f75c5f2c008d790ce1e8f1431a8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.png",
+      "sha256": "dd7784f43c0580cd2e8963a50c9b2792e25a65a41ad0e405809a4a60df20161b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3611.jxl.black.png",
+      "sha256": "af0ad0114f58d819914de14b44c7b2fd5d82e0c495c827851822df097aeab746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl",
+      "sha256": "ca96671d735e14624fe2ad1d4712d3a0dd64a232b6cec524221d3dd2c491a181"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.native.npy",
+      "sha256": "b38adfec3435853108b8992092d42db30c80e257e770653e2ebdf57c2b8523a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.rust.npy",
+      "sha256": "c9fa74a6a46ac30ddc7efcb23020a728f437f089a93ca0dbc8170044cfaf689b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.png",
+      "sha256": "2758318b1854a13ffe562b82db6438301b87a3c68c89a8e7af97746763231a3a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.344.jxl.black.png",
+      "sha256": "8fbcd5ce29293e6394ed093a70469c3e8fef549ee76dfef291308af8cb182d1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl",
+      "sha256": "b83c1b505dbd064485854cbf06bb78014db2d9687c204741bf53e00aede9584b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.native.npy",
+      "sha256": "fe19564852bb5f0dd0262d356ccc5bd64a08fdfe53a19e15dd01e57718dadde1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.rust.npy",
+      "sha256": "fae36684e71a6ca307fa326639fc88549695f75c5f2c008d790ce1e8f1431a8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.png",
+      "sha256": "dd7784f43c0580cd2e8963a50c9b2792e25a65a41ad0e405809a4a60df20161b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3589.jxl.black.png",
+      "sha256": "af0ad0114f58d819914de14b44c7b2fd5d82e0c495c827851822df097aeab746"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl",
+      "sha256": "e1f469a2f9656a9fd42d4b04a51238c6b4cf0aa85a443266fa5179dfa8db6798"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.native.npy",
+      "sha256": "aa00842564f7ecc6c8d6ab8737e4dffebb22a8882a1214f553b94f20bfea12a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.rust.npy",
+      "sha256": "1524bfba525c1fc93db12abf36f0829ef5a4a9b3fdc2a916f1a387aeaa5b48ad"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.png",
+      "sha256": "729f46c84ba08f0a40cc3aed22c92387f98e3fc9a743f607b45a5e133e0f53df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/photo-compression-verification/photo-production-curves-1345/im26-1416-diagnostic-8.3633.jxl.black.png",
+      "sha256": "fd3186a86a59c54030af103d8a6c10724cc32367b0c483beee0b5aa6798cb8f1"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    }
+  ],
+  "policy": "Fresh complete production packages and all 34 original photo points, with every complete native/Rust grid, public JavaScript pixel and both quality metrics. Preserve all score inversions, original alpha, caller storage and closed ownership. Recompute six nondominated log-byte matches under the original 0.25-score width policy and retain twelve exact frozen peer brackets. The preceding private 0.05-width attempt exhausted the shared 24-point budget on the second photo; its null result remains untouched. Original wider-policy qualification is reported separately. Package ceilings increase explicitly; no runtime dependencies, release, speed/RSS parity or universal lossy claim. Other comparator rows and 13 adequate/11 unresolved totals stay unchanged.",
+  "actualPackages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": ".tmp/jpegxl-comparison-v1/photo-production-publication-1346/jpegxl-specialized.js",
+      "bytes": 626106,
+      "sha256": "d2c82642543413c9f5461476dc0c465ed12ab4776297c9ffb8a4af486d6a3a46",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 627000,
+      "withinCeiling": true,
+      "oldCeiling": 617000,
+      "withinOldCeiling": false,
+      "wholePackageByteIdentical": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": ".tmp/jpegxl-comparison-v1/photo-production-publication-1346/codec-jpegxl.js",
+      "bytes": 553669,
+      "sha256": "1ed5b578c5298d4111a41d8fede571ae3d4634f517c89d3c5ce9bf71be898494",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 554000,
+      "withinCeiling": true,
+      "oldCeiling": 545000,
+      "withinOldCeiling": false,
+      "wholePackageByteIdentical": true
+    }
+  ],
+  "publication": {
+    "currentSource": {
+      "implementationRevision": "2c212c1d66097095fa2d7d211711a9f35a9ec7e6",
+      "implementationSourceSha256": "ce3cc0a731d114c4a5f0400fec1fe27ef228ecb874010c28db8676e20b4ef149",
+      "implementationDirty": true
+    },
+    "measurementSource": {
+      "implementationRevision": "2c212c1d66097095fa2d7d211711a9f35a9ec7e6",
+      "implementationSourceSha256": "89d5f9d4560d7d2ff63fdf35ac5430195b0a3a9d078b1907902a51d0a543d970",
+      "implementationDirty": true
+    },
+    "rawPath": ".tmp/jpegxl-comparison-v1/photo-production-curves-1345.json",
+    "rawSha256": "680f8d1c97d4873238f896c722e602a639487e24376e9d30723fef982490d0cc",
+    "verifiedPhysicalPins": 190,
+    "actualPackages": [
+      {
+        "target": "jpegxl-specialized",
+        "path": ".tmp/jpegxl-comparison-v1/photo-production-publication-1346/jpegxl-specialized.js",
+        "bytes": 626106,
+        "sha256": "d2c82642543413c9f5461476dc0c465ed12ab4776297c9ffb8a4af486d6a3a46",
+        "exports": [
+          "convertJpegXlCmykLayerToRgba8",
+          "convertJpegXlFloat32LayerToRgba16",
+          "convertJpegXlFloatLayerToRgba16",
+          "convertJpegXlIccLayerToRgba16",
+          "encodeJpegXlAnimation",
+          "encodeJpegXlNative",
+          "inspectJpegReconstructionEligibility",
+          "inspectJpegXl",
+          "jpegXlNativeFloat32ColorPlanes",
+          "jpegXlNativeUnsignedPlanes",
+          "openJpegXlSequence",
+          "openJpegXlSession",
+          "reconstructJpegFromJpegXl",
+          "transcodeJpegToJpegXl"
+        ],
+        "ceiling": 627000,
+        "withinCeiling": true,
+        "oldCeiling": 617000,
+        "withinOldCeiling": false,
+        "wholePackageByteIdentical": true
+      },
+      {
+        "target": "codec-jpegxl",
+        "path": ".tmp/jpegxl-comparison-v1/photo-production-publication-1346/codec-jpegxl.js",
+        "bytes": 553669,
+        "sha256": "1ed5b578c5298d4111a41d8fede571ae3d4634f517c89d3c5ce9bf71be898494",
+        "exports": [
+          "BlobSource",
+          "BufferPool",
+          "BufferSink",
+          "CodecRegistry",
+          "FileSink",
+          "FileSource",
+          "ImageError",
+          "MemorySource",
+          "Uint8ArraySink",
+          "createImageLibrary",
+          "defaultImageLimits",
+          "inspectJpegXlStructure",
+          "jpegxlCodec",
+          "pixelBytesPerPixel",
+          "pixelStorage"
+        ],
+        "ceiling": 554000,
+        "withinCeiling": true,
+        "oldCeiling": 545000,
+        "withinOldCeiling": false,
+        "wholePackageByteIdentical": true
+      }
+    ],
+    "publicationPins": [
+      {
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/publish-photo-production-1346.ts",
+        "sha256": "95ac4f8ee004eceac7b0fd3b9e90323b52878ba3ff6e877554a3fc095af4e8e8"
+      },
+      {
+        "path": ".tmp/jpegxl-comparison-v1/photo-production-curves-1345.json",
+        "sha256": "680f8d1c97d4873238f896c722e602a639487e24376e9d30723fef982490d0cc"
+      },
+      {
+        "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342.json",
+        "sha256": "8303e172bec6fbabf2dae8ce27f21367d83b28cc6566aadb6a8669e1f68f3f24"
+      },
+      {
+        "path": ".tmp/jpegxl-comparison-v1/photo-adoption-1343.json",
+        "sha256": "30e6f9e4ce0758ae00ecce707f298416654e02f4e2ffe339e3c24f741eb1f3f6"
+      },
+      {
+        "path": ".tmp/jpegxl-m7/bounded-runs/photo-production-curves-1345.json",
+        "sha256": "d0de058e376445c22ef47259caa025cbde3e09fc15dd37c2da15855d1a0b66c9"
+      },
+      {
+        "path": "src/codecs/jpegxl-jpeg-encode.ts",
+        "sha256": "c4ec767ff82118cab20ada7265ecf072690f1607ac40a81ab59dc711833a7677"
+      },
+      {
+        "path": "src/codecs/jpegxl-modular-encode.ts",
+        "sha256": "b942d9c75e9a4dd73163fcd760b9b55b23e149160847bb11240e3f8f6c8ce57f"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "0c2fda05705b37ab3209604177c0b6f9cd1d3455139ef6dfa9d645280db0b428"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+        "sha256": "ad696279d05a0e9465bcaf481995195f8859121cfa8f12a7ba9ccf9da2a577d7"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-quantization.ts",
+        "sha256": "8205740e37121403e3bd987a87d92fee2c343965bacc2014c363aa5deceb2593"
+      }
+    ],
+    "onlyImportOrderChanged": true,
+    "measurementsFreshOnFinalSource": false,
+    "finalSourceQualifiedByIdenticalWholePackages": true,
+    "policy": "The current source differs from the fresh production measurement only in two sorted import lists. Rebuild both complete public packages and require every byte and original export set to remain identical. Keep the untouched raw measurement source and every rehashed raw pin explicit; current package identity qualifies the carried full grids, metrics and files without relabeling them fresh final-source encodes."
+  },
+  "boundaryQualification": {
+    "path": ".tmp/jpegxl-comparison-v1/photo-boundaries-1342.json",
+    "sha256": "8303e172bec6fbabf2dae8ce27f21367d83b28cc6566aadb6a8669e1f68f3f24",
+    "pairedDefinitions": 11,
+    "completeFiles": 22,
+    "completeIndependentGrids": 44,
+    "freshlyDecodedOnFinalSource": false
+  },
+  "fullRepositoryAndBrowserGatesPendingAtPublication": true
+}

@@ -12,6 +12,7 @@ import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
+  encodeForwardModularLzGroup,
   encodeHybridUintPacked,
   encodeRepeatedJpegXlAlphaGroup,
   hybridTokenForEncoding,
@@ -44,6 +45,7 @@ export interface VarDctCoefficientPlane {
   readonly blocksPerColumnForMcu: number
   readonly coefficients: Int16Array | Int32Array
   readonly coefficientStride?: 1 | 64
+  readonly coefficientOffsets?: Int32Array
 }
 
 export interface VarDctCoefficientGeometry {
@@ -86,6 +88,7 @@ export interface VarDctCoefficientGeometry {
   readonly forwardCoefficientOrders?: readonly Uint32Array[]
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
   readonly forwardFamilyContexts?: boolean
+  readonly forwardAdvancedModularSearch?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
   readonly deferredDcGroups?: boolean
   readonly memory?: JpegXlEncoderMemory
@@ -474,20 +477,52 @@ const dcGroupPlanes = (
       for (let x = 0; x < blockWidth; x++)
         epfValues[y * blockWidth + x] =
           geometry.epfSharpnessMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
-  const strategyMap = geometry.blockStrategyMap
-  const strategyValues = metadata[2]?.values
-  if (strategyMap && strategyValues)
+  const strategyMap = geometry.blockStrategyMap,
+    values = metadata[2]?.values,
+    quantizationMap = geometry.blockQuantizationMap
+  if (strategyMap && values && strategyMap.includes(4)) {
+    const covered = allocateJpegXlArray(geometry.memory, Uint8Array, blockWidth * blockHeight)
+    let count = 0
     for (let y = 0; y < blockHeight; y++)
-      for (let x = 0; x < blockWidth; x++)
-        strategyValues[y * blockWidth + x] =
-          strategyMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
-  const quantizationMap = geometry.blockQuantizationMap
-  const codedQuantization = metadata[2]?.values
-  if (quantizationMap && codedQuantization) {
-    for (let y = 0; y < blockHeight; y++)
-      for (let x = 0; x < blockWidth; x++)
-        codedQuantization[blockWidth * blockHeight + y * blockWidth + x] =
-          (quantizationMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 1) - 1
+      for (let x = 0; x < blockWidth; x++) {
+        if (covered[y * blockWidth + x] !== 0) continue
+        const at = (blockY + y) * geometry.fullBlockWidth + blockX + x,
+          strategy = strategyMap[at] ?? 0,
+          extent = strategy === 4 ? 2 : 1
+        if (x + extent > blockWidth || y + extent > blockHeight)
+          throw invalidInput('DCT16 crosses DC group')
+        values[count] = strategy
+        values[blockWidth * blockHeight + count] =
+          (quantizationMap?.[at] ?? geometry.blockQuantization ?? 1) - 1
+        for (let dy = 0; dy < extent; dy++)
+          for (let dx = 0; dx < extent; dx++) covered[(y + dy) * blockWidth + x + dx] = 1
+        count++
+      }
+    if (count < blockWidth * blockHeight) {
+      values.copyWithin(count, blockWidth * blockHeight, blockWidth * blockHeight + count)
+      metadata[2] = Object.freeze({
+        width: count,
+        height: 2,
+        values: values.subarray(0, count * 2),
+      })
+    }
+    geometry.memory?.release(covered)
+  } else {
+    const strategyMap = geometry.blockStrategyMap
+    const strategyValues = metadata[2]?.values
+    if (strategyMap && strategyValues)
+      for (let y = 0; y < blockHeight; y++)
+        for (let x = 0; x < blockWidth; x++)
+          strategyValues[y * blockWidth + x] =
+            strategyMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+    const quantizationMap = geometry.blockQuantizationMap
+    const codedQuantization = metadata[2]?.values
+    if (quantizationMap && codedQuantization) {
+      for (let y = 0; y < blockHeight; y++)
+        for (let x = 0; x < blockWidth; x++)
+          codedQuantization[blockWidth * blockHeight + y * blockWidth + x] =
+            (quantizationMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 1) - 1
+    }
   }
   const colorTileWidth = Math.ceil(geometry.fullBlockWidth / 8)
   for (let channel = 0; channel < 2; channel++) {
@@ -577,6 +612,7 @@ const writeDcMetadata = (
   encoding: Readonly<ModularEncoding>,
   localTree: boolean,
   search: boolean,
+  advancedSearch: boolean,
 ): void => {
   let candidate: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
   if (localTree && search) {
@@ -616,6 +652,30 @@ const writeDcMetadata = (
       if (!isJpegXlLimitExceeded(error)) throw error
     }
   }
+  if (localTree && search && advancedSearch) {
+    try {
+      const alternative = withJpegXlMemory(writer.memory, () => {
+        const original = new JpegXlBitWriter(writer.memory, writer.outputLimit)
+        writePlanes(original, planes, encoding, true)
+        return encodeForwardModularLzGroup(
+          {
+            values: planes.map((plane) => plane.values),
+            widths: planes.map((plane) => plane.width),
+            heights: planes.map((plane) => plane.height),
+          },
+          candidate?.bitLength ?? original.bitPosition,
+          writer.memory,
+          writer.outputLimit,
+        )
+      })
+      if (alternative) {
+        if (candidate) writer.memory?.release(candidate.bytes)
+        candidate = alternative
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+  }
   if (candidate) {
     try {
       // Admission happens before any bits are appended, so LIMIT can use the original.
@@ -636,6 +696,7 @@ const writeForwardDcColorPlanes = (
   encoding: Readonly<ModularEncoding>,
   localTree: boolean,
   search: boolean,
+  advancedSearch: boolean,
 ): void => {
   let candidate: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
   if (localTree && search) {
@@ -708,6 +769,30 @@ const writeForwardDcColorPlanes = (
       if (!isJpegXlLimitExceeded(error)) throw error
     }
   }
+  if (localTree && search && advancedSearch) {
+    try {
+      const alternative = withJpegXlMemory(writer.memory, () => {
+        const original = new JpegXlBitWriter(writer.memory, writer.outputLimit)
+        writePlanes(original, planes, encoding, true)
+        return encodeForwardModularLzGroup(
+          {
+            values: planes.map((plane) => plane.values),
+            widths: planes.map((plane) => plane.width),
+            heights: planes.map((plane) => plane.height),
+          },
+          candidate?.bitLength ?? original.bitPosition,
+          writer.memory,
+          writer.outputLimit,
+        )
+      })
+      if (alternative) {
+        if (candidate) writer.memory?.release(candidate.bytes)
+        candidate = alternative
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+  }
   if (candidate) {
     try {
       writer.writeEncodedBits(candidate.bytes, candidate.bitLength)
@@ -727,13 +812,23 @@ const writeDcGroup = (
   encoding: Readonly<ModularEncoding>,
   localTree = false,
   searchMetadata = false,
+  advancedSearch = false,
 ): void => {
   writer.writeBits(0, 2)
-  writeForwardDcColorPlanes(writer, planes.slice(0, 3), encoding, localTree, searchMetadata)
+  writeForwardDcColorPlanes(
+    writer,
+    planes.slice(0, 3),
+    encoding,
+    localTree,
+    searchMetadata,
+    advancedSearch,
+  )
   const blockCount = planes[6]?.values.length ?? 0
-  if (blockCount < 1) throw invalidJpegXlInput('DC group metadata is empty')
-  writer.writeBits(blockCount - 1, Math.ceil(Math.log2(blockCount)))
-  writeDcMetadata(writer, planes.slice(3), encoding, localTree, searchMetadata)
+  const strategyCount = planes[5]?.width ?? 0
+  if (blockCount < 1 || strategyCount < 1 || strategyCount > blockCount)
+    throw invalidInput('JPEG XL DC group metadata is empty')
+  writer.writeBits(strategyCount - 1, Math.ceil(Math.log2(blockCount)))
+  writeDcMetadata(writer, planes.slice(3), encoding, localTree, searchMetadata, advancedSearch)
 }
 
 const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
@@ -756,7 +851,11 @@ const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
   writer.writeBits((encodedExponent << 10) | mantissa, 16)
 }
 
-const writeComponentBlockContexts = (writer: JpegXlBitWriter, familyContexts: boolean): void => {
+const writeComponentBlockContexts = (
+  writer: JpegXlBitWriter,
+  familyContexts: boolean,
+  hasDct16: boolean,
+): void => {
   writer.writeBits(0, 1)
   for (let channel = 0; channel < 3; channel += 1) writer.writeBits(0, 4)
   writer.writeBits(0, 4)
@@ -765,7 +864,10 @@ const writeComponentBlockContexts = (writer: JpegXlBitWriter, familyContexts: bo
   writer.writeBits(bits, 2)
   for (let channel = 0; channel < 3; channel += 1) {
     for (let order = 0; order < 13; order += 1) {
-      writer.writeBits(channel + (familyContexts && order === 1 ? 3 : 0), bits)
+      writer.writeBits(
+        channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0),
+        bits,
+      )
     }
   }
 }
@@ -944,7 +1046,11 @@ const writeLfGlobal = (
     { bits: 8, offset: 1 },
     { bits: 16, offset: 1 },
   ])
-  writeComponentBlockContexts(writer, geometry.forwardFamilyContexts === true)
+  writeComponentBlockContexts(
+    writer,
+    geometry.forwardFamilyContexts === true,
+    geometry.blockStrategyMap?.includes(4) ?? false,
+  )
   writer.writeBits(0, 1)
   writeU32(writer, 84, [
     { value: 84 },
@@ -1005,6 +1111,32 @@ const naturalOrder = (): Uint32Array => {
   return order
 }
 
+const naturalDct16Order = (): Uint32Array => {
+  const order = new Uint32Array(256)
+  let next = 4
+  for (let diagonal = 0; diagonal < 16; diagonal++) {
+    for (let step = 0; step <= diagonal; step++) {
+      let x = step
+      let y = diagonal - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      const scan = x < 2 && y < 2 ? y * 2 + x : next++
+      order[scan] = y * 16 + x
+    }
+  }
+  for (let reverse = 15; reverse > 0; reverse--) {
+    const diagonal = reverse - 1
+    for (let step = 0; step <= diagonal; step++) {
+      let x = 15 - (diagonal - step)
+      let y = 15 - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      order[next++] = y * 16 + x
+    }
+  }
+  if (next !== 256) throw invalidInput('JPEG XL DCT16 coefficient order is incomplete')
+  return order
+}
+
+const dct16Order = naturalDct16Order()
 const order = naturalOrder()
 const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
 const naturalJpegXlOrder = Uint32Array.from(order, transposed)
@@ -1057,10 +1189,12 @@ export function* learnJpegXlForwardCoefficientOrders(
           for (let x = 0; x < component.blocksPerLineForMcu; x++) {
             const strategy =
               geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+            if (strategy === 4) continue
             if (strategy !== 0 && strategy !== 1 && strategy !== 12 && strategy !== 13)
               throw unsupportedOperation('JPEG XL forward order strategy is not supported')
             const histogram = (channel + (strategy === 0 ? 0 : 3)) * 64
-            const base = (y * component.blocksPerLineForMcu + x) * 64
+            const block = y * component.blocksPerLineForMcu + x
+            const base = component.coefficientOffsets?.[block] ?? block * 64
             for (let position = 1; position < 64; position++) {
               if ((component.coefficients[base + position] ?? 0) !== 0)
                 counts[histogram + position] = (counts[histogram + position] ?? 0) + 1
@@ -1332,6 +1466,12 @@ const visitAcGroup = (
       : undefined
     for (let y = 0; y < blockHeight; y += 1) {
       for (let x = 0; x < blockWidth; x += 1) {
+        const strategy =
+          geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+        const coveredBlocks = strategy === 4 ? 4 : 1,
+          extent = strategy === 4 ? 2 : 1,
+          coefficientCount = coveredBlocks * 64
         for (const channel of [1, 0, 2]) {
           const shift = geometry.shifts[channel]
           const component = components[channel]
@@ -1344,20 +1484,21 @@ const visitAcGroup = (
             continue
           const componentX = ((geometry.loadAcGroup ? 0 : blockX) + x) >> shift[0]
           const componentY = ((geometry.loadAcGroup ? 0 : blockY) + y) >> shift[1]
-          const base = (componentY * component.blocksPerLineForMcu + componentX) * 64
+          const block = componentY * component.blocksPerLineForMcu + componentX
+          const base = component.coefficientOffsets?.[block] ?? block * 64
           const localX = x >> shift[0]
           const localY = y >> shift[1]
           const localWidth = blockWidth >> shift[0]
-          const strategy =
-            geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
           const coefficientOrder =
-            coefficientOrders[
-              channel + (geometry.forwardCoefficientOrders && strategy !== 0 ? 3 : 0)
-            ]
+            strategy === 4
+              ? dct16Order
+              : coefficientOrders[
+                  channel + (geometry.forwardCoefficientOrders && strategy !== 0 ? 3 : 0)
+                ]
           if (!coefficientOrder) throw invalidJpegXlInput('AC coefficient order is missing')
-          let lastNonzero = 0
+          let lastNonzero = coveredBlocks - 1
           let nonzero = 0
-          for (let scan = 1; scan < 64; scan += 1) {
+          for (let scan = coveredBlocks; scan < coefficientCount; scan += 1) {
             const position = coefficientOrder[scan] ?? 0
             if ((component.coefficients[base + position] ?? 0) !== 0) {
               lastNonzero = scan
@@ -1366,7 +1507,7 @@ const visitAcGroup = (
           }
           if (!contextsNeeded) {
             visit(nonzero, 0)
-            for (let scan = 1; scan <= lastNonzero; scan++) {
+            for (let scan = coveredBlocks; scan <= lastNonzero; scan++) {
               const coefficient = component.coefficients[base + (coefficientOrder[scan] ?? 0)] ?? 0
               if (coefficient < -4095 || coefficient > 4095)
                 throw unsupportedOperation(
@@ -1384,10 +1525,14 @@ const visitAcGroup = (
           const nonzeroBucket =
             predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
           visit(nonzero, nonzeroBucket * blockContextCount + blockContext)
-          nonzeroPlane[localY * localWidth + localX] = nonzero
+          for (let dy = 0; dy < extent; dy++)
+            for (let dx = 0; dx < extent; dx++)
+              nonzeroPlane[(localY + dy) * localWidth + localX + dx] = Math.ceil(
+                nonzero / coveredBlocks,
+              )
           let remainingNonzero = nonzero
-          let previous = nonzero > 4 ? 0 : 1
-          for (let scan = 1; scan <= lastNonzero; scan += 1) {
+          let previous = nonzero > coefficientCount / 16 ? 0 : 1
+          for (let scan = coveredBlocks; scan <= lastNonzero; scan += 1) {
             const position = coefficientOrder[scan] ?? 0
             const coefficient = component.coefficients[base + position] ?? 0
             if (coefficient < -4_095 || coefficient > 4_095) {
@@ -1395,8 +1540,9 @@ const visitAcGroup = (
                 'Exact JPEG transcode AC coefficient exceeds the JPEG XL subset',
               )
             }
-            const remainingContext = coefficientNonzeroContext[remainingNonzero]
-            const frequencyContext = coefficientFrequencyContext[scan]
+            const remainingContext =
+              coefficientNonzeroContext[Math.ceil(remainingNonzero / coveredBlocks)]
+            const frequencyContext = coefficientFrequencyContext[Math.floor(scan / coveredBlocks)]
             if (remainingContext === undefined || frequencyContext === undefined) {
               throw invalidJpegXlInput('AC coefficient context is invalid')
             }
@@ -1835,6 +1981,7 @@ function* coefficientSectionSteps(
         modularEncoding,
         localDc,
         geometry.effort === 7 && geometry.loadAcGroup !== undefined,
+        geometry.forwardAdvancedModularSearch === true,
       )
       const acEncoding = writeHfGlobal(
         writer,
@@ -1875,6 +2022,7 @@ function* coefficientSectionSteps(
             modularEncoding as ModularEncoding,
             localDc,
             geometry.effort === 7 && geometry.loadAcGroup !== undefined,
+            geometry.forwardAdvancedModularSearch === true,
           ),
         geometry.memory,
       ),

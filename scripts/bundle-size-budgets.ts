@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Shared alpha modeling adds 2,838 bytes and cuts the qualified transparency file by 81%.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 545_000 },
-  // The complete specialized JPEG XL package measures 616,261 bytes.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 617_000 },
+  // Qualified photo compression adds DCT16 selection and bounded metadata entropy search.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 554_000 },
+  // The complete specialized package includes the same first-party photo encoder.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 627_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

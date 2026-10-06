@@ -1,13 +1,34 @@
 # Public JavaScript JPEG XL comparison
 
+The latest [photo compression checkpoint](PHOTO-PARITY.md) meets both frozen
+WASM peer sizes at matched SSIMULACRA2 70, 80 and 90 on both pinned photos.
+The remaining first-photo score-70 gap closes: 45,675 interpolated bytes is
+0.53% below wasm-vips. Six photo bands retain the original 0.25-score rule and
+no extrapolation. All 34 original-domain files reproduce their measured bytes
+and both metrics, with 68 complete native/Rust grids and every JavaScript
+pixel checked. The tighter second-photo search remains separately inconclusive.
+This does not change the frozen 13 adequate and 11 unresolved pair counts or
+establish universal lossy, HDR, CMYK, animation, speed or memory parity.
+
+The separate [opaque graphic recheck](GRAPHIC-POINTS.md) verifies three current
+production files and six exact frozen peer files in 18 complete native/Rust
+grids. Current points dominate all six sampled peer coordinates selected at
+targets 70, 80 and 90 on size, SSIMULACRA2 and Butteraugli. These direct point
+comparisons retain the original missing interpolation brackets and totals.
+
+The [final production gates](results/photo-parity-production-final-gates.json)
+record the passing full check, all 69 relevant real-browser cases, unchanged
+package exports and 420 rehashed physical evidence pins. The earlier manifest
+test-evidence failure is preserved separately from the successful rerun.
+
 The latest [alpha palette search](ALPHA-PALETTES.md) reduces the pinned
 transparency coordinates from 48,819/47,112/46,530 to 9,038/7,331/6,749 bytes.
 Every decoded color and alpha sample remains unchanged in both independent
 decoders. A separate higher-quality 9,155-byte point dominates the frozen
 9,307-byte exact-alpha wasm-vips point on size, SSIMULACRA2 and Butteraugli.
 This is a measured point comparison. It does not change the frozen 13 adequate
-and 11 unresolved pair counts. The photo score-70 gap and overall lossy parity
-remain open. Current alpha package sizes and their small budget increase are
+and 11 unresolved pair counts. That checkpoint left the photo score-70 gap
+open. Alpha package sizes and their small budget increase are
 recorded in the linked evidence, separately from the earlier checkpoints.
 
 The current [lossless group search](GROUP-SEARCH.md) meets or beats the pinned
@@ -20,7 +41,7 @@ native 8-bit and 16-bit samples, alpha and hidden RGB match in libjxl and Rust.
 That lossless checkpoint's codec source SHA-256 is
 `792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f`.
 
-The latest qualified [lossy photo checkpoint](FILTER-AC.md) retains 13 adequately
+The preceding qualified [lossy photo checkpoint](FILTER-AC.md) retains 13 adequately
 matched pairs and 11 unresolved pairs. Both tested photos are smaller than both
 pinned peers at SSIMULACRA2 80 and 90. The first photo at score 70 remains 3.00%
 larger than wasm-vips and 2.28% larger than jSquash. Float, CMYK and animation

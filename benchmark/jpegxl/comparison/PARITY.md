@@ -2,12 +2,34 @@
 
 ## Current result
 
+The October 5 [photo compression checkpoint](PHOTO-PARITY.md) closes the
+remaining measured first-photo score-70 gap. Both photos use fewer bytes than
+both frozen WASM peers at matched SSIMULACRA2 70, 80 and 90. The first photo at
+70 changes from 3.00% larger to 0.53% smaller than wasm-vips. All six photo bands
+pass the original 0.25-score matching rule. The tighter 0.05-score attempt on
+the second photo remains inconclusive and is recorded separately. Complete
+public packages, all 34 files, 68 full native/Rust grids and every JavaScript
+pixel are verified. This is parity on the measured photo targets. The frozen
+13 adequate/11 unresolved comparison counts stay unchanged; wider lossy,
+float, CMYK and animation parity still need comparable evidence.
+
+The October 6 [opaque graphic recheck](GRAPHIC-POINTS.md) verifies direct
+size and two-metric dominance over all six sampled peer points selected at
+targets 70, 80 and 90. These additional measured points do not manufacture
+missing interpolation brackets or change the frozen comparison totals.
+
+The [final production gates](results/photo-parity-production-final-gates.json)
+pass the full repository check with 273 files and 3,673 tests, 66 codec browser
+cases and three updated website cases across Chromium, Firefox and WebKit.
+The final audit rebuilds both complete packages and rehashes 420 physical pins.
+The preceding evidence-list failure and its correction remain recorded.
+
 The October 5 [alpha palette search](ALPHA-PALETTES.md) reduces the original
 transparency coordinates by 81–85% with identical complete native/Rust pixels.
 One 9,155-byte higher-quality point dominates the frozen 9,307-byte exact-alpha
 wasm-vips point on file size and both metrics. This leaves the frozen 13 adequate
-and 11 unresolved pair counts unchanged. The original photo score-70 gap is
-still open. Internal package ceilings increase by 3,000 bytes for this gain;
+and 11 unresolved pair counts unchanged. That alpha checkpoint left the
+photo score-70 gap open. Internal package ceilings increase by 3,000 bytes for this gain;
 the previous failures and package limits remain recorded at their checkpoints.
 
 The October 5 [lossless group search](GROUP-SEARCH.md) closes all three

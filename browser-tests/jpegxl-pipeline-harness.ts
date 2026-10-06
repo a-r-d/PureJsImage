@@ -21,6 +21,7 @@ export {
 export { verifyLearnedPalette } from '../tests/helpers/jpegxl-learned-palette.ts'
 export { verifySampledZeroLearning } from '../tests/helpers/jpegxl-learner-shortcuts.ts'
 export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
+export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
 export { verifyLosslessPatchFixture } from '../tests/helpers/jpegxl-lossless-patches.ts'
 export { verifyOpaqueJpegXlGradient } from '../tests/helpers/jpegxl-opaque-gradients.ts'
 export { verifyJpegXlPatchFeatures } from '../tests/helpers/jpegxl-patch-features.ts'

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 import alphaCompression from '../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json' with {
   type: 'json',
 }
-import photoCompression from '../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json' with {
+import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
   type: 'json',
 }
 import denseLossless from '../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json' with {
@@ -259,6 +259,47 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   )
   for (const row of photoCompression.matchedFrozenPeerComparisons)
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
+  await expect(page.locator('main')).toContainText('0.53% smaller')
+  const photoResponse = await page.request.get(
+    '/jpeg-xl/evidence/photo-parity-production-controls.json',
+  )
+  expect(photoResponse.ok()).toBe(true)
+  const photoDownloaded: unknown = await photoResponse.json()
+  expect(photoDownloaded).toMatchObject({
+    implementationSourceSha256: photoCompression.implementationSourceSha256,
+    sourceAdopted: true,
+    completed: true,
+    scoreTolerance: 0.25,
+    extrapolation: false,
+    publicComparisonCountsChanged: false,
+    fullParity: false,
+  })
+  expect(photoCompression.matchedFrozenPeerComparisons).toHaveLength(12)
+  for (const row of photoCompression.matchedFrozenPeerComparisons) expect(row.ratio).toBeLessThan(1)
+  const photoDocument = await page.request.get('/jpeg-xl/evidence/PHOTO-PARITY.md')
+  expect(photoDocument.ok()).toBe(true)
+  expect(await photoDocument.text()).toContain('797,262')
+  expect(
+    (await page.request.get('/jpeg-xl/evidence/photo-transform-native-baseline.json')).ok(),
+  ).toBe(true)
+  const graphicResponse = await page.request.get(
+    '/jpeg-xl/evidence/graphic-point-production-controls.json',
+  )
+  expect(graphicResponse.ok()).toBe(true)
+  const graphicDownloaded: unknown = await graphicResponse.json()
+  expect(graphicDownloaded).toMatchObject({
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    publicComparisonCountsChanged: false,
+    correctedParameterLabels: true,
+    freshEncodedFiles: 3,
+    frozenPeerFiles: 6,
+    freshCompleteIndependentGrids: 18,
+  })
+  const graphicDocument = await page.request.get('/jpeg-xl/evidence/GRAPHIC-POINTS.md')
+  expect(graphicDocument.ok()).toBe(true)
+  expect(await graphicDocument.text()).toContain('14,055')
   await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)
   await expect(page.locator('main')).toContainText('all 16 pinned lossless inputs exactly')
   for (const bytes of ['48,819', '9,038', '9,155', '9,307'])
