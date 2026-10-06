@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 import alphaCompression from '../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json' with {
   type: 'json',
 }
-import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
+import alphaDirect from '../benchmark/jpegxl/comparison/results/alpha-point-production-controls.json' with {
   type: 'json',
 }
 import denseLossless from '../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json' with {
@@ -13,6 +13,12 @@ import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group
   type: 'json',
 }
 import losslessSpatial from '../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json' with {
+  type: 'json',
+}
+import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
+  type: 'json',
+}
+import originalPhoto from '../benchmark/jpegxl/comparison/results/original-photo-production-controls.json' with {
   type: 'json',
 }
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
@@ -300,6 +306,61 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   const graphicDocument = await page.request.get('/jpeg-xl/evidence/GRAPHIC-POINTS.md')
   expect(graphicDocument.ok()).toBe(true)
   expect(await graphicDocument.text()).toContain('14,055')
+  await expect(page.locator('main')).toContainText('8,409 bytes against wasm-vips at 8,642')
+  await expect(page.locator('main')).toContainText('all 24 original peer/target selections')
+  const alphaDirectResponse = await page.request.get(
+    '/jpeg-xl/evidence/alpha-point-production-controls.json',
+  )
+  expect(alphaDirectResponse.ok()).toBe(true)
+  const alphaDirectDownloaded: unknown = await alphaDirectResponse.json()
+  expect(alphaDirectDownloaded).toMatchObject({
+    implementationSourceSha256: alphaDirect.implementationSourceSha256,
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    publicComparisonCountsChanged: false,
+    freshEncodedFiles: 5,
+    frozenPeerFiles: 5,
+    freshCompleteIndependentGrids: 20,
+  })
+  const alphaDirectDocument = await page.request.get('/jpeg-xl/evidence/ALPHA-POINTS.md')
+  expect(alphaDirectDocument.ok()).toBe(true)
+  expect(await alphaDirectDocument.text()).toContain('Other original-size photos')
+  const originalResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-photo-production-controls.json',
+  )
+  expect(originalResponse.ok()).toBe(true)
+  const originalDownloaded: unknown = await originalResponse.json()
+  expect(originalDownloaded).toMatchObject({
+    implementationSourceSha256: originalPhoto.implementationSourceSha256,
+    sourceAdopted: true,
+    completed: true,
+    fullParity: false,
+    secondaryMetricDominance: false,
+    scope: 'original',
+    inputGeometry: { width: 4000, height: 3000 },
+    freshEncodedFiles: 6,
+    freshCompleteIndependentGrids: 0,
+    reusedQualifiedIndependentGrids: 36,
+    scoreTolerance: 0.25,
+    extrapolation: false,
+    publicComparisonCountsChanged: false,
+  })
+  expect(originalPhoto.comparisons).toHaveLength(6)
+  for (const row of originalPhoto.comparisons) expect(row.ratio).toBeLessThan(1)
+  await expect(page.locator('main')).toContainText(originalPhoto.implementationSourceSha256)
+  await expect(page.locator('main')).toContainText('Butteraugli still shows tradeoffs')
+  const originalTable = page.locator('table').filter({
+    has: page.locator('caption', { hasText: 'Original 4000 × 3000 photo at matched SSIMULACRA2' }),
+  })
+  for (const bytes of ['272,865', '541,839', '1,432,712'])
+    await expect(originalTable).toContainText(bytes)
+  for (const name of [
+    'ORIGINAL-PHOTO.md',
+    'original-photo-quality-study.json',
+    'original-photo-endpoint-qualification.json',
+  ])
+    expect((await page.request.get(`/jpeg-xl/evidence/${name}`)).ok()).toBe(true)
   await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)
   await expect(page.locator('main')).toContainText('all 16 pinned lossless inputs exactly')
   for (const bytes of ['48,819', '9,038', '9,155', '9,307'])

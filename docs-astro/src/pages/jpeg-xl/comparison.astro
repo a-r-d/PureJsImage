@@ -1,7 +1,9 @@
 ---
 import alphaCompression from '../../../../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json'
+import alphaDirect from '../../../../benchmark/jpegxl/comparison/results/alpha-point-production-controls.json'
 import historicalPhotoCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
 import dcCompression from '../../../../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json'
+import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
 import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
 import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
@@ -20,6 +22,57 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const n = (v: unknown) => (typeof v === 'number' ? v : 0)
 const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')
 const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']
+if (
+  alphaDirect.completed !== true ||
+  alphaDirect.sourceAdopted !== true ||
+  alphaDirect.fullParity !== false ||
+  alphaDirect.publicComparisonCountsChanged !== false ||
+  alphaDirect.implementationSourceSha256 !== originalPhoto.implementationSourceSha256 ||
+  alphaDirect.comparisons.length !== 6 ||
+  alphaDirect.comparisons.some(
+    (row) => !row.dominatesBothMetrics || row.ratio === null || row.ratio > 1 || row.pure === null,
+  )
+)
+  throw new Error('Incomplete current transparency comparisons')
+if (
+  originalPhoto.completed !== true ||
+  originalPhoto.sourceAdopted !== true ||
+  originalPhoto.fullParity !== false ||
+  originalPhoto.secondaryMetricDominance !== false ||
+  originalPhoto.extrapolation !== false ||
+  originalPhoto.scoreTolerance !== 0.25 ||
+  originalPhoto.inputGeometry.width !== 4000 ||
+  originalPhoto.inputGeometry.height !== 3000 ||
+  originalPhoto.freshEncodedFiles !== 6 ||
+  originalPhoto.reusedQualifiedIndependentGrids !== 36 ||
+  originalPhoto.comparisons.length !== 6 ||
+  originalPhoto.comparisons.some(
+    (row) =>
+      row.status !== 'adequate bracket' ||
+      row.ratio > 1 ||
+      row.pure.width > 0.25 ||
+      row.peer.width > 0.25,
+  )
+)
+  throw new Error('Incomplete original-size photo compression evidence')
+const originalPhotoRows = [70, 80, 90].map((target) => {
+  const jsquash = originalPhoto.comparisons.find(
+    (row) => row.target === target && row.comparator === 'jsquash',
+  )
+  const vips = originalPhoto.comparisons.find(
+    (row) => row.target === target && row.comparator === 'vips',
+  )
+  if (!jsquash || !vips || jsquash.pure.interpolatedBytes !== vips.pure.interpolatedBytes)
+    throw new Error('Original-size photo target missing')
+  return {
+    target,
+    bytes: Math.round(jsquash.pure.interpolatedBytes),
+    jsquashBytes: Math.round(jsquash.peer.interpolatedBytes),
+    vipsBytes: Math.round(vips.peer.interpolatedBytes),
+    jsquashReduction: ((1 - jsquash.ratio) * 100).toFixed(2),
+    vipsReduction: ((1 - vips.ratio) * 100).toFixed(2),
+  }
+})
 const alphaPoint = alphaCompression.pointDominance
 if (
   alphaCompression.completed !== true ||
@@ -279,11 +332,15 @@ if (
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
-<p>Both pinned photographs now use fewer bytes than both frozen WASM peers at matched SSIMULACRA2 70, 80 and 90. The remaining first-photo score-70 gap changes from 3.00% larger to 0.53% smaller than wasm-vips. All twelve photo comparisons pass the original 0.25-score bracket rule, without extrapolation. This is compression parity on the six measured photo targets. Broader lossy, HDR, CMYK and animation compression remains unproven. <a href="/jpeg-xl/evidence/PHOTO-PARITY.md" download>Photo compression and boundaries</a> and <a href="/jpeg-xl/evidence/photo-parity-production-controls.json" download>Current production measurements</a>.</p>
+<p>The original 4000 × 3000 photo now uses 4–13% fewer bytes than jSquash and 3–15% fewer than wasm-vips at matched SSIMULACRA2 70, 80 and 90. All six comparisons pass the original 0.25-score bracket rule without extrapolation. Butteraugli still shows tradeoffs, so this establishes parity for these SSIMULACRA2 targets on one original-size photo. Other original-size photos, HDR, float, CMYK and animation need separate compression evidence. <a href="/jpeg-xl/evidence/ORIGINAL-PHOTO.md" download>Original-size photo results and quality tradeoffs</a> and <a href="/jpeg-xl/evidence/original-photo-production-controls.json" download>Current original-photo production controls</a>.</p>
+<div style="overflow:auto"><table><caption>Original 4000 × 3000 photo at matched SSIMULACRA2</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalPhotoRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString('en-US')}</td><td>{row.jsquashBytes.toLocaleString('en-US')}</td><td>{row.vipsBytes.toLocaleString('en-US')}</td><td>{row.jsquashReduction}% smaller</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
+<p>Sizes are interpolated estimates rounded for display. Fresh public production encodes reproduce all six independently qualified endpoints exactly. The 36 complete native/Rust grids and all 288 million public decoded samples retain their exact evidence pins and are explicitly counted as reused qualification. The correction extends opaque RGB DC precision above four megapixels when optional compression storage fits; allocation failure recovers the prior large-image path. Both complete packages retain exports and grow by 20 bytes within their unchanged ceilings. Current source SHA-256: <code>{originalPhoto.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/original-photo-quality-study.json" download>All raw quality points and failed attempts</a> and <a href="/jpeg-xl/evidence/original-photo-endpoint-qualification.json" download>Complete endpoint qualification</a>.</p>
+<p>Both pinned 1024 × 768 photographs also use fewer bytes than both frozen WASM peers at matched SSIMULACRA2 70, 80 and 90. The remaining first-photo score-70 gap changes from 3.00% larger to 0.53% smaller than wasm-vips. All twelve capped-photo comparisons pass the same original bracket rule. <a href="/jpeg-xl/evidence/PHOTO-PARITY.md" download>Capped photo compression and boundaries</a> and <a href="/jpeg-xl/evidence/photo-parity-production-controls.json" download>Preceding capped-photo measurements</a>.</p>
 <p>The separately rechecked opaque graphic produces 14,055 bytes at SSIMULACRA2 84.39 and 37,051 bytes with every original sample exact. These points dominate all six sampled peer files selected at targets 70, 80 and 90 on size and both quality metrics. This is a direct point comparison; the missing interpolation brackets and original comparison counts stay visible. The full exact-artwork search takes several minutes per encode, so this establishes compression results without a speed claim. <a href="/jpeg-xl/evidence/GRAPHIC-POINTS.md" download>Graphic point comparisons</a> and <a href="/jpeg-xl/evidence/graphic-point-production-controls.json" download>Graphic production controls</a>.</p>
 <p>The preceding alpha palette search reduces the original transparency fixture from 48,819 to 9,038 bytes with identical decoded colors, exact alpha and unchanged quality scores. A higher-quality {alphaPoint.pureBytes.toLocaleString('en-US')}-byte point is smaller than the frozen {alphaPoint.peerBytes.toLocaleString('en-US')}-byte wasm-vips point and scores better on both SSIMULACRA2 and Butteraugli. This proves dominance of that measured point and keeps the frozen matched-pair counts unchanged. <a href="/jpeg-xl/evidence/ALPHA-PALETTES.md" download>Alpha compression and boundaries</a> and <a href="/jpeg-xl/evidence/alpha-palette-production-controls.json" download>Alpha production measurements</a>.</p>
+<p>The fresh transparency comparison passes all six selected peer/target files on size and both aggregate quality metrics. Distance 6 uses 8,409 bytes against wasm-vips at 8,642, with SSIMULACRA2 88.34796 versus 88.10510 and Butteraugli 2.28504 versus 2.39888. Alpha stays exact. Scores use the worse result over black and white backgrounds; individual background results remain in the report. The selected jSquash files alter alpha, while the selected wasm-vips files preserve it. The photo, graphic and transparency studies cover all 24 original peer/target selections using matched capped-photo brackets or direct graphic/transparency files. Other original-size photos, HDR, CMYK and animation compression need separate evidence. <a href="/jpeg-xl/evidence/ALPHA-POINTS.md" download>Transparency point comparisons</a> and <a href="/jpeg-xl/evidence/alpha-point-production-controls.json" download>Fresh transparency production controls</a>.</p>
 <p>The latest integer-lossless encoding closes all three remaining measured size gaps. Every one of the 45 independently exact comparable cells in the original Node matrix now meets or beats the frozen peer size. All four separate original-size photo and screenshot controls also meet or beat peer size. This is compression parity on the pinned integer-lossless corpus. Broader lossy, float, CMYK and animation compression remains open.</p>
-<p>PureJsImage now decodes all 16 pinned lossless inputs exactly, including the seven that previously failed. It exposes native sample and exact JPEG workflows. The dated comparison below records toolkit sizes and runtime performance. The WASM alternatives are faster on several workloads; {unresolvedQuality} current lossy quality comparisons remain unresolved.</p>
+<p>PureJsImage now decodes all 16 pinned lossless inputs exactly, including the seven that previously failed. It exposes native sample and exact JPEG workflows. The dated comparison below records toolkit sizes and runtime performance. The WASM alternatives are faster on several workloads. The historical quality table still has {unresolvedQuality} missing adequate interpolation brackets; fresh direct graphic and transparency comparisons appear above.</p>
 <p>Later unreleased compression changes reduce the same 4000 × 3000 lossless effort-1 photo from 15,389,193 to {currentPhotoBytes} bytes, versus the pinned 9,306,869-byte jSquash and 8,176,908-byte wasm-vips files. The preceding integrated DC model reduces 67 of the 91 original lossy files with identical decoded samples. The preceding photo filter changes 27 files, making them slightly larger at the same distance setting, with no SSIMULACRA2 regressions and ten Butteraugli regressions. Its separate cost studies pass the former 5% timing guard and authorized 10% peak RSS allowance. That historical photo source is <code>{historicalPhotoCompression.implementationSourceSha256}</code>. The current larger-transform and entropy search closes the remaining measured photo gap. The first photo is {(Math.abs(Number(photoSizeGap))).toFixed(2)}% smaller than wasm-vips at score 80 and 0.53% smaller at score 70. Every one of the 34 current photo files has complete native/Rust and public JavaScript pixel checks. The combined comparison has {adequate.length} adequately matched pairs and {unresolvedQuality} unresolved pairs. The second photo's tighter 0.05-score search remains inconclusive; its separately recomputed 0.11437-score bracket passes the original 0.25 rule. Package ceilings rise explicitly to 554,000/627,000 bytes; no speed or RSS parity is claimed. The speed tables below retain their earlier source. Current photo source SHA-256: <code>{dcCompression.implementationSourceSha256}</code>.</p>
 <p>The earlier reversible-color checkpoint shrinks four more of the sixteen original files and leaves twelve byte-identical to the preceding checkpoint. None grows. Bounded reversible-color search reduces the map from 289,879 to 268,214 bytes, versus 268,611 for wasm-vips and 301,588 for jSquash. All four capped graphics below are now smaller than both frozen peers. All native samples, transparent RGB and alpha stay exact across 64 complete independent decoder grids. This checkpoint prioritizes compression first. Its independently audited 21-pair map study measures 37.20% more cold encoding time, 38.07% more warm time and 16.94% more cold peak RSS than the preceding PureJsImage checkpoint. The previous cost-guard failures remain recorded. Original working-memory budgets recover their former streams, and package ceilings stay unchanged. Every preceding effort-7 file and all 56 native color encodings remain byte-identical. Reversible-color checkpoint source SHA-256: <code>{repeatedLossless.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/LOSSLESS-RCT.md" download>Reversible-color compression and remaining gaps</a>, <a href="/jpeg-xl/evidence/lossless-rct-production-controls.json" download>Reversible-color production controls</a>, and <a href="/jpeg-xl/evidence/LOSSLESS-SPATIAL.md" download>Preceding spatial checkpoint</a>.</p>
 <p>The preceding effort-7 checkpoint compares denser prediction training while retaining the previous complete group. Twelve original files shrink, four remain byte-identical, and none grows. All original native samples, transparent RGB and alpha remain exact in both independent decoders. The map falls from 133,365 to 125,561 bytes, below both frozen peers. All effort-1 files and all 56 native color encodings remain byte-identical. Original working budgets recover their exact previous streams. This adds search work and makes no paired speed claim. Eighteen changed-path cases pass in Chromium, Firefox and WebKit. Denser training checkpoint source SHA-256: <code>{denseLossless.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/DENSE-TRAINING.md" download>Denser lossless prediction checkpoint</a> and <a href="/jpeg-xl/evidence/lossless-dense-training-production-controls.json" download>Preceding production controls</a>.</p>

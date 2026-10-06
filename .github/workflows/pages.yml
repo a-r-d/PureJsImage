@@ -17,7 +17,8 @@ jobs:
   build:
     name: Build Pages artifact
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The full compression-first correctness gate runs before publication.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository

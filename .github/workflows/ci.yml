@@ -18,7 +18,8 @@ jobs:
   check:
     name: Clean checkout Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Compression-first effort-7 searches extend the full correctness suite.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -47,7 +48,7 @@ jobs:
   browser:
     name: Browser ${{ matrix.browser }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001 --ipc=host

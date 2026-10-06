@@ -4,6 +4,19 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Preserve JPEG XL effort-7 opaque RGB DC precision on eligible RGBA8 photos
+  up to 16 megapixels. Meet or beat both pinned WASM encoders at matched
+  SSIMULACRA2 70, 80 and 90 on the original 12 MP photo. Verify complete
+  independent pixels, package exports and allocation recovery, and retain
+  Butteraugli tradeoffs and the broader unmeasured compression scope.
+- Verify all six selected JPEG XL transparency comparisons against current
+  public output, with exact alpha, complete independent pixels and both
+  black/white quality metrics. Record the smaller files and preserve missing
+  interpolation brackets and broader compression limits.
+- Correct the browser encoder-budget regression to distinguish optional search
+  fallback from required allocation limits. Verify exact fallback pixels and
+  give the expanded compression searches bounded additional CI execution time.
+
 - Close the remaining measured JPEG XL integer-lossless size gaps with optional
   group layouts and bounded local color prediction. Meet or beat the pinned peers
   in all 45 comparable corpus cells and four original-size controls. Preserve

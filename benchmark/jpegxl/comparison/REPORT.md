@@ -1,6 +1,23 @@
 # Public JavaScript JPEG XL comparison
 
-The latest [photo compression checkpoint](PHOTO-PARITY.md) meets both frozen
+The latest [original-size photo checkpoint](ORIGINAL-PHOTO.md) closes the
+measured SSIMULACRA2 compression gap on the original 4000 × 3000 photo.
+Current files are 4–13% smaller than jSquash and 3–15% smaller than wasm-vips
+at targets 70, 80 and 90. All six pairs pass the original quarter-score
+bracket rule. Complete independent endpoint pixels, both metrics, fresh
+public package streams and allocation recovery are qualified. Butteraugli
+tradeoffs remain visible. Other original-size photos, HDR, float, CMYK and
+animation need separate compression evidence.
+
+The fresh [transparency comparisons](ALPHA-POINTS.md) dominate all six selected
+actual peer files on size and both aggregate black/white quality metrics.
+Exact production alpha, all public decoded samples and 20 complete
+native/Rust grids are checked. Together with the capped photo and graphic
+studies, this covers all 24 original diagnostic peer/target selections.
+The historical 13 adequate and 11 unresolved interpolation counts remain
+unchanged; direct file comparisons do not manufacture missing brackets.
+
+The preceding [capped photo compression checkpoint](PHOTO-PARITY.md) meets both frozen
 WASM peer sizes at matched SSIMULACRA2 70, 80 and 90 on both pinned photos.
 The remaining first-photo score-70 gap closes: 45,675 interpolated bytes is
 0.53% below wasm-vips. Six photo bands retain the original 0.25-score rule and
@@ -16,7 +33,7 @@ grids. Current points dominate all six sampled peer coordinates selected at
 targets 70, 80 and 90 on size, SSIMULACRA2 and Butteraugli. These direct point
 comparisons retain the original missing interpolation brackets and totals.
 
-The [final production gates](results/photo-parity-production-final-gates.json)
+The [preceding photo production gates](results/photo-parity-production-final-gates.json)
 record the passing full check, all 69 relevant real-browser cases, unchanged
 package exports and 420 rehashed physical evidence pins. The earlier manifest
 test-evidence failure is preserved separately from the successful rerun.

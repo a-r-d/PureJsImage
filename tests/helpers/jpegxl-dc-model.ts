@@ -19,7 +19,7 @@ const checksum = (data: Uint8Array): number => {
   return value
 }
 
-export const jpegXlDcModelPixels = (): Uint8Array => {
+export const jpegXlDcModelPixels = (width = 513, height = 257): Uint8Array => {
   const pixels = new Uint8Array(width * height * 4)
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -38,7 +38,12 @@ export const jpegXlDcModelPixels = (): Uint8Array => {
   return pixels
 }
 
-const verifyDecodedGradient = async (encoded: Uint8Array, original: Uint8Array) => {
+const verifyDecodedGradient = async (
+  encoded: Uint8Array,
+  original: Uint8Array,
+  width = 513,
+  height = 257,
+) => {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
   if (decoder?.pixelFormat !== 'rgba8' || decoder.width !== width || decoder.height !== height)
     throw new Error('Missing complete RGBA decoder')
@@ -69,11 +74,16 @@ const verifyDecodedGradient = async (encoded: Uint8Array, original: Uint8Array) 
       block.release?.()
     }
   }
-  let alphaError = 0
+  let alphaError = 0,
+    colorError = 0
   for (let pixel = 0; pixel < visited.length; pixel++) {
     if (visited[pixel] !== 1) throw new Error('Missing decoded gradient pixel')
     const at = pixel * 4 + 3
     alphaError = Math.max(alphaError, Math.abs((decoded[at] ?? 0) - (original[at] ?? 0)))
+    for (let channel = 0; channel < 3; channel++)
+      colorError += Math.abs(
+        (decoded[pixel * 4 + channel] ?? 0) - (original[pixel * 4 + channel] ?? 0),
+      )
   }
   return {
     bytes: encoded.length,
@@ -81,11 +91,16 @@ const verifyDecodedGradient = async (encoded: Uint8Array, original: Uint8Array) 
     decodedChecksum: checksum(decoded),
     samples: decoded.length,
     alphaError,
+    meanColorError: colorError / (width * height * 3),
   }
 }
 
-export const verifyJpegXlDcModel = async (maxWorkingBytes = 16_777_216) => {
-  const pixels = jpegXlDcModelPixels()
+export const verifyJpegXlDcModel = async (
+  maxWorkingBytes = 16_777_216,
+  width = 513,
+  height = 257,
+) => {
+  const pixels = jpegXlDcModelPixels(width, height)
   const original = pixels.slice()
   const sink = new Uint8ArraySink()
   const encoder = await jpegxlCodec.createEncoder?.(sink, {
@@ -132,7 +147,7 @@ export const verifyJpegXlDcModel = async (maxWorkingBytes = 16_777_216) => {
   )
     throw new Error('Managed working limit exceeded')
   return {
-    ...(await verifyDecodedGradient(sink.toUint8Array(), original)),
+    ...(await verifyDecodedGradient(sink.toUint8Array(), original, width, height)),
     inputChecksum: checksum(pixels),
     ownedPeak: encoder.managedPeakBytes,
     ownedLive: encoder.managedLiveBytes,
@@ -141,6 +156,63 @@ export const verifyJpegXlDcModel = async (maxWorkingBytes = 16_777_216) => {
 }
 
 type Owned = ReturnType<JpegXlEncoderMemory['allocate']>
+class RejectLargeOpaqueFilterMap extends JpegXlEncoderMemory {
+  rejectedAllocations = 0
+
+  override allocate<T extends Owned>(
+    arrayType: { new (length: number): T; readonly BYTES_PER_ELEMENT: number },
+    length: number,
+    scope = this.currentScope,
+  ): T {
+    if (Object.is(arrayType, Uint8Array) && length === Math.ceil(2049 / 8) * Math.ceil(2048 / 8)) {
+      this.rejectedAllocations++
+      throw limitExceeded('Deliberate optional large-image filter-map allocation failure')
+    }
+    return super.allocate(arrayType, length, scope)
+  }
+}
+
+export const verifyLargeJpegXlDcAllocationRecovery = async () => {
+  const width = 2049,
+    height = 2048,
+    pixels = jpegXlDcModelPixels(width, height),
+    original = checksum(pixels),
+    memory = new RejectLargeOpaqueFilterMap(67_108_864)
+  let encoded: Uint8Array | undefined
+  try {
+    const parts = await encodeJpegXlVarDct8Async(
+      pixels,
+      width,
+      height,
+      4,
+      memory,
+      async () => {},
+      4,
+      7,
+    )
+    encoded = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0))
+    let offset = 0
+    for (const part of parts) {
+      encoded.set(part, offset)
+      offset += part.byteLength
+    }
+    if (memory.liveBytes !== encoded.length)
+      throw new Error('Large-image recovery output ownership differs')
+  } finally {
+    memory.close()
+  }
+  if (!encoded || checksum(pixels) !== original)
+    throw new Error('Large-image recovery failed or changed caller input')
+  return {
+    ...(await verifyDecodedGradient(encoded, pixels, width, height)),
+    inputChecksum: original,
+    rejectedAllocations: memory.rejectedAllocations,
+    ownedPeak: memory.peakBytes,
+    ownedLive: memory.liveBytes,
+    ownedAllocations: memory.liveAllocations,
+  }
+}
+
 class RejectOptionalDcFeatures extends JpegXlEncoderMemory {
   rejectedAllocations = 0
 

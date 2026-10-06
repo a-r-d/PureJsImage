@@ -2,7 +2,7 @@
 
 ## Quick answer
 
-Both pinned photographs now use fewer bytes than jSquash and wasm-vips at
+Both pinned 1024 × 768 photographs now use fewer bytes than jSquash and wasm-vips at
 matched SSIMULACRA2 70, 80 and 90. The remaining first-photo score-70 gap
 changes from 3.00% larger to 0.53% smaller than wasm-vips. This establishes
 compression parity for these six photo targets. It does not establish a
@@ -44,6 +44,12 @@ pairs. Graphic and alpha sampling limitations remain visible.
 The separately rechecked [opaque graphic](GRAPHIC-POINTS.md) now has direct
 size and two-metric dominance over six sampled peer points. That evidence does
 not change the original missing interpolation brackets.
+
+The later [transparency comparison](ALPHA-POINTS.md) also passes all six
+selected peer points on size and both aggregate quality metrics. This covers
+the remaining original diagnostics. The later [original-size photo study](ORIGINAL-PHOTO.md)
+also passes SSIMULACRA2 70, 80 and 90 on the original 4000 × 3000 photo,
+while retaining Butteraugli tradeoffs and the broader unmeasured scope.
 
 ## What changed
 

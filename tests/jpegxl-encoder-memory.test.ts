@@ -320,7 +320,8 @@ describe('JPEG XL actual encoder allocations', () => {
       expect(counters(run.encoder).peak).toBeLessThanOrEqual(256 * 1024 * 1024)
       expectClosed(run.encoder)
     },
-    120_000,
+    // Allow compression-first effort-7 search to finish on shared CI CPUs.
+    240_000,
   )
   it.each([1, 2, 3, 4])(
     'cleans up sink failure at output stage %i, including failed abort',

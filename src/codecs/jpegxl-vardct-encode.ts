@@ -576,7 +576,7 @@ function* prepare8(
   if (
     sdrAlpha &&
     distance > 1 &&
-    width * height <= 4_194_304 &&
+    (width * height <= 4_194_304 || (compressionSearch && width * height <= 16_777_216)) &&
     (color?.alphaBitDepth ?? 8) === 8
   ) {
     rgbDcPolicy = true

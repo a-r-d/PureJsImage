@@ -1,12 +1,12 @@
 export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'
 export { verifyJpegXlArtwork } from '../tests/helpers/jpegxl-artwork.ts'
 export { verifyJpegXlCoefficientOrders } from '../tests/helpers/jpegxl-coefficient-orders.ts'
-export { verifyDenseLosslessTraining } from '../tests/helpers/jpegxl-dense-training.ts'
-export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
 export {
   verifyJpegXlDcAllocationRecovery,
   verifyJpegXlDcModel,
+  verifyLargeJpegXlDcAllocationRecovery,
 } from '../tests/helpers/jpegxl-dc-model.ts'
+export { verifyDenseLosslessTraining } from '../tests/helpers/jpegxl-dense-training.ts'
 export { verifyJpegXlFamilyContexts } from '../tests/helpers/jpegxl-family-contexts.ts'
 export {
   verifyFastLosslessChannels,
@@ -14,6 +14,8 @@ export {
 } from '../tests/helpers/jpegxl-fast-lossless.ts'
 export { verifyFlatPaletteGraphic } from '../tests/helpers/jpegxl-flat-palette.ts'
 export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.ts'
+export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
+export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
 export {
   verifyLearnedLosslessFixture,
   verifyReversibleLosslessColor,
@@ -21,7 +23,6 @@ export {
 export { verifyLearnedPalette } from '../tests/helpers/jpegxl-learned-palette.ts'
 export { verifySampledZeroLearning } from '../tests/helpers/jpegxl-learner-shortcuts.ts'
 export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
-export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
 export { verifyLosslessPatchFixture } from '../tests/helpers/jpegxl-lossless-patches.ts'
 export { verifyOpaqueJpegXlGradient } from '../tests/helpers/jpegxl-opaque-gradients.ts'
 export { verifyJpegXlPatchFeatures } from '../tests/helpers/jpegxl-patch-features.ts'
@@ -31,6 +32,7 @@ export { verifyJpegXlTreeEntropy } from '../tests/helpers/jpegxl-tree-entropy.ts
 
 import { hdrRgbaToPng, hdrRgbToPng, sdrRgbaToPng, sdrRgbToPng } from '../examples/jpegxl-display.ts'
 import { createImageLibrary } from '../src/browser.ts'
+import type { ImageDecoder } from '../src/codec.ts'
 import { allCodecs } from '../src/codec-entries/all.ts'
 import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
@@ -720,19 +722,36 @@ export const verifyJpegXlEncoderBudgets = async (): Promise<readonly unknown[]> 
   const results: unknown[] = []
   for (const effort of [1, 3, 5, 7] as const) {
     let peak = 0
-    for (const boundary of ['measure', 'at', 'below'] as const) {
+    const boundaries =
+      effort === 1 || effort === 7
+        ? (['measure', 'below-optional', 'at', 'below'] as const)
+        : (['measure', 'at', 'below'] as const)
+    for (const boundary of boundaries) {
+      // The encoder-memory regression independently pins these mandatory minima.
+      // Optional lossless search may fall back below its unconstrained peak.
+      const required = effort === 1 ? 103_131 : effort === 7 ? 221_988 : peak
+      const budget =
+        boundary === 'measure'
+          ? undefined
+          : boundary === 'below-optional'
+            ? peak - 1
+            : boundary === 'at'
+              ? required
+              : required - 1
       let bytes = 0
+      const chunks: Uint8Array[] = []
       const encoder = await codec.createEncoder(
         {
           async write(data) {
             bytes += data.byteLength
+            chunks.push(data.slice())
           },
           async close() {},
           async abort() {},
         },
         {
-          width: 32,
-          height: 24,
+          width: 48,
+          height: 32,
           pixelFormat: 'rgb8',
           colorSemantics: {
             family: 'rgb',
@@ -746,21 +765,20 @@ export const verifyJpegXlEncoderBudgets = async (): Promise<readonly unknown[]> 
           },
           options: {
             effort,
-            ...(boundary === 'measure'
-              ? {}
-              : { maxWorkingBytes: boundary === 'at' ? peak : peak - 1 }),
+            ...(budget === undefined ? {} : { maxWorkingBytes: budget }),
           },
           limits: defaultImageLimits,
         },
       )
-      const data = new Uint8Array(32 * 24 * 3)
-      for (let index = 0; index < data.length; index += 1) data[index] = (index * 17) & 255
+      const data = new Uint8Array(48 * 32 * 3)
+      for (let index = 0; index < data.length; index += 1)
+        data[index] = (index * 17 + Math.floor(index / 48) * 23) & 255
       await encoder.write({
         x: 0,
         y: 0,
-        width: 32,
-        height: 24,
-        stride: 32 * 3,
+        width: 48,
+        height: 32,
+        stride: 48 * 3,
         format: 'rgb8',
         data,
       })
@@ -779,10 +797,56 @@ export const verifyJpegXlEncoderBudgets = async (): Promise<readonly unknown[]> 
       )
         throw new Error('Missing memory counters')
       if (boundary === 'measure') peak = encoder.managedPeakBytes
+      let samples = 0
+      if (errorCode === undefined) {
+        const encoded = new Uint8Array(bytes)
+        let offset = 0
+        for (const chunk of chunks) {
+          encoded.set(chunk, offset)
+          offset += chunk.length
+        }
+        const decoder: ImageDecoder | undefined = await codec.createDecoder?.(
+          new MemorySource(encoded),
+          defaultImageLimits,
+        )
+        if (decoder?.width !== 48 || decoder.height !== 32 || decoder.pixelFormat !== 'rgb8')
+          throw new Error('Budget fallback output geometry changed')
+        let nextRow = 0
+        for await (const block of decoder.decode()) {
+          try {
+            if (
+              block.x !== 0 ||
+              block.y !== nextRow ||
+              block.width !== 48 ||
+              block.height <= 0 ||
+              block.y + block.height > 32 ||
+              block.format !== 'rgb8'
+            )
+              throw new Error('Budget fallback output rows are missing or repeated')
+            for (let y = 0; y < block.height; y++)
+              for (let x = 0; x < block.width * 3; x++) {
+                const at = ((block.y + y) * 48 + block.x) * 3 + x
+                if (block.data[y * block.stride + x] !== data[at])
+                  throw new Error('Budget fallback changed a lossless sample')
+                samples++
+              }
+            nextRow += block.height
+          } finally {
+            block.release?.()
+          }
+        }
+        if (nextRow !== 32 || samples !== data.length)
+          throw new Error('Budget fallback output is incomplete')
+      }
+      for (let index = 0; index < data.length; index++)
+        if (data[index] !== ((index * 17 + Math.floor(index / 48) * 23) & 255))
+          throw new Error('Budget test changed caller input')
       results.push({
         effort,
         boundary,
         bytes,
+        budget,
+        samples,
         peak: encoder.managedPeakBytes,
         live: encoder.managedLiveBytes,
         allocations: encoder.managedLiveAllocations,

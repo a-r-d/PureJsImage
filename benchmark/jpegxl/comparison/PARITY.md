@@ -2,7 +2,18 @@
 
 ## Current result
 
-The October 5 [photo compression checkpoint](PHOTO-PARITY.md) closes the
+The October 6 [original-size photo correction](ORIGINAL-PHOTO.md) meets or
+beats both pinned WASM encoders at matched SSIMULACRA2 70, 80 and 90 on
+the original 12 MP photo. Current files are 4–13% smaller than jSquash and
+3–15% smaller than wasm-vips. Butteraugli tradeoffs remain visible. Fresh
+public package streams match complete independent endpoint qualification.
+The [transparency study](ALPHA-POINTS.md) also passes all six selected
+actual peer files on size and both aggregate metrics. These findings retain
+the separate capped-photo and graphic proofs and the historical missing
+interpolation brackets. Broader original-size, HDR, float, CMYK and
+animation compression remains unproven.
+
+The October 5 [capped photo compression checkpoint](PHOTO-PARITY.md) closes the
 remaining measured first-photo score-70 gap. Both photos use fewer bytes than
 both frozen WASM peers at matched SSIMULACRA2 70, 80 and 90. The first photo at
 70 changes from 3.00% larger to 0.53% smaller than wasm-vips. All six photo bands

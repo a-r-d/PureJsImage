@@ -42,10 +42,15 @@ The [peer audit](results/alpha-peer-audit.json) checks all 96 frozen refined
 alpha streams against the original geometry, encoded hashes and every alpha
 sample. Historical metric scores are carried from the frozen report. All 24
 jSquash points alter alpha; 15 of 24 wasm-vips points preserve it. Exact-alpha
-wasm-vips points do not reach scores 70 or 80 in the original sampled public
-domain. Other wrappers' lossy defaults may alter alpha, and those errors remain
+wasm-vips points have no adequate target-70 or target-80 interpolation brackets
+in the original sampled public domain. Other wrappers' lossy defaults may alter alpha, and those errors remain
 visible. No changed-alpha result is relabeled exact or called incorrect solely
 for differing from PureJsImage's guarantee.
+
+The later [direct transparency comparison](ALPHA-POINTS.md) freshly verifies
+the six selected peer/target files against current output. All six pass size
+and both aggregate quality metrics. This separate evidence preserves the
+original interpolation failures and records each peer's alpha changes.
 
 ## Implementation and boundaries
 

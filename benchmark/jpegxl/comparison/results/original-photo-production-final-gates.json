@@ -1,0 +1,1445 @@
+{
+  "implementationRevision": "4b780ccefa3bcd2418cb84d3f5e815b58e20e002",
+  "implementationSourceSha256": "821518973e6b85944f532571a8f9dc3c61b9ad6c950427a5eecc11df99bcd266",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "fullParity": false,
+  "originalPhoto": {
+    "report": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+    "comparisons": 6,
+    "freshEncodedFiles": 6,
+    "reusedQualifiedIndependentGrids": 36,
+    "reusedQualifiedPublicDecodedSamples": 288000000,
+    "secondaryMetricDominance": false,
+    "geometry": {
+      "width": 4000,
+      "height": 3000
+    }
+  },
+  "transparency": {
+    "report": "benchmark/jpegxl/comparison/results/alpha-point-production-controls.json",
+    "comparisons": 6,
+    "freshEncodedFiles": 5,
+    "freshCompleteIndependentGrids": 20
+  },
+  "realBrowserCases": 33,
+  "totalBrowserExecutions": 36,
+  "retainedCodecBrowserCases": 30,
+  "freshWebsiteCases": 3,
+  "supersededWebsiteCases": 3,
+  "fullCheckTestFiles": 273,
+  "fullCheckTests": 3675,
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/jpegxl-specialized.js",
+      "bytes": 626126,
+      "sha256": "efb8a43076e1e97b54cba0f5fd8be88054e9ff258b47f7518c3004d9fd637b3c",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 627000,
+      "precedingBytes": 626106,
+      "withinCeiling": true,
+      "freshlyRebuiltIdentical": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/codec-jpegxl.js",
+      "bytes": 553689,
+      "sha256": "834c8a433ad5f5413049cd4f22697771cb8635710b0a4fdaac1640fa508bafae",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 554000,
+      "precedingBytes": 553669,
+      "withinCeiling": true,
+      "freshlyRebuiltIdentical": true
+    }
+  ],
+  "gates": [
+    {
+      "id": "original-photo-production-package-1383",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-production-package-1383.json",
+      "startedAt": "2026-10-06T05:57:14.303Z",
+      "finishedAt": "2026-10-06T06:00:18.037Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33604534272,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        ".tmp/jpegxl-comparison-v1/verify-original-photo-package-1381.ts",
+        "production",
+        ".tmp/jpegxl-comparison-v1/original-photo-prototype-grids-1380.json",
+        ".tmp/jpegxl-comparison-v1/original-photo-production-package-1383.json"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 5fda40180b004733a97d5a45cb7e94e9\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 3min 3.712s\n             CPU time consumed: 3min 24.411s\n                   Memory peak: 417.3M (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-production-controls-1384",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-production-controls-1384.json",
+      "startedAt": "2026-10-06T06:01:26.867Z",
+      "finishedAt": "2026-10-06T06:05:11.395Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33416257536,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "benchmark/jpegxl/comparison/verify-original-photo-compression.ts",
+        ".tmp/jpegxl-comparison-v1/original-photo-production-controls-1384.json"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: c6905e6ea4d34778a436731089077d0f\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 3min 44.501s\n             CPU time consumed: 4min 7.178s\n                   Memory peak: 5.8G (swap: 0B)\n"
+    },
+    {
+      "id": "alpha-production-replay-1385",
+      "path": ".tmp/jpegxl-m7/bounded-runs/alpha-production-replay-1385.json",
+      "startedAt": "2026-10-06T06:05:31.395Z",
+      "finishedAt": "2026-10-06T06:08:04.504Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33413746688,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "benchmark/jpegxl/comparison/verify-alpha-compression.ts",
+        ".tmp/jpegxl-comparison-v1/alpha-production-replay-1385.json"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 2min 33.083s\n             CPU time consumed: 3min 5.392s\n                   Memory peak: 899.3M (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-size-1386",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-size-1386.json",
+      "startedAt": "2026-10-06T06:08:22.764Z",
+      "finishedAt": "2026-10-06T06:09:04.501Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33510707200,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "size"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 41.709s\n             CPU time consumed: 57.845s\n                   Memory peak: 1.1G (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-docs-1387",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-docs-1387.json",
+      "startedAt": "2026-10-06T06:09:28.096Z",
+      "finishedAt": "2026-10-06T06:09:29.144Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33495322624,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "documentation:write"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 8a4698feb702476bb9257fc032c680ec\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 1.027s\n             CPU time consumed: 1.361s\n                   Memory peak: 105.1M (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-browser-1388",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-browser-1388.json",
+      "startedAt": "2026-10-06T06:09:46.213Z",
+      "finishedAt": "2026-10-06T06:21:00.384Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33493934080,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=4",
+        "/usr/bin/taskset",
+        "-c",
+        "0-3",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "browser-tests/jpegxl-pipeline.pw.ts",
+        "browser-tests/jpegxl-showcase.pw.ts",
+        "--workers=1",
+        "--project=chromium",
+        "--project=firefox",
+        "--project=webkit",
+        "--grep",
+        "above four megapixels|large opaque allocation recovery|weighted DC compression|optional DC allocation recovery|encoder budget admission|exact lossless .* patches|comparison and seven"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 11min 14.145s\n             CPU time consumed: 13min 2.294s\n                   Memory peak: 2.4G (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-website-1391",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-website-1391.json",
+      "startedAt": "2026-10-06T06:23:05.960Z",
+      "finishedAt": "2026-10-06T06:23:21.793Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33509789696,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=4",
+        "/usr/bin/taskset",
+        "-c",
+        "0-3",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "browser-tests/jpegxl-showcase.pw.ts",
+        "--workers=1",
+        "--project=chromium",
+        "--project=firefox",
+        "--project=webkit",
+        "--grep",
+        "comparison and seven"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 9cb1f3f12cba4959b03fffea7e8d176c\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 15.807s\n             CPU time consumed: 27.647s\n                   Memory peak: 2.4G (swap: 0B)\n"
+    },
+    {
+      "id": "original-photo-check-1392",
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-check-1392.json",
+      "startedAt": "2026-10-06T06:23:55.057Z",
+      "finishedAt": "2026-10-06T06:29:00.159Z",
+      "policy": {
+        "memoryMaxBytes": 8589934592,
+        "memoryHighBytes": 8053063680,
+        "minimumAvailableBytes": 19327352832,
+        "swapMaxBytes": 0,
+        "maximumTasks": 256,
+        "cpuQuotaPercent": 800,
+        "oomScoreAdjust": 1000,
+        "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "runtime": "v24.16.0",
+        "unit": "purejsimage-m7-bounded",
+        "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+      },
+      "availableBytes": 33513545728,
+      "executable": "/usr/bin/env",
+      "args": [
+        "UV_THREADPOOL_SIZE=1",
+        "VIPS_CONCURRENCY=1",
+        "GOMAXPROCS=8",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "check"
+      ],
+      "code": 0,
+      "signal": null,
+      "status": "completed",
+      "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: a62fc3affed845318d9d93aba2b26075\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:160:42 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    158 │   timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 │ }\n  > 160 │ await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\\n', { flag: 'wx' })\n        │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    161 │ const results: object[] = []\n    162 │ let failures = 0\n  \n  i Unsafe fix: Use a template literal.\n  \n    158 158 │     timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 159 │   }\n    160     │ - await·writeFile(`${root}/protocol.json`,·JSON.stringify(protocol,·null,·2)·+·'\\n',·{·flag:·'wx'·})\n        160 │ + await·writeFile(`${root}/protocol.json`,·`${JSON.stringify(protocol,·null,·2)}\\n`,·{·flag:·'wx'·})\n    161 161 │   const results: object[] = []\n    162 162 │   let failures = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:99:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n     97 │ await writeFile(\n     98 │   `${directory}/manifest.json`,\n   > 99 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 100 │     {\n         ...\n  > 112 │     2,\n  > 113 │   ) + '\\n',\n        │   ^^^^^^^^\n    114 │ )\n    115 │ \n  \n  i Unsafe fix: Use a template literal.\n  \n     97  97 │   await writeFile(\n     98  98 │     `${directory}/manifest.json`,\n     99     │ - ··JSON.stringify(\n         99 │ + ··`${JSON.stringify(\n    100 100 │       {\n    101 101 │         encoderHash,\n    ······· │ \n    111 111 │       null,\n    112 112 │       2,\n    113     │ - ··)·+·'\\n',\n        113 │ + ··)}\\n`,\n    114 114 │   )\n    115 115 │   \n  \n\nbenchmark/jpegxl/generate-m6-preview.ts:147:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    145 │ await writeFile(\n    146 │   `${directory}/provenance.json`,\n  > 147 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 148 │     {\n         ...\n  > 159 │     2,\n  > 160 │   ) + '\\n',\n        │   ^^^^^^^^\n    161 │ )\n    162 │ console.log(\n  \n  i Unsafe fix: Use a template literal.\n  \n    145 145 │   await writeFile(\n    146 146 │     `${directory}/provenance.json`,\n    147     │ - ··JSON.stringify(\n        147 │ + ··`${JSON.stringify(\n    148 148 │       {\n    149 149 │         encoderHash,\n    ······· │ \n    158 158 │       null,\n    159 159 │       2,\n    160     │ - ··)·+·'\\n',\n        160 │ + ··)}\\n`,\n    161 161 │   )\n    162 162 │   console.log(\n  \n\nbenchmark/jpegxl/comparison/profile-lossy-sections.ts:59:13 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    57 │         const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n    58 │         const frame = frames.at(-1)\n  > 59 │         if (!frame || frame.encoding !== 'vardct' || frame.frameType !== 'regular')\n       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    60 │           throw new Error('Expected a final VarDCT display frame')\n    61 │         // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     57  57 │           const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n     58  58 │           const frame = frames.at(-1)\n     59     │ - ········if·(!frame·||·frame.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n         59 │ + ········if·(frame?.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n     60  60 │             throw new Error('Expected a final VarDCT display frame')\n     61  61 │           // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json lint ━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json lint ━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:36:5 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    34 │   )\n    35 │ const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n  > 36 │ if (!entry || entry.status !== 'verified')\n       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    37 │   throw new Error('Source is outside the selected frozen HDR cohort')\n    38 │ const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     34  34 │     )\n     35  35 │   const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n     36     │ - if·(!entry·||·entry.status·!==·'verified')\n         36 │ + if·(entry?.status·!==·'verified')\n     37  37 │     throw new Error('Source is outside the selected frozen HDR cohort')\n     38  38 │   const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:255:11 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    253 │         defaultImageLimits,\n    254 │       )\n  > 255 │       if (!decoder || decoder.pixelFormat !== 'rgbf32')\n        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    256 │         throw new Error('Missing native-light decoder')\n    257 │       maximumOwnDifference = 0\n  \n  i Unsafe fix: Change to an optional chain.\n  \n    253 253 │           defaultImageLimits,\n    254 254 │         )\n    255     │ - ······if·(!decoder·||·decoder.pixelFormat·!==·'rgbf32')\n        255 │ + ······if·(decoder?.pixelFormat·!==·'rgbf32')\n    256 256 │           throw new Error('Missing native-light decoder')\n    257 257 │         maximumOwnDifference = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:50:3 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    48 │ const dc = frames[0]\n    49 │ if (\n  > 50 │   !dc ||\n       │   ^^^^^^\n  > 51 │   dc.frameType !== 'dc' ||\n       │   ^^^^^^^^^^^^^^^^^^^^^\n    52 │   dc.passCount < 2 ||\n    53 │   dc.sections.slice(1).every((section) => section.length === 0)\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     48  48 │   const dc = frames[0]\n     49  49 │   if (\n     50     │ - ··!dc·||\n     51     │ - ··dc.frameType·!==·'dc'·||\n         50 │ + ··dc?.frameType·!==·'dc'·||\n     52  51 │     dc.passCount < 2 ||\n     53  52 │     dc.sections.slice(1).every((section) => section.length === 0)\n  \n\nbenchmark/jpegxl/generate-m8-custom-filters.ts:27:7 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━\n\n  ! This variable positive is unused.\n  \n    25 │   { bits: 30, offset: 18688 },\n    26 │ ] as const\n  > 27 │ const positive = (value: number, name: string, allowZero = false): void => {\n       │       ^^^^^^^^\n    28 │   if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n    29 │     throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.\n  \n  i Unsafe fix: If this is intentional, prepend positive with an underscore.\n  \n     25  25 │     { bits: 30, offset: 18688 },\n     26  26 │   ] as const\n     27     │ - const·positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n         27 │ + const·_positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n     28  28 │     if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n     29  29 │       throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n\nbenchmark/jpegxl/generate-m8-weighted-patches.ts:208:73 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━\n\n  ! Forbidden non-null assertion.\n  \n    206 │     const samples = []\n    207 │     for (let c = 0; c < 4; c++)\n  > 208 │       for (let i = c; i < front.length; i += 4) samples.push(packSigned(front[i]!))\n        │                                                                         ^^^^^^^^^\n    209 │     const counts = new Uint32Array(280)\n    210 │     for (const sample of samples) {\n  \n\nbiome.json:14:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    12 │       \"!!benchmark/corpus/files\",\n    13 │       \"!!benchmark/results\",\n  > 14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4.\n  \n    14 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │                                                                 ---  \n\nbiome.json:15:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    13 │       \"!!benchmark/results\",\n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n  > 15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5.\n  \n    15 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │                                                                 ---  \n\nbiome.json:16:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n  > 16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5.\n  \n    16 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:17:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  > 17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5.\n  \n    17 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:18:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  > 18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4.\n  \n    18 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │                                                                   ---  \n\nbiome.json:19:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  > 19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n    21 │       \"!!src/scientific/browser-reader-catalog.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4.\n  \n    19 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │                                                                  ---  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json format ━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json format ━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json format ━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-capped052.json format ━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 6.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-integrated054.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 4.4 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-holdout-capped052.json format ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 5.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-prompt2-artifacts.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 3.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\n          Finished with result: success\nMain processes terminated with: code=exited, status=0/SUCCESS\n               Service runtime: 5min 5.076s\n             CPU time consumed: 32min 2.468s\n                   Memory peak: 3.5G (swap: 0B)\n"
+    }
+  ],
+  "earlierFailedCheck": {
+    "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-check-1389.json",
+    "startedAt": "2026-10-06T06:21:35.931Z",
+    "finishedAt": "2026-10-06T06:22:17.217Z",
+    "policy": {
+      "memoryMaxBytes": 8589934592,
+      "memoryHighBytes": 8053063680,
+      "minimumAvailableBytes": 19327352832,
+      "swapMaxBytes": 0,
+      "maximumTasks": 256,
+      "cpuQuotaPercent": 800,
+      "oomScoreAdjust": 1000,
+      "node": "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "runtime": "v24.16.0",
+      "unit": "purejsimage-m7-bounded",
+      "concurrency": "One fixed user-service name admits only one complete benchmark tree at a time"
+    },
+    "availableBytes": 33471913984,
+    "executable": "/usr/bin/env",
+    "args": [
+      "UV_THREADPOOL_SIZE=1",
+      "VIPS_CONCURRENCY=1",
+      "GOMAXPROCS=8",
+      "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+      "/home/ard/.nvm/versions/node/v24.16.0/lib/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "check"
+    ],
+    "code": 1,
+    "signal": null,
+    "status": "failed",
+    "diagnostics": "Running as unit: purejsimage-m7-bounded.service; invocation ID: 83de4679e4384674bbfe08b7f76f919d\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:160:42 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    158 │   timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 │ }\n  > 160 │ await writeFile(`${root}/protocol.json`, JSON.stringify(protocol, null, 2) + '\\n', { flag: 'wx' })\n        │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    161 │ const results: object[] = []\n    162 │ let failures = 0\n  \n  i Unsafe fix: Use a template literal.\n  \n    158 158 │     timing: 'Serial quality evaluation, not isolated performance evidence',\n    159 159 │   }\n    160     │ - await·writeFile(`${root}/protocol.json`,·JSON.stringify(protocol,·null,·2)·+·'\\n',·{·flag:·'wx'·})\n        160 │ + await·writeFile(`${root}/protocol.json`,·`${JSON.stringify(protocol,·null,·2)}\\n`,·{·flag:·'wx'·})\n    161 161 │   const results: object[] = []\n    162 162 │   let failures = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:99:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n     97 │ await writeFile(\n     98 │   `${directory}/manifest.json`,\n   > 99 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 100 │     {\n         ...\n  > 112 │     2,\n  > 113 │   ) + '\\n',\n        │   ^^^^^^^^\n    114 │ )\n    115 │ \n  \n  i Unsafe fix: Use a template literal.\n  \n     97  97 │   await writeFile(\n     98  98 │     `${directory}/manifest.json`,\n     99     │ - ··JSON.stringify(\n         99 │ + ··`${JSON.stringify(\n    100 100 │       {\n    101 101 │         encoderHash,\n    ······· │ \n    111 111 │       null,\n    112 112 │       2,\n    113     │ - ··)·+·'\\n',\n        113 │ + ··)}\\n`,\n    114 114 │   )\n    115 115 │   \n  \n\nbenchmark/jpegxl/generate-m6-preview.ts:147:3 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━\n\n  i Template literals are preferred over string concatenation.\n  \n    145 │ await writeFile(\n    146 │   `${directory}/provenance.json`,\n  > 147 │   JSON.stringify(\n        │   ^^^^^^^^^^^^^^^\n  > 148 │     {\n         ...\n  > 159 │     2,\n  > 160 │   ) + '\\n',\n        │   ^^^^^^^^\n    161 │ )\n    162 │ console.log(\n  \n  i Unsafe fix: Use a template literal.\n  \n    145 145 │   await writeFile(\n    146 146 │     `${directory}/provenance.json`,\n    147     │ - ··JSON.stringify(\n        147 │ + ··`${JSON.stringify(\n    148 148 │       {\n    149 149 │         encoderHash,\n    ······· │ \n    158 158 │       null,\n    159 159 │       2,\n    160     │ - ··)·+·'\\n',\n        160 │ + ··)}\\n`,\n    161 161 │   )\n    162 162 │   console.log(\n  \n\nbenchmark/jpegxl/comparison/profile-lossy-sections.ts:59:13 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    57 │         const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n    58 │         const frame = frames.at(-1)\n  > 59 │         if (!frame || frame.encoding !== 'vardct' || frame.frameType !== 'regular')\n       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    60 │           throw new Error('Expected a final VarDCT display frame')\n    61 │         // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     57  57 │           const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)\n     58  58 │           const frame = frames.at(-1)\n     59     │ - ········if·(!frame·||·frame.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n         59 │ + ········if·(frame?.encoding·!==·'vardct'·||·frame.frameType·!==·'regular')\n     60  60 │             throw new Error('Expected a final VarDCT display frame')\n     61  61 │           // These pinned 1024x768 inputs use one DC group and separated sections.\n  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json lint ━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json lint ━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json lint ━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json lint ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:36:5 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    34 │   )\n    35 │ const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n  > 36 │ if (!entry || entry.status !== 'verified')\n       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    37 │   throw new Error('Source is outside the selected frozen HDR cohort')\n    38 │ const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     34  34 │     )\n     35  35 │   const entry = m7ExpansionCases(split, 'hdr').find((item) => item.id === id)\n     36     │ - if·(!entry·||·entry.status·!==·'verified')\n         36 │ + if·(entry?.status·!==·'verified')\n     37  37 │     throw new Error('Source is outside the selected frozen HDR cohort')\n     38  38 │   const root = `.tmp/jpegxl-m7/hdr-${split}-${runId}/${id}/distance-${distance}`\n  \n\nbenchmark/jpegxl/evaluate-m7-hdr-development.ts:255:11 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    253 │         defaultImageLimits,\n    254 │       )\n  > 255 │       if (!decoder || decoder.pixelFormat !== 'rgbf32')\n        │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    256 │         throw new Error('Missing native-light decoder')\n    257 │       maximumOwnDifference = 0\n  \n  i Unsafe fix: Change to an optional chain.\n  \n    253 253 │           defaultImageLimits,\n    254 254 │         )\n    255     │ - ······if·(!decoder·||·decoder.pixelFormat·!==·'rgbf32')\n        255 │ + ······if·(decoder?.pixelFormat·!==·'rgbf32')\n    256 256 │           throw new Error('Missing native-light decoder')\n    257 257 │         maximumOwnDifference = 0\n  \n\nbenchmark/jpegxl/generate-m6-grouped-dc.ts:50:3 lint/complexity/useOptionalChain  FIXABLE  ━━━━━━━━━━\n\n  ! Change to an optional chain.\n  \n    48 │ const dc = frames[0]\n    49 │ if (\n  > 50 │   !dc ||\n       │   ^^^^^^\n  > 51 │   dc.frameType !== 'dc' ||\n       │   ^^^^^^^^^^^^^^^^^^^^^\n    52 │   dc.passCount < 2 ||\n    53 │   dc.sections.slice(1).every((section) => section.length === 0)\n  \n  i Unsafe fix: Change to an optional chain.\n  \n     48  48 │   const dc = frames[0]\n     49  49 │   if (\n     50     │ - ··!dc·||\n     51     │ - ··dc.frameType·!==·'dc'·||\n         50 │ + ··dc?.frameType·!==·'dc'·||\n     52  51 │     dc.passCount < 2 ||\n     53  52 │     dc.sections.slice(1).every((section) => section.length === 0)\n  \n\nbenchmark/jpegxl/generate-m8-custom-filters.ts:27:7 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━\n\n  ! This variable positive is unused.\n  \n    25 │   { bits: 30, offset: 18688 },\n    26 │ ] as const\n  > 27 │ const positive = (value: number, name: string, allowZero = false): void => {\n       │       ^^^^^^^^\n    28 │   if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n    29 │     throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.\n  \n  i Unsafe fix: If this is intentional, prepend positive with an underscore.\n  \n     25  25 │     { bits: 30, offset: 18688 },\n     26  26 │   ] as const\n     27     │ - const·positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n         27 │ + const·_positive·=·(value:·number,·name:·string,·allowZero·=·false):·void·=>·{\n     28  28 │     if (!Number.isSafeInteger(value) || value < (allowZero ? 0 : 1))\n     29  29 │       throw invalidInput(`JPEG XL ${name} is invalid`)\n  \n\nbenchmark/jpegxl/generate-m8-ycbcr.ts:5:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━━━━━━\n\n  ! Several of these imports are unused.\n  \n    3 │   iterateJpegXlFrameStructures,\n    4 │   type JpegXlFrameStructure,\n  > 5 │   readJpegXlSourceFrameStructure,\n      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    6 │ } from '../../src/codecs/jpegxl-decode.ts'\n    7 │ import {\n  \n  i Unused imports might be the result of an incomplete refactoring.\n  \n  i Unsafe fix: Remove the unused imports.\n  \n      3   3 │     iterateJpegXlFrameStructures,\n      4   4 │     type JpegXlFrameStructure,\n      5     │ - ··readJpegXlSourceFrameStructure,\n      6   5 │   } from '../../src/codecs/jpegxl-decode.ts'\n      7   6 │   import {\n  \n\nbiome.json:14:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    12 │       \"!!benchmark/corpus/files\",\n    13 │       \"!!benchmark/results\",\n  > 14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4.\n  \n    14 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n       │                                                                 ---  \n\nbiome.json:15:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    13 │       \"!!benchmark/results\",\n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n  > 15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5.\n  \n    15 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n       │                                                                 ---  \n\nbiome.json:16:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    14 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.4/**\",\n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n  > 16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5.\n  \n    16 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:17:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    15 │       \"!!tests/fixtures/scientific-ome-zarr/idr0062-6001240-v0.5/**\",\n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n  > 17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5.\n  \n    17 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n       │                                                                       ---  \n\nbiome.json:18:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    16 │       \"!!tests/fixtures/scientific-ome-zarr/idr0033-BR00109990-C2-v0.5/**\",\n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n  > 18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4.\n  \n    18 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n       │                                                                   ---  \n\nbiome.json:19:7 lint/suspicious/useBiomeIgnoreFolder  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! Incorrect usage of ignore a folder found.\n  \n    17 │       \"!!tests/fixtures/scientific-ome-zarr/idr0010-76-45-well-A1-v0.5/**\",\n    18 │       \"!!tests/fixtures/scientific-ome-zarr/idr0001-2551-C3-0-v0.4/**\",\n  > 19 │       \"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    20 │       \"!!src/scientific/formats/dicom/dictionary.generated.ts\",\n    21 │       \"!!src/scientific/browser-reader-catalog.generated.ts\",\n  \n  i Since version 2.2.0, ignoring folders doesn't require the use the trailing /**. This is a bug that affects version prior v2.2.0.\n  \n  i Safe fix: If you want to ignore a folder, use the following pattern instead: !!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4.\n  \n    19 │ ······\"!!tests/fixtures/scientific-ome-zarr/idr0101-13457537-v0.4/**\",\n       │                                                                  ---  \n\nbenchmark/jpegxl/comparison/results/filter-ac-production-controls.json format ━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 1.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-cost-profile.json format ━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/pooled-residual-leaf-cost-profile.json format ━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/results/predictor-cost-calibration-profile.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 24.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/comparison/website-data.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 2.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-capped052.json format ━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 6.7 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-development-integrated054.json format ━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 4.4 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-lossy-holdout-capped052.json format ━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 5.2 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\nbenchmark/jpegxl/production-program/m7-prompt2-artifacts.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  ! The size of the file is 3.5 MiB, which exceeds the configured maximum of 1.0 MiB for this project.\n    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.\n  \n\ndocs-astro/src/pages/jpeg-xl/comparison.astro format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  × Formatter would have printed the following content:\n  \n     23  23 │   const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')\n     24  24 │   const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']\n     25     │ - if·(alphaDirect.completed·!==·true·||·alphaDirect.sourceAdopted·!==·true·||\n     26     │ - ··alphaDirect.fullParity·!==·false·||·alphaDirect.publicComparisonCountsChanged·!==·false·||\n         25 │ + if·(\n         26 │ + ··alphaDirect.completed·!==·true·||\n         27 │ + ··alphaDirect.sourceAdopted·!==·true·||\n         28 │ + ··alphaDirect.fullParity·!==·false·||\n         29 │ + ··alphaDirect.publicComparisonCountsChanged·!==·false·||\n     27  30 │     alphaDirect.implementationSourceSha256 !== originalPhoto.implementationSourceSha256 ||\n     28  31 │     alphaDirect.comparisons.length !== 6 ||\n     29     │ - ··alphaDirect.comparisons.some((row)·=>·!row.dominatesBothMetrics·||\n     30     │ - ····row.ratio·===·null·||·row.ratio·>·1·||·row.pure·===·null))\n         32 │ + ··alphaDirect.comparisons.some(\n         33 │ + ····(row)·=>·!row.dominatesBothMetrics·||·row.ratio·===·null·||·row.ratio·>·1·||·row.pure·===·null,\n         34 │ + ··)\n         35 │ + )\n     31  36 │     throw new Error('Incomplete current transparency comparisons')\n     32     │ - if·(originalPhoto.completed·!==·true·||·originalPhoto.sourceAdopted·!==·true·||\n     33     │ - ··originalPhoto.fullParity·!==·false·||·originalPhoto.secondaryMetricDominance·!==·false·||\n     34     │ - ··originalPhoto.extrapolation·!==·false·||·originalPhoto.scoreTolerance·!==·0.25·||\n     35     │ - ··originalPhoto.inputGeometry.width·!==·4000·||·originalPhoto.inputGeometry.height·!==·3000·||\n     36     │ - ··originalPhoto.freshEncodedFiles·!==·6·||·originalPhoto.reusedQualifiedIndependentGrids·!==·36·||\n     37     │ - ··originalPhoto.comparisons.length·!==·6·||·originalPhoto.comparisons.some((row)·=>\n     38     │ - ····row.status·!==·'adequate·bracket'·||·row.ratio·>·1·||·row.pure.width·>·0.25·||·row.peer.width·>·0.25))\n         37 │ + if·(\n         38 │ + ··originalPhoto.completed·!==·true·||\n         39 │ + ··originalPhoto.sourceAdopted·!==·true·||\n         40 │ + ··originalPhoto.fullParity·!==·false·||\n         41 │ + ··originalPhoto.secondaryMetricDominance·!==·false·||\n         42 │ + ··originalPhoto.extrapolation·!==·false·||\n         43 │ + ··originalPhoto.scoreTolerance·!==·0.25·||\n         44 │ + ··originalPhoto.inputGeometry.width·!==·4000·||\n         45 │ + ··originalPhoto.inputGeometry.height·!==·3000·||\n         46 │ + ··originalPhoto.freshEncodedFiles·!==·6·||\n         47 │ + ··originalPhoto.reusedQualifiedIndependentGrids·!==·36·||\n         48 │ + ··originalPhoto.comparisons.length·!==·6·||\n         49 │ + ··originalPhoto.comparisons.some(\n         50 │ + ····(row)·=>\n         51 │ + ······row.status·!==·'adequate·bracket'·||\n         52 │ + ······row.ratio·>·1·||\n         53 │ + ······row.pure.width·>·0.25·||\n         54 │ + ······row.peer.width·>·0.25,\n         55 │ + ··)\n         56 │ + )\n     39  57 │     throw new Error('Incomplete original-size photo compression evidence')\n     40  58 │   const originalPhotoRows = [70, 80, 90].map((target) => {\n     41     │ - ··const·jsquash·=·originalPhoto.comparisons.find((row)·=>·row.target·===·target·&&·row.comparator·===·'jsquash')\n     42     │ - ··const·vips·=·originalPhoto.comparisons.find((row)·=>·row.target·===·target·&&·row.comparator·===·'vips')\n         59 │ + ··const·jsquash·=·originalPhoto.comparisons.find(\n         60 │ + ····(row)·=>·row.target·===·target·&&·row.comparator·===·'jsquash',\n         61 │ + ··)\n         62 │ + ··const·vips·=·originalPhoto.comparisons.find(\n         63 │ + ····(row)·=>·row.target·===·target·&&·row.comparator·===·'vips',\n         64 │ + ··)\n     43  65 │     if (!jsquash || !vips || jsquash.pure.interpolatedBytes !== vips.pure.interpolatedBytes)\n     44  66 │       throw new Error('Original-size photo target missing')\n     45     │ - ··return·{·target,·bytes:·Math.round(jsquash.pure.interpolatedBytes),\n     46     │ - ····jsquashBytes:·Math.round(jsquash.peer.interpolatedBytes),·vipsBytes:·Math.round(vips.peer.interpolatedBytes),\n     47     │ - ····jsquashReduction:·((1·-·jsquash.ratio)·*·100).toFixed(2),·vipsReduction:·((1·-·vips.ratio)·*·100).toFixed(2)·}\n         67 │ + ··return·{\n         68 │ + ····target,\n         69 │ + ····bytes:·Math.round(jsquash.pure.interpolatedBytes),\n         70 │ + ····jsquashBytes:·Math.round(jsquash.peer.interpolatedBytes),\n         71 │ + ····vipsBytes:·Math.round(vips.peer.interpolatedBytes),\n         72 │ + ····jsquashReduction:·((1·-·jsquash.ratio)·*·100).toFixed(2),\n         73 │ + ····vipsReduction:·((1·-·vips.ratio)·*·100).toFixed(2),\n         74 │ + ··}\n     48  75 │   })\n     49  76 │   const alphaPoint = alphaCompression.pointDominance\n  \n\nformat ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n  × Some errors were emitted while running checks.\n  \n\n          Finished with result: exit-code\nMain processes terminated with: code=exited, status=1/FAILURE\n               Service runtime: 41.262s\n             CPU time consumed: 1min 29.500s\n                   Memory peak: 2.2G (swap: 0B)\n",
+    "reason": "Astro frontmatter formatting only; all preceding gates passed and tests had not started"
+  },
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+      "sha256": "734f0ae8e53c6835a5af3044fdd6401b76f5fbe6641fe7ce661c68e387af5b66"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/alpha-point-production-controls.json",
+      "sha256": "efa2603560592405656bb6e8b81392357ce0c2c3d2d19581ff62310cd9002312"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/comparison/verify-original-photo-compression.ts",
+      "sha256": "001dd80bfcef633056b640a9b4661b92b71dd2982d4429d78490ea75270c67e4"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-photo-quality-study.json",
+      "sha256": "260e7ed701349a5f8a0b5aa5d28056d0a7a258fbc1663099bf39ff2f8cc68daa"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-photo-endpoint-qualification.json",
+      "sha256": "42d1d5041869981cf1d8d48bf322be216863a0bc624b7839557b03683c75fcfb"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/photo-parity-production-controls.json",
+      "sha256": "03ec7e98c44d6c8c66ae9aa45bc858fb679a95c9b054a5052dd71364fce56f25"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "6b3ff52317ba1b1c4344a3a182e30009edadf120072a92bdbb1da3e062daf81a"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "22c3925394f03dcc84dba8539fc27be472cc6c3302ce90564a3036e894b92ecb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-prototype-composed-1380.json",
+      "sha256": "260e7ed701349a5f8a0b5aa5d28056d0a7a258fbc1663099bf39ff2f8cc68daa"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-original-photo-grids-1380.ts",
+      "sha256": "427f7ccecfbf9d9029afbbbdbc8c358425beee6714d7c3252597c0ab7f0616f2"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+      "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.raw",
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.png",
+      "sha256": "8366c095c42733053f2f736012e96230f302a09154e8905c58560ac0b9685ee8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/reference.png",
+      "sha256": "a145f804c8a670f9560a5f1859d99743bb6bc938c649ad0d25224b0b4a4a84f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-quality-1365.json",
+      "sha256": "270e6330665c4ab6021ac6c1b76b1125db731f5ecfdb679e89914f9b6815cc39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377.json",
+      "sha256": "36628031609c4a7fade011311e3d0cf4d4d2bc10fea41e55fe2cfaa3daff11c2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-quality-1376.json",
+      "sha256": "c6c6c082289c0a75b01b60572bbb644abc30fa92805c2c8dc5c754f24597123b"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/compose-original-photo-studies-1379.ts",
+      "sha256": "a0dd20ed04732d8eda006c5e648209a2a9daec60aaf64947d8f2de13d34fb306"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-quality-1365.ts",
+      "sha256": "b47529bff534b092ddcef85d1d03fb4340c8de314bdd8c3f6e864a0ba365009e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-adapters-1365.ts",
+      "sha256": "9151a8a4b4a4296e50c5381ed911ef730a28a0f5a872a8bcf379ac604ba2bfae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-quality-1376.ts",
+      "sha256": "50f51a623fe8490861cc1c207b0351e72185b5ee57ebc80a768087f06bb41b35"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-adapters-1376.ts",
+      "sha256": "a13f9497eab757cf367cee727c8126772833df20e62ace732ed15082a1b7c7c0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-worker-1374.ts",
+      "sha256": "3c860202a6ebeeb1e3f312163d6596c6c96e0e227a7a6fdd85837b41874e52b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377.ts",
+      "sha256": "4685d3cf3406e7432c8af128bac4021264946fd261951e67d4d726bea334b2ef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-1376/source/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-baseline-composed-1379.json",
+      "sha256": "243fdbd82e3b110d77ae9c4cd1bb41c10d286037c0fdcdebb75f53ef565fa274"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/verify-original-photo-grids-1369.ts",
+      "sha256": "d9a009cee17dabddc11611dff261f9303ae1c62328589edca4aca9ff6229f4ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/reference.png",
+      "sha256": "a145f804c8a670f9560a5f1859d99743bb6bc938c649ad0d25224b0b4a4a84f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6944.native.npy",
+      "sha256": "c32be02b819fbf0ef435dd78f0d096356933740b836cf2a7ef2d562f76cc4bb4"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6944.rust.npy",
+      "sha256": "e19017c842a91b3d6505684f5d134a0c84472e9fc22d3fa502c86b3f21b69d0b"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-4.6944.jxl",
+      "sha256": "c668915055d8056b88970497695f14cde883eda9a87edfbd0edc20073da0a912"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6944.png",
+      "sha256": "3b05c920384d0f61f380c3a0284cfac8bf54e56406c118efa640ffe4a0a88725"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6944.black.png",
+      "sha256": "a3d59328ef1b694213201e17593790b78c482b1b11196eb1b3fab1643e2611a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6549.native.npy",
+      "sha256": "a3f90f98763667c28d9d8dc9e09f900cc0e873296b261c099c59199b57ea6fee"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6549.rust.npy",
+      "sha256": "bbd083294cfca12d7c8fc524b9f8c1258da3f852d2f8a1f7a22dd5428b82876c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-4.6549.jxl",
+      "sha256": "555e8bb3b52acc0d33f9cd956e9fa75a3087851abdeb31cd6b58c57a3133b507"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6549.png",
+      "sha256": "823c0e28e11bef528e0e0b0a6f3c87181ff72d501bfcba06530901edf17d8220"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-4.6549.black.png",
+      "sha256": "e23b5bb5d92ab0b8f1a2fdbf85c46902aa675ca2b0fc3be83a7d9fb2d2c2a463"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8952.native.npy",
+      "sha256": "4180da9d7db03f77bd35956fcfc1fcb0c09ccd689d77d2010c2fdead7ff2fd47"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8952.rust.npy",
+      "sha256": "342eabfe052a902fe32b9839b962d449e04dacbbd9ff5163fdf069badc68517d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-2.8952.jxl",
+      "sha256": "ffa01c22c579984e17028757222f27d424439b40ac9f5a6ffa27a3c72887f997"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8952.png",
+      "sha256": "8e1c1e03c412eb31616f4983e7056eca1d86d517caa508753e87cc18b7c75963"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8952.black.png",
+      "sha256": "dfc62d61c050ad011671d61520712760ebe35a4a8c6a32fc14f1df91d2440e4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8652.native.npy",
+      "sha256": "158fe1ddabb8c03d7b595fe2d55661b2e85f6dbb514346d4a0197c55df9d8356"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8652.rust.npy",
+      "sha256": "0fd8bed82895e85c8b5edcf1f4fffbce5a7e85a680d1587bdc1bb6b385a72cd7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-2.8652.jxl",
+      "sha256": "26ef6fb40930cda07b6caf988fa5ba486bd849180979757419e357eb48c67870"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8652.png",
+      "sha256": "a51f204166001f713da7c2fde13059f299ff3c89a21ed21ed33e2449c0aa2558"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-2.8652.black.png",
+      "sha256": "933dc470580157a0c58623d2f9f2de52017751afb01697c85dec9b836eeacdec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0301.native.npy",
+      "sha256": "3e3c8d8436e230c9905409e15ad341aff5d839deb20b857a535a2e2904cfc2db"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0301.rust.npy",
+      "sha256": "631ec00304f9f107bfaeec72a9d1d98fd4f331df9434a5976fb62873a42f177c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-1.0301.jxl",
+      "sha256": "bde2a73370e70d05934e124c5f0e864c956582aa8c90ad96c89dfdb74ac704d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0301.png",
+      "sha256": "fbf7cbdc155460c5d94abd292b077a04ecbce908166457686df0aa62ebb48d69"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0301.black.png",
+      "sha256": "679dd5733baa8afc67bc631317a5cbe0e4ded595af113e8cdf68fd4fd8729441"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0289.native.npy",
+      "sha256": "e8faa7fc16ac72b74ef4809630beca876bc6d04d5ec49a4b1e72761207ea3943"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0289.rust.npy",
+      "sha256": "2c99a8b118437f76f981f5f3ac69c2c87bd59ed6bd9b895ae5000b8ddbf75024"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-purejsimage-1.0289.jxl",
+      "sha256": "ee52cb62cf513e0529d0814501e2cee909fe704b2d13ed762f2963f4a9664563"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0289.png",
+      "sha256": "d2f24e6101e13ce8e582d4a60cd2193422b34f107ef086b55213b6c7803a23e4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/purejsimage-1.0289.black.png",
+      "sha256": "faa4b296eb8bc0ed37ffbe5ac23b66d33b64369318db0f24f74df40a12910966"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.784.native.npy",
+      "sha256": "655d57f14819f0381662b95c807dd2b4adbfafda5b69a760a455279f8051df5a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.784.rust.npy",
+      "sha256": "b5f320a2fc516557a9c1da1adb97eddd1c20c3f149b05d24cd76ce6a99679da5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.784.jxl",
+      "sha256": "171ed8a9dfbb50cf22499ca341699e03980db563d736e0a0480765226cb19d98"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.784.png",
+      "sha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.784.black.png",
+      "sha256": "a3c71baf47fcc28141f2b9b9fca5e358bdaadc46b0f48d9084a11d2730ff3039"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.591.native.npy",
+      "sha256": "13a1edefa175164e5c45b381b75ba4bc55f2369438d5b793459c7bc9ad036ba0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.591.rust.npy",
+      "sha256": "7e5411a1e73df251b2e1c1c3901f30ee72c65eccadab63b3d24af2e37e4e3365"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.591.jxl",
+      "sha256": "f821b445a7c2271d3d0d2aa82f59cc8f926156d34fb85e4e1d6dd910a7ebea6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.591.png",
+      "sha256": "d24400cf7e5a411ae838c37796bab88d0a7a2bc56377daa314cb8f4d909ea624"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-33.591.black.png",
+      "sha256": "157bed4c5bd9a7f21589767a120d2e39a65bab88dad67042611ed421dabf8623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.376.native.npy",
+      "sha256": "34777ebc2bc7d259a383702384b35d94330715015394c509caafb7bd99011fb6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.376.rust.npy",
+      "sha256": "cfb96ae9afea38ea192cf396fd87952d8f8b381ceef1c956fb504bb674c76650"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.376.jxl",
+      "sha256": "c96b8c6b5a735b0681aad40d3658326dd201994fafc5084b07d510dfd05cf5a9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.376.png",
+      "sha256": "6cca521df58960526ae873028ffbb2302fd88db9738e07ce8321b66ead022351"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.376.black.png",
+      "sha256": "08a7376006c5cde0a01827c7a86e250759a9ad86685819dcf5535ffa25e32bb0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.195.native.npy",
+      "sha256": "4cee3582cfb9b27e27c77fcc4bed3e2f4f356d63fcc1e230fe2edd246fae0c87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.195.rust.npy",
+      "sha256": "7b48cfea0639dbcb3080768d48d9faea48363ce8b6122dcc64385df52705057e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.195.jxl",
+      "sha256": "213234f68294777dcd26795a6a6157cfde7208060d27a338c8fe06bc02151381"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.195.png",
+      "sha256": "708cdf39b4e4ff2830c7aa2b2507142bbd790f30c1385b58553a82a03f5ec23f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-17.195.black.png",
+      "sha256": "9a63e03f0b74dfe217b68f0754a15ac3217c3724dc101856a2ca9a5d89fd2932"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.2254.native.npy",
+      "sha256": "c8c0a39c71e81134e951dca704cd167f44cc75b6f2dee93ac16197050ae40162"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.2254.rust.npy",
+      "sha256": "ecc6378a37afe5144dd1f7a3df7a0fca9a5acb54427ac60e0831b77bbbaac134"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.2254.jxl",
+      "sha256": "b5b7c241bd94b3240098cf2f4abfd551f7eee13be1d727f87b5089b555b0bfec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.2254.png",
+      "sha256": "c498f3dafe7218a8edd7b9898308386ef84c0e2a5f5ba457dee0edbd422122bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.2254.black.png",
+      "sha256": "45a94aa82a953496ffe6f793a8d0df3e985b27a7e2000aa81bf3277602f363c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.1517.native.npy",
+      "sha256": "71d5d00a6d4c9c07622bc86c7d79f161481314b3de7712fc8044dcd1d5f70602"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.1517.rust.npy",
+      "sha256": "5e9270d434aa6883b642b2d1f18ea05674d0f70640d1e0a2b30f75d9301b175e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.1517.jxl",
+      "sha256": "1e515f78c7bc8b2b184fbf574ea71b723320a220de108fd472ddca4e9b1248ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.1517.png",
+      "sha256": "61e47dfc2e2f7af5337a8b64996bd0e02cf11774bd24f19c89cb952aa68e69d9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/jsquash-5.1517.black.png",
+      "sha256": "472e31bf7c6ce453a445596ba3890c0a3b160897f52593ba7772cce4ec157c7f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9773.native.npy",
+      "sha256": "ab0ea0c20234cbfc6c7511dd876f88bf0aa8fad0127e7b710a1be10345e035b8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9773.rust.npy",
+      "sha256": "0099ca3e5f28dcab5ee26db980c0df0aed8e7e48a34f5443e2ebc7d376a9011c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9773.jxl",
+      "sha256": "e298784caf84e1002287de2980de74eb2b6d106e7541a0282d5c83370f984d00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9773.png",
+      "sha256": "c35a0470fed1be94dfbab8c9c64eaf07bfad588b38b2bdc2e46552ce57405741"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9773.black.png",
+      "sha256": "35148d23b0c653aa0793ce8c2a4121f89be1896604fb323c5d1ee4394e3ffaca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9573.native.npy",
+      "sha256": "df80334f9f008b671903015e07ce8f1baf3def10a7628271117664d4ea79360b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9573.rust.npy",
+      "sha256": "ff90a1ffbde3d2333f4d96025276de3d8cf6e495c9444812e2c105392d1315f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9573.jxl",
+      "sha256": "cfad6c5dd588962a9474bc9ef4fe427d511c65e1a169251e213eb97a46074257"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9573.png",
+      "sha256": "875a7aaa5eb3cb7c2cd4b8253bd5ff5e1cdeabc1186dce8a599b4f9fb7ac0264"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-2.9573.black.png",
+      "sha256": "710dd1ddd15dc6a69e54a2c9181cc9f33b7633083ddf479d8427e37fba800538"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.8012.native.npy",
+      "sha256": "601ee281e9b911de0e4849eb23f0348a88d8aa250c534ed6a07145f4ddd6a112"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.8012.rust.npy",
+      "sha256": "b13eb4c3d625fb59aa8ebc751f5b20aecd73467902b587766a7859400d21466c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.8012.jxl",
+      "sha256": "b818ae12ac313f491432984d7bb0dfe25cc318cf8cf2b0a7425980d78b4efb30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.8012.png",
+      "sha256": "ac8979ce17259a134923f74e197a12cf4bf2965ef70966d85e4a38f375d81a54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.8012.black.png",
+      "sha256": "435476c3a7ff3265def6a9ed91205e561049b4446a59f1d79445a3b5ff968cda"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.7941.native.npy",
+      "sha256": "8548b9abc20663f528274cc605402ab2a5d904544c52b78266a014ccaa668f8b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.7941.rust.npy",
+      "sha256": "2bbb6c80385aaf149bb9f800c6c75fcbd1906876751e93db18ad0ce8802b5e65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.7941.jxl",
+      "sha256": "61419900793b6c8d4c6de315faa2eaec582d8cc1c0e5c83976f0dbfd712d5802"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.7941.png",
+      "sha256": "6a8c02cb43e66ba05b3ee24888c7da3a0d24efb87e1bb2f4cd8cff5d5aa898e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-1.7941.black.png",
+      "sha256": "61f030d1fdc9b0235a426221f1b5e9277fcda74668f1d45877328b294acda750"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.54538.native.npy",
+      "sha256": "f3d9c831e1995ba8274bde5b07f1b1d43a7e91c03d367ae92e8e03e85a4f12b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.54538.rust.npy",
+      "sha256": "7d9aa8eac9c565b5636dabd830931874eded406c587b5efd1f660fef97f31278"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.54538.jxl",
+      "sha256": "ddefb2f05b0070a6b42fcab2b8a59efe0e61dbbf8c22e1d0e4f23a7e326172c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.54538.png",
+      "sha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.54538.black.png",
+      "sha256": "2fab1ccb59f1aa6b46476b48d8dc568b10df5f5e56fabe5b5972292d59eb6bdb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.52186.native.npy",
+      "sha256": "9a3909fd6689d1a3dd6a184f1b33e98016b31e2823c627b60dd2d8f7d463392e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.52186.rust.npy",
+      "sha256": "0d5340a5caf10dcdf1ebcfb81d8d237649575a0826416b7956726ee9e86e3792"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.52186.jxl",
+      "sha256": "eb084f9ad41aa3060f4fd98edc302a01714fbb24837152572e45a6cd9768a390"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.52186.png",
+      "sha256": "4c6215868b90b14c6d917e06be910822911bd19aa1c4699e7be3d8b81adada64"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-baseline-grids-1379/vips-0.52186.black.png",
+      "sha256": "d448ab2b919b46cb04992ac88385953ef9031d741d190d4c51ec79a1136a08ed"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-baseline-grids-1379.json",
+      "sha256": "cdda01dc87050f560b9c78842915f14e7c4dc9bcd23f8160bf092287b8e70323"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.417.native.npy",
+      "sha256": "014c8e6fa4a0b23e24dbc853ffc5bcf69a31df5e63227bbab8ce6a6adb248fab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.417.rust.npy",
+      "sha256": "37706eec5907c29fc3855d5fa72e55dae80990e74377c8b06dfc3d9909ab45a2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.417.jxl",
+      "sha256": "85abb254389754410c6ee6c79061c85fa7051a8a0a8124536016edfe0dcffc53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.417.png",
+      "sha256": "9d1becabb9424428ca2271013d03a2b13a3f4ff5face44cd9c7a2390311cd7d0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.417.black.png",
+      "sha256": "0df50da083c9b2944458f30b4b3605629f4d205b33bb13d05f0149c4ef0afef4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.3561.native.npy",
+      "sha256": "54e24e161d73ce2b77a2fc7522ac4a2dffd0cdefbf7710e9ea3badbdcc31d19d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.3561.rust.npy",
+      "sha256": "e589885d78cdb90b58138a868dd56addaa1d462d99c6b0788dd3533412e7676c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.3561.jxl",
+      "sha256": "39ac4a93761dfe0089381001df71a84e19c744b14a3c956b76dd19f1321183ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.3561.png",
+      "sha256": "1b743716d477e55683c89b93387e764b35d3559b93b0a1a9fe93b4a0c26abe9e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-7.3561.black.png",
+      "sha256": "1a87fcdbf17e70b37a46d585ccc353cfdaeee90b9d475f05cd0dcfc503af9178"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.9231.native.npy",
+      "sha256": "c977ca90becc5b4e5475329699b17cd10dd4293bb56751b14a34cc49a2eaf195"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.9231.rust.npy",
+      "sha256": "c5d8f7aba4c98919f966b90c9a654e68068b75e3945c1613e02e2460a7dbcf6e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.9231.jxl",
+      "sha256": "198be12df13953a36e41e39088f15e465c263c837ce0924d19353a929d111e03"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.9231.png",
+      "sha256": "29a75f0704612a5b3bcc7530294482425138f5d931d8305d12861c2172c07406"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.9231.black.png",
+      "sha256": "38862075bbec5f07555b2a1141fe623f5869d7edf52d8eb0af0cdd5d907dc669"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.8635.native.npy",
+      "sha256": "38d852055ed309aa9c4eca072358a067f446ae5cfb97981cd65540c26ee16b9e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.8635.rust.npy",
+      "sha256": "b4ad9ffff695980c7da0fb6c9bb3b273a02b7ce56572b357608799a6365ddc4f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.8635.jxl",
+      "sha256": "2efc6c22d5da667831e936c2218c3dc14fc323a02c62a21c49d4ec84fc19c305"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.8635.png",
+      "sha256": "8d094db7943f0e16d6a318b89e62188f90bc9e8fd8bc470917025f0ebfb978c0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-3.8635.black.png",
+      "sha256": "0f869c5194b69bedf051843362555442a6518c65bf772ee60ede2b681d2f8a4a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.3239.native.npy",
+      "sha256": "51490fb0fb22894abfa695ae3ecb34d851f00cf7424889d1b1bd1ef2b2511bc3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.3239.rust.npy",
+      "sha256": "356239e90e8f02a47f5db1452065056a3e093d938432ec6a0f2a69281d64b3cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.3239.jxl",
+      "sha256": "d7527d54bc819bf457fe7155e28d8dca2ece4a1beb76f0dd3f67073801981f67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.3239.png",
+      "sha256": "56eb48def672ea9df98a32a5253d7bdfd2611dfed04fb5e4e73c728eb23be52e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.3239.black.png",
+      "sha256": "11138240fce0ce83afd5d3cc248a7e57984648207f08e062000c309e12336b6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.2985.native.npy",
+      "sha256": "ebb3c68d94d83bcb45ea9314edd19ba2d24c022a4847488e141cd82470d6492f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.2985.rust.npy",
+      "sha256": "19ce16494e65f46faeff355afc01b6b2e1b6c23e319b64261075efe134f13033"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.2985.jxl",
+      "sha256": "f450ea313c41c4c91e2340c621ead3ec646690b515668b6e5f6544d84ed50f35"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.2985.png",
+      "sha256": "9d57a0bac694b92de44e29d1c87c301497ff784f083cd2ed652fccb629f61b0f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-grids/original-photo-prototype-grids-1380/purejsimage-1.2985.black.png",
+      "sha256": "12201e44fc43922c447464d26bd6a2335da8e720ff0d93191c12bb6af1a335c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/jpegxl-specialized.js",
+      "sha256": "efb8a43076e1e97b54cba0f5fd8be88054e9ff258b47f7518c3004d9fd637b3c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/codec-jpegxl.js",
+      "sha256": "834c8a433ad5f5413049cd4f22697771cb8635710b0a4fdaac1640fa508bafae"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-7.417.jxl",
+      "sha256": "85abb254389754410c6ee6c79061c85fa7051a8a0a8124536016edfe0dcffc53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-7.3561.jxl",
+      "sha256": "39ac4a93761dfe0089381001df71a84e19c744b14a3c956b76dd19f1321183ab"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-3.9231.jxl",
+      "sha256": "198be12df13953a36e41e39088f15e465c263c837ce0924d19353a929d111e03"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-3.8635.jxl",
+      "sha256": "2efc6c22d5da667831e936c2218c3dc14fc323a02c62a21c49d4ec84fc19c305"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-1.3239.jxl",
+      "sha256": "d7527d54bc819bf457fe7155e28d8dca2ece4a1beb76f0dd3f67073801981f67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-photo-packages/original-photo-production-controls-1384/original-1.2985.jxl",
+      "sha256": "f450ea313c41c4c91e2340c621ead3ec646690b515668b6e5f6544d84ed50f35"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/comparison/verify-alpha-compression.ts",
+      "sha256": "1d9ff13182d15a1967401e9195f865c7c6c885fbe383e6426b36a695ca8f9488"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-alpha.json",
+      "sha256": "9fb91309940d65be979b5bf0ac83dc913cfedcc036116d063b114bfda01e9d65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/alpha_triangles/ref.png",
+      "sha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.png",
+      "sha256": "fa4f7b7533b5f19d8465586d1672d1d34fcfe5ae1781a301ecb2ed6b1774e3b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/reference-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/reference-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.681.native.npy",
+      "sha256": "2ba9f034e662c16747bc30363c4d0a2a82a376c5801d09e73dbbaa6637600174"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.681.rust.npy",
+      "sha256": "ad6ffe401a06f7db97050c18232acb15dee128180880b15aee5618924c5a80c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.681.black.png",
+      "sha256": "9d05682d67c832512abff181a98c453bb972267da45ec7ffaf1e1d3ab3dfc676"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.681.white.png",
+      "sha256": "3442e8234fc0b25b97dcda55c03a560163d6845d2c58384fba8581f3ffca5567"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.681.jxl",
+      "sha256": "3c8782d1ff9e64f9d4553f0ccb829b524d8777024877bf038bf930de0e51f13b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.681.png",
+      "sha256": "4d1152de5e9e83bd44f958a5f84bafead1b121f752db907c5d568a8dbb59f228"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.549.native.npy",
+      "sha256": "dd2117b0e182233029fd508a91645cb4371b191d0974b58117c42fc5ba136420"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.549.rust.npy",
+      "sha256": "ae91e3bc17bda7e95a63290391c719c4e53a4794a237e63f0e8858d04230effd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.549.black.png",
+      "sha256": "185445ceb9dfaee99083d63f844a01c1395996eb8b9a511a75f692c9f694d7dc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.549.white.png",
+      "sha256": "7d91bca553f88d1770864e62a8d14eb29d86a87ad5f18f49c3abf73b19dcd284"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.549.jxl",
+      "sha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-97.549.png",
+      "sha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-38.375.native.npy",
+      "sha256": "999a97b032df1069e5a37f1bef25cbd92ef61f1a4c445e40928046b12cb6fcbc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-38.375.rust.npy",
+      "sha256": "d07cc5e700232e6a1a58598dc5827f5332c0023c488adc511084d6194c6bf6e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-38.375.black.png",
+      "sha256": "4388a9baf68abae9442e8ee1b5722645f65e845ecbef76ad9f82b885756e3b64"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-38.375.white.png",
+      "sha256": "a1d986855ace45d024d53e05ffd5b85be17028f618c90abefcde04ba6d054b08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-38.375.jxl",
+      "sha256": "83adb7f43c55e05e7854dad6d2ad6c0b7ecee81a073e8bf2cb34cc3b60da84ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/jsquash-38.375.png",
+      "sha256": "9a0d8f233c01eb45dfcecfdbb911b879a83495ebbd6047bc070a53699c459ec5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-9.9874.native.npy",
+      "sha256": "cecfcafd002d45e74c5f768abd1a5d8bbe747bf2305387aabc376ad5729f328c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-9.9874.rust.npy",
+      "sha256": "4b2226ebf8c9363db506331249e83322ee46c005ebb29c456dd7d6a39067dafb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-9.9874.black.png",
+      "sha256": "43b4b3113752e0e717c0e5a027541b468e5b3dfc26ddf027bf9b35c5f8d4c2c9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-9.9874.white.png",
+      "sha256": "7e88aa060f3e075a0eea7b8ead4e91dc9af52a307fc9e009286347774e42386c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+      "sha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-9.9874.png",
+      "sha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-6.2734.native.npy",
+      "sha256": "c6f96154ce0edc5f5b4e1b974c178dc3844852a64cba42e5586c224d35248dcd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-6.2734.rust.npy",
+      "sha256": "255c6b50bfa64909fc05056b8123cd93089c5b212fed0ea334551d3692a5af15"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-6.2734.black.png",
+      "sha256": "193ef157d960375ae74769365a752fd6a23ab642a87c61d6f27a1b5765244c08"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-6.2734.white.png",
+      "sha256": "f727ef23c19c4b37a0581c5531918701feaf6de91ba7fb020063d03e2c48f86e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+      "sha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/vips-6.2734.png",
+      "sha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.native.npy",
+      "sha256": "29894cb4c5186d3a783f5df0f6908899a64f2d52f8345d6a2da3f080702127ce"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.rust.npy",
+      "sha256": "f5c28cdc16afb273372540750ca5aef0abea2dcb91dfd8549d5ebb2aa6a0f169"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.black.png",
+      "sha256": "477813beea2a63dbaa0d4b3b2524ed7ec21b5059f74c20a164c8f4d7c2a95094"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.white.png",
+      "sha256": "c8fb79740765ff1712299fcb0073a5e7947811049640fe816ee2b4a8f5caf2f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.jxl",
+      "sha256": "2b4217e690626aa1f772ee5649b74ce476c61835822d36b69df87b6859b6877d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-3.5.png",
+      "sha256": "514b38b362dec4a5895df495617b2a04d5b8fc22cf25326f80f3f51ecfe40955"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.native.npy",
+      "sha256": "c1049c0763c8c4d861f85754acd869f1f3851dfc778f6c8638f232bf87b5e045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.rust.npy",
+      "sha256": "6db2d4e2a69bab4562dd0f747d35363bb9bdc1eabfc2c9ead83f21e16f6648c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.black.png",
+      "sha256": "ce4989ac3a76e7db78692ec404ada4a8fb7871ba1c7129e5526bb17eae8cca6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.white.png",
+      "sha256": "7efcd45553a858dc6f3b85f6acfda5c74be97ffbc5e4592b5541c4cda25425aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.jxl",
+      "sha256": "7d65cf7db997848811971d51a5b19f04cf1ac11c3b29b309c0c6f9552c698aed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-4.png",
+      "sha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.native.npy",
+      "sha256": "fbf0c245c1d63fe1302fb4800b756ca4225b632107e2106e25c5d1ea4123cd71"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.rust.npy",
+      "sha256": "c680127ba56062fea9ab6fda9f29ae41276874425a16b7a8e8ba686577883f72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.black.png",
+      "sha256": "2c42c643f2d6faa22931eb91be0f18511c596063a2cdf3fb84a33634018cc3cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.white.png",
+      "sha256": "e7e5b2bfd5167952b5d3d11d554b69b25756eb4d71178c8ae16c31d6a31ea3e3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.jxl",
+      "sha256": "3fb8c9e037ca372b1c1c49da2c89b96a62279c7995d195543467664c8a161156"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.png",
+      "sha256": "dd74502bdc41aba7f9f12499420d9a83405036843281dd172310e2551c534ae0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.native.npy",
+      "sha256": "a4fbd5efd1160450831c53b7346cd3e994b7c452c60a728e3d189fe423c2cd94"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.rust.npy",
+      "sha256": "d15e71fff5c6fafa17cb96e2d90cc2739129f1d62f839965384dabe44a45f7c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.black.png",
+      "sha256": "e29afa53c45a056a66dc0a1ee0289a9dca4dc936eeb130413e9b2e08f343d03f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.white.png",
+      "sha256": "748b135877835befb2f0902b04543623b55f9d28e002f9e9128a3517f11e6b5d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.jxl",
+      "sha256": "510bcfccad2403a3d4f0faa5efc26f44dd3246a183ebf077236e13f8af262511"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-6.5.png",
+      "sha256": "c66c1ec7f96279f76d10d1972899b85c723dab4cb625c8b8fde9a8088ff7c82e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.native.npy",
+      "sha256": "3cf441604fffeb02cbf293bcf0b9bdf2b4ba438fd3a575c91747bce47540cf2b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.rust.npy",
+      "sha256": "887a74acb354e6b70ae92f95c6940832507ce8119678af897d0d5a507b4f0fe3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.black.png",
+      "sha256": "5305f5ed1fc840d02855602239cf01d56987c5cfe4de02e09b18f6a55eddf4a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.white.png",
+      "sha256": "631c1e36707fc46e254b34821d5517f08e72e9a478189116fd82d2b797aa4a62"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.jxl",
+      "sha256": "036f57d884768faefe411476276a34dea17d697266a0d88eed34c7bf884c950e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-compression/alpha-production-replay-1385/purejsimage-7.png",
+      "sha256": "aaecb60c19462666584f337fe3f8748bda6afbbaf654c0ec1a9727c54ac2ade8"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-production-package-1383.json",
+      "sha256": "c4b56fd5584c14cb3e62cfb3f8b4bf4473b8c5dd5f73d27a407a45729f72073a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-production-controls-1384.json",
+      "sha256": "34f2a97ef3923a8a4a7d3167972a5424609be5ad904c7ce6a83798e9ff211778"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/alpha-production-replay-1385.json",
+      "sha256": "d37caf8b418cf4303dbc051b2666e4a9745f3541ad005352274097447e973e9a"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-size-1386.json",
+      "sha256": "e0915898b3bbb211042e91f92d9b91a27663f7dbd3c3f5ea557243ebd37aed4b"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-docs-1387.json",
+      "sha256": "7ca35fceaa28e2a643e9b15358f031e445ddccd06c66b4ff98b2e5543064a636"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-browser-1388.json",
+      "sha256": "0166edb4a1229f9ea73f19952d9975f752ecbe8685246a3fecfb073aaed68843"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-website-1391.json",
+      "sha256": "6b6c22871429df5e47b0a58b870e72ede595d1e4624ead07e92776a9c6843e04"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-check-1392.json",
+      "sha256": "f00472fd5adfe57312aea087497125475a62b08eb5ee5c2c567220c5c76e8b0b"
+    },
+    {
+      "path": "/tmp/jpegxl-original-photo-browser-1388.log",
+      "sha256": "1d31861630f4dc3f5ac56b5f0a0b7be020a9684bc12c2eb4363ef59ef2c61ec5"
+    },
+    {
+      "path": "/tmp/jpegxl-original-photo-check-1392.log",
+      "sha256": "411b535346aea6a13747586075bc4296e483ff872055e094e43aff19e7ea041e"
+    },
+    {
+      "path": "/tmp/jpegxl-original-photo-website-1391.log",
+      "sha256": "9a35fbef58d880cc26940f01d145062915336c42a504659f93d97a2b9014fd03"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/bounded-runs/original-photo-check-1389.json",
+      "sha256": "9e579afafa1c5678e6e70b077568c7f4a13988fbd5cc1827ecad1e786eb6a275"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/finalize-original-photo-gates-1390.ts",
+      "sha256": "8adf16d4aa7bb3e6a4e6745ba77da9ac7baef277104200af59b7590f993e12ea"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3bfca128ae3383812a060e629340f46a4fcbe7d667f82ee11b4cbeb3c8978eab"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "9f0d45377aa935ea66867bb22b7bb062592210dae82a3e097427d19294946f1f"
+    },
+    {
+      "path": "tests/helpers/jpegxl-dc-model.ts",
+      "sha256": "5d5db0b78a6090b87b00a9bced376259a7cf987068a72e2f6ced1dfec26be864"
+    },
+    {
+      "path": "tests/jpegxl-dc-model.test.ts",
+      "sha256": "662a6bcc1f3c6ad731aa062b87f50d219c4622eff788b4ad4c8175a005f2c024"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline-harness.ts",
+      "sha256": "5502559eabd06c86452cba92d42e6a7c12e414d2827059434ba75f8c2e408e33"
+    },
+    {
+      "path": "browser-tests/jpegxl-pipeline.pw.ts",
+      "sha256": "bc5c0d6d9ca00b33a354520ad102235f65b77ce08c04ce0a3d86b92338a0891f"
+    },
+    {
+      "path": "browser-tests/jpegxl-showcase.pw.ts",
+      "sha256": "f039c36d615ce8847fdab7aaf8a670f7a1ad3a816b3ed6646898503fd91ce54d"
+    },
+    {
+      "path": "docs-astro/src/pages/jpeg-xl/comparison.astro",
+      "sha256": "46394ce10ca92d5a12f465ee92197e8121f26c93b1ae514c6a471c378e34f34d"
+    },
+    {
+      "path": "scripts/jpegxl-showcase-assets.ts",
+      "sha256": "4391e23cb390bbc7fe077f0234ceb6a44018c84f926445a8733ff4abfcc1d04b"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "6a4fa6acb364332171b1937a1b5aca455c8ccf0a4208c14e1de36135140cfcbf"
+    },
+    {
+      "path": ".github/workflows/pages.yml",
+      "sha256": "0baedaaeba61ca8bb5db62679ce08e40d133cd8ce15123ffa11cdac6a965f4cc"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/ORIGINAL-PHOTO.md",
+      "sha256": "ed3344b9f008b255650e0a693d148c6aa11985d653c3c030b4911de643521389"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/ALPHA-POINTS.md",
+      "sha256": "cddd26ed39c5463edf230b020e5689d467ea516c43f87ce85b6c7398be037eea"
+    }
+  ],
+  "physicalPinsVerified": 256,
+  "publicComparisonCountsChanged": false,
+  "versionChanged": false,
+  "runtimeDependencies": 0,
+  "policy": "Final precommit audit of the adopted original-size DC precision correction and current transparency replay. Both complete packages rebuilt to their measured bytes and exports, original target frontiers and all six ratios recomputed, all six alpha dominance comparisons reconstructed, complete physical pixel/metric evidence rehashed, thirty-three real-browser cases and the full repository gate confirmed. Reused original grids remain explicitly separate from fresh encodes. Previous failed peer controls remain in raw reports. No universal, all-metric, HDR, float, CMYK, animation, speed or process-RSS parity claim."
+}

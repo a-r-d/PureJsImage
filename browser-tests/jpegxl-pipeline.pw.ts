@@ -13,6 +13,7 @@ import {
   verifyJpegXlCoefficientOrders,
   verifyJpegXlDcAllocationRecovery,
   verifyJpegXlDcModel,
+  verifyLargeJpegXlDcAllocationRecovery,
   verifyJpegXlFamilyContexts,
   verifyJpegXlLargeDocumentSelection,
   verifyJpegXlLocalContrast,
@@ -101,6 +102,52 @@ test('JPEG XL weighted DC compression preserves textured gradients across runtim
   const result: unknown = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'
     return (await import(path)).verifyJpegXlDcModel()
+  })
+  expect(object(result)).toEqual(expected)
+})
+
+test('JPEG XL opaque DC precision above four megapixels matches Node in a real browser', async ({
+  page,
+}) => {
+  test.setTimeout(240_000)
+  const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
+  expect(expected.bytes).toBe(91_497)
+  expect(expected.decodedChecksum).toBe(916522992)
+  expect(expected.inputChecksum).toBe(2068954295)
+  expect(expected.samples).toBe(2049 * 2048 * 4)
+  expect(expected.alphaError).toBe(0)
+  expect(expected.meanColorError).toBeLessThan(2.35)
+  expect(expected.ownedPeak).toBeLessThanOrEqual(67_108_864)
+  expect(expected.ownedLive).toBe(0)
+  expect(expected.ownedAllocations).toBe(0)
+  await page.goto('/codec-validation.html')
+  const result: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyJpegXlDcModel(67_108_864, 2049, 2048)
+  })
+  expect(object(result)).toEqual(expected)
+})
+
+test('JPEG XL large opaque allocation recovery matches Node in a real browser', async ({
+  page,
+}) => {
+  test.setTimeout(240_000)
+  const expected = await verifyLargeJpegXlDcAllocationRecovery()
+  expect(expected.bytes).toBe(66_242)
+  expect(expected.encodedChecksum).toBe(3714271240)
+  expect(expected.decodedChecksum).toBe(3313955893)
+  expect(expected.inputChecksum).toBe(2068954295)
+  expect(expected.samples).toBe(2049 * 2048 * 4)
+  expect(expected.alphaError).toBe(0)
+  expect(expected.meanColorError).toBeLessThan(2.43)
+  expect(expected.rejectedAllocations).toBe(1)
+  expect(expected.ownedPeak).toBeLessThanOrEqual(67_108_864)
+  expect(expected.ownedLive).toBe(0)
+  expect(expected.ownedAllocations).toBe(0)
+  await page.goto('/codec-validation.html')
+  const result: unknown = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    return (await import(path)).verifyLargeJpegXlDcAllocationRecovery()
   })
   expect(object(result)).toEqual(expected)
 })
@@ -543,6 +590,8 @@ for (const format of ['rgb8', 'rgba8'] as const) {
     test(`JPEG XL exact lossless ${background} patches agree in Node and Chromium for ${format}`, async ({
       page,
     }) => {
+      // Effort-7 compression searches can take longer on the two-CPU CI browser runners.
+      test.setTimeout(240_000)
       const expected = await verifyLosslessPatchFixture(format, background)
       await page.goto('/compatibility.html')
       const actual = await page.evaluate(
@@ -871,14 +920,20 @@ test('HDR storage metadata and gray-alpha regression workflows agree with Node',
 test('encoder budget admission and cleanup match Node in a real browser', async ({ page }) => {
   const { verifyJpegXlEncoderBudgets } = await import('./jpegxl-pipeline-harness.ts')
   const expected = await verifyJpegXlEncoderBudgets()
-  expect(expected).toHaveLength(12)
-  for (let index = 2; index < 12; index += 3)
-    expect(expected[index]).toMatchObject({
-      bytes: 0,
-      live: 0,
-      allocations: 0,
-      errorCode: 'LIMIT_EXCEEDED',
-    })
+  expect(expected).toHaveLength(14)
+  for (const value of expected) {
+    const row = object(value)
+    expect(row.live).toBe(0)
+    expect(row.allocations).toBe(0)
+    if (typeof row.budget === 'number') expect(row.peak).toBeLessThanOrEqual(row.budget)
+    if (row.boundary === 'below')
+      expect(row).toMatchObject({ bytes: 0, samples: 0, errorCode: 'LIMIT_EXCEEDED' })
+    else {
+      expect(row.bytes).toBeGreaterThan(0)
+      expect(row.samples).toBe(48 * 32 * 3)
+      expect(row.errorCode).toBeUndefined()
+    }
+  }
   await page.goto('/compatibility.html')
   const actual = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'

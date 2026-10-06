@@ -63,6 +63,7 @@ describe('JPEG XL learned lossless prediction', () => {
     30_000,
   )
 
+  // This check includes both effort-7 and effort-5 complete searches.
   it('compresses a large ordered palette while preserving invisible color and alpha', async () => {
     const fixture = paletteLosslessFixture()
     const result = await encodeLearnedLosslessFixture(fixture)
@@ -70,7 +71,7 @@ describe('JPEG XL learned lossless prediction', () => {
     expect(result.encoded.length).toBeLessThan(reference.encoded.length)
     expect(result.ownedLive).toBe(0)
     await verifyLearnedLosslessSamples(fixture, result.encoded)
-  }, 60_000)
+  }, 120_000)
 
   it('retains compact repeating palettes and invisible color across groups', async () => {
     const fixture = learnedLosslessFixture(8, 1025)

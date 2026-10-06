@@ -102,6 +102,7 @@ const graphic = () => {
 }
 
 describe('JPEG XL opaque palette compression', () => {
+  // Complete both optional compression searches on the shared CI runner.
   it('retains the smaller exact Modular winner before comparing quantized edge colors', async () => {
     const fixture = await encodeJpegXlFamilyContextFixture(8, false, true, 16777216)
     // The old complete public file and every original sample pass native and Rust decoders.
@@ -111,7 +112,7 @@ describe('JPEG XL opaque palette compression', () => {
     )
     const decoded = await decode(fixture.encoded, fixture.width, fixture.height)
     expect(decoded).toEqual(fixture.pixels)
-  }, 30_000)
+  }, 60_000)
 
   it('preserves flat-region colors throughout the image while reducing edge detail', async () => {
     const pixels = graphic(),
