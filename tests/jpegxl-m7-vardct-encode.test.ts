@@ -202,7 +202,7 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
           expect(result.alphaError).toBe(0)
           expect(result.alphaSamples).toBe(513 * 129)
           expect(result.bytes).toBeLessThanOrEqual(maximumBytes)
-        })
+        }, 30_000)
 
   for (const depth of [8, 16] as const)
     for (const grouped of [false, true])

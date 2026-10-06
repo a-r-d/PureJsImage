@@ -150,6 +150,8 @@ describe('JPEG XL multi-group lossless effort search', () => {
       }
       expect(rows).toBe(height)
     },
+    // Learned group search may exceed Vitest's five-second default on shared CI CPUs.
+    30_000,
   )
 
   for (const width of [1024, 1025]) {

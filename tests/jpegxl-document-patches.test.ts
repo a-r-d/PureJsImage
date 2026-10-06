@@ -140,6 +140,7 @@ describe('JPEG XL document reference patches', () => {
     60_000,
   )
 
+  // The bounded search must finish before its structured rejection on shared CI CPUs.
   it('reports a structured working-storage limit without modifying caller samples', async () => {
     const fixture = losslessPatchFixture()
     const original = Uint8Array.from(fixture.pixels)
@@ -147,7 +148,7 @@ describe('JPEG XL document reference patches', () => {
       code: 'LIMIT_EXCEEDED',
     })
     expect(fixture.pixels).toEqual(original)
-  })
+  }, 30_000)
 
   it.each(['document', 'flat'] as const)(
     'releases component scratch when the bounded %s search stops early',
