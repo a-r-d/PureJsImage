@@ -1,0 +1,117 @@
+browser-tests/jpegxl-showcase.pw.ts
+  s_2b0ba550ad1491::t_a318aca142c529 263-265,270-275,282-284
+  s_2b0ba550ad1491::t_8655707331598e 6,262,266-269,276-281
+  s_2b0ba550ad1491::t_8817614e83ec99 288-290,299-302
+  s_2b0ba550ad1491::t_69248ac0f6b15e 285-287,291-298
+benchmark/jpegxl/comparison/PHOTO-PARITY.md
+  s_2b0ba550ad1491::t_8817614e83ec99 44-47
+  s_2b0ba550ad1491::t_a66b3acd795767 1-43,48-97
+jpegxl-codec-support.md
+  s_2b0ba550ad1491::t_3a4efb29298479 23,98,181-184
+src/codecs/jpegxl-jpeg-encode.ts
+  s_2b0ba550ad1491::t_9cd03e40499ced 15,48,91,480-485,487-525,615,655-678,699,772-795,815,818-825,827-831,854-858,867-870,1049-1053,1114-1139,1192,1196-1197,1469-1474,1487-1488,1493-1497,1499,1501,1510,1528-1532,1534-1535,1543-1545,1984,2025
+capabilities/manifest.json
+  s_2b0ba550ad1491::t_2607c94e740149 3654,3691-3695,3775-3776,3801,3876,3959-3962
+  s_2b0ba550ad1491::t_2e5ed83070be62 3777
+benchmark/jpegxl/comparison/verify-photo-transforms.ts
+  s_2b0ba550ad1491::t_23bc8902941897 3-6,10-13,27-29,31-36,39-40,48-49,51-57,60-63,66-79,84-98,104-116
+  s_2b0ba550ad1491::t_6d30761f2ccd28 1-2,7-9,14-26,30,37-38,41-47,50,58-59,64-65,80-83,99-103
+browser-tests/jpegxl-large-blocks.pw.ts
+  s_2b0ba550ad1491::t_3c8e5c93dd2905 1-3,44-45,49-52,59-66
+  s_2b0ba550ad1491::t_91d9cdf477ae08 4-43,46-48,53-58
+src/codecs/jpegxl-modular-encode.ts
+  s_2b0ba550ad1491::t_9cd03e40499ced 6354-6448
+src/codecs/jpegxl-vardct-forward-transforms.ts
+  s_2b0ba550ad1491::t_9cd03e40499ced 132-167
+README.md
+  s_2b0ba550ad1491::t_2d382985f180cd 482
+  s_2b0ba550ad1491::t_fee1bd78ca0cd1 463
+browser-tests/jpegxl-pipeline-harness.ts
+  s_2b0ba550ad1491::t_3c8e5c93dd2905 24
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_9cd03e40499ced 21-24,28,78,86,274-330,332-344,354,386,417,482-535,550,1044-1068,1099,1254-1363,1366-1547,1565-1566,1569-1577,1579-1606,1623,1626,1630,1643-1645,1716
+  s_2b0ba550ad1491::t_357ce4b370627b 1253,1364-1365
+  s_2b0ba550ad1491::t_bf170111ac8e4f 20
+docs-astro/src/pages/jpeg-xl/comparison.astro
+  s_2b0ba550ad1491::t_8817614e83ec99 283
+  s_2b0ba550ad1491::t_8655707331598e 3-4,282,284,287
+benchmark/jpegxl/comparison/GRAPHIC-POINTS.md
+  s_2b0ba550ad1491::t_8817614e83ec99 1-71
+tests/jpegxl-large-blocks.test.ts
+  s_2b0ba550ad1491::t_4e04b58436c731 18
+  s_2b0ba550ad1491::t_2254fcae186b19 1-17,19-125
+tests/helpers/jpegxl-large-blocks.ts
+  s_2b0ba550ad1491::t_358d9392dc5f61 1-38,41-57,59-65,67-69,74-131
+  s_2b0ba550ad1491::t_e68232ccb2b0a8 39-40,58,66,70-73
+tests/generated/capability-expectations.json
+  s_2b0ba550ad1491::t_3a4efb29298479 330-331,337,374-378
+  s_2b0ba550ad1491::t_2c8b9efceedf82 332
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_2d382985f180cd 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/comparison/results/graphic-point-production-controls.json
+  s_2b0ba550ad1491::t_2e67caa859561f 1-954
+benchmark/jpegxl/comparison/results/photo-transform-native-baseline.json
+  s_2b0ba550ad1491::t_30c88019755c64 1-170
+benchmark/jpegxl/comparison/verify-graphic-compression.ts
+  s_2b0ba550ad1491::t_2e7a629e21052d 1-6,18-24,27,29,36-39,48-49,57-62,72,75-80,91-92,97,106-108,119,122-123,129,132-134,137,148,156-159,189,209,219,229,232,246-247,265-269
+  s_2b0ba550ad1491::t_e0326d3c200bb0 7-17,25-26,28,30-35,40-47,63-69,71,73-74,81-90,93-96,98-105,109-118,120-121,124-128,130-131,135-136,138-139,142-147,149-155,190-208,210-218,220-228,230-231,233-238,245,248-264,270-289
+  s_2b0ba550ad1491::t_aa7d8e0a358cd7 50-56,70,140-141,175-183,239-240
+  s_2b0ba550ad1491::t_61ecc42f9cc0d9 160-174,184-188
+  s_2b0ba550ad1491::t_c2d7eda1d2f29a 241-244
+benchmark/jpegxl/comparison/REPORT.md
+  s_2b0ba550ad1491::t_9c28a6b8298c91 3-12,30-31,44
+  s_2b0ba550ad1491::t_8817614e83ec99 13-18
+  s_2b0ba550ad1491::t_b7935f5ea3fee8 19-23
+scripts/jpegxl-showcase-assets.ts
+  s_2b0ba550ad1491::t_8817614e83ec99 32,49
+  s_2b0ba550ad1491::t_8655707331598e 31,48,50
+benchmark/jpegxl/comparison/results/photo-parity-production-final-gates.json
+  s_2b0ba550ad1491::t_fe229bdaebdbb5 1-2105
+benchmark/jpegxl/comparison/PARITY.md
+  s_2b0ba550ad1491::t_8817614e83ec99 16-20
+  s_2b0ba550ad1491::t_b7935f5ea3fee8 21-26
+  s_2b0ba550ad1491::t_9c28a6b8298c91 5-15,31-32
+scripts/bundle-size-budgets.ts
+  s_2b0ba550ad1491::t_357ce4b370627b 16-19
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_dffd19b1c6b1da 10
+  s_2b0ba550ad1491::t_2b8550694359ab 12
+  s_2b0ba550ad1491::t_be01a6225e6b95 3701-3706
+  s_2b0ba550ad1491::t_d6f063add332cb 3707-3708
+  s_2b0ba550ad1491::t_2bb121f621ea0c 11
+  s_2b0ba550ad1491::t_b7935f5ea3fee8 3709-3710
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_2d382985f180cd 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/jpegxl/comparison/verify-photo-compression.ts
+  s_2b0ba550ad1491::t_2bad4ec99f429a 25
+  s_2b0ba550ad1491::t_663529a71f7757 13,315-319
+  s_2b0ba550ad1491::t_5ab3f975a0db4b 1-12,26,31-36,41-44,53-54,58-60,79-82,85-86,100-107,109,116-119,123-125,128,153,163,171-174,179-185,188,196-197,202,211-213,224-226,233-234,264,269-270,276,279-281,288,313-314,336,340-348
+  s_2b0ba550ad1491::t_d99e5d00fbcf6b 14-24,27-30,37-40,45-52,55-57,61-78,83-84,87-99,108,110-115,120-122,126-127,129-152,154-162,164-170,175-178,186-187,189-195,198-201,203-210,214-223,227-232,235-263,265-268,271-275,277-278,282-287,289-312,320-335,337-339,349-367
+src/codecs/jpegxl-vardct-quantization.ts
+  s_2b0ba550ad1491::t_9cd03e40499ced 98-105
+benchmark/jpegxl/comparison/results/photo-parity-production-controls.json
+  s_2b0ba550ad1491::t_1e7fc8029bad5d 1-2448,2450
+  s_2b0ba550ad1491::t_d21f2d3fc101d6 2449
+docs-astro/public/capabilities.json
+  s_2b0ba550ad1491::t_3a4efb29298479 5603-5604,5610,5647-5651,6009
+  s_2b0ba550ad1491::t_2c8b9efceedf82 5605
+  s_2b0ba550ad1491::t_7cccd230c16cc5 6010-6012
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_8e002695e05bf9 109-111,129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4b780ccefa3bcd2418cb84d3f5e815b58e20e002",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
