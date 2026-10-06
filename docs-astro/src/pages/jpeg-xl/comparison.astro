@@ -1,7 +1,8 @@
 ---
+import alphaCompression from '../../../../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json'
 import dcCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
-import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
+import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
 import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
 import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
@@ -18,6 +19,18 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const n = (v: unknown) => (typeof v === 'number' ? v : 0)
 const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')
 const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']
+const alphaPoint = alphaCompression.pointDominance
+if (
+  alphaCompression.completed !== true ||
+  alphaCompression.sourceAdopted !== true ||
+  alphaCompression.fullParity !== false ||
+  alphaCompression.publicComparisonCountsChanged !== false ||
+  alphaPoint.alphaExact !== true ||
+  alphaPoint.pureBytes >= alphaPoint.peerBytes ||
+  alphaPoint.pureScore < alphaPoint.peerScore ||
+  alphaPoint.pureButteraugli > alphaPoint.peerButteraugli
+)
+  throw new Error('Incomplete alpha compression evidence')
 const names = [
   'PureJsImage repository build',
   ...['@jsquash/jxl', 'jxl-oxide-wasm', 'wasm-vips'].map((name) => {
@@ -265,6 +278,7 @@ if (
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
+<p>The latest alpha palette search reduces the original transparency fixture from 48,819 to 9,038 bytes with identical decoded colors, exact alpha and unchanged quality scores. A higher-quality {alphaPoint.pureBytes.toLocaleString('en-US')}-byte point is smaller than the frozen {alphaPoint.peerBytes.toLocaleString('en-US')}-byte wasm-vips point and scores better on both SSIMULACRA2 and Butteraugli. This proves dominance of that measured point. It keeps the frozen matched-pair counts unchanged, and the photo score-70 gap remains open. The core package grows by 2,838 bytes for this gain. <a href="/jpeg-xl/evidence/ALPHA-PALETTES.md" download>Alpha compression and boundaries</a> and <a href="/jpeg-xl/evidence/alpha-palette-production-controls.json" download>Production measurements</a>.</p>
 <p>The latest integer-lossless encoding closes all three remaining measured size gaps. Every one of the 45 independently exact comparable cells in the original Node matrix now meets or beats the frozen peer size. All four separate original-size photo and screenshot controls also meet or beat peer size. This is compression parity on the pinned integer-lossless corpus. Broader lossy, float, CMYK and animation compression remains open.</p>
 <p>PureJsImage now decodes all 16 pinned lossless inputs exactly, including the seven that previously failed. It exposes native sample and exact JPEG workflows. The dated comparison below records toolkit sizes and runtime performance. The WASM alternatives are faster on several workloads; {unresolvedQuality} current lossy quality comparisons remain unresolved.</p>
 <p>Later unreleased compression changes reduce the same 4000 × 3000 lossless effort-1 photo from 15,389,193 to {currentPhotoBytes} bytes, versus the pinned 9,306,869-byte jSquash and 8,176,908-byte wasm-vips files. All 16 lossless inputs preserve every sample in two independent decoders. The integrated DC model reduces 67 of the 91 original lossy files with identical decoded samples. The later photo filter changes 27 files, making them slightly larger at the same distance setting, with no SSIMULACRA2 regressions and ten Butteraugli regressions. At matched SSIMULACRA2 80, both tested photos are now smaller than both frozen WASM peers. The first photo is {(Math.abs(Number(photoSizeGap))).toFixed(2)}% smaller than wasm-vips at score 80, but remains 3.00% larger at score 70. The combined comparison has {adequate.length} adequately matched pairs and {unresolvedQuality} unresolved pairs. Overall compression parity remains open. Separate photo and graphic cost studies for this photo checkpoint pass the unchanged 5% timing guard and authorized 10% peak RSS allowance. The speed tables below retain their earlier source. Photo checkpoint source SHA-256: <code>{dcCompression.implementationSourceSha256}</code>.</p>

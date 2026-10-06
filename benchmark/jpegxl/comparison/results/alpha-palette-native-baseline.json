@@ -1,0 +1,445 @@
+{
+  "implementationRevision": "fc980090c4f3603ba3b2f9902f3ef3d3a0adfe7b",
+  "implementationSourceSha256": "792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f",
+  "sourceReport": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259.json",
+  "sourceReportSha256": "594a570c42737c23400699f4e136380db9e8f270ef61ea2a691b9adbdaac168a",
+  "results": [
+    {
+      "index": 0,
+      "depth": 8,
+      "progressive": false,
+      "grouped": false,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 9379,
+      "baselineBytes": 9379,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/0-baseline.jxl",
+      "sha256": "6b8771e9de840c858c6018ecdf26a156da916ea5f34fb881af011409ab1deba7",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/0-baseline.jxl.native.npy",
+          "sha256": "a5f765f7eac0e5b1444a161fcb69c82d5632512b13871609d0f4a46db08ce171",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/0-baseline.jxl.rust.npy",
+          "sha256": "d23cc35310ad767a641fb0b93b442afd70b20aa9225a52adc63764434e1deb86",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "depth": 8,
+      "progressive": false,
+      "grouped": true,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 18168,
+      "baselineBytes": 18168,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/1-baseline.jxl",
+      "sha256": "5f427e113d91f2e0331aea3184bcead4ab3bc68a8073bcaa9e3baed2d67ef003",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/1-baseline.jxl.native.npy",
+          "sha256": "fb7432c8d723b83bc593b871c6a4b439a112ad9fc3fc29f8c48f8c2207d7f1af",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/1-baseline.jxl.rust.npy",
+          "sha256": "7c7954386b4e4da82042fed8ad5baacec8515f9f5d81d3b9d48445761bbe624c",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "depth": 8,
+      "progressive": true,
+      "grouped": false,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 10894,
+      "baselineBytes": 10894,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/2-baseline.jxl",
+      "sha256": "14f43a500dda241835e4f4ead0ddcbc3ce7fd1d3a3285775c77e987617ef25f6",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/2-baseline.jxl.native.npy",
+          "sha256": "a5f765f7eac0e5b1444a161fcb69c82d5632512b13871609d0f4a46db08ce171",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/2-baseline.jxl.rust.npy",
+          "sha256": "d23cc35310ad767a641fb0b93b442afd70b20aa9225a52adc63764434e1deb86",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "depth": 8,
+      "progressive": true,
+      "grouped": true,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 21039,
+      "baselineBytes": 21039,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/3-baseline.jxl",
+      "sha256": "ddf2393ecb9763ca21a4be62c13a106b9b4371ce501489186b12f53447a0242d",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/3-baseline.jxl.native.npy",
+          "sha256": "fb7432c8d723b83bc593b871c6a4b439a112ad9fc3fc29f8c48f8c2207d7f1af",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/3-baseline.jxl.rust.npy",
+          "sha256": "7c7954386b4e4da82042fed8ad5baacec8515f9f5d81d3b9d48445761bbe624c",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "depth": 16,
+      "progressive": false,
+      "grouped": false,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 7181,
+      "baselineBytes": 7181,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/4-baseline.jxl",
+      "sha256": "923dab58730241267dae3443255d2e697b69d625c1e6f7ee4d7df75fe9c816a6",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/4-baseline.jxl.native.npy",
+          "sha256": "5ff88a95f3ed87db72713c2d199f44a723e1ffa5148fe48ba8d40eaf97103375",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/4-baseline.jxl.rust.npy",
+          "sha256": "aeab51f9a0561dfe726958ccd18df15bf4a8c0d42e4faba52f7eba5c582b3d9c",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "depth": 16,
+      "progressive": false,
+      "grouped": true,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 13947,
+      "baselineBytes": 13947,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/5-baseline.jxl",
+      "sha256": "ad3d3af9bfd5e31931c290e92bc6b312cc79bd371b27b1dcca9c23ebbca9b9ea",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/5-baseline.jxl.native.npy",
+          "sha256": "6c7d224d56e50d7ec3cb084ba8f5300dab4bbcf9b06eebd536b50b6c9509be71",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/5-baseline.jxl.rust.npy",
+          "sha256": "5f53467f8be2acb4e3fef29a5382771952d8eb451f52c910c48dd0f0a654442e",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "depth": 16,
+      "progressive": true,
+      "grouped": false,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 8387,
+      "baselineBytes": 8387,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/6-baseline.jxl",
+      "sha256": "e8fd1dd258312dff1b016017ac7e58a893917ea0687349dcd8f7b1fbdfd61c3b",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/6-baseline.jxl.native.npy",
+          "sha256": "5ff88a95f3ed87db72713c2d199f44a723e1ffa5148fe48ba8d40eaf97103375",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/6-baseline.jxl.rust.npy",
+          "sha256": "aeab51f9a0561dfe726958ccd18df15bf4a8c0d42e4faba52f7eba5c582b3d9c",
+          "samples": 66564,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "depth": 16,
+      "progressive": true,
+      "grouped": true,
+      "budget": 16777216,
+      "variant": "baseline",
+      "bytes": 16277,
+      "baselineBytes": 16277,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/7-baseline.jxl",
+      "sha256": "86408e42ccf3496f0e9fd90b1b0eab5dfd08acd168e943dc71b3277c9d7006be",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/7-baseline.jxl.native.npy",
+          "sha256": "6c7d224d56e50d7ec3cb084ba8f5300dab4bbcf9b06eebd536b50b6c9509be71",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/7-baseline.jxl.rust.npy",
+          "sha256": "5f53467f8be2acb4e3fef29a5382771952d8eb451f52c910c48dd0f0a654442e",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "depth": 8,
+      "progressive": true,
+      "grouped": true,
+      "budget": 3145728,
+      "variant": "baseline",
+      "bytes": 21486,
+      "baselineBytes": 21486,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/8-baseline.jxl",
+      "sha256": "895fa3c433e6340be145dc2dfa91c6ec4069e369720049b64ebf9af836002fa2",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/8-baseline.jxl.native.npy",
+          "sha256": "fb7432c8d723b83bc593b871c6a4b439a112ad9fc3fc29f8c48f8c2207d7f1af",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/8-baseline.jxl.rust.npy",
+          "sha256": "7c7954386b4e4da82042fed8ad5baacec8515f9f5d81d3b9d48445761bbe624c",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "depth": 16,
+      "progressive": true,
+      "grouped": true,
+      "budget": 3145728,
+      "variant": "baseline",
+      "bytes": 16976,
+      "baselineBytes": 16976,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/9-baseline.jxl",
+      "sha256": "a171b33355b331c152946eec12a320144006329842dde7b593fb1177f3ac5dbc",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/9-baseline.jxl.native.npy",
+          "sha256": "6c7d224d56e50d7ec3cb084ba8f5300dab4bbcf9b06eebd536b50b6c9509be71",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/9-baseline.jxl.rust.npy",
+          "sha256": "5f53467f8be2acb4e3fef29a5382771952d8eb451f52c910c48dd0f0a654442e",
+          "samples": 132612,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "depth": 8,
+      "progressive": false,
+      "grouped": true,
+      "budget": 16777216,
+      "dimensions": {
+        "width": 2065,
+        "height": 17
+      },
+      "variant": "baseline",
+      "bytes": 36666,
+      "baselineBytes": 36666,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/10-baseline.jxl",
+      "sha256": "438f3afda47084ed13ed7eb8f105c8f3a5bc1166c3a455f5a2c671cb5b1aef43",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/10-baseline.jxl.native.npy",
+          "sha256": "7e8acba96b91dc87cbed31d33db81cb25fb566e9faeba81d7b5d0adc84bcb9b3",
+          "samples": 140420,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/10-baseline.jxl.rust.npy",
+          "sha256": "e5d39a456a1cd1d4892ff36f185be3c75e63a765039a8295d1d5979252bd838e",
+          "samples": 140420,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "depth": 8,
+      "progressive": true,
+      "grouped": true,
+      "budget": 16777216,
+      "dimensions": {
+        "width": 2065,
+        "height": 17
+      },
+      "variant": "baseline",
+      "bytes": 42248,
+      "baselineBytes": 42248,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/11-baseline.jxl",
+      "sha256": "d222f2433e129282d846620d2e0431ae363356288d9c36787f72c1faf04894f8",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/11-baseline.jxl.native.npy",
+          "sha256": "7e8acba96b91dc87cbed31d33db81cb25fb566e9faeba81d7b5d0adc84bcb9b3",
+          "samples": 140420,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/11-baseline.jxl.rust.npy",
+          "sha256": "e5d39a456a1cd1d4892ff36f185be3c75e63a765039a8295d1d5979252bd838e",
+          "samples": 140420,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "depth": 8,
+      "progressive": false,
+      "grouped": true,
+      "budget": 16777216,
+      "dimensions": {
+        "width": 2065,
+        "height": 33
+      },
+      "variant": "baseline",
+      "bytes": 45519,
+      "baselineBytes": 45519,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/12-baseline.jxl",
+      "sha256": "c4801b90b82fc259071c69527b9f059167950983ea7a4d6d951ffa7908cb46fa",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/12-baseline.jxl.native.npy",
+          "sha256": "c9c8cd33434462d2dde127c3c175049ceaae80522f627f11481c856414fdfe15",
+          "samples": 272580,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/12-baseline.jxl.rust.npy",
+          "sha256": "d16848ffc5c6347f3872a5609bbc6b6765019c94c7a9e925e082b4f3587f0361",
+          "samples": 272580,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "depth": 8,
+      "progressive": true,
+      "grouped": true,
+      "budget": 16777216,
+      "dimensions": {
+        "width": 2065,
+        "height": 33
+      },
+      "variant": "baseline",
+      "bytes": 52208,
+      "baselineBytes": 52208,
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/13-baseline.jxl",
+      "sha256": "aca7cab3b53411c9d35c0288acbdfb0b1f8cdfbb2d088209324e0488e4bedc63",
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/13-baseline.jxl.native.npy",
+          "sha256": "c9c8cd33434462d2dde127c3c175049ceaae80522f627f11481c856414fdfe15",
+          "samples": 272580,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-native-regressions-1259/13-baseline.jxl.rust.npy",
+          "sha256": "d16848ffc5c6347f3872a5609bbc6b6765019c94c7a9e925e082b4f3587f0361",
+          "samples": 272580,
+          "alphaExact": true,
+          "baselineGridIdentical": false
+        }
+      ]
+    }
+  ],
+  "policy": "Pre-change complete native/Rust decoded grids. Retain original source identity, bytes, artifacts and native sample hashes."
+}

@@ -28,8 +28,9 @@ describe('JPEG XL exact artwork candidate', () => {
   }, 30_000)
 
   for (const alpha of ['varying', 'hidden'] as const)
-    it(`selects smaller exact visible color and alpha for ${alpha}-alpha artwork`, async () => {
+    it(`retains exact visible color and alpha after alpha-search changes for ${alpha}-alpha artwork`, async () => {
       const result = await verifyJpegXlArtwork({ alpha })
+      // A smaller lossy alpha stream must preserve the established exact-color selection.
       expect(result.bytes).toBe(13807)
       expect(result.encodedChecksum).toBe(1526632822)
       expect(result.decodedChecksum).toBe(2516035649)

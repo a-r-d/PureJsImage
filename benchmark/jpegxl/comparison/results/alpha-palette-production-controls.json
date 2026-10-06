@@ -1,0 +1,1090 @@
+{
+  "implementationRevision": "fc980090c4f3603ba3b2f9902f3ef3d3a0adfe7b",
+  "implementationSourceSha256": "7a57853b88290284dcbcee80e05ba5f15c861827b600c38ac5389144fc14bdb3",
+  "implementationDirty": true,
+  "packages": [
+    {
+      "variant": "baseline",
+      "bundle": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/baseline.js",
+      "bytes": 540986,
+      "sha256": "aeaeaec1b7b297bcd8ba837fa758314be51d7020e9ac0ffa68e3d798a2af763a",
+      "ceiling": 545000,
+      "withinCeiling": true
+    },
+    {
+      "variant": "shared-alpha",
+      "bundle": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/shared-alpha.js",
+      "bytes": 544048,
+      "sha256": "da54a6790d51df5f14cea062df9c8fdfae543fa9aeb9a22456b97677f633f9ff",
+      "ceiling": 545000,
+      "withinCeiling": true
+    }
+  ],
+  "results": [
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 0,
+      "distance": 3.8,
+      "bytes": 49010,
+      "score": 90.49518254,
+      "butteraugli": 1.2482200861,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.95991667,
+          "butteraugli": 1.2482200861
+        },
+        {
+          "background": "white",
+          "score": 90.49518254,
+          "butteraugli": 1.2482200861
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl",
+      "encodedSha256": "91b8090a198706f7bc802bf62f7ea74ea1f5fa10b14f6a92ad80291eee90358e",
+      "decodedSha256": "abd6a5c4b43080394f8bd03512a281f5040612684ea3ecc6d71a85ff47b3eaa3",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.native.npy",
+          "sha256": "f326f893abc5b08e16e9af12f2a36d322a4fd2edf36889ca2b78666d70b1e726",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.rust.npy",
+          "sha256": "18931181d71f5f76147fde226f6d4bcc10b034aefff850e51562dc4413f49d42",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 15402302,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 3695.816445
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 0,
+      "distance": 4,
+      "bytes": 48936,
+      "score": 90.55154123,
+      "butteraugli": 1.3183964491,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.59214229,
+          "butteraugli": 1.3182717562
+        },
+        {
+          "background": "white",
+          "score": 90.55154123,
+          "butteraugli": 1.3183964491
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl",
+      "encodedSha256": "1d874676a60812e610bea2735aac3ce061843265a4e38192e04eaa9ffb7af592",
+      "decodedSha256": "a1c2c1505363e57091ae28b6145d82383bbc30a31de207c1d3f51a3bd968425e",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.native.npy",
+          "sha256": "c1049c0763c8c4d861f85754acd869f1f3851dfc778f6c8638f232bf87b5e045",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.rust.npy",
+          "sha256": "6db2d4e2a69bab4562dd0f747d35363bb9bdc1eabfc2c9ead83f21e16f6648c8",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 15402080,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 3659.298628999999
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 0,
+      "distance": 4.3026,
+      "bytes": 48819,
+      "score": 90.01479488,
+      "butteraugli": 1.406440258,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.29593553,
+          "butteraugli": 1.406440258
+        },
+        {
+          "background": "white",
+          "score": 90.01479488,
+          "butteraugli": 1.406440258
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl",
+      "encodedSha256": "2f3225f9593cf79573285628bf59b9b289eaa40c8c9d144cc57053396367946c",
+      "decodedSha256": "dae43f4fe63979f105ec74d362f2e32327cf64ae884b530f17595f68dfcfbe8b",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.native.npy",
+          "sha256": "b5de184937e822f6e568e2cb36e0e232ef57f709d10fea291fa5c8e59c1b2ef9",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.rust.npy",
+          "sha256": "6a3267ee2eef98c50107485c421fd852522450fba5d3a34c27db58ce6c25f788",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 15401729,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 3739.0290910000003
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 0,
+      "distance": 11.503,
+      "bytes": 47112,
+      "score": 80.02525209,
+      "butteraugli": 4.6927223206,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 80.02525209,
+          "butteraugli": 4.6927223206
+        },
+        {
+          "background": "white",
+          "score": 81.61704937,
+          "butteraugli": 4.6927218437
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl",
+      "encodedSha256": "b80078d3fb2fed5ddcb82788b16c3b000f67a8291cd97ce16f7b825cf5f646ca",
+      "decodedSha256": "7c9fb53ac04c828183179e7cbf9d4f3c0bd0d31bd69c4e26dda6ddb85e5bc383",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.native.npy",
+          "sha256": "fd286c57fd973b6ebe9f3afaa61935b97d643d7f5a0d1829bc4de6455c72b6b3",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.rust.npy",
+          "sha256": "bd9db28b3316a1fe2e5f7bbdf3a799e980f0208f1592f3fc7b49e485de9ba00a",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 15396608,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 3682.8512779999983
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "baseline",
+      "target": 0,
+      "distance": 16.22,
+      "bytes": 46530,
+      "score": 70.22780938,
+      "butteraugli": 8.2636814117,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 70.22780938,
+          "butteraugli": 8.2634620667
+        },
+        {
+          "background": "white",
+          "score": 72.84539649,
+          "butteraugli": 8.2636814117
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl",
+      "encodedSha256": "c83916b4e8d6715f20e7289676817d777ec1ad55f6637180a260be777dcf9cac",
+      "decodedSha256": "99996afa638aecf60470e0da246ba4e74c5bf41b88dcea0dc8d1eace444e8e9a",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.native.npy",
+          "sha256": "b843a4b898417b7b3f80c5eb5f391d56026deb547f1b89de4ef3f84ec1960fcb",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.rust.npy",
+          "sha256": "93e41f13539a1c1183ff2af12ca6ebe028b233fc6a5dbdfffc627ca49df25a11",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 0,
+      "ownedPeak": 15394862,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 3670.7416889999986
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "shared-alpha",
+      "target": 0,
+      "distance": 3.8,
+      "bytes": 9229,
+      "score": 90.49518254,
+      "butteraugli": 1.2482200861,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.95991667,
+          "butteraugli": 1.2482200861
+        },
+        {
+          "background": "white",
+          "score": 90.49518254,
+          "butteraugli": 1.2482200861
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl",
+      "encodedSha256": "2e38936fb70044459cfbd9b2950647966155bd57da88d1e10b00e4785234ac5c",
+      "decodedSha256": "abd6a5c4b43080394f8bd03512a281f5040612684ea3ecc6d71a85ff47b3eaa3",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.native.npy",
+          "sha256": "f326f893abc5b08e16e9af12f2a36d322a4fd2edf36889ca2b78666d70b1e726",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.rust.npy",
+          "sha256": "18931181d71f5f76147fde226f6d4bcc10b034aefff850e51562dc4413f49d42",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 36915007,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 25106.513945
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "shared-alpha",
+      "target": 0,
+      "distance": 4,
+      "bytes": 9155,
+      "score": 90.55154123,
+      "butteraugli": 1.3183964491,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.59214229,
+          "butteraugli": 1.3182717562
+        },
+        {
+          "background": "white",
+          "score": 90.55154123,
+          "butteraugli": 1.3183964491
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl",
+      "encodedSha256": "7d65cf7db997848811971d51a5b19f04cf1ac11c3b29b309c0c6f9552c698aed",
+      "decodedSha256": "a1c2c1505363e57091ae28b6145d82383bbc30a31de207c1d3f51a3bd968425e",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.native.npy",
+          "sha256": "c1049c0763c8c4d861f85754acd869f1f3851dfc778f6c8638f232bf87b5e045",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.rust.npy",
+          "sha256": "6db2d4e2a69bab4562dd0f747d35363bb9bdc1eabfc2c9ead83f21e16f6648c8",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 36914785,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 26005.477666
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "shared-alpha",
+      "target": 0,
+      "distance": 4.3026,
+      "bytes": 9038,
+      "score": 90.01479488,
+      "butteraugli": 1.406440258,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 90.29593553,
+          "butteraugli": 1.406440258
+        },
+        {
+          "background": "white",
+          "score": 90.01479488,
+          "butteraugli": 1.406440258
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl",
+      "encodedSha256": "4cca81e5e2729007924b35ca046bb3f1821e6cefa2903842ffcad06adf727cbb",
+      "decodedSha256": "dae43f4fe63979f105ec74d362f2e32327cf64ae884b530f17595f68dfcfbe8b",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.native.npy",
+          "sha256": "b5de184937e822f6e568e2cb36e0e232ef57f709d10fea291fa5c8e59c1b2ef9",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.rust.npy",
+          "sha256": "6a3267ee2eef98c50107485c421fd852522450fba5d3a34c27db58ce6c25f788",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 36914434,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 25529.948657
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "shared-alpha",
+      "target": 0,
+      "distance": 11.503,
+      "bytes": 7331,
+      "score": 80.02525209,
+      "butteraugli": 4.6927223206,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 80.02525209,
+          "butteraugli": 4.6927223206
+        },
+        {
+          "background": "white",
+          "score": 81.61704937,
+          "butteraugli": 4.6927218437
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl",
+      "encodedSha256": "9926d2a4a6664302f1f49e6702032903f31643520bb6b078b6f95648c728a77d",
+      "decodedSha256": "7c9fb53ac04c828183179e7cbf9d4f3c0bd0d31bd69c4e26dda6ddb85e5bc383",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.native.npy",
+          "sha256": "fd286c57fd973b6ebe9f3afaa61935b97d643d7f5a0d1829bc4de6455c72b6b3",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.rust.npy",
+          "sha256": "bd9db28b3316a1fe2e5f7bbdf3a799e980f0208f1592f3fc7b49e485de9ba00a",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 1,
+      "ownedPeak": 36909313,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 25849.947868000003
+    },
+    {
+      "fixture": "alpha_triangles",
+      "variant": "shared-alpha",
+      "target": 0,
+      "distance": 16.22,
+      "bytes": 6749,
+      "score": 70.22780938,
+      "butteraugli": 8.2636814117,
+      "backgrounds": [
+        {
+          "background": "black",
+          "score": 70.22780938,
+          "butteraugli": 8.2634620667
+        },
+        {
+          "background": "white",
+          "score": 72.84539649,
+          "butteraugli": 8.2636814117
+        }
+      ],
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl",
+      "encodedSha256": "e0346f418cbbd44b058ec4f5e8fdb6ee8aecb49201f5f962de613bf6d73ca8fb",
+      "decodedSha256": "99996afa638aecf60470e0da246ba4e74c5bf41b88dcea0dc8d1eace444e8e9a",
+      "originalAlphaError": 0,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.native.npy",
+          "sha256": "b843a4b898417b7b3f80c5eb5f391d56026deb547f1b89de4ef3f84ec1960fcb",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.rust.npy",
+          "sha256": "93e41f13539a1c1183ff2af12ca6ebe028b233fc6a5dbdfffc627ca49df25a11",
+          "samples": 4194304,
+          "originalAlphaError": 0
+        }
+      ],
+      "maximumDecoderError": 0,
+      "ownedPeak": 36907567,
+      "ownedLive": 0,
+      "ownedAllocations": 0,
+      "elapsedMs": 25682.71126100002
+    }
+  ],
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-shared-model-guarded-1258-sources/jpegxl-modular-encode.ts",
+      "sha256": "c0dcfdeb9bcf2e4798647404100cd2ec014eecf2de67b03fc1ca283f99e7c326"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-shared-model-guarded-1258-sources/jpegxl-errors.ts",
+      "sha256": "9610b8609e59525c22a0030de519c6dbeba14fc95366d933314eba8821746fe5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-shared-model-guarded-1258-sources/jpegxl-jpeg-encode.ts",
+      "sha256": "5da5a484ebc43fd1ce07a17cfa73ca2240b7e4c0df82d8204484c14f89ff5de4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-shared-model-guarded-1258-sources/jpegxl-vardct-encode.ts",
+      "sha256": "ccbd9cfc98604435b9bd83db26ab5e7c402ab06f76758edbd79c6b1a492e9fbf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-shared-model-guarded-1258-sources/jpegxl-modular-tree.ts",
+      "sha256": "3f1539418489620a5d07ef7fdb462f35a437af12078a19bf5e9604beba3a9a56"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297.ts",
+      "sha256": "dd53e5fd8bba81fa460ffc599ab4c37eb18583023b729b101af6a048b07116eb"
+    },
+    {
+      "path": "src/codecs/jpegxl-modular-encode.ts",
+      "sha256": "bd5c8539de9256ffe234601356b5d12100d1f06ef223b24b01852cf61fc351dd"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/filter-ac-production-controls.json",
+      "sha256": "23162656e18ef123be163d5e48db68dd29beb6c3db2091072c5092374343e339"
+    },
+    {
+      "path": "scripts/bundle-size-config.ts",
+      "sha256": "d8264780bb28d6133c6ef0a86eff56331a994116122cc9bd9bd376a6dcc436ef"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "d482e3133fff12f95a609e72895e047252537dbb392a032bf2fd0837fc828b05"
+    },
+    {
+      "path": "capabilities/manifest.json",
+      "sha256": "bc51803b5626cd914b799a76b53ad560940523ff55b4244f900055cc8562d629"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/baseline.ts",
+      "sha256": "9c01ca7ad8137399893c19d3b3f291e15993e5e52f9ef3ad886be8483a0324f4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/baseline.js",
+      "sha256": "aeaeaec1b7b297bcd8ba837fa758314be51d7020e9ac0ffa68e3d798a2af763a"
+    },
+    {
+      "path": ".tmp/jpegxl-conformance/testcases/alpha_triangles/ref.png",
+      "sha256": "bc837bb829e3c141e280746746c2fa98cbd348bf7784ac2d51f7816500019d4c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.png",
+      "sha256": "fa4f7b7533b5f19d8465586d1672d1d34fcfe5ae1781a301ecb2ed6b1774e3b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-reference.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl",
+      "sha256": "91b8090a198706f7bc802bf62f7ea74ea1f5fa10b14f6a92ad80291eee90358e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.native.npy",
+      "sha256": "f326f893abc5b08e16e9af12f2a36d322a4fd2edf36889ca2b78666d70b1e726"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.rust.npy",
+      "sha256": "18931181d71f5f76147fde226f6d4bcc10b034aefff850e51562dc4413f49d42"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.decoded-black.png",
+      "sha256": "dc8b80a0e5c52a0a8a9335575ef0c05045efc260a03b4759c7d73fd979ca9a1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.decoded-white.png",
+      "sha256": "f8f1e19b9ebdec5e91bfc59b58122ff56e482f527d084018e2673d4a7c950d07"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.png",
+      "sha256": "9712878db324c9e7b1c0abca846d2d17bc840313cd2b42e31f7d41166a798788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-baseline.jxl.black.png",
+      "sha256": "dc8b80a0e5c52a0a8a9335575ef0c05045efc260a03b4759c7d73fd979ca9a1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl",
+      "sha256": "1d874676a60812e610bea2735aac3ce061843265a4e38192e04eaa9ffb7af592"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.native.npy",
+      "sha256": "c1049c0763c8c4d861f85754acd869f1f3851dfc778f6c8638f232bf87b5e045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.rust.npy",
+      "sha256": "6db2d4e2a69bab4562dd0f747d35363bb9bdc1eabfc2c9ead83f21e16f6648c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.decoded-black.png",
+      "sha256": "ce4989ac3a76e7db78692ec404ada4a8fb7871ba1c7129e5526bb17eae8cca6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.decoded-white.png",
+      "sha256": "7efcd45553a858dc6f3b85f6acfda5c74be97ffbc5e4592b5541c4cda25425aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.png",
+      "sha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-baseline.jxl.black.png",
+      "sha256": "ce4989ac3a76e7db78692ec404ada4a8fb7871ba1c7129e5526bb17eae8cca6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl",
+      "sha256": "2f3225f9593cf79573285628bf59b9b289eaa40c8c9d144cc57053396367946c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.native.npy",
+      "sha256": "b5de184937e822f6e568e2cb36e0e232ef57f709d10fea291fa5c8e59c1b2ef9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.rust.npy",
+      "sha256": "6a3267ee2eef98c50107485c421fd852522450fba5d3a34c27db58ce6c25f788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.decoded-black.png",
+      "sha256": "242d2da2bd87d99e7c117d52ecd8d5dd029169ada07a7ccfbdc6bcee0d4712e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.decoded-white.png",
+      "sha256": "133493ca57b577fbae57d6ca640b5c904295d407b1ca5f02d5916591d43d75c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.png",
+      "sha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-baseline.jxl.black.png",
+      "sha256": "242d2da2bd87d99e7c117d52ecd8d5dd029169ada07a7ccfbdc6bcee0d4712e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl",
+      "sha256": "b80078d3fb2fed5ddcb82788b16c3b000f67a8291cd97ce16f7b825cf5f646ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.native.npy",
+      "sha256": "fd286c57fd973b6ebe9f3afaa61935b97d643d7f5a0d1829bc4de6455c72b6b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.rust.npy",
+      "sha256": "bd9db28b3316a1fe2e5f7bbdf3a799e980f0208f1592f3fc7b49e485de9ba00a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.decoded-black.png",
+      "sha256": "879a115787c61d1c14525bd66da0ac88d2d87aba2f30ec5c5f847f9adc582782"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.decoded-white.png",
+      "sha256": "b2449374377c6aa5030fa9162d22fe2b3d1e5376af38df37e436667fc6fadc93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.png",
+      "sha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-baseline.jxl.black.png",
+      "sha256": "879a115787c61d1c14525bd66da0ac88d2d87aba2f30ec5c5f847f9adc582782"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl",
+      "sha256": "c83916b4e8d6715f20e7289676817d777ec1ad55f6637180a260be777dcf9cac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.native.npy",
+      "sha256": "b843a4b898417b7b3f80c5eb5f391d56026deb547f1b89de4ef3f84ec1960fcb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.rust.npy",
+      "sha256": "93e41f13539a1c1183ff2af12ca6ebe028b233fc6a5dbdfffc627ca49df25a11"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.decoded-black.png",
+      "sha256": "9f8b3265055541a2252e925c7f795a77a8ab4c8a183b5238e3553af373e187bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.decoded-white.png",
+      "sha256": "187e2c38eb73c86b4023fc36869309eafb678c73f990b59d66b4619b3b29424a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.png",
+      "sha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-baseline.jxl.black.png",
+      "sha256": "9f8b3265055541a2252e925c7f795a77a8ab4c8a183b5238e3553af373e187bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/tsconfig-shared-alpha.json",
+      "sha256": "8b157e5ca303bdacf7fd8ff3486c8ff34df6296b6d7881cd8a870e9bd5dbc850"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/shared-alpha.ts",
+      "sha256": "bd5c8539de9256ffe234601356b5d12100d1f06ef223b24b01852cf61fc351dd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/shared-alpha.js",
+      "sha256": "da54a6790d51df5f14cea062df9c8fdfae543fa9aeb9a22456b97677f633f9ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl",
+      "sha256": "2e38936fb70044459cfbd9b2950647966155bd57da88d1e10b00e4785234ac5c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.native.npy",
+      "sha256": "f326f893abc5b08e16e9af12f2a36d322a4fd2edf36889ca2b78666d70b1e726"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.rust.npy",
+      "sha256": "18931181d71f5f76147fde226f6d4bcc10b034aefff850e51562dc4413f49d42"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.decoded-black.png",
+      "sha256": "dc8b80a0e5c52a0a8a9335575ef0c05045efc260a03b4759c7d73fd979ca9a1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.decoded-white.png",
+      "sha256": "f8f1e19b9ebdec5e91bfc59b58122ff56e482f527d084018e2673d4a7c950d07"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.png",
+      "sha256": "9712878db324c9e7b1c0abca846d2d17bc840313cd2b42e31f7d41166a798788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-3.8-shared-alpha.jxl.black.png",
+      "sha256": "dc8b80a0e5c52a0a8a9335575ef0c05045efc260a03b4759c7d73fd979ca9a1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl",
+      "sha256": "7d65cf7db997848811971d51a5b19f04cf1ac11c3b29b309c0c6f9552c698aed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.native.npy",
+      "sha256": "c1049c0763c8c4d861f85754acd869f1f3851dfc778f6c8638f232bf87b5e045"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.rust.npy",
+      "sha256": "6db2d4e2a69bab4562dd0f747d35363bb9bdc1eabfc2c9ead83f21e16f6648c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.decoded-black.png",
+      "sha256": "ce4989ac3a76e7db78692ec404ada4a8fb7871ba1c7129e5526bb17eae8cca6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.decoded-white.png",
+      "sha256": "7efcd45553a858dc6f3b85f6acfda5c74be97ffbc5e4592b5541c4cda25425aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.png",
+      "sha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4-shared-alpha.jxl.black.png",
+      "sha256": "ce4989ac3a76e7db78692ec404ada4a8fb7871ba1c7129e5526bb17eae8cca6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl",
+      "sha256": "4cca81e5e2729007924b35ca046bb3f1821e6cefa2903842ffcad06adf727cbb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.native.npy",
+      "sha256": "b5de184937e822f6e568e2cb36e0e232ef57f709d10fea291fa5c8e59c1b2ef9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.rust.npy",
+      "sha256": "6a3267ee2eef98c50107485c421fd852522450fba5d3a34c27db58ce6c25f788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.decoded-black.png",
+      "sha256": "242d2da2bd87d99e7c117d52ecd8d5dd029169ada07a7ccfbdc6bcee0d4712e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.decoded-white.png",
+      "sha256": "133493ca57b577fbae57d6ca640b5c904295d407b1ca5f02d5916591d43d75c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.png",
+      "sha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-4.3026-shared-alpha.jxl.black.png",
+      "sha256": "242d2da2bd87d99e7c117d52ecd8d5dd029169ada07a7ccfbdc6bcee0d4712e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl",
+      "sha256": "9926d2a4a6664302f1f49e6702032903f31643520bb6b078b6f95648c728a77d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.native.npy",
+      "sha256": "fd286c57fd973b6ebe9f3afaa61935b97d643d7f5a0d1829bc4de6455c72b6b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.rust.npy",
+      "sha256": "bd9db28b3316a1fe2e5f7bbdf3a799e980f0208f1592f3fc7b49e485de9ba00a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.decoded-black.png",
+      "sha256": "879a115787c61d1c14525bd66da0ac88d2d87aba2f30ec5c5f847f9adc582782"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.decoded-white.png",
+      "sha256": "b2449374377c6aa5030fa9162d22fe2b3d1e5376af38df37e436667fc6fadc93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.png",
+      "sha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-11.503-shared-alpha.jxl.black.png",
+      "sha256": "879a115787c61d1c14525bd66da0ac88d2d87aba2f30ec5c5f847f9adc582782"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl",
+      "sha256": "e0346f418cbbd44b058ec4f5e8fdb6ee8aecb49201f5f962de613bf6d73ca8fb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.native.npy",
+      "sha256": "b843a4b898417b7b3f80c5eb5f391d56026deb547f1b89de4ef3f84ec1960fcb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.rust.npy",
+      "sha256": "93e41f13539a1c1183ff2af12ca6ebe028b233fc6a5dbdfffc627ca49df25a11"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.source-black.png",
+      "sha256": "becbcfd8fd462632af61ca2d6864490169b31a802440fff7c575cce4f6e2489d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.decoded-black.png",
+      "sha256": "9f8b3265055541a2252e925c7f795a77a8ab4c8a183b5238e3553af373e187bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.source-white.png",
+      "sha256": "ddaecaba05bc23eb29d66d80d8152aacf62db97baff6e434c47a07ef10fe6198"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.decoded-white.png",
+      "sha256": "187e2c38eb73c86b4023fc36869309eafb678c73f990b59d66b4619b3b29424a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.png",
+      "sha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297/alpha_triangles-16.22-shared-alpha.jxl.black.png",
+      "sha256": "9f8b3265055541a2252e925c7f795a77a8ab4c8a183b5238e3553af373e187bf"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/tsconfig-alpha-production-coordinates-1297.json",
+      "sha256": "36d80e83b814e9f4c78d0dee9456d9ecd45b1b3949610938cf378bb0c3d5e938"
+    }
+  ],
+  "sourceAdopted": true,
+  "fullParity": false,
+  "policy": "Ten complete alpha files: five original transparency distances before and after the current first-party palette search. All original encoded bytes, full native/Rust grids and both quality metrics reproduce exactly. The inherited raw producer policy incorrectly names photo endpoints; the actual fixture and rows are alpha_triangles. Original raw receipts are preserved. Current exact-artwork selection and native boundary tests are independently qualified.",
+  "rawProducerPolicy": "Fresh first-party full public package controls at the six original qualified lower photo endpoints. Independently decode every complete native/Rust grid, preserve exact alpha, caller input and closed ownership; reproduce all baseline bytes and both metrics. Cap-one/cap-zero filter controls and opaque adaptive/eight AC controls remain private. Fixed-distance results are diagnostic and require fresh adequately matched curves before retention. Timing and managed peaks are observations, without speed/RSS parity or adoption. Internal core package ceiling is 545000; the old 541000 failure remains recorded in the private experiment.",
+  "actualPackages": [
+    {
+      "target": "jpegxl-specialized",
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-guard-packages-1295/jpegxl-specialized.js",
+      "bytes": 616453,
+      "sha256": "b63371271dbfb232c8186e7af648798398c973ea3fd3e94b85e74372bdfc950b",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 617000,
+      "withinCeiling": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "artifact": ".tmp/jpegxl-comparison-v1/alpha-guard-packages-1295/codec-jpegxl.js",
+      "bytes": 544048,
+      "sha256": "da54a6790d51df5f14cea062df9c8fdfae543fa9aeb9a22456b97677f633f9ff",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 545000,
+      "withinCeiling": true
+    }
+  ],
+  "peerPoint": {
+    "subject": "vips",
+    "setting": 6.2734,
+    "bytes": 9307,
+    "score": 90.39106717,
+    "butteraugli": 1.4729868174,
+    "maximumAlphaError": 0,
+    "changedAlphaSamples": 0,
+    "absoluteAlphaError": 0,
+    "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+    "encodedSha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7",
+    "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.2734.png",
+    "pngSha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8",
+    "frames": [
+      {
+        "encoding": "vardct",
+        "type": "regular",
+        "width": 1024,
+        "height": 1024,
+        "sections": [
+          386, 6354, 176, 11, 227, 101, 17, 266, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+        ]
+      }
+    ],
+    "metricsFreshlyRescored": false
+  },
+  "pointDominance": {
+    "fixture": "alpha_triangles",
+    "peer": "wasm-vips 0.0.19",
+    "ownDistance": 4,
+    "peerSetting": 6.2734,
+    "pureBytes": 9155,
+    "peerBytes": 9307,
+    "pureScore": 90.55154123,
+    "peerScore": 90.39106717,
+    "pureButteraugli": 1.3183964491,
+    "peerButteraugli": 1.4729868174,
+    "alphaExact": true,
+    "claim": "Measured point dominance; no matched-target interpolation"
+  },
+  "publicComparisonCountsChanged": false,
+  "originalPackageCeilingsPreserved": false,
+  "internalPackageBudgetChanges": {
+    "core": {
+      "before": 541000,
+      "after": 545000,
+      "bytesBefore": 540986,
+      "bytesAfter": 544048
+    },
+    "specialized": {
+      "before": 614000,
+      "after": 617000,
+      "bytesBefore": 613208,
+      "bytesAfter": 616453
+    }
+  },
+  "publication": {
+    "coordinatesPath": ".tmp/jpegxl-comparison-v1/alpha-production-coordinates-1297.json",
+    "coordinatesSha256": "013033cb1c80268d50bb9504dbeea9d3b8a9bf1621e84a88372c33a43b83fff5",
+    "productionPath": ".tmp/jpegxl-comparison-v1/alpha-guard-packages-1295.json",
+    "productionSha256": "b49224de08681db0708d0a2c77f44a2ee8565fe8f1eb5e6794fa8545a61c2554",
+    "maintainedPath": ".tmp/jpegxl-comparison-v1/alpha-maintained-gates-1300.json",
+    "maintainedSha256": "49b6d75cbda2979c6f4470547ff90eb6b2d6e60c72cf4fcf18fd510d0d88dfcc",
+    "precedingPublicationSha256": "ed25605aa9e66673563254ca9783508278fe5ad95fa39a0da3aadbaecc88552c"
+  },
+  "losslessLineage": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-lossless-effort1-1263.json",
+      "sha256": "54cd7309b3d481fedf8ac133db3c9f88747115436e333a5225b0b4a302676cc8",
+      "implementationSourceSha256": "b8d868a6b17fa2a58fae3be4e1995e195f2aff9d45c2824f3a74c8be3adfb9dd",
+      "effort": 1,
+      "note": "Prior complete lossless qualification. The subsequent artwork guard changes only VarDCT alpha search; this report does not relabel the prior replay as a fresh run."
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-lossless-effort7-1264.json",
+      "sha256": "eb0721c5f21e93a4dff1b3f90aae88031293a4b7dea9e54a1a5d1cc6f61fe8e9",
+      "implementationSourceSha256": "b8d868a6b17fa2a58fae3be4e1995e195f2aff9d45c2824f3a74c8be3adfb9dd",
+      "effort": 7,
+      "note": "Prior complete lossless qualification. The subsequent artwork guard changes only VarDCT alpha search; this report does not relabel the prior replay as a fresh run."
+    }
+  ],
+  "modularGuardScope": {
+    "source": "src/codecs/jpegxl-modular-encode.ts",
+    "sourceSha256": "bd5c8539de9256ffe234601356b5d12100d1f06ef223b24b01852cf61fc351dd",
+    "qualifiedPreimageSha256": "e908a8635d2f50a9ab642bed39906ab77df744e5d028294901a36f41f9da8e11",
+    "unchangedOutsideRepeatedAlphaFunction": true
+  },
+  "completed": true
+}

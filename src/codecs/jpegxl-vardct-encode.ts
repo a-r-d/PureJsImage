@@ -1,5 +1,5 @@
 import type { PixelColorSemantics } from '../color.ts'
-import { ImageError, invalidInput, unsupportedOperation } from '../errors.ts'
+import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { createStructuredRgbMatrix, nclxToLinear, nclxToLinearSrgbMatrix } from './icc.ts'
 import {
@@ -8,7 +8,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
@@ -314,14 +314,14 @@ export const encodeJpegXlVarDct8 = (
                   : selected
               })
             } catch (error) {
-              if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+              if (!isJpegXlLimitExceeded(error)) throw error
               break
             }
           }
           return selected
         })
       } catch (error) {
-        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        if (!isJpegXlLimitExceeded(error)) throw error
         return baseline
       }
     })
@@ -448,14 +448,14 @@ export const encodeJpegXlVarDct8Async = (
               return codestreamPartBytes(family) < codestreamPartBytes(selected) ? family : selected
             })
           } catch (error) {
-            if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+            if (!isJpegXlLimitExceeded(error)) throw error
             break
           }
         }
         return selected
       })
     } catch (error) {
-      if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
       return baseline
     }
   })
@@ -490,17 +490,20 @@ function* prepare8(
   const blockQuantization = 4
   const globalScale = Math.round(65536 / (distance * blockQuantization))
   const effectiveDistance = 65536 / globalScale / blockQuantization
-  let rgbDcPolicy = channels === 3
-  if (
+  const sdrAlpha =
     effort === 7 &&
-    distance > 1 &&
-    width * height <= 4_194_304 &&
     channels === 4 &&
     sampleDepth === 8 &&
     sampleBytes === 1 &&
-    (color?.alphaBitDepth ?? 8) === 8 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
+  let rgbDcPolicy = channels === 3
+  let smallVisiblePalette: boolean | undefined
+  if (
+    sdrAlpha &&
+    distance > 1 &&
+    width * height <= 4_194_304 &&
+    (color?.alphaBitDepth ?? 8) === 8
   ) {
     rgbDcPolicy = true
     for (let offset = 3; offset < pixels.length; offset += 4) {
@@ -512,11 +515,27 @@ function* prepare8(
     if (rgbDcPolicy) {
       try {
         // Artwork with few visible colors keeps its established DC policy.
-        rgbDcPolicy = !hasSmallVisiblePalette(pixels, memory)
+        smallVisiblePalette = hasSmallVisiblePalette(pixels, memory)
+        rgbDcPolicy = !smallVisiblePalette
       } catch (error) {
-        if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+        if (!isJpegXlLimitExceeded(error)) throw error
         rgbDcPolicy = false
       }
+    }
+  }
+  let alphaPaletteSearch = true
+  if (
+    sdrAlpha &&
+    !progressive &&
+    width * height <= 1_048_576 &&
+    (color?.alphaBitDepth ?? 8) === 8
+  ) {
+    try {
+      // Keep the established exact Modular artwork candidate's selection floor.
+      alphaPaletteSearch = !(smallVisiblePalette ?? hasSmallVisiblePalette(pixels, memory))
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      alphaPaletteSearch = false
     }
   }
   // Keep fine DC precision outside the measured SDR experiments.
@@ -539,13 +558,7 @@ function* prepare8(
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
   const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
-  const moderateAlphaDc =
-    effort === 7 &&
-    channels === 4 &&
-    sampleDepth === 8 &&
-    sampleBytes === 1 &&
-    (color?.primaries ?? 'srgb') === 'srgb' &&
-    (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const moderateAlphaDc = sdrAlpha
   const dcQuantization = moderateSdrDc
     ? [1 / 16384, 1 / 4096, 1 / 2048]
     : moderateAlphaDc
@@ -1243,6 +1256,7 @@ function* prepare8(
     channels === 4 ? allocateJpegXlArray(memory, Int32Array, 256 * 256) : undefined
   const alpha = alphaStorage
     ? {
+        paletteSearch: alphaPaletteSearch,
         loadGroup: (group: number) => {
           const originX = (group % groupsAcross) * 256
           const originY = Math.floor(group / groupsAcross) * 256

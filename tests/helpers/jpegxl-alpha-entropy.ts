@@ -8,10 +8,11 @@ export const encodeJpegXlAlphaEntropyFixture = async (
   progressive: boolean,
   grouped: boolean,
   maxWorkingBytes = 16_777_216,
-  pattern: 'levels' | 'binary-bands' = 'levels',
+  pattern: 'levels' | 'binary-bands' | 'triangles' = 'levels',
+  dimensions?: Readonly<{ width: number; height: number }>,
 ) => {
-  const width = grouped ? 257 : 129,
-    height = 129,
+  const width = dimensions?.width ?? (grouped ? 257 : 129),
+    height = dimensions?.height ?? 129,
     sampleBytes = depth / 8,
     maximum = 2 ** depth - 1,
     format = depth === 8 ? 'rgba8' : 'rgba16'
@@ -22,13 +23,22 @@ export const encodeJpegXlAlphaEntropyFixture = async (
     for (let x = 0; x < width; x++) {
       const band = (x + y * 3) % 31
       const alpha =
-        pattern === 'binary-bands'
-          ? (x + ((Math.imul(y + 1, 2654435761) >>> 0) % 67)) % 67 < 33
+        pattern === 'triangles'
+          ? (x % 128) + (y % 128) < 128
             ? maximum
             : 0
-          : (alphaLevels[Math.floor(band / 7)] ?? maximum)
+          : pattern === 'binary-bands'
+            ? (x + ((Math.imul(y + 1, 2654435761) >>> 0) % 67)) % 67 < 33
+              ? maximum
+              : 0
+            : (alphaLevels[Math.floor(band / 7)] ?? maximum)
       for (let channel = 0; channel < 4; channel++) {
-        const value = channel === 3 ? alpha : Math.floor(maximum * (0.3 + channel * 0.2))
+        const value =
+          channel === 3
+            ? alpha
+            : pattern === 'triangles'
+              ? (((x * (17 + channel * 6) + y * (3 + channel * 8)) & 255) * maximum) / 255
+              : Math.floor(maximum * (0.3 + channel * 0.2))
         const offset = ((y * width + x) * 4 + channel) * sampleBytes
         if (sampleBytes === 1) input.setUint8(offset, value)
         else input.setUint16(offset, value)
@@ -72,13 +82,23 @@ export const verifyJpegXlAlphaEntropy = async (
   progressive: boolean,
   grouped: boolean,
   maxWorkingBytes = 16_777_216,
-  pattern: 'levels' | 'binary-bands' = 'levels',
+  pattern: 'levels' | 'binary-bands' | 'triangles' = 'levels',
+  dimensions?: Readonly<{ width: number; height: number }>,
 ) => {
   const { width, height, format, sampleBytes, pixels, encoded } =
-    await encodeJpegXlAlphaEntropyFixture(depth, progressive, grouped, maxWorkingBytes, pattern)
+    await encodeJpegXlAlphaEntropyFixture(
+      depth,
+      progressive,
+      grouped,
+      maxWorkingBytes,
+      pattern,
+      dimensions,
+    )
   const input = new DataView(pixels.buffer)
   const decodedPixels =
-    pattern === 'binary-bands' && depth === 8 ? new Uint8Array(pixels.length) : undefined
+    (pattern === 'binary-bands' || pattern === 'triangles') && depth === 8
+      ? new Uint8Array(pixels.length)
+      : undefined
   let encodedChecksum = 2166136261,
     decodedChecksum = 2166136261,
     alphaSamples = 0,

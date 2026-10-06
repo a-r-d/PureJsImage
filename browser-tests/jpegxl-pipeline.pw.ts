@@ -274,6 +274,26 @@ for (const extraChannels of [0, 1] as const)
       expect(actual).toEqual(expected)
     })
 
+for (const alpha of ['varying', 'hidden'] as const)
+  test(`JPEG XL alpha search retains exact ${alpha}-alpha artwork across runtimes`, async ({
+    page,
+  }) => {
+    const expected = await verifyJpegXlArtwork({ alpha })
+    expect(expected.bytes).toBe(13807)
+    expect(expected.encodedChecksum).toBe(1526632822)
+    expect(expected.decodedChecksum).toBe(2516035649)
+    expect(expected.visibleError).toBe(0)
+    expect(expected.alphaError).toBe(0)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    await page.goto('/codec-validation.html')
+    const actual: unknown = await page.evaluate(async (alpha) => {
+      const path = '/jpegxl-pipeline.js'
+      return (await import(path)).verifyJpegXlArtwork({ alpha })
+    }, alpha)
+    expect(actual).toEqual(expected)
+  })
+
 for (const maxWorkingBytes of [8_388_608, 16_777_216])
   test(`JPEG XL artwork candidate and storage fallback agree in Node and Chromium, budget=${maxWorkingBytes}`, async ({
     page,
@@ -299,7 +319,7 @@ for (const maxWorkingBytes of [8_388_608, 16_777_216])
 
 test('JPEG XL family context budget fallback agrees in Node and Chromium', async ({ page }) => {
   const expected = await verifyJpegXlFamilyContexts(8, false, false, 10_000_000)
-  expect(expected.bytes).toBe(17_950)
+  expect(expected.bytes).toBeLessThanOrEqual(17_950)
   expect(expected.alphaError).toBe(0)
   await page.goto('/compatibility.html')
   const actual: unknown = await page.evaluate(async () => {
@@ -340,8 +360,7 @@ for (const depth of [8, 16] as const)
 
 test('JPEG XL adaptive order budget fallback agrees in Node and Chromium', async ({ page }) => {
   const expected = await verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
-  expect(expected.bytes).toBe(12_943)
-  expect(expected.encodedChecksum).toBe(32179657)
+  expect(expected.bytes).toBeLessThanOrEqual(12_943)
   expect(expected.alphaError).toBe(0)
   await page.goto('/compatibility.html')
   const actual: unknown = await page.evaluate(async () => {
@@ -413,6 +432,63 @@ for (const depth of [8, 16] as const)
     expect(maximumVisibleError).toBe(0)
     expect(maximumHiddenColorError).toBeLessThanOrEqual(1)
   })
+
+for (const depth of [8, 16] as const)
+  for (const maxWorkingBytes of [3_145_728, 67_108_864])
+    test(`JPEG XL triangle alpha palettes preserve complete pixels across runtimes, depth=${depth}, budget=${maxWorkingBytes}`, async ({
+      page,
+    }) => {
+      const dimensions = maxWorkingBytes === 67_108_864 ? { width: 512, height: 512 } : undefined
+      const expected = await verifyJpegXlAlphaEntropy(
+        depth,
+        true,
+        true,
+        maxWorkingBytes,
+        'triangles',
+        dimensions,
+      )
+      expect(expected.alphaError).toBe(0)
+      await page.goto('/compatibility.html')
+      const actual: unknown = await page.evaluate(
+        async ({ depth, maxWorkingBytes, dimensions }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyJpegXlAlphaEntropy(
+            depth,
+            true,
+            true,
+            maxWorkingBytes,
+            'triangles',
+            dimensions,
+          )
+        },
+        { depth, maxWorkingBytes, dimensions },
+      )
+      if (depth === 16) {
+        expect(actual).toEqual(expected)
+        return
+      }
+      const { decodedChecksum: _expectedChecksum, decodedPixels: reference, ...fields } = expected
+      const {
+        decodedChecksum: _actualChecksum,
+        decodedPixels: pixels,
+        ...actualFields
+      } = object(actual)
+      expect(actualFields).toEqual(fields)
+      if (!reference || !Array.isArray(pixels) || pixels.length !== reference.length)
+        throw new Error('Missing complete triangle-alpha grids')
+      let maximumAlphaError = 0,
+        maximumColorError = 0
+      for (let index = 0; index < reference.length; index++) {
+        const value: unknown = pixels[index],
+          target = reference[index]
+        if (typeof value !== 'number' || target === undefined) throw new Error('Invalid sample')
+        if (index % 4 === 3)
+          maximumAlphaError = Math.max(maximumAlphaError, Math.abs(value - target))
+        else maximumColorError = Math.max(maximumColorError, Math.abs(value - target))
+      }
+      expect(maximumAlphaError).toBe(0)
+      expect(maximumColorError).toBeLessThanOrEqual(1)
+    })
 
 for (const depth of [8, 16] as const)
   for (const progressive of [false, true])

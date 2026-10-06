@@ -502,72 +502,14 @@ export const learnJpegXlModularTree = (
         })
       }
     }
-    const contexts = allocateJpegXlArray(memory, Uint16Array, residuals.length)
-    const learnedResiduals = allocateJpegXlArray(memory, Uint32Array, residuals.length)
-    let outputOffset = 0
-    for (let channel = 0; channel < values.length; channel++) {
-      const plane = values[channel],
-        width = widths[channel]
-      if (!plane || width === undefined)
-        throw invalidJpegXlInput('learned context plane is missing')
-      const root = roots[channel]
-      if (!root) throw invalidJpegXlInput('learned channel root is missing')
-      const weighted = decisionNeedsWeighted(root) ? weightedPredictor(width, memory) : undefined
-      const weightedProperties = allocateJpegXlArray(memory, Int32Array, 16)
-      for (let position = 0; position < plane.length; position++) {
-        const y = Math.floor(position / width),
-          x = position - y * width
-        const left = x > 0 ? (plane[position - 1] ?? 0) : y > 0 ? (plane[position - width] ?? 0) : 0
-        const top = y > 0 ? (plane[position - width] ?? 0) : left
-        const topLeft = x > 0 && y > 0 ? (plane[position - width - 1] ?? 0) : left
-        const topRight = y > 0 && x + 1 < width ? (plane[position - width + 1] ?? 0) : top
-        const topTop = y > 1 ? (plane[position - 2 * width] ?? 0) : top
-        const prediction =
-          weighted?.predict(
-            x,
-            y,
-            width,
-            top,
-            left,
-            topRight,
-            topLeft,
-            topTop,
-            weightedProperties,
-          ) ?? 0
-        let index = 0
-        while (true) {
-          const node = nodes[index]
-          if (!node) throw invalidJpegXlInput('learned context node is missing')
-          if (node.kind === 'leaf') {
-            contexts[outputOffset] = node.context
-            learnedResiduals[outputOffset] =
-              node.predictor === 5
-                ? clampedResidual(plane[position] ?? 0, left, top, topLeft)
-                : node.predictor === 6
-                  ? packResidual((plane[position] ?? 0) - prediction)
-                  : (residuals[outputOffset] ?? 0)
-            outputOffset++
-            break
-          }
-          const property =
-            node.property === 0
-              ? channel
-              : node.property === 9
-                ? left + top - topLeft
-                : node.property === 10
-                  ? left - topLeft
-                  : node.property === 11
-                    ? topLeft - top
-                    : node.property === 12
-                      ? top - topRight
-                      : node.property === 13
-                        ? top - topTop
-                        : (weightedProperties[15] ?? 0)
-          index = property > node.split ? node.greater : node.lessOrEqual
-        }
-        weighted?.update(plane[position] ?? 0, x, y)
-      }
-    }
+    const { contexts, residuals: learnedResiduals } = applyJpegXlModularTree(
+      nodes,
+      values,
+      widths,
+      residuals,
+      memory,
+      roots.map(decisionNeedsWeighted),
+    )
     const histograms = clusterHistograms(learnedResiduals, contexts, leaves, memory)
     return {
       nodes: Object.freeze(nodes),
@@ -578,3 +520,73 @@ export const learnJpegXlModularTree = (
       histogramCount: histograms.count,
     }
   })
+
+export const applyJpegXlModularTree = (
+  nodes: readonly JpegXlModularNode[],
+  values: readonly Int32Array[],
+  widths: readonly number[],
+  originalResiduals: Uint32Array,
+  memory?: JpegXlEncoderMemory,
+  weightedChannels?: readonly boolean[],
+) => {
+  const count = originalResiduals.length
+  const contexts = allocateJpegXlArray(memory, Uint16Array, count)
+  const residuals = allocateJpegXlArray(memory, Uint32Array, count)
+  const usesWeighted = nodes.some((node) =>
+    node.kind === 'leaf' ? node.predictor === 6 : node.property === 15,
+  )
+  let offset = 0
+  for (let channel = 0; channel < values.length; channel++) {
+    const plane = values[channel],
+      width = widths[channel]
+    if (!plane || width === undefined) throw invalidJpegXlInput('learned context plane is missing')
+    const weighted =
+      (weightedChannels?.[channel] ?? usesWeighted) ? weightedPredictor(width, memory) : undefined
+    const weightedProperties = allocateJpegXlArray(memory, Int32Array, 16)
+    for (let position = 0; position < plane.length; position++) {
+      const y = Math.floor(position / width),
+        x = position - y * width
+      const left = x > 0 ? (plane[position - 1] ?? 0) : y > 0 ? (plane[position - width] ?? 0) : 0
+      const top = y > 0 ? (plane[position - width] ?? 0) : left
+      const topLeft = x > 0 && y > 0 ? (plane[position - width - 1] ?? 0) : left
+      const topRight = y > 0 && x + 1 < width ? (plane[position - width + 1] ?? 0) : top
+      const topTop = y > 1 ? (plane[position - 2 * width] ?? 0) : top
+      const prediction =
+        weighted?.predict(x, y, width, top, left, topRight, topLeft, topTop, weightedProperties) ??
+        0
+      let index = 0
+      while (true) {
+        const node = nodes[index]
+        if (!node) throw invalidJpegXlInput('learned context node is missing')
+        if (node.kind === 'leaf') {
+          contexts[offset] = node.context
+          residuals[offset] =
+            node.predictor === 5
+              ? clampedResidual(plane[position] ?? 0, left, top, topLeft)
+              : node.predictor === 6
+                ? packResidual((plane[position] ?? 0) - prediction)
+                : (originalResiduals[offset] ?? 0)
+          offset++
+          break
+        }
+        const property =
+          node.property === 0
+            ? channel
+            : node.property === 9
+              ? left + top - topLeft
+              : node.property === 10
+                ? left - topLeft
+                : node.property === 11
+                  ? topLeft - top
+                  : node.property === 12
+                    ? top - topRight
+                    : node.property === 13
+                      ? top - topTop
+                      : (weightedProperties[15] ?? 0)
+        index = property > node.split ? node.greater : node.lessOrEqual
+      }
+      weighted?.update(plane[position] ?? 0, x, y)
+    }
+  }
+  return { residuals, contexts }
+}

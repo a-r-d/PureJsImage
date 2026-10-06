@@ -1,13 +1,7 @@
 import { throwIfAborted } from '../abort.ts'
 import type { EncodeRequest, ImageEncoder } from '../codec.ts'
 import type { PixelColorSemantics } from '../color.ts'
-import {
-  ImageError,
-  invalidInput,
-  limitExceeded,
-  truncatedInput,
-  unsupportedOperation,
-} from '../errors.ts'
+import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
 import { exifOrientation, normalizeExifOrientation } from '../metadata.ts'
 import type { PixelBlock, PixelFormat } from '../pixel.ts'
@@ -25,7 +19,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, isJpegXlLimitExceeded as isLimitExceeded } from './jpegxl-errors.ts'
 import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
@@ -34,9 +28,6 @@ import {
 } from './jpegxl-modular-rct.ts'
 import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
 import { encodeJpegXlVarDct8Async } from './jpegxl-vardct-encode.ts'
-
-const isLimitExceeded = (error: unknown): error is ImageError =>
-  error instanceof ImageError && error.code === 'LIMIT_EXCEEDED'
 
 export class JpegXlBitWriter {
   #bytes: Uint8Array<ArrayBuffer>
@@ -2277,6 +2268,19 @@ const buildResidualPlan = (
   })
 }
 
+const learnedResidualPlan = (
+  base: Readonly<ModularResidualPlan>,
+  tree: NonNullable<ReturnType<typeof learnJpegXlModularTree>>,
+): ModularResidualPlan => ({
+  ...base,
+  gradientContexts: false,
+  treeNodes: tree.nodes,
+  residuals: tree.residuals,
+  residualContexts: tree.contexts,
+  histogramCount: tree.histogramCount,
+  leafToChannel: tree.histogramMap,
+})
+
 const gradientResidualPlan = (
   base: Readonly<ModularResidualPlan>,
   planes: Readonly<ModularPlanes>,
@@ -3291,6 +3295,7 @@ const serializeModularAnsGroup = (
   transforms: Readonly<ModularTransforms>,
   config: Readonly<HybridUintEncoding>,
   singleGroup: boolean,
+  bitLength?: { value: number },
 ): Uint8Array =>
   withJpegXlMemory(memory, () => {
     const writer = new JpegXlBitWriter(memory, outputLimit)
@@ -3309,6 +3314,7 @@ const serializeModularAnsGroup = (
       plan.lz77,
     )
     writeAnsPixels(writer, plan, encoding)
+    if (bitLength) bitLength.value = writer.bitPosition
     return writer.finish()
   })
 
@@ -3337,6 +3343,7 @@ export const encodeRepeatedJpegXlAlphaGroup = (
   config: Readonly<HybridUintEncoding>,
   memory: JpegXlEncoderMemory | undefined,
   outputLimit: number,
+  paletteSearch = true,
 ): Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined =>
   withJpegXlMemory(memory, () => {
     const planes = { values: [values], widths: [width], heights: [height] }
@@ -3352,19 +3359,17 @@ export const encodeRepeatedJpegXlAlphaGroup = (
             const candidate = withJpegXlMemory(memory, () => {
               const residuals = gradientContexts ? gradientResidualPlan(base, planes, memory) : base
               const plan = buildTokenPlan(residuals, 7, true, memory, config)
-              const writer = new JpegXlBitWriter(memory, outputLimit)
-              writeModularHeader(writer, false)
-              writeChannelTree(writer, plan.treePredictors, plan.gradientContexts)
-              const encoding = writeAnsCode(
-                writer,
-                plan.entropyContextMap,
-                plan.frequencies,
+              const bitLength = { value: 0 }
+              const bytes = serializeModularAnsGroup(
+                plan,
+                outputLimit,
+                memory,
+                { useRct: false },
                 config,
-                plan.lz77,
+                false,
+                bitLength,
               )
-              writeAnsPixels(writer, plan, encoding)
-              const bitLength = writer.bitPosition
-              return { bytes: writer.finish(), bitLength }
+              return { bytes, bitLength: bitLength.value }
             })
             if (candidate.bitLength < bits) {
               chosen = candidate
@@ -3382,7 +3387,79 @@ export const encodeRepeatedJpegXlAlphaGroup = (
         if (predictor === 5 || !isLimitExceeded(error)) throw error
       }
     }
+    if (!paletteSearch) return selected
+    try {
+      const alternative = withJpegXlMemory(memory, () => {
+        for (const value of values) if (value < 0 || value > 65535) return undefined
+        const prepared = scalarPalettePlanes(planes, memory, 16)
+        if (!prepared) return undefined
+        const predictors = [1, 5]
+        const base = buildResidualPlan(prepared.planes, 7, memory, predictors)
+        const tree = learnJpegXlModularTree(
+          prepared.planes.values,
+          prepared.planes.widths,
+          predictors,
+          base.residuals,
+          memory,
+          65536,
+          0.25,
+        )
+        if (!tree) return undefined
+        const residuals = learnedResidualPlan(base, tree)
+        const bitLength = { value: 0 }
+        const bytes = encodeHistogramHybridGroup(
+          residuals,
+          outputLimit,
+          memory,
+          prepared.transforms,
+          false,
+          bitLength,
+        )
+        return bitLength.value < smallestBits ? { bytes, bitLength: bitLength.value } : undefined
+      })
+      if (alternative) {
+        if (selected) memory?.release(selected.bytes)
+        selected = alternative
+      }
+    } catch (error) {
+      if (!isLimitExceeded(error)) throw error
+    }
     return selected
+  })
+
+export const prepareJpegXlAlphaGroup = (
+  values: Int32Array,
+  width: number,
+  height: number,
+  memory?: JpegXlEncoderMemory,
+  train = true,
+) =>
+  withJpegXlMemory(memory, () => {
+    for (const value of values) if (value < 0 || value > 65535) return undefined
+    const prepared = scalarPalettePlanes(
+      { values: [values], widths: [width], heights: [height] },
+      memory,
+      16,
+    )
+    if (!prepared) return undefined
+    const predictors = [1, 5]
+    const base = buildResidualPlan(prepared.planes, 7, memory, predictors)
+    const tree = train
+      ? learnJpegXlModularTree(
+          prepared.planes.values,
+          prepared.planes.widths,
+          predictors,
+          base.residuals,
+          memory,
+          65536,
+          0.25,
+        )
+      : undefined
+    return {
+      plan: tree ? learnedResidualPlan(base, tree) : base,
+      transforms: prepared.transforms,
+      planes: prepared.planes,
+    }
   })
 
 const encodeHistogramHybridGroup = (
@@ -3391,6 +3468,7 @@ const encodeHistogramHybridGroup = (
   memory: JpegXlEncoderMemory | undefined,
   transforms: Readonly<ModularTransforms>,
   singleGroup: boolean,
+  bitLength?: { value: number },
 ): Uint8Array =>
   withJpegXlMemory(memory, () => {
     if (!plan.treeNodes || plan.clustered)
@@ -3479,6 +3557,7 @@ const encodeHistogramHybridGroup = (
       histogramConfigs,
     )
     writeAnsPackedValues(writer, packedValues, plan.residualContexts, packedValues.length, encoding)
+    if (bitLength) bitLength.value = writer.bitPosition
     return writer.finish()
   })
 
@@ -3806,15 +3885,7 @@ const encodeGroupCandidate = (
             splitOverhead,
           )
           if (!tree) return undefined
-          const plan: ModularResidualPlan = {
-            ...residualPlan,
-            gradientContexts: false,
-            treeNodes: tree.nodes,
-            residuals: tree.residuals,
-            residualContexts: tree.contexts,
-            histogramCount: tree.histogramCount,
-            leafToChannel: tree.histogramMap,
-          }
+          const plan = learnedResidualPlan(residualPlan, tree)
           return encodePair(plan, 'learned')
         })
         if (learned && learned.bytes.length < selected.bytes.length) {
@@ -3888,6 +3959,7 @@ const hasSparse16BitChannels = (pixels: Uint8Array, memory?: JpegXlEncoderMemory
 const scalarPalettePlanes = (
   planes: ModularPlanes,
   memory?: JpegXlEncoderMemory,
+  maximumColors = 4_096,
 ): PreparedModularPlanes | undefined => {
   const palettes: Int32Array[] = []
   const indices: Int32Array[] = []
@@ -3900,7 +3972,7 @@ const scalarPalettePlanes = (
       const sample = plane[i] ?? 0
       if (lookup[sample] === -1) {
         lookup[sample] = 0
-        if (++count > 4_096) return undefined
+        if (++count > maximumColors) return undefined
       }
     }
     const palette = allocateJpegXlArray(memory, Int32Array, count)

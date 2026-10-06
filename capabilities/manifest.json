@@ -3767,7 +3767,8 @@
         "tests/jpegxl-tree-entropy.test.ts",
         "tests/jpegxl-flat-palette.test.ts",
         "tests/jpegxl-grouped-search.test.ts",
-        "tests/jpegxl-dc-model.test.ts"
+        "tests/jpegxl-dc-model.test.ts",
+        "tests/jpegxl-alpha-palette.test.ts"
       ],
       "document": [
         "# JPEG XL lossless-first support plan",

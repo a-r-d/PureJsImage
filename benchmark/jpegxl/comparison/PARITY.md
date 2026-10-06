@@ -2,6 +2,14 @@
 
 ## Current result
 
+The October 5 [alpha palette search](ALPHA-PALETTES.md) reduces the original
+transparency coordinates by 81–85% with identical complete native/Rust pixels.
+One 9,155-byte higher-quality point dominates the frozen 9,307-byte exact-alpha
+wasm-vips point on file size and both metrics. This leaves the frozen 13 adequate
+and 11 unresolved pair counts unchanged. The original photo score-70 gap is
+still open. Internal package ceilings increase by 3,000 bytes for this gain;
+the previous failures and package limits remain recorded at their checkpoints.
+
 The October 5 [lossless group search](GROUP-SEARCH.md) closes all three
 remaining measured integer-lossless gaps. Current files meet or beat frozen
 peer size in all 45 independently exact comparable main cells and all four

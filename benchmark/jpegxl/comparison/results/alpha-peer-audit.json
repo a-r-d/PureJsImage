@@ -1,0 +1,3315 @@
+{
+  "implementationRevision": "fc980090c4f3603ba3b2f9902f3ef3d3a0adfe7b",
+  "implementationSourceSha256": "792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f",
+  "implementationDirty": false,
+  "policy": "Recheck all complete frozen refined alpha streams with native RGBA8, exact artifact hashes, original geometry and every original alpha sample; record actual frame/section costs. Historical primary/secondary metric scalars are carried, not freshly rescored. No changed-alpha sample is relabeled exact.",
+  "results": [
+    {
+      "subject": "purejsimage",
+      "setting": 1,
+      "bytes": 167431,
+      "score": 93.11613807,
+      "butteraugli": 0.5746098161,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-1.jxl",
+      "encodedSha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-1.png",
+      "pngSha256": "0ec6c934cef2d2257fe4ee982c6152a785ca22f81db3f399eac02cc3d2455fe9",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            36, 15536, 613, 30, 11578, 11962, 137, 11700, 14141, 14052, 11880, 141, 12015, 11850,
+            30, 11469, 14106, 14241, 11826
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 4,
+      "bytes": 158889,
+      "score": 90.55154123,
+      "butteraugli": 1.3183964491,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.jxl",
+      "encodedSha256": "86d01f4476b139e8e8d111717f92202fdf5c32b5ad8374654a6af23b967240a0",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.png",
+      "pngSha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 10121, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 8,
+      "bytes": 157313,
+      "score": 85.84457729,
+      "butteraugli": 3.1505138874,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-8.jxl",
+      "encodedSha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-8.png",
+      "pngSha256": "c2ad47f9944a8ff5b683e34399a63e332b0088eba9a728e165dbcb977e812762",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 8545, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 16,
+      "bytes": 155305,
+      "score": 70.61821888,
+      "butteraugli": 7.9806900024,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.jxl",
+      "encodedSha256": "25f415c36bc1d8457e0bf070d2a51e4340603ffa2bc95efdb4f8d111ed273266",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.png",
+      "pngSha256": "7b3a2f372cfc7ea4656d186833616459119715d0aae5f15e5eb590391d0dbcc3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6537, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 4.3384,
+      "bytes": 158774,
+      "score": 89.93733319,
+      "butteraugli": 1.3269935846,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+      "encodedSha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.3384.png",
+      "pngSha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 10006, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 10.439,
+      "bytes": 156502,
+      "score": 81.92311827,
+      "butteraugli": 5.1116018295,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-10.439.jxl",
+      "encodedSha256": "c7a4183cb450724f03f6b774b475c06bb45f2662dbf416e6d059e54eeb42f955",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-10.439.png",
+      "pngSha256": "98551a87a647ed3ede30a102326df64eaca252fbeb24fe93a5bbbc82df19909e",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7734, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 25,
+      "bytes": 154296,
+      "score": 50.41930541,
+      "butteraugli": 14.7064256668,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-25.jxl",
+      "encodedSha256": "bd1a429f50ed7e125315c7957de4110012a813099a1c386c5ce422af6b7b9b93",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-25.png",
+      "pngSha256": "975e53c0a6b9f9b66aaeb9ba6eaf994ea2553ba023e3cbb7f486cec5d618f372",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 5528, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 4.3026,
+      "bytes": 158778,
+      "score": 90.01479488,
+      "butteraugli": 1.406440258,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3026.jxl",
+      "encodedSha256": "55a3ea87c9a6927d21c86b3144080aef38e326779093109116ae942fe6366ea5",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.3026.png",
+      "pngSha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 10010, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.226,
+      "bytes": 156284,
+      "score": 80.22202832,
+      "butteraugli": 5.4701161385,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.226.jxl",
+      "encodedSha256": "96794a961ecc79015736d9c54aa2265a46a27ab7adbafecbdec199a6c3e5250b",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.226.png",
+      "pngSha256": "d328a93b523fb767e41821a39760d7024eca328b6baa3b3a45e648a015220def",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7516, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 16.22,
+      "bytes": 155272,
+      "score": 70.22780938,
+      "butteraugli": 8.2636814117,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.22.jxl",
+      "encodedSha256": "c83c5df743aae4f278055a653a4ce191a7e93da138f2cd10e86af4112eb42917",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.22.png",
+      "pngSha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6504, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.318,
+      "bytes": 156239,
+      "score": 80.47487283,
+      "butteraugli": 5.0497031212,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.318.jxl",
+      "encodedSha256": "787f178e51b160a264593d1bac7e8779f7c5107c54b670621c65a140aedf8fc4",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.318.png",
+      "pngSha256": "5e8841d95236225101595fdba1aa52facfffcb9fa1d65a06d1c3b06f66664458",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7471, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 13.457,
+      "bytes": 155729,
+      "score": 75.65190172,
+      "butteraugli": 5.9132466316,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-13.457.jxl",
+      "encodedSha256": "2dcfac69b640d0493989926774a8fe2c500a538921d763f8b1a0fe174494236d",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-13.457.png",
+      "pngSha256": "bc2d2a5ef3699cc4b429b88c585f46b58b8446f965433d29245a5490077cdb5d",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6961, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 20.137,
+      "bytes": 154818,
+      "score": 60.79221606,
+      "butteraugli": 11.1757087708,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-20.137.jxl",
+      "encodedSha256": "fa2c1e6c7b36fccdae6edf637cede3d45ff90f6820f7121bde3311d50dbac072",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-20.137.png",
+      "pngSha256": "6ba535d592c3ff22f566db6403d4956c4b08d1724c5619dc5cc819bf634cbf5b",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6050, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 12.341,
+      "bytes": 155948,
+      "score": 78.20249469,
+      "butteraugli": 5.8723359108,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-12.341.jxl",
+      "encodedSha256": "7544729c19219dbd4dc33857f3356d8e144275b43187c90dba7f4209be62ef11",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-12.341.png",
+      "pngSha256": "a189c7c6f2fd6374199b10facb9c2345bdb3df61fb8007691f6e369fca5b2616",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7180, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.818,
+      "bytes": 156088,
+      "score": 79.36468665,
+      "butteraugli": 5.115547657,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.818.jxl",
+      "encodedSha256": "7512e81dbdf0296d35f812365c154025c99389f91ee08930346a50a172203791",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.818.png",
+      "pngSha256": "8d49026c5d30295037fd6a8db46d105323654e7217b6370a04b680236513f257",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7320, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 18.073,
+      "bytes": 155044,
+      "score": 64.71451481,
+      "butteraugli": 9.1415710449,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-18.073.jxl",
+      "encodedSha256": "347e9172bbf9808e6e7fa9ff72da29169b58e6281c0bdb26385336fd78f691a3",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-18.073.png",
+      "pngSha256": "c26b6553a888200c635212a7e43462cd9e06c7aa3758aecc4e726042ea3ad610",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6276, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.565,
+      "bytes": 156152,
+      "score": 79.76807493,
+      "butteraugli": 5.2299108505,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.565.jxl",
+      "encodedSha256": "092840ae3712281b6cda23c05a38a6eb8763b5afd0ca28f2bc3207c5c644eac3",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.565.png",
+      "pngSha256": "76541be2b15b10993c94acc9a42e9ca5614f227a0596bff485f43e23ef4a3a9c",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7384, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.441,
+      "bytes": 156189,
+      "score": 80.11118352,
+      "butteraugli": 5.3551902771,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.441.jxl",
+      "encodedSha256": "42f8ef9eccc0018287199db825d28203df036d88a4c0be8c879a6e7eef065572",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.441.png",
+      "pngSha256": "df2fc2d50b2819f0324ab2f465e44665b959325e8d69e1a55abbbff26cced8bd",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7421, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 17.121,
+      "bytes": 155125,
+      "score": 68.41022445,
+      "butteraugli": 8.5310001373,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-17.121.jxl",
+      "encodedSha256": "a5e687029d5ccafc603c2b217297293d28fae028ecd4bcccd5bac0988a4e0631",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-17.121.png",
+      "pngSha256": "ba79a27ddf14fdd39aa4d6f5f92751ac4a3145f8cde273d661ab4edb3c30b1d4",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6357, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.503,
+      "bytes": 156184,
+      "score": 80.02525209,
+      "butteraugli": 4.6927223206,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.503.jxl",
+      "encodedSha256": "94196d4f996db400a567d24049f53920576c717d87bfebfd5dbf3218b657f208",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.503.png",
+      "pngSha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7416, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.534,
+      "bytes": 156173,
+      "score": 79.64891002,
+      "butteraugli": 5.3693385124,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.534.jxl",
+      "encodedSha256": "d07d109581c438f4244f7960e95e2c57bdf2ab12c078a019887ab2ffabb32e9c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.534.png",
+      "pngSha256": "be59d329fca93c44c9f4f9891d36476f1a47f01c32ef54a727c87720f3371f03",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7405, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 16.664,
+      "bytes": 155197,
+      "score": 69.3607357,
+      "butteraugli": 8.6799192429,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.664.jxl",
+      "encodedSha256": "2b0e8ce33590ddb916ae77d86d676ed2d115734ac56c388ab9957097854c12a1",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.664.png",
+      "pngSha256": "ad33b922fd45d29e4eef123ae2d3e8b7e1d7a641589285e1c6a7917b780878c4",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 6429, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.518,
+      "bytes": 156176,
+      "score": 79.6394393,
+      "butteraugli": 4.7458925247,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.518.jxl",
+      "encodedSha256": "80470f0748d36c39a27b97e9e2f782cd02a266e9b0883ed0a32b981fa2362ea6",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.518.png",
+      "pngSha256": "d320548c903dd4287f480a95ae35740d46cf8459cd8bd2d63d6a65fa5dacc837",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7408, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "purejsimage",
+      "setting": 11.51,
+      "bytes": 156186,
+      "score": 79.8270734,
+      "butteraugli": 4.6574811935,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.51.jxl",
+      "encodedSha256": "edb7e3c14505e0e74a498640af409c8f5e8f34d0ace0465c7064447197c4c760",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.51.png",
+      "pngSha256": "aab5eabab7b0e72da707383988a3ba3dc48b3b35e5e12f3be4a968125998ea78",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            35, 7418, 35, 16, 11440, 11754, 23, 11440, 13939, 13938, 11754, 23, 11441, 11754, 16,
+            11441, 13938, 13939, 11754
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 11,
+      "bytes": 96311,
+      "score": 92.29115399,
+      "butteraugli": 0.8189682364,
+      "maximumAlphaError": 4,
+      "changedAlphaSamples": 48933,
+      "absoluteAlphaError": 80656,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-11.jxl",
+      "encodedSha256": "749e35c08ef992ab75995cdc6b2457cb47720cf07b36308c1d8d4e8693d40d97",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-11.png",
+      "pngSha256": "7ab84b9e4e70aa994421db61c896b1d5f1a8c96c580c6a69fac42f23b35c6848",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            18316, 6987, 571, 89, 5584, 5233, 169, 5818, 6586, 6558, 5244, 139, 5402, 5299, 109,
+            5378, 6717, 6678, 5385
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 51,
+      "bytes": 76962,
+      "score": 87.19904205,
+      "butteraugli": 1.7709875107,
+      "maximumAlphaError": 8,
+      "changedAlphaSamples": 123605,
+      "absoluteAlphaError": 249784,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-51.jxl",
+      "encodedSha256": "7db3a7ccff4f9357c5f3b8454838c1eb609539b772a0d2df10c7807283af9bf4",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-51.png",
+      "pngSha256": "4ec7eebc99d43f034dc837581b296b7be33a04c7f495187851be04255638e57f",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [3218]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16830, 440, 115, 87, 4376, 4227, 87, 4386, 5310, 5312, 4227, 87, 4347, 4246, 87, 4423,
+            5415, 5376, 4312
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 101,
+      "bytes": 42002,
+      "score": 74.17871766,
+      "butteraugli": 7.259352684,
+      "maximumAlphaError": 28,
+      "changedAlphaSamples": 235068,
+      "absoluteAlphaError": 1710087,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-101.jxl",
+      "encodedSha256": "0e4f725e2a536af4cf4d04f8893f638b23c7c10e8c8aab8417acbf59d8b08e54",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-101.png",
+      "pngSha256": "4d5562223c5c20fe6de50d710f38e6ce3a0df63f9b9259abcaf9c5bc5a6a4e97",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1589]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            12574, 167, 26, 135, 2189, 1959, 135, 2201, 2551, 2545, 1961, 135, 2167, 1981, 135,
+            2238, 2611, 2607, 2042
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 21.935,
+      "bytes": 87288,
+      "score": 90.95877086,
+      "butteraugli": 1.5058925152,
+      "maximumAlphaError": 5,
+      "changedAlphaSamples": 160826,
+      "absoluteAlphaError": 273790,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-21.935.jxl",
+      "encodedSha256": "03efa1aa38bc207a8702f8b96ba47d46076ae99c90965b2edb904774e5423206",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-21.935.png",
+      "pngSha256": "d990298d59f1bd2f36af02a4c4e927cc62b8a85947be6c641bcb60f50fdc5d4d",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            18189, 5719, 309, 89, 4940, 4724, 125, 5073, 5932, 5916, 4724, 87, 4834, 4736, 87, 4886,
+            6034, 6010, 4829
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 27.201,
+      "bytes": 81292,
+      "score": 90.88008531,
+      "butteraugli": 1.2880783081,
+      "maximumAlphaError": 6,
+      "changedAlphaSamples": 116302,
+      "absoluteAlphaError": 210931,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-27.201.jxl",
+      "encodedSha256": "e9b4a6511ebc3f6accc554d4ab3a01aebef3918fdfe5585f1c0b4e790f6d8417",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-27.201.png",
+      "pngSha256": "1dbf39f95d8f329080f60ae8af3beb6e7c82a7c4bc3bec90dabfd693b531705a",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            17621, 5630, 235, 87, 4502, 4326, 125, 4582, 5431, 5421, 4328, 87, 4416, 4334, 87, 4499,
+            5562, 5526, 4448
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 74.413,
+      "bytes": 67774,
+      "score": 85.96733149,
+      "butteraugli": 1.9010829926,
+      "maximumAlphaError": 8,
+      "changedAlphaSamples": 118980,
+      "absoluteAlphaError": 278396,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-74.413.jxl",
+      "encodedSha256": "0fe72cf445758c19e7dbbfa3f264cb904004d2117bc353fcfacfbb962df1a42c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-74.413.png",
+      "pngSha256": "4fa41f8e4a460882bb6f015c64ca18ca55229faa2a5778c3bdbe2af0318ccf40",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [2960]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16825, 420, 74, 89, 3673, 3557, 89, 3691, 4467, 4470, 3559, 89, 3698, 3547, 89, 3750,
+            4528, 4529, 3616
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 31.612,
+      "bytes": 83017,
+      "score": 90.4370931,
+      "butteraugli": 1.2796415091,
+      "maximumAlphaError": 7,
+      "changedAlphaSamples": 116098,
+      "absoluteAlphaError": 189824,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-31.612.jxl",
+      "encodedSha256": "d310034e3b373ca4f49efd8c7bd97d80b60dbcee475384e70e743e1bfac0acd8",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-31.612.png",
+      "pngSha256": "7032836832458539c98967a08010cc99c00d0fe291383418e8b2f80d5fc106c3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            17338, 5202, 194, 85, 4706, 4518, 99, 4767, 5683, 5674, 4520, 83, 4646, 4534, 83, 4696,
+            5759, 5769, 4617
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 33.72,
+      "bytes": 83334,
+      "score": 90.49305959,
+      "butteraugli": 1.1811915636,
+      "maximumAlphaError": 6,
+      "changedAlphaSamples": 100380,
+      "absoluteAlphaError": 143391,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-33.72.jxl",
+      "encodedSha256": "5d97ecab1b9dff445fa0fe4dfc3e61d4a61e475b263f656a2261d47a90790ad4",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-33.72.png",
+      "pngSha256": "cc71ea16220e45251bf0603b8375c802dcde3c789f5dcaf8e004bc4dc7ace433",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            17204, 5160, 166, 87, 4742, 4562, 101, 4785, 5735, 5729, 4564, 85, 4684, 4572, 85, 4749,
+            5825, 5807, 4648
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 86.693,
+      "bytes": 63822,
+      "score": 84.12795413,
+      "butteraugli": 1.9395371675,
+      "maximumAlphaError": 17,
+      "changedAlphaSamples": 141682,
+      "absoluteAlphaError": 476792,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-86.693.jxl",
+      "encodedSha256": "42a39a07ecebc793953e7e64e769a876f0d6130fbfe50fa380ea98ec14ed1b48",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-86.693.png",
+      "pngSha256": "5bed1b790c5043a940e8ab5daef6b272589c4dcee84db8e120114f81232bf28e",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [2742]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16276, 473, 83, 89, 3446, 3286, 89, 3470, 4150, 4154, 3288, 89, 3416, 3304, 89, 3492,
+            4226, 4224, 3382
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 41.47,
+      "bytes": 70509,
+      "score": 89.95535826,
+      "butteraugli": 1.4547142982,
+      "maximumAlphaError": 9,
+      "changedAlphaSamples": 84166,
+      "absoluteAlphaError": 207495,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-41.47.jxl",
+      "encodedSha256": "25b92a1703a26bf226af4f21e85b93c03833b307097108d8cb0654bb69865f79",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-41.47.png",
+      "pngSha256": "6b3190db9a6342f233a0eacf697437d1da8b3300f346ebbada5e8c3d3fab6c1b",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16668, 4981, 136, 83, 3825, 3621, 83, 3836, 4584, 4580, 3622, 83, 3756, 3651, 83, 3819,
+            4684, 4644, 3726
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 37.395,
+      "bytes": 83225,
+      "score": 90.6090988,
+      "butteraugli": 1.408885479,
+      "maximumAlphaError": 6,
+      "changedAlphaSamples": 100380,
+      "absoluteAlphaError": 143391,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-37.395.jxl",
+      "encodedSha256": "e33ec02b3bc23c6452c38575ea3f772c10f5d8f7de88108832d9d8a04d9c07aa",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-37.395.png",
+      "pngSha256": "0c571aff73ed2817cb22e20a073bdf2726788a61e725eb1f279314ec4c278b8f",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            17209, 5122, 141, 85, 4726, 4556, 91, 4754, 5729, 5727, 4562, 85, 4682, 4566, 85, 4749,
+            5825, 5809, 4678
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 93.573,
+      "bytes": 46243,
+      "score": 83.50158515,
+      "butteraugli": 2.8958084583,
+      "maximumAlphaError": 19,
+      "changedAlphaSamples": 96477,
+      "absoluteAlphaError": 363674,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-93.573.jxl",
+      "encodedSha256": "ab529baf93dd53eece654b243645c89e6efd03fcfc91aaeea6230fc0e5f125d8",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-93.573.png",
+      "pngSha256": "860a17d308b80351811c3fec01e3acc60b60be4ba97d5791e557fbb62720eda7",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [2283]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            14925, 311, 81, 89, 2238, 2084, 89, 2252, 2673, 2675, 2086, 89, 2213, 2100, 89, 2278,
+            2738, 2735, 2161
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 39.38,
+      "bytes": 70631,
+      "score": 89.87466335,
+      "butteraugli": 1.2938361168,
+      "maximumAlphaError": 9,
+      "changedAlphaSamples": 84166,
+      "absoluteAlphaError": 207495,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-39.38.jxl",
+      "encodedSha256": "a8d60556c82f99e08c1b23fe9a208cc34662641bb874931c024287a9534022fc",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-39.38.png",
+      "pngSha256": "1316cf05bfe7b5722b82a329f7fdabb2d294b07d5df48d752966c00b3a9fcfda",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16677, 5096, 149, 83, 3813, 3621, 83, 3817, 4588, 4580, 3622, 83, 3756, 3651, 83, 3819,
+            4686, 4646, 3734
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 38.375,
+      "bytes": 70614,
+      "score": 90.06540937,
+      "butteraugli": 1.2414233685,
+      "maximumAlphaError": 9,
+      "changedAlphaSamples": 84166,
+      "absoluteAlphaError": 207495,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-38.375.jxl",
+      "encodedSha256": "83adb7f43c55e05e7854dad6d2ad6c0b7ecee81a073e8bf2cb34cc3b60da84ff",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-38.375.png",
+      "pngSha256": "9a0d8f233c01eb45dfcecfdbb911b879a83495ebbd6047bc070a53699c459ec5",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            16673, 5105, 140, 83, 3799, 3619, 83, 3822, 4582, 4580, 3620, 83, 3754, 3651, 83, 3819,
+            4686, 4648, 3740
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.216,
+      "bytes": 43670,
+      "score": 80.13725401,
+      "butteraugli": 6.858373642,
+      "maximumAlphaError": 35,
+      "changedAlphaSamples": 72729,
+      "absoluteAlphaError": 265180,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.216.jxl",
+      "encodedSha256": "1f14bf07d9c6f578c14429ecc9fe60a248f0a335644d0b9ba1bf318ce148c974",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.216.png",
+      "pngSha256": "185a1dd25bcaf52f6aaed352537baabf6c57af10bb0dd84c6890ce3d3110a3bb",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1924]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13170, 265, 53, 87, 2213, 2051, 87, 2221, 2643, 2637, 2055, 87, 2191, 2073, 87, 2258,
+            2699, 2691, 2124
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 99.09,
+      "bytes": 42285,
+      "score": 76.23417775,
+      "butteraugli": 8.0762405396,
+      "maximumAlphaError": 28,
+      "changedAlphaSamples": 235068,
+      "absoluteAlphaError": 1710087,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-99.09.jxl",
+      "encodedSha256": "890d57eaa0572ecbbdcd275a24af18f049b0b7971a3e14ff4abc2a35a44b71cf",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-99.09.png",
+      "pngSha256": "f3080c3f52f1162975d58e5a291f39e6e51e605cbc71a93db5b77445ada2ca85",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1790]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            12593, 221, 53, 135, 2185, 1959, 135, 2187, 2551, 2545, 1961, 135, 2167, 1981, 135,
+            2238, 2611, 2607, 2042
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 98.149,
+      "bytes": 43248,
+      "score": 75.42079014,
+      "butteraugli": 8.308426857,
+      "maximumAlphaError": 30,
+      "changedAlphaSamples": 246800,
+      "absoluteAlphaError": 1948003,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-98.149.jxl",
+      "encodedSha256": "443a8328d6a88e5e58a58d0d829106b6b5c9896e89572d2a711598c55c79fba8",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-98.149.png",
+      "pngSha256": "b0792824e0626092832cec678dbb56a5122d2ad89424e5107ba0eef93ff6c6d4",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1853]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            12595, 254, 36, 135, 2243, 2037, 135, 2243, 2633, 2631, 2041, 135, 2237, 2047, 135,
+            2312, 2701, 2687, 2104
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.681,
+      "bytes": 41725,
+      "score": 75.60667394,
+      "butteraugli": 7.9549846649,
+      "maximumAlphaError": 40,
+      "changedAlphaSamples": 162891,
+      "absoluteAlphaError": 1925770,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.681.jxl",
+      "encodedSha256": "3c8782d1ff9e64f9d4553f0ccb829b524d8777024877bf038bf930de0e51f13b",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.681.png",
+      "pngSha256": "4d1152de5e9e83bd44f958a5f84bafead1b121f752db907c5d568a8dbb59f228",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1890]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            12626, 253, 48, 91, 2101, 1959, 91, 2103, 2511, 2507, 1963, 91, 2073, 1977, 91, 2136,
+            2565, 2561, 2034
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.448,
+      "bytes": 43587,
+      "score": 80.46354073,
+      "butteraugli": 7.2080898285,
+      "maximumAlphaError": 34,
+      "changedAlphaSamples": 68125,
+      "absoluteAlphaError": 269956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.448.jxl",
+      "encodedSha256": "99fa2b1a13255215058739d0d3e08a2ab5840bc04c3fd2a4ad9becff0ee67d62",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.448.png",
+      "pngSha256": "04babca443cc03508f72994739fee03f378c9c2cfae98ad680eb7386f8e314e9",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1915]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13192, 258, 54, 87, 2205, 2049, 87, 2211, 2637, 2629, 2051, 87, 2179, 2069, 87, 2248,
+            2691, 2681, 2116
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.564,
+      "bytes": 43768,
+      "score": 79.58493705,
+      "butteraugli": 7.4417800903,
+      "maximumAlphaError": 48,
+      "changedAlphaSamples": 74944,
+      "absoluteAlphaError": 436983,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.564.jxl",
+      "encodedSha256": "7ef0cfa2edb802c74d163feb4f32c095bc3969b1dd99e56b7253026b5175f883",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.564.png",
+      "pngSha256": "299129fbe8bea49e80158fb719ffaa4296e2b52e949bd687e517f7b564a0f8f3",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1905]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            12580, 257, 48, 87, 2263, 2109, 87, 2265, 2713, 2707, 2111, 87, 2231, 2145, 87, 2302,
+            2777, 2757, 2196
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.506,
+      "bytes": 43566,
+      "score": 80.44508375,
+      "butteraugli": 7.2083625793,
+      "maximumAlphaError": 34,
+      "changedAlphaSamples": 68125,
+      "absoluteAlphaError": 269956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.506.jxl",
+      "encodedSha256": "c483630fad3e631d11a9e90024b42f9a18f4703bcf2f932fe56aab00ae392f4e",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.506.png",
+      "pngSha256": "3a520fac54724fd28dd100f8513c8b01a6220e8f64ee3c34c7e5dde19765c701",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1907]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13187, 258, 48, 87, 2205, 2049, 87, 2209, 2637, 2629, 2051, 87, 2179, 2069, 87, 2248,
+            2691, 2681, 2116
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.535,
+      "bytes": 43565,
+      "score": 80.43556707,
+      "butteraugli": 7.1835479736,
+      "maximumAlphaError": 34,
+      "changedAlphaSamples": 68125,
+      "absoluteAlphaError": 269956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.535.jxl",
+      "encodedSha256": "3e823cdd3651ef1f43c2ebdef9316329fe60f2ecfe706e787c24e736ddf0a5c8",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.535.png",
+      "pngSha256": "62c5b4cb8112526433e76d5e38e97753d29c652ae9c8d1a6fbac3660e02ca0f7",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1906]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13187, 258, 48, 87, 2205, 2049, 87, 2209, 2637, 2629, 2051, 87, 2179, 2069, 87, 2248,
+            2691, 2681, 2116
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.549,
+      "bytes": 43564,
+      "score": 80.51741146,
+      "butteraugli": 7.1867833138,
+      "maximumAlphaError": 34,
+      "changedAlphaSamples": 68125,
+      "absoluteAlphaError": 269956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.549.jxl",
+      "encodedSha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.549.png",
+      "pngSha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1905]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13187, 258, 48, 87, 2205, 2049, 87, 2209, 2637, 2629, 2051, 87, 2179, 2069, 87, 2248,
+            2691, 2681, 2116
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "jsquash",
+      "setting": 97.556,
+      "bytes": 43564,
+      "score": 80.51741146,
+      "butteraugli": 7.1867833138,
+      "maximumAlphaError": 34,
+      "changedAlphaSamples": 68125,
+      "absoluteAlphaError": 269956,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.556.jxl",
+      "encodedSha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.556.png",
+      "pngSha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5",
+      "frames": [
+        {
+          "encoding": "modular",
+          "type": "dc",
+          "width": 1024,
+          "height": 1024,
+          "sections": [1905]
+        },
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            13187, 258, 48, 87, 2205, 2049, 87, 2209, 2637, 2629, 2051, 87, 2179, 2069, 87, 2248,
+            2691, 2681, 2116
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 1,
+      "bytes": 16531,
+      "score": 93.19160639,
+      "butteraugli": 0.7440254688,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-1.jxl",
+      "encodedSha256": "8db2b161492293cb7aeabd3d0966a5b34e6dacb373a18a51d526a37b221f3b91",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-1.png",
+      "pngSha256": "196134759d11987ed119b3c9f9b82a2bbe4e8f5a23ed2525918a1f12a01ebe1b",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            43, 9869, 780, 13, 777, 229, 107, 867, 480, 450, 223, 73, 402, 283, 31, 280, 534, 522,
+            352
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 4,
+      "bytes": 10570,
+      "score": 91.23662964,
+      "butteraugli": 1.4363088608,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-4.jxl",
+      "encodedSha256": "d7b8e52ee9be719ccec297e8e6d493db73259d9c9718ca0cdda14c4b6a66fc43",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-4.png",
+      "pngSha256": "6865f80b82f37cd78fa430070c67eb6b0ad269e200e9fe0aab414b29858fd8aa",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            421, 7059, 266, 13, 445, 101, 17, 437, 229, 229, 101, 17, 163, 97, 11, 163, 249, 231,
+            105
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 8,
+      "bytes": 9069,
+      "score": 89.33190918,
+      "butteraugli": 1.8627073765,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.jxl",
+      "encodedSha256": "494584ac0e84227d27caeace2fd1d8aad2345307f46031d5baa6e303cc10e7fe",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-8.png",
+      "pngSha256": "16dc37932200a44d92e5408bafdccea4a1c07e9a36b6b89e306ee2ca2b65bb7b",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            380, 6105, 154, 11, 237, 101, 17, 295, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 16,
+      "bytes": 3710,
+      "score": 3.67154061,
+      "butteraugli": 24.3003921509,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-16.jxl",
+      "encodedSha256": "24b898ceea3b79847f866f61874a8528a0397b36bc45bc8ecd2634a079b18796",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-16.png",
+      "pngSha256": "76a6750706094bc052b42e175f9eb18fcf7474e20ac127ca0f98df8ead957458",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [432, 1964, 246, 363, 171, 171, 165]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.2734,
+      "bytes": 9307,
+      "score": 90.39106717,
+      "butteraugli": 1.4729868174,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+      "encodedSha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.2734.png",
+      "pngSha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            386, 6354, 176, 11, 227, 101, 17, 266, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 8.6275,
+      "bytes": 8888,
+      "score": 88.84726195,
+      "butteraugli": 1.9360563755,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.6275.jxl",
+      "encodedSha256": "6fdac905be427c42878abe30e6246897681c921abcb73296575017b0b8879769",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-8.6275.png",
+      "pngSha256": "a12bddd54cbc21109b5b4421279c983592bdc4903390b7d2a841849177bf8d0a",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            371, 5956, 143, 11, 238, 101, 17, 282, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 9.891,
+      "bytes": 8666,
+      "score": 87.96684782,
+      "butteraugli": 2.7105116844,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.891.jxl",
+      "encodedSha256": "149713b2013cb95fb1b25deb566dab97e42041290a8a785f9bcca6aa1d4559ef",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.891.png",
+      "pngSha256": "0ff3827fff2505566fb24aff5e0583c9d0fc438308e38b59bbef4444a4072c8a",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            363, 5804, 142, 11, 199, 101, 17, 264, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.8626,
+      "bytes": 9358,
+      "score": 89.86697118,
+      "butteraugli": 1.7605352402,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.8626.jxl",
+      "encodedSha256": "638fc7d68daff015bb777fced8d14d20734b453673c03fe00c690580e207d4f8",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.8626.png",
+      "pngSha256": "cfa17f48ef0fd057e08fa66845bf9e8913dda688f0300bd3c37d6e4275581f37",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            385, 6295, 188, 11, 249, 101, 17, 343, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.351,
+      "bytes": 4537,
+      "score": 3.76228236,
+      "butteraugli": 24.3758811951,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.351.jxl",
+      "encodedSha256": "ef7492a0cca8c9f8fe7a381329f596e652a5da81897233f7662a2565f75cc9bd",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.351.png",
+      "pngSha256": "7cbeea2b2032c41452b0b0fade8f16302786025c84b53c706d4fd5120d179a57",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [446, 2274, 415, 628, 195, 189, 193]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 9.9874,
+      "bytes": 8642,
+      "score": 88.10509915,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+      "encodedSha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9874.png",
+      "pngSha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.5614,
+      "bytes": 9399,
+      "score": 89.99523027,
+      "butteraugli": 1.8708708286,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5614.jxl",
+      "encodedSha256": "b1ae1dd12b61c7a66c928821dfed2b5988b498e7e446d5b714a70757689a035c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.5614.png",
+      "pngSha256": "344b21e105b924ceef822f7054b756588cfc81bd2a612336bfa60000568f7265",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            391, 6311, 199, 11, 268, 101, 17, 334, 225, 225, 101, 17, 163, 97, 11, 163, 227, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.168,
+      "bytes": 4561,
+      "score": 3.77424223,
+      "butteraugli": 24.3615684509,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.168.jxl",
+      "encodedSha256": "2c19a001150106bfa56e5b07c44ba2e9465c4040ac60abada199599281a36cf9",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.168.png",
+      "pngSha256": "3300612d1d725c2d7d995655d324230b77171ee3ccdc5b5c7db0779cf86a82b3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [428, 2289, 420, 637, 189, 204, 197]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.077,
+      "bytes": 4634,
+      "score": 3.76200641,
+      "butteraugli": 24.4258460999,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.077.jxl",
+      "encodedSha256": "03557912a57d8d53fc975aaf1d0bb3448506b4b32eb8a1ead645ce74fc10ea5b",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.077.png",
+      "pngSha256": "06fe20f387220a6c18d2bed59ea701296bb5c8388005b3c7aa5de80fd3f48f75",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [434, 2273, 464, 672, 189, 206, 199]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.4158,
+      "bytes": 9382,
+      "score": 90.25584872,
+      "butteraugli": 1.8406991959,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4158.jxl",
+      "encodedSha256": "b5c4f1bf99283a9118d4fee1d1c9cd9ee66441d987a432d0c66c5fe12f621db4",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.4158.png",
+      "pngSha256": "8e4a415d0441f2fe8d3a5d182295f7cb086a687f4c3b20d9d1140940b01ef42b",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            381, 6347, 187, 11, 256, 101, 17, 313, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.032,
+      "bytes": 4608,
+      "score": 3.76020099,
+      "butteraugli": 24.3819007874,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.032.jxl",
+      "encodedSha256": "a8dd13be9c8072c979af4f72a3d9a575a23a268da6d6a09b58f31e479367ae0c",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.032.png",
+      "pngSha256": "debc5a18ca1bef5038e7e7032f6fb76f85d16c3f7b6bae11c5949accc76b7ade",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [426, 2231, 466, 684, 193, 208, 203]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.01,
+      "bytes": 4643,
+      "score": 3.77016511,
+      "butteraugli": 24.3441944122,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.01.jxl",
+      "encodedSha256": "3e8520ed5d7ebf8eee0b9cfbc1998c81aa351b8bcb63fe1cecb695723b3b5ab5",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.01.png",
+      "pngSha256": "1a56c754491763b82e5be0fe3f398fef7720b9176363aadf1543616d9b01fdc7",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [431, 2230, 459, 730, 189, 206, 201]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.4882,
+      "bytes": 9403,
+      "score": 90.11453719,
+      "butteraugli": 1.4314550161,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4882.jxl",
+      "encodedSha256": "1722f8462c3b2b263f6f7e2f4956c8898401a6e977d5d19a201d3e60a88e6cda",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.4882.png",
+      "pngSha256": "3a31fe845951ea08cae4a8f86e85957c9136d1304d72e686e8d0c5047c5183a3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            388, 6332, 196, 11, 269, 101, 17, 320, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 9.9987,
+      "bytes": 8642,
+      "score": 88.11384601,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9987.jxl",
+      "encodedSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9987.png",
+      "pngSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.004,
+      "bytes": 4650,
+      "score": 3.7629154,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.004.jxl",
+      "encodedSha256": "a3a0e482259a992e255362f587bca64d29300ba03654996a0fc5df71ebd19e85",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.004.png",
+      "pngSha256": "2038ba26c1d86accb946f43d5cd947c05ba3dd03f14f4412d7fb61b5f7448af3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [431, 2246, 482, 702, 191, 202, 199]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.5247,
+      "bytes": 9396,
+      "score": 90.2483573,
+      "butteraugli": 1.3624426126,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5247.jxl",
+      "encodedSha256": "52ae72f4672be851b048f9477319029c47c4ae2bd3207b6ba44e58b206e7b576",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.5247.png",
+      "pngSha256": "10aa101eb394aeb2b5ac83a32b55dc3a15ba2914de3fb759cb06aad1adc43eff",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            398, 6319, 188, 11, 271, 101, 17, 322, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10.001,
+      "bytes": 4650,
+      "score": 3.76357103,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.001.jxl",
+      "encodedSha256": "6e51cc77ea2cf8b8a9651afa7bc34780c7d3b4bd80776adad7ebb211a48a4f53",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.001.png",
+      "pngSha256": "f17098251577f1cd8a19f74e8a9a0c71a7b024ef67d166cf76463b05a9f7f12f",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [431, 2246, 482, 702, 191, 202, 199]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 9.9998,
+      "bytes": 8642,
+      "score": 88.11384601,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9998.jxl",
+      "encodedSha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9998.png",
+      "pngSha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 6.543,
+      "bytes": 9389,
+      "score": 89.94834499,
+      "butteraugli": 1.8658204079,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.543.jxl",
+      "encodedSha256": "2a5b1a2a89573b81e3a9cbd3d546e0af2aac6c9bf4bac82b27b6665ab096e343",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.543.png",
+      "pngSha256": "7e290097d8dae3a76539aef4d2f3658a90f6b21bcf2d762b50543c46389e7535",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            393, 6301, 198, 11, 270, 101, 17, 329, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "setting": 10,
+      "bytes": 4639,
+      "score": 3.76181572,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.jxl",
+      "encodedSha256": "551f59255bef18a37a3a60387774d92e25761405d476857bafc52fc634776877",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.png",
+      "pngSha256": "8489c657402629bb02a41997b83ef73a64e3c8e329b35ba12349ac7c183bd2a2",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [431, 2246, 488, 679, 191, 206, 201]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 1,
+      "bytes": 16360,
+      "score": 93.19149862,
+      "butteraugli": 0.7438696623,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-1.jxl",
+      "encodedSha256": "2f4ad70f67db422c47437ffe91ed2beff0657fbe5b1177430b820dea4a4484b9",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-1.png",
+      "pngSha256": "a006c05b48986cb12433e3a7524c3d3cc88055a3ac5d217063c9e8e10367c693",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            43, 9873, 780, 13, 777, 229, 107, 867, 480, 450, 223, 73, 402, 283, 31, 280, 534, 522,
+            352
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 4,
+      "bytes": 10397,
+      "score": 91.23395617,
+      "butteraugli": 1.4363088608,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-4.jxl",
+      "encodedSha256": "bfd304f490f231cf626a694cb24c15b3e95abac648a67c6765a76518a5271f12",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-4.png",
+      "pngSha256": "cd2a76f50120e2ebfe6c71592c353bf21442496239287679205ecceb373f651d",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            421, 7061, 266, 13, 445, 101, 17, 437, 229, 229, 101, 17, 163, 97, 11, 163, 249, 231,
+            105
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 8,
+      "bytes": 8897,
+      "score": 89.33209014,
+      "butteraugli": 1.8627073765,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.jxl",
+      "encodedSha256": "092e75ae5b056c5f17b3ed6e2f547fa2393290264a327ddeefae3310559d746a",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-8.png",
+      "pngSha256": "750ede96cf7992e23a3b114a3bc648863a554dd040e50e2169733ee57647e142",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            383, 6105, 154, 11, 237, 101, 17, 295, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 16,
+      "bytes": 3535,
+      "score": 3.67154061,
+      "butteraugli": 24.3003921509,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-16.jxl",
+      "encodedSha256": "8f9c9d3ad6f226c433a8085710528138007530535f107b2d43bb12d8c68ab141",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-16.png",
+      "pngSha256": "d89bb1cb43c6a6c4cb1a605e2dda2a283267943ff7408e9cbc32a79e877056eb",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [432, 1964, 246, 363, 171, 171, 165]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.2715,
+      "bytes": 9139,
+      "score": 90.49310841,
+      "butteraugli": 1.4143900871,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.2715.jxl",
+      "encodedSha256": "51eff54d81c38d09476fc483e88627c4ac6948d2ae0ef78d3d1ed7e268884f3f",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.2715.png",
+      "pngSha256": "6bd253544e7fad039c7c17b805b3eb27fbd4bd5c3917487d840788ab66eb9d66",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            386, 6363, 174, 11, 227, 101, 17, 266, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 8.6275,
+      "bytes": 8715,
+      "score": 88.85018706,
+      "butteraugli": 1.9360563755,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.6275.jxl",
+      "encodedSha256": "3e598010fe1c83e833cc157201761cfa60a6d8419566b1452aa97f17d15c9686",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-8.6275.png",
+      "pngSha256": "f359b4cb16d3f49f51dcfa080b50118e7b5d1060294a7ec46a6b72559068ca05",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            371, 5958, 143, 11, 238, 101, 17, 282, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 9.8911,
+      "bytes": 8493,
+      "score": 87.96684782,
+      "butteraugli": 2.7105116844,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.8911.jxl",
+      "encodedSha256": "e890d9f9902f7fd3067d109918209e6feaa02df51b10b349ad1022a7dd228611",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.8911.png",
+      "pngSha256": "b6be833fa70b0d28738f75fcf2c1e1c565cbce096c6bc36ebb6b97d6a0ba979e",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            363, 5806, 142, 11, 199, 101, 17, 264, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.9546,
+      "bytes": 9133,
+      "score": 89.87084302,
+      "butteraugli": 1.7422254086,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.9546.jxl",
+      "encodedSha256": "7a219a1825ea6122c0b096ce3df3569b2971378679116177b1395477e8224a64",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.9546.png",
+      "pngSha256": "ab045dc8ec59d85f4429c4258c86692483057c27c8d3e174f5f3f80dd09eff00",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            375, 6271, 192, 11, 259, 101, 17, 313, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.351,
+      "bytes": 4364,
+      "score": 3.7598079,
+      "butteraugli": 24.3758811951,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.351.jxl",
+      "encodedSha256": "c04ac6a2e0dbf2de3cd53c464c6526e5f4f875d1edabe16244439751d7d1fc41",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.351.png",
+      "pngSha256": "734a672c081bf9ebdccd317977d821446f61305180d9b80dcb9e88078d94eb20",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [448, 2274, 415, 628, 195, 189, 193]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 9.9875,
+      "bytes": 8467,
+      "score": 88.10509915,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9875.jxl",
+      "encodedSha256": "ca0141b854bec12988633965dd2c5e82227e5fc349e0bcc7aef2889a71887e34",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9875.png",
+      "pngSha256": "b61f23014f9a38d024f0bf1ac42ba9203171a08d4e7bcd2d51938b409f00f4cd",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.6042,
+      "bytes": 9265,
+      "score": 90.00600755,
+      "butteraugli": 1.772134304,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6042.jxl",
+      "encodedSha256": "212c71e2d22c280240232082152f7c9105f376365313281e2a341dc79c35bb37",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6042.png",
+      "pngSha256": "337b9ca920807848fa1f5451fdba10b6b24a44933391cdfc8b2c21c3a89b389f",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            399, 6362, 182, 11, 267, 101, 17, 332, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.168,
+      "bytes": 4386,
+      "score": 3.77424223,
+      "butteraugli": 24.3615684509,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.168.jxl",
+      "encodedSha256": "8fb75d7cea84c985b98b7abf79d5c5483a782db2a49426c38e9511ea28079e17",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.168.png",
+      "pngSha256": "2f2ea28d5d8b915b4789d17a5b6b587f8f3046280760708c535a921639c3f195",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [428, 2289, 420, 637, 189, 204, 197]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.077,
+      "bytes": 4459,
+      "score": 3.76200641,
+      "butteraugli": 24.4258460999,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.077.jxl",
+      "encodedSha256": "66109434a38b4c1c98f4f4322dedcca4e893d0f642272eea4c0a6fdfd883eeaa",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.077.png",
+      "pngSha256": "52d1d9692c9d9cafb16285f3e50cca2d84dff9db06813b6f86f29daad05055b1",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [434, 2273, 464, 672, 189, 206, 199]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.7771,
+      "bytes": 9196,
+      "score": 89.95591847,
+      "butteraugli": 1.7742397785,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.7771.jxl",
+      "encodedSha256": "36aa023c2e11c835183c95cdd0f3109a74ffd2eb75e1074ac2f5845f8e6a9d12",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.7771.png",
+      "pngSha256": "fd41d98769a159ff265e362f2fe3ef58ff215f7b91fa14e34612890020f3871d",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            393, 6271, 214, 11, 257, 101, 17, 338, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.032,
+      "bytes": 4433,
+      "score": 3.76020099,
+      "butteraugli": 24.3819007874,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.032.jxl",
+      "encodedSha256": "90902a547a793b722402a0fd875a6be22948e0b189200f8d9e5f55567cd09eed",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.032.png",
+      "pngSha256": "d18780a57c2eb5760cefd6c61920678d98a45e2bfe08facabedb28dc5bafe456",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [426, 2231, 466, 684, 193, 208, 203]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.01,
+      "bytes": 4468,
+      "score": 3.77016511,
+      "butteraugli": 24.3441944122,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.01.jxl",
+      "encodedSha256": "256cb0db3e0671c78a90a97ed16b46d02b06ad4dc1adf46b2f91a0836123b96a",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.01.png",
+      "pngSha256": "18505ac5a197990e4ae206e82998a7c45841120b7cad0b59d0d16454661213c3",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [431, 2230, 459, 730, 189, 206, 201]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.6901,
+      "bytes": 9143,
+      "score": 89.3631588,
+      "butteraugli": 1.7978662252,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6901.jxl",
+      "encodedSha256": "87da75d71512c8e50bb2dbf52846b030ff4c07a8002df2bcb0d43418a73b6cd1",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6901.png",
+      "pngSha256": "5a968f85047b15bd025500f6b523d3c07f1af5ec935aa184e0cb5726e4d5595d",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            385, 6238, 188, 11, 270, 101, 17, 339, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 9.9987,
+      "bytes": 8467,
+      "score": 88.11384601,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9987.jxl",
+      "encodedSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9987.png",
+      "pngSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.004,
+      "bytes": 4482,
+      "score": 3.76231507,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.004.jxl",
+      "encodedSha256": "d9a462e799fdcb82a6698f6bed0b8879738d4072aca4ea67e355bc7e0731cfac",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.004.png",
+      "pngSha256": "ec7901253ed661b6173553a43c963a5a234dbdf31d4763ab292ba9fdd55ebe87",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [443, 2241, 482, 702, 191, 202, 199]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.647,
+      "bytes": 9255,
+      "score": 89.8844961,
+      "butteraugli": 1.6964070797,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.647.jxl",
+      "encodedSha256": "bd08663cb58462e915cf413110d2a5d8348f20afebdc9514f96918babb3064e6",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.647.png",
+      "pngSha256": "e804d796280d5990e1215b5ba8df6bf4ddf3d241fef7da4bf2a97b7040e884aa",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            395, 6330, 220, 11, 262, 101, 17, 325, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10.001,
+      "bytes": 4482,
+      "score": 3.76391429,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.001.jxl",
+      "encodedSha256": "503abeb83570a367247a07e3636d56ce31112b29a3540c3ccd2231d1a81efb67",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.001.png",
+      "pngSha256": "3712cff4947e2e245f2fa4179fbd5c27ad16c901f8edb9599c6431b10fb3f811",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [443, 2241, 482, 702, 191, 202, 199]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 9.9998,
+      "bytes": 8467,
+      "score": 88.11384601,
+      "butteraugli": 2.3988752365,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9998.jxl",
+      "encodedSha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9998.png",
+      "pngSha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            357, 5796, 132, 11, 205, 101, 17, 258, 225, 225, 101, 17, 163, 97, 11, 163, 225, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 6.6256,
+      "bytes": 9182,
+      "score": 90.29066915,
+      "butteraugli": 1.7495110035,
+      "maximumAlphaError": 0,
+      "changedAlphaSamples": 0,
+      "absoluteAlphaError": 0,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6256.jxl",
+      "encodedSha256": "013ad63f3ede1b2f7f604734df37067d34b546387e9f60584803c9f5a885cd55",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6256.png",
+      "pngSha256": "bd9acb360ef9415454ba488f396f0b64c9a3302e71ccb34cf28ff0e1309a75a7",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [
+            393, 6294, 200, 11, 258, 101, 17, 314, 225, 225, 101, 17, 163, 97, 11, 163, 229, 225, 97
+          ]
+        }
+      ]
+    },
+    {
+      "subject": "native-libjxl",
+      "setting": 10,
+      "bytes": 4471,
+      "score": 3.76172507,
+      "butteraugli": 24.3910236359,
+      "maximumAlphaError": 192,
+      "changedAlphaSamples": 229498,
+      "absoluteAlphaError": 20784843,
+      "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.jxl",
+      "encodedSha256": "d9e15641ed9b4a8a96a964ddd0b8de6d412bb960e812a634be58df75da0927bd",
+      "png": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.png",
+      "pngSha256": "4759ff71ed2759f6f38c16499d116808c1e7d7ea1c2d53aceac3e8e2e737c5ba",
+      "frames": [
+        {
+          "encoding": "vardct",
+          "type": "regular",
+          "width": 1024,
+          "height": 1024,
+          "sections": [443, 2241, 488, 679, 191, 206, 201]
+        }
+      ]
+    }
+  ],
+  "pins": [
+    {
+      "path": "benchmark/jpegxl/comparison/results/quality-refined-alpha.json",
+      "sha256": "9fb91309940d65be979b5bf0ac83dc913cfedcc036116d063b114bfda01e9d65"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/alpha_triangles.raw",
+      "sha256": "d5802aee2c3630dbc36313b9d6bfba078704bc75b46600977a8d3c2768b05497"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/alpha-peer-audit-1216.ts",
+      "sha256": "b49f9944e94ec26d23499f5365a1dd70ddd085d4ff49a4e69f496afa676763ba"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-1.jxl",
+      "sha256": "4db5aa1d32749934577a4c888ad2208b4777b4b56295b62b8026f53dd35174aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-1.png",
+      "sha256": "0ec6c934cef2d2257fe4ee982c6152a785ca22f81db3f399eac02cc3d2455fe9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.jxl",
+      "sha256": "86d01f4476b139e8e8d111717f92202fdf5c32b5ad8374654a6af23b967240a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.png",
+      "sha256": "4c7e4c9da19003b939f9c9c2869ace42e818507d9b8029494ba4dd9caaa7fcd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-8.jxl",
+      "sha256": "70732759f0e45622e0a7a555dbf92988c1609e98f579ba616dea89516734fc72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-8.png",
+      "sha256": "c2ad47f9944a8ff5b683e34399a63e332b0088eba9a728e165dbcb977e812762"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.jxl",
+      "sha256": "25f415c36bc1d8457e0bf070d2a51e4340603ffa2bc95efdb4f8d111ed273266"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.png",
+      "sha256": "7b3a2f372cfc7ea4656d186833616459119715d0aae5f15e5eb590391d0dbcc3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3384.jxl",
+      "sha256": "6f1fcb6cb2e04e9b770c2394d17edf810e637486565c40e569a2bf40f3096c17"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.3384.png",
+      "sha256": "a4a90b533b40bfd81daea3996e70037a94d386001d0ef493238b74a63cef526f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-10.439.jxl",
+      "sha256": "c7a4183cb450724f03f6b774b475c06bb45f2662dbf416e6d059e54eeb42f955"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-10.439.png",
+      "sha256": "98551a87a647ed3ede30a102326df64eaca252fbeb24fe93a5bbbc82df19909e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-25.jxl",
+      "sha256": "bd1a429f50ed7e125315c7957de4110012a813099a1c386c5ce422af6b7b9b93"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-25.png",
+      "sha256": "975e53c0a6b9f9b66aaeb9ba6eaf994ea2553ba023e3cbb7f486cec5d618f372"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-4.3026.jxl",
+      "sha256": "55a3ea87c9a6927d21c86b3144080aef38e326779093109116ae942fe6366ea5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-4.3026.png",
+      "sha256": "5719a2a39b0bd4fd903b75a4a7d6a4865eb3adb08159481f38626274ee4f0d40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.226.jxl",
+      "sha256": "96794a961ecc79015736d9c54aa2265a46a27ab7adbafecbdec199a6c3e5250b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.226.png",
+      "sha256": "d328a93b523fb767e41821a39760d7024eca328b6baa3b3a45e648a015220def"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.22.jxl",
+      "sha256": "c83c5df743aae4f278055a653a4ce191a7e93da138f2cd10e86af4112eb42917"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.22.png",
+      "sha256": "07d31729aea33a0b097d62290be4ef484508ef3c1498a9eeae735ebeaf2ddf40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.318.jxl",
+      "sha256": "787f178e51b160a264593d1bac7e8779f7c5107c54b670621c65a140aedf8fc4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.318.png",
+      "sha256": "5e8841d95236225101595fdba1aa52facfffcb9fa1d65a06d1c3b06f66664458"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-13.457.jxl",
+      "sha256": "2dcfac69b640d0493989926774a8fe2c500a538921d763f8b1a0fe174494236d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-13.457.png",
+      "sha256": "bc2d2a5ef3699cc4b429b88c585f46b58b8446f965433d29245a5490077cdb5d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-20.137.jxl",
+      "sha256": "fa2c1e6c7b36fccdae6edf637cede3d45ff90f6820f7121bde3311d50dbac072"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-20.137.png",
+      "sha256": "6ba535d592c3ff22f566db6403d4956c4b08d1724c5619dc5cc819bf634cbf5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-12.341.jxl",
+      "sha256": "7544729c19219dbd4dc33857f3356d8e144275b43187c90dba7f4209be62ef11"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-12.341.png",
+      "sha256": "a189c7c6f2fd6374199b10facb9c2345bdb3df61fb8007691f6e369fca5b2616"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.818.jxl",
+      "sha256": "7512e81dbdf0296d35f812365c154025c99389f91ee08930346a50a172203791"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.818.png",
+      "sha256": "8d49026c5d30295037fd6a8db46d105323654e7217b6370a04b680236513f257"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-18.073.jxl",
+      "sha256": "347e9172bbf9808e6e7fa9ff72da29169b58e6281c0bdb26385336fd78f691a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-18.073.png",
+      "sha256": "c26b6553a888200c635212a7e43462cd9e06c7aa3758aecc4e726042ea3ad610"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.565.jxl",
+      "sha256": "092840ae3712281b6cda23c05a38a6eb8763b5afd0ca28f2bc3207c5c644eac3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.565.png",
+      "sha256": "76541be2b15b10993c94acc9a42e9ca5614f227a0596bff485f43e23ef4a3a9c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.441.jxl",
+      "sha256": "42f8ef9eccc0018287199db825d28203df036d88a4c0be8c879a6e7eef065572"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.441.png",
+      "sha256": "df2fc2d50b2819f0324ab2f465e44665b959325e8d69e1a55abbbff26cced8bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-17.121.jxl",
+      "sha256": "a5e687029d5ccafc603c2b217297293d28fae028ecd4bcccd5bac0988a4e0631"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-17.121.png",
+      "sha256": "ba79a27ddf14fdd39aa4d6f5f92751ac4a3145f8cde273d661ab4edb3c30b1d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.503.jxl",
+      "sha256": "94196d4f996db400a567d24049f53920576c717d87bfebfd5dbf3218b657f208"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.503.png",
+      "sha256": "9a2a6591fe9c5bb1cafcad3c4522a8cbed669adebaf909cf2b487c6cbb4d0a38"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.534.jxl",
+      "sha256": "d07d109581c438f4244f7960e95e2c57bdf2ab12c078a019887ab2ffabb32e9c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.534.png",
+      "sha256": "be59d329fca93c44c9f4f9891d36476f1a47f01c32ef54a727c87720f3371f03"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-16.664.jxl",
+      "sha256": "2b0e8ce33590ddb916ae77d86d676ed2d115734ac56c388ab9957097854c12a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-16.664.png",
+      "sha256": "ad33b922fd45d29e4eef123ae2d3e8b7e1d7a641589285e1c6a7917b780878c4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.518.jxl",
+      "sha256": "80470f0748d36c39a27b97e9e2f782cd02a266e9b0883ed0a32b981fa2362ea6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.518.png",
+      "sha256": "d320548c903dd4287f480a95ae35740d46cf8459cd8bd2d63d6a65fa5dacc837"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-purejsimage-11.51.jxl",
+      "sha256": "edb7e3c14505e0e74a498640af409c8f5e8f34d0ace0465c7064447197c4c760"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/purejsimage-11.51.png",
+      "sha256": "aab5eabab7b0e72da707383988a3ba3dc48b3b35e5e12f3be4a968125998ea78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-11.jxl",
+      "sha256": "749e35c08ef992ab75995cdc6b2457cb47720cf07b36308c1d8d4e8693d40d97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-11.png",
+      "sha256": "7ab84b9e4e70aa994421db61c896b1d5f1a8c96c580c6a69fac42f23b35c6848"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-51.jxl",
+      "sha256": "7db3a7ccff4f9357c5f3b8454838c1eb609539b772a0d2df10c7807283af9bf4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-51.png",
+      "sha256": "4ec7eebc99d43f034dc837581b296b7be33a04c7f495187851be04255638e57f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-101.jxl",
+      "sha256": "0e4f725e2a536af4cf4d04f8893f638b23c7c10e8c8aab8417acbf59d8b08e54"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-101.png",
+      "sha256": "4d5562223c5c20fe6de50d710f38e6ce3a0df63f9b9259abcaf9c5bc5a6a4e97"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-21.935.jxl",
+      "sha256": "03efa1aa38bc207a8702f8b96ba47d46076ae99c90965b2edb904774e5423206"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-21.935.png",
+      "sha256": "d990298d59f1bd2f36af02a4c4e927cc62b8a85947be6c641bcb60f50fdc5d4d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-27.201.jxl",
+      "sha256": "e9b4a6511ebc3f6accc554d4ab3a01aebef3918fdfe5585f1c0b4e790f6d8417"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-27.201.png",
+      "sha256": "1dbf39f95d8f329080f60ae8af3beb6e7c82a7c4bc3bec90dabfd693b531705a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-74.413.jxl",
+      "sha256": "0fe72cf445758c19e7dbbfa3f264cb904004d2117bc353fcfacfbb962df1a42c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-74.413.png",
+      "sha256": "4fa41f8e4a460882bb6f015c64ca18ca55229faa2a5778c3bdbe2af0318ccf40"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-31.612.jxl",
+      "sha256": "d310034e3b373ca4f49efd8c7bd97d80b60dbcee475384e70e743e1bfac0acd8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-31.612.png",
+      "sha256": "7032836832458539c98967a08010cc99c00d0fe291383418e8b2f80d5fc106c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-33.72.jxl",
+      "sha256": "5d97ecab1b9dff445fa0fe4dfc3e61d4a61e475b263f656a2261d47a90790ad4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-33.72.png",
+      "sha256": "cc71ea16220e45251bf0603b8375c802dcde3c789f5dcaf8e004bc4dc7ace433"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-86.693.jxl",
+      "sha256": "42a39a07ecebc793953e7e64e769a876f0d6130fbfe50fa380ea98ec14ed1b48"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-86.693.png",
+      "sha256": "5bed1b790c5043a940e8ab5daef6b272589c4dcee84db8e120114f81232bf28e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-41.47.jxl",
+      "sha256": "25b92a1703a26bf226af4f21e85b93c03833b307097108d8cb0654bb69865f79"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-41.47.png",
+      "sha256": "6b3190db9a6342f233a0eacf697437d1da8b3300f346ebbada5e8c3d3fab6c1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-37.395.jxl",
+      "sha256": "e33ec02b3bc23c6452c38575ea3f772c10f5d8f7de88108832d9d8a04d9c07aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-37.395.png",
+      "sha256": "0c571aff73ed2817cb22e20a073bdf2726788a61e725eb1f279314ec4c278b8f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-93.573.jxl",
+      "sha256": "ab529baf93dd53eece654b243645c89e6efd03fcfc91aaeea6230fc0e5f125d8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-93.573.png",
+      "sha256": "860a17d308b80351811c3fec01e3acc60b60be4ba97d5791e557fbb62720eda7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-39.38.jxl",
+      "sha256": "a8d60556c82f99e08c1b23fe9a208cc34662641bb874931c024287a9534022fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-39.38.png",
+      "sha256": "1316cf05bfe7b5722b82a329f7fdabb2d294b07d5df48d752966c00b3a9fcfda"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-38.375.jxl",
+      "sha256": "83adb7f43c55e05e7854dad6d2ad6c0b7ecee81a073e8bf2cb34cc3b60da84ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-38.375.png",
+      "sha256": "9a0d8f233c01eb45dfcecfdbb911b879a83495ebbd6047bc070a53699c459ec5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.216.jxl",
+      "sha256": "1f14bf07d9c6f578c14429ecc9fe60a248f0a335644d0b9ba1bf318ce148c974"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.216.png",
+      "sha256": "185a1dd25bcaf52f6aaed352537baabf6c57af10bb0dd84c6890ce3d3110a3bb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-99.09.jxl",
+      "sha256": "890d57eaa0572ecbbdcd275a24af18f049b0b7971a3e14ff4abc2a35a44b71cf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-99.09.png",
+      "sha256": "f3080c3f52f1162975d58e5a291f39e6e51e605cbc71a93db5b77445ada2ca85"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-98.149.jxl",
+      "sha256": "443a8328d6a88e5e58a58d0d829106b6b5c9896e89572d2a711598c55c79fba8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-98.149.png",
+      "sha256": "b0792824e0626092832cec678dbb56a5122d2ad89424e5107ba0eef93ff6c6d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.681.jxl",
+      "sha256": "3c8782d1ff9e64f9d4553f0ccb829b524d8777024877bf038bf930de0e51f13b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.681.png",
+      "sha256": "4d1152de5e9e83bd44f958a5f84bafead1b121f752db907c5d568a8dbb59f228"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.448.jxl",
+      "sha256": "99fa2b1a13255215058739d0d3e08a2ab5840bc04c3fd2a4ad9becff0ee67d62"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.448.png",
+      "sha256": "04babca443cc03508f72994739fee03f378c9c2cfae98ad680eb7386f8e314e9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.564.jxl",
+      "sha256": "7ef0cfa2edb802c74d163feb4f32c095bc3969b1dd99e56b7253026b5175f883"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.564.png",
+      "sha256": "299129fbe8bea49e80158fb719ffaa4296e2b52e949bd687e517f7b564a0f8f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.506.jxl",
+      "sha256": "c483630fad3e631d11a9e90024b42f9a18f4703bcf2f932fe56aab00ae392f4e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.506.png",
+      "sha256": "3a520fac54724fd28dd100f8513c8b01a6220e8f64ee3c34c7e5dde19765c701"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.535.jxl",
+      "sha256": "3e823cdd3651ef1f43c2ebdef9316329fe60f2ecfe706e787c24e736ddf0a5c8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.535.png",
+      "sha256": "62c5b4cb8112526433e76d5e38e97753d29c652ae9c8d1a6fbac3660e02ca0f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.549.jxl",
+      "sha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.549.png",
+      "sha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-jsquash-97.556.jxl",
+      "sha256": "9af3d716596742e9117c81ac75274d668a0bd8c7cd43198b7ba93a439874ef7c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/jsquash-97.556.png",
+      "sha256": "846b0a137e29456ddbd20329e52e1d9322a184de4b005e52b5dc6821845b76a5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-1.jxl",
+      "sha256": "8db2b161492293cb7aeabd3d0966a5b34e6dacb373a18a51d526a37b221f3b91"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-1.png",
+      "sha256": "196134759d11987ed119b3c9f9b82a2bbe4e8f5a23ed2525918a1f12a01ebe1b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-4.jxl",
+      "sha256": "d7b8e52ee9be719ccec297e8e6d493db73259d9c9718ca0cdda14c4b6a66fc43"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-4.png",
+      "sha256": "6865f80b82f37cd78fa430070c67eb6b0ad269e200e9fe0aab414b29858fd8aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.jxl",
+      "sha256": "494584ac0e84227d27caeace2fd1d8aad2345307f46031d5baa6e303cc10e7fe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-8.png",
+      "sha256": "16dc37932200a44d92e5408bafdccea4a1c07e9a36b6b89e306ee2ca2b65bb7b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-16.jxl",
+      "sha256": "24b898ceea3b79847f866f61874a8528a0397b36bc45bc8ecd2634a079b18796"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-16.png",
+      "sha256": "76a6750706094bc052b42e175f9eb18fcf7474e20ac127ca0f98df8ead957458"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.2734.jxl",
+      "sha256": "a581480e759e0fab0ed6ecfea28ae2a3d5d8a2042f212efd7b336a42e1626db7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.2734.png",
+      "sha256": "d279dbc65b1d2a05ef6011d6a496ec372a553a369c2b45603dd336605734f2e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-8.6275.jxl",
+      "sha256": "6fdac905be427c42878abe30e6246897681c921abcb73296575017b0b8879769"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-8.6275.png",
+      "sha256": "a12bddd54cbc21109b5b4421279c983592bdc4903390b7d2a841849177bf8d0a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.891.jxl",
+      "sha256": "149713b2013cb95fb1b25deb566dab97e42041290a8a785f9bcca6aa1d4559ef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.891.png",
+      "sha256": "0ff3827fff2505566fb24aff5e0583c9d0fc438308e38b59bbef4444a4072c8a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.8626.jxl",
+      "sha256": "638fc7d68daff015bb777fced8d14d20734b453673c03fe00c690580e207d4f8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.8626.png",
+      "sha256": "cfa17f48ef0fd057e08fa66845bf9e8913dda688f0300bd3c37d6e4275581f37"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.351.jxl",
+      "sha256": "ef7492a0cca8c9f8fe7a381329f596e652a5da81897233f7662a2565f75cc9bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.351.png",
+      "sha256": "7cbeea2b2032c41452b0b0fade8f16302786025c84b53c706d4fd5120d179a57"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9874.jxl",
+      "sha256": "69c31e6d0dc886b2f3cc0c4eefabfb82d1f06abc4b0324443405b75a45488641"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9874.png",
+      "sha256": "914132a8b86d7a32a34eb1b4aec81163f6e81126cb845701e2db2377f701e0ed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5614.jxl",
+      "sha256": "b1ae1dd12b61c7a66c928821dfed2b5988b498e7e446d5b714a70757689a035c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.5614.png",
+      "sha256": "344b21e105b924ceef822f7054b756588cfc81bd2a612336bfa60000568f7265"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.168.jxl",
+      "sha256": "2c19a001150106bfa56e5b07c44ba2e9465c4040ac60abada199599281a36cf9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.168.png",
+      "sha256": "3300612d1d725c2d7d995655d324230b77171ee3ccdc5b5c7db0779cf86a82b3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.077.jxl",
+      "sha256": "03557912a57d8d53fc975aaf1d0bb3448506b4b32eb8a1ead645ce74fc10ea5b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.077.png",
+      "sha256": "06fe20f387220a6c18d2bed59ea701296bb5c8388005b3c7aa5de80fd3f48f75"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4158.jxl",
+      "sha256": "b5c4f1bf99283a9118d4fee1d1c9cd9ee66441d987a432d0c66c5fe12f621db4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.4158.png",
+      "sha256": "8e4a415d0441f2fe8d3a5d182295f7cb086a687f4c3b20d9d1140940b01ef42b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.032.jxl",
+      "sha256": "a8dd13be9c8072c979af4f72a3d9a575a23a268da6d6a09b58f31e479367ae0c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.032.png",
+      "sha256": "debc5a18ca1bef5038e7e7032f6fb76f85d16c3f7b6bae11c5949accc76b7ade"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.01.jxl",
+      "sha256": "3e8520ed5d7ebf8eee0b9cfbc1998c81aa351b8bcb63fe1cecb695723b3b5ab5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.01.png",
+      "sha256": "1a56c754491763b82e5be0fe3f398fef7720b9176363aadf1543616d9b01fdc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.4882.jxl",
+      "sha256": "1722f8462c3b2b263f6f7e2f4956c8898401a6e977d5d19a201d3e60a88e6cda"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.4882.png",
+      "sha256": "3a31fe845951ea08cae4a8f86e85957c9136d1304d72e686e8d0c5047c5183a3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9987.jxl",
+      "sha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9987.png",
+      "sha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.004.jxl",
+      "sha256": "a3a0e482259a992e255362f587bca64d29300ba03654996a0fc5df71ebd19e85"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.004.png",
+      "sha256": "2038ba26c1d86accb946f43d5cd947c05ba3dd03f14f4412d7fb61b5f7448af3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.5247.jxl",
+      "sha256": "52ae72f4672be851b048f9477319029c47c4ae2bd3207b6ba44e58b206e7b576"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.5247.png",
+      "sha256": "10aa101eb394aeb2b5ac83a32b55dc3a15ba2914de3fb759cb06aad1adc43eff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.001.jxl",
+      "sha256": "6e51cc77ea2cf8b8a9651afa7bc34780c7d3b4bd80776adad7ebb211a48a4f53"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.001.png",
+      "sha256": "f17098251577f1cd8a19f74e8a9a0c71a7b024ef67d166cf76463b05a9f7f12f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-9.9998.jxl",
+      "sha256": "7ef114373bf9eb77de5fcf346a2059d7ebcabdfabe287cdeabae39a576048232"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-9.9998.png",
+      "sha256": "78e74bf38302d5cd7d389a83989a560733f915a1b6c86f5c8e1f9b253650d2c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-6.543.jxl",
+      "sha256": "2a5b1a2a89573b81e3a9cbd3d546e0af2aac6c9bf4bac82b27b6665ab096e343"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-6.543.png",
+      "sha256": "7e290097d8dae3a76539aef4d2f3658a90f6b21bcf2d762b50543c46389e7535"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-vips-10.jxl",
+      "sha256": "551f59255bef18a37a3a60387774d92e25761405d476857bafc52fc634776877"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/vips-10.png",
+      "sha256": "8489c657402629bb02a41997b83ef73a64e3c8e329b35ba12349ac7c183bd2a2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-1.jxl",
+      "sha256": "2f4ad70f67db422c47437ffe91ed2beff0657fbe5b1177430b820dea4a4484b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-1.png",
+      "sha256": "a006c05b48986cb12433e3a7524c3d3cc88055a3ac5d217063c9e8e10367c693"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-4.jxl",
+      "sha256": "bfd304f490f231cf626a694cb24c15b3e95abac648a67c6765a76518a5271f12"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-4.png",
+      "sha256": "cd2a76f50120e2ebfe6c71592c353bf21442496239287679205ecceb373f651d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.jxl",
+      "sha256": "092e75ae5b056c5f17b3ed6e2f547fa2393290264a327ddeefae3310559d746a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-8.png",
+      "sha256": "750ede96cf7992e23a3b114a3bc648863a554dd040e50e2169733ee57647e142"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-16.jxl",
+      "sha256": "8f9c9d3ad6f226c433a8085710528138007530535f107b2d43bb12d8c68ab141"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-16.png",
+      "sha256": "d89bb1cb43c6a6c4cb1a605e2dda2a283267943ff7408e9cbc32a79e877056eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.2715.jxl",
+      "sha256": "51eff54d81c38d09476fc483e88627c4ac6948d2ae0ef78d3d1ed7e268884f3f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.2715.png",
+      "sha256": "6bd253544e7fad039c7c17b805b3eb27fbd4bd5c3917487d840788ab66eb9d66"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-8.6275.jxl",
+      "sha256": "3e598010fe1c83e833cc157201761cfa60a6d8419566b1452aa97f17d15c9686"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-8.6275.png",
+      "sha256": "f359b4cb16d3f49f51dcfa080b50118e7b5d1060294a7ec46a6b72559068ca05"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.8911.jxl",
+      "sha256": "e890d9f9902f7fd3067d109918209e6feaa02df51b10b349ad1022a7dd228611"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.8911.png",
+      "sha256": "b6be833fa70b0d28738f75fcf2c1e1c565cbce096c6bc36ebb6b97d6a0ba979e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.9546.jxl",
+      "sha256": "7a219a1825ea6122c0b096ce3df3569b2971378679116177b1395477e8224a64"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.9546.png",
+      "sha256": "ab045dc8ec59d85f4429c4258c86692483057c27c8d3e174f5f3f80dd09eff00"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.351.jxl",
+      "sha256": "c04ac6a2e0dbf2de3cd53c464c6526e5f4f875d1edabe16244439751d7d1fc41"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.351.png",
+      "sha256": "734a672c081bf9ebdccd317977d821446f61305180d9b80dcb9e88078d94eb20"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9875.jxl",
+      "sha256": "ca0141b854bec12988633965dd2c5e82227e5fc349e0bcc7aef2889a71887e34"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9875.png",
+      "sha256": "b61f23014f9a38d024f0bf1ac42ba9203171a08d4e7bcd2d51938b409f00f4cd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6042.jxl",
+      "sha256": "212c71e2d22c280240232082152f7c9105f376365313281e2a341dc79c35bb37"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6042.png",
+      "sha256": "337b9ca920807848fa1f5451fdba10b6b24a44933391cdfc8b2c21c3a89b389f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.168.jxl",
+      "sha256": "8fb75d7cea84c985b98b7abf79d5c5483a782db2a49426c38e9511ea28079e17"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.168.png",
+      "sha256": "2f2ea28d5d8b915b4789d17a5b6b587f8f3046280760708c535a921639c3f195"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.077.jxl",
+      "sha256": "66109434a38b4c1c98f4f4322dedcca4e893d0f642272eea4c0a6fdfd883eeaa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.077.png",
+      "sha256": "52d1d9692c9d9cafb16285f3e50cca2d84dff9db06813b6f86f29daad05055b1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.7771.jxl",
+      "sha256": "36aa023c2e11c835183c95cdd0f3109a74ffd2eb75e1074ac2f5845f8e6a9d12"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.7771.png",
+      "sha256": "fd41d98769a159ff265e362f2fe3ef58ff215f7b91fa14e34612890020f3871d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.032.jxl",
+      "sha256": "90902a547a793b722402a0fd875a6be22948e0b189200f8d9e5f55567cd09eed"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.032.png",
+      "sha256": "d18780a57c2eb5760cefd6c61920678d98a45e2bfe08facabedb28dc5bafe456"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.01.jxl",
+      "sha256": "256cb0db3e0671c78a90a97ed16b46d02b06ad4dc1adf46b2f91a0836123b96a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.01.png",
+      "sha256": "18505ac5a197990e4ae206e82998a7c45841120b7cad0b59d0d16454661213c3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6901.jxl",
+      "sha256": "87da75d71512c8e50bb2dbf52846b030ff4c07a8002df2bcb0d43418a73b6cd1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6901.png",
+      "sha256": "5a968f85047b15bd025500f6b523d3c07f1af5ec935aa184e0cb5726e4d5595d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9987.jxl",
+      "sha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9987.png",
+      "sha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.004.jxl",
+      "sha256": "d9a462e799fdcb82a6698f6bed0b8879738d4072aca4ea67e355bc7e0731cfac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.004.png",
+      "sha256": "ec7901253ed661b6173553a43c963a5a234dbdf31d4763ab292ba9fdd55ebe87"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.647.jxl",
+      "sha256": "bd08663cb58462e915cf413110d2a5d8348f20afebdc9514f96918babb3064e6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.647.png",
+      "sha256": "e804d796280d5990e1215b5ba8df6bf4ddf3d241fef7da4bf2a97b7040e884aa"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.001.jxl",
+      "sha256": "503abeb83570a367247a07e3636d56ce31112b29a3540c3ccd2231d1a81efb67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.001.png",
+      "sha256": "3712cff4947e2e245f2fa4179fbd5c27ad16c901f8edb9599c6431b10fb3f811"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-9.9998.jxl",
+      "sha256": "38328638c470075520f28efb8c46ac573ef71819936c20cbbb9ec2f515941b72"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-9.9998.png",
+      "sha256": "90284247494f94dff19a7802326d68a2b71c33fec83eb9ba3109c33d1f2683fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-6.6256.jxl",
+      "sha256": "013ad63f3ede1b2f7f604734df37067d34b546387e9f60584803c9f5a885cd55"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-6.6256.png",
+      "sha256": "bd9acb360ef9415454ba488f396f0b64c9a3302e71ccb34cf28ff0e1309a75a7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/quality-refined/quality-refined-alpha-094/alpha_triangles-native-libjxl-10.jxl",
+      "sha256": "d9e15641ed9b4a8a96a964ddd0b8de6d412bb960e812a634be58df75da0927bd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/alpha-peer-audit-1216/native-libjxl-10.png",
+      "sha256": "4759ff71ed2759f6f38c16499d116808c1e7d7ea1c2d53aceac3e8e2e737c5ba"
+    }
+  ]
+}

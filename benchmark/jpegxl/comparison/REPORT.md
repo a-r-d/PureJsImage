@@ -1,5 +1,15 @@
 # Public JavaScript JPEG XL comparison
 
+The latest [alpha palette search](ALPHA-PALETTES.md) reduces the pinned
+transparency coordinates from 48,819/47,112/46,530 to 9,038/7,331/6,749 bytes.
+Every decoded color and alpha sample remains unchanged in both independent
+decoders. A separate higher-quality 9,155-byte point dominates the frozen
+9,307-byte exact-alpha wasm-vips point on size, SSIMULACRA2 and Butteraugli.
+This is a measured point comparison. It does not change the frozen 13 adequate
+and 11 unresolved pair counts. The photo score-70 gap and overall lossy parity
+remain open. Current alpha package sizes and their small budget increase are
+recorded in the linked evidence, separately from the earlier checkpoints.
+
 The current [lossless group search](GROUP-SEARCH.md) meets or beats the pinned
 peer size in all 45 independently exact comparable integer-lossless corpus
 cells and all four separate original-size controls. Three cells without a
@@ -7,7 +17,7 @@ matching exposed competitor API remain excluded. The original screenshot is
 386,813 bytes at effort 7, below jSquash's 391,394 bytes. The 12 MP photo is
 7,452,825 / 6,183,475 bytes at efforts 1/7, below both tested peers. All original
 native 8-bit and 16-bit samples, alpha and hidden RGB match in libjxl and Rust.
-The current codec source SHA-256 is
+That lossless checkpoint's codec source SHA-256 is
 `792b04814811f17458fca81c3c21ff661412f3731e0f68405e0312ba1934041f`.
 
 The latest qualified [lossy photo checkpoint](FILTER-AC.md) retains 13 adequately

@@ -1,12 +1,15 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
-import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json' with {
+import alphaCompression from '../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json' with {
+  type: 'json',
+}
+import photoCompression from '../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json' with {
   type: 'json',
 }
 import denseLossless from '../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json' with {
   type: 'json',
 }
-import photoCompression from '../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json' with {
+import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json' with {
   type: 'json',
 }
 import losslessSpatial from '../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json' with {
@@ -258,6 +261,26 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
   await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)
   await expect(page.locator('main')).toContainText('all 16 pinned lossless inputs exactly')
+  for (const bytes of ['48,819', '9,038', '9,155', '9,307'])
+    await expect(page.locator('main')).toContainText(bytes)
+  const alphaResponse = await page.request.get(
+    '/jpeg-xl/evidence/alpha-palette-production-controls.json',
+  )
+  expect(alphaResponse.ok()).toBe(true)
+  const alphaDownloaded: unknown = await alphaResponse.json()
+  expect(alphaDownloaded).toMatchObject({
+    implementationSourceSha256: alphaCompression.implementationSourceSha256,
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    publicComparisonCountsChanged: false,
+    pointDominance: { alphaExact: true, pureBytes: 9155, peerBytes: 9307 },
+  })
+  const alphaDocument = await page.request.get('/jpeg-xl/evidence/ALPHA-PALETTES.md')
+  expect(alphaDocument.ok()).toBe(true)
+  expect(await alphaDocument.text()).toContain('36.9 MB')
+  for (const name of ['alpha-palette-native-baseline.json', 'alpha-peer-audit.json'])
+    expect((await page.request.get(`/jpeg-xl/evidence/${name}`)).ok()).toBe(true)
   const response = await page.request.get('/jpeg-xl/evidence/website-data.json')
   expect(response.ok()).toBe(true)
   const downloaded: unknown = await response.json()

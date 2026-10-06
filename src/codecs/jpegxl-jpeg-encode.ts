@@ -1,4 +1,4 @@
-import { ImageError, invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
+import { invalidInput, limitExceeded, unsupportedOperation } from '../errors.ts'
 import type { JpegCoefficientComponent, JpegCoefficientImage } from './jpeg-coefficients.ts'
 import type { JpegXlModularNode } from './jpegxl-decode.ts'
 import {
@@ -8,7 +8,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
@@ -18,6 +18,7 @@ import {
   JpegXlBitWriter,
   type PrefixEncoding,
   packSigned,
+  prepareJpegXlAlphaGroup,
   writeAnsCode,
   writeAnsPackedValues,
   writeAnsValues,
@@ -30,7 +31,7 @@ import {
   writePrefixCode,
   writeU32,
 } from './jpegxl-modular-encode.ts'
-import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
+import { applyJpegXlModularTree, learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
 
 interface Plane {
   readonly width: number
@@ -73,7 +74,10 @@ export interface VarDctCoefficientGeometry {
   readonly colorCorrelationB?: Int32Array
   readonly effort?: 1 | 3 | 5 | 7
   readonly epfSharpnessMap?: Uint8Array
-  readonly alpha?: Readonly<{ loadGroup: (group: number) => Plane }>
+  readonly alpha?: Readonly<{
+    loadGroup: (group: number) => Plane
+    paletteSearch?: boolean
+  }>
   readonly progressive?: boolean
   readonly imageHeader?: Uint8Array
   /** Group-local AC storage may be reused after each visit. DC planes stay compact. */
@@ -230,6 +234,7 @@ const writeAlphaPlane = (
   encoding: Readonly<ModularEncoding>,
   localTree: boolean,
   repeats: boolean,
+  paletteSearch = true,
 ): void => {
   let nonconstant = false
   if (repeats && plane.values.length >= 64)
@@ -255,10 +260,11 @@ const writeAlphaPlane = (
           acHybridConfig,
           writer.memory,
           writer.outputLimit,
+          paletteSearch,
         )
       })
     } catch (error) {
-      if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
     }
   }
   if (candidate) {
@@ -602,12 +608,12 @@ const writeDcMetadata = (
           }
         } catch (error) {
           // New optional search must preserve any already-completed left candidate.
-          if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+          if (!isJpegXlLimitExceeded(error)) throw error
         }
         return selected
       })
     } catch (error) {
-      if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
     }
   }
   if (candidate) {
@@ -616,7 +622,7 @@ const writeDcMetadata = (
       writer.writeEncodedBits(candidate.bytes, candidate.bitLength)
       return
     } catch (error) {
-      if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
     } finally {
       writer.memory?.release(candidate.bytes)
     }
@@ -699,7 +705,7 @@ const writeForwardDcColorPlanes = (
         return { bytes: originalBytes, bitLength: originalBits }
       })
     } catch (error) {
-      if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
     }
   }
   if (candidate) {
@@ -707,7 +713,7 @@ const writeForwardDcColorPlanes = (
       writer.writeEncodedBits(candidate.bytes, candidate.bitLength)
       return
     } catch (error) {
-      if (!(error instanceof ImageError && error.code === 'LIMIT_EXCEEDED')) throw error
+      if (!isJpegXlLimitExceeded(error)) throw error
     } finally {
       writer.memory?.release(candidate.bytes)
     }
@@ -764,11 +770,154 @@ const writeComponentBlockContexts = (writer: JpegXlBitWriter, familyContexts: bo
   }
 }
 
+type SharedAlphaGroup = NonNullable<ReturnType<typeof prepareJpegXlAlphaGroup>>
+interface SharedAlphaCode {
+  readonly nodes: readonly JpegXlModularNode[]
+  readonly contextMap: Uint8Array
+  readonly frequencies: readonly Uint32Array[]
+  readonly groups: readonly Readonly<{
+    values: Uint32Array
+    contexts: Uint16Array
+    transforms: SharedAlphaGroup['transforms']
+  }>[]
+}
+const sharedAlphaHybridConfig = { splitExponent: 2, msbInToken: 0, lsbInToken: 0 }
+
+const prepareSharedAlphaCode = (
+  geometry: Readonly<JpegDerivedGeometry>,
+): SharedAlphaCode | undefined =>
+  withJpegXlMemory(geometry.memory, () => {
+    const alpha = geometry.alpha
+    const groupCount = geometry.groupsAcross * geometry.groupsDown
+    if (
+      !alpha ||
+      alpha.paletteSearch === false ||
+      !geometry.loadAcGroup ||
+      geometry.effort !== 7 ||
+      !geometry.defaultQuantization ||
+      groupCount < 2 ||
+      groupCount > 64 ||
+      geometry.fullBlockWidth * geometry.fullBlockHeight < 1024
+    )
+      return undefined
+    let changing = false
+    for (let group = 0; group < groupCount && !changing; group++) {
+      const plane = alpha.loadGroup(group)
+      for (let index = 1; index < plane.values.length; index++)
+        if (plane.values[index] !== plane.values[0]) {
+          changing = true
+          break
+        }
+    }
+    if (!changing) return undefined
+    const prepared: SharedAlphaGroup[] = []
+    for (let group = 0; group < groupCount; group++) {
+      const plane = alpha.loadGroup(group)
+      const candidate = prepareJpegXlAlphaGroup(
+        plane.values,
+        plane.width,
+        plane.height,
+        geometry.memory,
+        false,
+      )
+      if (!candidate) return undefined
+      prepared.push(candidate)
+    }
+    const commonNodes = withJpegXlMemory(geometry.memory, () => {
+      let rows = 0
+      for (const group of prepared) rows += (group.planes.heights[1] ?? 0) + 2
+      const joined = allocateJpegXlArray(geometry.memory, Int32Array, 256 * rows)
+      let row = 0
+      for (const group of prepared) {
+        const indices = group.planes.values[1],
+          width = group.planes.widths[1],
+          height = group.planes.heights[1]
+        if (!indices || width === undefined || height === undefined)
+          throw invalidJpegXlInput('pooled alpha indices are missing')
+        for (let y = 0; y < height; y++)
+          joined.set(indices.subarray(y * width, (y + 1) * width), (row + y) * 256)
+        row += height + 2
+      }
+      return prepareJpegXlAlphaGroup(joined, 256, rows, geometry.memory)?.plan.treeNodes
+    })
+    const root = commonNodes?.[0]
+    if (!commonNodes || !root || root.kind !== 'branch') return undefined
+    const firstGroupId =
+      1 +
+      3 * geometry.dcGroupsAcross * geometry.dcGroupsDown +
+      17 +
+      (geometry.progressive ? groupCount : 0)
+    const shifted = (node: JpegXlModularNode): JpegXlModularNode =>
+      node.kind === 'leaf'
+        ? { ...node, context: node.context + 1 }
+        : { ...node, greater: node.greater + 2, lessOrEqual: node.lessOrEqual + 2 }
+    const nodes: JpegXlModularNode[] = [
+      { kind: 'branch', property: 1, split: firstGroupId - 1, greater: 1, lessOrEqual: 2 },
+      shifted(root),
+      { kind: 'leaf', predictor: 5, offset: 0, multiplier: 1, context: 0 },
+      ...commonNodes.slice(1).map(shifted),
+    ]
+    const frequencies = nodes
+      .filter((node) => node.kind === 'leaf')
+      .map(() => allocateJpegXlArray(geometry.memory, Uint32Array, 512))
+    const fallback = frequencies[0]
+    if (!fallback) throw invalidJpegXlInput('shared alpha fallback histogram is missing')
+    fallback[0] = 1
+    const groups: SharedAlphaCode['groups'][number][] = []
+    for (const group of prepared) {
+      const applied = applyJpegXlModularTree(
+        commonNodes,
+        group.planes.values,
+        group.planes.widths,
+        group.plan.residuals,
+        geometry.memory,
+      )
+      for (let position = 0; position < applied.residuals.length; position++) {
+        const context = (applied.contexts[position] ?? 0) + 1
+        applied.contexts[position] = context
+        const counts = frequencies[context]
+        if (!counts) throw invalidJpegXlInput('shared alpha histogram is missing')
+        const token =
+          encodeHybridUintPacked(applied.residuals[position] ?? 0, sharedAlphaHybridConfig) & 255
+        counts[token] = (counts[token] ?? 0) + 1
+      }
+      groups.push({
+        values: applied.residuals,
+        contexts: applied.contexts,
+        transforms: group.transforms,
+      })
+      geometry.memory?.release(group.plan.residuals)
+      geometry.memory?.release(group.plan.residualContexts)
+    }
+    const compact = compactAcHistograms(frequencies, 96, geometry.memory)
+    return { nodes, contextMap: compact.contextMap, frequencies: compact.frequencies, groups }
+  })
+
+const writeSharedAlphaPlane = (
+  writer: JpegXlBitWriter,
+  group: number,
+  shared: Readonly<SharedAlphaCode>,
+  encoding: Readonly<ModularEncoding>,
+): void => {
+  const prepared = shared.groups[group]
+  if (!prepared || encoding.kind !== 'ans')
+    throw invalidJpegXlInput('shared alpha ANS encoding is missing')
+  writeModularHeader(writer, true, prepared.transforms)
+  writeAnsValues(
+    writer,
+    prepared.values,
+    prepared.contexts,
+    prepared.values.length,
+    encoding.encoding,
+  )
+}
+
 const writeLfGlobal = (
   writer: JpegXlBitWriter,
   frequencies: Uint32Array,
   geometry: Readonly<JpegDerivedGeometry>,
   useAns: boolean,
+  shared?: Readonly<SharedAlphaCode>,
 ): ModularEncoding => {
   writer.writeBits(0, 1)
   for (let channel = 0; channel < geometry.quantization.length; channel++) {
@@ -808,15 +957,16 @@ const writeLfGlobal = (
   writer.writeBits(128, 8)
   writer.writeBits(128, 8)
   writer.writeBits(1, 1)
-  writeModularTree(writer, 5)
+  if (shared) writeLearnedTree(writer, shared.nodes)
+  else writeModularTree(writer, 5)
   const encoding: ModularEncoding = useAns
     ? Object.freeze({
         kind: 'ans',
         encoding: writeAnsCode(
           writer,
-          allocateJpegXlArray(writer.memory, Uint8Array, 1),
-          [frequencies],
-          acHybridConfig,
+          shared?.contextMap ?? allocateJpegXlArray(writer.memory, Uint8Array, 1),
+          shared?.frequencies ?? [frequencies],
+          shared ? sharedAlphaHybridConfig : acHybridConfig,
         ),
       })
     : Object.freeze({ kind: 'prefix', encoding: writePrefixCode(writer, 1, frequencies) })
@@ -828,6 +978,7 @@ const writeLfGlobal = (
         encoding,
         !!geometry.loadAcGroup && geometry.effort !== 1,
         !!geometry.loadAcGroup && geometry.effort === 7,
+        geometry.alpha.paletteSearch,
       )
     else writeModularHeader(writer, true)
   }
@@ -1065,7 +1216,7 @@ const compactAcHistograms = (
             logs: allocateJpegXlArray(memory, Float64Array, 512),
           }))
         } catch (error) {
-          if (!(error instanceof ImageError) || error.code !== 'LIMIT_EXCEEDED') throw error
+          if (!isJpegXlLimitExceeded(error)) throw error
         }
       }
       if (costs) {
@@ -1435,6 +1586,16 @@ const finishSection = (
   return writer.finish()
 }
 
+const sectionCost = (sizes: readonly number[]): number => {
+  let bytes = 0,
+    tocBits = 0
+  for (const size of sizes) {
+    bytes += size
+    tocBits += size < 1024 ? 12 : size < 17408 ? 16 : size < 4211712 ? 24 : 32
+  }
+  return bytes + Math.ceil(tocBits / 8)
+}
+
 function* localForwardSections(
   geometry: Readonly<JpegDerivedGeometry>,
   coefficientOrders: readonly Uint32Array[],
@@ -1557,15 +1718,6 @@ function* localForwardSections(
       bits += (counts[token] ?? 0) * ((lengths[token] ?? 0) + (token < 256 ? 0 : token - 248))
     return Math.ceil(bits / 8)
   })
-  const sectionCost = (sizes: readonly number[]): number => {
-    let bytes = 0,
-      tocBits = 0
-    for (const size of sizes) {
-      bytes += size
-      tocBits += size < 1024 ? 12 : size < 17408 ? 16 : size < 4211712 ? 24 : 32
-    }
-    return bytes + Math.ceil(tocBits / 8)
-  }
   const commonSizes = [lf.length, ...dc.map((section) => section.length)]
   if (
     sectionCost([...commonSizes, prefixHf.length, ...prefixSizes]) <
@@ -1591,6 +1743,7 @@ function* localForwardSections(
 function* coefficientSectionSteps(
   geometry: Readonly<JpegDerivedGeometry>,
   profiler?: JpegXlJpegEncodeProfiler,
+  sharedAlpha?: Readonly<SharedAlphaCode>,
 ): Generator<void, readonly Uint8Array[], void> {
   const dcGroupCount = geometry.dcGroupsAcross * geometry.dcGroupsDown
   const acContextCount = acBlockContextCount(geometry) * (37 + 458)
@@ -1700,7 +1853,13 @@ function* coefficientSectionSteps(
   let modularEncoding: ModularEncoding | undefined
   started = performance.now()
   const lf = finishSection((writer) => {
-    modularEncoding = writeLfGlobal(writer, modularFrequencies, geometry, useClusteredAns)
+    modularEncoding = writeLfGlobal(
+      writer,
+      modularFrequencies,
+      geometry,
+      useClusteredAns,
+      sharedAlpha,
+    )
   }, geometry.memory)
   profiler?.record('lf-global', performance.now() - started, lf.byteLength)
   if (!modularEncoding) throw invalidJpegXlInput('Modular encoding was not initialized')
@@ -1751,14 +1910,18 @@ function* coefficientSectionSteps(
     for (let pass = 0; pass < passCount; pass++) {
       ac[pass * groupCount + group] = finishSection((writer) => {
         writeAcGroup(writer, geometry, coefficientOrders, group, groupEncoding, pass)
-        if (geometry.alpha && groupCount > 1 && pass === passCount - 1)
-          writeAlphaPlane(
-            writer,
-            geometry.alpha.loadGroup(group),
-            alphaEncoding,
-            !!geometry.loadAcGroup && geometry.effort !== 1,
-            !!geometry.loadAcGroup && geometry.effort === 7,
-          )
+        if (geometry.alpha && groupCount > 1 && pass === passCount - 1) {
+          if (sharedAlpha) writeSharedAlphaPlane(writer, group, sharedAlpha, alphaEncoding)
+          else
+            writeAlphaPlane(
+              writer,
+              geometry.alpha.loadGroup(group),
+              alphaEncoding,
+              !!geometry.loadAcGroup && geometry.effort !== 1,
+              !!geometry.loadAcGroup && geometry.effort === 7,
+              geometry.alpha.paletteSearch,
+            )
+        }
       }, geometry.memory)
       yield
     }
@@ -1771,15 +1934,39 @@ function* coefficientSectionSteps(
   return Object.freeze([lf, ...dc, hf, ...ac])
 }
 
+const coefficientSectionsCost = (sections: readonly Uint8Array[]): number =>
+  sectionCost(sections.map((section) => section.length))
+
 export const encodeVarDctCoefficientSections = (
   geometry: Readonly<JpegDerivedGeometry>,
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
   withJpegXlMemory(geometry.memory, () => {
-    const steps = coefficientSectionSteps(geometry, profiler)
-    let next = steps.next()
-    while (!next.done) next = steps.next()
-    return next.value
+    const encode = (shared?: Readonly<SharedAlphaCode>): readonly Uint8Array[] =>
+      withJpegXlMemory(geometry.memory, () => {
+        const steps = coefficientSectionSteps(geometry, profiler, shared)
+        let next = steps.next()
+        while (!next.done) next = steps.next()
+        return next.value
+      })
+    const original = encode()
+    try {
+      const alternative = withJpegXlMemory(geometry.memory, () => {
+        const shared = prepareSharedAlphaCode(geometry)
+        if (!shared) return undefined
+        const sections = encode(shared)
+        return coefficientSectionsCost(sections) < coefficientSectionsCost(original)
+          ? sections
+          : undefined
+      })
+      if (alternative) {
+        for (const section of original) geometry.memory?.release(section)
+        return alternative
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+    return original
   })
 
 export const encodeVarDctCoefficientSectionsAsync = (
@@ -1787,18 +1974,41 @@ export const encodeVarDctCoefficientSectionsAsync = (
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(geometry.memory, async () => {
-    const steps = coefficientSectionSteps(geometry)
+    const encode = (shared?: Readonly<SharedAlphaCode>): Promise<readonly Uint8Array[]> =>
+      withJpegXlMemoryAsync(geometry.memory, async () => {
+        const steps = coefficientSectionSteps(geometry, undefined, shared)
+        try {
+          await checkpoint()
+          let next = steps.next()
+          while (!next.done) {
+            await checkpoint()
+            next = steps.next()
+          }
+          return next.value
+        } finally {
+          steps.return([])
+        }
+      })
+    const original = await encode()
     try {
-      await checkpoint()
-      let next = steps.next()
-      while (!next.done) {
+      const alternative = await withJpegXlMemoryAsync(geometry.memory, async () => {
         await checkpoint()
-        next = steps.next()
+        const shared = prepareSharedAlphaCode(geometry)
+        if (!shared) return undefined
+        await checkpoint()
+        const sections = await encode(shared)
+        return coefficientSectionsCost(sections) < coefficientSectionsCost(original)
+          ? sections
+          : undefined
+      })
+      if (alternative) {
+        for (const section of original) geometry.memory?.release(section)
+        return alternative
       }
-      return next.value
-    } finally {
-      steps.return([])
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
     }
+    return original
   })
 
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
