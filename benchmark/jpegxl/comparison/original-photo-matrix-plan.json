@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "baseRevision": "515831a06d77814b654c37427e548976774dc2e1",
+  "implementationSourceSha256": "7c17231f8d1c13b79eaf4794cdf69709160c9d962ed5501f5492da8a42387771",
+  "fixtureManifest": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/fixtures.json",
+  "fixtures": [
+    {
+      "id": "portrait-2400x3000",
+      "width": 2400,
+      "height": 3000,
+      "rawSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0"
+    },
+    {
+      "id": "tundra-4000x3000",
+      "width": 4000,
+      "height": 3000,
+      "rawSha256": "0c1ea0f5c6783d9fcd1bc8c612a361c8d400bcb80b1747038039a7750c9d2599"
+    },
+    {
+      "id": "earthrise-2400x2400",
+      "width": 2400,
+      "height": 2400,
+      "rawSha256": "23a43f76522ea57da5ef63418c31604852bbd9f2e18df0527ffdc3905e207caa"
+    }
+  ],
+  "participants": ["purejsimage", "jsquash", "vips"],
+  "peerVersions": { "@jsquash/jxl": "1.3.0", "wasm-vips": "0.0.19" },
+  "effort": 7,
+  "maximumAttemptsPerUnchangedImplementationParticipantFixture": 24,
+  "ssimulacra2Targets": [70, 80, 90],
+  "butteraugliTargets": [0.5, 1, 2, 3],
+  "maximumBracketWidthPerMetric": 0.25,
+  "initialSettings": {
+    "purejsimageDistances": [0.54, 1.25, 3.3, 6.3],
+    "jsquashSearchSettings": [5.5, 11, 30.3, 58.9],
+    "vipsDistances": [0.5, 1.25, 3.3, 6.3]
+  },
+  "jsquashSearchSettingToPublicQuality": "quality = 101 - setting",
+  "domain": { "purejsimage": [0.25, 25], "jsquash": [2, 101], "vips": [0.1, 25] },
+  "validation": "Preserve pinned unresized opaque RGBA8 input. Build both complete current public PureJsImage packages and require qualified hashes, exports and canonical ceilings. Decode every successful file to complete finite native and Rust grids, require agreement within one 8-bit code and exact alpha, and verify every PureJsImage public-decoder sample. Score complete native-decoded pixels with both pinned metrics. Count attempted settings durably before encoding, retain inversions and failures, build separate nondominated metric frontiers, and use log-byte interpolation without extrapolation. Public WASM encoder output is the only peer size evidence. Fixed-setting controls and missing or wide brackets do not prove matched compression parity.",
+  "predeclaredBeforeNewImageEncodes": true,
+  "changesPriorStudies": false,
+  "completionProven": false
+}

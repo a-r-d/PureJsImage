@@ -339,26 +339,53 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
     secondaryMetricDominance: false,
     scope: 'original',
     inputGeometry: { width: 4000, height: 3000 },
-    freshEncodedFiles: 6,
+    freshEncodedFiles: 14,
     freshCompleteIndependentGrids: 0,
-    reusedQualifiedIndependentGrids: 36,
+    reusedQualifiedIndependentGrids: 74,
+    reusedQualifiedPublicDecodedSamples: 672_000_000,
     scoreTolerance: 0.25,
+    butteraugliTolerance: 0.25,
     extrapolation: false,
     publicComparisonCountsChanged: false,
   })
+  expect(originalDownloaded).toEqual(originalPhoto)
   expect(originalPhoto.comparisons).toHaveLength(6)
   for (const row of originalPhoto.comparisons) expect(row.ratio).toBeLessThan(1)
+  expect(originalPhoto.butteraugliComparisons).toHaveLength(8)
+  for (const row of originalPhoto.butteraugliComparisons) {
+    if (row.status === 'adequate bracket') expect(row.ratio).toBeLessThan(1)
+    else {
+      expect(row.comparator).toBe('vips')
+      expect([2, 3]).toContain(row.target)
+      expect(row.ratio).toBeNull()
+      expect(row.peer.interpolatedBytes).toBeNull()
+    }
+  }
   await expect(page.locator('main')).toContainText(originalPhoto.implementationSourceSha256)
-  await expect(page.locator('main')).toContainText('Butteraugli still shows tradeoffs')
+  await expect(page.locator('main')).toContainText(
+    'two wasm-vips targets remain unresolved under the unchanged rules',
+  )
   const originalTable = page.locator('table').filter({
     has: page.locator('caption', { hasText: 'Original 4000 × 3000 photo at matched SSIMULACRA2' }),
   })
-  for (const bytes of ['272,865', '541,839', '1,432,712'])
+  for (const bytes of ['271,113', '513,039', '1,424,884'])
     await expect(originalTable).toContainText(bytes)
+  const butteraugliTable = page.locator('table').filter({
+    has: page.locator('caption', {
+      hasText: 'Same original photo at independently matched Butteraugli targets',
+    }),
+  })
+  await expect(butteraugliTable.locator('tbody tr')).toHaveCount(4)
+  await expect(butteraugliTable.locator('td', { hasText: /^Unresolved$/ })).toHaveCount(4)
+  for (const bytes of ['2,482,443', '1,276,115', '489,411', '239,867'])
+    await expect(butteraugliTable).toContainText(bytes)
+  await expect(butteraugliTable).toContainText('0.10% smaller')
   for (const name of [
     'ORIGINAL-PHOTO.md',
     'original-photo-quality-study.json',
     'original-photo-endpoint-qualification.json',
+    'original-photo-ssim-endpoint-qualification.json',
+    'original-lossy-heldout-controls.json',
   ])
     expect((await page.request.get(`/jpeg-xl/evidence/${name}`)).ok()).toBe(true)
   await expect(page.locator('main')).toContainText(comparison.implementationSourceSha256)

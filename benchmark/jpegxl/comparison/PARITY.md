@@ -4,9 +4,12 @@
 
 The October 6 [original-size photo correction](ORIGINAL-PHOTO.md) meets or
 beats both pinned WASM encoders at matched SSIMULACRA2 70, 80 and 90 on
-the original 12 MP photo. Current files are 4–13% smaller than jSquash and
-3–15% smaller than wasm-vips. Butteraugli tradeoffs remain visible. Fresh
-public package streams match complete independent endpoint qualification.
+the original 12 MP photo. Current files are 9–13% smaller than jSquash and
+8–16% smaller than wasm-vips. Separately matched Butteraugli targets also
+use fewer bytes at all four jSquash targets and both resolved wasm-vips
+targets. Two wasm-vips targets remain unresolved under its exhausted
+24-attempt budget. Fresh public package streams match complete independent
+endpoint qualification.
 The [transparency study](ALPHA-POINTS.md) also passes all six selected
 actual peer files on size and both aggregate metrics. These findings retain
 the separate capped-photo and graphic proofs and the historical missing

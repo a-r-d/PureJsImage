@@ -2,12 +2,14 @@
 
 The latest [original-size photo checkpoint](ORIGINAL-PHOTO.md) closes the
 measured SSIMULACRA2 compression gap on the original 4000 × 3000 photo.
-Current files are 4–13% smaller than jSquash and 3–15% smaller than wasm-vips
+Current files are 9–13% smaller than jSquash and 8–16% smaller than wasm-vips
 at targets 70, 80 and 90. All six pairs pass the original quarter-score
 bracket rule. Complete independent endpoint pixels, both metrics, fresh
-public package streams and allocation recovery are qualified. Butteraugli
-tradeoffs remain visible. Other original-size photos, HDR, float, CMYK and
-animation need separate compression evidence.
+public package streams and allocation recovery are qualified. Separately
+matched Butteraugli targets use fewer bytes at all four jSquash targets and
+both resolved wasm-vips targets. Two wasm-vips targets remain unresolved
+under its exhausted 24-attempt budget. Other original-size photos, HDR,
+float, CMYK and animation need separate compression evidence.
 
 The fresh [transparency comparisons](ALPHA-POINTS.md) dominate all six selected
 actual peer files on size and both aggregate black/white quality metrics.
