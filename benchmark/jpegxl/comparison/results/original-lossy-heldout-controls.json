@@ -1,0 +1,851 @@
+{
+  "completed": true,
+  "sourceAdopted": false,
+  "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+  "freshEncodedFiles": 3,
+  "freshCompleteIndependentGrids": 6,
+  "freshPublicDecodedSamples": 99840000,
+  "matchedQualityComparison": false,
+  "fullParity": false,
+  "productionQualification": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+  "policy": "Fixed-setting correctness on three predeclared original-size images. Private reports retain their original source identity, failed original package ceilings and separate diagnostic allowance. Current production adoption is established separately by byte-identical complete public packages. No matched peer curves, speed parity or general compression claim.",
+  "reports": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-portrait-fine-1529.json",
+      "sha256": "928fb56d8751cc8a951910bae8adf647b8a1eaedb9e73beaede74ebd0395b901",
+      "report": {
+        "implementationRevision": "cd7798737e70c1996ac04152be2ee19a4a5c49b7",
+        "implementationSourceSha256": "821518973e6b85944f532571a8f9dc3c61b9ad6c950427a5eecc11df99bcd266",
+        "implementationDirty": false,
+        "completed": true,
+        "sourceAdopted": false,
+        "mode": "hybrid-menu",
+        "prototypeSourcePath": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+        "prototypeSourceSha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1",
+        "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+        "prototypeModules": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          }
+        ],
+        "diagnosticAllowancePath": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+        "diagnosticAllowance": {
+          "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+          "additionalMinifiedBytes": 4000,
+          "predeclaredBeforeAnyImageEncode": true,
+          "rootBudgetsChanged": false,
+          "sourceAdopted": false,
+          "policy": "Keep failed original public-package ceilings and the predeclared private 4000-byte allowance separate. No root-budget or source adoption change."
+        },
+        "originalPackageBudgetsChanged": false,
+        "productionCodecSourcePath": "src/codecs/jpegxl-vardct-encode.ts",
+        "packages": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/jpegxl-specialized.js",
+            "target": "jpegxl-specialized",
+            "sha256": "4d5dd5177290c20654db035502ecbd48ca56e8897c81218ff8f9defe51d17c61",
+            "bytes": 629860,
+            "exports": [
+              "convertJpegXlCmykLayerToRgba8",
+              "convertJpegXlFloat32LayerToRgba16",
+              "convertJpegXlFloatLayerToRgba16",
+              "convertJpegXlIccLayerToRgba16",
+              "encodeJpegXlAnimation",
+              "encodeJpegXlNative",
+              "inspectJpegReconstructionEligibility",
+              "inspectJpegXl",
+              "jpegXlNativeFloat32ColorPlanes",
+              "jpegXlNativeUnsignedPlanes",
+              "openJpegXlSequence",
+              "openJpegXlSession",
+              "reconstructJpegFromJpegXl",
+              "transcodeJpegToJpegXl"
+            ],
+            "ceiling": 627000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 631000
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/codec-jpegxl.js",
+            "target": "codec-jpegxl",
+            "sha256": "33be1c2615242e0c3db8d9fbc77dcecdf0ce358ee79dbb817e710bfc0ae035d4",
+            "bytes": 557220,
+            "exports": [
+              "BlobSource",
+              "BufferPool",
+              "BufferSink",
+              "CodecRegistry",
+              "FileSink",
+              "FileSource",
+              "ImageError",
+              "MemorySource",
+              "Uint8ArraySink",
+              "createImageLibrary",
+              "defaultImageLimits",
+              "inspectJpegXlStructure",
+              "jpegxlCodec",
+              "pixelBytesPerPixel",
+              "pixelStorage"
+            ],
+            "ceiling": 554000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 558000
+          }
+        ],
+        "productionCodecSourceSha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532",
+        "inheritedMeasuredPoints": 0,
+        "totalMeasuredPoints": 1,
+        "fixture": "portrait-2400x3000",
+        "inputSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+        "results": [
+          {
+            "subject": "purejsimage",
+            "setting": 0.54,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 0.54
+            },
+            "bytes": 2881126,
+            "score": 91.88996962,
+            "butteraugli": 0.4807898104,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 91.88996962,
+                "butteraugli": 0.4807898104
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.jxl",
+            "encodedSha256": "b3db1d8b6144a3451363173a81f827330391f11217424369fb4c463c4c4992b6",
+            "decodedPngSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+          }
+        ],
+        "proof": [
+          {
+            "subject": "purejsimage",
+            "setting": 0.54,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 0.54
+            },
+            "bytes": 2881126,
+            "score": 91.88996962,
+            "butteraugli": 0.4807898104,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 91.88996962,
+                "butteraugli": 0.4807898104
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.jxl",
+            "encodedSha256": "b3db1d8b6144a3451363173a81f827330391f11217424369fb4c463c4c4992b6",
+            "decodedPngSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec",
+            "encodedFresh": true,
+            "grids": [
+              {
+                "decoder": "native",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.native.npy",
+                "sha256": "67a573982d21922ecc13a57e8c5fe2c725a9b98ad821b408c47b3afc3ac580ad",
+                "samples": 28800000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              },
+              {
+                "decoder": "rust",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.rust.npy",
+                "sha256": "b2fc04690f120f59996ebf6b15bc2b013b8aadc248e8751734641e71eeab9562",
+                "samples": 28800000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              }
+            ],
+            "maximumDecoderError": 1,
+            "publicSamples": 28800000,
+            "maximumPublicDecoderError": 1,
+            "maximumMetricDecoderError": 1,
+            "nativeAlphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            }
+          }
+        ],
+        "ownership": [
+          {
+            "distance": 0.54,
+            "ownedPeak": 61052933,
+            "ownedLive": 0,
+            "ownedAllocations": 0,
+            "elapsedMs": 104283.981379
+          }
+        ],
+        "comparisons": [],
+        "pins": [
+          {
+            "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/heldout-hybrid-menu-screen-1510.ts",
+            "sha256": "cbd4f797601d94c1246076deae7e8640fcc7ad86d7e46f18acd7cb3078396979"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+            "sha256": "271f2f1e27ae33c9db8cc0d2ce5534b9b1f9db78afb07e7b5947dc516f2d35ce"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/fixtures.json",
+            "sha256": "4caaa3cf681af0b5292357df1e9493ff882a089de8d280d4f76933dbdb38de07"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/portrait-2400x3000.raw",
+            "sha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0"
+          },
+          {
+            "path": "benchmark/corpus/files/portrait-2400x3000.jpg",
+            "sha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/portrait-2400x3000.png",
+            "sha256": "de740bcb9827df45d0081fac1bf18712cea8db263c6d64c6af0533d565f8925f"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/reference-black.png",
+            "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.native.npy",
+            "sha256": "67a573982d21922ecc13a57e8c5fe2c725a9b98ad821b408c47b3afc3ac580ad"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+            "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.rust.npy",
+            "sha256": "b2fc04690f120f59996ebf6b15bc2b013b8aadc248e8751734641e71eeab9562"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+            "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.black.png",
+            "sha256": "7f4d374a3319a2fa2a9f6324b55d41827000b9f48a0fac28b8aefb74dcbd996f"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.jxl",
+            "sha256": "b3db1d8b6144a3451363173a81f827330391f11217424369fb4c463c4c4992b6"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-portrait-fine-1529/purejsimage-0.54.png",
+            "sha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+            "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+            "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+          }
+        ],
+        "freshEncodedFiles": 1,
+        "frozenPeerFiles": 0,
+        "freshCompleteIndependentGrids": 2,
+        "publicComparisonCountsChanged": false,
+        "fullParity": false,
+        "extrapolation": false,
+        "policy": "One strictly preflighted safeguarded first-party compression hypothesis on a predeclared unresized held-out original. Both complete public packages preserve exports and retain original failed byte ceilings, with a separately predeclared private4000byte allowance and unchanged root budgets; override exactly two declared first-party source modules and leave all other production modules unchanged. Each fixed-setting file receives complete native/Rust grids, all public samples, both metrics, exact alpha, unchanged callers and closed ownership. No inherited production points or matched-quality win are claimed for a changed curve. Source remains unadopted."
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-tundra-high-1530.json",
+      "sha256": "3c8fe3b59485692eeaac7c3d97e52c9ed8f681afa059f155f2214851a44dbf19",
+      "report": {
+        "implementationRevision": "cd7798737e70c1996ac04152be2ee19a4a5c49b7",
+        "implementationSourceSha256": "821518973e6b85944f532571a8f9dc3c61b9ad6c950427a5eecc11df99bcd266",
+        "implementationDirty": false,
+        "completed": true,
+        "sourceAdopted": false,
+        "mode": "hybrid-menu",
+        "prototypeSourcePath": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+        "prototypeSourceSha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1",
+        "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+        "prototypeModules": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          }
+        ],
+        "diagnosticAllowancePath": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+        "diagnosticAllowance": {
+          "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+          "additionalMinifiedBytes": 4000,
+          "predeclaredBeforeAnyImageEncode": true,
+          "rootBudgetsChanged": false,
+          "sourceAdopted": false,
+          "policy": "Keep failed original public-package ceilings and the predeclared private 4000-byte allowance separate. No root-budget or source adoption change."
+        },
+        "originalPackageBudgetsChanged": false,
+        "productionCodecSourcePath": "src/codecs/jpegxl-vardct-encode.ts",
+        "packages": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/jpegxl-specialized.js",
+            "target": "jpegxl-specialized",
+            "sha256": "4d5dd5177290c20654db035502ecbd48ca56e8897c81218ff8f9defe51d17c61",
+            "bytes": 629860,
+            "exports": [
+              "convertJpegXlCmykLayerToRgba8",
+              "convertJpegXlFloat32LayerToRgba16",
+              "convertJpegXlFloatLayerToRgba16",
+              "convertJpegXlIccLayerToRgba16",
+              "encodeJpegXlAnimation",
+              "encodeJpegXlNative",
+              "inspectJpegReconstructionEligibility",
+              "inspectJpegXl",
+              "jpegXlNativeFloat32ColorPlanes",
+              "jpegXlNativeUnsignedPlanes",
+              "openJpegXlSequence",
+              "openJpegXlSession",
+              "reconstructJpegFromJpegXl",
+              "transcodeJpegToJpegXl"
+            ],
+            "ceiling": 627000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 631000
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/codec-jpegxl.js",
+            "target": "codec-jpegxl",
+            "sha256": "33be1c2615242e0c3db8d9fbc77dcecdf0ce358ee79dbb817e710bfc0ae035d4",
+            "bytes": 557220,
+            "exports": [
+              "BlobSource",
+              "BufferPool",
+              "BufferSink",
+              "CodecRegistry",
+              "FileSink",
+              "FileSource",
+              "ImageError",
+              "MemorySource",
+              "Uint8ArraySink",
+              "createImageLibrary",
+              "defaultImageLimits",
+              "inspectJpegXlStructure",
+              "jpegxlCodec",
+              "pixelBytesPerPixel",
+              "pixelStorage"
+            ],
+            "ceiling": 554000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 558000
+          }
+        ],
+        "productionCodecSourceSha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532",
+        "inheritedMeasuredPoints": 0,
+        "totalMeasuredPoints": 1,
+        "fixture": "tundra-4000x3000",
+        "inputSha256": "0c1ea0f5c6783d9fcd1bc8c612a361c8d400bcb80b1747038039a7750c9d2599",
+        "results": [
+          {
+            "subject": "purejsimage",
+            "setting": 1.25,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 1.25
+            },
+            "bytes": 3650574,
+            "score": 91.03598152,
+            "butteraugli": 0.8142208457,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 91.03598152,
+                "butteraugli": 0.8142208457
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.jxl",
+            "encodedSha256": "773c311a7ef93ad73f3b18e06d6bbb5f04568b7cc6f2808e803bbb12ed0f9a71",
+            "decodedPngSha256": "726b729192d622d49da65c3bc637fa24ab48367fc8019fc7d6aea7231d465590"
+          }
+        ],
+        "proof": [
+          {
+            "subject": "purejsimage",
+            "setting": 1.25,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 1.25
+            },
+            "bytes": 3650574,
+            "score": 91.03598152,
+            "butteraugli": 0.8142208457,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 91.03598152,
+                "butteraugli": 0.8142208457
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.jxl",
+            "encodedSha256": "773c311a7ef93ad73f3b18e06d6bbb5f04568b7cc6f2808e803bbb12ed0f9a71",
+            "decodedPngSha256": "726b729192d622d49da65c3bc637fa24ab48367fc8019fc7d6aea7231d465590",
+            "encodedFresh": true,
+            "grids": [
+              {
+                "decoder": "native",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.native.npy",
+                "sha256": "e45e234eb5770c1f676d9bc9c5282a953ae2dbf64218cea54b0e86b97bfa4802",
+                "samples": 48000000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              },
+              {
+                "decoder": "rust",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.rust.npy",
+                "sha256": "4cae1b5fedf9f5d51ea411ff1dee95e3e2129a60973e71ab927505fbd839e542",
+                "samples": 48000000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              }
+            ],
+            "maximumDecoderError": 1,
+            "publicSamples": 48000000,
+            "maximumPublicDecoderError": 1,
+            "maximumMetricDecoderError": 1,
+            "nativeAlphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            }
+          }
+        ],
+        "ownership": [
+          {
+            "distance": 1.25,
+            "ownedPeak": 85937915,
+            "ownedLive": 0,
+            "ownedAllocations": 0,
+            "elapsedMs": 183116.934356
+          }
+        ],
+        "comparisons": [],
+        "pins": [
+          {
+            "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/heldout-hybrid-menu-screen-1510.ts",
+            "sha256": "cbd4f797601d94c1246076deae7e8640fcc7ad86d7e46f18acd7cb3078396979"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+            "sha256": "271f2f1e27ae33c9db8cc0d2ce5534b9b1f9db78afb07e7b5947dc516f2d35ce"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/fixtures.json",
+            "sha256": "4caaa3cf681af0b5292357df1e9493ff882a089de8d280d4f76933dbdb38de07"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/tundra-4000x3000.raw",
+            "sha256": "0c1ea0f5c6783d9fcd1bc8c612a361c8d400bcb80b1747038039a7750c9d2599"
+          },
+          {
+            "path": "benchmark/corpus/files/tundra-4000x3000.jpg",
+            "sha256": "af55711534d744a385a805d7c0ff20c7e32c19f9fb886b468b078af24ddb8ab6"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/tundra-4000x3000.png",
+            "sha256": "4b358d123ea40c07c5d2fb73c622bcba942f676477ad83332314114c7c22f88e"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/reference-black.png",
+            "sha256": "b54921be58e92057d34b5b18466824200295b5d5efb1d1ccfaaabe7b22052fbb"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.native.npy",
+            "sha256": "e45e234eb5770c1f676d9bc9c5282a953ae2dbf64218cea54b0e86b97bfa4802"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+            "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.rust.npy",
+            "sha256": "4cae1b5fedf9f5d51ea411ff1dee95e3e2129a60973e71ab927505fbd839e542"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+            "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.black.png",
+            "sha256": "df2e53f499fb9832de5f1689f76c208f6efe177e81b5baee355814169ffa37bc"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.jxl",
+            "sha256": "773c311a7ef93ad73f3b18e06d6bbb5f04568b7cc6f2808e803bbb12ed0f9a71"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-tundra-high-1530/purejsimage-1.25.png",
+            "sha256": "726b729192d622d49da65c3bc637fa24ab48367fc8019fc7d6aea7231d465590"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+            "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+            "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+          }
+        ],
+        "freshEncodedFiles": 1,
+        "frozenPeerFiles": 0,
+        "freshCompleteIndependentGrids": 2,
+        "publicComparisonCountsChanged": false,
+        "fullParity": false,
+        "extrapolation": false,
+        "policy": "One strictly preflighted safeguarded first-party compression hypothesis on a predeclared unresized held-out original. Both complete public packages preserve exports and retain original failed byte ceilings, with a separately predeclared private4000byte allowance and unchanged root budgets; override exactly two declared first-party source modules and leave all other production modules unchanged. Each fixed-setting file receives complete native/Rust grids, all public samples, both metrics, exact alpha, unchanged callers and closed ownership. No inherited production points or matched-quality win are claimed for a changed curve. Source remains unadopted."
+      }
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-earthrise-coarse-1531.json",
+      "sha256": "6c32f93b1a4178837f69d9a614956b9139f1bfb01725d9f857699117288356f8",
+      "report": {
+        "implementationRevision": "cd7798737e70c1996ac04152be2ee19a4a5c49b7",
+        "implementationSourceSha256": "821518973e6b85944f532571a8f9dc3c61b9ad6c950427a5eecc11df99bcd266",
+        "implementationDirty": false,
+        "completed": true,
+        "sourceAdopted": false,
+        "mode": "hybrid-menu",
+        "prototypeSourcePath": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+        "prototypeSourceSha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1",
+        "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+        "prototypeModules": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          }
+        ],
+        "diagnosticAllowancePath": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+        "diagnosticAllowance": {
+          "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+          "additionalMinifiedBytes": 4000,
+          "predeclaredBeforeAnyImageEncode": true,
+          "rootBudgetsChanged": false,
+          "sourceAdopted": false,
+          "policy": "Keep failed original public-package ceilings and the predeclared private 4000-byte allowance separate. No root-budget or source adoption change."
+        },
+        "originalPackageBudgetsChanged": false,
+        "productionCodecSourcePath": "src/codecs/jpegxl-vardct-encode.ts",
+        "packages": [
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/jpegxl-specialized.js",
+            "target": "jpegxl-specialized",
+            "sha256": "4d5dd5177290c20654db035502ecbd48ca56e8897c81218ff8f9defe51d17c61",
+            "bytes": 629860,
+            "exports": [
+              "convertJpegXlCmykLayerToRgba8",
+              "convertJpegXlFloat32LayerToRgba16",
+              "convertJpegXlFloatLayerToRgba16",
+              "convertJpegXlIccLayerToRgba16",
+              "encodeJpegXlAnimation",
+              "encodeJpegXlNative",
+              "inspectJpegReconstructionEligibility",
+              "inspectJpegXl",
+              "jpegXlNativeFloat32ColorPlanes",
+              "jpegXlNativeUnsignedPlanes",
+              "openJpegXlSequence",
+              "openJpegXlSession",
+              "reconstructJpegFromJpegXl",
+              "transcodeJpegToJpegXl"
+            ],
+            "ceiling": 627000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 631000
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/codec-jpegxl.js",
+            "target": "codec-jpegxl",
+            "sha256": "33be1c2615242e0c3db8d9fbc77dcecdf0ce358ee79dbb817e710bfc0ae035d4",
+            "bytes": 557220,
+            "exports": [
+              "BlobSource",
+              "BufferPool",
+              "BufferSink",
+              "CodecRegistry",
+              "FileSink",
+              "FileSource",
+              "ImageError",
+              "MemorySource",
+              "Uint8ArraySink",
+              "createImageLibrary",
+              "defaultImageLimits",
+              "inspectJpegXlStructure",
+              "jpegxlCodec",
+              "pixelBytesPerPixel",
+              "pixelStorage"
+            ],
+            "ceiling": 554000,
+            "originalGatePassed": false,
+            "diagnosticCeiling": 558000
+          }
+        ],
+        "productionCodecSourceSha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532",
+        "inheritedMeasuredPoints": 0,
+        "totalMeasuredPoints": 1,
+        "fixture": "earthrise-2400x2400",
+        "inputSha256": "23a43f76522ea57da5ef63418c31604852bbd9f2e18df0527ffdc3905e207caa",
+        "results": [
+          {
+            "subject": "purejsimage",
+            "setting": 6.3,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 6.3
+            },
+            "bytes": 67654,
+            "score": 79.3276859,
+            "butteraugli": 3.2605464458,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 79.3276859,
+                "butteraugli": 3.2605464458
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.jxl",
+            "encodedSha256": "9747969874f78a001ec60f69d63c78e0e5b8e734200eaabc838cff4cb5dbadaa",
+            "decodedPngSha256": "7d27ac40304342c038c35554bc1dea7516103ea797ed1f6cd09e9bd1c657ae7a"
+          }
+        ],
+        "proof": [
+          {
+            "subject": "purejsimage",
+            "setting": 6.3,
+            "publicOptions": {
+              "mode": "lossy",
+              "effort": 7,
+              "parameter": "distance",
+              "value": 6.3
+            },
+            "bytes": 67654,
+            "score": 79.3276859,
+            "butteraugli": 3.2605464458,
+            "backgrounds": [
+              {
+                "background": "black",
+                "ssimulacra2": 79.3276859,
+                "butteraugli": 3.2605464458
+              }
+            ],
+            "alphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            },
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.jxl",
+            "encodedSha256": "9747969874f78a001ec60f69d63c78e0e5b8e734200eaabc838cff4cb5dbadaa",
+            "decodedPngSha256": "7d27ac40304342c038c35554bc1dea7516103ea797ed1f6cd09e9bd1c657ae7a",
+            "encodedFresh": true,
+            "grids": [
+              {
+                "decoder": "native",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.native.npy",
+                "sha256": "a15114cfe8b831f0935b6f4d9ae84cd4064b04ef98566538e6f0083798249a92",
+                "samples": 23040000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              },
+              {
+                "decoder": "rust",
+                "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.rust.npy",
+                "sha256": "6dca78c6b138395e58d864b9ecaa06c888b6127742c8c728e1829c22b7f74671",
+                "samples": 23040000,
+                "alphaError": {
+                  "maximum": 0,
+                  "changedSamples": 0,
+                  "absoluteError": 0
+                }
+              }
+            ],
+            "maximumDecoderError": 1,
+            "publicSamples": 23040000,
+            "maximumPublicDecoderError": 1,
+            "maximumMetricDecoderError": 1,
+            "nativeAlphaError": {
+              "maximum": 0,
+              "changedSamples": 0,
+              "absoluteError": 0
+            }
+          }
+        ],
+        "ownership": [
+          {
+            "distance": 6.3,
+            "ownedPeak": 44561752,
+            "ownedLive": 0,
+            "ownedAllocations": 0,
+            "elapsedMs": 70551.826106
+          }
+        ],
+        "comparisons": [],
+        "pins": [
+          {
+            "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/heldout-hybrid-menu-screen-1510.ts",
+            "sha256": "cbd4f797601d94c1246076deae7e8640fcc7ad86d7e46f18acd7cb3078396979"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+            "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+            "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/hybrid-menu-diagnostic-allowance-1506.json",
+            "sha256": "271f2f1e27ae33c9db8cc0d2ce5534b9b1f9db78afb07e7b5947dc516f2d35ce"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/fixtures.json",
+            "sha256": "4caaa3cf681af0b5292357df1e9493ff882a089de8d280d4f76933dbdb38de07"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/earthrise-2400x2400.raw",
+            "sha256": "23a43f76522ea57da5ef63418c31604852bbd9f2e18df0527ffdc3905e207caa"
+          },
+          {
+            "path": "benchmark/corpus/files/earthrise-2400x2400.jpg",
+            "sha256": "24fd2a4f833534ca6741ed96d03b028ac1d8fda2cd129ded4d208535f541d4da"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/earthrise-2400x2400.png",
+            "sha256": "6494b2783bdef7bc5dd61dac0b85b54c7c6bdf2bc37150522f693ab96b4918af"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/reference-black.png",
+            "sha256": "c9c3b856d6600adcc18710130065c7b957e12b48fe7a9cfdd4efb76f0ee6edfa"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.native.npy",
+            "sha256": "a15114cfe8b831f0935b6f4d9ae84cd4064b04ef98566538e6f0083798249a92"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+            "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.rust.npy",
+            "sha256": "6dca78c6b138395e58d864b9ecaa06c888b6127742c8c728e1829c22b7f74671"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+            "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.black.png",
+            "sha256": "8ff8a8c9f3443d05aa18217fe9e14849fe910e351633d1ddcd3f20526ab3aeb6"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.jxl",
+            "sha256": "9747969874f78a001ec60f69d63c78e0e5b8e734200eaabc838cff4cb5dbadaa"
+          },
+          {
+            "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/heldout-earthrise-coarse-1531/purejsimage-6.3.png",
+            "sha256": "7d27ac40304342c038c35554bc1dea7516103ea797ed1f6cd09e9bd1c657ae7a"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+            "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+          },
+          {
+            "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+            "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+          }
+        ],
+        "freshEncodedFiles": 1,
+        "frozenPeerFiles": 0,
+        "freshCompleteIndependentGrids": 2,
+        "publicComparisonCountsChanged": false,
+        "fullParity": false,
+        "extrapolation": false,
+        "policy": "One strictly preflighted safeguarded first-party compression hypothesis on a predeclared unresized held-out original. Both complete public packages preserve exports and retain original failed byte ceilings, with a separately predeclared private4000byte allowance and unchanged root budgets; override exactly two declared first-party source modules and leave all other production modules unchanged. Each fixed-setting file receives complete native/Rust grids, all public samples, both metrics, exact alpha, unchanged callers and closed ownership. No inherited production points or matched-quality win are claimed for a changed curve. Source remains unadopted."
+      }
+    }
+  ]
+}

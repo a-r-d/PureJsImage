@@ -2,93 +2,116 @@
 
 ## Quick answer
 
-The original 4000 × 3000 photo now uses fewer bytes than both pinned WASM
-encoders at matched SSIMULACRA2 70, 80 and 90. PureJsImage is 4–13% smaller
-than jSquash and 3–15% smaller than wasm-vips. Butteraugli still shows
-tradeoffs. This establishes compression parity for these three SSIMULACRA2
-targets on one original-size photo.
+On the original 4000 × 3000 photo, PureJsImage uses fewer bytes than both
+pinned WASM encoders at matched SSIMULACRA2 70, 80 and 90. It also uses fewer
+bytes than jSquash at all four matched Butteraugli targets and wasm-vips at
+its two resolved targets; two wasm-vips targets remain unresolved under the
+unchanged rules. Parity applies to the resolved targets on this photo;
+broader compression and quality rankings require separate evidence.
 
 ## Matched quality on the original input
 
-The input is the original `im26-1416-original` RGBA8 photo with exact opaque
-alpha. It contains 12 million pixels and has not been resized. Its raw
-SHA-256 is `929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959`.
-The public peers remain `@jsquash/jxl` 1.3.0 and `wasm-vips` 0.0.19.
-All encoders use effort 7 through their existing public APIs.
+The input is the unresized `im26-1416-original` RGBA8 photo with exact opaque
+alpha. It contains 12 million pixels. Its raw SHA-256 is
+`929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959`.
+The public peers are `@jsquash/jxl` 1.3.0 and `wasm-vips` 0.0.19. All encoders
+use effort 7 through their public APIs.
 
-| SSIMULACRA2 | Previous PureJsImage bytes | Current bytes | jSquash bytes | wasm-vips bytes | Versus jSquash | Versus wasm-vips |
+| SSIMULACRA2 | Previous main bytes | Current bytes | jSquash bytes | wasm-vips bytes | Versus jSquash | Versus wasm-vips |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 70 | 373,671 | 272,865 | 302,681 | 309,139 | 9.85% smaller | 11.73% smaller |
-| 80 | 654,977 | 541,839 | 564,888 | 557,876 | 4.08% smaller | 2.87% smaller |
-| 90 | 1,671,874 | 1,432,712 | 1,639,897 | 1,686,911 | 12.63% smaller | 15.07% smaller |
+| 70 | 272,865 | 271,113 | 302,681 | 309,139 | 10.43% smaller | 12.30% smaller |
+| 80 | 541,839 | 513,039 | 564,888 | 557,876 | 9.18% smaller | 8.04% smaller |
+| 90 | 1,432,712 | 1,424,884 | 1,639,897 | 1,686,911 | 13.11% smaller | 15.53% smaller |
 
-Byte counts are log-byte interpolated estimates rounded for display. The
-original nondominated frontier, maximum 0.25-score bracket width, shared
-24-point budget per participant and no-extrapolation rule remain unchanged.
-The current PureJsImage curve uses 15 measured points. Its three selected
-brackets are 0.14832, 0.20429 and 0.11217 scores wide. All inversions remain
-in the [raw quality study](results/original-photo-quality-study.json).
+Higher SSIMULACRA2 is better. Lower Butteraugli is better. Each metric uses
+its own nondominated frontier and matched targets:
 
-The first wasm-vips sweep aborts at distance 4. That failure reproduces in
-a fresh process and remains recorded. Native libjxl results guide later
-settings only. Six actual wasm-vips files encoded in separate fresh
-processes supply the successful target brackets. Every peer size and
-quality metric in the table comes from the public WASM encoder. Native
-libjxl sizes are excluded from these comparisons.
+| Butteraugli | PureJsImage bytes | jSquash bytes | wasm-vips bytes | Versus jSquash | Versus wasm-vips |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.5 | 2,482,443 | 2,484,904 | 2,989,288 | 0.10% smaller | 16.96% smaller |
+| 1 | 1,276,115 | 1,291,165 | 1,396,748 | 1.17% smaller | 8.64% smaller |
+| 2 | 489,411 | 521,032 | Unresolved | 6.07% smaller | Unresolved |
+| 3 | 239,867 | 249,307 | Unresolved | 3.79% smaller | Unresolved |
 
-## Quality tradeoffs
+Byte counts are log-byte interpolated estimates rounded for display, rather
+than files encoded at an exact target. Both sides must bracket the target
+within 0.25 metric units. The fixed budget remains 24 attempted settings per
+unchanged source, participant and fixture. There is no extrapolation.
+The current PureJsImage curve has 16 measured points. Its SSIMULACRA2
+brackets are 0.13974, 0.12144 and 0.19239 scores wide. Its Butteraugli
+brackets are 0.02274, 0.04096, 0.01427 and 0.20821 units wide.
+All points, inversions and failed attempts remain in the
+[quality study](results/original-photo-quality-study.json).
 
-Butteraugli is recorded for every actual endpoint. Around SSIMULACRA2 70,
-current PureJsImage has Butteraugli near 3.05 while jSquash is near 2.82.
-Around score 80, PureJsImage is near 2.1 and jSquash near 1.84. Around
-score 90, PureJsImage is near 0.98 versus about 0.8 for jSquash and 0.9
-for wasm-vips. These are measured endpoint comparisons rather than an
-interpolated Butteraugli ranking. Lower Butteraugli is better.
+The wasm-vips budget is exhausted. Its Butteraugli-2 bracket is 0.27216
+units wide, and its measured frontier does not bracket Butteraugli 3.
+Its public WASM failures remain recorded. Native libjxl measurements guide
+settings only; every peer size in the tables comes from the public WASM
+encoder. Native encoder sizes never replace a missing comparison.
 
-The table establishes fewer bytes at matched SSIMULACRA2. It does not
-establish two-metric dominance or an overall quality lead. The separate
-[capped photo](PHOTO-PARITY.md), [graphic](GRAPHIC-POINTS.md) and
-[transparency](ALPHA-POINTS.md) studies keep their own inputs and protocols.
-Other original-size photos, HDR, float, CMYK and animation still need
-separate compression evidence.
+The two tables show size parity at separately matched quality targets.
+They do not show that one file dominates both metrics simultaneously.
+The separate [capped photo](PHOTO-PARITY.md), [graphic](GRAPHIC-POINTS.md)
+and [transparency](ALPHA-POINTS.md) studies keep their own protocols.
+Other original-size photos, HDR, float, CMYK and animation need separate
+matched compression evidence.
 
-## Encoder correction and verification
+## Encoder changes and verification
 
-The first-party effort-7 encoder previously stopped using the opaque RGB
-DC precision policy above 4,194,304 pixels. Larger opaque RGBA8 photos
-therefore used coarser DC precision and omitted the photo filter map.
-This reduced quality at a given distance setting and required more AC
-data to reach a matched score.
+The first-party regular effort-7 encoder now extends its opaque-photo search
+to standard-sRGB RGBA8 images above 4,194,304 and through 16,777,216 pixels,
+with more than 2,048 visible colors. Fine-quality encoding uses local texture
+and brightness to allocate quantization and AC precision. Larger distance
+settings use refined DC precision, aligned DCT16 choices and rate-aware AC
+rounding. The new entropy search clusters AC histograms with 24 iterations
+and compares sixteen legal hybrid-integer configurations per histogram.
 
-The optional compression search now extends that existing policy to
-16,777,216 pixels. It retains the same sRGB, 8-bit opaque RGBA, distance
-above 1 and more-than-2,048-visible-colors checks. An optional allocation
-failure retries with compression search disabled and restores the prior
-large-image path. Larger transforms and coarse AC rounding retain their
-separate four-megapixel limit. No external encoder implementation is
-copied or used at runtime.
+Entropy selection compares all serialized section bytes and their aligned
+table-of-contents cost against the previous model. Ties retain the previous
+stream. Optional working-storage failure recovers the completed baseline;
+other errors and cancellation propagate. Per-encode histograms, local maps,
+scratch and compressed alternatives count against `maxWorkingBytes`. The
+additional cached hybrid lookup is bounded to 32 KiB. This adds encoding
+work and does not establish speed or process-RSS parity. The implementation
+is first-party TypeScript with no runtime encoder dependency.
 
 The [production controls](results/original-photo-production-controls.json)
-freshly encode all six selected PureJsImage endpoints through the complete
-public package. Their files match the independently qualified streams byte
-for byte. Caller storage remains unchanged and managed live ownership
-returns to zero. Both complete JPEG XL packages grow by 20 bytes, fit their
-existing 554,000/627,000-byte ceilings and retain all exports.
+freshly encode all 14 selected PureJsImage endpoints through the complete
+public package. Their streams match the qualified candidate files byte for
+byte. Caller storage remains unchanged and managed live ownership returns
+to zero. Both complete public packages also match the qualified package
+hashes and retain all exports. The codec bundle grows by 3,531 bytes to
+557,220 bytes; the specialized bundle grows by 3,734 bytes to 629,860 bytes.
+Their canonical ceilings rise explicitly to 558,000 and 631,000 bytes.
 
 The [endpoint qualification](results/original-photo-endpoint-qualification.json)
-contains 18 complete endpoint files and 36 native/Rust floating grids.
-It checks every finite sample, exact alpha, complete public JavaScript
-coverage and agreement within one 8-bit code. All 288 million public
-decoded samples are checked. PNG hashes and both quality metrics reproduce
-exactly. Production controls rehash every physical qualification pin and
-count reused grids separately from fresh encodes.
+contains 37 selected endpoint files and 74 complete native/Rust floating
+grids: 14 PureJsImage, 14 jSquash and nine wasm-vips files. All 16 current
+PureJsImage curve points have fresh complete independent grids and public
+pixel checks, covering 768 million public samples. Selected production
+qualification reuses 74 pinned grids and 672 million public samples,
+counted separately from fresh encodes. Every finite sample is checked,
+alpha is exact, and native/Rust/public agreement stays within one 8-bit
+code. Metric PNG hashes and both quality scores reproduce exactly.
 
-The permanent 2049 × 2048 gradient regression crosses the old cutoff.
-Its 91,497-byte file retains exact alpha and independently qualified colors
-within a 64 MiB working budget. Forced optional filter-map failure recovers
-the qualified 66,242-byte prior file and releases all managed allocations.
+The permanent 2049 × 2048 gradient regression crosses the old image-size
+cutoff. Its coarse result shrinks from 91,497 to 52,620 bytes while retaining
+the original color-error ceiling. Its fine-quality result is 1,409,128
+bytes. Both retain exact alpha within the original 64 MiB working budget.
+Forced optional allocation failures recover the qualified prior streams,
+66,242 and 1,490,466 bytes, and release all managed allocations. The public
+fine-quality baseline adds a 40-byte container around the identical raw
+codestream; decoded pixels are identical.
+
+Three additional [original-size controls](results/original-lossy-heldout-controls.json)
+cover a 2400 × 3000 portrait at
+distance 0.54, a 4000 × 3000 tundra photo at 1.25, and a 2400 × 2400
+Earthrise photo at 6.3. Their six complete independent grids and all
+99,840,000 public samples pass with exact alpha and one-code color tolerance.
+These are fixed-setting correctness controls without matched peer curves.
+They do not extend the compression-parity claim to those photos.
 Real-browser and repository handoff results are recorded in the optimization
-log. These diagnostic runs do not establish speed or process-RSS parity.
+log.
 
 ## Reproduction
 
@@ -96,10 +119,12 @@ With the pinned inputs, raw studies and development oracles prepared:
 
 ```sh
 node benchmark/jpegxl/comparison/verify-original-photo-compression.ts .tmp/original-photo-compression.json
-npx vitest run tests/jpegxl-dc-model.test.ts
-npx playwright test browser-tests/jpegxl-pipeline.pw.ts --workers=1 --grep 'above four megapixels|large opaque allocation recovery'
+npx vitest run tests/jpegxl-dc-model.test.ts tests/jpegxl-ac-entropy-floor.test.ts tests/jpegxl-original-lossy-bands.test.ts
+npx playwright test browser-tests/jpegxl-pipeline.pw.ts --workers=1 --grep 'above four megapixels|large opaque allocation recovery|fine opaque texture|AC compression floor'
 ```
 
 Raw bitstreams, metric images, independent grids, copied first-party
 experiments and package builds stay ignored. The maintained studies record
-their hashes and preserve unsuccessful attempts.
+their hashes and preserve unsuccessful attempts. The historical
+[SSIM endpoint qualification](results/original-photo-ssim-endpoint-qualification.json)
+retains the earlier peer proof used by the current study.

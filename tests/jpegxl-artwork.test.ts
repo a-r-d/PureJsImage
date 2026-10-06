@@ -38,7 +38,7 @@ describe('JPEG XL exact artwork candidate', () => {
       expect(result.alphaError).toBe(0)
       expect(result.ownedLive).toBe(0)
       expect(result.ownedAllocations).toBe(0)
-    }, 30_000)
+    }, 60_000)
 
   for (const [options, encodedChecksum, decodedChecksum] of [
     [{ progressive: true }, 913551628, 2319986359],

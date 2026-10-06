@@ -53,6 +53,8 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     'original-photo-production-controls.json',
     'original-photo-quality-study.json',
     'original-photo-endpoint-qualification.json',
+    'original-photo-ssim-endpoint-qualification.json',
+    'original-lossy-heldout-controls.json',
     'photo-transform-native-baseline.json',
     'alpha-palette-native-baseline.json',
     'alpha-peer-audit.json',

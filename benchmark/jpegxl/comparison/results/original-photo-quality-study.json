@@ -1,792 +1,411 @@
 {
-  "implementationRevision": "4b780ccefa3bcd2418cb84d3f5e815b58e20e002",
-  "implementationSourceSha256": "ce3cc0a731d114c4a5f0400fec1fe27ef228ecb874010c28db8676e20b4ef149",
+  "implementationRevision": "cd7798737e70c1996ac04152be2ee19a4a5c49b7",
+  "implementationSourceSha256": "821518973e6b85944f532571a8f9dc3c61b9ad6c950427a5eecc11df99bcd266",
   "implementationDirty": false,
-  "maximumPointsPerSubjectFixture": 24,
-  "maximumSsimBracketWidth": 0.25,
-  "sources": [
+  "completed": true,
+  "sourceAdopted": false,
+  "fixture": "im26-1416-original",
+  "scope": "original",
+  "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
+  "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+  "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e",
+  "prototypeModules": [
     {
-      "path": ".tmp/jpegxl-comparison-v1/original-photo-quality-1365.json",
-      "sha256": "270e6330665c4ab6021ac6c1b76b1125db731f5ecfdb679e89914f9b6815cc39"
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "ecd5551ae89705d214e397562dd6fdab15e6c544fd830822b12590969ca369d1"
     },
     {
-      "path": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377.json",
-      "sha256": "36628031609c4a7fade011311e3d0cf4d4d2bc10fea41e55fe2cfaa3daff11c2"
-    },
-    {
-      "path": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-quality-1376.json",
-      "sha256": "c6c6c082289c0a75b01b60572bbb644abc30fa92805c2c8dc5c754f24597123b"
-    },
-    {
-      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/compose-original-photo-studies-1379.ts",
-      "sha256": "a0dd20ed04732d8eda006c5e648209a2a9daec60aaf64947d8f2de13d34fb306"
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-1506/hybrid-menu/source/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "476b73d961c7cdcc9fe314a96a26422f62ad632e388e8a32d8d8a75f18eb711b"
     }
   ],
-  "initialVipsAttempt": {
-    "fixture": "im26-1416-original",
-    "scope": "original",
-    "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
-    "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
-    "settingBounds": {
-      "minimum": 0.1,
-      "maximum": 25,
-      "mapping": "distance"
+  "maximumPointsPerSubjectFixture": 24,
+  "maximumSsimBracketWidth": 0.25,
+  "maximumButteraugliBracketWidth": 0.25,
+  "sources": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-coarse-1508.json",
+      "sha256": "25dbeb477072b68998243a9b376f9f0e213fca84dedbf375835f9db691d95107",
+      "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e"
     },
-    "subject": "vips",
-    "role": "public JavaScript API",
-    "points": [
-      {
-        "setting": 1,
-        "bytes": 925695,
-        "score": 86.30107765,
-        "butteraugli": 1.3761392832,
-        "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-vips-1.jxl",
-        "artifactSha256": "ee7f750aef6976ccb85b692cb90af40e7211479a76ba9ed6868768c46c571a4d",
-        "decodedSha256": "0088836b01db73d87c3c7d961bc27ee3ad181ea703ca562a16daaa0efcf8328a",
-        "backgrounds": [
-          {
-            "background": "black",
-            "ssimulacra2": 86.30107765,
-            "butteraugli": 1.3761392832
-          }
-        ],
-        "options": {
-          "lossless": false,
-          "effort": 7,
-          "value": 1
-        }
-      }
-    ],
-    "failures": [
-      {
-        "setting": 4,
-        "status": "execution failure",
-        "detail": "RuntimeError: unreachable"
-      }
-    ],
-    "bands": [
-      {
-        "target": 70,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      },
-      {
-        "target": 80,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      },
-      {
-        "target": 90,
-        "status": "target not reached under tested configuration",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      }
-    ],
-    "butteraugli": [
-      {
-        "target": 0.5,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      },
-      {
-        "target": 1,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      },
-      {
-        "target": 2,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      },
-      {
-        "target": 3,
-        "status": "insufficient sampling",
-        "width": null,
-        "bracket": null,
-        "interpolatedBytes": null
-      }
-    ],
-    "monotonicityViolations": 0
-  },
-  "fullParity": false,
-  "publicComparisonCountsChanged": false,
-  "policy": "Compose unchanged actual original-photo participants with separately measured wasm-vips target controls. Preserve the original failed distance4 attempt. Every peer byte and metric comes from its public API. Native results guide settings only and remain excluded from JavaScript runtime comparisons. Independent grid qualification remains a separate gate.",
-  "sourceAdopted": false,
-  "prototypeSourcePath": ".tmp/jpegxl-comparison-v1/original-photo-guarded-dc-1376/source/codecs/jpegxl-vardct-encode.ts",
-  "prototypeSourceSha256": "c97453ef18403d0054506b2a6ec09c4c1a6cd3e7bf3187a66ab9b4786956c532",
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-menu-curve-1509.json",
+      "sha256": "4dd0d6970edb417645aa08a6144efeb51ff3efeaa85951f824faea11cc974687",
+      "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-ssim-1515.json",
+      "sha256": "65815abbe29091ffee7fd8fddd92043f3fc67df105dd96e8650aeec7e56d6e36",
+      "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-hybrid-ssim70-1526.json",
+      "sha256": "fe888b17cf6af43ea228e6e1ff425f44b7229a6a4c2cc1a5236ed2c0b5771a91",
+      "candidateSourceSha256": "b3752bc9b21b670b23267609937239e7839e395ba836f49afd060861faf3752e"
+    }
+  ],
+  "peerPath": ".tmp/jpegxl-comparison-v1/original-peer-refinement-1455.json",
   "results": [
     {
       "fixture": "im26-1416-original",
       "scope": "original",
       "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
       "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
-      "settingBounds": {
-        "minimum": 0.25,
-        "maximum": 25,
-        "mapping": "distance"
-      },
       "subject": "purejsimage",
-      "role": "public JavaScript API",
+      "role": "candidate",
       "points": [
         {
-          "setting": 1,
-          "bytes": 1711504,
-          "score": 90.14332259,
-          "butteraugli": 0.8971195817,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.jxl",
-          "artifactSha256": "3a5e26b419f8de42abb7c358f85d882f9694fc55ef3f47fd4bb8d6b288a053ed",
-          "decodedSha256": "b95437430085d5679576ad8c6275a719b47121e0580be94fa563aab9f9855161",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.14332259,
-              "butteraugli": 0.8971195817
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1
-          }
+          "setting": 6.7,
+          "bytes": 229169,
+          "score": 66.84992788,
+          "butteraugli": 3.1704540253,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-coarse-1508/purejsimage-6.7.jxl",
+          "artifactSha256": "e1f2aa9bc5649fb16c224c37c8c7cf42c38c75ad8ec833c333aed92376a3b98f",
+          "decodedSha256": "241c4efb5c62c0078d6db348ba985bd065fb1c530eba8a6edc91dee71e54279d"
         },
         {
-          "setting": 4,
-          "bytes": 527184,
-          "score": 79.8560412,
-          "butteraugli": 2.0771672726,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-4.jxl",
-          "artifactSha256": "5e994a054736304de3a30c42c2cde5bf66d598c7e94577840069809940da9f1a",
-          "decodedSha256": "fbeb5c0f5b5deb2b50af663feb289ef27b67e5db93a200681c880e36f4ac4f92",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.8560412,
-              "butteraugli": 2.0771672726
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 4
-          }
+          "setting": 0.54,
+          "bytes": 2463630,
+          "score": 91.94233157,
+          "butteraugli": 0.5038915873,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-0.54.jxl",
+          "artifactSha256": "c73483b3f84a2b9ef2043f9f0a4dab4cf84cf20546dd8e06b3d9ae06cc640d27",
+          "decodedSha256": "93515bc66941fb5a0fce4625f2e85cfec0e1953067e405e11bc81e41bb7925f9"
         },
         {
-          "setting": 3.9231,
-          "bytes": 537297,
-          "score": 79.88507557,
-          "butteraugli": 2.1296696663,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.9231.jxl",
-          "artifactSha256": "198be12df13953a36e41e39088f15e465c263c837ce0924d19353a929d111e03",
-          "decodedSha256": "29a75f0704612a5b3bcc7530294482425138f5d931d8305d12861c2172c07406",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.88507557,
-              "butteraugli": 2.1296696663
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 3.9231
-          }
+          "setting": 0.5,
+          "bytes": 2575629,
+          "score": 92.05312878,
+          "butteraugli": 0.481148988,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-0.5.jxl",
+          "artifactSha256": "3fc9e05a006535215710a37f88b313a88ce8187401e7018fb6eabc6df0adfd2a",
+          "decodedSha256": "0c655bd481c61b77652bf12d5ce46a8ee9b9cfdff8548800531c47b2195d1d20"
         },
         {
-          "setting": 8,
-          "bytes": 255113,
-          "score": 68.64251243,
-          "butteraugli": 3.4037587643,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-8.jxl",
-          "artifactSha256": "d602069e755149779003564d930533e37042ca0253a032d0f0a371cbfa10f70a",
-          "decodedSha256": "f150f0bb8934d795472b77e2887e76534a60cadf63adfc48c200cdb1272c6397",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 68.64251243,
-              "butteraugli": 3.4037587643
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 8
-          }
-        },
-        {
-          "setting": 1.0193,
-          "bytes": 1787122,
-          "score": 91.07289001,
-          "butteraugli": 0.8195108771,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.0193.jxl",
-          "artifactSha256": "24134cbfdf70572746024b3bf2ae267c019231dacf8c4069c3a7240da4383c0a",
-          "decodedSha256": "5b34e6a2712464d467c0740c0045cf78f1726119c9213549dae87c55a8d5e225",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 91.07289001,
-              "butteraugli": 0.8195108771
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.0193
-          }
-        },
-        {
-          "setting": 3.8635,
-          "bytes": 545398,
-          "score": 80.08936925,
-          "butteraugli": 2.0908105373,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.8635.jxl",
-          "artifactSha256": "2efc6c22d5da667831e936c2218c3dc14fc323a02c62a21c49d4ec84fc19c305",
-          "decodedSha256": "8d094db7943f0e16d6a318b89e62188f90bc9e8fd8bc470917025f0ebfb978c0",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.08936925,
-              "butteraugli": 2.0908105373
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 3.8635
-          }
-        },
-        {
-          "setting": 7.3561,
-          "bytes": 275607,
-          "score": 70.14787388,
-          "butteraugli": 3.1122581959,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.3561.jxl",
-          "artifactSha256": "39ac4a93761dfe0089381001df71a84e19c744b14a3c956b76dd19f1321183ab",
-          "decodedSha256": "1b743716d477e55683c89b93387e764b35d3559b93b0a1a9fe93b4a0c26abe9e",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 70.14787388,
-              "butteraugli": 3.1122581959
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 7.3561
-          }
-        },
-        {
-          "setting": 1.0195,
-          "bytes": 1785864,
-          "score": 91.10406743,
-          "butteraugli": 0.8273499012,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.0195.jxl",
-          "artifactSha256": "cc3aa54c001b7a5c4aec1e011c92d5a3c572983b83f16f0bad1c307f21abcbc0",
-          "decodedSha256": "69c29c5e23c30121a0ecb8bcabcc586acf3fae969f84192497332c2830c69802",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 91.10406743,
-              "butteraugli": 0.8273499012
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.0195
-          }
-        },
-        {
-          "setting": 7.417,
-          "bytes": 272857,
-          "score": 69.99955875,
-          "butteraugli": 3.0533056259,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.417.jxl",
-          "artifactSha256": "85abb254389754410c6ee6c79061c85fa7051a8a0a8124536016edfe0dcffc53",
-          "decodedSha256": "9d1becabb9424428ca2271013d03a2b13a3f4ff5face44cd9c7a2390311cd7d0",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 69.99955875,
-              "butteraugli": 3.0533056259
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 7.417
-          }
-        },
-        {
-          "setting": 1.9847,
-          "bytes": 1006463,
-          "score": 87.4607371,
-          "butteraugli": 1.2520757914,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.9847.jxl",
-          "artifactSha256": "af477872bfce41eb88645fc0eb57efa813f890a70ec61c82f6b2c9de76f091c5",
-          "decodedSha256": "fcccaf365f7201b845fc597dc7f9bc191156da0a6b688e40083e22b369e43d61",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 87.4607371,
-              "butteraugli": 1.2520757914
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.9847
-          }
-        },
-        {
-          "setting": 1.0373,
-          "bytes": 1761568,
-          "score": 91.02035339,
-          "butteraugli": 0.8354545832,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.0373.jxl",
-          "artifactSha256": "afec292462d36823622b29c4bc35fcd7918550ce816ac520a424a8c5bd50bfa1",
-          "decodedSha256": "ba53d9d26831f6eab148196dc1f5779b9a8a1ec8b49c1686cccd3453f34310d6",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 91.02035339,
-              "butteraugli": 0.8354545832
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.0373
-          }
-        },
-        {
-          "setting": 1.4348,
-          "bytes": 1334285,
-          "score": 89.53586509,
-          "butteraugli": 1.0320880413,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.4348.jxl",
-          "artifactSha256": "26103ca1df550dbe4fc8e8f4dc9187a74daee92228b3ece8edbb41bf64d6f40a",
-          "decodedSha256": "bbd9106015718af36bb903b73b4be1fa4798f189ea193ddfd1af6cb7f543ffe7",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.53586509,
-              "butteraugli": 1.0320880413
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.4348
-          }
-        },
-        {
-          "setting": 1.0889,
-          "bytes": 1693459,
-          "score": 90.81879285,
-          "butteraugli": 0.9081655741,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.0889.jxl",
-          "artifactSha256": "8625e6987973af77b6b31062f3bb849e240ffd300037294d8205aed92fb2e93d",
-          "decodedSha256": "50578d1d7faaba798ae069452d5c5aaef030e3f02c72cbaa852592c8e1ce4cf1",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.81879285,
-              "butteraugli": 0.9081655741
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.0889
-          }
-        },
-        {
-          "setting": 1.2985,
-          "bytes": 1456070,
-          "score": 90.11194374,
-          "butteraugli": 0.9751646519,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.2985.jxl",
-          "artifactSha256": "f450ea313c41c4c91e2340c621ead3ec646690b515668b6e5f6544d84ed50f35",
-          "decodedSha256": "9d57a0bac694b92de44e29d1c87c301497ff784f083cd2ed652fccb629f61b0f",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.11194374,
-              "butteraugli": 0.9751646519
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.2985
-          }
+          "setting": 1.25,
+          "bytes": 1287496,
+          "score": 89.34895429,
+          "butteraugli": 0.9932414293,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-1.25.jxl",
+          "artifactSha256": "0659a58a314092cb8ae4f00ebb2ecd81f79dbafa6366e454e76c4c12c4a30db0",
+          "decodedSha256": "815c9f0bd31c543d8989841ed95dec4211bb3f1375798966cc982f4858b5270e"
         },
         {
           "setting": 1.3239,
-          "bytes": 1432666,
-          "score": 89.99977743,
-          "butteraugli": 0.9889737964,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.3239.jxl",
-          "artifactSha256": "d7527d54bc819bf457fe7155e28d8dca2ece4a1beb76f0dd3f67073801981f67",
-          "decodedSha256": "56eb48def672ea9df98a32a5253d7bdfd2611dfed04fb5e4e73c728eb23be52e",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.99977743,
-              "butteraugli": 0.9889737964
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.3239
-          }
+          "bytes": 1220037,
+          "score": 89.00889968,
+          "butteraugli": 1.0342059135,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-1.3239.jxl",
+          "artifactSha256": "0319a01235da716eca31aa33abe81cc6a6195e5c06859eebac74e7ae64ec6a21",
+          "decodedSha256": "f8ab060fdcb2f1fca8202d6d510619943e551718a89239707e1714fa15904532"
+        },
+        {
+          "setting": 3.3,
+          "bytes": 502323,
+          "score": 79.71274116,
+          "butteraugli": 1.9941314459,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-3.3.jxl",
+          "artifactSha256": "a5104757ddb028da8e30fa19c4a36799b04d5161f9810e7db1790da04178ffc6",
+          "decodedSha256": "7a7fd961d609636c6be8a6742e653542fc7438d85506396150c84a89dee534a0"
+        },
+        {
+          "setting": 3.5,
+          "bytes": 471510,
+          "score": 78.81909718,
+          "butteraugli": 2.0083978176,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-3.5.jxl",
+          "artifactSha256": "08a0807836c22a45797ed8643a57c08cc59817bba845327e77271c024a526845",
+          "decodedSha256": "60e87ff03ca9b5e42a7faf460bbe1557ba7fce5838cadb720260b7970ee12d24"
+        },
+        {
+          "setting": 6,
+          "bytes": 257278,
+          "score": 69.08405824,
+          "butteraugli": 2.9363639355,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-6.jxl",
+          "artifactSha256": "1ddf500a57bc2318be8954f01abe9b39ab5cece88abba86ae6110cc88f53fdea",
+          "decodedSha256": "dfad04ce72f0832a83aef3138c4cb79d1759ee299478a7db165f8bfb33a3ba93"
+        },
+        {
+          "setting": 6.3,
+          "bytes": 242304,
+          "score": 67.97833327,
+          "butteraugli": 2.9622404575,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-6.3.jxl",
+          "artifactSha256": "4d1f0db6596f20cf74ffe0564f767e09e5c8102270e8855ba8efc228ae20d4af",
+          "decodedSha256": "b9044284b983a519ae82d0288c2f45e09e33c7323afc711a4bd21c076bb38f80"
+        },
+        {
+          "setting": 1.1,
+          "bytes": 1452064,
+          "score": 90.14840031,
+          "butteraugli": 0.9622729421,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-1.1.jxl",
+          "artifactSha256": "11357c9153b098ff74ba97853f548f3ed3cc912c801497b73b04ecde18d0eab5",
+          "decodedSha256": "fd5e615315ae017330f47b55a3b55c3a8dd5831166721909a8ebe69d572be659"
+        },
+        {
+          "setting": 1.13,
+          "bytes": 1416926,
+          "score": 89.9560143,
+          "butteraugli": 1.0044631958,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-1.13.jxl",
+          "artifactSha256": "6986275b56ab8abdf5ed149e8bb61da4c7b868a6f8f7271045ed6749b4031884",
+          "decodedSha256": "f1be6074921f2d69e63ab339077e629d7898369243caadd8ac0a1afb5adf3f9c"
+        },
+        {
+          "setting": 3.22,
+          "bytes": 514880,
+          "score": 80.04721618,
+          "butteraugli": 1.940084815,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-3.22.jxl",
+          "artifactSha256": "3d2c03b60f95248f684b7d07583acb3e6d84eeb6852307034bdd1ca732be3da4",
+          "decodedSha256": "484fa6a29720c2e11e97603e6f0d25bb98b7396068aec13c6dac25dfb8a22247"
+        },
+        {
+          "setting": 3.25,
+          "bytes": 510159,
+          "score": 79.92577531,
+          "butteraugli": 1.964255929,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-3.25.jxl",
+          "artifactSha256": "131f0fbec320137bcca32bfb8ba348d905521efaa0b0a3010ad4bf36a747076f",
+          "decodedSha256": "ae444fd4f59cd0b7e9be2232f82fc206a13251f3011e99463b901b4fd4be8487"
+        },
+        {
+          "setting": 5.7,
+          "bytes": 270363,
+          "score": 69.96403732,
+          "butteraugli": 2.9385929108,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-5.7.jxl",
+          "artifactSha256": "dde7e8ba1d37a98f1f270d021b6a3c91d255503fae8d43e9637e4370fb7c1ee1",
+          "decodedSha256": "d971d9bd2b9025bf47b03b2853ef545750bb1ea2cc2e48a7f835a104d2ad97a4"
+        },
+        {
+          "setting": 5.76,
+          "bytes": 268017,
+          "score": 69.8360126,
+          "butteraugli": 2.9103326797,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-5.76.jxl",
+          "artifactSha256": "3c22aa758acd7834de9f4a63a1abc311b4ff228fcf997d9d2d70f47252fae2d2",
+          "decodedSha256": "b1190eb63d25437d19ede66e5ef941267f55892092a8161d9f7e63d9438eac4d"
+        },
+        {
+          "setting": 5.64,
+          "bytes": 273290,
+          "score": 70.10378043,
+          "butteraugli": 2.8413393497,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim70-1526/purejsimage-5.64.jxl",
+          "artifactSha256": "2a7b5f9c562ee6457fbc0492b2384f81c15430dbe4d336c7a1507939be9e9935",
+          "decodedSha256": "40e21a1dbed9eaabec7aeda0564ac2d732456c2127f4ec9bde9ff7661c269567"
         }
       ],
       "failures": [],
+      "totalAttempts": 16,
       "bands": [
         {
+          "metric": "ssimulacra2",
           "target": 70,
           "status": "adequate bracket",
-          "width": 0.1483151300000003,
           "bracket": {
             "lower": {
-              "setting": 7.417,
-              "bytes": 272857,
-              "score": 69.99955875,
-              "butteraugli": 3.0533056259,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.417.jxl",
-              "artifactSha256": "85abb254389754410c6ee6c79061c85fa7051a8a0a8124536016edfe0dcffc53",
-              "decodedSha256": "9d1becabb9424428ca2271013d03a2b13a3f4ff5face44cd9c7a2390311cd7d0",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.99955875,
-                  "butteraugli": 3.0533056259
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 7.417
-              }
+              "setting": 5.7,
+              "bytes": 270363,
+              "score": 69.96403732,
+              "butteraugli": 2.9385929108,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-5.7.jxl",
+              "artifactSha256": "dde7e8ba1d37a98f1f270d021b6a3c91d255503fae8d43e9637e4370fb7c1ee1",
+              "decodedSha256": "d971d9bd2b9025bf47b03b2853ef545750bb1ea2cc2e48a7f835a104d2ad97a4"
             },
             "upper": {
-              "setting": 7.3561,
-              "bytes": 275607,
-              "score": 70.14787388,
-              "butteraugli": 3.1122581959,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.3561.jxl",
-              "artifactSha256": "39ac4a93761dfe0089381001df71a84e19c744b14a3c956b76dd19f1321183ab",
-              "decodedSha256": "1b743716d477e55683c89b93387e764b35d3559b93b0a1a9fe93b4a0c26abe9e",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 70.14787388,
-                  "butteraugli": 3.1122581959
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 7.3561
-              }
+              "setting": 5.64,
+              "bytes": 273290,
+              "score": 70.10378043,
+              "butteraugli": 2.8413393497,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim70-1526/purejsimage-5.64.jxl",
+              "artifactSha256": "2a7b5f9c562ee6457fbc0492b2384f81c15430dbe4d336c7a1507939be9e9935",
+              "decodedSha256": "40e21a1dbed9eaabec7aeda0564ac2d732456c2127f4ec9bde9ff7661c269567"
             },
-            "width": 0.1483151300000003
+            "width": 0.13974310999999773
           },
-          "interpolatedBytes": 272865.1406492351
+          "width": 0.13974310999999773,
+          "interpolatedBytes": 271113.24983516353
         },
         {
+          "metric": "ssimulacra2",
           "target": 80,
           "status": "adequate bracket",
-          "width": 0.20429368000000636,
           "bracket": {
             "lower": {
-              "setting": 3.9231,
-              "bytes": 537297,
-              "score": 79.88507557,
-              "butteraugli": 2.1296696663,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.9231.jxl",
-              "artifactSha256": "198be12df13953a36e41e39088f15e465c263c837ce0924d19353a929d111e03",
-              "decodedSha256": "29a75f0704612a5b3bcc7530294482425138f5d931d8305d12861c2172c07406",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.88507557,
-                  "butteraugli": 2.1296696663
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 3.9231
-              }
+              "setting": 3.25,
+              "bytes": 510159,
+              "score": 79.92577531,
+              "butteraugli": 1.964255929,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-3.25.jxl",
+              "artifactSha256": "131f0fbec320137bcca32bfb8ba348d905521efaa0b0a3010ad4bf36a747076f",
+              "decodedSha256": "ae444fd4f59cd0b7e9be2232f82fc206a13251f3011e99463b901b4fd4be8487"
             },
             "upper": {
-              "setting": 3.8635,
-              "bytes": 545398,
-              "score": 80.08936925,
-              "butteraugli": 2.0908105373,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-3.8635.jxl",
-              "artifactSha256": "2efc6c22d5da667831e936c2218c3dc14fc323a02c62a21c49d4ec84fc19c305",
-              "decodedSha256": "8d094db7943f0e16d6a318b89e62188f90bc9e8fd8bc470917025f0ebfb978c0",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 80.08936925,
-                  "butteraugli": 2.0908105373
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 3.8635
-              }
+              "setting": 3.22,
+              "bytes": 514880,
+              "score": 80.04721618,
+              "butteraugli": 1.940084815,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-3.22.jxl",
+              "artifactSha256": "3d2c03b60f95248f684b7d07583acb3e6d84eeb6852307034bdd1ca732be3da4",
+              "decodedSha256": "484fa6a29720c2e11e97603e6f0d25bb98b7396068aec13c6dac25dfb8a22247"
             },
-            "width": 0.20429368000000636
+            "width": 0.1214408700000007
           },
-          "interpolatedBytes": 541839.2575164947
+          "width": 0.1214408700000007,
+          "interpolatedBytes": 513039.3076001926
         },
         {
+          "metric": "ssimulacra2",
           "target": 90,
           "status": "adequate bracket",
-          "width": 0.11216631000000632,
           "bracket": {
             "lower": {
-              "setting": 1.3239,
-              "bytes": 1432666,
-              "score": 89.99977743,
-              "butteraugli": 0.9889737964,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.3239.jxl",
-              "artifactSha256": "d7527d54bc819bf457fe7155e28d8dca2ece4a1beb76f0dd3f67073801981f67",
-              "decodedSha256": "56eb48def672ea9df98a32a5253d7bdfd2611dfed04fb5e4e73c728eb23be52e",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.99977743,
-                  "butteraugli": 0.9889737964
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.3239
-              }
+              "setting": 1.13,
+              "bytes": 1416926,
+              "score": 89.9560143,
+              "butteraugli": 1.0044631958,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-1.13.jxl",
+              "artifactSha256": "6986275b56ab8abdf5ed149e8bb61da4c7b868a6f8f7271045ed6749b4031884",
+              "decodedSha256": "f1be6074921f2d69e63ab339077e629d7898369243caadd8ac0a1afb5adf3f9c"
             },
             "upper": {
-              "setting": 1.2985,
-              "bytes": 1456070,
-              "score": 90.11194374,
-              "butteraugli": 0.9751646519,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.2985.jxl",
-              "artifactSha256": "f450ea313c41c4c91e2340c621ead3ec646690b515668b6e5f6544d84ed50f35",
-              "decodedSha256": "9d57a0bac694b92de44e29d1c87c301497ff784f083cd2ed652fccb629f61b0f",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 90.11194374,
-                  "butteraugli": 0.9751646519
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.2985
-              }
+              "setting": 1.1,
+              "bytes": 1452064,
+              "score": 90.14840031,
+              "butteraugli": 0.9622729421,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-ssim-1515/purejsimage-1.1.jxl",
+              "artifactSha256": "11357c9153b098ff74ba97853f548f3ed3cc912c801497b73b04ecde18d0eab5",
+              "decodedSha256": "fd5e615315ae017330f47b55a3b55c3a8dd5831166721909a8ebe69d572be659"
             },
-            "width": 0.11216631000000632
+            "width": 0.19238600999999278
           },
-          "interpolatedBytes": 1432712.0657199721
+          "width": 0.19238600999999278,
+          "interpolatedBytes": 1424883.9578963267
         }
       ],
-      "butteraugli": [
+      "butteraugliBands": [
         {
+          "metric": "butteraugli",
           "target": 0.5,
-          "status": "insufficient sampling",
-          "width": null,
-          "bracket": null,
-          "interpolatedBytes": null
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 0.54,
+              "bytes": 2463630,
+              "score": 91.94233157,
+              "butteraugli": 0.5038915873,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-0.54.jxl",
+              "artifactSha256": "c73483b3f84a2b9ef2043f9f0a4dab4cf84cf20546dd8e06b3d9ae06cc640d27",
+              "decodedSha256": "93515bc66941fb5a0fce4625f2e85cfec0e1953067e405e11bc81e41bb7925f9"
+            },
+            "upper": {
+              "setting": 0.5,
+              "bytes": 2575629,
+              "score": 92.05312878,
+              "butteraugli": 0.481148988,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-0.5.jxl",
+              "artifactSha256": "3fc9e05a006535215710a37f88b313a88ce8187401e7018fb6eabc6df0adfd2a",
+              "decodedSha256": "0c655bd481c61b77652bf12d5ce46a8ee9b9cfdff8548800531c47b2195d1d20"
+            },
+            "width": 0.022742599300000055
+          },
+          "width": 0.022742599300000055,
+          "interpolatedBytes": 2482443.262579875
         },
         {
+          "metric": "butteraugli",
           "target": 1,
           "status": "adequate bracket",
-          "width": 0.04311424489999993,
           "bracket": {
             "lower": {
-              "setting": 1.4348,
-              "bytes": 1334285,
-              "score": -1.0320880413,
-              "butteraugli": 1.0320880413,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.4348.jxl",
-              "artifactSha256": "26103ca1df550dbe4fc8e8f4dc9187a74daee92228b3ece8edbb41bf64d6f40a",
-              "decodedSha256": "bbd9106015718af36bb903b73b4be1fa4798f189ea193ddfd1af6cb7f543ffe7",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.53586509,
-                  "butteraugli": 1.0320880413
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.4348
-              }
-            },
-            "upper": {
               "setting": 1.3239,
-              "bytes": 1432666,
-              "score": -0.9889737964,
-              "butteraugli": 0.9889737964,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.3239.jxl",
-              "artifactSha256": "d7527d54bc819bf457fe7155e28d8dca2ece4a1beb76f0dd3f67073801981f67",
-              "decodedSha256": "56eb48def672ea9df98a32a5253d7bdfd2611dfed04fb5e4e73c728eb23be52e",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.99977743,
-                  "butteraugli": 0.9889737964
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.3239
-              }
+              "bytes": 1220037,
+              "score": 89.00889968,
+              "butteraugli": 1.0342059135,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-1.3239.jxl",
+              "artifactSha256": "0319a01235da716eca31aa33abe81cc6a6195e5c06859eebac74e7ae64ec6a21",
+              "decodedSha256": "f8ab060fdcb2f1fca8202d6d510619943e551718a89239707e1714fa15904532"
             },
-            "width": 0.04311424489999993
+            "upper": {
+              "setting": 1.25,
+              "bytes": 1287496,
+              "score": 89.34895429,
+              "butteraugli": 0.9932414293,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-1.25.jxl",
+              "artifactSha256": "0659a58a314092cb8ae4f00ebb2ecd81f79dbafa6366e454e76c4c12c4a30db0",
+              "decodedSha256": "815c9f0bd31c543d8989841ed95dec4211bb3f1375798966cc982f4858b5270e"
+            },
+            "width": 0.04096448419999987
           },
-          "interpolatedBytes": 1406835.7704817823
+          "width": 0.04096448419999987,
+          "interpolatedBytes": 1276114.6277484735
         },
         {
+          "metric": "butteraugli",
           "target": 2,
-          "status": "wide bracket",
-          "width": 0.8250914812000001,
+          "status": "adequate bracket",
           "bracket": {
             "lower": {
-              "setting": 4,
-              "bytes": 527184,
-              "score": -2.0771672726,
-              "butteraugli": 2.0771672726,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-4.jxl",
-              "artifactSha256": "5e994a054736304de3a30c42c2cde5bf66d598c7e94577840069809940da9f1a",
-              "decodedSha256": "fbeb5c0f5b5deb2b50af663feb289ef27b67e5db93a200681c880e36f4ac4f92",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.8560412,
-                  "butteraugli": 2.0771672726
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 4
-              }
+              "setting": 3.5,
+              "bytes": 471510,
+              "score": 78.81909718,
+              "butteraugli": 2.0083978176,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-3.5.jxl",
+              "artifactSha256": "08a0807836c22a45797ed8643a57c08cc59817bba845327e77271c024a526845",
+              "decodedSha256": "60e87ff03ca9b5e42a7faf460bbe1557ba7fce5838cadb720260b7970ee12d24"
             },
             "upper": {
-              "setting": 1.9847,
-              "bytes": 1006463,
-              "score": -1.2520757914,
-              "butteraugli": 1.2520757914,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-1.9847.jxl",
-              "artifactSha256": "af477872bfce41eb88645fc0eb57efa813f890a70ec61c82f6b2c9de76f091c5",
-              "decodedSha256": "fcccaf365f7201b845fc597dc7f9bc191156da0a6b688e40083e22b369e43d61",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 87.4607371,
-                  "butteraugli": 1.2520757914
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.9847
-              }
+              "setting": 3.3,
+              "bytes": 502323,
+              "score": 79.71274116,
+              "butteraugli": 1.9941314459,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-3.3.jxl",
+              "artifactSha256": "a5104757ddb028da8e30fa19c4a36799b04d5161f9810e7db1790da04178ffc6",
+              "decodedSha256": "7a7fd961d609636c6be8a6742e653542fc7438d85506396150c84a89dee534a0"
             },
-            "width": 0.8250914812000001
+            "width": 0.014266371700000224
           },
-          "interpolatedBytes": 560050.9925329966
+          "width": 0.014266371700000224,
+          "interpolatedBytes": 489411.3165600191
         },
         {
+          "metric": "butteraugli",
           "target": 3,
-          "status": "wide bracket",
-          "width": 0.9761383533000001,
+          "status": "adequate bracket",
           "bracket": {
             "lower": {
-              "setting": 7.417,
-              "bytes": 272857,
-              "score": -3.0533056259,
-              "butteraugli": 3.0533056259,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-7.417.jxl",
-              "artifactSha256": "85abb254389754410c6ee6c79061c85fa7051a8a0a8124536016edfe0dcffc53",
-              "decodedSha256": "9d1becabb9424428ca2271013d03a2b13a3f4ff5face44cd9c7a2390311cd7d0",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.99955875,
-                  "butteraugli": 3.0533056259
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 7.417
-              }
+              "setting": 6.7,
+              "bytes": 229169,
+              "score": 66.84992788,
+              "butteraugli": 3.1704540253,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-coarse-1508/purejsimage-6.7.jxl",
+              "artifactSha256": "e1f2aa9bc5649fb16c224c37c8c7cf42c38c75ad8ec833c333aed92376a3b98f",
+              "decodedSha256": "241c4efb5c62c0078d6db348ba985bd065fb1c530eba8a6edc91dee71e54279d"
             },
             "upper": {
-              "setting": 4,
-              "bytes": 527184,
-              "score": -2.0771672726,
-              "butteraugli": 2.0771672726,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-guarded-dc-quality-1376/im26-1416-original-purejsimage-4.jxl",
-              "artifactSha256": "5e994a054736304de3a30c42c2cde5bf66d598c7e94577840069809940da9f1a",
-              "decodedSha256": "fbeb5c0f5b5deb2b50af663feb289ef27b67e5db93a200681c880e36f4ac4f92",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.8560412,
-                  "butteraugli": 2.0771672726
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 4
-              }
+              "setting": 6.3,
+              "bytes": 242304,
+              "score": 67.97833327,
+              "butteraugli": 2.9622404575,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-hybrid-menu-curve-1509/purejsimage-6.3.jxl",
+              "artifactSha256": "4d1f0db6596f20cf74ffe0564f767e09e5c8102270e8855ba8efc228ae20d4af",
+              "decodedSha256": "b9044284b983a519ae82d0288c2f45e09e33c7323afc711a4bd21c076bb38f80"
             },
-            "width": 0.9761383533000001
+            "width": 0.2082135678000001
           },
-          "interpolatedBytes": 282849.01004185557
+          "width": 0.2082135678000001,
+          "interpolatedBytes": 239867.30591033655
         }
-      ],
-      "monotonicityViolations": 2
+      ]
     },
     {
-      "fixture": "im26-1416-original",
-      "scope": "original",
-      "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
-      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
-      "settingBounds": {
-        "minimum": 2,
-        "maximum": 101,
-        "mapping": "101 - quality"
-      },
       "subject": "jsquash",
-      "role": "public JavaScript API",
+      "inheritedAttempts": 23,
+      "attemptedSettings": [2.7651],
       "points": [
         {
           "setting": 11,
@@ -795,19 +414,7 @@
           "butteraugli": 1.3467601538,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-11.jxl",
           "artifactSha256": "95912a8cc8a2fdb496c9a46b4442177628d09b99b9abacb1dd0afcfb8b4f35c9",
-          "decodedSha256": "19036f52e87993af227bb15d58ffdb170e679d7d8b77b413385cc80af64bad9a",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 85.18206984,
-              "butteraugli": 1.3467601538
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 90
-          }
+          "decodedSha256": "19036f52e87993af227bb15d58ffdb170e679d7d8b77b413385cc80af64bad9a"
         },
         {
           "setting": 51,
@@ -816,19 +423,7 @@
           "butteraugli": 3.3335342407,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-51.jxl",
           "artifactSha256": "eaea2755ff4576a03f1accf55fb9ada99e93b74900d04f7ba29b3c6dd8489f7d",
-          "decodedSha256": "4dc38317757b5d821624371fe83fa021b3e9b57c160682d46af1488364c74beb",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 63.79480576,
-              "butteraugli": 3.3335342407
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 50
-          }
+          "decodedSha256": "4dc38317757b5d821624371fe83fa021b3e9b57c160682d46af1488364c74beb"
         },
         {
           "setting": 15.952,
@@ -837,19 +432,7 @@
           "butteraugli": 1.9336593151,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-15.952.jxl",
           "artifactSha256": "0996bedbc37f6affb98b9798444eb04ebe73b6b9052aa971083016df07ecca3d",
-          "decodedSha256": "8974c3ed97e6b3f7896c8d25c5382b06955af8c0832bf882e8fbecc7e5a299ab",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 81.06599725,
-              "butteraugli": 1.9336593151
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 85.048
-          }
+          "decodedSha256": "8974c3ed97e6b3f7896c8d25c5382b06955af8c0832bf882e8fbecc7e5a299ab"
         },
         {
           "setting": 33.591,
@@ -858,19 +441,7 @@
           "butteraugli": 2.8229162693,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.591.jxl",
           "artifactSha256": "f821b445a7c2271d3d0d2aa82f59cc8f926156d34fb85e4e1d6dd910a7ebea6d",
-          "decodedSha256": "d24400cf7e5a411ae838c37796bab88d0a7a2bc56377daa314cb8f4d909ea624",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 70.08616862,
-              "butteraugli": 2.8229162693
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 67.40899999999999
-          }
+          "decodedSha256": "d24400cf7e5a411ae838c37796bab88d0a7a2bc56377daa314cb8f4d909ea624"
         },
         {
           "setting": 5.5,
@@ -879,19 +450,7 @@
           "butteraugli": 0.8168624043,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.5.jxl",
           "artifactSha256": "ef41aeb6c683cdd75be0385e32e19338f5917f7997ef66049c3a790a2fc620b0",
-          "decodedSha256": "909395909f4b4abf936eeedd8c4c550df3ac7ae52210b34eb2c42a84a96f2062",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.66635683,
-              "butteraugli": 0.8168624043
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 95.5
-          }
+          "decodedSha256": "909395909f4b4abf936eeedd8c4c550df3ac7ae52210b34eb2c42a84a96f2062"
         },
         {
           "setting": 17.148,
@@ -900,19 +459,7 @@
           "butteraugli": 1.7877664566,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.148.jxl",
           "artifactSha256": "e81ff97e4d40409a760a2fe0f805b190fad9775162a3de94552f0a169b5ae7b5",
-          "decodedSha256": "61ad551a81a003e198c4e1f01b74af03d637ddd51b7b272adf6495eb00961eea",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.040724,
-              "butteraugli": 1.7877664566
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 83.852
-          }
+          "decodedSha256": "61ad551a81a003e198c4e1f01b74af03d637ddd51b7b272adf6495eb00961eea"
         },
         {
           "setting": 33.784,
@@ -921,19 +468,7 @@
           "butteraugli": 2.8155016899,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.784.jxl",
           "artifactSha256": "171ed8a9dfbb50cf22499ca341699e03980db563d736e0a0480765226cb19d98",
-          "decodedSha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 69.94003946,
-              "butteraugli": 2.8155016899
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 67.21600000000001
-          }
+          "decodedSha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95"
         },
         {
           "setting": 2.75,
@@ -942,19 +477,7 @@
           "butteraugli": 0.4979793131,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-2.75.jxl",
           "artifactSha256": "991252d83b7d589cb305c9b412d1b7b38cbfd5ccc1405a03b72613e35f687799",
-          "decodedSha256": "b92bce17f580a605e2e6dd0fbce19ac80c83fdbe9e1a57580e395470c8f6a6f7",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 91.89738777,
-              "butteraugli": 0.4979793131
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 98.25
-          }
+          "decodedSha256": "b92bce17f580a605e2e6dd0fbce19ac80c83fdbe9e1a57580e395470c8f6a6f7"
         },
         {
           "setting": 17.195,
@@ -963,19 +486,7 @@
           "butteraugli": 1.8601937294,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.195.jxl",
           "artifactSha256": "213234f68294777dcd26795a6a6157cfde7208060d27a338c8fe06bc02151381",
-          "decodedSha256": "708cdf39b4e4ff2830c7aa2b2507142bbd790f30c1385b58553a82a03f5ec23f",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.00534656,
-              "butteraugli": 1.8601937294
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 83.805
-          }
+          "decodedSha256": "708cdf39b4e4ff2830c7aa2b2507142bbd790f30c1385b58553a82a03f5ec23f"
         },
         {
           "setting": 4.9584,
@@ -984,19 +495,7 @@
           "butteraugli": 0.7759895325,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-4.9584.jxl",
           "artifactSha256": "6f1c0217e5c01322d0790e6f901714f91a62574b4deb174f9fbedc05e1e61b7e",
-          "decodedSha256": "b8e3c31964e0df1b13af2a9ea2bf0d8e20c813a6e80de4cc4f2cf4cb529549e4",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.19496648,
-              "butteraugli": 0.7759895325
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 96.0416
-          }
+          "decodedSha256": "b8e3c31964e0df1b13af2a9ea2bf0d8e20c813a6e80de4cc4f2cf4cb529549e4"
         },
         {
           "setting": 5.1517,
@@ -1005,19 +504,7 @@
           "butteraugli": 0.7822189927,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.1517.jxl",
           "artifactSha256": "1e515f78c7bc8b2b184fbf574ea71b723320a220de108fd472ddca4e9b1248ab",
-          "decodedSha256": "61e47dfc2e2f7af5337a8b64996bd0e02cf11774bd24f19c89cb952aa68e69d9",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.09253622,
-              "butteraugli": 0.7822189927
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 95.8483
-          }
+          "decodedSha256": "61e47dfc2e2f7af5337a8b64996bd0e02cf11774bd24f19c89cb952aa68e69d9"
         },
         {
           "setting": 24.033,
@@ -1026,19 +513,7 @@
           "butteraugli": 2.2509899139,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-24.033.jxl",
           "artifactSha256": "78d187357a0e6298c66d3b6ea3d0ab4992e871802ce49ad612b0fce3ff9e8c6f",
-          "decodedSha256": "2f418a8a5bc90f3834c3dbcb3ded661fd9b76cef207262fe3a059eec4bf309ec",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 76.18921027,
-              "butteraugli": 2.2509899139
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 76.967
-          }
+          "decodedSha256": "2f418a8a5bc90f3834c3dbcb3ded661fd9b76cef207262fe3a059eec4bf309ec"
         },
         {
           "setting": 5.2254,
@@ -1047,19 +522,7 @@
           "butteraugli": 0.8596440554,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.2254.jxl",
           "artifactSha256": "b5b7c241bd94b3240098cf2f4abfd551f7eee13be1d727f87b5089b555b0bfec",
-          "decodedSha256": "c498f3dafe7218a8edd7b9898308386ef84c0e2a5f5ba457dee0edbd422122bd",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.96288015,
-              "butteraugli": 0.8596440554
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 95.7746
-          }
+          "decodedSha256": "c498f3dafe7218a8edd7b9898308386ef84c0e2a5f5ba457dee0edbd422122bd"
         },
         {
           "setting": 20.328,
@@ -1068,19 +531,7 @@
           "butteraugli": 2.1994714737,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-20.328.jxl",
           "artifactSha256": "e457f8b9a5162bf4847aef2792c84141623a3c1412e87b27ffd2d97891430ba8",
-          "decodedSha256": "5ee18156f31f5db32862f09fdce67410b6b75d699dc0369c121c056c7e64e097",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 77.45521583,
-              "butteraugli": 2.1994714737
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 80.672
-          }
+          "decodedSha256": "5ee18156f31f5db32862f09fdce67410b6b75d699dc0369c121c056c7e64e097"
         },
         {
           "setting": 18.696,
@@ -1089,19 +540,7 @@
           "butteraugli": 2.012046814,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-18.696.jxl",
           "artifactSha256": "af443b1332c565d2cb34c6437ac371698fcfb8408ce84c3993ec7a3054ebd8e4",
-          "decodedSha256": "451124ec0bbae58de7e47d19685f11ba7eb659a652c1c7d8de6e552fd6227d14",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 78.7907119,
-              "butteraugli": 2.012046814
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 82.304
-          }
+          "decodedSha256": "451124ec0bbae58de7e47d19685f11ba7eb659a652c1c7d8de6e552fd6227d14"
         },
         {
           "setting": 17.93,
@@ -1110,19 +549,7 @@
           "butteraugli": 1.8552825451,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.93.jxl",
           "artifactSha256": "383df1c0aec94cb25e6dcf727a22772e974a765a3e6ca665634ba31baf6bd2f1",
-          "decodedSha256": "80b83f5bb758ea8424613aedc5c65a04e8ce73481bb6f28c1f6d76b857dfc722",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.39899618,
-              "butteraugli": 1.8552825451
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 83.07
-          }
+          "decodedSha256": "80b83f5bb758ea8424613aedc5c65a04e8ce73481bb6f28c1f6d76b857dfc722"
         },
         {
           "setting": 17.559,
@@ -1131,19 +558,7 @@
           "butteraugli": 1.9408887625,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.559.jxl",
           "artifactSha256": "eed519296f99fafe1cbf5e0fc8f23a4df11f67acd95b70c1103f08d651b75ddf",
-          "decodedSha256": "9c5af5508cd9b7261f8c7a899960fa90b2cccc4de5b3c6378d611147a8ebdc34",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.70558805,
-              "butteraugli": 1.9408887625
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 83.441
-          }
+          "decodedSha256": "9c5af5508cd9b7261f8c7a899960fa90b2cccc4de5b3c6378d611147a8ebdc34"
         },
         {
           "setting": 17.376,
@@ -1152,23 +567,151 @@
           "butteraugli": 1.8431041241,
           "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.376.jxl",
           "artifactSha256": "c96b8c6b5a735b0681aad40d3658326dd201994fafc5084b07d510dfd05cf5a9",
-          "decodedSha256": "6cca521df58960526ae873028ffbb2302fd88db9738e07ce8321b66ead022351",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.87763167,
-              "butteraugli": 1.8431041241
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 83.624
-          }
+          "decodedSha256": "6cca521df58960526ae873028ffbb2302fd88db9738e07ce8321b66ead022351"
+        },
+        {
+          "setting": 8.25,
+          "bytes": 1116430,
+          "score": 87.55404953,
+          "butteraugli": 1.1612281799,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-8.25.jxl",
+          "artifactSha256": "a3c74cd08e34c1d21b31110f21e9bb3197c91e0dd1dcbcaee0f47b09e879d918",
+          "decodedSha256": "064f5df2875125625dc390946f65aca0b585f51da94d6932314bc313287cf5b2"
+        },
+        {
+          "setting": 3.5,
+          "bytes": 2175776,
+          "score": 91.36727787,
+          "butteraugli": 0.598950386,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-3.5.jxl",
+          "artifactSha256": "bba007e5c8d6e96d0f9b396acc37b039ecbcfc4c94adbe2613a6e348d03f2cfd",
+          "decodedSha256": "51549a0607c63bf26d1292660e34dfee79b3a1daef3067da8f72ba6cc71c9fc9"
+        },
+        {
+          "setting": 40,
+          "bytes": 258067,
+          "score": 67.18360101,
+          "butteraugli": 2.9260275364,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-40.jxl",
+          "artifactSha256": "ecb79f28a1fd148b2437652fdaa3da21bc066b4e5227e03d265de4ff4e4f2c51",
+          "decodedSha256": "d465793ee5621b16afb706e17b96042e2a085ec09cd00c631b8ab55d0c967b9c"
+        },
+        {
+          "setting": 6.8235,
+          "bytes": 1302322,
+          "score": 88.63122343,
+          "butteraugli": 0.9904597402,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-6.8235.jxl",
+          "artifactSha256": "de561cce1e347488dc6bf07254b6f91ebba7d74d3a323daf924b867e6496e37a",
+          "decodedSha256": "bb329ee19a8303742c5b676fa5d5599abca7ab1cc884c14e9a3c4621b4696c9d"
+        },
+        {
+          "setting": 41.804,
+          "bytes": 242532,
+          "score": 66.24607852,
+          "butteraugli": 3.0590088367,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-41.804.jxl",
+          "artifactSha256": "73297a3d2db0b169653abbd65a6826a8fa8715039a8ba88c3e87d8f1486e2918",
+          "decodedSha256": "375cde598f2fe31913e6658b21d38864351bf0e923ae25e9a01a6618834a7fcb"
+        },
+        {
+          "setting": 2.7651,
+          "bytes": 2528566,
+          "score": 91.87191276,
+          "butteraugli": 0.4870262146,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1455/jsquash-2.7651.jxl",
+          "artifactSha256": "a3c8f64a1a595ef1544af6e5f9786a073724e3861f7f890c0bc954aa689a39fe",
+          "decodedSha256": "a654201e8fe965b3be263dd064bc8172a13cfcc50f08428ef90fc98ae3d78ff6"
         }
       ],
       "failures": [],
       "bands": [
+        {
+          "metric": "ssimulacra2",
+          "target": 70,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 33.784,
+              "bytes": 301802,
+              "score": 69.94003946,
+              "butteraugli": 2.8155016899,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.784.jxl",
+              "artifactSha256": "171ed8a9dfbb50cf22499ca341699e03980db563d736e0a0480765226cb19d98",
+              "decodedSha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95"
+            },
+            "upper": {
+              "setting": 33.591,
+              "bytes": 303948,
+              "score": 70.08616862,
+              "butteraugli": 2.8229162693,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.591.jxl",
+              "artifactSha256": "f821b445a7c2271d3d0d2aa82f59cc8f926156d34fb85e4e1d6dd910a7ebea6d",
+              "decodedSha256": "d24400cf7e5a411ae838c37796bab88d0a7a2bc56377daa314cb8f4d909ea624"
+            },
+            "width": 0.14612916000000098
+          },
+          "width": 0.14612916000000098,
+          "interpolatedBytes": 302680.71966091276
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 17.376,
+              "bytes": 559576,
+              "score": 79.87763167,
+              "butteraugli": 1.8431041241,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.376.jxl",
+              "artifactSha256": "c96b8c6b5a735b0681aad40d3658326dd201994fafc5084b07d510dfd05cf5a9",
+              "decodedSha256": "6cca521df58960526ae873028ffbb2302fd88db9738e07ce8321b66ead022351"
+            },
+            "upper": {
+              "setting": 17.195,
+              "bytes": 565121,
+              "score": 80.00534656,
+              "butteraugli": 1.8601937294,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.195.jxl",
+              "artifactSha256": "213234f68294777dcd26795a6a6157cfde7208060d27a338c8fe06bc02151381",
+              "decodedSha256": "708cdf39b4e4ff2830c7aa2b2507142bbd790f30c1385b58553a82a03f5ec23f"
+            },
+            "width": 0.12771489000000713
+          },
+          "width": 0.12771489000000713,
+          "interpolatedBytes": 564887.7700861889
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 90,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 5.2254,
+              "bytes": 1634665,
+              "score": 89.96288015,
+              "butteraugli": 0.8596440554,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.2254.jxl",
+              "artifactSha256": "b5b7c241bd94b3240098cf2f4abfd551f7eee13be1d727f87b5089b555b0bfec",
+              "decodedSha256": "c498f3dafe7218a8edd7b9898308386ef84c0e2a5f5ba457dee0edbd422122bd"
+            },
+            "upper": {
+              "setting": 5.1517,
+              "bytes": 1653012,
+              "score": 90.09253622,
+              "butteraugli": 0.7822189927,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.1517.jxl",
+              "artifactSha256": "1e515f78c7bc8b2b184fbf574ea71b723320a220de108fd472ddca4e9b1248ab",
+              "decodedSha256": "61e47dfc2e2f7af5337a8b64996bd0e02cf11774bd24f19c89cb952aa68e69d9"
+            },
+            "width": 0.1296560699999958
+          },
+          "width": 0.1296560699999958,
+          "interpolatedBytes": 1639896.745378281
+        }
+      ],
+      "ssimulacra2": [
         {
           "target": 70,
           "status": "adequate bracket",
@@ -1182,18 +725,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.784.jxl",
               "artifactSha256": "171ed8a9dfbb50cf22499ca341699e03980db563d736e0a0480765226cb19d98",
               "decodedSha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.94003946,
-                  "butteraugli": 2.8155016899
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 67.21600000000001
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 33.591,
@@ -1203,18 +736,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.591.jxl",
               "artifactSha256": "f821b445a7c2271d3d0d2aa82f59cc8f926156d34fb85e4e1d6dd910a7ebea6d",
               "decodedSha256": "d24400cf7e5a411ae838c37796bab88d0a7a2bc56377daa314cb8f4d909ea624",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 70.08616862,
-                  "butteraugli": 2.8229162693
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 67.40899999999999
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.14612916000000098
           },
@@ -1233,18 +756,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.376.jxl",
               "artifactSha256": "c96b8c6b5a735b0681aad40d3658326dd201994fafc5084b07d510dfd05cf5a9",
               "decodedSha256": "6cca521df58960526ae873028ffbb2302fd88db9738e07ce8321b66ead022351",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.87763167,
-                  "butteraugli": 1.8431041241
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 83.624
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 17.195,
@@ -1254,18 +767,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.195.jxl",
               "artifactSha256": "213234f68294777dcd26795a6a6157cfde7208060d27a338c8fe06bc02151381",
               "decodedSha256": "708cdf39b4e4ff2830c7aa2b2507142bbd790f30c1385b58553a82a03f5ec23f",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 80.00534656,
-                  "butteraugli": 1.8601937294
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 83.805
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.12771489000000713
           },
@@ -1284,18 +787,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.2254.jxl",
               "artifactSha256": "b5b7c241bd94b3240098cf2f4abfd551f7eee13be1d727f87b5089b555b0bfec",
               "decodedSha256": "c498f3dafe7218a8edd7b9898308386ef84c0e2a5f5ba457dee0edbd422122bd",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.96288015,
-                  "butteraugli": 0.8596440554
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 95.7746
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 5.1517,
@@ -1305,239 +798,139 @@
               "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.1517.jxl",
               "artifactSha256": "1e515f78c7bc8b2b184fbf574ea71b723320a220de108fd472ddca4e9b1248ab",
               "decodedSha256": "61e47dfc2e2f7af5337a8b64996bd0e02cf11774bd24f19c89cb952aa68e69d9",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 90.09253622,
-                  "butteraugli": 0.7822189927
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 95.8483
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.1296560699999958
           },
           "interpolatedBytes": 1639896.745378281
         }
       ],
-      "butteraugli": [
-        {
-          "target": 0.5,
-          "status": "wide bracket",
-          "width": 0.27801021940000004,
-          "bracket": {
-            "lower": {
-              "setting": 4.9584,
-              "bytes": 1703721,
-              "score": -0.7759895325,
-              "butteraugli": 0.7759895325,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-4.9584.jxl",
-              "artifactSha256": "6f1c0217e5c01322d0790e6f901714f91a62574b4deb174f9fbedc05e1e61b7e",
-              "decodedSha256": "b8e3c31964e0df1b13af2a9ea2bf0d8e20c813a6e80de4cc4f2cf4cb529549e4",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 90.19496648,
-                  "butteraugli": 0.7759895325
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 96.0416
-              }
-            },
-            "upper": {
-              "setting": 2.75,
-              "bytes": 2537108,
-              "score": -0.4979793131,
-              "butteraugli": 0.4979793131,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-2.75.jxl",
-              "artifactSha256": "991252d83b7d589cb305c9b412d1b7b38cbfd5ccc1405a03b72613e35f687799",
-              "decodedSha256": "b92bce17f580a605e2e6dd0fbce19ac80c83fdbe9e1a57580e395470c8f6a6f7",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 91.89738777,
-                  "butteraugli": 0.4979793131
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 98.25
-              }
-            },
-            "width": 0.27801021940000004
-          },
-          "interpolatedBytes": 2529775.3455989864
-        },
-        {
-          "target": 1,
-          "status": "wide bracket",
-          "width": 0.5298977495,
-          "bracket": {
-            "lower": {
-              "setting": 11,
-              "bytes": 868839,
-              "score": -1.3467601538,
-              "butteraugli": 1.3467601538,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-11.jxl",
-              "artifactSha256": "95912a8cc8a2fdb496c9a46b4442177628d09b99b9abacb1dd0afcfb8b4f35c9",
-              "decodedSha256": "19036f52e87993af227bb15d58ffdb170e679d7d8b77b413385cc80af64bad9a",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 85.18206984,
-                  "butteraugli": 1.3467601538
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 90
-              }
-            },
-            "upper": {
-              "setting": 5.5,
-              "bytes": 1566971,
-              "score": -0.8168624043,
-              "butteraugli": 0.8168624043,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-5.5.jxl",
-              "artifactSha256": "ef41aeb6c683cdd75be0385e32e19338f5917f7997ef66049c3a790a2fc620b0",
-              "decodedSha256": "909395909f4b4abf936eeedd8c4c550df3ac7ae52210b34eb2c42a84a96f2062",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.66635683,
-                  "butteraugli": 0.8168624043
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 95.5
-              }
-            },
-            "width": 0.5298977495
-          },
-          "interpolatedBytes": 1278035.5417097865
-        },
-        {
-          "target": 2,
-          "status": "adequate bracket",
-          "width": 0.15676426890000017,
-          "bracket": {
-            "lower": {
-              "setting": 18.696,
-              "bytes": 519322,
-              "score": -2.012046814,
-              "butteraugli": 2.012046814,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-18.696.jxl",
-              "artifactSha256": "af443b1332c565d2cb34c6437ac371698fcfb8408ce84c3993ec7a3054ebd8e4",
-              "decodedSha256": "451124ec0bbae58de7e47d19685f11ba7eb659a652c1c7d8de6e552fd6227d14",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 78.7907119,
-                  "butteraugli": 2.012046814
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 82.304
-              }
-            },
-            "upper": {
-              "setting": 17.93,
-              "bytes": 542019,
-              "score": -1.8552825451,
-              "butteraugli": 1.8552825451,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.93.jxl",
-              "artifactSha256": "383df1c0aec94cb25e6dcf727a22772e974a765a3e6ca665634ba31baf6bd2f1",
-              "decodedSha256": "80b83f5bb758ea8424613aedc5c65a04e8ce73481bb6f28c1f6d76b857dfc722",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.39899618,
-                  "butteraugli": 1.8552825451
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 83.07
-              }
-            },
-            "width": 0.15676426890000017
-          },
-          "interpolatedBytes": 521031.9585800119
-        },
-        {
-          "target": 3,
-          "status": "wide bracket",
-          "width": 0.5180325508000001,
-          "bracket": {
-            "lower": {
-              "setting": 51,
-              "bytes": 183728,
-              "score": -3.3335342407,
-              "butteraugli": 3.3335342407,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-51.jxl",
-              "artifactSha256": "eaea2755ff4576a03f1accf55fb9ada99e93b74900d04f7ba29b3c6dd8489f7d",
-              "decodedSha256": "4dc38317757b5d821624371fe83fa021b3e9b57c160682d46af1488364c74beb",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 63.79480576,
-                  "butteraugli": 3.3335342407
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 50
-              }
-            },
-            "upper": {
-              "setting": 33.784,
-              "bytes": 301802,
-              "score": -2.8155016899,
-              "butteraugli": 2.8155016899,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-33.784.jxl",
-              "artifactSha256": "171ed8a9dfbb50cf22499ca341699e03980db563d736e0a0480765226cb19d98",
-              "decodedSha256": "d08f91ffa64f30072b86bf7b3f56eb64ca3a09bb77b4c8948d1f43e804ac0c95",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.94003946,
-                  "butteraugli": 2.8155016899
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 67.21600000000001
-              }
-            },
-            "width": 0.5180325508000001
-          },
-          "interpolatedBytes": 252903.4242005712
-        }
-      ],
-      "monotonicityViolations": 0
-    },
-    {
-      "subject": "vips",
-      "role": "public JavaScript API, fresh process per selected setting",
+      "totalAttempts": 24,
       "fixture": "im26-1416-original",
       "scope": "original",
       "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
       "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "role": "public WASM comparator",
+      "butteraugliBands": [
+        {
+          "metric": "butteraugli",
+          "target": 0.5,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 3.5,
+              "bytes": 2175776,
+              "score": 91.36727787,
+              "butteraugli": 0.598950386,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-3.5.jxl",
+              "artifactSha256": "bba007e5c8d6e96d0f9b396acc37b039ecbcfc4c94adbe2613a6e348d03f2cfd",
+              "decodedSha256": "51549a0607c63bf26d1292660e34dfee79b3a1daef3067da8f72ba6cc71c9fc9"
+            },
+            "upper": {
+              "setting": 2.7651,
+              "bytes": 2528566,
+              "score": 91.87191276,
+              "butteraugli": 0.4870262146,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1455/jsquash-2.7651.jxl",
+              "artifactSha256": "a3c8f64a1a595ef1544af6e5f9786a073724e3861f7f890c0bc954aa689a39fe",
+              "decodedSha256": "a654201e8fe965b3be263dd064bc8172a13cfcc50f08428ef90fc98ae3d78ff6"
+            },
+            "width": 0.11192417139999994
+          },
+          "width": 0.11192417139999994,
+          "interpolatedBytes": 2484903.985535044
+        },
+        {
+          "metric": "butteraugli",
+          "target": 1,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 8.25,
+              "bytes": 1116430,
+              "score": 87.55404953,
+              "butteraugli": 1.1612281799,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-8.25.jxl",
+              "artifactSha256": "a3c74cd08e34c1d21b31110f21e9bb3197c91e0dd1dcbcaee0f47b09e879d918",
+              "decodedSha256": "064f5df2875125625dc390946f65aca0b585f51da94d6932314bc313287cf5b2"
+            },
+            "upper": {
+              "setting": 6.8235,
+              "bytes": 1302322,
+              "score": 88.63122343,
+              "butteraugli": 0.9904597402,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-6.8235.jxl",
+              "artifactSha256": "de561cce1e347488dc6bf07254b6f91ebba7d74d3a323daf924b867e6496e37a",
+              "decodedSha256": "bb329ee19a8303742c5b676fa5d5599abca7ab1cc884c14e9a3c4621b4696c9d"
+            },
+            "width": 0.17076843969999989
+          },
+          "width": 0.17076843969999989,
+          "interpolatedBytes": 1291164.6628635945
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 18.696,
+              "bytes": 519322,
+              "score": 78.7907119,
+              "butteraugli": 2.012046814,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-18.696.jxl",
+              "artifactSha256": "af443b1332c565d2cb34c6437ac371698fcfb8408ce84c3993ec7a3054ebd8e4",
+              "decodedSha256": "451124ec0bbae58de7e47d19685f11ba7eb659a652c1c7d8de6e552fd6227d14"
+            },
+            "upper": {
+              "setting": 17.93,
+              "bytes": 542019,
+              "score": 79.39899618,
+              "butteraugli": 1.8552825451,
+              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-jsquash-17.93.jxl",
+              "artifactSha256": "383df1c0aec94cb25e6dcf727a22772e974a765a3e6ca665634ba31baf6bd2f1",
+              "decodedSha256": "80b83f5bb758ea8424613aedc5c65a04e8ce73481bb6f28c1f6d76b857dfc722"
+            },
+            "width": 0.15676426890000017
+          },
+          "width": 0.15676426890000017,
+          "interpolatedBytes": 521031.9585800119
+        },
+        {
+          "metric": "butteraugli",
+          "target": 3,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 41.804,
+              "bytes": 242532,
+              "score": 66.24607852,
+              "butteraugli": 3.0590088367,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-41.804.jxl",
+              "artifactSha256": "73297a3d2db0b169653abbd65a6826a8fa8715039a8ba88c3e87d8f1486e2918",
+              "decodedSha256": "375cde598f2fe31913e6658b21d38864351bf0e923ae25e9a01a6618834a7fcb"
+            },
+            "upper": {
+              "setting": 40,
+              "bytes": 258067,
+              "score": 67.18360101,
+              "butteraugli": 2.9260275364,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/jsquash-40.jxl",
+              "artifactSha256": "ecb79f28a1fd148b2437652fdaa3da21bc066b4e5227e03d265de4ff4e4f2c51",
+              "decodedSha256": "d465793ee5621b16afb706e17b96042e2a085ec09cd00c631b8ab55d0c967b9c"
+            },
+            "width": 0.1329813003
+          },
+          "width": 0.1329813003,
+          "interpolatedBytes": 249306.5796604673
+        }
+      ]
+    },
+    {
+      "subject": "vips",
+      "inheritedAttempts": 24,
+      "attemptedSettings": [],
       "points": [
         {
           "setting": 2.9773,
@@ -1546,19 +939,7 @@
           "butteraugli": 2.9034304619,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9773.jxl",
           "artifactSha256": "e298784caf84e1002287de2980de74eb2b6d106e7541a0282d5c83370f984d00",
-          "decodedSha256": "c35a0470fed1be94dfbab8c9c64eaf07bfad588b38b2bdc2e46552ce57405741",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 69.98094597,
-              "butteraugli": 2.9034304619
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 2.9773
-          }
+          "decodedSha256": "c35a0470fed1be94dfbab8c9c64eaf07bfad588b38b2bdc2e46552ce57405741"
         },
         {
           "setting": 2.9573,
@@ -1567,19 +948,7 @@
           "butteraugli": 2.7215666771,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9573.jxl",
           "artifactSha256": "cfad6c5dd588962a9474bc9ef4fe427d511c65e1a169251e213eb97a46074257",
-          "decodedSha256": "875a7aaa5eb3cb7c2cd4b8253bd5ff5e1cdeabc1186dce8a599b4f9fb7ac0264",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 70.13716624,
-              "butteraugli": 2.7215666771
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 2.9573
-          }
+          "decodedSha256": "875a7aaa5eb3cb7c2cd4b8253bd5ff5e1cdeabc1186dce8a599b4f9fb7ac0264"
         },
         {
           "setting": 1.8012,
@@ -1588,19 +957,7 @@
           "butteraugli": 2.3047008514,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.8012.jxl",
           "artifactSha256": "b818ae12ac313f491432984d7bb0dfe25cc318cf8cf2b0a7425980d78b4efb30",
-          "decodedSha256": "ac8979ce17259a134923f74e197a12cf4bf2965ef70966d85e4a38f375d81a54",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.96405661,
-              "butteraugli": 2.3047008514
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.8012
-          }
+          "decodedSha256": "ac8979ce17259a134923f74e197a12cf4bf2965ef70966d85e4a38f375d81a54"
         },
         {
           "setting": 1.7941,
@@ -1609,19 +966,7 @@
           "butteraugli": 2.1732401848,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.7941.jxl",
           "artifactSha256": "61419900793b6c8d4c6de315faa2eaec582d8cc1c0e5c83976f0dbfd712d5802",
-          "decodedSha256": "6a8c02cb43e66ba05b3ee24888c7da3a0d24efb87e1bb2f4cd8cff5d5aa898e0",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.06632982,
-              "butteraugli": 2.1732401848
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.7941
-          }
+          "decodedSha256": "6a8c02cb43e66ba05b3ee24888c7da3a0d24efb87e1bb2f4cd8cff5d5aa898e0"
         },
         {
           "setting": 0.54538,
@@ -1630,19 +975,7 @@
           "butteraugli": 0.9254912734,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.54538.jxl",
           "artifactSha256": "ddefb2f05b0070a6b42fcab2b8a59efe0e61dbbf8c22e1d0e4f23a7e326172c4",
-          "decodedSha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.97031951,
-              "butteraugli": 0.9254912734
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.54538
-          }
+          "decodedSha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5"
         },
         {
           "setting": 0.52186,
@@ -1651,23 +984,225 @@
           "butteraugli": 0.8597682714,
           "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.52186.jxl",
           "artifactSha256": "eb084f9ad41aa3060f4fd98edc302a01714fbb24837152572e45a6cd9768a390",
-          "decodedSha256": "4c6215868b90b14c6d917e06be910822911bd19aa1c4699e7be3d8b81adada64",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.06817741,
-              "butteraugli": 0.8597682714
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.52186
-          }
+          "decodedSha256": "4c6215868b90b14c6d917e06be910822911bd19aa1c4699e7be3d8b81adada64"
+        },
+        {
+          "setting": 1,
+          "bytes": 925695,
+          "score": 86.30107765,
+          "butteraugli": 1.3761392832,
+          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-vips-1.jxl",
+          "artifactSha256": "ee7f750aef6976ccb85b692cb90af40e7211479a76ba9ed6868768c46c571a4d",
+          "decodedSha256": "0088836b01db73d87c3c7d961bc27ee3ad181ea703ca562a16daaa0efcf8328a"
+        },
+        {
+          "setting": 0.25,
+          "bytes": 3050677,
+          "score": 92.22065179,
+          "butteraugli": 0.450619787,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.25.jxl",
+          "artifactSha256": "43d16b0b32f841dcac1ed33766aff6ad558260a01f5f7edf8bd26b2d5c20c45c",
+          "decodedSha256": "0a31f99b0c2b593c9a5566246379d6feb0a545abbad9c3c7b4e3042344eeb349"
+        },
+        {
+          "setting": 0.65,
+          "bytes": 1357892,
+          "score": 89.00599805,
+          "butteraugli": 1.0120354891,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.65.jxl",
+          "artifactSha256": "d7a249c503eadc63759fccdc6b63b42dd4a79b5a69e7e9bd55d497a90b04bc7d",
+          "decodedSha256": "243d4ae935bcc9b1f10019c8eb23866d5cf0ab4f3a604c58051f69d626e3667a"
+        },
+        {
+          "setting": 1.5,
+          "bytes": 653449,
+          "score": 82.41837807,
+          "butteraugli": 2.308989048,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.5.jxl",
+          "artifactSha256": "a0d3b386c0c23e4277674737bf0610027229bff18b3907896168bdb15eab1187",
+          "decodedSha256": "6a0c06d64da6a3f04b748e7b316244357099bcf167a0a71061d20b18688ff49a"
+        },
+        {
+          "setting": 1.5801,
+          "bytes": 627565,
+          "score": 81.87609275,
+          "butteraugli": 1.8584156036,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.5801.jxl",
+          "artifactSha256": "06660415bd5b33bfb02d7d48691abc7d2b6ecbc35fdd3cbbb837aa8b943b16c7",
+          "decodedSha256": "5e5acf9c8685815b5fbdbe98f39f8a3a2d656ca652fe211856f99bd0cad13644"
+        },
+        {
+          "setting": 1.673,
+          "bytes": 600080,
+          "score": 81.08942146,
+          "butteraugli": 2.1807875633,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.673.jxl",
+          "artifactSha256": "3b833fbbd68041168ab119f0f0213fd38f20618cd9efbf14eb896d5bad59faa4",
+          "decodedSha256": "c11e1ba306e2c41aacb0e00d1fdd848826641059c50c7bb4c70c21571d33117e"
+        },
+        {
+          "setting": 1.7325,
+          "bytes": 580038,
+          "score": 80.51273735,
+          "butteraugli": 2.2103350163,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.7325.jxl",
+          "artifactSha256": "64162ea7a234da077561d3f0a6bcce746200273bddb43943dd613e12a0984963",
+          "decodedSha256": "4872d180195f11d7f0ffda631e8aac0cd3e15f8ade42d3990232df65bca59ad5"
+        },
+        {
+          "setting": 0.27322,
+          "bytes": 3005903,
+          "score": 92.08454551,
+          "butteraugli": 0.474373132,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.27322.jxl",
+          "artifactSha256": "5b95f106a388e6ee5316188adaf294d1488a1f0dd7d11dd578180f73747b9278",
+          "decodedSha256": "1c0512af57dfd811e2ce4fc019dffe8a6e5a7203bb2f4aa3fbbebaef00290112"
+        },
+        {
+          "setting": 1.6259,
+          "bytes": 617785,
+          "score": 81.49895803,
+          "butteraugli": 2.1250212193,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6259.jxl",
+          "artifactSha256": "d3120a6362963371b42f074fc7c2a87996ff9f7ca1fc6c04b90426e745077a6e",
+          "decodedSha256": "8925226ccda23f89a613738a642bdd30fdae89e8c69266bef7186831ebfc7683"
+        },
+        {
+          "setting": 1.6043,
+          "bytes": 625038,
+          "score": 81.69202534,
+          "butteraugli": 1.791893959,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6043.jxl",
+          "artifactSha256": "aa884ee1444e867e511f90a3068a7a44d7850fc237e8c3a5e6d46d8baf189f12",
+          "decodedSha256": "5400cb6995188018168426c63cdc6a1c385b6f69b7b39191309a9871aaeb9e27"
+        },
+        {
+          "setting": 1.6178,
+          "bytes": 620336,
+          "score": 81.58340657,
+          "butteraugli": 1.8310661316,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6178.jxl",
+          "artifactSha256": "6d082e0bf649b7ee1304cc880fe5c40d7b997cb96b2312ed877ec6ae4b015244",
+          "decodedSha256": "f0667b4b239c51882a12b98a5e937c21d7b0e38a79b11229cdda00c436123f8c"
+        },
+        {
+          "setting": 0.28523,
+          "bytes": 2924247,
+          "score": 92.05147838,
+          "butteraugli": 0.6017113328,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.28523.jxl",
+          "artifactSha256": "cac138acde2a48636f10429bd5429e9530589c5c274fdbb81e7674b731c291c2",
+          "decodedSha256": "9bb1292cf789bd20a516d0da2e03273d0b7a89969fc78d7c920b64874a7f7023"
+        },
+        {
+          "setting": 1.6225,
+          "bytes": 618915,
+          "score": 81.5273082,
+          "butteraugli": 2.1032216549,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6225.jxl",
+          "artifactSha256": "2d2df54e81c289c518c3783563e440090fea1b486c245c9c1376e915f91ef11c",
+          "decodedSha256": "32cbe079444efc198bbf56f1842fe95da76d18be4679a6928867bdb08775d22a"
         }
       ],
-      "failures": [],
+      "failures": [
+        {
+          "setting": 3.2,
+          "status": "execution failure",
+          "detail": "Error: Command failed: /home/ard/.nvm/versions/node/v24.16.0/bin/node .tmp/jpegxl-comparison-v1/original-butteraugli-peer-worker-1397.ts vips 3.2 .tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-3.2.jxl\nAborted()\nwasm://wasm/013a9412:1\n\n\nRuntimeError: unreachable\n    at wasm://wasm/013a9412:wasm-function[7483]:0x2b89a9\n    at gb (file:///media/ard/samsung-2tb/projects/PureJsImage/node_modules/wasm-vips/lib/vips-node.mjs:7:315)\n    at Nb (file:///media/ard/samsung-2tb/projects/PureJsImage/node_modules/wasm-vips/lib/vips-node.mjs:107:229)\n    at wasm://wasm/013a9412:wasm-function[214]:0xf450\n    at wasm://wasm/013a9412:wasm-function[2877]:0xe1522\n    at wasm://wasm/013a9412:wasm-function[109]:0x9573\n    at wasm://wasm/0087c67e:wasm-function[539]:0x46447\n    at wasm://wasm/0087c67e:wasm-function[762]:0xb8ceb\n    at wasm://wasm/0087c67e:wasm-function[755]:0xadb9d\n    at wasm://wasm/0087c67e:wasm-function[273]:0x1e5f9\n\nNode.js v24.16.0\n"
+        },
+        {
+          "setting": 5.9546,
+          "status": "execution failure",
+          "detail": "Error: Command failed: /home/ard/.nvm/versions/node/v24.16.0/bin/node .tmp/jpegxl-comparison-v1/original-butteraugli-peer-worker-1397.ts vips 5.9546 .tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-5.9546.jxl\nAborted()\nwasm://wasm/013a9412:1\n\n\nRuntimeError: unreachable\n    at wasm://wasm/013a9412:wasm-function[7483]:0x2b89a9\n    at gb (file:///media/ard/samsung-2tb/projects/PureJsImage/node_modules/wasm-vips/lib/vips-node.mjs:7:315)\n    at Nb (file:///media/ard/samsung-2tb/projects/PureJsImage/node_modules/wasm-vips/lib/vips-node.mjs:107:229)\n    at wasm://wasm/013a9412:wasm-function[214]:0xf450\n    at wasm://wasm/013a9412:wasm-function[2877]:0xe1522\n    at wasm://wasm/013a9412:wasm-function[109]:0x9573\n    at wasm://wasm/0087c67e:wasm-function[539]:0x46447\n    at wasm://wasm/0087c67e:wasm-function[762]:0xb8ceb\n    at wasm://wasm/0087c67e:wasm-function[755]:0xadb9d\n    at wasm://wasm/0087c67e:wasm-function[273]:0x1e5f9\n\nNode.js v24.16.0\n"
+        }
+      ],
       "bands": [
+        {
+          "metric": "ssimulacra2",
+          "target": 70,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 2.9773,
+              "bytes": 308824,
+              "score": 69.98094597,
+              "butteraugli": 2.9034304619,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9773.jxl",
+              "artifactSha256": "e298784caf84e1002287de2980de74eb2b6d106e7541a0282d5c83370f984d00",
+              "decodedSha256": "c35a0470fed1be94dfbab8c9c64eaf07bfad588b38b2bdc2e46552ce57405741"
+            },
+            "upper": {
+              "setting": 2.9573,
+              "bytes": 311419,
+              "score": 70.13716624,
+              "butteraugli": 2.7215666771,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9573.jxl",
+              "artifactSha256": "cfad6c5dd588962a9474bc9ef4fe427d511c65e1a169251e213eb97a46074257",
+              "decodedSha256": "875a7aaa5eb3cb7c2cd4b8253bd5ff5e1cdeabc1186dce8a599b4f9fb7ac0264"
+            },
+            "width": 0.1562202700000057
+          },
+          "width": 0.1562202700000057,
+          "interpolatedBytes": 309139.3480610586
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.8012,
+              "bytes": 557173,
+              "score": 79.96405661,
+              "butteraugli": 2.3047008514,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.8012.jxl",
+              "artifactSha256": "b818ae12ac313f491432984d7bb0dfe25cc318cf8cf2b0a7425980d78b4efb30",
+              "decodedSha256": "ac8979ce17259a134923f74e197a12cf4bf2965ef70966d85e4a38f375d81a54"
+            },
+            "upper": {
+              "setting": 1.7941,
+              "bytes": 559176,
+              "score": 80.06632982,
+              "butteraugli": 2.1732401848,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.7941.jxl",
+              "artifactSha256": "61419900793b6c8d4c6de315faa2eaec582d8cc1c0e5c83976f0dbfd712d5802",
+              "decodedSha256": "6a8c02cb43e66ba05b3ee24888c7da3a0d24efb87e1bb2f4cd8cff5d5aa898e0"
+            },
+            "width": 0.102273210000007
+          },
+          "width": 0.102273210000007,
+          "interpolatedBytes": 557876.1249668878
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 90,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 0.54538,
+              "bytes": 1663305,
+              "score": 89.97031951,
+              "butteraugli": 0.9254912734,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.54538.jxl",
+              "artifactSha256": "ddefb2f05b0070a6b42fcab2b8a59efe0e61dbbf8c22e1d0e4f23a7e326172c4",
+              "decodedSha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5"
+            },
+            "upper": {
+              "setting": 0.52186,
+              "bytes": 1742410,
+              "score": 90.06817741,
+              "butteraugli": 0.8597682714,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.52186.jxl",
+              "artifactSha256": "eb084f9ad41aa3060f4fd98edc302a01714fbb24837152572e45a6cd9768a390",
+              "decodedSha256": "4c6215868b90b14c6d917e06be910822911bd19aa1c4699e7be3d8b81adada64"
+            },
+            "width": 0.09785790000000816
+          },
+          "width": 0.09785790000000816,
+          "interpolatedBytes": 1686910.5700101957
+        }
+      ],
+      "ssimulacra2": [
         {
           "target": 70,
           "status": "adequate bracket",
@@ -1681,18 +1216,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9773.jxl",
               "artifactSha256": "e298784caf84e1002287de2980de74eb2b6d106e7541a0282d5c83370f984d00",
               "decodedSha256": "c35a0470fed1be94dfbab8c9c64eaf07bfad588b38b2bdc2e46552ce57405741",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.98094597,
-                  "butteraugli": 2.9034304619
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 2.9773
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 2.9573,
@@ -1702,18 +1227,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-2.9573.jxl",
               "artifactSha256": "cfad6c5dd588962a9474bc9ef4fe427d511c65e1a169251e213eb97a46074257",
               "decodedSha256": "875a7aaa5eb3cb7c2cd4b8253bd5ff5e1cdeabc1186dce8a599b4f9fb7ac0264",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 70.13716624,
-                  "butteraugli": 2.7215666771
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 2.9573
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.1562202700000057
           },
@@ -1732,18 +1247,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.8012.jxl",
               "artifactSha256": "b818ae12ac313f491432984d7bb0dfe25cc318cf8cf2b0a7425980d78b4efb30",
               "decodedSha256": "ac8979ce17259a134923f74e197a12cf4bf2965ef70966d85e4a38f375d81a54",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.96405661,
-                  "butteraugli": 2.3047008514
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.8012
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 1.7941,
@@ -1753,18 +1258,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-1.7941.jxl",
               "artifactSha256": "61419900793b6c8d4c6de315faa2eaec582d8cc1c0e5c83976f0dbfd712d5802",
               "decodedSha256": "6a8c02cb43e66ba05b3ee24888c7da3a0d24efb87e1bb2f4cd8cff5d5aa898e0",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 80.06632982,
-                  "butteraugli": 2.1732401848
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.7941
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.102273210000007
           },
@@ -1783,18 +1278,8 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.54538.jxl",
               "artifactSha256": "ddefb2f05b0070a6b42fcab2b8a59efe0e61dbbf8c22e1d0e4f23a7e326172c4",
               "decodedSha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.97031951,
-                  "butteraugli": 0.9254912734
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 0.54538
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "upper": {
               "setting": 0.52186,
@@ -1804,715 +1289,119 @@
               "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.52186.jxl",
               "artifactSha256": "eb084f9ad41aa3060f4fd98edc302a01714fbb24837152572e45a6cd9768a390",
               "decodedSha256": "4c6215868b90b14c6d917e06be910822911bd19aa1c4699e7be3d8b81adada64",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 90.06817741,
-                  "butteraugli": 0.8597682714
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 0.52186
-              }
+              "encodedFresh": false,
+              "inherited": true
             },
             "width": 0.09785790000000816
           },
           "interpolatedBytes": 1686910.5700101957
         }
-      ]
-    },
-    {
+      ],
+      "totalAttempts": 24,
       "fixture": "im26-1416-original",
       "scope": "original",
       "sourceSha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c",
       "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
-      "settingBounds": {
-        "minimum": 0.1,
-        "maximum": 25,
-        "mapping": "distance"
-      },
-      "subject": "native-libjxl",
-      "role": "native oracle, excluded from JavaScript runtime comparisons",
-      "points": [
+      "role": "public WASM comparator",
+      "butteraugliBands": [
         {
-          "setting": 1,
-          "bytes": 925526,
-          "score": 86.32585343,
-          "butteraugli": 1.3761392832,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.jxl",
-          "artifactSha256": "a17c6c296d4e20868861e0a9c4274b088d0be6d488f7099b4673e9290d9cfacd",
-          "decodedSha256": "e9f2597722db23c87918fc3b7943c33aee3c0eee7984a1d457bb71842782a45d",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 86.32585343,
-              "butteraugli": 1.3761392832
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1
-          }
-        },
-        {
-          "setting": 4,
-          "bytes": 220341,
-          "score": 64.31054203,
-          "butteraugli": 3.5125699043,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-4.jxl",
-          "artifactSha256": "ca2f995b0980c463961c672f33c6a2249a14ee87dc00566cbdadaa3fe970792e",
-          "decodedSha256": "93da3d97235ec611c64a31007dff5956eafe78a9b2d28cc2c70a599bddd38893",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 64.31054203,
-              "butteraugli": 3.5125699043
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 4
-          }
-        },
-        {
-          "setting": 1.4893,
-          "bytes": 657625,
-          "score": 82.51658852,
-          "butteraugli": 1.7186641693,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.4893.jxl",
-          "artifactSha256": "6fd0bc86adb4c74579e2b9a46c7b0ec3b4391e8fa7db3d649e31a0a0101812f6",
-          "decodedSha256": "47044a61dbbc316e92c17399505459a1a92c02758798dfe5f2a8bc2178f29496",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 82.51658852,
-              "butteraugli": 1.7186641693
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.4893
-          }
-        },
-        {
-          "setting": 2.9375,
-          "bytes": 314730,
-          "score": 70.25921359,
-          "butteraugli": 2.6642558575,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9375.jxl",
-          "artifactSha256": "602dc9c9d33d1a2abf64c4785551635666a43911f2af6dc065abd6863ce3b428",
-          "decodedSha256": "feb5f7048969976daf6df6e81cba1428cf4f7eec0e0404f4066e43a38d2ee56f",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 70.25921359,
-              "butteraugli": 2.6642558575
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 2.9375
-          }
-        },
-        {
-          "setting": 0.5,
-          "bytes": 2007575,
-          "score": 90.7916188,
-          "butteraugli": 0.8267130852,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.5.jxl",
-          "artifactSha256": "349e91db47f1646ecdadead81d13dfcfd14c55aeb36a2b56fae013fbaf34951d",
-          "decodedSha256": "79aa47947352b8e8c3fe14686ed91707290c5ec97bd93acb2ae9a6937f22d7e0",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.7916188,
-              "butteraugli": 0.8267130852
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.5
-          }
-        },
-        {
-          "setting": 1.7122,
-          "bytes": 585890,
-          "score": 80.74238441,
-          "butteraugli": 2.2083468437,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.7122.jxl",
-          "artifactSha256": "b0e2e507377af3f6183aa544eb4eb7c6492fb20fa64b397bda8137ee2d5e44e8",
-          "decodedSha256": "ac711b9c4092173c14bd9544fb1cfa98276659be9eeb95c4a741ccc4649d4580",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.74238441,
-              "butteraugli": 2.2083468437
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.7122
-          }
-        },
-        {
-          "setting": 2.9773,
-          "bytes": 308643,
-          "score": 69.98063961,
-          "butteraugli": 2.9034304619,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9773.jxl",
-          "artifactSha256": "68e33f745e0cd703e494b4f73464c5c2af6389b346cc112609381d7fba9204aa",
-          "decodedSha256": "9094eab2d26e9c46ddbd88e1677559b0fd581f58e0b854ebd821164dbe00a536",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 69.98063961,
-              "butteraugli": 2.9034304619
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 2.9773
-          }
-        },
-        {
-          "setting": 0.56537,
-          "bytes": 1595680,
-          "score": 89.81120234,
-          "butteraugli": 0.9436868429,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.56537.jxl",
-          "artifactSha256": "b982962d8570cea07a2ed98905b5344cd2ee4838961066a80d365dd7b5399552",
-          "decodedSha256": "69a70447b863b201b1f77e6165eb4bd872663770b9fb4163a95fc8b4944aceef",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.81120234,
-              "butteraugli": 0.9436868429
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.56537
-          }
-        },
-        {
-          "setting": 1.7789,
-          "bytes": 564763,
-          "score": 80.16806202,
-          "butteraugli": 2.2250423431,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.7789.jxl",
-          "artifactSha256": "d4fa7eb8b5ec3cab741d1f3d820ad28efe62596109ab68321ff315cd8702461c",
-          "decodedSha256": "98bc45a312cc79ef6267b2b5f949511411863f15f9773497a9192f805ebf6c70",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.16806202,
-              "butteraugli": 2.2250423431
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.7789
-          }
-        },
-        {
-          "setting": 2.9573,
-          "bytes": 311241,
-          "score": 70.13803173,
-          "butteraugli": 2.7215666771,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9573.jxl",
-          "artifactSha256": "741bf270645e40a822e046ff3e6ccacb4905632c6f665a188819cbce95ecb2c0",
-          "decodedSha256": "e02df9c72759556e6b22c8d76a8d26c78d32f85f17a26fd0324dcae083f8ba97",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 70.13803173,
-              "butteraugli": 2.7215666771
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 2.9573
-          }
-        },
-        {
-          "setting": 0.55215,
-          "bytes": 1639485,
-          "score": 89.92149111,
-          "butteraugli": 1.0023041964,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.55215.jxl",
-          "artifactSha256": "f2dcce3f0a027a03f7929c757a726c75ef329038df12198557829a0258232caf",
-          "decodedSha256": "02e9faf5083cb9f94a68ff241242ce4adb7ff00a207711688a5aa73dd6ad7573",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.92149111,
-              "butteraugli": 1.0023041964
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.55215
-          }
-        },
-        {
-          "setting": 1.7941,
-          "bytes": 558969,
-          "score": 80.07844726,
-          "butteraugli": 2.1732401848,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.7941.jxl",
-          "artifactSha256": "b1d2f57beb8f4601620ba6fc42e65c84c02eb10537558ff2b386d7d91ca28ddd",
-          "decodedSha256": "4a40b863dbe4fe2ea0274eaee886b769e4ca290dc2b97f0b1768c4c62baf32bf",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 80.07844726,
-              "butteraugli": 2.1732401848
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.7941
-          }
-        },
-        {
-          "setting": 0.54723,
-          "bytes": 1656519,
-          "score": 89.96909068,
-          "butteraugli": 0.9134312868,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.54723.jxl",
-          "artifactSha256": "770f377a5f39fa4f3ca1f90e05701a23a2b20e82d11ac0a476629e4d0d95674c",
-          "decodedSha256": "40f44d26d4a3e88cbe3e7bab451f66a54fcbb3dccc4cd91850fbde5c87b3a4c3",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.96909068,
-              "butteraugli": 0.9134312868
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.54723
-          }
-        },
-        {
-          "setting": 0.54538,
-          "bytes": 1663028,
-          "score": 89.98814502,
-          "butteraugli": 0.8976874948,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.54538.jxl",
-          "artifactSha256": "bfe9e2d0cdd812d5a8510f2c8f1f2ee58c3150bd25f36c1a9713611e0e26f177",
-          "decodedSha256": "56db943ba175a81b77e847f066011cca8c13fe88fcd961d12d6c9d2a654f2024",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.98814502,
-              "butteraugli": 0.8976874948
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.54538
-          }
-        },
-        {
-          "setting": 1.8012,
-          "bytes": 556979,
-          "score": 79.94887494,
-          "butteraugli": 2.3047008514,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.8012.jxl",
-          "artifactSha256": "c1da155ce1f0e75bb4f6fe2aad5c560cbb27ad2c16ba0f01ff65737202ccc68d",
-          "decodedSha256": "07666fe7815f25e828121d4a05674fa83a67c6631e76875a809301f883685289",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 79.94887494,
-              "butteraugli": 2.3047008514
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 1.8012
-          }
-        },
-        {
-          "setting": 0.54468,
-          "bytes": 1665758,
-          "score": 89.98591454,
-          "butteraugli": 0.9254491329,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.54468.jxl",
-          "artifactSha256": "ff21be1e615d8d3e5c49fc88250528af8730cbc5aba50c5de43f7cc042cb51e1",
-          "decodedSha256": "39e589d2232e3789acea46459f169a614cf2393cbb3f421d07f745b518e166b5",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 89.98591454,
-              "butteraugli": 0.9254491329
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.54468
-          }
-        },
-        {
-          "setting": 0.52186,
-          "bytes": 1742127,
-          "score": 90.08086895,
-          "butteraugli": 0.8597682714,
-          "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.52186.jxl",
-          "artifactSha256": "1522f04f326ef65c7b0533d2ca17e720424c29f749a1e6462be41319c3bb2a54",
-          "decodedSha256": "a0f48ebd5230177b1c1ff96bdc9b38f734507477c8fc53e3dbc41f9814e9f3c7",
-          "backgrounds": [
-            {
-              "background": "black",
-              "ssimulacra2": 90.08086895,
-              "butteraugli": 0.8597682714
-            }
-          ],
-          "options": {
-            "lossless": false,
-            "effort": 7,
-            "value": 0.52186
-          }
-        }
-      ],
-      "failures": [],
-      "bands": [
-        {
-          "target": 70,
-          "status": "adequate bracket",
-          "width": 0.15739211999999725,
-          "bracket": {
-            "lower": {
-              "setting": 2.9773,
-              "bytes": 308643,
-              "score": 69.98063961,
-              "butteraugli": 2.9034304619,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9773.jxl",
-              "artifactSha256": "68e33f745e0cd703e494b4f73464c5c2af6389b346cc112609381d7fba9204aa",
-              "decodedSha256": "9094eab2d26e9c46ddbd88e1677559b0fd581f58e0b854ebd821164dbe00a536",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.98063961,
-                  "butteraugli": 2.9034304619
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 2.9773
-              }
-            },
-            "upper": {
-              "setting": 2.9573,
-              "bytes": 311241,
-              "score": 70.13803173,
-              "butteraugli": 2.7215666771,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9573.jxl",
-              "artifactSha256": "741bf270645e40a822e046ff3e6ccacb4905632c6f665a188819cbce95ecb2c0",
-              "decodedSha256": "e02df9c72759556e6b22c8d76a8d26c78d32f85f17a26fd0324dcae083f8ba97",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 70.13803173,
-                  "butteraugli": 2.7215666771
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 2.9573
-              }
-            },
-            "width": 0.15739211999999725
-          },
-          "interpolatedBytes": 308961.3997528547
-        },
-        {
-          "target": 80,
-          "status": "adequate bracket",
-          "width": 0.1295723200000083,
-          "bracket": {
-            "lower": {
-              "setting": 1.8012,
-              "bytes": 556979,
-              "score": 79.94887494,
-              "butteraugli": 2.3047008514,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.8012.jxl",
-              "artifactSha256": "c1da155ce1f0e75bb4f6fe2aad5c560cbb27ad2c16ba0f01ff65737202ccc68d",
-              "decodedSha256": "07666fe7815f25e828121d4a05674fa83a67c6631e76875a809301f883685289",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 79.94887494,
-                  "butteraugli": 2.3047008514
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.8012
-              }
-            },
-            "upper": {
-              "setting": 1.7941,
-              "bytes": 558969,
-              "score": 80.07844726,
-              "butteraugli": 2.1732401848,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.7941.jxl",
-              "artifactSha256": "b1d2f57beb8f4601620ba6fc42e65c84c02eb10537558ff2b386d7d91ca28ddd",
-              "decodedSha256": "4a40b863dbe4fe2ea0274eaee886b769e4ca290dc2b97f0b1768c4c62baf32bf",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 80.07844726,
-                  "butteraugli": 2.1732401848
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.7941
-              }
-            },
-            "width": 0.1295723200000083
-          },
-          "interpolatedBytes": 557763.3422330831
-        },
-        {
-          "target": 90,
-          "status": "adequate bracket",
-          "width": 0.09272392999999113,
-          "bracket": {
-            "lower": {
-              "setting": 0.54538,
-              "bytes": 1663028,
-              "score": 89.98814502,
-              "butteraugli": 0.8976874948,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.54538.jxl",
-              "artifactSha256": "bfe9e2d0cdd812d5a8510f2c8f1f2ee58c3150bd25f36c1a9713611e0e26f177",
-              "decodedSha256": "56db943ba175a81b77e847f066011cca8c13fe88fcd961d12d6c9d2a654f2024",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.98814502,
-                  "butteraugli": 0.8976874948
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 0.54538
-              }
-            },
-            "upper": {
-              "setting": 0.52186,
-              "bytes": 1742127,
-              "score": 90.08086895,
-              "butteraugli": 0.8597682714,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.52186.jxl",
-              "artifactSha256": "1522f04f326ef65c7b0533d2ca17e720424c29f749a1e6462be41319c3bb2a54",
-              "decodedSha256": "a0f48ebd5230177b1c1ff96bdc9b38f734507477c8fc53e3dbc41f9814e9f3c7",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 90.08086895,
-                  "butteraugli": 0.8597682714
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 0.52186
-              }
-            },
-            "width": 0.09272392999999113
-          },
-          "interpolatedBytes": 1672937.265809767
-        }
-      ],
-      "butteraugli": [
-        {
+          "metric": "butteraugli",
           "target": 0.5,
-          "status": "insufficient sampling",
-          "width": null,
-          "bracket": null,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 0.28523,
+              "bytes": 2924247,
+              "score": 92.05147838,
+              "butteraugli": 0.6017113328,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.28523.jxl",
+              "artifactSha256": "cac138acde2a48636f10429bd5429e9530589c5c274fdbb81e7674b731c291c2",
+              "decodedSha256": "9bb1292cf789bd20a516d0da2e03273d0b7a89969fc78d7c920b64874a7f7023"
+            },
+            "upper": {
+              "setting": 0.27322,
+              "bytes": 3005903,
+              "score": 92.08454551,
+              "butteraugli": 0.474373132,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.27322.jxl",
+              "artifactSha256": "5b95f106a388e6ee5316188adaf294d1488a1f0dd7d11dd578180f73747b9278",
+              "decodedSha256": "1c0512af57dfd811e2ce4fc019dffe8a6e5a7203bb2f4aa3fbbebaef00290112"
+            },
+            "width": 0.12733820080000002
+          },
+          "width": 0.12733820080000002,
+          "interpolatedBytes": 2989288.4478164446
+        },
+        {
+          "metric": "butteraugli",
+          "target": 1,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 0.65,
+              "bytes": 1357892,
+              "score": 89.00599805,
+              "butteraugli": 1.0120354891,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-0.65.jxl",
+              "artifactSha256": "d7a249c503eadc63759fccdc6b63b42dd4a79b5a69e7e9bd55d497a90b04bc7d",
+              "decodedSha256": "243d4ae935bcc9b1f10019c8eb23866d5cf0ab4f3a604c58051f69d626e3667a"
+            },
+            "upper": {
+              "setting": 0.54538,
+              "bytes": 1663305,
+              "score": 89.97031951,
+              "butteraugli": 0.9254912734,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-vips-target-controls-1377/distance-0.54538.jxl",
+              "artifactSha256": "ddefb2f05b0070a6b42fcab2b8a59efe0e61dbbf8c22e1d0e4f23a7e326172c4",
+              "decodedSha256": "7e03f7b5b919fe57bc8ce1cc0f46e219d08bca40dd2243236e36f4f4df4e8eb5"
+            },
+            "width": 0.08654421570000004
+          },
+          "width": 0.08654421570000004,
+          "interpolatedBytes": 1396747.8274018776
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2,
+          "status": "wide bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.6225,
+              "bytes": 618915,
+              "score": 81.5273082,
+              "butteraugli": 2.1032216549,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6225.jxl",
+              "artifactSha256": "2d2df54e81c289c518c3783563e440090fea1b486c245c9c1376e915f91ef11c",
+              "decodedSha256": "32cbe079444efc198bbf56f1842fe95da76d18be4679a6928867bdb08775d22a"
+            },
+            "upper": {
+              "setting": 1.6178,
+              "bytes": 620336,
+              "score": 81.58340657,
+              "butteraugli": 1.8310661316,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/peers-1397/vips-1.6178.jxl",
+              "artifactSha256": "6d082e0bf649b7ee1304cc880fe5c40d7b997cb96b2312ed877ec6ae4b015244",
+              "decodedSha256": "f0667b4b239c51882a12b98a5e937c21d7b0e38a79b11229cdda00c436123f8c"
+            },
+            "width": 0.2721555232999999
+          },
+          "width": 0.2721555232999999,
           "interpolatedBytes": null
         },
         {
-          "target": 1,
-          "status": "wide bracket",
-          "width": 0.43245244029999985,
-          "bracket": {
-            "lower": {
-              "setting": 1,
-              "bytes": 925526,
-              "score": -1.3761392832,
-              "butteraugli": 1.3761392832,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.jxl",
-              "artifactSha256": "a17c6c296d4e20868861e0a9c4274b088d0be6d488f7099b4673e9290d9cfacd",
-              "decodedSha256": "e9f2597722db23c87918fc3b7943c33aee3c0eee7984a1d457bb71842782a45d",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 86.32585343,
-                  "butteraugli": 1.3761392832
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1
-              }
-            },
-            "upper": {
-              "setting": 0.56537,
-              "bytes": 1595680,
-              "score": -0.9436868429,
-              "butteraugli": 0.9436868429,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-0.56537.jxl",
-              "artifactSha256": "b982962d8570cea07a2ed98905b5344cd2ee4838961066a80d365dd7b5399552",
-              "decodedSha256": "69a70447b863b201b1f77e6165eb4bd872663770b9fb4163a95fc8b4944aceef",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 89.81120234,
-                  "butteraugli": 0.9436868429
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 0.56537
-              }
-            },
-            "width": 0.43245244029999985
-          },
-          "interpolatedBytes": 1486420.7639335915
-        },
-        {
-          "target": 2,
-          "status": "wide bracket",
-          "width": 0.45457601550000004,
-          "bracket": {
-            "lower": {
-              "setting": 1.7941,
-              "bytes": 558969,
-              "score": -2.1732401848,
-              "butteraugli": 2.1732401848,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.7941.jxl",
-              "artifactSha256": "b1d2f57beb8f4601620ba6fc42e65c84c02eb10537558ff2b386d7d91ca28ddd",
-              "decodedSha256": "4a40b863dbe4fe2ea0274eaee886b769e4ca290dc2b97f0b1768c4c62baf32bf",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 80.07844726,
-                  "butteraugli": 2.1732401848
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.7941
-              }
-            },
-            "upper": {
-              "setting": 1.4893,
-              "bytes": 657625,
-              "score": -1.7186641693,
-              "butteraugli": 1.7186641693,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-1.4893.jxl",
-              "artifactSha256": "6fd0bc86adb4c74579e2b9a46c7b0ec3b4391e8fa7db3d649e31a0a0101812f6",
-              "decodedSha256": "47044a61dbbc316e92c17399505459a1a92c02758798dfe5f2a8bc2178f29496",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 82.51658852,
-                  "butteraugli": 1.7186641693
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 1.4893
-              }
-            },
-            "width": 0.45457601550000004
-          },
-          "interpolatedBytes": 594689.1212748069
-        },
-        {
+          "metric": "butteraugli",
           "target": 3,
-          "status": "wide bracket",
-          "width": 0.6091394423999996,
-          "bracket": {
-            "lower": {
-              "setting": 4,
-              "bytes": 220341,
-              "score": -3.5125699043,
-              "butteraugli": 3.5125699043,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-4.jxl",
-              "artifactSha256": "ca2f995b0980c463961c672f33c6a2249a14ee87dc00566cbdadaa3fe970792e",
-              "decodedSha256": "93da3d97235ec611c64a31007dff5956eafe78a9b2d28cc2c70a599bddd38893",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 64.31054203,
-                  "butteraugli": 3.5125699043
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 4
-              }
-            },
-            "upper": {
-              "setting": 2.9773,
-              "bytes": 308643,
-              "score": -2.9034304619,
-              "butteraugli": 2.9034304619,
-              "artifact": ".tmp/jpegxl-comparison-v1/quality-refined/original-photo-quality-1365/im26-1416-original-native-libjxl-2.9773.jxl",
-              "artifactSha256": "68e33f745e0cd703e494b4f73464c5c2af6389b346cc112609381d7fba9204aa",
-              "decodedSha256": "9094eab2d26e9c46ddbd88e1677559b0fd581f58e0b854ebd821164dbe00a536",
-              "backgrounds": [
-                {
-                  "background": "black",
-                  "ssimulacra2": 69.98063961,
-                  "butteraugli": 2.9034304619
-                }
-              ],
-              "options": {
-                "lossless": false,
-                "effort": 7,
-                "value": 2.9773
-              }
-            },
-            "width": 0.6091394423999996
-          },
-          "interpolatedBytes": 292585.7457891819
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
         }
-      ],
-      "monotonicityViolations": 1
+      ]
     }
-  ]
+  ],
+  "fullParity": false,
+  "secondaryMetricDominance": false,
+  "publicComparisonCountsChanged": false,
+  "extrapolation": false,
+  "policy": "Fresh identical-source candidate curves and actual pinned public WASM peers only. Separate nondominated metric frontiers, log-byte interpolation, quarter-unit brackets and the unchanged shared24attemptbudget. Preserve all raw peer failures and inversions. Adequate per-metric parity is not joint two-metric dominance or general original-photo parity."
 }

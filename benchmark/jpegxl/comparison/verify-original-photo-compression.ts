@@ -1,4 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { createReadStream } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { basename, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { build } from 'esbuild'
@@ -6,10 +8,13 @@ import { createPureJsImageEntryTargets } from '../../../scripts/bundle-size-conf
 import { readCapabilityManifest } from '../../../scripts/capability-manifest.ts'
 import { defaultImageLimits } from '../../../src/limits.ts'
 import { Uint8ArraySink } from '../../../src/sink.ts'
-import { interpolateM7Quality } from '../m7-quality-curves.ts'
-import { recoveryBracket } from '../m7-recovery-curves.ts'
 import { fixtures, hash, implementationIdentity, json, raw, work } from './io.ts'
 import { number, object, string, validateImplementationIdentity } from './model.ts'
+import {
+  originalLossyBands,
+  originalLossyPoint,
+  originalLossySelected,
+} from './original-lossy-bands.ts'
 
 const [output] = process.argv.slice(2)
 if (!output) throw new Error('Specify an original-photo compression report path')
@@ -23,16 +28,32 @@ const preceding = object(JSON.parse(await readFile(precedingPath, 'utf8')))
 if (
   study.maximumPointsPerSubjectFixture !== 24 ||
   study.maximumSsimBracketWidth !== 0.25 ||
+  study.maximumButteraugliBracketWidth !== 0.25 ||
   !Array.isArray(study.results) ||
   qualification.completed !== true ||
   !Array.isArray(qualification.proof) ||
   !Array.isArray(qualification.pins) ||
+  !Array.isArray(qualification.prototypeModules) ||
+  !Array.isArray(qualification.expectedProductionPackages) ||
   !Array.isArray(preceding.packages)
 )
   throw new Error('Complete original studies and unchanged quarter-score protocol required')
-const sourcePath = 'src/codecs/jpegxl-vardct-encode.ts'
-if (hash(await readFile(sourcePath)) !== qualification.prototypeSourceSha256)
-  throw new Error('Current DC policy differs from the independently qualified first-party source')
+const sourcePaths = ['src/codecs/jpegxl-vardct-encode.ts', 'src/codecs/jpegxl-jpeg-encode.ts']
+const modules = qualification.prototypeModules.map(object)
+if (
+  hash(modules.map((row) => string(row.sha256)).join(':')) !==
+    qualification.candidateSourceSha256 ||
+  qualification.candidateSourceSha256 !== study.candidateSourceSha256
+)
+  throw new Error('Qualified compression source identity differs')
+const fileHash = async (path: string) => {
+  const digest = createHash('sha256')
+  for await (const chunk of createReadStream(path, { highWaterMark: 65_536 })) {
+    if (!(chunk instanceof Uint8Array)) throw new Error('Unexpected evidence chunk')
+    digest.update(chunk)
+  }
+  return digest.digest('hex')
+}
 const identity = await implementationIdentity()
 const directory = `${work}/original-photo-packages/${basename(output, '.json')}`
 await mkdir(directory, { recursive: true })
@@ -41,7 +62,7 @@ const paths = new Set([
   studyPath,
   qualificationPath,
   precedingPath,
-  sourcePath,
+  ...sourcePaths,
   'scripts/bundle-size-config.ts',
   'scripts/bundle-size-budgets.ts',
   'capabilities/manifest.json',
@@ -50,8 +71,7 @@ const paths = new Set([
 for (const value of qualification.pins) {
   const pin = object(value),
     path = string(pin.path)
-  if (hash(await readFile(path)) !== pin.sha256)
-    throw new Error('Qualified original pixel pin drift')
+  if ((await fileHash(path)) !== pin.sha256) throw new Error('Qualified original pixel pin drift')
   paths.add(path)
 }
 const fixture = (await fixtures()).find((row) => row.id === 'im26-1416-original')
@@ -67,7 +87,7 @@ for (const path of [fixture.raw, fixture.source]) paths.add(path)
 if (hash(await readFile(fixture.source)) !== fixture.sourceSha256)
   throw new Error('Original photo source changed')
 const proof = qualification.proof.map(object)
-if (proof.length !== 18) throw new Error('All eighteen original endpoint files required')
+const selectedKeys = new Set<string>()
 for (const point of proof) {
   if (
     !Array.isArray(point.grids) ||
@@ -82,6 +102,9 @@ for (const point of proof) {
   const encoded = await readFile(string(point.artifact))
   if (encoded.length !== point.bytes || hash(encoded) !== point.artifactSha256)
     throw new Error('Qualified endpoint stream changed')
+  const key = `${string(point.subject)}:${number(point.setting)}`
+  if (selectedKeys.has(key)) throw new Error('Duplicate qualified endpoint')
+  selectedKeys.add(key)
 }
 const studyResults = study.results
 const results = ['purejsimage', 'jsquash', 'vips'].map((subject) => {
@@ -96,49 +119,42 @@ const results = ['purejsimage', 'jsquash', 'vips'].map((subject) => {
     !Array.isArray(row.bands)
   )
     throw new Error('Original public-API participant or fixed sample budget differs')
-  const points = row.points.map(object)
-  const curve = points.map((point) => ({
-    setting: number(point.setting),
-    bytes: number(point.bytes),
-    score: number(point.score),
-  }))
-  for (const target of [70, 80, 90]) {
-    const band = row.bands.map(object).find((value) => value.target === target)
-    const bracket = recoveryBracket(curve, target)
-    const size = interpolateM7Quality(curve, target)
+  const points = row.points.map(originalLossyPoint)
+  if (
+    new Set(points.map((point) => point.setting)).size !== points.length ||
+    number(row.totalAttempts) < points.length ||
+    number(row.totalAttempts) > 24
+  )
+    throw new Error('Original attempted settings differ')
+  for (const metric of ['ssimulacra2', 'butteraugli'] as const) {
+    const saved = metric === 'ssimulacra2' ? row.bands : row.butteraugliBands
+    const bands = originalLossyBands(points, metric)
     if (
-      !band ||
-      !bracket ||
-      bracket.width > 0.25 ||
-      band.status !== 'adequate bracket' ||
-      band.width !== bracket.width ||
-      band.interpolatedBytes !== size
+      JSON.stringify(saved) !== JSON.stringify(bands) ||
+      ((subject !== 'vips' || metric === 'ssimulacra2') &&
+        bands.some((band) => band.status !== 'adequate bracket'))
     )
       throw new Error('Independently reconstructed original frontier differs')
-    const endpoints = object(band.bracket)
-    for (const [name, actual] of [
-      ['lower', bracket.lower],
-      ['upper', bracket.upper],
-    ] as const) {
-      const expected = object(endpoints[name])
-      if (
-        expected.setting !== actual.setting ||
-        expected.bytes !== actual.bytes ||
-        expected.score !== actual.score ||
-        !proof.some(
-          (point) =>
-            point.subject === subject &&
-            point.setting === expected.setting &&
-            point.artifactSha256 === expected.artifactSha256 &&
-            point.score === expected.score &&
-            point.butteraugli === expected.butteraugli,
-        )
+  }
+  for (const expected of originalLossySelected(points)) {
+    if (
+      !proof.some(
+        (point) =>
+          point.subject === subject &&
+          point.setting === expected.setting &&
+          point.artifactSha256 === expected.artifactSha256 &&
+          point.bytes === expected.bytes &&
+          point.decodedSha256 === expected.decodedSha256 &&
+          point.score === expected.score &&
+          point.butteraugli === expected.butteraugli,
       )
-        throw new Error('Matched original endpoint lacks exact independent qualification')
-    }
+    )
+      throw new Error('Matched original endpoint lacks exact independent qualification')
+    selectedKeys.delete(`${subject}:${expected.setting}`)
   }
   return row
 })
+if (selectedKeys.size !== 0) throw new Error('Qualification contains unselected endpoints')
 const packages: object[] = []
 let namespace: unknown
 const targets = createPureJsImageEntryTargets(
@@ -172,7 +188,16 @@ for (const target of targets) {
     typeof target.maxMinifiedBytes !== 'number' ||
     file.contents.length > target.maxMinifiedBytes
   )
-    throw new Error('Complete package exceeds its unchanged ceiling')
+    throw new Error('Complete package exceeds its declared ceiling')
+  const expectedPackage = qualification.expectedProductionPackages
+    .map(object)
+    .find((row) => row.target === target.id)
+  if (
+    !expectedPackage ||
+    expectedPackage.bytes !== file.contents.length ||
+    expectedPackage.sha256 !== hash(file.contents)
+  )
+    throw new Error('Production package differs from independently qualified candidate package')
   const path = `${directory}/${target.id}.js`
   await writeFile(path, file.contents, { flag: 'wx' })
   const imported: unknown = await import(pathToFileURL(resolve(path)).href)
@@ -188,6 +213,7 @@ for (const target of targets) {
     exports,
     ceiling: target.maxMinifiedBytes,
     precedingBytes: previous.bytes,
+    qualifiedCandidateSha256: expectedPackage.sha256,
     withinCeiling: true,
   })
   paths.add(path)
@@ -198,7 +224,8 @@ if (typeof create !== 'function') throw new Error('Complete public encoder missi
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 const selected = proof.filter((row) => row.subject === 'purejsimage')
-if (selected.length !== 6) throw new Error('All six original target endpoints required')
+if (selected.length !== qualification.selectedCandidateEndpoints)
+  throw new Error('All selected original target endpoints required')
 const ownership: object[] = []
 for (const expected of selected) {
   const distance = number(expected.setting),
@@ -269,6 +296,7 @@ const pure = results.find((row) => row.subject === 'purejsimage')
 if (!pure || !Array.isArray(pure.bands)) throw new Error('Production bands missing')
 const pureBands = pure.bands.map(object)
 const comparisons: object[] = []
+const butteraugliComparisons: object[] = []
 for (const peer of results) {
   if (peer.subject === 'purejsimage') continue
   if (!Array.isArray(peer.bands)) throw new Error('Peer bands missing')
@@ -285,10 +313,27 @@ for (const peer of results) {
       ratio: number(ours.interpolatedBytes) / number(theirs.interpolatedBytes),
     })
   }
+  if (!Array.isArray(pure.butteraugliBands) || !Array.isArray(peer.butteraugliBands))
+    throw new Error('Butteraugli frontiers missing')
+  for (const target of [0.5, 1, 2, 3]) {
+    const ours = pure.butteraugliBands.map(object).find((row) => row.target === target)
+    const theirs = peer.butteraugliBands.map(object).find((row) => row.target === target)
+    if (!ours || !theirs) throw new Error('Original Butteraugli target band missing')
+    const adequate = ours.status === 'adequate bracket' && theirs.status === 'adequate bracket'
+    butteraugliComparisons.push({
+      metric: 'butteraugli',
+      target,
+      comparator: peer.subject,
+      status: adequate ? 'adequate bracket' : 'unresolved',
+      pure: ours,
+      peer: theirs,
+      ratio: adequate ? number(ours.interpolatedBytes) / number(theirs.interpolatedBytes) : null,
+    })
+  }
 }
 validateImplementationIdentity(await implementationIdentity(), identity)
 const pins: object[] = []
-for (const path of paths) pins.push({ path, sha256: hash(await readFile(path)) })
+for (const path of paths) pins.push({ path, sha256: await fileHash(path) })
 await json(output, {
   ...identity,
   completed: true,
@@ -300,14 +345,17 @@ await json(output, {
   scope: 'original',
   study: studyPath,
   qualification: qualificationPath,
-  qualifiedDcSourceSha256: qualification.prototypeSourceSha256,
+  qualifiedCandidateSourceSha256: qualification.candidateSourceSha256,
+  qualifiedModules: modules,
   packages,
   results,
   proof: proof.map((row) => ({ ...row, freshlyDecoded: false, reusedQualifiedEndpoint: true })),
   ownership,
   comparisons,
+  butteraugliComparisons,
   pins,
   scoreTolerance: 0.25,
+  butteraugliTolerance: 0.25,
   maximumPointsPerSubjectFixture: 24,
   freshEncodedFiles: ownership.length,
   freshCompleteIndependentGrids: 0,
@@ -319,5 +367,5 @@ await json(output, {
   extrapolation: false,
   publicComparisonCountsChanged: false,
   policy:
-    'Original unresized 12 MP photo, unchanged input and public peer APIs. Reconstruct all nondominated SSIMULACRA2 frontiers, quarter-score brackets and log-byte sizes without extrapolation. Rehash every full native/Rust endpoint grid, exact metric PNG and prior qualification pin. Freshly encode all six qualified production endpoints through the complete current public package; require identical bytes, unchanged callers and zero retained ownership. Reused grids are explicitly counted separately from fresh encodes. Both complete public packages retain exports and original ceilings. Native settings guide isolated wasm-vips controls only; native bytes are excluded from peer comparisons. Preserve the failed distance-4 wasm-vips attempt in the raw study. Butteraugli tradeoffs remain visible; this is not two-metric dominance, universal compression parity, or a speed/RSS comparison.',
+    'Original unresized12MPphoto, unchanged input, public WASM peer APIs and shared24attemptbudget. Independently reconstruct both metric frontiers, quarter-unit brackets and log-byte estimates without extrapolation. Stream-rehash every physical selected native/Rust grid, metric PNG and qualification pin. Both complete production packages must be byte-identical to independently qualified candidate packages, retain all exports and satisfy their explicit canonical ceilings. Freshly encode every selected candidate endpoint and require exact qualified bytes, unchanged callers and zero ownership. Count reused grids separately from fresh encodes. Retain both unresolved coarser wasm-vips Butteraugli bands and raw failures; native encoder bytes never substitute. Separate per-metric parity does not establish joint two-metric dominance, universal compression parity, speed or process-RSS parity.',
 })

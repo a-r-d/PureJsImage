@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import { object } from '../benchmark/jpegxl/comparison/model.ts'
 import {
   runJpegXlPipelines,
+  verifyCoefficientEntropyFloor,
   verifyDenseLosslessTraining,
   verifyFastLosslessChannels,
   verifyFlatPaletteGraphic,
@@ -111,8 +112,8 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
 }) => {
   test.setTimeout(240_000)
   const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  expect(expected.bytes).toBe(91_497)
-  expect(expected.decodedChecksum).toBe(916522992)
+  expect(expected.bytes).toBe(52_620)
+  expect(expected.decodedChecksum).toBe(3167701458)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)
   expect(expected.alphaError).toBe(0)
@@ -151,6 +152,72 @@ test('JPEG XL large opaque allocation recovery matches Node in a real browser', 
   })
   expect(object(result)).toEqual(expected)
 })
+
+for (const recovery of [false, true])
+  test(`JPEG XL fine opaque texture matches Node in a real browser, recovery=${recovery}`, async ({
+    page,
+  }) => {
+    test.setTimeout(240_000)
+    const expected = recovery
+      ? await verifyLargeJpegXlDcAllocationRecovery(0.54)
+      : await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+    expect(expected.bytes).toBe(recovery ? 1_490_466 : 1_409_128)
+    expect(expected.encodedChecksum).toBe(recovery ? 3813454611 : 1699746178)
+    expect(expected.decodedChecksum).toBe(recovery ? 2867919960 : 2231790086)
+    expect(expected.inputChecksum).toBe(2068954295)
+    expect(expected.samples).toBe(2049 * 2048 * 4)
+    expect(expected.alphaError).toBe(0)
+    expect(expected.meanColorError).toBeLessThan(1.6)
+    expect(expected.ownedPeak).toBeLessThanOrEqual(67_108_864)
+    expect(expected.ownedLive).toBe(0)
+    expect(expected.ownedAllocations).toBe(0)
+    await page.goto('/codec-validation.html')
+    const result: unknown = await page.evaluate(async (recovery) => {
+      const path = '/jpegxl-pipeline.js'
+      const harness = await import(path)
+      return recovery
+        ? harness.verifyLargeJpegXlDcAllocationRecovery(0.54)
+        : harness.verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+    }, recovery)
+    expect(object(result)).toEqual(expected)
+  })
+
+for (const asynchronous of [false, true]) {
+  test(`JPEG XL AC compression floor and recovery agree across runtimes, async=${asynchronous}`, async ({
+    page,
+  }) => {
+    const cases = [
+      { refined: false, failure: 'none' },
+      { refined: true, failure: 'none' },
+      { refined: true, failure: 'limit' },
+      { refined: true, failure: 'invalid' },
+      ...(asynchronous ? [{ refined: true, failure: 'cancel' } as const] : []),
+    ] as const
+    for (const { refined, failure } of cases) {
+      const expected = await verifyCoefficientEntropyFloor(asynchronous, refined, failure)
+      expect(expected.callerPreserved).toBe(true)
+      expect(expected.ownedLive).toBe(0)
+      expect(expected.ownedAllocations).toBe(0)
+      expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)
+      if (failure === 'invalid' || failure === 'cancel') expect(expected.propagated).toBe(true)
+      else {
+        expect(expected.bytes).toBe(refined && failure === 'none' ? 48_693 : 50_599)
+        expect(expected.decodedChecksum).toBe(1720027354)
+        expect(expected.samples).toBe(513 * 129 * 4)
+        expect(expected.alphaError).toBe(0)
+      }
+      await page.goto('/codec-validation.html')
+      const result: unknown = await page.evaluate(
+        async ({ asynchronous, refined, failure }) => {
+          const path = '/jpegxl-pipeline.js'
+          return (await import(path)).verifyCoefficientEntropyFloor(asynchronous, refined, failure)
+        },
+        { asynchronous, refined, failure },
+      )
+      expect(object(result)).toEqual(expected)
+    }
+  })
+}
 
 for (const asynchronous of [false, true]) {
   test(

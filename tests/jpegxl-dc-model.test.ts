@@ -23,13 +23,44 @@ it('recovers large opaque images after optional filter-map allocation failure', 
 it('preserves opaque gradient precision above four megapixels within its working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
   // Complete native and Rust grids independently qualify this cutoff regression.
-  expect(result.bytes).toBe(91_497)
-  expect(result.encodedChecksum).toBe(2356709964)
+  expect(result.bytes).toBe(52_620)
+  expect(result.encodedChecksum).toBe(2431704422)
   expect(result.inputChecksum).toBe(2068954295)
-  expect(result.decodedChecksum).toBe(916522992)
+  expect(result.decodedChecksum).toBe(3167701458)
   expect(result.samples).toBe(2049 * 2048 * 4)
   expect(result.alphaError).toBe(0)
   expect(result.meanColorError).toBeLessThan(2.35)
+  expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
+  expect(result.ownedLive).toBe(0)
+  expect(result.ownedAllocations).toBe(0)
+}, 240_000)
+
+it('preserves fine-quality opaque gradients within the original working budget', async () => {
+  const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+  // Complete native and Rust grids qualify this fine-quality original-size path.
+  expect(result.bytes).toBe(1_409_128)
+  expect(result.encodedChecksum).toBe(1699746178)
+  expect(result.inputChecksum).toBe(2068954295)
+  expect(result.decodedChecksum).toBe(2231790086)
+  expect(result.samples).toBe(2049 * 2048 * 4)
+  expect(result.alphaError).toBe(0)
+  expect(result.meanColorError).toBeLessThan(1.6)
+  expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
+  expect(result.ownedLive).toBe(0)
+  expect(result.ownedAllocations).toBe(0)
+}, 240_000)
+
+it('returns the preceding fine-quality stream after optional rate-map allocation failure', async () => {
+  const result = await verifyLargeJpegXlDcAllocationRecovery(0.54)
+  // The raw stream matches the preceding direct encoder and public container payload.
+  expect(result.bytes).toBe(1_490_466)
+  expect(result.encodedChecksum).toBe(3813454611)
+  expect(result.inputChecksum).toBe(2068954295)
+  expect(result.decodedChecksum).toBe(2867919960)
+  expect(result.samples).toBe(2049 * 2048 * 4)
+  expect(result.alphaError).toBe(0)
+  expect(result.meanColorError).toBeLessThan(1.6)
+  expect(result.rejectedAllocations).toBe(1)
   expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
   expect(result.ownedLive).toBe(0)
   expect(result.ownedAllocations).toBe(0)

@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Qualified photo compression adds DCT16 selection and bounded metadata entropy search.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 554_000 },
+  // Original-photo bit allocation and complete-section AC entropy floors add about 3.5 KB.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 558_000 },
   // The complete specialized package includes the same first-party photo encoder.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 627_000 },
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 631_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

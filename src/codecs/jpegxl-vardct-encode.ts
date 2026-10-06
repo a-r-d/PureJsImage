@@ -575,7 +575,7 @@ function* prepare8(
   let smallVisiblePalette: boolean | undefined
   if (
     sdrAlpha &&
-    distance > 1 &&
+    (distance > 1 || (compressionSearch && width * height > 4_194_304)) &&
     (width * height <= 4_194_304 || (compressionSearch && width * height <= 16_777_216)) &&
     (color?.alphaBitDepth ?? 8) === 8
   ) {
@@ -632,9 +632,25 @@ function* prepare8(
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
   const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
+  const originalDarkAc =
+    compressionSearch &&
+    sdrAlpha &&
+    rgbDcPolicy &&
+    !progressive &&
+    width * height > 4_194_304 &&
+    distance <= 1
+  const originalPhotoAc =
+    compressionSearch &&
+    sdrAlpha &&
+    rgbDcPolicy &&
+    !progressive &&
+    width * height > 4_194_304 &&
+    distance > 1
   const moderateAlphaDc = sdrAlpha
   const dcQuantization = moderateSdrDc
-    ? [1 / 16384, 1 / 4096, 1 / 2048]
+    ? originalPhotoAc
+      ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
+      : [1 / 16384, 1 / 4096, 1 / 2048]
     : moderateAlphaDc
       ? [1 / 8192, 1 / 1024, 1 / 512]
       : [1 / 16384, 1 / 16384, 1 / 16384]
@@ -667,6 +683,9 @@ function* prepare8(
     fullBlockWidth * fullBlockHeight,
   )
   blockQuantizationMap.fill(blockQuantization)
+  const fineRateMap = originalDarkAc
+    ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
+    : undefined
   const blockStrategyMap =
     effort >= 5
       ? allocateJpegXlArray(memory, Int32Array, fullBlockWidth * fullBlockHeight)
@@ -991,8 +1010,27 @@ function* prepare8(
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
         const activity = gradient / Math.max(yy, 1e-12)
+        if (fineRateMap) {
+          const meanY = means[1] ?? 0
+          fineRateMap[offset] =
+            yy >= 0.000064 &&
+            yy < 0.005 &&
+            ((meanY > 0.5 && activity < 1.5) || (meanY < 0.5 && activity > 1.5))
+              ? 1
+              : 0
+        }
         blockQuantizationMap[offset] = moderateAlphaDc
-          ? 7
+          ? (originalDarkAc &&
+              ((means[1] ?? 0) < 0.3 || ((means[1] ?? 0) < 0.5 && activity > 1.5)) &&
+              yy >= 0.000064 &&
+              yy < 0.001) ||
+            (originalPhotoAc &&
+              ((distance < 2 &&
+                (((means[1] ?? 0) < 0.3 && gradient > 0.01 && yy < 0.05) ||
+                  ((means[1] ?? 0) < 0.5 && activity > 2 && yy >= 0.000064 && yy < 0.005))) ||
+                (distance >= 4 && (means[1] ?? 0) > 0.5 && yy >= 0.000064 && yy < 0.005)))
+            ? 8
+            : 7
           : yy < 0.000064 || activity < 0.15
             ? 6
             : finerSdrAc
@@ -1025,7 +1063,12 @@ function* prepare8(
   memory.release(covarianceY)
   memory.release(covarianceX)
   memory.release(covarianceB)
+  const acRateWeightY = originalDarkAc || originalPhotoAc ? 0.1 : 0.05
+  let currentAcRateWeightY = acRateWeightY
   const fillCorrelated = (blockX: number, blockY: number): void => {
+    if (fineRateMap)
+      currentAcRateWeightY =
+        fineRateMap[blockY * fullBlockWidth + blockX] === 1 ? 0.05 : acRateWeightY
     fill(blockX, blockY)
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
     const ratioX = (colorCorrelationX[tile] ?? 0) / 84
@@ -1045,13 +1088,14 @@ function* prepare8(
     compressionSearch &&
     moderateSdrDc &&
     effort === 7 &&
-    distance >= 6 &&
+    (distance >= 6 || originalPhotoAc) &&
     channels === 4 &&
     !progressive &&
-    width * height <= 4_194_304
+    width * height <= 16_777_216
+  const acRateWeightChroma = originalDarkAc || originalPhotoAc ? 0.04 : 0.02
   const rateAwareAc = (normalized: number, channel: number): number => {
     const bias = defaultJpegXlQuantizationBiases[channel] ?? 1
-    const weight = channel === 1 ? 0.05 : 0.02
+    const weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma
     const magnitude = Math.abs(normalized),
       lower = Math.floor(magnitude),
       upper = lower + 1
@@ -1063,9 +1107,8 @@ function* prepare8(
     const value = highCost < lowCost ? upper : lower
     return normalized < 0 ? -value : value
   }
-  const quantizeAc: (normalized: number, channel: number) => number = coarse
-    ? rateAwareAc
-    : Math.round
+  const quantizeAc: (normalized: number, channel: number) => number =
+    coarse || originalDarkAc ? rateAwareAc : Math.round
   const epfMaximumSharpness = channels === 4 ? 2 : 3
   let epfSharpnessMap =
     blockStrategyMap &&
@@ -1713,7 +1756,10 @@ function* prepare8(
     : undefined
   const geometry: VarDctCoefficientGeometry = {
     colorTransform: 'xyb',
-    forwardAdvancedModularSearch: coarse,
+    forwardAcIterationSearch: originalDarkAc || originalPhotoAc,
+    forwardAdvancedModularSearch:
+      coarse ||
+      (compressionSearch && sdrAlpha && rgbDcPolicy && width * height > 4_194_304 && !progressive),
     ...(blockStrategyMap ? { blockStrategyMap } : {}),
     ...(epfSharpnessMap ? { epfSharpnessMap } : {}),
     chromaSubsampling: [0, 0, 0],

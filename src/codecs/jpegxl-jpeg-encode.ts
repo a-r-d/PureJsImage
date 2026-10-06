@@ -12,6 +12,7 @@ import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
+  type HybridUintEncoding,
   encodeForwardModularLzGroup,
   encodeHybridUintPacked,
   encodeRepeatedJpegXlAlphaGroup,
@@ -89,6 +90,7 @@ export interface VarDctCoefficientGeometry {
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
   readonly forwardFamilyContexts?: boolean
   readonly forwardAdvancedModularSearch?: boolean
+  readonly forwardAcIterationSearch?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
   readonly deferredDcGroups?: boolean
   readonly memory?: JpegXlEncoderMemory
@@ -1249,8 +1251,36 @@ const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInTok
 
 // All visited AC values are nonzero counts or signed coefficients bounded to +/-4095.
 // Reuse one bounded module table; the existing group buffer can hold the packed words.
+const denseAcHybridConfig = Object.freeze({ splitExponent: 4, msbInToken: 1, lsbInToken: 0 })
+const acHybridCandidates: readonly HybridUintEncoding[] = Object.freeze([
+  denseAcHybridConfig,
+  Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 2, msbInToken: 1, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 0, msbInToken: 0, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 2, msbInToken: 0, lsbInToken: 1 }),
+  Object.freeze({ splitExponent: 4, msbInToken: 2, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 4, msbInToken: 1, lsbInToken: 2 }),
+  Object.freeze({ splitExponent: 5, msbInToken: 1, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 1, msbInToken: 0, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 1, msbInToken: 1, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 2, msbInToken: 0, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 2, msbInToken: 1, lsbInToken: 1 }),
+  Object.freeze({ splitExponent: 3, msbInToken: 0, lsbInToken: 0 }),
+  Object.freeze({ splitExponent: 3, msbInToken: 0, lsbInToken: 1 }),
+  Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 1 }),
+  Object.freeze({ splitExponent: 4, msbInToken: 0, lsbInToken: 0 }),
+])
+let densePackedAcValues: Uint32Array | undefined
 let packedClusteredAcValues: Uint32Array | undefined
-const getPackedClusteredAcValues = (): Uint32Array => {
+const getPackedClusteredAcValues = (dense = false): Uint32Array => {
+  if (dense) {
+    if (densePackedAcValues) return densePackedAcValues
+    const values = new Uint32Array(8192)
+    for (let value = 0; value < values.length; value++)
+      values[value] = encodeHybridUintPacked(value, denseAcHybridConfig)
+    densePackedAcValues = values
+    return values
+  }
   if (packedClusteredAcValues) return packedClusteredAcValues
   const values = new Uint32Array(8192)
   for (let value = 0; value < values.length; value++)
@@ -1299,6 +1329,7 @@ const compactAcHistograms = (
   frequencies: readonly Uint32Array[],
   targetHistogramCount: number,
   memory?: JpegXlEncoderMemory,
+  iterations: 6 | 12 | 24 = 6,
 ): Readonly<{ contextMap: Uint8Array; frequencies: readonly Uint32Array[] }> =>
   withJpegXlMemory(memory, () => {
     const target = Math.min(targetHistogramCount, frequencies.length)
@@ -1326,7 +1357,7 @@ const compactAcHistograms = (
     }
     let compact: Uint32Array[] = []
     let costs: Readonly<{ best: Float64Array; logs: Float64Array }> | undefined
-    for (let iteration = 0; iteration < 6; iteration += 1) {
+    for (let iteration = 0; iteration < iterations; iteration += 1) {
       for (const previous of compact) memory?.release(previous)
       compact = Array.from({ length: target }, () => allocateJpegXlArray(memory, Uint32Array, 512))
       for (const histogram of active) {
@@ -1337,7 +1368,7 @@ const compactAcHistograms = (
           destination[symbol] = (destination[symbol] ?? 0) + (values[symbol] ?? 0)
         }
       }
-      if (iteration === 5) break
+      if (iteration === iterations - 1) break
       const totals = compact.map((values) =>
         values.reduce((total, frequency) => total + frequency, 0),
       )
@@ -1569,6 +1600,8 @@ const writeHfGlobal = (
   acContextMap: Uint8Array,
   acFrequencies: readonly Uint32Array[],
   histogramCount = 1,
+  hybridConfig: Readonly<HybridUintEncoding> = acHybridConfig,
+  histogramConfigs?: readonly HybridUintEncoding[],
 ): AcEncoding => {
   writer.writeBits(geometry.defaultQuantization ? 1 : 0, 1)
   for (let table = 0; !geometry.defaultQuantization && table < 17; table += 1) {
@@ -1587,6 +1620,8 @@ const writeHfGlobal = (
     acContextMap,
     acFrequencies,
     acBlockContextCount(geometry),
+    hybridConfig,
+    histogramConfigs,
   )
   if (geometry.progressive)
     encoding = writeHfPass(
@@ -1596,6 +1631,8 @@ const writeHfGlobal = (
       acContextMap,
       acFrequencies,
       acBlockContextCount(geometry),
+      hybridConfig,
+      histogramConfigs,
     )
   return encoding
 }
@@ -1607,6 +1644,8 @@ const writeHfPass = (
   acContextMap: Uint8Array,
   acFrequencies: readonly Uint32Array[],
   blockContextCount: 3 | 6,
+  hybridConfig: Readonly<HybridUintEncoding>,
+  histogramConfigs?: readonly HybridUintEncoding[],
 ): AcEncoding => {
   let usedOrders = useClusteredAns ? 1 : 0
   if (useClusteredAns && coefficientOrders.length === 6) {
@@ -1680,7 +1719,14 @@ const writeHfPass = (
   }
   return Object.freeze({
     kind: 'ans',
-    encoding: writeAnsCode(writer, acContextMap, acFrequencies, acHybridConfig),
+    encoding: writeAnsCode(
+      writer,
+      acContextMap,
+      acFrequencies,
+      hybridConfig,
+      false,
+      histogramConfigs,
+    ),
   })
 }
 
@@ -1703,23 +1749,42 @@ const writeAcGroup = (
       )
       return
     }
-    const packedAcValues = getPackedClusteredAcValues()
+    const packedAcValues = getPackedClusteredAcValues(geometry.forwardAcIterationSearch === true)
     const maximumValues = 3 * 64 * 32 * 32
     const values = allocateJpegXlArray(writer.memory, Uint32Array, maximumValues)
     const contexts = allocateJpegXlArray(writer.memory, Uint16Array, maximumValues)
     let count = 0
-    visitAcGroup(
-      geometry,
-      coefficientOrders,
-      group,
-      (value, context) => {
-        if (count >= maximumValues) throw invalidJpegXlInput('AC group exceeds its token bound')
-        values[count] = packedAcValues[value] ?? 0
-        contexts[count] = context
-        count += 1
-      },
-      pass,
-    )
+    const configurations = encoding.encoding.histogramConfigs
+    if (configurations) {
+      visitAcGroup(
+        geometry,
+        coefficientOrders,
+        group,
+        (value, context) => {
+          if (count >= maximumValues) throw invalidJpegXlInput('AC group exceeds its token bound')
+          const histogram = encoding.encoding.contextMap[context],
+            config = histogram === undefined ? undefined : configurations[histogram]
+          if (!config) throw invalidJpegXlInput('AC hybrid configuration missing')
+          values[count] = encodeHybridUintPacked(value, config)
+          contexts[count] = context
+          count++
+        },
+        pass,
+      )
+    } else {
+      visitAcGroup(
+        geometry,
+        coefficientOrders,
+        group,
+        (value, context) => {
+          if (count >= maximumValues) throw invalidJpegXlInput('AC group exceeds its token bound')
+          values[count] = packedAcValues[value] ?? 0
+          contexts[count] = context
+          count += 1
+        },
+        pass,
+      )
+    }
     writeAnsPackedValues(writer, values, contexts, count, encoding.encoding)
   })
 
@@ -1929,7 +1994,7 @@ function* coefficientSectionSteps(
     ),
   )
   started = performance.now()
-  const packedAcValues = getPackedClusteredAcValues()
+  const packedAcValues = getPackedClusteredAcValues(geometry.forwardAcIterationSearch === true)
   const acFrequencies = Array.from({ length: useClusteredAns ? acContextCount : 1 }, () =>
     allocateJpegXlArray(geometry.memory, Uint32Array, 512),
   )
@@ -1955,16 +2020,91 @@ function* coefficientSectionSteps(
     }
     yield
   }
-  const compactAc = useClusteredAns
+  let compactAc: {
+    readonly contextMap: Uint8Array
+    readonly frequencies: readonly Uint32Array[]
+    readonly histogramConfigs?: readonly HybridUintEncoding[]
+  } = useClusteredAns
     ? compactAcHistograms(
         acFrequencies,
-        geometry.loadAcGroup ? (geometry.effort === 7 ? 96 : geometry.effort === 5 ? 64 : 32) : 192,
+        geometry.forwardAcIterationSearch
+          ? 256
+          : geometry.loadAcGroup
+            ? geometry.effort === 7
+              ? 96
+              : geometry.effort === 5
+                ? 64
+                : 32
+            : 192,
         geometry.memory,
+        geometry.forwardAcIterationSearch ? 24 : 6,
       )
     : Object.freeze({
         contextMap: allocateJpegXlArray(geometry.memory, Uint8Array, 1),
         frequencies: acFrequencies,
       })
+  if (useClusteredAns && geometry.forwardAcIterationSearch) {
+    const rawFrequencies = Array.from({ length: compactAc.frequencies.length }, () =>
+      allocateJpegXlArray(geometry.memory, Uint32Array, 8192),
+    )
+    for (let group = 0; group < groupCount; group++) {
+      visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
+        const histogram = compactAc.contextMap[context],
+          frequencies = histogram === undefined ? undefined : rawFrequencies[histogram]
+        if (!frequencies || value < 0 || value >= frequencies.length)
+          throw invalidJpegXlInput('AC value or histogram outside hybrid search')
+        frequencies[value] = (frequencies[value] ?? 0) + 1
+      })
+      yield
+    }
+    const selectedFrequencies: Uint32Array[] = [],
+      selectedConfigs: HybridUintEncoding[] = []
+    for (const raw of rawFrequencies) {
+      const best = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
+      let bestCost = Infinity,
+        bestConfig: HybridUintEncoding = denseAcHybridConfig
+      for (const config of acHybridCandidates) {
+        withJpegXlMemory(geometry.memory, () => {
+          const frequencies = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
+          for (let value = 0; value < raw.length; value++) {
+            const frequency = raw[value] ?? 0
+            if (frequency === 0) continue
+            const token = encodeHybridUintPacked(value, config) & 255
+            frequencies[token] = (frequencies[token] ?? 0) + frequency
+          }
+          const writer = new JpegXlBitWriter(geometry.memory),
+            contextMap = allocateJpegXlArray(geometry.memory, Uint8Array, 1)
+          const encoding = writeAnsCode(writer, contextMap, [frequencies], config)
+          const normalized = encoding.histograms[0]?.frequencies
+          if (!normalized) throw invalidJpegXlInput('Missing candidate normalized frequencies')
+          let cost = writer.bitPosition
+          for (let value = 0; value < raw.length; value++) {
+            const frequency = raw[value] ?? 0
+            if (frequency === 0) continue
+            const packed = encodeHybridUintPacked(value, config),
+              probability = (normalized[packed & 255] ?? 0) / 4096
+            if (probability <= 0) throw invalidJpegXlInput('Missing candidate AC symbol')
+            cost += frequency * (-Math.log2(probability) + ((packed >>> 8) & 31))
+          }
+          if (cost < bestCost) {
+            bestCost = cost
+            bestConfig = config
+            best.set(frequencies)
+          }
+        })
+      }
+      selectedFrequencies.push(best)
+      selectedConfigs.push(bestConfig)
+      geometry.memory?.release(raw)
+      yield
+    }
+    for (const frequencies of compactAc.frequencies) geometry.memory?.release(frequencies)
+    compactAc = {
+      contextMap: compactAc.contextMap,
+      frequencies: selectedFrequencies,
+      histogramConfigs: selectedConfigs,
+    }
+  }
   profiler?.record(
     'ac-statistics',
     performance.now() - started,
@@ -1991,6 +2131,9 @@ function* coefficientSectionSteps(
         modularEncoding,
         compactAc.contextMap,
         compactAc.frequencies,
+        1,
+        geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
+        compactAc.histogramConfigs,
       )
       writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
     }, geometry.memory)
@@ -2045,6 +2188,9 @@ function* coefficientSectionSteps(
       modularEncoding as ModularEncoding,
       compactAc.contextMap,
       compactAc.frequencies,
+      1,
+      geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
+      compactAc.histogramConfigs,
     )
   }, geometry.memory)
   profiler?.record('hf-global', performance.now() - started, hf.byteLength)
@@ -2085,7 +2231,7 @@ function* coefficientSectionSteps(
 const coefficientSectionsCost = (sections: readonly Uint8Array[]): number =>
   sectionCost(sections.map((section) => section.length))
 
-export const encodeVarDctCoefficientSections = (
+const encodeCoefficientSectionsWithAlpha = (
   geometry: Readonly<JpegDerivedGeometry>,
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
@@ -2117,7 +2263,7 @@ export const encodeVarDctCoefficientSections = (
     return original
   })
 
-export const encodeVarDctCoefficientSectionsAsync = (
+const encodeCoefficientSectionsWithAlphaAsync = (
   geometry: Readonly<JpegDerivedGeometry>,
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
@@ -2157,6 +2303,53 @@ export const encodeVarDctCoefficientSectionsAsync = (
       if (!isJpegXlLimitExceeded(error)) throw error
     }
     return original
+  })
+
+// Entropy alternatives keep the same geometry and frame header. Include every
+// serialized section byte and its aligned table-of-contents cost in selection.
+export const encodeVarDctCoefficientSections = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  profiler?: JpegXlJpegEncodeProfiler,
+): readonly Uint8Array[] =>
+  withJpegXlMemory(geometry.memory, () => {
+    if (!geometry.forwardAcIterationSearch)
+      return encodeCoefficientSectionsWithAlpha(geometry, profiler)
+    const baseline = encodeCoefficientSectionsWithAlpha(
+      { ...geometry, forwardAcIterationSearch: false },
+      profiler,
+    )
+    try {
+      const refined = encodeCoefficientSectionsWithAlpha(geometry, profiler)
+      const wins = coefficientSectionsCost(refined) < coefficientSectionsCost(baseline)
+      for (const section of wins ? baseline : refined) geometry.memory?.release(section)
+      return wins ? refined : baseline
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      return baseline
+    }
+  })
+
+export const encodeVarDctCoefficientSectionsAsync = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  checkpoint: () => Promise<void>,
+): Promise<readonly Uint8Array[]> =>
+  withJpegXlMemoryAsync(geometry.memory, async () => {
+    if (!geometry.forwardAcIterationSearch)
+      return encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
+    const baseline = await encodeCoefficientSectionsWithAlphaAsync(
+      { ...geometry, forwardAcIterationSearch: false },
+      checkpoint,
+    )
+    try {
+      await checkpoint()
+      const refined = await encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
+      const wins = coefficientSectionsCost(refined) < coefficientSectionsCost(baseline)
+      for (const section of wins ? baseline : refined) geometry.memory?.release(section)
+      return wins ? refined : baseline
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      return baseline
+    }
   })
 
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {

@@ -99,6 +99,7 @@ export const verifyJpegXlDcModel = async (
   maxWorkingBytes = 16_777_216,
   width = 513,
   height = 257,
+  distance = 4,
 ) => {
   const pixels = jpegXlDcModelPixels(width, height)
   const original = pixels.slice()
@@ -108,7 +109,7 @@ export const verifyJpegXlDcModel = async (
     height,
     pixelFormat: 'rgba8',
     limits: defaultImageLimits,
-    options: { mode: 'lossy', effort: 7, distance: 4, maxWorkingBytes },
+    options: { mode: 'lossy', effort: 7, distance, maxWorkingBytes },
     colorSemantics: {
       family: 'rgb',
       primaries: 'srgb',
@@ -172,7 +173,7 @@ class RejectLargeOpaqueFilterMap extends JpegXlEncoderMemory {
   }
 }
 
-export const verifyLargeJpegXlDcAllocationRecovery = async () => {
+export const verifyLargeJpegXlDcAllocationRecovery = async (distance = 4) => {
   const width = 2049,
     height = 2048,
     pixels = jpegXlDcModelPixels(width, height),
@@ -184,7 +185,7 @@ export const verifyLargeJpegXlDcAllocationRecovery = async () => {
       pixels,
       width,
       height,
-      4,
+      distance,
       memory,
       async () => {},
       4,
