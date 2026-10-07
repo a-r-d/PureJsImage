@@ -14,7 +14,14 @@ import { invalidInput, limitExceeded } from '../../src/errors.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
 import { MemorySource } from '../../src/source.ts'
 
-type Failure = 'none' | 'limit' | 'invalid' | 'cancel'
+type Failure =
+  | 'none'
+  | 'limit'
+  | 'invalid'
+  | 'cancel'
+  | 'group-limit'
+  | 'group-invalid'
+  | 'group-cancel'
 type Owned = ReturnType<JpegXlEncoderMemory['allocate']>
 const invalid = invalidInput('Deliberate luma-context allocation failure')
 const cancelled = new Error('Deliberate luma-context cancellation')
@@ -28,6 +35,8 @@ const checksum = (data: ArrayLike<number>, initial = 2166136261): number => {
 
 class LumaMemory extends JpegXlEncoderMemory {
   hits = 0
+  groupHits = 0
+  candidateHistograms = 0
   readonly blocks: number
   readonly failure: Failure
   constructor(blocks: number, failure: Failure) {
@@ -44,6 +53,16 @@ class LumaMemory extends JpegXlEncoderMemory {
       this.hits++
       if (this.failure === 'limit') throw limitExceeded('Deliberate luma-context memory limit')
       if (this.failure === 'invalid') throw invalid
+    }
+    if (this.hits === 2 && Object.is(arrayType, Uint32Array) && length === 512) {
+      // The first 512-bin allocation belongs to the existing Modular header.
+      // The next allocation starts the optional group-training histograms.
+      this.candidateHistograms++
+      if (this.candidateHistograms === 1) return super.allocate(arrayType, length, scope)
+      this.groupHits++
+      if (this.failure === 'group-limit')
+        throw limitExceeded('Deliberate group-context memory limit')
+      if (this.failure === 'group-invalid') throw invalid
     }
     return super.allocate(arrayType, length, scope)
   }
@@ -153,7 +172,11 @@ export const verifyJpegXlLumaContexts = async (
       ? await withJpegXlMemoryAsync(memory, async () =>
           assemble(
             await encodeVarDctCoefficientSectionsAsync(geometry, async () => {
-              if (failure === 'cancel' && memory.hits > 0) throw cancelled
+              if (
+                (failure === 'cancel' && memory.hits > 0) ||
+                (failure === 'group-cancel' && memory.groupHits > 0)
+              )
+                throw cancelled
             }),
           ),
         )
@@ -165,12 +188,24 @@ export const verifyJpegXlLumaContexts = async (
   const live = memory.liveBytes,
     allocations = memory.liveAllocations,
     peak = memory.peakBytes,
-    hits = memory.hits
+    hits = memory.hits,
+    groupHits = memory.groupHits
   memory.close()
   if (!callerPreserved || live !== 0 || allocations !== 0)
     throw new Error('Luma-context caller or ownership changed')
-  if (failure === 'invalid' || failure === 'cancel') {
-    if (encoded || error !== (failure === 'invalid' ? invalid : cancelled) || hits !== 1)
+  if (
+    failure === 'invalid' ||
+    failure === 'cancel' ||
+    failure === 'group-invalid' ||
+    failure === 'group-cancel'
+  ) {
+    const grouped = failure === 'group-invalid' || failure === 'group-cancel'
+    if (
+      encoded ||
+      error !== (failure === 'invalid' || failure === 'group-invalid' ? invalid : cancelled) ||
+      hits !== (grouped ? 2 : 1) ||
+      (grouped && groupHits < 1)
+    )
       throw new Error('Optional luma-context error swallowed', { cause: error })
     return {
       bytes: 0,
@@ -186,6 +221,7 @@ export const verifyJpegXlLumaContexts = async (
       allocations,
       peak,
       hits,
+      groupHits,
     }
   }
   if (error || !encoded) throw new Error('Luma-context encoding failed', { cause: error })
@@ -244,5 +280,6 @@ export const verifyJpegXlLumaContexts = async (
     allocations,
     peak,
     hits,
+    groupHits,
   }
 }

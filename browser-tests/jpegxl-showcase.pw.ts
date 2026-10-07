@@ -24,6 +24,9 @@ import portraitBaseline from '../benchmark/jpegxl/comparison/results/original-ma
 import originalPhoto from '../benchmark/jpegxl/comparison/results/original-photo-production-controls.json' with {
   type: 'json',
 }
+import spatialControls from '../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json' with {
+  type: 'json',
+}
 import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
   type: 'json',
 }
@@ -311,6 +314,32 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
     freshPublicDecodedSamples: 205_440_000,
   })
   await expect(page.locator('main')).toContainText('saves 0.13–0.56% on six fixed-setting controls')
+  const spatialLossyResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-spatial-context-controls.json',
+  )
+  expect(spatialLossyResponse.ok()).toBe(true)
+  const spatialLossyDownloaded: unknown = await spatialLossyResponse.json()
+  expect(spatialLossyDownloaded).toEqual(spatialControls)
+  expect(spatialLossyDownloaded).toMatchObject({
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    matchedQualityComparison: false,
+    freshEncodedFiles: 6,
+    freshCompleteIndependentGrids: 12,
+    freshPublicDecodedSamples: 205_440_000,
+  })
+  expect(spatialControls.controls.filter((row) => row.bytes < row.precedingBytes)).toHaveLength(5)
+  expect(spatialControls.controls.every((row) => row.bytes <= row.precedingBytes)).toBe(true)
+  await expect(page.locator('#jxl-spatial-context-status')).toContainText(
+    'saves another 0.07–0.82%',
+  )
+  await expect(page.locator('#jxl-spatial-context-status')).toContainText(
+    'Earthrise keeps the preceding bytes',
+  )
+  await expect(page.locator('#jxl-spatial-context-status')).toContainText(
+    spatialControls.implementationSourceSha256,
+  )
   await expect(page.locator('main')).toContainText('Complete updated curves remain pending')
   for (const row of photoCompression.matchedFrozenPeerComparisons)
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))

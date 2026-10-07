@@ -1,3 +1,4 @@
+export { verifyJpegXlGroupContexts } from '../tests/helpers/jpegxl-group-contexts.ts'
 export { verifyCoefficientEntropyFloor } from '../tests/helpers/jpegxl-ac-entropy-floor.ts'
 export { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.ts'
 export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'

@@ -99,6 +99,7 @@ export interface VarDctCoefficientGeometry {
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
   readonly forwardFamilyContexts?: boolean
   readonly forwardLumaThreshold?: number
+  readonly forwardGroupContexts?: boolean
   readonly forwardAdvancedModularSearch?: boolean
   readonly forwardAcIterationSearch?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
@@ -1787,8 +1788,12 @@ const writeAcGroup = (
   group: number,
   encoding: Readonly<AcEncoding>,
   pass = 0,
+  histogramCount = 1,
+  histogram = 0,
 ): void =>
   withJpegXlMemory(writer.memory, () => {
+    writer.writeBits(histogram, Math.ceil(Math.log2(histogramCount)))
+    const contextOffset = histogram * acBlockContextCount(geometry) * (37 + 458)
     if (encoding.kind === 'prefix') {
       visitAcGroup(
         geometry,
@@ -1812,11 +1817,11 @@ const writeAcGroup = (
         group,
         (value, context) => {
           if (count >= maximumValues) throw invalidJpegXlInput('AC group exceeds its token bound')
-          const histogram = encoding.encoding.contextMap[context],
+          const histogram = encoding.encoding.contextMap[contextOffset + context],
             config = histogram === undefined ? undefined : configurations[histogram]
           if (!config) throw invalidJpegXlInput('AC hybrid configuration missing')
           values[count] = encodeHybridUintPacked(value, config)
-          contexts[count] = context
+          contexts[count] = contextOffset + context
           count++
         },
         pass,
@@ -1829,7 +1834,7 @@ const writeAcGroup = (
         (value, context) => {
           if (count >= maximumValues) throw invalidJpegXlInput('AC group exceeds its token bound')
           values[count] = packedAcValues[value] ?? 0
-          contexts[count] = context
+          contexts[count] = contextOffset + context
           count += 1
         },
         pass,
@@ -2045,17 +2050,42 @@ function* coefficientSectionSteps(
   )
   started = performance.now()
   const packedAcValues = getPackedClusteredAcValues(geometry.forwardAcIterationSearch === true)
-  const acFrequencies = Array.from({ length: useClusteredAns ? acContextCount : 1 }, () =>
-    allocateJpegXlArray(geometry.memory, Uint32Array, 512),
+  let histogramCount = 1
+  let groupHistograms: Uint8Array | undefined
+  if (geometry.forwardGroupContexts && useClusteredAns && !geometry.progressive && groupCount > 1) {
+    const groupFrequencies = Array.from({ length: groupCount }, () =>
+      allocateJpegXlArray(geometry.memory, Uint32Array, 512),
+    )
+    for (let group = 0; group < groupCount; group++) {
+      const frequencies = groupFrequencies[group]
+      if (!frequencies) throw invalidJpegXlInput('Group training histogram is missing')
+      visitAcGroup(geometry, coefficientOrders, group, (value) => {
+        const token = (packedAcValues[value] ?? 0) & 255
+        frequencies[token] = (frequencies[token] ?? 0) + 1
+      })
+      yield
+    }
+    const clustered = compactAcHistograms(groupFrequencies, 4, geometry.memory, 6)
+    histogramCount = clustered.frequencies.length
+    groupHistograms = clustered.contextMap
+    if (histogramCount < 1 || histogramCount > 4 || histogramCount * acContextCount > 65536)
+      throw invalidJpegXlInput('Grouped AC context count is outside its bound')
+    for (const frequencies of groupFrequencies) geometry.memory?.release(frequencies)
+    for (const frequencies of clustered.frequencies) geometry.memory?.release(frequencies)
+  }
+  const acFrequencies = Array.from(
+    { length: useClusteredAns ? acContextCount * histogramCount : 1 },
+    () => allocateJpegXlArray(geometry.memory, Uint32Array, 512),
   )
   for (let group = 0; group < groupCount; group += 1) {
+    const contextOffset = (groupHistograms?.[group] ?? 0) * acContextCount
     for (let pass = 0; pass < (geometry.progressive ? 2 : 1); pass++) {
       visitAcGroup(
         geometry,
         coefficientOrders,
         group,
         (value, context) => {
-          const histogram = useClusteredAns ? context : 0
+          const histogram = useClusteredAns ? contextOffset + context : 0
           const frequencies = histogram === undefined ? undefined : acFrequencies[histogram]
           if (!frequencies) throw invalidJpegXlInput('AC frequency cluster is missing')
           if (!useClusteredAns) {
@@ -2098,8 +2128,9 @@ function* coefficientSectionSteps(
       allocateJpegXlArray(geometry.memory, Uint32Array, 8192),
     )
     for (let group = 0; group < groupCount; group++) {
+      const contextOffset = (groupHistograms?.[group] ?? 0) * acContextCount
       visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
-        const histogram = compactAc.contextMap[context],
+        const histogram = compactAc.contextMap[contextOffset + context],
           frequencies = histogram === undefined ? undefined : rawFrequencies[histogram]
         if (!frequencies || value < 0 || value >= frequencies.length)
           throw invalidJpegXlInput('AC value or histogram outside hybrid search')
@@ -2181,7 +2212,7 @@ function* coefficientSectionSteps(
         modularEncoding,
         compactAc.contextMap,
         compactAc.frequencies,
-        1,
+        histogramCount,
         geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
         compactAc.histogramConfigs,
       )
@@ -2238,7 +2269,7 @@ function* coefficientSectionSteps(
       modularEncoding as ModularEncoding,
       compactAc.contextMap,
       compactAc.frequencies,
-      1,
+      histogramCount,
       geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
       compactAc.histogramConfigs,
     )
@@ -2253,7 +2284,16 @@ function* coefficientSectionSteps(
   for (let group = 0; group < groupCount; group++) {
     for (let pass = 0; pass < passCount; pass++) {
       ac[pass * groupCount + group] = finishSection((writer) => {
-        writeAcGroup(writer, geometry, coefficientOrders, group, groupEncoding, pass)
+        writeAcGroup(
+          writer,
+          geometry,
+          coefficientOrders,
+          group,
+          groupEncoding,
+          pass,
+          histogramCount,
+          groupHistograms?.[group] ?? 0,
+        )
         if (geometry.alpha && groupCount > 1 && pass === passCount - 1) {
           if (sharedAlpha) writeSharedAlphaPlane(writer, group, sharedAlpha, alphaEncoding)
           else
@@ -2436,24 +2476,29 @@ export const encodeVarDctCoefficientSections = (
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
   withJpegXlMemory(geometry.memory, () => {
-    const baseline = encodeVarDctCoefficientSectionsBaseline(geometry, profiler)
-    try {
-      const alternative = withJpegXlMemory(geometry.memory, () => {
-        const contextual = prepareLumaContextGeometry(geometry)
-        if (!contextual) return undefined
-        const sections = encodeCoefficientSectionsWithAlpha(contextual, profiler)
-        return coefficientSectionsCost(sections) < coefficientSectionsCost(baseline)
-          ? sections
-          : undefined
-      })
-      if (alternative) {
-        for (const section of baseline) geometry.memory?.release(section)
-        return alternative
+    let selected = encodeVarDctCoefficientSectionsBaseline(geometry, profiler)
+    for (const grouped of [false, true]) {
+      try {
+        const alternative = withJpegXlMemory(geometry.memory, () => {
+          const contextual = prepareLumaContextGeometry(geometry)
+          if (!contextual) return undefined
+          const sections = encodeCoefficientSectionsWithAlpha(
+            { ...contextual, forwardGroupContexts: grouped },
+            profiler,
+          )
+          return coefficientSectionsCost(sections) < coefficientSectionsCost(selected)
+            ? sections
+            : undefined
+        })
+        if (alternative) {
+          for (const section of selected) geometry.memory?.release(section)
+          selected = alternative
+        }
+      } catch (error) {
+        if (!isJpegXlLimitExceeded(error)) throw error
       }
-    } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
     }
-    return baseline
+    return selected
   })
 
 export const encodeVarDctCoefficientSectionsAsync = (
@@ -2461,26 +2506,31 @@ export const encodeVarDctCoefficientSectionsAsync = (
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(geometry.memory, async () => {
-    const baseline = await encodeVarDctCoefficientSectionsBaselineAsync(geometry, checkpoint)
-    try {
-      const alternative = await withJpegXlMemoryAsync(geometry.memory, async () => {
-        await checkpoint()
-        const contextual = prepareLumaContextGeometry(geometry)
-        if (!contextual) return undefined
-        await checkpoint()
-        const sections = await encodeCoefficientSectionsWithAlphaAsync(contextual, checkpoint)
-        return coefficientSectionsCost(sections) < coefficientSectionsCost(baseline)
-          ? sections
-          : undefined
-      })
-      if (alternative) {
-        for (const section of baseline) geometry.memory?.release(section)
-        return alternative
+    let selected = await encodeVarDctCoefficientSectionsBaselineAsync(geometry, checkpoint)
+    for (const grouped of [false, true]) {
+      try {
+        const alternative = await withJpegXlMemoryAsync(geometry.memory, async () => {
+          await checkpoint()
+          const contextual = prepareLumaContextGeometry(geometry)
+          if (!contextual) return undefined
+          await checkpoint()
+          const sections = await encodeCoefficientSectionsWithAlphaAsync(
+            { ...contextual, forwardGroupContexts: grouped },
+            checkpoint,
+          )
+          return coefficientSectionsCost(sections) < coefficientSectionsCost(selected)
+            ? sections
+            : undefined
+        })
+        if (alternative) {
+          for (const section of selected) geometry.memory?.release(section)
+          selected = alternative
+        }
+      } catch (error) {
+        if (!isJpegXlLimitExceeded(error)) throw error
       }
-    } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
     }
-    return baseline
+    return selected
   })
 
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {

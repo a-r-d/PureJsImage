@@ -7,6 +7,7 @@ import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossl
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
 import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
 import entropyControls from '../../../../benchmark/jpegxl/comparison/results/original-luma-context-controls.json'
+import spatialControls from '../../../../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json'
 import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
 import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
 import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
@@ -61,6 +62,36 @@ const entropyMinimumReduction = Math.min(
 ).toFixed(2)
 const entropyMaximumReduction = Math.max(
   ...entropyControls.controls.map((row) => row.reductionPercent),
+).toFixed(2)
+if (
+  spatialControls.completed !== true ||
+  spatialControls.sourceAdopted !== true ||
+  spatialControls.fullParity !== false ||
+  spatialControls.matchedQualityComparison !== false ||
+  spatialControls.freshEncodedFiles !== 6 ||
+  spatialControls.freshCompleteIndependentGrids !== 12 ||
+  spatialControls.freshPublicDecodedSamples !== 205440000 ||
+  spatialControls.controls.length !== 6 ||
+  spatialControls.controls.some(
+    (row) => !row.identicalDecodedPixels || row.bytes > row.precedingBytes,
+  )
+)
+  throw new Error('Incomplete original-size spatial preservation controls')
+const spatialSavedControls = spatialControls.controls.filter(
+  (row) => row.bytes < row.precedingBytes,
+)
+if (
+  spatialSavedControls.length !== 5 ||
+  !spatialControls.controls.some(
+    (row) => row.fixture === 'earthrise-2400x2400' && row.bytes === row.precedingBytes,
+  )
+)
+  throw new Error('Original-size spatial selection floor changed')
+const spatialMinimumReduction = Math.min(
+  ...spatialSavedControls.map((row) => row.reductionPercent),
+).toFixed(2)
+const spatialMaximumReduction = Math.max(
+  ...spatialSavedControls.map((row) => row.reductionPercent),
 ).toFixed(2)
 if (
   alphaDirect.completed !== true ||
@@ -418,7 +449,8 @@ if (
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
 <p id="jxl-original-matrix-status">Overall lossy compression parity remains open. The additional unresized 2400 × 3000 portrait baseline uses {portraitMinimumGap}–{portraitMaximumGap}% more bytes than jSquash at three separately matched Butteraugli targets, despite competitive SSIMULACRA2 results. The earlier 12 MP photo results below keep their separate scope. <a href="/jpeg-xl/evidence/ORIGINAL-MATRIX.md" download>Broader photo results and remaining gaps</a> and <a href="/jpeg-xl/evidence/original-matrix-portrait-baseline.json" download>Verified portrait baseline</a>.</p>
-<p>The latest entropy change saves {entropyMinimumReduction}–{entropyMaximumReduction}% on six fixed-setting controls across the portrait, earlier photo, tundra and Earthrise originals. Decoded pixels and both quality scores remain identical. It adds encoding work and does not close the portrait's matched-quality gaps. Complete updated curves remain pending; the tables below retain their preceding measured baseline. <a href="/jpeg-xl/evidence/original-luma-context-controls.json" download>Identical-pixel entropy controls</a>.</p>
+<p>The preceding median-luminance entropy change saves {entropyMinimumReduction}–{entropyMaximumReduction}% on six fixed-setting controls across the portrait, earlier photo, tundra and Earthrise originals, with identical decoded pixels and both quality scores. <a href="/jpeg-xl/evidence/original-luma-context-controls.json" download>Median-luminance entropy controls</a>.</p>
+<p id="jxl-spatial-context-status">The spatial histogram change saves another {spatialMinimumReduction}–{spatialMaximumReduction}% on five of those six controls. Earthrise keeps the preceding bytes. Every decoded pixel and both quality scores remain identical. This adds encoding work and does not close the portrait's matched-quality gaps. Complete updated curves remain pending; the tables below retain their preceding measured baseline. Spatial source SHA-256: <code>{spatialControls.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/original-spatial-context-controls.json" download>Spatial entropy preservation controls</a>.</p>
 <p>On the original 4000 × 3000 photo, PureJsImage uses 9–13% fewer bytes than jSquash and 8–16% fewer than wasm-vips at matched SSIMULACRA2 70, 80 and 90. It also uses fewer bytes at all four matched Butteraugli targets against jSquash and both resolved targets against wasm-vips; two wasm-vips targets remain unresolved under the unchanged rules. Parity applies to the resolved targets on this photo; other original-size photos, HDR, float, CMYK and animation need separate matched compression evidence. <a href="/jpeg-xl/evidence/ORIGINAL-PHOTO.md" download>Original-size photo results and limits</a> and <a href="/jpeg-xl/evidence/original-photo-production-controls.json" download>Current production controls</a>.</p>
 <div style="overflow:auto"><table><caption>Original 4000 × 3000 photo at matched SSIMULACRA2</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalPhotoRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString('en-US')}</td><td>{row.jsquashBytes.toLocaleString('en-US')}</td><td>{row.vipsBytes.toLocaleString('en-US')}</td><td>{row.jsquashReduction}% smaller</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
 <div style="overflow:auto"><table><caption>Same original photo at independently matched Butteraugli targets; lower error is better</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalButteraugliRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString("en-US")}</td><td>{row.jsquashBytes.toLocaleString("en-US")}</td><td>{row.vipsBytes}</td><td>{row.jsquashReduction}</td><td>{row.vipsReduction}</td></tr>)}</tbody></table></div>

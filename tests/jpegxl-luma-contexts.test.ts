@@ -1,45 +1,60 @@
 import { describe, expect, it } from 'vitest'
 import { verifyJpegXlLumaContexts } from './helpers/jpegxl-luma-contexts.ts'
 
-describe('JPEG XL original-size luma contexts', () => {
+describe('JPEG XL original-size luma and spatial contexts', () => {
   for (const asynchronous of [false, true]) {
-    it(`preserves pixels and the preceding complete file after optional LIMIT, async=${asynchronous}`, async () => {
+    it(`preserves complete pixels through both optional LIMIT paths, async=${asynchronous}`, async () => {
       const preceding = await verifyJpegXlLumaContexts(asynchronous, 'limit')
+      const median = await verifyJpegXlLumaContexts(asynchronous, 'group-limit')
       const selected = await verifyJpegXlLumaContexts(asynchronous)
-      expect(preceding.hits).toBe(1)
-      expect(selected.hits).toBe(1)
-      expect(selected.bytes).toBeLessThanOrEqual(preceding.bytes)
+      expect(preceding.hits).toBe(2)
+      expect(preceding.groupHits).toBe(0)
+      expect(median.hits).toBe(2)
+      expect(median.groupHits).toBe(1)
+      expect(selected.hits).toBe(2)
+      expect(selected.groupHits).toBeGreaterThan(1)
+      expect(median.bytes).toBeLessThan(preceding.bytes)
+      expect(selected.bytes).toBeLessThanOrEqual(median.bytes)
+      expect(median.decodedChecksum).toBe(preceding.decodedChecksum)
       expect(selected.decodedChecksum).toBe(preceding.decodedChecksum)
       expect(selected.colorMaximum).toBeGreaterThan(selected.colorMinimum)
       expect(selected.samples).toBe((257 * 8 - 3) * (256 * 8 - 1) * 4)
-      for (const result of [preceding, selected]) {
+      for (const result of [preceding, median, selected]) {
         expect(result.callerPreserved).toBe(true)
         expect(result.alphaError).toBe(0)
         expect(result.live).toBe(0)
         expect(result.allocations).toBe(0)
         expect(result.peak).toBeLessThanOrEqual(67_108_864)
       }
-    }, 240_000)
-    it(`propagates other median allocation errors and releases preceding sections, async=${asynchronous}`, async () => {
-      const result = await verifyJpegXlLumaContexts(asynchronous, 'invalid')
+    }, 300_000)
+    for (const failure of ['invalid', 'group-invalid'] as const) {
+      it(`propagates ${failure} allocation errors and releases preceding sections, async=${asynchronous}`, async () => {
+        const result = await verifyJpegXlLumaContexts(asynchronous, failure)
+        expect(result.propagated).toBe(true)
+        expect(result.hits).toBe(failure === 'invalid' ? 1 : 2)
+        expect(result.groupHits).toBe(failure === 'invalid' ? 0 : 1)
+        expect(result.live).toBe(0)
+        expect(result.allocations).toBe(0)
+        expect(result.callerPreserved).toBe(true)
+      }, 180_000)
+    }
+  }
+  for (const failure of ['cancel', 'group-cancel'] as const) {
+    it(`propagates ${failure} and releases every preceding stream`, async () => {
+      const result = await verifyJpegXlLumaContexts(true, failure)
       expect(result.propagated).toBe(true)
-      expect(result.hits).toBe(1)
+      expect(result.hits).toBe(failure === 'cancel' ? 1 : 2)
+      if (failure === 'group-cancel') expect(result.groupHits).toBeGreaterThan(0)
+      else expect(result.groupHits).toBe(0)
       expect(result.live).toBe(0)
       expect(result.allocations).toBe(0)
       expect(result.callerPreserved).toBe(true)
-    }, 120_000)
+    }, 180_000)
   }
-  it('propagates cancellation after the median copy and releases both streams', async () => {
-    const result = await verifyJpegXlLumaContexts(true, 'cancel')
-    expect(result.propagated).toBe(true)
-    expect(result.hits).toBe(1)
-    expect(result.live).toBe(0)
-    expect(result.allocations).toBe(0)
-    expect(result.callerPreserved).toBe(true)
-  }, 120_000)
-  it('does not attempt the original-size model at the 65536-block boundary', async () => {
+  it('does not attempt original-size models at the 65536-block boundary', async () => {
     const result = await verifyJpegXlLumaContexts(false, 'none', false)
     expect(result.hits).toBe(0)
+    expect(result.groupHits).toBe(0)
     expect(result.samples).toBe((256 * 8 - 3) * (256 * 8 - 1) * 4)
     expect(result.live).toBe(0)
     expect(result.allocations).toBe(0)
