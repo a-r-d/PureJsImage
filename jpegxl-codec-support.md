@@ -81,6 +81,7 @@ Sequence output uses explicit full-canvas buffers and replay without a decoded s
 - [x] Selective group reads and declared static dependency fallbacks with strict rejection
 - [x] Task-scheduled rendering cancellation, immutable output snapshots and iteration backpressure
 - [x] Progressive Modular DC dependencies checked against pinned native stage outputs
+- [x] Opaque RGBA8 internal Modular DC alpha dependencies in single and grouped sections, including odd dimensions and ordinary, session, sequence and native-layer output
 - [x] Selective XYB VarDCT SDR alpha, SDR16, linear16 and PQ16 DC and pass stages with pinned libjxl color oracles and early section reads
 - [x] Selective linear16 plus alpha stages with early LF reads, a pinned jxl-oxide partial first-pass RGBA image, and pinned libjxl 0.12.0 final pixels
 - [x] Selective associated 2x shifted alpha when its native plane fits one global group; preserve source alpha meaning

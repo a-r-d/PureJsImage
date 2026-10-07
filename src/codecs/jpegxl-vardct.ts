@@ -459,6 +459,7 @@ export const createJpegXlVarDctDecoder = async (
                 dependency.codedWidth,
                 dependency.codedHeight,
                 readOptions.signal,
+                dependency,
               )
             : decodeJpegXlMultiGroupModularDcFrameSections(sections, dependency, readOptions.signal)
         } else {

@@ -330,6 +330,7 @@ export const openJpegXlSequence = async (
                 header.codedWidth,
                 header.codedHeight,
                 active,
+                header,
               )
             : decodeJpegXlMultiGroupModularDcFrameSections(sections, header, active)
         } else {
@@ -828,7 +829,13 @@ export const openJpegXlSequence = async (
         const global = sections[0]
         if (!global) throw invalidJpegXlInput('native DC global section is missing')
         dcPlanes = sections.slice(1).every((section) => section.length === 0)
-          ? decodeJpegXlModularDcFrameSection(global, header.codedWidth, header.codedHeight, active)
+          ? decodeJpegXlModularDcFrameSection(
+              global,
+              header.codedWidth,
+              header.codedHeight,
+              active,
+              header,
+            )
           : decodeJpegXlMultiGroupModularDcFrameSections(sections, header, active)
       } else if (saving && header.colorTransform === 'xyb') {
         const y = decoded.planes[0],

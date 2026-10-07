@@ -379,6 +379,7 @@ export class JpegXlSession {
               dependency.codedWidth,
               dependency.codedHeight,
               signal,
+              dependency,
             )
           : decodeJpegXlMultiGroupModularDcFrameSections(sections, dependency, signal)
       } finally {

@@ -3200,13 +3200,53 @@ export const decodeJpegXlModularFrameSection = (
   )
 }
 
+const modularFrameChannelLayouts = (
+  frame: Readonly<JpegXlFrameStructure>,
+): ModularChannelLayout[] => {
+  const colorChannels = frame.colorTransform === 'xyb' ? 3 : frame.colorChannels
+  const chroma =
+    frame.colorTransform === 'ycbcr' ? jpegXlChromaShifts(frame.chromaSubsampling) : undefined
+  const layouts: ModularChannelLayout[] = Array.from({ length: colorChannels }, (_, c) => {
+    const hshift = chroma?.[c]?.[0] ?? 0,
+      vshift = chroma?.[c]?.[1] ?? 0
+    return {
+      width: Math.ceil(frame.codedWidth / 2 ** hshift),
+      height: Math.ceil(frame.codedHeight / 2 ** vshift),
+      ...(chroma ? { hshift, vshift } : {}),
+    }
+  })
+  const dcScale = 2 ** (3 * frame.dcLevel)
+  for (let index = 0; index < frame.extraChannels.length; index++) {
+    const channel = frame.extraChannels[index]
+    if (!channel) throw invalidJpegXlInput('extra channel descriptor is missing')
+    const factor = (frame.extraChannelUpsampling[index] ?? 1) * 2 ** channel.dimShift
+    layouts.push({
+      width: Math.ceil(Math.ceil(frame.frameWidth / dcScale) / factor),
+      height: Math.ceil(Math.ceil(frame.frameHeight / dcScale) / factor),
+      hshift: Math.log2(factor / frame.upsampling),
+      vshift: Math.log2(factor / frame.upsampling),
+    })
+  }
+  return layouts
+}
+
 export const decodeJpegXlModularDcFrameSection = (
   section: Uint8Array,
   width: number,
   height: number,
   signal?: AbortSignal,
+  frame?: Readonly<JpegXlFrameStructure>,
 ): readonly [Float64Array, Float64Array, Float64Array] => {
-  const program = readJpegXlModularProgram(section, 3, width, height)
+  const layouts = frame ? modularFrameChannelLayouts(frame) : undefined
+  const program = readJpegXlModularProgram(
+    section,
+    layouts?.length ?? 3,
+    width,
+    height,
+    frame?.frameFlags ?? 0,
+    frame?.extraChannels.length ?? 0,
+    layouts,
+  )
   const encoded = inverseModularTransforms(
     decodeModularPlanes(program, program.prefixPlanes.length, signal),
     program,
@@ -3216,7 +3256,13 @@ export const decodeJpegXlModularDcFrameSection = (
   const encodedX = encoded[1]
   const encodedB = encoded[2]
   const quantization = program.dcQuantization
-  if (!encodedX || !encodedY || !encodedB || !quantization) {
+  if (
+    !encodedX ||
+    !encodedY ||
+    !encodedB ||
+    !quantization ||
+    encoded.length !== (layouts?.length ?? 3)
+  ) {
     throw invalidJpegXlInput('Modular DC frame channel is missing')
   }
   const outputX = new Float64Array(encodedX.length)
@@ -3382,29 +3428,7 @@ function* decodeNativeModularSteps(
   if (frame.encoding !== 'modular') throw invalidJpegXlInput('native Modular frame expected')
   const global = sections[0]
   if (!global) throw invalidJpegXlInput('global Modular section is missing')
-  const colorChannels = frame.colorTransform === 'xyb' ? 3 : frame.colorChannels
-  const chroma =
-    frame.colorTransform === 'ycbcr' ? jpegXlChromaShifts(frame.chromaSubsampling) : undefined
-  const layouts: ModularChannelLayout[] = Array.from({ length: colorChannels }, (_, c) => {
-    const hshift = chroma?.[c]?.[0] ?? 0,
-      vshift = chroma?.[c]?.[1] ?? 0
-    return {
-      width: Math.ceil(frame.codedWidth / 2 ** hshift),
-      height: Math.ceil(frame.codedHeight / 2 ** vshift),
-      ...(chroma ? { hshift, vshift } : {}),
-    }
-  })
-  for (let index = 0; index < frame.extraChannels.length; index++) {
-    const channel = frame.extraChannels[index]
-    if (!channel) throw invalidJpegXlInput('extra channel descriptor is missing')
-    const factor = (frame.extraChannelUpsampling[index] ?? 1) * 2 ** channel.dimShift
-    layouts.push({
-      width: Math.ceil(frame.frameWidth / factor),
-      height: Math.ceil(frame.frameHeight / factor),
-      hshift: Math.log2(factor / frame.upsampling),
-      vshift: Math.log2(factor / frame.upsampling),
-    })
-  }
+  const layouts = modularFrameChannelLayouts(frame)
   const program = readJpegXlModularProgram(
     global,
     layouts.length,
@@ -3492,12 +3516,15 @@ const decodeProgressiveModularDc = (
 ): readonly [Float64Array, Float64Array, Float64Array] => {
   const global = sections[0]
   if (!global) throw invalidJpegXlInput('progressive DC global data is missing')
+  const layouts = modularFrameChannelLayouts(frame)
   const program = readJpegXlModularProgram(
     global,
-    3,
+    layouts.length,
     frame.codedWidth,
     frame.codedHeight,
     frame.frameFlags,
+    frame.extraChannels.length,
+    layouts,
   )
   const quantization = program.dcQuantization
   if (!quantization) throw invalidJpegXlInput('progressive DC quantization is missing')
@@ -3505,7 +3532,7 @@ const decodeProgressiveModularDc = (
   const y = restored[0],
     x = restored[1],
     b = restored[2]
-  if (!x || !y || !b || restored.length !== 3)
+  if (!x || !y || !b || restored.length !== layouts.length)
     throw invalidJpegXlInput('progressive DC output channels are missing')
   const output = [
     new Float64Array(x.length),

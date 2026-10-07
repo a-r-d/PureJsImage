@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "encoder": "Published @jsquash/jxl 1.3.0",
+  "encoderSha256": "3c6c02df45c0dededab146888789d541b23b9a299cb16d497dce412a3a4bc7d3",
+  "flags": {
+    "lossless": false,
+    "effort": 7,
+    "value": 42.1
+  },
+  "oracle": "Pinned libjxl C API final RGBA8 output",
+  "tolerance": {
+    "color": 1,
+    "alpha": 0
+  },
+  "fixtures": [
+    {
+      "id": "single",
+      "width": 131,
+      "height": 101,
+      "grouped": false,
+      "file": "single.jxl",
+      "inputSha256": "4a79f7d48bd91e9dd002b47030af08dd98d5c6a98f5a6572c2d1c56334e93b3a",
+      "encodedSha256": "9002dd69af395dc7104d4980ca21d2b9e14c18c01be1e10269ccbc8ac88eab52",
+      "referenceSha256": "64fd96323dbe8c8faf9b20b5445e41dd99f98a7d5c64b95cff0c5dea44d26dc0",
+      "compressedReferenceSha256": "af8d278d88b62786e6e6a1b9e9c3e16743255815252d8509e901b723d494c44c",
+      "dcWidth": 17,
+      "dcHeight": 13,
+      "dcLevel": 1,
+      "dcSections": [398]
+    },
+    {
+      "id": "grouped",
+      "width": 37,
+      "height": 2057,
+      "grouped": true,
+      "file": "grouped.jxl",
+      "inputSha256": "ba53689750465d604006790d1d1f74e9719020d3f4684a8eb0d7d472f4dd2fef",
+      "encodedSha256": "d360f0f145b1ea5e1dc867b1d214712766c8b9d6448af8c599ed1acef5cf2926",
+      "referenceSha256": "70040c79059072f2ab536f1b176d89a2f15220f915b6de587691ac21163e4558",
+      "compressedReferenceSha256": "778c4ba85139fb4a13524812f1bf3b7b076a90cbc2650ac491eb9207cd281966",
+      "dcWidth": 5,
+      "dcHeight": 258,
+      "dcLevel": 1,
+      "dcSections": [1389, 0, 0, 149, 9]
+    }
+  ]
+}

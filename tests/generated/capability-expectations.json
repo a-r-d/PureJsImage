@@ -273,6 +273,8 @@
         "tests/jpegxl-preview-session.test.ts",
         "tests/jpegxl-progressive-render.test.ts",
         "tests/jpegxl-grouped-dc.test.ts",
+        "tests/jpegxl-modular-dc-alpha.test.ts",
+        "browser-tests/jpegxl-modular-dc-alpha.pw.ts",
         "tests/jpegxl-m6-cohort.test.ts",
         "tests/jpegxl-m7-api.test.ts",
         "tests/jpegxl-m7-lossless.test.ts",

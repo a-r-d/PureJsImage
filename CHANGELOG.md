@@ -4,6 +4,9 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Fix JPEG XL opaque RGBA8 files with internal Modular DC frames. Decode their
+  declared alpha dependency in single and grouped sections, and retain final
+  pixels through ordinary, session, sequence and native-layer APIs.
 - Preserve JPEG XL effort-7 opaque RGB DC precision on eligible RGBA8 photos
   up to 16 megapixels. Meet or beat both pinned WASM encoders at matched
   SSIMULACRA2 70, 80 and 90 on the original 12 MP photo. Verify complete

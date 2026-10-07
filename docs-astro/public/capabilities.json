@@ -5546,6 +5546,8 @@
         "tests/jpegxl-preview-session.test.ts",
         "tests/jpegxl-progressive-render.test.ts",
         "tests/jpegxl-grouped-dc.test.ts",
+        "tests/jpegxl-modular-dc-alpha.test.ts",
+        "browser-tests/jpegxl-modular-dc-alpha.pw.ts",
         "tests/jpegxl-m6-cohort.test.ts",
         "tests/jpegxl-m7-api.test.ts",
         "tests/jpegxl-m7-lossless.test.ts",
@@ -5838,6 +5840,10 @@
         {
           "status": "supported",
           "text": "Progressive Modular DC dependencies checked against pinned native stage outputs"
+        },
+        {
+          "status": "supported",
+          "text": "Opaque RGBA8 internal Modular DC alpha dependencies in single and grouped sections, including odd dimensions and ordinary, session, sequence and native-layer output"
         },
         {
           "status": "supported",

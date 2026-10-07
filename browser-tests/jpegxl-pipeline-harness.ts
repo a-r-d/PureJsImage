@@ -15,6 +15,7 @@ export {
 } from '../tests/helpers/jpegxl-fast-lossless.ts'
 export { verifyFlatPaletteGraphic } from '../tests/helpers/jpegxl-flat-palette.ts'
 export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.ts'
+export { verifyJpegXlModularDcAlpha } from '../tests/helpers/jpegxl-modular-dc-alpha.ts'
 export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
 export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
 export {
