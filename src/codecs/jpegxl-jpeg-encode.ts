@@ -31,6 +31,15 @@ import {
   writeModularHeader,
   writeModularTree,
   writePrefixCode,
+  jpegXlBitDepthDistribution,
+  jpegXlBlendModeDistribution,
+  jpegXlDimensionDistribution,
+  jpegXlExtraChannelCountDistribution,
+  jpegXlFrameSizeDistribution,
+  jpegXlNameLengthDistribution,
+  jpegXlSectionSizeDistribution,
+  jpegXlUpsamplingDistribution,
+  jpegXlZeroToThreeDistribution,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 import { applyJpegXlModularTree, learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
@@ -89,6 +98,7 @@ export interface VarDctCoefficientGeometry {
   readonly forwardCoefficientOrders?: readonly Uint32Array[]
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
   readonly forwardFamilyContexts?: boolean
+  readonly forwardLumaThreshold?: number
   readonly forwardAdvancedModularSearch?: boolean
   readonly forwardAcIterationSearch?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
@@ -855,23 +865,51 @@ const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
 
 const writeComponentBlockContexts = (
   writer: JpegXlBitWriter,
-  familyContexts: boolean,
-  hasDct16: boolean,
+  geometry: Readonly<JpegDerivedGeometry>,
 ): void => {
+  const threshold = geometry.forwardLumaThreshold
+  const familyContexts = geometry.forwardFamilyContexts === true
+  const hasDct16 = geometry.blockStrategyMap?.includes(4) ?? false
   writer.writeBits(0, 1)
-  for (let channel = 0; channel < 3; channel += 1) writer.writeBits(0, 4)
-  writer.writeBits(0, 4)
-  writer.writeBits(1, 1)
-  const bits = familyContexts ? 3 : 2
-  writer.writeBits(bits, 2)
-  for (let channel = 0; channel < 3; channel += 1) {
-    for (let order = 0; order < 13; order += 1) {
-      writer.writeBits(
-        channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0),
-        bits,
-      )
-    }
+  for (let channel = 0; channel < 3; channel++) {
+    writer.writeBits(channel === 1 && threshold !== undefined ? 1 : 0, 4)
+    if (channel === 1 && threshold !== undefined)
+      writeU32(writer, packSigned(threshold), [
+        { bits: 4, offset: 0 },
+        { bits: 8, offset: 16 },
+        { bits: 16, offset: 272 },
+        { bits: 32, offset: 65808 },
+      ])
   }
+  writer.writeBits(0, 4)
+  if (threshold === undefined) {
+    writer.writeBits(1, 1)
+    const bits = familyContexts ? 3 : 2
+    writer.writeBits(bits, 2)
+    for (let channel = 0; channel < 3; channel++)
+      for (let order = 0; order < 13; order++)
+        writer.writeBits(
+          channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0),
+          bits,
+        )
+    return
+  }
+  const map = allocateJpegXlArray(writer.memory, Uint8Array, 78)
+  const frequencies = allocateJpegXlArray(writer.memory, Uint32Array, 512)
+  let next = 0
+  for (let channel = 0; channel < 3; channel++)
+    for (let order = 0; order < 13; order++)
+      for (let dc = 0; dc < 2; dc++) {
+        const context =
+          (channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0)) * 2 +
+          dc
+        map[next++] = context
+        addFrequency(frequencies, context)
+      }
+  writer.writeBits(0, 1)
+  writer.writeBits(0, 1)
+  const encoding = writePrefixCode(writer, 1, frequencies)
+  for (const context of map) writeHybridUint(writer, context, encoding)
 }
 
 type SharedAlphaGroup = NonNullable<ReturnType<typeof prepareJpegXlAlphaGroup>>
@@ -1048,11 +1086,7 @@ const writeLfGlobal = (
     { bits: 8, offset: 1 },
     { bits: 16, offset: 1 },
   ])
-  writeComponentBlockContexts(
-    writer,
-    geometry.forwardFamilyContexts === true,
-    geometry.blockStrategyMap?.includes(4) ?? false,
-  )
+  writeComponentBlockContexts(writer, geometry)
   writer.writeBits(0, 1)
   writeU32(writer, 84, [
     { value: 84 },
@@ -1245,8 +1279,14 @@ const predictNonzeroCount = (plane: Int32Array, width: number, x: number, y: num
   return Math.floor(((plane[(y - 1) * width + x] ?? 32) + left + 1) / 2)
 }
 
-const acBlockContextCount = (geometry: Readonly<JpegDerivedGeometry>): 3 | 6 =>
-  geometry.forwardFamilyContexts ? 6 : 3
+const acBlockContextCount = (geometry: Readonly<JpegDerivedGeometry>): 3 | 6 | 12 =>
+  geometry.forwardLumaThreshold === undefined
+    ? geometry.forwardFamilyContexts
+      ? 6
+      : 3
+    : geometry.forwardFamilyContexts
+      ? 12
+      : 6
 const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 })
 
 // All visited AC values are nonzero counts or signed coefficients bounded to +/-4095.
@@ -1550,8 +1590,18 @@ const visitAcGroup = (
           }
           const nonzeroPlane = nonzeroPlanes?.[channel]
           if (!nonzeroPlane) throw invalidJpegXlInput('AC channel model is missing')
-          const blockContext =
+          const baseContext =
             (channel === 1 ? 0 : channel === 0 ? 1 : 2) + (familyContexts && strategy !== 0 ? 3 : 0)
+          const threshold = geometry.forwardLumaThreshold
+          const blockContext =
+            threshold === undefined
+              ? baseContext
+              : baseContext * 2 +
+                ((geometry.dcPlaneComponents[0]?.coefficients[
+                  (blockY + y) * geometry.fullBlockWidth + blockX + x
+                ] ?? 0) > threshold
+                  ? 1
+                  : 0)
           const predicted = predictNonzeroCount(nonzeroPlane, localWidth, localX, localY)
           const nonzeroBucket =
             predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
@@ -1643,7 +1693,7 @@ const writeHfPass = (
   useClusteredAns: boolean,
   acContextMap: Uint8Array,
   acFrequencies: readonly Uint32Array[],
-  blockContextCount: 3 | 6,
+  blockContextCount: 3 | 6 | 12,
   hybridConfig: Readonly<HybridUintEncoding>,
   histogramConfigs?: readonly HybridUintEncoding[],
 ): AcEncoding => {
@@ -2307,7 +2357,7 @@ const encodeCoefficientSectionsWithAlphaAsync = (
 
 // Entropy alternatives keep the same geometry and frame header. Include every
 // serialized section byte and its aligned table-of-contents cost in selection.
-export const encodeVarDctCoefficientSections = (
+const encodeVarDctCoefficientSectionsBaseline = (
   geometry: Readonly<JpegDerivedGeometry>,
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
@@ -2329,7 +2379,7 @@ export const encodeVarDctCoefficientSections = (
     }
   })
 
-export const encodeVarDctCoefficientSectionsAsync = (
+const encodeVarDctCoefficientSectionsBaselineAsync = (
   geometry: Readonly<JpegDerivedGeometry>,
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
@@ -2352,6 +2402,87 @@ export const encodeVarDctCoefficientSectionsAsync = (
     }
   })
 
+const prepareLumaContextGeometry = (
+  geometry: Readonly<JpegDerivedGeometry>,
+): Readonly<JpegDerivedGeometry> | undefined => {
+  const component = geometry.dcPlaneComponents[0]
+  if (
+    !geometry.forwardAcIterationSearch ||
+    !geometry.defaultQuantization ||
+    geometry.colorTransform !== 'xyb' ||
+    geometry.progressive ||
+    geometry.deferredDcGroups ||
+    geometry.forwardLumaThreshold !== undefined ||
+    geometry.fullBlockWidth * geometry.fullBlockHeight <= 65536 ||
+    !component ||
+    component.coefficientStride !== 1 ||
+    component.coefficients.length !== geometry.fullBlockWidth * geometry.fullBlockHeight
+  )
+    return undefined
+  for (const shift of geometry.shifts) if (shift[0] !== 0 || shift[1] !== 0) return undefined
+  const values = copyJpegXlArray(geometry.memory, Int32Array, component.coefficients)
+  try {
+    values.sort()
+    const threshold = values[values.length >>> 1]
+    if (threshold === undefined) throw invalidJpegXlInput('DC median is missing')
+    return { ...geometry, forwardLumaThreshold: threshold }
+  } finally {
+    geometry.memory?.release(values)
+  }
+}
+
+export const encodeVarDctCoefficientSections = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  profiler?: JpegXlJpegEncodeProfiler,
+): readonly Uint8Array[] =>
+  withJpegXlMemory(geometry.memory, () => {
+    const baseline = encodeVarDctCoefficientSectionsBaseline(geometry, profiler)
+    try {
+      const alternative = withJpegXlMemory(geometry.memory, () => {
+        const contextual = prepareLumaContextGeometry(geometry)
+        if (!contextual) return undefined
+        const sections = encodeCoefficientSectionsWithAlpha(contextual, profiler)
+        return coefficientSectionsCost(sections) < coefficientSectionsCost(baseline)
+          ? sections
+          : undefined
+      })
+      if (alternative) {
+        for (const section of baseline) geometry.memory?.release(section)
+        return alternative
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+    return baseline
+  })
+
+export const encodeVarDctCoefficientSectionsAsync = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  checkpoint: () => Promise<void>,
+): Promise<readonly Uint8Array[]> =>
+  withJpegXlMemoryAsync(geometry.memory, async () => {
+    const baseline = await encodeVarDctCoefficientSectionsBaselineAsync(geometry, checkpoint)
+    try {
+      const alternative = await withJpegXlMemoryAsync(geometry.memory, async () => {
+        await checkpoint()
+        const contextual = prepareLumaContextGeometry(geometry)
+        if (!contextual) return undefined
+        await checkpoint()
+        const sections = await encodeCoefficientSectionsWithAlphaAsync(contextual, checkpoint)
+        return coefficientSectionsCost(sections) < coefficientSectionsCost(baseline)
+          ? sections
+          : undefined
+      })
+      if (alternative) {
+        for (const section of baseline) geometry.memory?.release(section)
+        return alternative
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+    return baseline
+  })
+
 const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
   if (value === 0) writer.writeBits(0, 2)
   else if (value <= 16) {
@@ -2364,12 +2495,7 @@ const writeU64 = (writer: JpegXlBitWriter, value: number): void => {
 }
 
 const writeDimension = (writer: JpegXlBitWriter, dimension: number): void =>
-  writeU32(writer, dimension, [
-    { bits: 9, offset: 1 },
-    { bits: 13, offset: 1 },
-    { bits: 18, offset: 1 },
-    { bits: 30, offset: 1 },
-  ])
+  writeU32(writer, dimension, jpegXlDimensionDistribution)
 
 const concatenate = (parts: readonly Uint8Array[], memory?: JpegXlEncoderMemory): Uint8Array => {
   const length = parts.reduce((sum, part) => sum + part.byteLength, 0)
@@ -2400,14 +2526,9 @@ export const varDctCodestreamParts = (
     writer.writeBits(0, 1)
     writer.writeBits(0, 1)
     writer.writeBits(0, 1)
-    writeU32(writer, 8, [{ value: 8 }, { value: 10 }, { value: 12 }, { bits: 6, offset: 1 }])
+    writeU32(writer, 8, jpegXlBitDepthDistribution)
     writer.writeBits(1, 1)
-    writeU32(writer, geometry.alpha ? 1 : 0, [
-      { value: 0 },
-      { value: 1 },
-      { bits: 4, offset: 2 },
-      { bits: 12, offset: 1 },
-    ])
+    writeU32(writer, geometry.alpha ? 1 : 0, jpegXlExtraChannelCountDistribution)
     if (geometry.alpha) writer.writeBits(1, 1)
     writer.writeBits(geometry.colorTransform === 'xyb' ? 1 : 0, 1)
     if (geometry.grayscale)
@@ -2428,12 +2549,7 @@ export const varDctCodestreamParts = (
   }
 
   writer.writeBits(0, 1)
-  writeU32(writer, frame.reference ? 2 : 0, [
-    { value: 0 },
-    { value: 1 },
-    { value: 2 },
-    { value: 3 },
-  ])
+  writeU32(writer, frame.reference ? 2 : 0, jpegXlZeroToThreeDistribution)
   writer.writeBits(0, 1)
   writeU64(writer, (geometry.adaptiveLfSmoothing ? 0 : 128) | (frame.patches ? 2 : 0))
   if (geometry.colorTransform !== 'xyb')
@@ -2441,8 +2557,8 @@ export const varDctCodestreamParts = (
   if (geometry.colorTransform === 'ycbcr') {
     for (const mode of geometry.chromaSubsampling) writer.writeBits(mode, 2)
   }
-  writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
-  if (geometry.alpha) writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+  writeU32(writer, 1, jpegXlUpsamplingDistribution)
+  if (geometry.alpha) writeU32(writer, 1, jpegXlUpsamplingDistribution)
   if (geometry.colorTransform === 'xyb') {
     writer.writeBits(2, 3)
     writer.writeBits(2, 3)
@@ -2457,39 +2573,23 @@ export const varDctCodestreamParts = (
   if (geometry.progressive && !frame.reference) {
     writeU32(writer, 1, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 1, offset: 3 }])
     writer.writeBits(0, 2)
-    writeU32(writer, 2, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+    writeU32(writer, 2, jpegXlUpsamplingDistribution)
     writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 3, offset: 0 }])
   }
   writer.writeBits(frame.reference ? 1 : 0, 1)
   if (frame.reference) {
-    writeU32(writer, image.width, [
-      { bits: 8, offset: 0 },
-      { bits: 11, offset: 256 },
-      { bits: 14, offset: 2_304 },
-      { bits: 30, offset: 18_688 },
-    ])
-    writeU32(writer, image.height, [
-      { bits: 8, offset: 0 },
-      { bits: 11, offset: 256 },
-      { bits: 14, offset: 2_304 },
-      { bits: 30, offset: 18_688 },
-    ])
+    writeU32(writer, image.width, jpegXlFrameSizeDistribution)
+    writeU32(writer, image.height, jpegXlFrameSizeDistribution)
   }
   if (frame.reference) {
-    writeU32(writer, 3, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writeU32(writer, 3, jpegXlZeroToThreeDistribution)
     writer.writeBits(1, 1)
   } else {
-    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-    if (geometry.alpha)
-      writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writeU32(writer, 0, jpegXlBlendModeDistribution)
+    if (geometry.alpha) writeU32(writer, 0, jpegXlBlendModeDistribution)
     writer.writeBits(1, 1)
   }
-  writeU32(writer, 0, [
-    { value: 0 },
-    { bits: 4, offset: 0 },
-    { bits: 5, offset: 16 },
-    { bits: 10, offset: 48 },
-  ])
+  writeU32(writer, 0, jpegXlNameLengthDistribution)
   writer.writeBits(0, 1)
   writer.writeBits(0, 1)
   writer.writeBits(geometry.epfSharpnessMap ? 2 : 0, 2)
@@ -2499,12 +2599,7 @@ export const varDctCodestreamParts = (
   writer.writeBits(0, 1)
   writer.alignToByte()
   for (const section of sections) {
-    writeU32(writer, section.byteLength, [
-      { bits: 10, offset: 0 },
-      { bits: 14, offset: 1_024 },
-      { bits: 22, offset: 17_408 },
-      { bits: 30, offset: 4_211_712 },
-    ])
+    writeU32(writer, section.byteLength, jpegXlSectionSizeDistribution)
   }
   writer.alignToByte()
   const parts = Object.freeze([

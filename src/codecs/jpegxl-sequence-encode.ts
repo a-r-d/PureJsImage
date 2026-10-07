@@ -19,6 +19,8 @@ import {
   encodeJpegXlAnimationImageHeader,
   JpegXlBitWriter,
   jpegXlStreamingContainerPrefix,
+  jpegXlBlendModeDistribution,
+  jpegXlSectionSizeDistribution,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 import { writeJpegXlNativeImageHeader } from './jpegxl-native-encode.ts'
@@ -126,7 +128,7 @@ const frameHeader = (
   const partial =
     x > 0 || y > 0 || x + input.width < options.width || y + input.height < options.height
   for (let channel = 0; channel <= frame.extraChannels.length; channel++) {
-    writeU32(writer, mode, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writeU32(writer, mode, jpegXlBlendModeDistribution)
     if (mode === 2 && frame.extraChannels.length) writer.writeBits(0, 2)
     if (mode === 4 || (mode === 2 && frame.extraChannels.length)) writer.writeBits(1, 1)
     if (mode !== 0 || partial) writeU32(writer, input.source ?? 0, enums)
@@ -158,12 +160,7 @@ const frameHeader = (
   writer.writeBits(0, 1)
   writer.alignToByte()
   for (const section of frame.sections)
-    writeU32(writer, section.length, [
-      { bits: 10, offset: 0 },
-      { bits: 14, offset: 1024 },
-      { bits: 22, offset: 17408 },
-      { bits: 30, offset: 4211712 },
-    ])
+    writeU32(writer, section.length, jpegXlSectionSizeDistribution)
   return writer.finish()
 }
 

@@ -15,6 +15,9 @@ import groupLossless from '../benchmark/jpegxl/comparison/results/lossless-group
 import losslessSpatial from '../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json' with {
   type: 'json',
 }
+import entropyControls from '../benchmark/jpegxl/comparison/results/original-luma-context-controls.json' with {
+  type: 'json',
+}
 import portraitBaseline from '../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json' with {
   type: 'json',
 }
@@ -292,6 +295,23 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   const portraitDocument = await page.request.get('/jpeg-xl/evidence/ORIGINAL-MATRIX.md')
   expect(portraitDocument.ok()).toBe(true)
   expect(await portraitDocument.text()).toContain('28.66% larger')
+  const entropyResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-luma-context-controls.json',
+  )
+  expect(entropyResponse.ok()).toBe(true)
+  const entropyDownloaded: unknown = await entropyResponse.json()
+  expect(entropyDownloaded).toEqual(entropyControls)
+  expect(entropyDownloaded).toMatchObject({
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    matchedQualityComparison: false,
+    freshEncodedFiles: 6,
+    freshCompleteIndependentGrids: 12,
+    freshPublicDecodedSamples: 205_440_000,
+  })
+  await expect(page.locator('main')).toContainText('saves 0.13–0.56% on six fixed-setting controls')
+  await expect(page.locator('main')).toContainText('Complete updated curves remain pending')
   for (const row of photoCompression.matchedFrozenPeerComparisons)
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
   await expect(page.locator('main')).toContainText('0.53% smaller')

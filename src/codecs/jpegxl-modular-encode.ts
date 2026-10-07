@@ -148,15 +148,95 @@ export const writeU32 = (
   throw invalidJpegXlInput('output integer is outside its distribution')
 }
 
+export const jpegXlSectionSizeDistribution: Parameters<typeof writeU32>[2] = [
+  { bits: 10, offset: 0 },
+  { bits: 14, offset: 1024 },
+  { bits: 22, offset: 17408 },
+  { bits: 30, offset: 4211712 },
+]
+export const jpegXlFrameSizeDistribution: Parameters<typeof writeU32>[2] = [
+  { bits: 8, offset: 0 },
+  { bits: 11, offset: 256 },
+  { bits: 14, offset: 2304 },
+  { bits: 30, offset: 18688 },
+]
+export const jpegXlZeroToThreeDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { value: 1 },
+  { value: 2 },
+  { value: 3 },
+]
+export const jpegXlBlendModeDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { value: 1 },
+  { value: 2 },
+  { bits: 2, offset: 3 },
+]
+export const jpegXlUpsamplingDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 1 },
+  { value: 2 },
+  { value: 4 },
+  { value: 8 },
+]
+export const jpegXlModularChannelDistribution: Parameters<typeof writeU32>[2] = [
+  { bits: 3, offset: 0 },
+  { bits: 6, offset: 8 },
+  { bits: 10, offset: 72 },
+  { bits: 13, offset: 1096 },
+]
+export const jpegXlNameLengthDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { bits: 4, offset: 0 },
+  { bits: 5, offset: 16 },
+  { bits: 10, offset: 48 },
+]
+export const jpegXlExtraChannelCountDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { value: 1 },
+  { bits: 4, offset: 2 },
+  { bits: 12, offset: 1 },
+]
+export const jpegXlDimensionDistribution: Parameters<typeof writeU32>[2] = [
+  { bits: 9, offset: 1 },
+  { bits: 13, offset: 1 },
+  { bits: 18, offset: 1 },
+  { bits: 30, offset: 1 },
+]
+export const jpegXlAnimationLoopsDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { bits: 3, offset: 0 },
+  { bits: 16, offset: 0 },
+  { bits: 32, offset: 0 },
+]
+export const jpegXlAnimationNumeratorDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 100 },
+  { value: 1000 },
+  { bits: 10, offset: 1 },
+  { bits: 30, offset: 1 },
+]
+export const jpegXlAnimationDenominatorDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 1 },
+  { value: 1001 },
+  { bits: 8, offset: 1 },
+  { bits: 10, offset: 1 },
+]
+export const jpegXlBitDepthDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 8 },
+  { value: 10 },
+  { value: 12 },
+  { bits: 6, offset: 1 },
+]
+export const jpegXlAlphaDimensionShiftDistribution: Parameters<typeof writeU32>[2] = [
+  { value: 0 },
+  { value: 3 },
+  { value: 4 },
+  { bits: 3, offset: 1 },
+]
+
 const writeZeroU64 = (writer: JpegXlBitWriter): void => writer.writeBits(0, 2)
 
 const writeDimension = (writer: JpegXlBitWriter, dimension: number): void =>
-  writeU32(writer, dimension, [
-    { bits: 9, offset: 1 },
-    { bits: 13, offset: 1 },
-    { bits: 18, offset: 1 },
-    { bits: 30, offset: 1 },
-  ])
+  writeU32(writer, dimension, jpegXlDimensionDistribution)
 
 type JpegXlSampleBitDepth = 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
 type JpegXlLosslessEffort = 1 | 3 | 5 | 7
@@ -310,16 +390,11 @@ export const writeColorEncoding = (
 
 const writeBitDepth = (writer: JpegXlBitWriter, bitDepth: JpegXlSampleBitDepth): void => {
   writer.writeBits(0, 1)
-  writeU32(writer, bitDepth, [{ value: 8 }, { value: 10 }, { value: 12 }, { bits: 6, offset: 1 }])
+  writeU32(writer, bitDepth, jpegXlBitDepthDistribution)
 }
 
 const writeName = (writer: JpegXlBitWriter): void =>
-  writeU32(writer, 0, [
-    { value: 0 },
-    { bits: 4, offset: 0 },
-    { bits: 5, offset: 16 },
-    { bits: 10, offset: 48 },
-  ])
+  writeU32(writer, 0, jpegXlNameLengthDistribution)
 
 const nextHuffmanKey = (key: number, length: number): number => {
   let step = 2 ** (length - 1)
@@ -2550,13 +2625,8 @@ const writeAnsPixels = (
 }
 
 const writeModularRct = (writer: JpegXlBitWriter, beginChannel: number, type = 6): void => {
-  writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
-  writeU32(writer, beginChannel, [
-    { bits: 3, offset: 0 },
-    { bits: 6, offset: 8 },
-    { bits: 10, offset: 72 },
-    { bits: 13, offset: 1_096 },
-  ])
+  writeU32(writer, 0, jpegXlZeroToThreeDistribution)
+  writeU32(writer, beginChannel, jpegXlModularChannelDistribution)
   writeU32(writer, type, [
     { value: 6 },
     { bits: 2, offset: 0 },
@@ -2575,13 +2645,8 @@ const writeModularPalette = (
     predictor: number
   }>,
 ): void => {
-  writeU32(writer, 1, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
-  writeU32(writer, beginChannel, [
-    { bits: 3, offset: 0 },
-    { bits: 6, offset: 8 },
-    { bits: 10, offset: 72 },
-    { bits: 13, offset: 1_096 },
-  ])
+  writeU32(writer, 1, jpegXlZeroToThreeDistribution)
+  writeU32(writer, beginChannel, jpegXlModularChannelDistribution)
   writeU32(writer, palette.channelCount, [
     { value: 1 },
     { value: 3 },
@@ -2635,7 +2700,7 @@ export const writeModularHeader = (
   }
   if (transforms.indexRct) writeModularRct(writer, 3)
   if (transforms.squeeze && transforms.squeeze.length > 0) {
-    writeU32(writer, 2, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writeU32(writer, 2, jpegXlZeroToThreeDistribution)
     writeU32(writer, transforms.squeeze.length, [
       { value: 0 },
       { bits: 4, offset: 1 },
@@ -2645,12 +2710,7 @@ export const writeModularHeader = (
     for (const parameter of transforms.squeeze) {
       writer.writeBits(parameter.horizontal ? 1 : 0, 1)
       writer.writeBits(1, 1)
-      writeU32(writer, parameter.beginChannel, [
-        { bits: 3, offset: 0 },
-        { bits: 6, offset: 8 },
-        { bits: 10, offset: 72 },
-        { bits: 13, offset: 1_096 },
-      ])
+      writeU32(writer, parameter.beginChannel, jpegXlModularChannelDistribution)
       writeU32(writer, parameter.channelCount, [
         { value: 1 },
         { value: 2 },
@@ -4532,35 +4592,15 @@ const writeImageHeader = (
     writer.writeBits(0, 1)
     writer.writeBits(animation ? 1 : 0, 1)
     if (animation) {
-      writeU32(writer, animation.ticksPerSecondNumerator, [
-        { value: 100 },
-        { value: 1000 },
-        { bits: 10, offset: 1 },
-        { bits: 30, offset: 1 },
-      ])
-      writeU32(writer, animation.ticksPerSecondDenominator, [
-        { value: 1 },
-        { value: 1001 },
-        { bits: 8, offset: 1 },
-        { bits: 10, offset: 1 },
-      ])
-      writeU32(writer, animation.loops, [
-        { value: 0 },
-        { bits: 3, offset: 0 },
-        { bits: 16, offset: 0 },
-        { bits: 32, offset: 0 },
-      ])
+      writeU32(writer, animation.ticksPerSecondNumerator, jpegXlAnimationNumeratorDistribution)
+      writeU32(writer, animation.ticksPerSecondDenominator, jpegXlAnimationDenominatorDistribution)
+      writeU32(writer, animation.loops, jpegXlAnimationLoopsDistribution)
       writer.writeBits(animation.haveTimecodes ? 1 : 0, 1)
     }
   }
   writeBitDepth(writer, options.sampleBitDepth)
   writer.writeBits(1, 1)
-  writeU32(writer, hasAlpha ? 1 : 0, [
-    { value: 0 },
-    { value: 1 },
-    { bits: 4, offset: 2 },
-    { bits: 12, offset: 1 },
-  ])
+  writeU32(writer, hasAlpha ? 1 : 0, jpegXlExtraChannelCountDistribution)
   if (hasAlpha) {
     if (options.alphaBitDepth !== 8) {
       writer.writeBits(0, 1)
@@ -4571,7 +4611,7 @@ const writeImageHeader = (
         { bits: 6, offset: 18 },
       ])
       writeBitDepth(writer, options.alphaBitDepth ?? options.sampleBitDepth)
-      writeU32(writer, 0, [{ value: 0 }, { value: 3 }, { value: 4 }, { bits: 3, offset: 1 }])
+      writeU32(writer, 0, jpegXlAlphaDimensionShiftDistribution)
       writeName(writer)
       writer.writeBits(options.colorSemantics.alpha === 'premultiplied' ? 1 : 0, 1)
     } else {
@@ -4580,7 +4620,7 @@ const writeImageHeader = (
         writer.writeBits(0, 1)
         writeEnum(writer, 0)
         writeBitDepth(writer, 8)
-        writeU32(writer, 0, [{ value: 0 }, { value: 3 }, { value: 4 }, { bits: 3, offset: 1 }])
+        writeU32(writer, 0, jpegXlAlphaDimensionShiftDistribution)
         writeName(writer)
         writer.writeBits(1, 1)
       }
@@ -5069,7 +5109,7 @@ const writeModularFrameHeader = (
   patches = false,
 ): void => {
   writer.writeBits(0, 1)
-  writeU32(writer, reference ? 2 : 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+  writeU32(writer, reference ? 2 : 0, jpegXlZeroToThreeDistribution)
   writer.writeBits(1, 1) // Modular.
   if (reference || !patches) writeZeroU64(writer)
   else {
@@ -5077,31 +5117,20 @@ const writeModularFrameHeader = (
     writer.writeBits(1, 4) // Patch dictionary frame flag, value 2.
   }
   writer.writeBits(0, 1) // RGB, without an XYB color transform.
-  writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
-  if (hasAlpha) writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 4 }, { value: 8 }])
+  writeU32(writer, 1, jpegXlUpsamplingDistribution)
+  if (hasAlpha) writeU32(writer, 1, jpegXlUpsamplingDistribution)
   writer.writeBits(groupShift, 2) // Modular group dimension.
   if (!reference)
     writeU32(writer, 1, [{ value: 1 }, { value: 2 }, { value: 3 }, { bits: 3, offset: 4 }])
   writer.writeBits(reference ? 1 : 0, 1)
   if (reference) {
-    writeU32(writer, width, [
-      { bits: 8, offset: 0 },
-      { bits: 11, offset: 256 },
-      { bits: 14, offset: 2_304 },
-      { bits: 30, offset: 18_688 },
-    ])
-    writeU32(writer, height, [
-      { bits: 8, offset: 0 },
-      { bits: 11, offset: 256 },
-      { bits: 14, offset: 2_304 },
-      { bits: 30, offset: 18_688 },
-    ])
-    writeU32(writer, 3, [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }])
+    writeU32(writer, width, jpegXlFrameSizeDistribution)
+    writeU32(writer, height, jpegXlFrameSizeDistribution)
+    writeU32(writer, 3, jpegXlZeroToThreeDistribution)
     writer.writeBits(1, 1) // Patch reference is stored before color transform.
   } else {
-    writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
-    if (hasAlpha)
-      writeU32(writer, 0, [{ value: 0 }, { value: 1 }, { value: 2 }, { bits: 2, offset: 3 }])
+    writeU32(writer, 0, jpegXlBlendModeDistribution)
+    if (hasAlpha) writeU32(writer, 0, jpegXlBlendModeDistribution)
     writer.writeBits(1, 1) // Final displayed frame.
   }
   writeName(writer)
@@ -5112,13 +5141,7 @@ const writeModularFrameHeader = (
   writeZeroU64(writer)
   writer.writeBits(0, 1) // Default section order.
   writer.alignToByte()
-  for (const section of sections)
-    writeU32(writer, section.length, [
-      { bits: 10, offset: 0 },
-      { bits: 14, offset: 1_024 },
-      { bits: 22, offset: 17_408 },
-      { bits: 30, offset: 4_211_712 },
-    ])
+  for (const section of sections) writeU32(writer, section.length, jpegXlSectionSizeDistribution)
   writer.alignToByte()
 }
 

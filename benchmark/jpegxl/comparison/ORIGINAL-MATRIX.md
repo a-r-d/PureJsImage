@@ -1,4 +1,4 @@
-# JPEG XL broader photo compression, October 6, 2026
+# JPEG XL broader photo compression, October 7, 2026
 
 ## Quick answer
 
@@ -7,6 +7,12 @@ Overall lossy compression parity remains open. The additional unresized
 PureJsImage uses 10.50–28.66% more bytes at the three adequately matched
 targets. It uses slightly fewer bytes at matched SSIMULACRA2 80 and 90.
 The earlier [12 MP photo](ORIGINAL-PHOTO.md) keeps its separate passing results.
+
+The latest entropy change saves 0.13–0.56% on six fixed-setting controls across
+four originals, with identical decoded pixels and both quality scores.
+These [preservation controls](results/original-luma-context-controls.json) add
+encoding work and do not close the portrait's matched-quality gaps. Complete
+updated curves remain pending. The table below retains the preceding baseline.
 
 ## Portrait baseline
 

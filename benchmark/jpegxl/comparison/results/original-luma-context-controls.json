@@ -1,0 +1,610 @@
+{
+  "implementationRevision": "47b16b90fa0d3ca9e08d637449b0289f560c6c87",
+  "implementationSourceSha256": "fa880dc62ea0ab910c5578217236e5af136f8eb2d6d2e56f51614b52a632f93c",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "scope": "Six fixed-setting identical-pixel controls on four original opaque RGBA8 photographs",
+  "freshEncodedFiles": 6,
+  "freshCompleteIndependentGrids": 12,
+  "freshPublicDecodedSamples": 205440000,
+  "fullParity": false,
+  "matchedQualityComparison": false,
+  "publicComparisonCountsChanged": false,
+  "precedingComparisonSourceSha256": "87d5c60dee1afb630bef2462e3819193061f690b9cb660a115f1029d3e2a2452",
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "bytes": 629987,
+      "sha256": "02edd090406e4f7b8e62f3191f00db9e4cef33d65083be35100013056dacbe5e",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 631000
+    },
+    {
+      "target": "codec-jpegxl",
+      "bytes": 557256,
+      "sha256": "d09047714bd193c3847ac90aa94ac9b7e7a99b67148380cfae8dfaabb99691ce",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 558000
+    }
+  ],
+  "controls": [
+    {
+      "fixture": "portrait-2400x3000",
+      "setting": 0.54,
+      "inputSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+      "precedingBytes": 2881126,
+      "bytes": 2868863,
+      "reductionPercent": 0.42563220074374186,
+      "encodedSha256": "b9fd36ff077e49540221b49f33e04b833b53b680f9ed88a64aa24a2eadad817a",
+      "decodedSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec",
+      "ssimulacra2": 91.88996962,
+      "butteraugli": 0.4807898104,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-0.54.jxl",
+      "baseline": {
+        "path": "benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json",
+        "sha256": "cd43fc5c2746ef9123a373313c60922d6081e44c1b1f63fe305596450664ecd2"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 28800000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-0.54.native.npy",
+          "sha256": "67a573982d21922ecc13a57e8c5fe2c725a9b98ad821b408c47b3afc3ac580ad",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-0.54.rust.npy",
+          "sha256": "b2fc04690f120f59996ebf6b15bc2b013b8aadc248e8751734641e71eeab9562",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 0.54,
+        "ownedPeak": 67114032,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 154247.336329
+      }
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "setting": 1.25,
+      "inputSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+      "precedingBytes": 1704262,
+      "bytes": 1694694,
+      "reductionPercent": 0.5614160264090895,
+      "encodedSha256": "c22bea35afb88effee368101e61864b3739506260e85651de487622f77bdbca7",
+      "decodedSha256": "fd57250d053d53ee7f06488c6ff9b9274b3a60d0bcab188990b97c62f927620c",
+      "ssimulacra2": 89.02147771,
+      "butteraugli": 1.0273522139,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-1.25.jxl",
+      "baseline": {
+        "path": "benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json",
+        "sha256": "cd43fc5c2746ef9123a373313c60922d6081e44c1b1f63fe305596450664ecd2"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 28800000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-1.25.native.npy",
+          "sha256": "8eb52a205c5976866c0c36cdd89c67c97d788bb2ef36d27e07e57e54e7c86012",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-1.25.rust.npy",
+          "sha256": "d3d0a7a452e1499c287df216eca540b1cf5ab435213966164bc049efa491a87b",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 1.25,
+        "ownedPeak": 63382355,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 164511.041005
+      }
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "setting": 3.6428,
+      "inputSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+      "precedingBytes": 711980,
+      "bytes": 708299,
+      "reductionPercent": 0.5170089047445203,
+      "encodedSha256": "d05a7f8198834d22a23e2808e6fb7f3dc94ecc86c591be01ddd6918e12f68299",
+      "decodedSha256": "8a072cbe83ab68b1251835b3380b090de41bd6dcbe4e725e29549b2a253f11a7",
+      "ssimulacra2": 77.22689999,
+      "butteraugli": 1.9877794981,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-3.6428.jxl",
+      "baseline": {
+        "path": "benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json",
+        "sha256": "cd43fc5c2746ef9123a373313c60922d6081e44c1b1f63fe305596450664ecd2"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 28800000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-3.6428.native.npy",
+          "sha256": "e3f5e02707f4ada67172d903a16bd0ebce2960751342d04ec12f8267e2233904",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-3.6428.rust.npy",
+          "sha256": "9f865cca54e8da978f9ae96d46447685760fdd1fb953bae3f60ec6201f765dbe",
+          "samples": 28800000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 3.6428,
+        "ownedPeak": 60316666,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 160754.62196299998
+      }
+    },
+    {
+      "fixture": "im26-1416-original",
+      "setting": 1.25,
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "precedingBytes": 1287496,
+      "bytes": 1285790,
+      "reductionPercent": 0.13250526603577617,
+      "encodedSha256": "528c5500b5794636f713fc2705640b6a56cd80f3b653f986f3a8998a56d8e160",
+      "decodedSha256": "815c9f0bd31c543d8989841ed95dec4211bb3f1375798966cc982f4858b5270e",
+      "ssimulacra2": 89.34895429,
+      "butteraugli": 0.9932414293,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/im26-1416-original-luma-u32-1901/purejsimage-1.25.jxl",
+      "baseline": {
+        "path": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+        "sha256": "d818e8fb8a5e052db3ed2ee15e858b0d8c4c2f5dcddb4300cdd169b416fb732c"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 48000000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/im26-1416-original-luma-u32-1901/purejsimage-1.25.native.npy",
+          "sha256": "e867159ae69c945a06ddea993ebb966ff21fecc4b8fe3d6a67686ace4de4669a",
+          "samples": 48000000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/im26-1416-original-luma-u32-1901/purejsimage-1.25.rust.npy",
+          "sha256": "e40940e6fa85df87fdc0716e8b9e892e99cef5d30a3f5cc5ed83b84a550315e1",
+          "samples": 48000000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 1.25,
+        "ownedPeak": 84386656,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 248665.381023
+      }
+    },
+    {
+      "fixture": "tundra-4000x3000",
+      "setting": 1.25,
+      "inputSha256": "0c1ea0f5c6783d9fcd1bc8c612a361c8d400bcb80b1747038039a7750c9d2599",
+      "precedingBytes": 3650574,
+      "bytes": 3645262,
+      "reductionPercent": 0.14551136341846016,
+      "encodedSha256": "fcd120af4e3840412ca926c3a45938e51f37a27c402a22b69903aa70154c50d7",
+      "decodedSha256": "726b729192d622d49da65c3bc637fa24ab48367fc8019fc7d6aea7231d465590",
+      "ssimulacra2": 91.03598152,
+      "butteraugli": 0.8142208457,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/tundra-4000x3000-luma-u32-1901/purejsimage-1.25.jxl",
+      "baseline": {
+        "path": ".tmp/jpegxl-comparison-v1/heldout-tundra-high-1530.json",
+        "sha256": "3c8fe3b59485692eeaac7c3d97e52c9ed8f681afa059f155f2214851a44dbf19"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 48000000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/tundra-4000x3000-luma-u32-1901/purejsimage-1.25.native.npy",
+          "sha256": "e45e234eb5770c1f676d9bc9c5282a953ae2dbf64218cea54b0e86b97bfa4802",
+          "samples": 48000000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/tundra-4000x3000-luma-u32-1901/purejsimage-1.25.rust.npy",
+          "sha256": "4cae1b5fedf9f5d51ea411ff1dee95e3e2129a60973e71ab927505fbd839e542",
+          "samples": 48000000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 1.25,
+        "ownedPeak": 91990713,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 261728.15491
+      }
+    },
+    {
+      "fixture": "earthrise-2400x2400",
+      "setting": 6.3,
+      "inputSha256": "23a43f76522ea57da5ef63418c31604852bbd9f2e18df0527ffdc3905e207caa",
+      "precedingBytes": 67654,
+      "bytes": 67487,
+      "reductionPercent": 0.24684423685221724,
+      "encodedSha256": "6f5934757e25392915c46bbe777750502ad71e34a904a22f80c31a4ec986ea8f",
+      "decodedSha256": "7d27ac40304342c038c35554bc1dea7516103ea797ed1f6cd09e9bd1c657ae7a",
+      "ssimulacra2": 79.3276859,
+      "butteraugli": 3.2605464458,
+      "identicalDecodedPixels": true,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/earthrise-2400x2400-luma-u32-1901/purejsimage-6.3.jxl",
+      "baseline": {
+        "path": ".tmp/jpegxl-comparison-v1/heldout-earthrise-coarse-1531.json",
+        "sha256": "6c32f93b1a4178837f69d9a614956b9139f1bfb01725d9f857699117288356f8"
+      },
+      "alphaError": {
+        "maximum": 0,
+        "changedSamples": 0,
+        "absoluteError": 0
+      },
+      "maximumPublicDecoderError": 1,
+      "maximumIndependentDecoderError": 1,
+      "publicSamples": 23040000,
+      "grids": [
+        {
+          "decoder": "native",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/earthrise-2400x2400-luma-u32-1901/purejsimage-6.3.native.npy",
+          "sha256": "a15114cfe8b831f0935b6f4d9ae84cd4064b04ef98566538e6f0083798249a92",
+          "samples": 23040000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        },
+        {
+          "decoder": "rust",
+          "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/earthrise-2400x2400-luma-u32-1901/purejsimage-6.3.rust.npy",
+          "sha256": "6dca78c6b138395e58d864b9ecaa06c888b6127742c8c728e1829c22b7f74671",
+          "samples": 23040000,
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          }
+        }
+      ],
+      "ownership": {
+        "distance": 6.3,
+        "ownedPeak": 50654783,
+        "ownedLive": 0,
+        "ownedAllocations": 0,
+        "elapsedMs": 98694.618635
+      }
+    }
+  ],
+  "qualification": {
+    "path": ".tmp/jpegxl-comparison-v1/luma-u32-qualification-1901.json",
+    "sha256": "20d8bf1fcfbafd0c277b8a248e6746b37f46a64881b810b85783f02582165f32"
+  },
+  "reports": [
+    {
+      "fixture": "portrait-2400x3000",
+      "path": ".tmp/jpegxl-comparison-v1/portrait-2400x3000-luma-u32-1901.json",
+      "sha256": "594b9ac4ad754189872926ca5aa122665137f118c926542ec6705dd2de61ef65",
+      "results": [
+        {
+          "subject": "purejsimage",
+          "setting": 0.54,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 0.54
+          },
+          "bytes": 2868863,
+          "score": 91.88996962,
+          "butteraugli": 0.4807898104,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 91.88996962,
+              "butteraugli": 0.4807898104
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-0.54.jxl",
+          "encodedSha256": "b9fd36ff077e49540221b49f33e04b833b53b680f9ed88a64aa24a2eadad817a",
+          "decodedPngSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+        },
+        {
+          "subject": "purejsimage",
+          "setting": 1.25,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 1.25
+          },
+          "bytes": 1694694,
+          "score": 89.02147771,
+          "butteraugli": 1.0273522139,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.02147771,
+              "butteraugli": 1.0273522139
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-1.25.jxl",
+          "encodedSha256": "c22bea35afb88effee368101e61864b3739506260e85651de487622f77bdbca7",
+          "decodedPngSha256": "fd57250d053d53ee7f06488c6ff9b9274b3a60d0bcab188990b97c62f927620c"
+        },
+        {
+          "subject": "purejsimage",
+          "setting": 3.6428,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 3.6428
+          },
+          "bytes": 708299,
+          "score": 77.22689999,
+          "butteraugli": 1.9877794981,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 77.22689999,
+              "butteraugli": 1.9877794981
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-2400x3000-luma-u32-1901/purejsimage-3.6428.jxl",
+          "encodedSha256": "d05a7f8198834d22a23e2808e6fb7f3dc94ecc86c591be01ddd6918e12f68299",
+          "decodedPngSha256": "8a072cbe83ab68b1251835b3380b090de41bd6dcbe4e725e29549b2a253f11a7"
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-original",
+      "path": ".tmp/jpegxl-comparison-v1/im26-1416-original-luma-u32-1901.json",
+      "sha256": "a178d2d9a60847b0bacbb678a0a3ac812776622bb96730c892f79f2e3ab012d1",
+      "results": [
+        {
+          "subject": "purejsimage",
+          "setting": 1.25,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 1.25
+          },
+          "bytes": 1285790,
+          "score": 89.34895429,
+          "butteraugli": 0.9932414293,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 89.34895429,
+              "butteraugli": 0.9932414293
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/im26-1416-original-luma-u32-1901/purejsimage-1.25.jxl",
+          "encodedSha256": "528c5500b5794636f713fc2705640b6a56cd80f3b653f986f3a8998a56d8e160",
+          "decodedPngSha256": "815c9f0bd31c543d8989841ed95dec4211bb3f1375798966cc982f4858b5270e"
+        }
+      ]
+    },
+    {
+      "fixture": "tundra-4000x3000",
+      "path": ".tmp/jpegxl-comparison-v1/tundra-4000x3000-luma-u32-1901.json",
+      "sha256": "ebfbb2dbe728609a9ebdc87d6241bbb2a143fd69b45b682f576da436e3ebd952",
+      "results": [
+        {
+          "subject": "purejsimage",
+          "setting": 1.25,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 1.25
+          },
+          "bytes": 3645262,
+          "score": 91.03598152,
+          "butteraugli": 0.8142208457,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 91.03598152,
+              "butteraugli": 0.8142208457
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/tundra-4000x3000-luma-u32-1901/purejsimage-1.25.jxl",
+          "encodedSha256": "fcd120af4e3840412ca926c3a45938e51f37a27c402a22b69903aa70154c50d7",
+          "decodedPngSha256": "726b729192d622d49da65c3bc637fa24ab48367fc8019fc7d6aea7231d465590"
+        }
+      ]
+    },
+    {
+      "fixture": "earthrise-2400x2400",
+      "path": ".tmp/jpegxl-comparison-v1/earthrise-2400x2400-luma-u32-1901.json",
+      "sha256": "80854d6aae696627872ff81625b2513251795bf533cdccf7a5b5949ba2d1e0ff",
+      "results": [
+        {
+          "subject": "purejsimage",
+          "setting": 6.3,
+          "publicOptions": {
+            "mode": "lossy",
+            "effort": 7,
+            "parameter": "distance",
+            "value": 6.3
+          },
+          "bytes": 67487,
+          "score": 79.3276859,
+          "butteraugli": 3.2605464458,
+          "backgrounds": [
+            {
+              "background": "black",
+              "ssimulacra2": 79.3276859,
+              "butteraugli": 3.2605464458
+            }
+          ],
+          "alphaError": {
+            "maximum": 0,
+            "changedSamples": 0,
+            "absoluteError": 0
+          },
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/earthrise-2400x2400-luma-u32-1901/purejsimage-6.3.jxl",
+          "encodedSha256": "6f5934757e25392915c46bbe777750502ad71e34a904a22f80c31a4ec986ea8f",
+          "decodedPngSha256": "7d27ac40304342c038c35554bc1dea7516103ea797ed1f6cd09e9bd1c657ae7a"
+        }
+      ]
+    }
+  ],
+  "evidence": ["tests/jpegxl-luma-contexts.test.ts", "browser-tests/jpegxl-luma-contexts.pw.ts"],
+  "policy": "Optional effort-7 original-photo median-luminance entropy contexts preserve coefficients and keep the preceding complete stream on ties, larger output or optional allocation LIMIT. Four image controls reproduce the separately qualified entropy bytes; two reserved originals test preservation only. Complete independent/public grids, exact alpha, caller ownership and unchanged canonical package ceilings pass. Twenty small controls retain preceding production bytes. This adds encoding work and establishes neither speed parity nor new matched-quality curves. The preceding portrait size gaps and unresolved comparisons remain open."
+}

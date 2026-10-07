@@ -18,6 +18,13 @@ import {
   writeModularTree,
   writePositiveF16,
   writePrefixCode,
+  jpegXlAlphaDimensionShiftDistribution,
+  jpegXlAnimationDenominatorDistribution,
+  jpegXlAnimationLoopsDistribution,
+  jpegXlAnimationNumeratorDistribution,
+  jpegXlExtraChannelCountDistribution,
+  jpegXlNameLengthDistribution,
+  jpegXlSectionSizeDistribution,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 
@@ -189,53 +196,23 @@ export const writeJpegXlNativeImageHeader = (
     writer.writeBits(0, 1) // No embedded preview.
     writer.writeBits(animation ? 1 : 0, 1)
     if (animation) {
-      writeU32(writer, animation.ticksPerSecondNumerator, [
-        { value: 100 },
-        { value: 1000 },
-        { bits: 10, offset: 1 },
-        { bits: 30, offset: 1 },
-      ])
-      writeU32(writer, animation.ticksPerSecondDenominator, [
-        { value: 1 },
-        { value: 1001 },
-        { bits: 8, offset: 1 },
-        { bits: 10, offset: 1 },
-      ])
-      writeU32(writer, animation.loops, [
-        { value: 0 },
-        { bits: 3, offset: 0 },
-        { bits: 16, offset: 0 },
-        { bits: 32, offset: 0 },
-      ])
+      writeU32(writer, animation.ticksPerSecondNumerator, jpegXlAnimationNumeratorDistribution)
+      writeU32(writer, animation.ticksPerSecondDenominator, jpegXlAnimationDenominatorDistribution)
+      writeU32(writer, animation.loops, jpegXlAnimationLoopsDistribution)
       writer.writeBits(animation.haveTimecodes ? 1 : 0, 1)
     }
   }
   writeDepth(writer, first)
   writer.writeBits(level === 5 ? 1 : 0, 1)
-  writeU32(writer, extra.length, [
-    { value: 0 },
-    { value: 1 },
-    { bits: 4, offset: 2 },
-    { bits: 12, offset: 1 },
-  ])
+  writeU32(writer, extra.length, jpegXlExtraChannelCountDistribution)
   for (const channel of extra) {
     writer.writeBits(0, 1)
     writeU32(writer, channel.type, enumValues)
     writeDepth(writer, channel)
-    writeU32(writer, channel.dimShift ?? 0, [
-      { value: 0 },
-      { value: 3 },
-      { value: 4 },
-      { bits: 3, offset: 1 },
-    ])
+    writeU32(writer, channel.dimShift ?? 0, jpegXlAlphaDimensionShiftDistribution)
     const name = new TextEncoder().encode(channel.name ?? '')
     if (name.length > 1071) throw limitExceeded('JPEG XL channel name is too long')
-    writeU32(writer, name.length, [
-      { value: 0 },
-      { bits: 4, offset: 0 },
-      { bits: 5, offset: 16 },
-      { bits: 10, offset: 48 },
-    ])
+    writeU32(writer, name.length, jpegXlNameLengthDistribution)
     for (const byte of name) writer.writeBits(byte, 8)
     if (channel.type === 0) writer.writeBits(channel.associatedAlpha ? 1 : 0, 1)
     if (channel.type === 2) {
@@ -641,13 +618,7 @@ export const encodeJpegXlNative = async (
   writeU64(writer, 0)
   writer.writeBits(0, 1)
   writer.alignToByte()
-  for (const section of sections)
-    writeU32(writer, section.length, [
-      { bits: 10, offset: 0 },
-      { bits: 14, offset: 1024 },
-      { bits: 22, offset: 17408 },
-      { bits: 30, offset: 4211712 },
-    ])
+  for (const section of sections) writeU32(writer, section.length, jpegXlSectionSizeDistribution)
   const header = writer.finish()
   const containerOverhead = level === 10 ? 49 : 0
   if (header.length + payloadBytes + containerOverhead > maximum)

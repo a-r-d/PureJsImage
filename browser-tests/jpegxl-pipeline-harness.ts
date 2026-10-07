@@ -1,4 +1,5 @@
 export { verifyCoefficientEntropyFloor } from '../tests/helpers/jpegxl-ac-entropy-floor.ts'
+export { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.ts'
 export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'
 export { verifyJpegXlArtwork } from '../tests/helpers/jpegxl-artwork.ts'
 export { verifyJpegXlCoefficientOrders } from '../tests/helpers/jpegxl-coefficient-orders.ts'
