@@ -34,7 +34,13 @@ const prepare = async (id: string) => {
     const firstPart = parts[0]
     if (!firstPart) throw new Error('Missing DC section')
     dc = parts.slice(1).every((part) => part.length === 0)
-      ? decodeJpegXlModularDcFrameSection(firstPart, dependency.codedWidth, dependency.codedHeight)
+      ? decodeJpegXlModularDcFrameSection(
+          firstPart,
+          dependency.codedWidth,
+          dependency.codedHeight,
+          undefined,
+          dependency,
+        )
       : decodeJpegXlMultiGroupModularDcFrameSections(parts, dependency)
   }
   const memory = new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes)

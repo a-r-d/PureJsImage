@@ -1,16 +1,19 @@
-import { type ImageSource, readExactly } from '../../src/source.ts'
 import {
   decodeJpegXlModularDcFrameSection,
   decodeJpegXlMultiGroupModularDcFrameSections,
   type JpegXlFrameStructure,
 } from '../../src/codecs/jpegxl-decode.ts'
-import { JpegXlVarDctMemoryLedger } from '../../src/codecs/jpegxl-vardct-memory.ts'
-import { decodeJpegXlDct8Section } from '../../src/codecs/jpegxl-vardct-render.ts'
 import {
   decodeJpegXlJpegDcGroup,
   decodeJpegXlJpegLfGlobal,
 } from '../../src/codecs/jpegxl-vardct-jpeg.ts'
+import { JpegXlVarDctMemoryLedger } from '../../src/codecs/jpegxl-vardct-memory.ts'
+import {
+  decodeJpegXlDct8Section,
+  prepareJpegXlVarDctLowFrequency,
+} from '../../src/codecs/jpegxl-vardct-render.ts'
 import { defaultImageLimits } from '../../src/limits.ts'
+import { type ImageSource, readExactly } from '../../src/source.ts'
 
 const uniqueStrategies = (frame: Readonly<JpegXlFrameStructure>, values: Uint8Array): number[] => {
   const found = new Set<number>()
@@ -34,47 +37,6 @@ export const inspectJpegXlVarDctStrategyIds = async (
   if (frame?.encoding !== 'vardct') return Object.freeze([])
   const blockWidth = Math.ceil(frame.codedWidth / 8)
   const blockHeight = Math.ceil(frame.codedHeight / 8)
-  if (frame.sections.length === 1) {
-    const section = frame.sections[0]
-    if (!section) throw new Error('JPEG XL integrated VarDCT section is missing')
-    const bytes = await readExactly(logical, section.offset, section.length)
-    const lf = decodeJpegXlJpegLfGlobal(
-      bytes,
-      0,
-      false,
-      frame.frameFlags,
-      frame.codedWidth,
-      frame.codedHeight,
-      frame.alphaBitDepth === undefined ? 0 : 1,
-    )
-    const dc = decodeJpegXlJpegDcGroup(
-      bytes,
-      {
-        blockWidth,
-        blockHeight,
-        chromaSubsampling: frame.chromaSubsampling,
-        groupId: 0,
-        dcGroupCount: 1,
-      },
-      lf.globalModularCode,
-      lf.endingBitPosition,
-      false,
-    )
-    return Object.freeze(uniqueStrategies(frame, dc.strategies))
-  }
-
-  const lfSection = frame.sections[0]
-  if (!lfSection) throw new Error('JPEG XL separated VarDCT LF section is missing')
-  const lfBytes = await readExactly(logical, lfSection.offset, lfSection.length)
-  const lf = decodeJpegXlJpegLfGlobal(
-    lfBytes,
-    0,
-    frame.alphaBitDepth === undefined,
-    frame.frameFlags,
-    frame.codedWidth,
-    frame.codedHeight,
-    frame.alphaBitDepth === undefined ? 0 : 1,
-  )
   let externalDcPlanes: readonly [Float64Array, Float64Array, Float64Array] | undefined
   const memory = new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes)
   for (const dcFrame of frames.slice(0, -1).filter(({ frameType }) => frameType === 'dc')) {
@@ -85,7 +47,13 @@ export const inspectJpegXlVarDctStrategyIds = async (
     if (!first) throw new Error('JPEG XL external DC frame section is missing')
     if (dcFrame.encoding === 'modular') {
       externalDcPlanes = sections.slice(1).every((section) => section.length === 0)
-        ? decodeJpegXlModularDcFrameSection(first, dcFrame.codedWidth, dcFrame.codedHeight)
+        ? decodeJpegXlModularDcFrameSection(
+            first,
+            dcFrame.codedWidth,
+            dcFrame.codedHeight,
+            undefined,
+            dcFrame,
+          )
         : decodeJpegXlMultiGroupModularDcFrameSections(sections, dcFrame)
     } else {
       if (!externalDcPlanes) throw new Error('JPEG XL external DC dependency is missing')
@@ -102,6 +70,61 @@ export const inspectJpegXlVarDctStrategyIds = async (
       externalDcPlanes = decoded.dcPlanes
     }
   }
+  if (frame.colorTransform === 'xyb') {
+    const sections = await Promise.all(
+      frame.sections
+        .slice(0, frame.sections.length === 1 ? 1 : 1 + frame.dcGroupCount)
+        .map((section) => readExactly(logical, section.offset, section.length)),
+    )
+    const state = prepareJpegXlVarDctLowFrequency(sections, frame, memory, externalDcPlanes)
+    try {
+      return Object.freeze(uniqueStrategies(frame, state.dcGroup.strategies))
+    } finally {
+      state.release()
+    }
+  }
+  if (frame.sections.length === 1) {
+    const section = frame.sections[0]
+    if (!section) throw new Error('JPEG XL integrated VarDCT section is missing')
+    const bytes = await readExactly(logical, section.offset, section.length)
+    const lf = decodeJpegXlJpegLfGlobal(
+      bytes,
+      0,
+      false,
+      frame.frameFlags,
+      frame.codedWidth,
+      frame.codedHeight,
+      frame.extraChannels.length,
+    )
+    const dc = decodeJpegXlJpegDcGroup(
+      bytes,
+      {
+        blockWidth,
+        blockHeight,
+        chromaSubsampling: frame.chromaSubsampling,
+        groupId: 0,
+        dcGroupCount: 1,
+      },
+      lf.globalModularCode,
+      lf.endingBitPosition,
+      false,
+      externalDcPlanes,
+    )
+    return Object.freeze(uniqueStrategies(frame, dc.strategies))
+  }
+
+  const lfSection = frame.sections[0]
+  if (!lfSection) throw new Error('JPEG XL separated VarDCT LF section is missing')
+  const lfBytes = await readExactly(logical, lfSection.offset, lfSection.length)
+  const lf = decodeJpegXlJpegLfGlobal(
+    lfBytes,
+    0,
+    frame.extraChannels.length === 0,
+    frame.frameFlags,
+    frame.codedWidth,
+    frame.codedHeight,
+    frame.extraChannels.length,
+  )
 
   const strategyIds = new Set<number>()
   const dcGroupBlockDimension = frame.groupDimension

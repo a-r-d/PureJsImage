@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
+import { inspectJpegXlVarDctStrategyIds } from '../benchmark/jpegxl/inspect-vardct-strategies.ts'
 import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { MemorySource } from '../src/source.ts'
@@ -35,6 +36,9 @@ describe('JPEG XL internal Modular DC alpha dependencies', () => {
       expect(dc?.extraChannels.map((channel) => channel.type)).toEqual([0])
       expect(dc?.sections.map((section) => section.length)).toEqual(fixture.dcSections)
       expect(dc?.sections.slice(1).some((section) => section.length > 0)).toBe(fixture.grouped)
+      expect(await inspectJpegXlVarDctStrategyIds(new MemorySource(input), frames)).toEqual(
+        fixture.grouped ? [5, 6, 11, 19] : [0, 5, 6, 7],
+      )
       const result = await verifyJpegXlModularDcAlpha(
         input,
         reference,
