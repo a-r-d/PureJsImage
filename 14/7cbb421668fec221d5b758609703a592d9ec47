@@ -1,0 +1,23 @@
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_2124e9c070be56 4036-4038
+  s_2b0ba550ad1491::t_1ae6887af975a1 10,4027-4035
+tests/jpegxl-m7-vardct-encode.test.ts
+  s_2b0ba550ad1491::t_53d02473982cc5 91-97,99-102,104-128
+  s_2b0ba550ad1491::t_10159d65d66e7b 86-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "147cbb421668fec221d5b758609703a592d9ec47",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
