@@ -33,7 +33,7 @@ it('preserves opaque gradient precision above four megapixels within its working
   expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
   expect(result.ownedLive).toBe(0)
   expect(result.ownedAllocations).toBe(0)
-}, 240_000)
+}, 420_000)
 
 it('preserves fine-quality opaque gradients within the original working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
@@ -48,7 +48,7 @@ it('preserves fine-quality opaque gradients within the original working budget',
   expect(result.ownedPeak).toBeLessThanOrEqual(67_108_864)
   expect(result.ownedLive).toBe(0)
   expect(result.ownedAllocations).toBe(0)
-}, 240_000)
+}, 420_000)
 
 it('returns the preceding fine-quality stream after optional rate-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery(0.54)

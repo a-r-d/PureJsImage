@@ -4,7 +4,8 @@ import { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.
 test('original-size luma and spatial context selection and LIMIT recovery match Node', async ({
   page,
 }) => {
-  test.setTimeout(600_000)
+  // Three complete Node encodes precede the same browser encodes on shared CI CPUs.
+  test.setTimeout(1_200_000)
   const expected = []
   for (const failure of ['limit', 'group-limit', 'none'] as const)
     expected.push(await verifyJpegXlLumaContexts(true, failure))

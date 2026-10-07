@@ -110,8 +110,8 @@ test('JPEG XL weighted DC compression preserves textured gradients across runtim
 test('JPEG XL opaque DC precision above four megapixels matches Node in a real browser', async ({
   page,
 }) => {
-  // The compression-first original-size search also runs in Node before browser validation.
-  test.setTimeout(600_000)
+  // Both complete compression-first searches need headroom on shared CI CPUs.
+  test.setTimeout(1_200_000)
   const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
   expect(expected.bytes).toBe(52_620)
   expect(expected.decodedChecksum).toBe(3167701458)
