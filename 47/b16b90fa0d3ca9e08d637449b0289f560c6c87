@@ -1,0 +1,45 @@
+tests/jpegxl-modular-dc-alpha.test.ts
+  s_2b0ba550ad1491::t_a6dab8eac8ad59 5
+  s_2b0ba550ad1491::t_f48269a22c2de1 39-41
+tests/jpegxl-progressive-render.test.ts
+  s_2b0ba550ad1491::t_a6dab8eac8ad59 37-43
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_3226e7e48f4a44 4043-4050
+  s_2b0ba550ad1491::t_ba2e3beaeb5795 4077-4080
+  s_2b0ba550ad1491::t_f785dfeace9b93 4081-4082
+  s_2b0ba550ad1491::t_a5452bf448dfc8 4051-4052
+  s_2b0ba550ad1491::t_e735490c584ac6 4083-4084
+  s_2b0ba550ad1491::t_33f922f3e9b0f1 4063-4066
+  s_2b0ba550ad1491::t_a0601ee815efde 4067-4072
+  s_2b0ba550ad1491::t_0ea1ab431e95bc 4058
+  s_2b0ba550ad1491::t_24c696f2960ec0 4059-4060
+  s_2b0ba550ad1491::t_b50e6379da6ae1 4061-4062
+  s_2b0ba550ad1491::t_356b5b910f662d 4073-4076
+  s_2b0ba550ad1491::t_04cd16867cdb42 4039-4042
+  s_2b0ba550ad1491::t_947baca8cb433d 4053-4057
+  s_2b0ba550ad1491::t_1928be56867f52 4085-4086
+benchmark/jpegxl/production-program/extract-features.ts
+  s_2b0ba550ad1491::t_87e4e21832598f 11
+  s_2b0ba550ad1491::t_ecf765dafc1b99 9,14-15,195
+benchmark/jpegxl/inspect-vardct-strategies.ts
+  s_2b0ba550ad1491::t_a6dab8eac8ad59 40-70,84-85,97,111,122,126
+  s_2b0ba550ad1491::t_87e4e21832598f 16
+  s_2b0ba550ad1491::t_8d7d75f6d1b38a 12-14,71-83
+  s_2b0ba550ad1491::t_663c8908c79678 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "47b16b90fa0d3ca9e08d637449b0289f560c6c87",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
