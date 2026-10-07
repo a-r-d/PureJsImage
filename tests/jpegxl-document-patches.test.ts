@@ -186,8 +186,8 @@ describe('JPEG XL document reference patches', () => {
       expect(result.ownedLive).toBe(0)
       expect(result.samples).toBe(512 * 512 * (format === 'rgba8' ? 4 : 3))
     },
-    // This reference search runs beside other large codec cases in the full suite.
-    60_000,
+    // Allow Node 22 CI headroom while this exact search shares the full suite.
+    120_000,
   )
   it('preserves exact lossless alpha, invisible RGB and nonpatched samples', async () => {
     const rgb = patternedPage()
