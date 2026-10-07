@@ -83,43 +83,49 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     aborted.close()
   }, 60_000)
 
+  // Static opaque 8-bit inputs run the full effort-7 candidate search. Allow hosted
+  // CI scheduling headroom while retaining every pixel, byte and storage assertion.
   for (const depth of [8, 16] as const)
     for (const progressive of [false, true])
       for (const opaque of [false, true])
-        it(`keeps complete metadata and family-context files no larger with identical ${depth}-bit pixels, progressive=${progressive}, opaque=${opaque}`, async () => {
-          const result = await verifyJpegXlFamilyContexts(depth, progressive, opaque, 16_777_216)
-          // Full decoded grids are independently equal to the frozen pre-change fixtures.
-          const checksum =
-            depth === 8
-              ? opaque
+        it(
+          `keeps complete metadata and family-context files no larger with identical ${depth}-bit pixels, progressive=${progressive}, opaque=${opaque}`,
+          async () => {
+            const result = await verifyJpegXlFamilyContexts(depth, progressive, opaque, 16_777_216)
+            // Full decoded grids are independently equal to the frozen pre-change fixtures.
+            const checksum =
+              depth === 8
+                ? opaque
+                  ? progressive
+                    ? 1643672645
+                    : 1714441565
+                  : 1636999297
+                : opaque
+                  ? 3220092047
+                  : 254616429
+            const maximumBytes =
+              depth === 8
                 ? progressive
-                  ? 1643672645
-                  : 1714441565
-                : 1636999297
-              : opaque
-                ? 3220092047
-                : 254616429
-          const maximumBytes =
-            depth === 8
-              ? progressive
-                ? opaque
-                  ? 8_247
-                  : 19_753
-                : opaque
-                  ? 2_316
-                  : 17_242
-              : progressive
-                ? opaque
-                  ? 10_826
-                  : 20_740
-                : opaque
-                  ? 9_445
-                  : 19_030
-          expect(result.decodedChecksum).toBe(checksum)
-          expect(result.bytes).toBeLessThanOrEqual(maximumBytes)
-          expect(result.alphaError).toBe(0)
-          expect(result.alphaSamples).toBe(513 * 257)
-        }, 30_000)
+                  ? opaque
+                    ? 8_247
+                    : 19_753
+                  : opaque
+                    ? 2_316
+                    : 17_242
+                : progressive
+                  ? opaque
+                    ? 10_826
+                    : 20_740
+                  : opaque
+                    ? 9_445
+                    : 19_030
+            expect(result.decodedChecksum).toBe(checksum)
+            expect(result.bytes).toBeLessThanOrEqual(maximumBytes)
+            expect(result.alphaError).toBe(0)
+            expect(result.alphaSamples).toBe(513 * 257)
+          },
+          depth === 8 && !progressive && opaque ? 60_000 : 30_000,
+        )
 
   it('preserves pixels when the optional order search exceeds its budget', async () => {
     const result = await verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
