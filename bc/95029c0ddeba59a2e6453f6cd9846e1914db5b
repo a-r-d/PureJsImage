@@ -1,0 +1,89 @@
+src/codecs/jpegxl-jpeg-encode.ts
+  s_2b0ba550ad1491::t_ae40126cd4bcdb 1212-1215,1241-1247,1276-1278,1286-1291,1294-1298,1612,1735-1766,1768-1778,1799-1801,1822-1826
+  s_2b0ba550ad1491::t_1e966a0f96a9c1 99,1205,1209-1211,1216-1217,1219-1240,1248-1268,1273,1275,1279-1285,1292-1293,1299-1305,1767,1791,1793,1796,1798,1815-1821,1827-1830
+  s_2b0ba550ad1491::t_63bde5c9bf5bba 1779
+browser-tests/jpegxl-pipeline.pw.ts
+  s_2b0ba550ad1491::t_b919cba41bca27 118
+tests/jpegxl-dc-model.test.ts
+  s_2b0ba550ad1491::t_ceea1eea690ba0 26-27
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_abda9d899c4110 5094-5098
+  s_2b0ba550ad1491::t_a5c9a22fc009e9 5115,5117-5118
+  s_2b0ba550ad1491::t_22086334bc84bb 5024-5050
+  s_2b0ba550ad1491::t_d005ad43bf46c5 5119-5120
+  s_2b0ba550ad1491::t_ecf1cecb8d28ca 5066-5077
+  s_2b0ba550ad1491::t_4170cdbee5e110 5147-5150
+  s_2b0ba550ad1491::t_8c8dde92e5f83f 5133-5134
+  s_2b0ba550ad1491::t_b5106a4830f517 5155-5156
+  s_2b0ba550ad1491::t_112ef5b838aaff 5088-5091
+  s_2b0ba550ad1491::t_c3285d4c3d1b08 4997-5009
+  s_2b0ba550ad1491::t_bfe71b2e1a3659 5110
+  s_2b0ba550ad1491::t_273b687787c2de 5157-5158
+  s_2b0ba550ad1491::t_78b73b7dcf6a26 5135-5136
+  s_2b0ba550ad1491::t_3bc890133619b7 5051-5065
+  s_2b0ba550ad1491::t_e33f5b636eb40d 5092-5093
+  s_2b0ba550ad1491::t_c30d128af9531e 5123-5124
+  s_2b0ba550ad1491::t_8fcab96bcbfed3 5113-5114
+  s_2b0ba550ad1491::t_647a8e96b91661 5121-5122
+  s_2b0ba550ad1491::t_179cd42463b8f7 5125-5126
+  s_2b0ba550ad1491::t_16757002c29cb4 5109,5111-5112
+  s_2b0ba550ad1491::t_d36db7861b7087 4996
+  s_2b0ba550ad1491::t_0cb7272e332740 5151-5154
+  s_2b0ba550ad1491::t_c12f570213ccf8 5010-5023
+  s_2b0ba550ad1491::t_e776c871fac129 5101-5102
+  s_2b0ba550ad1491::t_c8056ba838d42b 5107-5108
+  s_2b0ba550ad1491::t_e1d7b987167c21 5137-5140
+  s_2b0ba550ad1491::t_d2e37adf486b80 5084-5087
+  s_2b0ba550ad1491::t_998621d4732ce8 5141-5146
+  s_2b0ba550ad1491::t_ce50e5e6c6daff 5127-5132
+  s_2b0ba550ad1491::t_d4d0ee3a349cc4 5159-5160
+  s_2b0ba550ad1491::t_8ad1910624e506 5100
+  s_2b0ba550ad1491::t_31e2cbd854c393 5078-5083
+  s_2b0ba550ad1491::t_8a112c84913afb 5116
+  s_2b0ba550ad1491::t_6a15b3ec8193a1 5099
+  s_2b0ba550ad1491::t_52ae1acd10e047 5103-5106
+tests/jpegxl-cone-selection.test.ts
+  s_2b0ba550ad1491::t_afc773a1571b46 32-33
+browser-tests/jpegxl-pipeline-harness.ts
+  s_2b0ba550ad1491::t_1ab53a6d1d3173 7
+tests/helpers/jpegxl-dct16-orders.ts
+  s_2b0ba550ad1491::t_1ab53a6d1d3173 140-152,159
+  s_2b0ba550ad1491::t_ae40126cd4bcdb 1-94,96-110,113-118,120-139
+  s_2b0ba550ad1491::t_57cbfcabb07c53 95,111-112,119
+  s_2b0ba550ad1491::t_e3fe618cd4a026 153-158
+tests/jpegxl-dct16-orders.test.ts
+  s_2b0ba550ad1491::t_901db0554aa887 1-69
+browser-tests/jpegxl-dct16-orders.pw.ts
+  s_2b0ba550ad1491::t_787f2e161841e9 18-20
+  s_2b0ba550ad1491::t_e3fe618cd4a026 10-16
+  s_2b0ba550ad1491::t_1ab53a6d1d3173 1-9,17,21-24
+browser-tests/jpegxl-cone-selection.pw.ts
+  s_2b0ba550ad1491::t_afc773a1571b46 25-26,34
+scripts/bundle-size-budgets.ts
+  s_2b0ba550ad1491::t_afc773a1571b46 16-17,19
+README.md
+  s_2b0ba550ad1491::t_069a64e056dbe8 463
+  s_2b0ba550ad1491::t_428809c55d0f6e 482
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_069a64e056dbe8 109-111,129
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_d1f8a80a12d4ea 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_00e3f2584c7e80 179,566,571,574,577,1391,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
