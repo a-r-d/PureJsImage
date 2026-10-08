@@ -1,3 +1,9 @@
+import {
+  createFineAllocationPhoto,
+  fineAllocationWidth,
+  fineAllocationHeight,
+} from './jpegxl-fine-photo.ts'
+import type { ImageCodec } from '../../src/codec.ts'
 import { jpegxlCodec } from '../../src/codecs/jpegxl.ts'
 import { JpegXlCodestreamSource, inspectJpegXlSource } from '../../src/codecs/jpegxl-container.ts'
 import { readJpegXlSourceFrameStructures } from '../../src/codecs/jpegxl-decode.ts'
@@ -44,12 +50,16 @@ const checksum = (bytes: Uint8Array): number => {
   return value
 }
 
-export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
-  const width = conePhotoWidth,
-    height = conePhotoHeight,
-    pixels = createConePhoto(),
-    callerChecksum = checksum(pixels)
-  const encoder = await jpegxlCodec.createEncoder?.(sink, {
+const verifyPhoto = async (
+  distance: number,
+  sink: Uint8ArraySink,
+  codec: Pick<ImageCodec, 'createEncoder' | 'createDecoder'>,
+  width = conePhotoWidth,
+  height = conePhotoHeight,
+  pixels = createConePhoto(),
+) => {
+  const callerChecksum = checksum(pixels)
+  const encoder = await codec.createEncoder?.(sink, {
     width,
     height,
     pixelFormat: 'rgba8',
@@ -63,7 +73,13 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
       provenance: 'assumed-default',
       renderingIntent: 'relative',
     },
-    options: { mode: 'lossy', effort: 7, distance: 1.25, container: false },
+    options: {
+      mode: 'lossy',
+      effort: 7,
+      distance,
+      container: false,
+      ...(distance <= 1 ? { maxWorkingBytes: 67_108_864 } : {}),
+    },
     limits: defaultImageLimits,
   })
   if (!encoder) throw new Error('JPEG XL encoder is unavailable')
@@ -103,14 +119,31 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
   const ledger = new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes)
   const state = prepareJpegXlVarDctLowFrequency(sections, frame, ledger)
   let selectedDct16Blocks = 0
+  const quantizers = new Set<number>()
   try {
     for (const strategy of state.dcGroup.strategies) if (strategy === 4) selectedDct16Blocks++
+    if (distance <= 1) {
+      if (
+        frame.xQuantizationScale !== 0 ||
+        frame.bQuantizationScale !== 1 ||
+        frame.epfIterations !== 0
+      )
+        throw new Error('JPEG XL fine photo did not exercise its channel policy')
+      for (const value of state.dcGroup.quantization) {
+        if (!Number.isInteger(value) || value < 4 || value > 12)
+          throw new Error('JPEG XL fine photo has an invalid quantizer')
+        quantizers.add(value)
+      }
+      if (quantizers.size < 2)
+        throw new Error('JPEG XL fine photo did not select spatial quantizers')
+    }
   } finally {
     state.release()
   }
   if (ledger.liveBytes !== 0) throw new Error('JPEG XL LF ownership did not close')
-  if (selectedDct16Blocks === 0) throw new Error('JPEG XL photo did not select DCT16')
-  const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
+  if (distance > 1 && selectedDct16Blocks === 0)
+    throw new Error('JPEG XL photo did not select DCT16')
+  const decoder = await codec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
   if (
     !decoder ||
     decoder.width !== width ||
@@ -122,7 +155,8 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
   let coveredRows = 0,
     decodedChecksum = 2166136261,
     colorError = 0,
-    alphaError = 0
+    alphaError = 0,
+    releasedBlocks = 0
   for await (const block of decoder.decode()) {
     try {
       if (
@@ -139,7 +173,9 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
           const source = ((block.y + y) * width + x) * 4
           const target = y * block.stride + x * 4
           for (let channel = 0; channel < 4; channel++) {
-            const value = block.data[target + channel] ?? 0
+            const value = block.data[target + channel]
+            if (value === undefined || !Number.isFinite(value))
+              throw new Error('JPEG XL photo sample is missing or nonfinite')
             decodedChecksum = Math.imul(decodedChecksum ^ value, 16777619) >>> 0
             const difference = Math.abs(value - (pixels[source + channel] ?? 0))
             if (channel === 3) alphaError = Math.max(alphaError, difference)
@@ -149,16 +185,28 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
       }
       coveredRows += block.height
     } finally {
-      block.release?.()
+      if (block.release) {
+        block.release()
+        releasedBlocks++
+      }
     }
   }
   if (coveredRows !== height) throw new Error('JPEG XL photo decode is incomplete')
+  if (alphaError !== 0) throw new Error('JPEG XL photo changed opaque alpha')
+  if (checksum(pixels) !== callerChecksum) throw new Error('JPEG XL decode changed caller pixels')
   return {
     bytes: bytes.length,
     encodedChecksum: checksum(bytes),
     decodedChecksum,
     callerChecksum,
     selectedDct16Blocks,
+    quantizers: [...quantizers].sort((a, b) => a - b),
+    xScale: frame.xQuantizationScale,
+    bScale: frame.bQuantizationScale,
+    epfIterations: frame.epfIterations,
+    coveredRows,
+    releasedBlocks,
+    lfOwnedLive: ledger.liveBytes,
     samples: width * height * 4,
     alphaError,
     meanColorError: colorError / (width * height * 3),
@@ -167,3 +215,18 @@ export const verifyConePhoto = async (sink = new Uint8ArraySink()) => {
     ownedAllocations: encoder.managedLiveAllocations,
   }
 }
+
+export const verifyConePhoto = (sink = new Uint8ArraySink()) => verifyPhoto(1.25, sink, jpegxlCodec)
+
+export const verifyFinePhoto = (
+  sink = new Uint8ArraySink(),
+  codec: Pick<ImageCodec, 'createEncoder' | 'createDecoder'> = jpegxlCodec,
+) =>
+  verifyPhoto(
+    0.56,
+    sink,
+    codec,
+    fineAllocationWidth,
+    fineAllocationHeight,
+    createFineAllocationPhoto(),
+  )

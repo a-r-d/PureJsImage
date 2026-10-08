@@ -74,6 +74,8 @@ export interface VarDctCoefficientGeometry {
   readonly quantization: readonly Int32Array[]
   readonly dcQuantization?: readonly number[]
   readonly smoothDc?: boolean
+  readonly xScale?: 0 | 1 | 2 | 3
+  readonly bScale?: 1 | 2
   readonly acScale?: number
   readonly baseB?: number
   readonly defaultMatrices?: boolean
@@ -2606,8 +2608,8 @@ export const varDctCodestreamParts = (
   writeU32(writer, 1, jpegXlUpsamplingDistribution)
   if (geometry.alpha) writeU32(writer, 1, jpegXlUpsamplingDistribution)
   if (geometry.colorTransform === 'xyb') {
-    writer.writeBits(2, 3)
-    writer.writeBits(2, 3)
+    writer.writeBits(geometry.xScale ?? 2, 3)
+    writer.writeBits(geometry.bScale ?? 2, 3)
   }
   if (!frame.reference)
     writeU32(writer, geometry.progressive ? 2 : 1, [

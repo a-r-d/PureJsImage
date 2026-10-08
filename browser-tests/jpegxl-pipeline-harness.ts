@@ -1707,3 +1707,5 @@ export const verifyLosslessPaletteRgba = async () => {
 }
 
 export { verifyConePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'
+
+export { verifyFinePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'

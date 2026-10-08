@@ -33,6 +33,9 @@ import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parit
 import coneFloor from '../benchmark/jpegxl/comparison/results/original-cone-floor-controls.json' with {
   type: 'json',
 }
+import fineProduction from '../benchmark/jpegxl/comparison/results/original-fine-production-controls.json' with {
+  type: 'json',
+}
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
 
 test('converter and exact grayscale JPEG round trip stay local', async ({ page }) => {
@@ -343,6 +346,39 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   await expect(page.locator('#jxl-spatial-context-status')).toContainText(
     spatialControls.implementationSourceSha256,
   )
+  const fineResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-fine-production-controls.json',
+  )
+  expect(fineResponse.ok()).toBe(true)
+  const fineDownloaded: unknown = await fineResponse.json()
+  expect(fineDownloaded).toEqual(fineProduction)
+  expect(fineDownloaded).toMatchObject({
+    completed: true,
+    sourceAdopted: true,
+    productionQualified: true,
+    fullParity: false,
+    protectedSSIM90: { completed: true },
+    equivalenceBridge: { completed: true, installedSourceAndPackagesVerified: true },
+  })
+  expect(fineProduction.remainingConfirmedGaps).toHaveLength(3)
+  expect(fineProduction.unresolvedPortraitComparisonsPreserved).toHaveLength(4)
+  expect(fineProduction.protectedSSIM90.currentBand.status).toBe('adequate bracket')
+  expect(fineProduction.protectedSSIM90.currentBand.width).toBeLessThanOrEqual(0.25)
+  expect(fineProduction.protectedSSIM90.currentBand.interpolatedBytes).toBeLessThanOrEqual(
+    fineProduction.protectedSSIM90.baselineBytes,
+  )
+  await expect(page.locator('#jxl-fine-ssim90-status')).toContainText('2,008,483 bytes')
+  await expect(page.locator('#jxl-fine-ssim90-status')).toContainText('2.53% below')
+  await expect(page.locator('#jxl-fine-production-status')).toContainText('0.09% fewer bytes')
+  await expect(page.locator('#jxl-fine-production-status')).toContainText(
+    '3 confirmed portrait size gaps',
+  )
+  for (const row of fineProduction.comparisons.filter(
+    (row) => row.metric === 'butteraugli' && row.target === 0.5,
+  ))
+    await expect(page.locator('#jxl-fine-production-table')).toContainText(
+      Math.round(row.interpolatedBytes).toLocaleString('en-US'),
+    )
   await expect(page.locator('#jxl-cone-floor-status')).toContainText('9.41%')
   await expect(page.locator('#jxl-cone-floor-status')).toContainText('16.56% larger than jSquash')
   const coneResponse = await page.request.get('/jpeg-xl/evidence/original-cone-floor-controls.json')

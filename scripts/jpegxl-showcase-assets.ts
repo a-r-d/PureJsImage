@@ -56,6 +56,7 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     'original-luma-context-controls.json',
     'original-spatial-context-controls.json',
     'original-cone-floor-controls.json',
+    'original-fine-production-controls.json',
     'original-photo-quality-study.json',
     'original-photo-endpoint-qualification.json',
     'original-photo-ssim-endpoint-qualification.json',

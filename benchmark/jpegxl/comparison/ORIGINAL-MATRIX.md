@@ -1,13 +1,12 @@
-# JPEG XL broader photo compression, October 7, 2026
+# JPEG XL broader photo compression, October 8, 2026
 
 ## Quick answer
 
-Overall lossy compression parity remains open. The latest scoped portrait
-Butteraugli-1 curve improves by 9.41%, to an estimated 1,575,149 bytes. It
-remains 16.56% larger than jSquash and 9.50% larger than wasm-vips.
-The earlier [12 MP photo](ORIGINAL-PHOTO.md) also improves at Butteraugli 1
-and SSIMULACRA2 90. 4 confirmed portrait comparisons still have size gaps.
-The historical all-band table below keeps its original source and unresolved bands.
+Overall lossy compression parity remains open. The latest qualified portrait
+Butteraugli-0.5 curve is 0.09% smaller than pinned jSquash and 15.25% smaller
+than pinned wasm-vips. Three confirmed portrait size gaps remain, alongside four
+unresolved comparisons. The earlier 12 MP photo retains its passing fine result.
+The historical tables below keep their original sources.
 
 The preceding median-luminance entropy change saves 0.13–0.56% on six fixed-setting controls across
 four originals, with identical decoded pixels and both quality scores.
@@ -21,7 +20,40 @@ These changes add encoding work and do not close the portrait's matched-quality
 gaps. The latest scoped curves below keep separate evidence from the
 historical all-band baseline.
 
-## Latest scoped curves
+## Latest fine-photo update
+
+The qualified portrait curve uses an estimated 2,562,127 bytes at matched
+Butteraugli 0.5, 0.09% fewer than pinned jSquash and 15.25% fewer than pinned
+wasm-vips. The independent 12 MP photo uses 2,451,585 bytes, 1.34% fewer than
+jSquash and 17.99% fewer than wasm-vips. These are rounded log-byte interpolated
+estimates from complete public files, with unchanged 0.25-unit brackets and no
+extrapolation. Peer encoders were not rerun.
+
+| Input | Butteraugli | PureJsImage bytes | jSquash bytes | wasm-vips bytes |
+| --- | ---: | ---: | ---: | ---: |
+| 2400 × 3000 portrait | 0.5 | 2,562,127 | 2,564,399 | 3,023,095 |
+| 4000 × 3000 photo | 0.5 | 2,451,585 | 2,484,904 | 2,989,288 |
+
+The [fine-photo controls](results/original-fine-production-controls.json) record
+the qualified public files, source/package equivalence and protected SSIMULACRA2-90
+comparison. The portrait's matched SSIMULACRA2-90 estimate is 2,008,483 bytes,
+2.53% below the preceding result, 4.50% below jSquash and 10.40% below wasm-vips.
+Four BA-0.5 endpoint files and two SSIM90 endpoint files have twelve complete
+native/Rust grids and 211,200,000 checked public samples. Alpha is exact,
+caller data is unchanged and encoder
+and replay ownership closes. Public block releases and independent source-session
+ownership evidence retain their separate scopes.
+
+Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.
+
+Three confirmed portrait size gaps remain: Butteraugli 1 against jSquash and
+wasm-vips (16.56% and 9.50% larger), and Butteraugli 2 against jSquash (25.36%
+larger). Four portrait comparisons remain unresolved: jSquash SSIMULACRA2 70 and
+Butteraugli 3, and wasm-vips Butteraugli 2 and 3. No overall lossy parity or new
+speed/RSS result is claimed. The separate cached equal-coverage diagnostic is
+excluded from these public curves. Historical tables below keep their sources.
+
+## Preceding middle/coarse curves
 
 | Input | Metric | Target | Latest bytes | Versus historical curve | Frozen jSquash bytes | Frozen wasm-vips bytes |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -91,7 +123,7 @@ unchanged.
 The [predeclared plan](original-photo-matrix-plan.json) also includes the
 unresized tundra and Earthrise originals. Their inputs are verified; matched
 compression curves still need measurement. Encoder candidates must retain the
-passing earlier photo results and close the newly measured gaps before broader
+passing earlier photo results and close the three remaining confirmed gaps before broader
 parity is claimed. HDR, float, CMYK and animation require their own equivalent
 public-API comparisons.
 

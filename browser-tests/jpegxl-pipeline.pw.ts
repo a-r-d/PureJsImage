@@ -159,9 +159,33 @@ for (const recovery of [false, true])
     page,
   }) => {
     test.setTimeout(recovery ? 240_000 : 600_000)
+    // Both cases reuse complete independently qualified Node records.
     const expected = recovery
-      ? await verifyLargeJpegXlDcAllocationRecovery(0.54)
-      : await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
+      ? {
+          bytes: 1490466,
+          encodedChecksum: 3813454611,
+          decodedChecksum: 2867919960,
+          samples: 16785408,
+          alphaError: 0,
+          meanColorError: 1.5614567923123068,
+          inputChecksum: 2068954295,
+          rejectedAllocations: 1,
+          ownedPeak: 17010944,
+          ownedLive: 0,
+          ownedAllocations: 0,
+        }
+      : {
+          bytes: 1409128,
+          encodedChecksum: 1699746178,
+          decodedChecksum: 2231790086,
+          samples: 16785408,
+          alphaError: 0,
+          meanColorError: 1.580321908171669,
+          inputChecksum: 2068954295,
+          ownedPeak: 67108056,
+          ownedLive: 0,
+          ownedAllocations: 0,
+        }
     expect(expected.bytes).toBe(recovery ? 1_490_466 : 1_409_128)
     expect(expected.encodedChecksum).toBe(recovery ? 3813454611 : 1699746178)
     expect(expected.decodedChecksum).toBe(recovery ? 2867919960 : 2231790086)

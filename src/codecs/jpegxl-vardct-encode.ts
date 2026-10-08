@@ -30,6 +30,23 @@ import {
   defaultJpegXlQuantizationBiases,
 } from './jpegxl-vardct-quantization.ts'
 
+// Uniform scores would only coarsen the image. Require source variation before
+// redistributing the same six-percent rate reduction.
+function hasFineAllocationVariation(scores: Float64Array): boolean {
+  if (scores.length === 0) return false
+  let mean = 0,
+    m2 = 0
+  for (let i = 0; i < scores.length; i++) {
+    const score = scores[i]
+    if (score === undefined || !Number.isFinite(score) || score <= 0) return false
+    const value = Math.log(score + 1e-6),
+      delta = value - mean
+    mean += delta / (i + 1)
+    m2 += delta * (value - mean)
+  }
+  return m2 / scores.length > (-2 * Math.log(0.94)) ** 2
+}
+
 const strategyTables = (strategy: number): readonly Float64Array[] =>
   strategy === 0
     ? defaultJpegXlDct8Dequantization
@@ -702,6 +719,10 @@ function* prepare8(
     !progressive &&
     width * height > 4_194_304 &&
     distance <= 1
+  let xScale: 0 | 2 = 2
+  let xAc = 1
+  let bScale: 1 | 2 = 2
+  let bAc = 1
   const originalPhotoAc =
     compressionSearch &&
     sdrAlpha &&
@@ -1025,6 +1046,20 @@ function* prepare8(
       }
     : fillColor
   const means = allocateJpegXlArray(memory, Float32Array, 3)
+  let sourceScores: Float64Array | undefined
+  if (originalDarkAc) {
+    let reserve: Float32Array | undefined
+    try {
+      // Retain admission for the original 3+3+64 strategy scratch values.
+      reserve = allocateJpegXlArray(memory, Float32Array, 70)
+      sourceScores = allocateJpegXlArray(memory, Float64Array, blocksWide * blocksHigh)
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+    } finally {
+      if (reserve) memory.release(reserve)
+    }
+  }
+
   for (let blockY = 0; !deferredDc && blockY < blocksHigh; blockY++) {
     for (let blockX = 0; blockX < blocksWide; blockX++) {
       fill(blockX, blockY)
@@ -1058,6 +1093,14 @@ function* prepare8(
         covarianceY[tile] = (covarianceY[tile] ?? 0) + yy
         covarianceX[tile] = (covarianceX[tile] ?? 0) + xy
         covarianceB[tile] = (covarianceB[tile] ?? 0) + by
+
+        if (sourceScores)
+          sourceScores[offset] = Math.exp(
+            -1.6781207211372964 -
+              0.12447059956385063 * Math.log(Math.max(1.431434608338262e-7, gradient)) +
+              0.11768501802984889 * Math.log(Math.max(2.3679842775034314e-7, means[1] ?? 0)),
+          )
+
         const activity = gradient / Math.max(yy, 1e-12)
         if (fineRateMap) {
           const meanY = means[1] ?? 0
@@ -1112,11 +1155,13 @@ function* prepare8(
   memory.release(covarianceY)
   memory.release(covarianceX)
   memory.release(covarianceB)
-  const acRateWeightY = originalDarkAc || originalPhotoAc ? 0.1 : 0.05
+  let acRateWeightY = originalDarkAc || originalPhotoAc ? 0.1 : 0.05
+  let fineAcRateWeightY = 0.05
   let currentAcRateWeightY = acRateWeightY
   const fillCorrelated = (blockX: number, blockY: number): void => {
     if (fineRateMap)
-      currentAcRateWeightY = fineRateMap[blockY * blocksWide + blockX] === 1 ? 0.05 : acRateWeightY
+      currentAcRateWeightY =
+        fineRateMap[blockY * blocksWide + blockX] === 1 ? fineAcRateWeightY : acRateWeightY
     fill(blockX, blockY)
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
     const ratioX = (correlationX[tile] ?? 0) / 84
@@ -1178,7 +1223,8 @@ function* prepare8(
       let bits = 0
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel],
-          table = strategyTables(strategy)[channel]
+          table = strategyTables(strategy)[channel],
+          scale = channel === 0 ? localScale * xAc : channel === 2 ? localScale * bAc : localScale
         if (!plane || !table) throw invalidInput('Missing strategy plane')
         transform(strategy, plane)
         let squared = 0,
@@ -1186,7 +1232,7 @@ function* prepare8(
           lastNonzero = 0
         coefficientErrors[0] = 0
         for (let position = 1; position < 64; position++) {
-          const step = localScale * (table[position] ?? 0)
+          const step = scale * (table[position] ?? 0)
           const value = quantizeAc((transformed[position] ?? 0) / step, channel)
           if (Math.abs(value) > 4095) return Infinity
           const decoded =
@@ -1340,6 +1386,119 @@ function* prepare8(
       sharpnessMap = undefined
     }
   }
+
+  // Preserve original selected transforms and DC. The allocation budget belongs
+  // to output X0/half-Y; the source scores came from the unchanged original pass.
+  if (sourceScores && strategyMap && hasFineAllocationVariation(sourceScores)) {
+    let rates: Float64Array | undefined
+    try {
+      const blocks = blocksWide * blocksHigh
+      rates = allocateJpegXlArray(memory, Float64Array, blocks * 9)
+      for (let by = 0; by < blocksHigh; by++) {
+        for (let bx = 0; bx < blocksWide; bx++) {
+          fillCorrelated(bx, by)
+          currentAcRateWeightY *= 0.5
+          const index = by * blocksWide + bx,
+            strategy = strategyMap[index] ?? 0
+          const oldQ = quantizationMap[index] ?? quantAc
+          const firstQ = strategy === 0 ? 4 : oldQ,
+            lastQ = strategy === 0 ? 12 : oldQ
+          const tables = strategyTables(strategy)
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = planes[channel],
+              table = tables[channel]
+            if (!plane || !table) throw invalidJpegXlInput('Missing AQ source transform')
+            transform(strategy, plane)
+            for (let q = firstQ; q <= lastQ; q++) {
+              const slot = index * 9 + (strategy === 0 ? q - 4 : 0)
+              let cost = rates[slot] ?? 0
+              const scale = (65536 / globalScale / q) * (channel === 0 ? 0.8 ** -2 : 1)
+              for (let p = 1; p < 64; p++) {
+                const magnitude = Math.abs(
+                  quantizeAc((transformed[p] ?? 0) / (scale * (table[p] ?? 0)), channel),
+                )
+                if (magnitude) cost += 1 + 2 * Math.log2(1 + magnitude)
+              }
+              rates[slot] = cost
+            }
+          }
+          if (strategy !== 0)
+            for (let q = 1; q < 9; q++) rates[index * 9 + q] = rates[index * 9] ?? 0
+        }
+        yield
+      }
+      // Keep the research control's complete-group summation order.
+      let baselineRate = 0
+      const groupsAcross = Math.ceil(blocksWide / 32),
+        groupsDown = Math.ceil(blocksHigh / 32)
+      for (let gy = 0; gy < groupsDown; gy++)
+        for (let gx = 0; gx < groupsAcross; gx++)
+          for (let y = gy * 32; y < Math.min(blocksHigh, gy * 32 + 32); y++)
+            for (let x = gx * 32; x < Math.min(blocksWide, gx * 32 + 32); x++) {
+              const i = y * blocksWide + x
+              baselineRate += rates[i * 9 + (quantizationMap[i] ?? quantAc) - 4] ?? 0
+            }
+      let weightedLogError = 0
+      for (let i = 0; i < blocks; i++)
+        weightedLogError +=
+          (rates[i * 9 + (quantizationMap[i] ?? quantAc) - 4] ?? 0) *
+          Math.log((sourceScores[i] ?? 0) + 1e-6)
+      weightedLogError /= baselineRate
+      const choose = (shift: number, apply = false): number => {
+        let cost = 0
+        for (let i = 0; i < blocks; i++) {
+          const oldQ = quantizationMap[i] ?? quantAc
+          const q =
+            strategyMap?.[i] === 0
+              ? Math.max(
+                  4,
+                  Math.min(
+                    12,
+                    Math.round(
+                      oldQ *
+                        Math.exp(
+                          0.5 * (Math.log((sourceScores?.[i] ?? 0) + 1e-6) - weightedLogError) +
+                            shift,
+                        ),
+                    ),
+                  ),
+                )
+              : oldQ
+          cost += rates?.[i * 9 + q - 4] ?? 0
+          if (apply) quantizationMap[i] = q
+        }
+        return cost
+      }
+      let low = -8,
+        high = 8
+      const budget = baselineRate * 0.94
+      if (baselineRate > 0 && choose(low) <= budget) {
+        for (let iteration = 0; iteration < 24; iteration++) {
+          const middle = (low + high) / 2
+          if (choose(middle) <= budget) low = middle
+          else high = middle
+          yield
+        }
+        choose(low, true)
+        xScale = 0
+        xAc = 0.8 ** -2
+        bScale = 1
+        bAc = 1.25
+        acRateWeightY = 0.05
+        fineAcRateWeightY = 0.025
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      // Optional scratch failed before any Q or output policy was changed.
+    } finally {
+      if (rates) memory.release(rates)
+    }
+  }
+  if (sourceScores) {
+    memory.release(sourceScores)
+    sourceScores = undefined
+  }
+
   const groupsAcross = Math.ceil(blocksWide / 32)
   // Estimate transform cost from natural-order hybrid tokens, zeros and nonzero counts.
   const dct16Eligible = coarse && strategyMap !== undefined
@@ -1448,13 +1607,14 @@ function* prepare8(
       const scale = 65536 / globalScale / (quantizationMap[y * blocksWide + x] ?? quantAc)
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel],
-          table = defaultJpegXlDct8Dequantization[channel]
+          table = defaultJpegXlDct8Dequantization[channel],
+          acScale = channel === 0 ? scale * xAc : channel === 2 ? scale * bAc : scale
         if (!plane || !table) throw invalidInput('Missing baseline DCT8')
         forwardJpegXlDct8(plane, intermediate, transformed)
         quantized8[channel * 64] = 0
         error8[channel * 64] = 0
         for (let position = 1; position < 64; position++) {
-          const step = scale * (table[position] ?? 0),
+          const step = acScale * (table[position] ?? 0),
             value = quantizeAc((transformed[position] ?? 0) / step, channel)
           if (Math.abs(value) > 4095)
             throw unsupportedOperation('JPEG XL DCT8 AC coefficient exceeds 4095')
@@ -1595,11 +1755,12 @@ function* prepare8(
             candidateError.set(dcErrors)
             for (let channel = 0; channel < 3; channel++) {
               const coefficients = dct16Transformed[channel],
-                table = defaultJpegXlDct16Dequantization[channel]
+                table = defaultJpegXlDct16Dequantization[channel],
+                acScale = channel === 0 ? scale * xAc : channel === 2 ? scale * bAc : scale
               if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
               for (let p = 0; p < 256; p++) {
                 if (p >>> 4 < 2 && (p & 15) < 2) continue
-                const step = scale * (table[p] ?? 0),
+                const step = acScale * (table[p] ?? 0),
                   value = quantizeAc((coefficients[p] ?? 0) / step, channel)
                 if (Math.abs(value) > 4095) {
                   inRange = false
@@ -1707,17 +1868,16 @@ function* prepare8(
             const plane = dct16Planes[channel],
               coefficients = dct16Transformed[channel],
               destination = acStorage[channel],
-              table = defaultJpegXlDct16Dequantization[channel]
+              table = defaultJpegXlDct16Dequantization[channel],
+              scale =
+                channel === 0 ? localScale * xAc : channel === 2 ? localScale * bAc : localScale
             if (!plane || !coefficients || !destination || !table)
               throw invalidInput('Missing DCT16 group color')
             forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
             destination.fill(0, offset, offset + 256)
             for (let p = 0; p < 256; p++) {
               if (p >>> 4 < 2 && (p & 15) < 2) continue
-              const value = quantizeAc(
-                (coefficients[p] ?? 0) / (localScale * (table[p] ?? 0)),
-                channel,
-              )
+              const value = quantizeAc((coefficients[p] ?? 0) / (scale * (table[p] ?? 0)), channel)
               if (Math.abs(value) > 4095) throw unsupportedOperation('DCT16 AC range')
               destination[offset + p] = value
             }
@@ -1744,11 +1904,13 @@ function* prepare8(
           transform(strategy, plane)
           destination[offset] = 0
           const inverse = fastAcInverse?.[channel]
+          const scale =
+            channel === 0 ? localScale * xAc : channel === 2 ? localScale * bAc : localScale
           for (let position = 1; position < 64; position++) {
             const value = quantizeAc(
               inverse
                 ? (transformed[position] ?? 0) * (inverse[position] ?? 0)
-                : (transformed[position] ?? 0) / (localScale * (table[position] ?? 0)),
+                : (transformed[position] ?? 0) / (scale * (table[position] ?? 0)),
               channel,
             )
             if (value < -4095 || value > 4095)
@@ -1835,6 +1997,8 @@ function* prepare8(
     : undefined
   const geometry: VarDctCoefficientGeometry = {
     colorTransform: 'xyb',
+    xScale,
+    bScale,
     acIterationSearch: originalDarkAc || originalPhotoAc,
     advancedModularSearch:
       coarse ||
@@ -1862,7 +2026,7 @@ function* prepare8(
     globalScale,
     quantAc,
     quantDc: quantAc,
-    quantizationMap,
+    quantizationMap: quantizationMap,
     correlationX,
     correlationB,
     effort,

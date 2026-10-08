@@ -96,15 +96,15 @@ jobs:
         id: browser-compatibility
         run: >-
           npm run browser:test -- --project=${{ matrix.browser }}
-          --grep-invert 'JPEG XL original-photo selection preserves independently verified samples$'
+          --grep-invert 'JPEG XL (original-photo selection preserves independently verified samples|fine-photo policy preserves complete browser rows and opaque alpha)$'
           --output=test-results/compatibility
 
-      - name: Run isolated JPEG XL photo fixture
+      - name: Run isolated JPEG XL photo fixtures
         if: ${{ !cancelled() && (steps.browser-compatibility.outcome == 'success' || steps.browser-compatibility.outcome == 'failure') }}
         run: >-
-          npm run browser:test -- browser-tests/jpegxl-cone-selection.pw.ts
+          npm run browser:test -- browser-tests/jpegxl-cone-selection.pw.ts browser-tests/jpegxl-fine-selection.pw.ts
           --project=${{ matrix.browser }} --workers=1
-          --grep 'JPEG XL original-photo selection preserves independently verified samples$'
+          --grep 'JPEG XL (original-photo selection preserves independently verified samples|fine-photo policy preserves complete browser rows and opaque alpha)$'
           --output=test-results/jpegxl-photo
 
       - name: Upload browser failure traces

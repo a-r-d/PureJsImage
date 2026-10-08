@@ -1,0 +1,838 @@
+{
+  "completed": true,
+  "conditionalDraft": false,
+  "sourceAdopted": true,
+  "productionQualified": true,
+  "fullParity": false,
+  "scope": "two-original-photo-butteraugli-half-and-portrait-ssimulacra2-90",
+  "measuredCandidateSourceSha256": "664250b02bdf79ad1d79acfae3f8dddf194d3e78dac313162b45792a7c0bfc5f",
+  "adoptedImplementationSourceSha256": "eaf22d025e94c5c05e3427a8f5ec6a4d9cd637e0883823525851465d26c4b627",
+  "proposedMaintainedPath": "benchmark/jpegxl/comparison/results/original-fine-production-controls.json",
+  "maximumBracketWidthPerMetric": 0.25,
+  "interpolation": "log bytes on each metric nondominated frontier",
+  "extrapolation": false,
+  "effort": 7,
+  "eligibleOriginalPixels": {
+    "minimumExclusive": 4194304,
+    "maximumInclusive": 16777216
+  },
+  "eligibleDistance": {
+    "minimumInclusive": 0.25,
+    "maximumInclusive": 1
+  },
+  "comparisons": [
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 0.5,
+      "comparator": "jsquash",
+      "interpolatedBytes": 2562126.6939447294,
+      "peerBytes": 2564399.3802848877,
+      "ratio": 0.9991137549175723,
+      "status": "adequate bracket",
+      "maximumBracketWidthPerMetric": 0.25
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 0.5,
+      "comparator": "vips",
+      "interpolatedBytes": 2562126.6939447294,
+      "peerBytes": 3023094.53766625,
+      "ratio": 0.847517886728949,
+      "status": "adequate bracket",
+      "maximumBracketWidthPerMetric": 0.25
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 0.5,
+      "comparator": "jsquash",
+      "interpolatedBytes": 2451584.6178496988,
+      "peerBytes": 2484903.985535044,
+      "ratio": 0.9865912856676547,
+      "status": "adequate bracket",
+      "maximumBracketWidthPerMetric": 0.25
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 0.5,
+      "comparator": "vips",
+      "interpolatedBytes": 2451584.6178496988,
+      "peerBytes": 2989288.4478164446,
+      "ratio": 0.8201231365412338,
+      "status": "adequate bracket",
+      "maximumBracketWidthPerMetric": 0.25
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "comparator": "jsquash",
+      "interpolatedBytes": 2008483.1162806782,
+      "peerBytes": 2103148.177806666,
+      "ratio": 0.9549888769013354,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "comparator": "vips",
+      "interpolatedBytes": 2008483.1162806782,
+      "peerBytes": 2241666.4151023105,
+      "ratio": 0.895977698889248,
+      "status": "adequate bracket"
+    }
+  ],
+  "remainingConfirmedGaps": [
+    {
+      "comparator": "jsquash",
+      "target": 1,
+      "ratio": 1.1655789054459338,
+      "scope": "fresh scoped matched curve"
+    },
+    {
+      "comparator": "jsquash",
+      "target": 2,
+      "ratio": 1.2535590654882611,
+      "scope": "fresh scoped matched curve"
+    },
+    {
+      "comparator": "vips",
+      "target": 1,
+      "ratio": 1.0949859288475403,
+      "scope": "fresh scoped matched curve"
+    }
+  ],
+  "originalPortraitComparisonCounts": {
+    "total": 14,
+    "adequate": 10,
+    "unresolved": 4
+  },
+  "unresolvedPortraitComparisonsPreserved": [
+    {
+      "comparator": "jsquash",
+      "metric": "ssimulacra2",
+      "target": 70,
+      "status": "unresolved",
+      "pure": {
+        "metric": "ssimulacra2",
+        "target": 70,
+        "status": "adequate bracket",
+        "bracket": {
+          "lower": {
+            "setting": 5.1591,
+            "bytes": 525102,
+            "score": 69.87839059,
+            "butteraugli": 2.5074799061,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-22/purejsimage-5.1591.jxl",
+            "artifactSha256": "dda55116fd1ff6e0cb6172be0fe803244d433d2711f073d0ee8db98572501b78",
+            "decodedSha256": "cd9a6745a631274a45ce3d5a523b819597f444e538f39a9a4abed7aea8cb0e8c"
+          },
+          "upper": {
+            "setting": 5.126,
+            "bytes": 528108,
+            "score": 70.0092485,
+            "butteraugli": 2.4863703251,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-15/purejsimage-5.126.jxl",
+            "artifactSha256": "98d6814c8edd9f694431c6da93032397be302fec7339e3c771ba0992e3627872",
+            "decodedSha256": "bc1bdcb0b548324ee9620bc38f6995f019b7e8a299b3ec217435056c79b2a66d"
+          },
+          "width": 0.13085791000000313
+        },
+        "width": 0.13085791000000313,
+        "interpolatedBytes": 527894.9842858971
+      },
+      "peer": {
+        "metric": "ssimulacra2",
+        "target": 70,
+        "status": "wide bracket",
+        "bracket": {
+          "lower": {
+            "setting": 30.3,
+            "bytes": 430523,
+            "score": 64.05890522,
+            "butteraugli": 2.591003418,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-jsquash-curve-1557-01/jsquash-30.3.jxl",
+            "artifactSha256": "84fbe53577a6039c538a87084401a627a48e53938a580b3fa3a347d9e06d8943",
+            "decodedSha256": "194aa3926ee624de257e70c9efbc4bfca36afce2a25a351f1826579d0e5b7b97"
+          },
+          "upper": {
+            "setting": 24.184,
+            "bytes": 517955,
+            "score": 70.02377375,
+            "butteraugli": 2.3746864796,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-jsquash-curve-1557-22/jsquash-24.184.jxl",
+            "artifactSha256": "1553d08009d0a9b3a983c3e91d380b62a15b2b732bc9ce3027814df21fa87373",
+            "decodedSha256": "55da0e136f9f079f82fa417e8163f6da51ce2a04f34a4c083c789459a6449936"
+          },
+          "width": 5.964868530000004
+        },
+        "width": 5.964868530000004,
+        "interpolatedBytes": null
+      },
+      "ratio": null,
+      "atOrBelowPeerBytes": null
+    },
+    {
+      "comparator": "jsquash",
+      "metric": "butteraugli",
+      "target": 3,
+      "status": "unresolved",
+      "pure": {
+        "metric": "butteraugli",
+        "target": 3,
+        "status": "adequate bracket",
+        "bracket": {
+          "lower": {
+            "setting": 6.3645,
+            "bytes": 435051,
+            "score": 64.10757111,
+            "butteraugli": 3.1211884022,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-13/purejsimage-6.3645.jxl",
+            "artifactSha256": "b880fa921693af0c55f24a922a790503d0783a5220e7e9526d9ec00c9d2eb384",
+            "decodedSha256": "5bd9bb37b942eb7ec6de5be1ba4ff987226b283889caacf2db62415233d4b769"
+          },
+          "upper": {
+            "setting": 6.3,
+            "bytes": 439107,
+            "score": 64.42501385,
+            "butteraugli": 2.9728338718,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-photo-portrait-screen-1548/purejsimage-6.3.jxl",
+            "artifactSha256": "29dc272f11e7159b1f0fa412383bff577a347cde45af9da37ce4b6dab1dd506a",
+            "decodedSha256": "86104e1667b7a33070556f7e2167baafae07d038549069fac4615288f481a5a0"
+          },
+          "width": 0.14835453040000024
+        },
+        "width": 0.14835453040000024,
+        "interpolatedBytes": 438361.462537994
+      },
+      "peer": {
+        "metric": "butteraugli",
+        "target": 3,
+        "status": "wide bracket",
+        "bracket": {
+          "lower": {
+            "setting": 39.099,
+            "bytes": 360069,
+            "score": 57.79820919,
+            "butteraugli": 3.2845005989,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-jsquash-curve-1557-23/jsquash-39.099.jxl",
+            "artifactSha256": "57621b0c13c409a76ee5d537d9c7408ffcb42186d509a0e5df2f2438a48449b0",
+            "decodedSha256": "6b5b72ea0d89b4cc29e0744dada5cf9ce6054c6b83b809f832050fd1b5a12070"
+          },
+          "upper": {
+            "setting": 39.064,
+            "bytes": 360163,
+            "score": 57.81691625,
+            "butteraugli": 2.9646680355,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-jsquash-curve-1557-24/jsquash-39.064.jxl",
+            "artifactSha256": "579f8d8fbb10c777961dff31211237fb33eadbcfdf0714dc069a368ec0b9aee2",
+            "decodedSha256": "298be7f5878c06c1f465570730070b94de1238bb6032d4b402bbc2a7954fd238"
+          },
+          "width": 0.3198325633999999
+        },
+        "width": 0.3198325633999999,
+        "interpolatedBytes": null
+      },
+      "ratio": null,
+      "atOrBelowPeerBytes": null
+    },
+    {
+      "comparator": "vips",
+      "metric": "butteraugli",
+      "target": 2,
+      "status": "unresolved",
+      "pure": {
+        "metric": "butteraugli",
+        "target": 2,
+        "status": "adequate bracket",
+        "bracket": {
+          "lower": {
+            "setting": 3.6729,
+            "bytes": 706991,
+            "score": 77.04100669,
+            "butteraugli": 2.0937883854,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-12/purejsimage-3.6729.jxl",
+            "artifactSha256": "c42039f6acd485ece95d3086ae757bfd1789957a8f37e4d85b7843d16e9503b5",
+            "decodedSha256": "e2dd0502aaf92d824cc544a147809b7da7bce1a550907ecd3f1b89d7cec712e9"
+          },
+          "upper": {
+            "setting": 3.6428,
+            "bytes": 711980,
+            "score": 77.22689999,
+            "butteraugli": 1.9877794981,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-06/purejsimage-3.6428.jxl",
+            "artifactSha256": "50dd647525539bec9422bc1ab6e6418c2f2156f2d135d674dadd52cc66daafec",
+            "decodedSha256": "8a072cbe83ab68b1251835b3380b090de41bd6dcbe4e725e29549b2a253f11a7"
+          },
+          "width": 0.1060088872999998
+        },
+        "width": 0.1060088872999998,
+        "interpolatedBytes": 711403.0870098129
+      },
+      "peer": {
+        "metric": "butteraugli",
+        "target": 2,
+        "status": "wide bracket",
+        "bracket": {
+          "lower": {
+            "setting": 1.552,
+            "bytes": 715413,
+            "score": 76.92832066,
+            "butteraugli": 2.2056760788,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-vips-curve-1578-06/vips-1.552.jxl",
+            "artifactSha256": "4c7cad22f4ae89e07a44caff23ebd89a6c569dddd82f0f9006c4b721f88faeb4",
+            "decodedSha256": "56157ee6fa3e3275b185de376d3b34ddd3a551502f025f64380b6fa2b263bed8"
+          },
+          "upper": {
+            "setting": 1.483,
+            "bytes": 739005,
+            "score": 77.58270609,
+            "butteraugli": 1.7261379957,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-vips-curve-1578-20/vips-1.483.jxl",
+            "artifactSha256": "6b5d554c37057c2c37e294932e160a4bad5f9bb2ed77c73ea785eb7ef1d65913",
+            "decodedSha256": "c8d98a78d7d1959e2a1a6b6477d2b7c60d4f6ecc14d2ddb130759eb16fad9682"
+          },
+          "width": 0.4795380830999998
+        },
+        "width": 0.4795380830999998,
+        "interpolatedBytes": null
+      },
+      "ratio": null,
+      "atOrBelowPeerBytes": null
+    },
+    {
+      "comparator": "vips",
+      "metric": "butteraugli",
+      "target": 3,
+      "status": "unresolved",
+      "pure": {
+        "metric": "butteraugli",
+        "target": 3,
+        "status": "adequate bracket",
+        "bracket": {
+          "lower": {
+            "setting": 6.3645,
+            "bytes": 435051,
+            "score": 64.10757111,
+            "butteraugli": 3.1211884022,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-production-curve-1558-13/purejsimage-6.3645.jxl",
+            "artifactSha256": "b880fa921693af0c55f24a922a790503d0783a5220e7e9526d9ec00c9d2eb384",
+            "decodedSha256": "5bd9bb37b942eb7ec6de5be1ba4ff987226b283889caacf2db62415233d4b769"
+          },
+          "upper": {
+            "setting": 6.3,
+            "bytes": 439107,
+            "score": 64.42501385,
+            "butteraugli": 2.9728338718,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-photo-portrait-screen-1548/purejsimage-6.3.jxl",
+            "artifactSha256": "29dc272f11e7159b1f0fa412383bff577a347cde45af9da37ce4b6dab1dd506a",
+            "decodedSha256": "86104e1667b7a33070556f7e2167baafae07d038549069fac4615288f481a5a0"
+          },
+          "width": 0.14835453040000024
+        },
+        "width": 0.14835453040000024,
+        "interpolatedBytes": 438361.462537994
+      },
+      "peer": {
+        "metric": "butteraugli",
+        "target": 3,
+        "status": "wide bracket",
+        "bracket": {
+          "lower": {
+            "setting": 3.3,
+            "bytes": 353191,
+            "score": 56.86043349,
+            "butteraugli": 3.2373428345,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-vips-initial-1569/vips-3.3.jxl",
+            "artifactSha256": "5370b4226af116dbe507cc08c22518053734c4c712772d8fb89fe703d98c713b",
+            "decodedSha256": "8d65a1379598c650b399b73334354ce05e13cdbd0c08cfb56855cac84061d027"
+          },
+          "upper": {
+            "setting": 3.092,
+            "bytes": 378449,
+            "score": 59.33834186,
+            "butteraugli": 2.8647279739,
+            "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-vips-curve-1578-21/vips-3.092.jxl",
+            "artifactSha256": "d726508a09a7b931b6e95b1545cc953d99080b9e90fe65ec176086cfbb6ae76b",
+            "decodedSha256": "7da34ed8544d81c3bb705aaba80eabdfaf50019423291bca9e69b10865da76fe"
+          },
+          "width": 0.37261486060000015
+        },
+        "width": 0.37261486060000015,
+        "interpolatedBytes": null
+      },
+      "ratio": null,
+      "atOrBelowPeerBytes": null
+    }
+  ],
+  "rawPublicPoints": {
+    "portrait": [
+      {
+        "setting": 0.54,
+        "bytes": 2581921,
+        "score": 91.61849138,
+        "butteraugli": 0.4817750156,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-public2323/output/d0.54/portrait-2400x3000-0.54.jxl",
+        "artifactSha256": "ff4e93e91712a00cbcb6fb5c091627396a0d0b8ae38f43cedc8ea1b422c9149a",
+        "decodedSha256": "3796358f6eb5d67e4266f6df5476f7dabbdef1195b04e9d242c12e72e248e187"
+      },
+      {
+        "setting": 0.58,
+        "bytes": 2490531,
+        "score": 91.34365282,
+        "butteraugli": 0.5671159625,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-public2323/output/d0.58/portrait-2400x3000-0.58.jxl",
+        "artifactSha256": "9f4fd0f474f093cb03907f6362daf97506f30e812d65f07ed57dfe50568582fd",
+        "decodedSha256": "ffffbc9853816453b681e7819fec7bc71be9a0f24cf2a984531b1acbfe8034e7"
+      },
+      {
+        "setting": 0.837548,
+        "bytes": 2024457,
+        "score": 90.06916648,
+        "butteraugli": 0.685057044,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.837548/portrait-2400x3000-0.837548.jxl",
+        "artifactSha256": "03496c28a1a9be25f1677a415a1d983e4ef76a441afa24d008fae6cf7d78d1bb",
+        "decodedSha256": "21bfdae8a027080f76d85639504d65329f4523ac3cf44219bcf04bf28e1c6338"
+      },
+      {
+        "setting": 0.848753,
+        "bytes": 2007329,
+        "score": 89.99498142,
+        "butteraugli": 0.7284393907,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.848753/portrait-2400x3000-0.848753.jxl",
+        "artifactSha256": "dd2d1a8759430e6af9305e99c4c151f8d72597d96bbbd80cb41898e80a3cbcff",
+        "decodedSha256": "d1e4771ce869dd4cce009bd019f09587e72f4d1a72abafb258236b9e18042cd8"
+      }
+    ],
+    "independent": [
+      {
+        "setting": 0.48,
+        "bytes": 2456717,
+        "score": 91.92524856,
+        "butteraugli": 0.4940428734,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-independent-public2329/output/d0.48/im26-1416-original-0.48.jxl",
+        "artifactSha256": "8acf5e7b6f72c036776abb852969d1f8415e982f19d67ed9dc14176576f9c628",
+        "decodedSha256": "9cee5c9c5d363b6abac1ba436b7b88361c47c6eed69947b5d13fe9ef1e55361f"
+      },
+      {
+        "setting": 0.5,
+        "bytes": 2407738,
+        "score": 91.88890763,
+        "butteraugli": 0.5514068604,
+        "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-independent-public2329/output/d0.5/im26-1416-original-0.5.jxl",
+        "artifactSha256": "7cae6ae8a5961dd203f018e1596d56b4fb33c0bf050dc72f4fc87a045c224d18",
+        "decodedSha256": "df8591b3246d581673a336d77447f9681071d5213d052e72736e1e6e6832b51a"
+      }
+    ]
+  },
+  "qualificationReuse": {
+    "completePublicFiles": 6,
+    "completeIndependentGrids": 12,
+    "publicSamples": 211200000,
+    "naturalCoefficientWords": 158400000,
+    "freshAfterAdoptionEncodes": 0
+  },
+  "privateCachedEqualCoverage": {
+    "maintainedClaim": false,
+    "sourceReport": {
+      "path": ".tmp/jpegxl-comparison-v1/fine-combined-independent-d0542333/result.json",
+      "sha256": "e2548af2deac9cf6e3a185d9df1447f2958e70caee74ec92f727cc93a4fe4d58"
+    },
+    "comparison": {
+      "target": 0.5,
+      "maximumBracketWidth": 0.25,
+      "fivePercentB2AllAvailable": {
+        "points": [
+          {
+            "setting": 0.48,
+            "bytes": 2496112,
+            "score": -0.4895798564
+          },
+          {
+            "setting": 0.5,
+            "bytes": 2446085,
+            "score": -0.5315466523
+          },
+          {
+            "setting": 0.54,
+            "bytes": 2348646,
+            "score": -0.5187392235
+          }
+        ],
+        "width": 0.0291593671,
+        "adequate": true,
+        "interpolatedBytes": 2442380.757612926
+      },
+      "sixPercentB1PreviousCoverage": {
+        "points": [
+          {
+            "setting": 0.48,
+            "bytes": 2468351,
+            "score": -0.4940428734
+          },
+          {
+            "setting": 0.5,
+            "bytes": 2419368,
+            "score": -0.5514068604
+          }
+        ],
+        "width": 0.05736398699999995,
+        "adequate": true,
+        "interpolatedBytes": 2463218.4145919457
+      },
+      "sixPercentB1EqualCoverage": {
+        "points": [
+          {
+            "setting": 0.48,
+            "bytes": 2468351,
+            "score": -0.4940428734
+          },
+          {
+            "setting": 0.5,
+            "bytes": 2419368,
+            "score": -0.5514068604
+          },
+          {
+            "setting": 0.54,
+            "bytes": 2323751,
+            "score": -0.5187413692
+          }
+        ],
+        "width": 0.024698495799999998,
+        "adequate": true,
+        "interpolatedBytes": 2432671.443666019
+      },
+      "ratioToAllAvailableFive": 0.9960246518006487,
+      "priorRegressionPreserved": true,
+      "unequalSettingCoverageTest": true,
+      "cachedOnly": true,
+      "publicOverheadAssumed": false,
+      "mixedPublicCachedFrontier": false,
+      "noExtrapolation": true,
+      "noAutomaticPublic054": true,
+      "noAdoption": true
+    },
+    "neverMixedIntoPublicCurve": true,
+    "public054Measured": false
+  },
+  "equivalenceBridge": {
+    "completed": true,
+    "installedSourceAndPackagesVerified": true,
+    "sourceBoundaryPreservedByExactAdmissionNormalization": true,
+    "receipt": {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/measured-packages/result.json",
+      "sha256": "8c31b462e53309dd62d33b6089a19181441458c65d05c8ad5b4b2418693c665f"
+    },
+    "precedingBridgeReceipt": {
+      "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/installed-bridge-complete.json",
+      "sha256": "486f5ef40abdc8eb9625467455be24717f3d36b7e1113547ec19584e0b432ddd"
+    },
+    "baselineImplementationSourceSha256": "b46b06057a01de4ad7cbea10b1da3770dc3b2cf9426486ec506fc7786ff4ce0b",
+    "exactPhotoAdmissions": [
+      {
+        "fixture": "portrait-2400x3000",
+        "setting": 0.54,
+        "eligible": true,
+        "scoreCount": 112500,
+        "sourceScoresSha256": "e5378d5c911406ef91d190c37a3cb7b03e44ccc2d3909f06cfe78b7fb4eda56d",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-public2323/output/d0.54/portrait-2400x3000-0.54.jxl",
+        "historicalArtifactSha256": "ff4e93e91712a00cbcb6fb5c091627396a0d0b8ae38f43cedc8ea1b422c9149a"
+      },
+      {
+        "fixture": "portrait-2400x3000",
+        "setting": 0.58,
+        "eligible": true,
+        "scoreCount": 112500,
+        "sourceScoresSha256": "e5378d5c911406ef91d190c37a3cb7b03e44ccc2d3909f06cfe78b7fb4eda56d",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-public2323/output/d0.58/portrait-2400x3000-0.58.jxl",
+        "historicalArtifactSha256": "9f4fd0f474f093cb03907f6362daf97506f30e812d65f07ed57dfe50568582fd"
+      },
+      {
+        "fixture": "portrait-2400x3000",
+        "setting": 0.837548,
+        "eligible": true,
+        "scoreCount": 112500,
+        "sourceScoresSha256": "e5378d5c911406ef91d190c37a3cb7b03e44ccc2d3909f06cfe78b7fb4eda56d",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.837548/portrait-2400x3000-0.837548.jxl",
+        "historicalArtifactSha256": "03496c28a1a9be25f1677a415a1d983e4ef76a441afa24d008fae6cf7d78d1bb"
+      },
+      {
+        "fixture": "portrait-2400x3000",
+        "setting": 0.848753,
+        "eligible": true,
+        "scoreCount": 112500,
+        "sourceScoresSha256": "e5378d5c911406ef91d190c37a3cb7b03e44ccc2d3909f06cfe78b7fb4eda56d",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.848753/portrait-2400x3000-0.848753.jxl",
+        "historicalArtifactSha256": "dd2d1a8759430e6af9305e99c4c151f8d72597d96bbbd80cb41898e80a3cbcff"
+      },
+      {
+        "fixture": "im26-1416-original",
+        "setting": 0.48,
+        "eligible": true,
+        "scoreCount": 187500,
+        "sourceScoresSha256": "be7abd986ee14086aa3097ef8181da1d6f0a1ceeee25ce0070c95854bfa5d465",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-independent-public2329/output/d0.48/im26-1416-original-0.48.jxl",
+        "historicalArtifactSha256": "8acf5e7b6f72c036776abb852969d1f8415e982f19d67ed9dc14176576f9c628"
+      },
+      {
+        "fixture": "im26-1416-original",
+        "setting": 0.5,
+        "eligible": true,
+        "scoreCount": 187500,
+        "sourceScoresSha256": "be7abd986ee14086aa3097ef8181da1d6f0a1ceeee25ce0070c95854bfa5d465",
+        "historicalArtifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-independent-public2329/output/d0.5/im26-1416-original-0.5.jxl",
+        "historicalArtifactSha256": "7cae6ae8a5961dd203f018e1596d56b4fb33c0bf050dc72f4fc87a045c224d18"
+      }
+    ],
+    "priorFailureReceiptsAndLedgerRowsPreserved": true,
+    "historicalPhysicalReceiptSourceIdentitiesUnchanged": true,
+    "pinSnapshots": [
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-recovery2331/failed-ledger.snapshot.json",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990.json",
+        "sha256": "6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990"
+      },
+      {
+        "originalPath": ".tmp/jpegxl-comparison-v1/fast-screen-2169/combined-recovery2331/failed-ledger.snapshot.json",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990.json",
+        "sha256": "6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-jpeg-encode.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/a098a57e9852e33b85f62ef0b5010776b9ba7da9d68bf4d5f4479d9d69b2153c.ts",
+        "sha256": "a098a57e9852e33b85f62ef0b5010776b9ba7da9d68bf4d5f4479d9d69b2153c"
+      },
+      {
+        "originalPath": "src/codecs/jpegxl-jpeg-encode.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/a098a57e9852e33b85f62ef0b5010776b9ba7da9d68bf4d5f4479d9d69b2153c.ts",
+        "sha256": "a098a57e9852e33b85f62ef0b5010776b9ba7da9d68bf4d5f4479d9d69b2153c"
+      },
+      {
+        "originalPath": "src/codecs/jpegxl-vardct-encode.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/e48b1740decde9b8a7a1297b3f0426bea5ba2482656c580a038e7f716ab7e697.ts",
+        "sha256": "e48b1740decde9b8a7a1297b3f0426bea5ba2482656c580a038e7f716ab7e697"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-encode.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/e48b1740decde9b8a7a1297b3f0426bea5ba2482656c580a038e7f716ab7e697.ts",
+        "sha256": "e48b1740decde9b8a7a1297b3f0426bea5ba2482656c580a038e7f716ab7e697"
+      },
+      {
+        "originalPath": "src/codecs/jpegxl-vardct-render.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136.ts",
+        "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-render.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fine-adoption2337/snapshots/1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136.ts",
+        "sha256": "1c97c928b055418c99bb03ae4214b3801b815c108fdf2ec71d72975424c32136"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/original-photo-matrix-1547/664250b02bdf79ad1d79acfae3f8dddf194d3e78dac313162b45792a7c0bfc5f/portrait-2400x3000-purejsimage-attempts.json",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-recovery2331/failed-ledger.snapshot.json",
+        "sha256": "6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990"
+      },
+      {
+        "originalPath": ".tmp/jpegxl-comparison-v1/original-photo-matrix-1547/664250b02bdf79ad1d79acfae3f8dddf194d3e78dac313162b45792a7c0bfc5f/portrait-2400x3000-purejsimage-attempts.json",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/combined-recovery2331/failed-ledger.snapshot.json",
+        "sha256": "6d09622a995951224b0c56c35b1c85a5269858f4644bd221d71735618e4f4990"
+      },
+      {
+        "originalPath": "tests/helpers/jpegxl-cone-selection.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/historical-stat-inputs/75850e2d30752a261ecd23870b4fb7e8898d0376cc3dd55bc04fad514aac5d53.ts",
+        "sha256": "75850e2d30752a261ecd23870b4fb7e8898d0376cc3dd55bc04fad514aac5d53"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/tests/helpers/jpegxl-cone-selection.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/historical-stat-inputs/75850e2d30752a261ecd23870b4fb7e8898d0376cc3dd55bc04fad514aac5d53.ts",
+        "sha256": "75850e2d30752a261ecd23870b4fb7e8898d0376cc3dd55bc04fad514aac5d53"
+      },
+      {
+        "originalPath": "tests/jpegxl-fine-fallback.test.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/historical-stat-inputs/418e71d3f81c1b31f264d789abd3733f5fbb7daa84a377ffa114ab052c584e21.ts",
+        "sha256": "418e71d3f81c1b31f264d789abd3733f5fbb7daa84a377ffa114ab052c584e21"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/tests/jpegxl-fine-fallback.test.ts",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/historical-stat-inputs/418e71d3f81c1b31f264d789abd3733f5fbb7daa84a377ffa114ab052c584e21.ts",
+        "sha256": "418e71d3f81c1b31f264d789abd3733f5fbb7daa84a377ffa114ab052c584e21"
+      },
+      {
+        "originalPath": "src/codecs/jpegxl-vardct-encode.ts",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/baseline/src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "1b7b198d253c6f733224de14df6eaa56d1988d7d9c1a3428cd7e9dc9d2c9c6b2"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/src/codecs/jpegxl-vardct-encode.ts",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/baseline/src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "1b7b198d253c6f733224de14df6eaa56d1988d7d9c1a3428cd7e9dc9d2c9c6b2"
+      },
+      {
+        "originalPath": "benchmark/jpegxl/comparison/results/original-fine-production-controls.json",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/private-eaf22-publication/46152dff0169b4e077f3aaf261080c025b73667b2346e286693638f0d92b304e.json",
+        "sha256": "46152dff0169b4e077f3aaf261080c025b73667b2346e286693638f0d92b304e"
+      },
+      {
+        "originalPath": "/media/ard/samsung-2tb/projects/PureJsImage/benchmark/jpegxl/comparison/results/original-fine-production-controls.json",
+        "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/private-eaf22-publication/46152dff0169b4e077f3aaf261080c025b73667b2346e286693638f0d92b304e.json",
+        "sha256": "46152dff0169b4e077f3aaf261080c025b73667b2346e286693638f0d92b304e"
+      }
+    ],
+    "aliasReceipt": {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/private-eaf22-publication/historical-aliases.json",
+      "sha256": "534e247745a7cd0c85b11f075f358521ea54eb3a899a7972804a7b188d776826",
+      "scope": "Complete private alias evidence; only changed historical pins are inlined."
+    },
+    "completeSourceSnapshot": {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/baseline.json",
+      "sha256": "185be44d1060e0f8f93ce94f82b0a66b0d3ffd809d7b04941db2946cd2800c30",
+      "fileCount": 399
+    }
+  },
+  "speedOrIsolatedRssClaim": false,
+  "peerEncodersRerun": false,
+  "originalHistoricalReportsUnchanged": true,
+  "physicalPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/combined-recovery2331/result.json",
+      "sha256": "98acc42aeafffe95fa3cd79f8f3f0cf0908916c73f997ec10777ebaae4b1b7d2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/combined-independent-public2329/result.json",
+      "sha256": "8a32604c3f7fd5d41a21e6e952ab4bc176e67669b2138611b3e96488d23f3cd3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fine-combined-independent-d0542333/result.json",
+      "sha256": "e2548af2deac9cf6e3a185d9df1447f2958e70caee74ec92f727cc93a4fe4d58"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-cone-floor-controls.json",
+      "sha256": "8685fe086979ee236f0522a41e547cf1eaf28e4f99a18e02b19d2ef9196e5208"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fine-format2332/post-closure-audit2334.json",
+      "sha256": "79631896b9f508e3623168e7b6ceca81c91ca5c0d9a93f0c515dd62e00a7f519"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json",
+      "sha256": "cd43fc5c2746ef9123a373313c60922d6081e44c1b1f63fe305596450664ecd2"
+    }
+  ],
+  "implementationRevision": "59345b7a76e75de60c8c69b13d21739b3d92b02e",
+  "implementationSourceSha256": "eaf22d025e94c5c05e3427a8f5ec6a4d9cd637e0883823525851465d26c4b627",
+  "implementationDirty": true,
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/measured-packages/jpegxl-specialized.mjs",
+      "sha256": "428679d16c36e0c9633afc13c72f6475be77a1029b80fc27c51b3d26024bfca2",
+      "bytes": 629829,
+      "canonicalCeiling": 631000,
+      "withinCanonicalCeiling": true,
+      "exactExports": true,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "historicalPackageSha256": "276824b6cfef57bdcf444f1dfbc7ad08cd657f953a42e506d1ca225002d498e3",
+      "byteIdenticalToHistoricalPackage": false
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/validation2341/admission-bridge/measured-packages/codec-jpegxl.mjs",
+      "sha256": "6e86b0eb1800e98d0b091b57a2568bc13d3e417ec2fe33ca74a7d8acecdfb00a",
+      "bytes": 557184,
+      "canonicalCeiling": 558000,
+      "withinCanonicalCeiling": true,
+      "exactExports": true,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "historicalPackageSha256": "43967691820d3c2976edfc418240e377e3ec02b5af5fd71e44b7c4d9d696337d",
+      "byteIdenticalToHistoricalPackage": false
+    }
+  ],
+  "protectedSSIM90": {
+    "completed": true,
+    "baselineBytes": 2060522.8149536706,
+    "currentBand": {
+      "metric": "ssimulacra2",
+      "target": 90,
+      "status": "adequate bracket",
+      "bracket": {
+        "lower": {
+          "setting": 0.848753,
+          "bytes": 2007329,
+          "score": 89.99498142,
+          "butteraugli": 0.7284393907,
+          "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.848753/portrait-2400x3000-0.848753.jxl",
+          "artifactSha256": "dd2d1a8759430e6af9305e99c4c151f8d72597d96bbbd80cb41898e80a3cbcff",
+          "decodedSha256": "d1e4771ce869dd4cce009bd019f09587e72f4d1a72abafb258236b9e18042cd8"
+        },
+        "upper": {
+          "setting": 0.837548,
+          "bytes": 2024457,
+          "score": 90.06916648,
+          "butteraugli": 0.685057044,
+          "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/output/d0.837548/portrait-2400x3000-0.837548.jxl",
+          "artifactSha256": "03496c28a1a9be25f1677a415a1d983e4ef76a441afa24d008fae6cf7d78d1bb",
+          "decodedSha256": "21bfdae8a027080f76d85639504d65329f4523ac3cf44219bcf04bf28e1c6338"
+        },
+        "width": 0.07418506000000491
+      },
+      "width": 0.07418506000000491,
+      "interpolatedBytes": 2008483.1162806782
+    },
+    "receipt": {
+      "path": ".tmp/jpegxl-comparison-v1/fast-screen-2169/ssim90-public2343/publication-contract.json",
+      "sha256": "92407b3a23db9f14dfa1ea8fa0e8836cab2c67121931002de836d0c8f85c8ff5"
+    }
+  },
+  "handoffGatesRecordedSeparately": true,
+  "reportCompletionScope": "Six historical physical photo comparisons retained through exact admission-only source normalization and new complete package checks. Synthetic guard qualification and final repository/browser checks are separate.",
+  "fineAllocationAdmission": {
+    "sourceOnly": true,
+    "sourceStatistic": "Whole-image population variance of log(sourceScores + 1e-6)",
+    "strictCondition": "variance > (-2 * log(0.94)) ** 2",
+    "minimumLogVariance": 0.01531426234110528,
+    "sourceStatisticsReceipt": {
+      "path": ".tmp/jpegxl-comparison-v1/fine-gradient-guard-stats/result.json",
+      "sha256": "2bb1e24f5ebf0869c9a76c0d94dfeca4c2fc4b865a8052b88388ab367dbe34dd"
+    },
+    "originalSixPhotoSettingsRemainAdmitted": true,
+    "historicalConePhotoRemainsAdmitted": false,
+    "deniedSourcesRetainPrecedingFinePath": "Fresh synthetic fixture qualification is recorded separately; no new error bound is inferred from this photo bridge."
+  },
+  "photoReencodesForAdmissionCorrection": 0,
+  "refreshedPhotoMetricCalls": 0
+}
