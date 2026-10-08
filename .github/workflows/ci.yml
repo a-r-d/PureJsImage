@@ -92,7 +92,19 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
       - name: Run browser compatibility gate
-        run: npm run browser:test -- --project=${{ matrix.browser }}
+        id: browser-compatibility
+        run: >-
+          npm run browser:test -- --project=${{ matrix.browser }}
+          --grep-invert 'JPEG XL original-photo selection preserves independently verified samples$'
+          --output=test-results/compatibility
+
+      - name: Run isolated JPEG XL photo fixture
+        if: ${{ !cancelled() && (steps.browser-compatibility.outcome == 'success' || steps.browser-compatibility.outcome == 'failure') }}
+        run: >-
+          npm run browser:test -- browser-tests/jpegxl-cone-selection.pw.ts
+          --project=${{ matrix.browser }} --workers=1
+          --grep 'JPEG XL original-photo selection preserves independently verified samples$'
+          --output=test-results/jpegxl-photo
 
       - name: Upload browser failure traces
         if: failure()
