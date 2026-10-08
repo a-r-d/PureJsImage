@@ -4,9 +4,15 @@
 
 Overall lossy compression parity remains open. The latest qualified portrait
 Butteraugli-0.5 curve is 0.09% smaller than pinned jSquash and 15.25% smaller
-than pinned wasm-vips. Three confirmed portrait size gaps remain, alongside four
-unresolved comparisons. The earlier 12 MP photo retains its passing fine result.
-The historical tables below keep their original sources.
+than pinned wasm-vips. The three earlier middle/coarse gaps remain. New public
+files also confirm portrait Butteraugli-3 gaps of 20.83% against jSquash and
+18.39% against wasm-vips. The new large-transform curve reduces the portrait's
+Butteraugli-2 estimate by 2.66%, leaving a 22.02% gap against jSquash while
+beating wasm-vips by 6.74%. The portrait's SSIMULACRA2-70 comparison still needs
+current public files. The earlier 12 MP photo retains its passing fine result.
+The protected portrait SSIMULACRA2-80 curve also improves by 3.35% and uses
+6.10% fewer bytes than jSquash and 9.15% fewer than wasm-vips. The historical
+tables below keep their original sources and unresolved cells.
 
 The preceding median-luminance entropy change saves 0.13–0.56% on six fixed-setting controls across
 four originals, with identical decoded pixels and both quality scores.
@@ -19,6 +25,72 @@ preceding bytes. Every decoded pixel and both quality scores remain identical.
 These changes add encoding work and do not close the portrait's matched-quality
 gaps. The latest scoped curves below keep separate evidence from the
 historical all-band baseline.
+
+## Public large-transform update
+
+Two complete public-package encodes at source SHA-256 `7fa4526a` qualify the
+original portrait at Butteraugli 2. Distances 3.6905 and 4 produce 717,690 and
+668,225 bytes, with Butteraugli 1.8320224285 and 2.0306913853. The bracket width
+is 0.1986689568, within the unchanged 0.25-unit limit. The same nondominated
+log-byte interpolation gives an estimated 675,638 bytes, 2.66% fewer than the
+preceding qualified public result. Both frozen peer brackets also qualify.
+
+| Input | Butteraugli | PureJsImage bytes | jSquash bytes | Versus jSquash | wasm-vips bytes | Versus wasm-vips |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2400 × 3000 portrait | 2 | 675,638 | 553,694 | 22.02% larger | 724,493 | 6.74% smaller |
+
+The [public curve](results/large-transform-public-ba2.json) records complete
+package and artifact identities, the actual endpoints and all source/input/tool
+pins. All 57.6 million public/native RGBA samples agree within one 8-bit code;
+alpha is exact, caller data is unchanged and managed storage closes. The two
+raw SSIMULACRA2 scores are 78.59107954 and 77.17919958. No experimental cached
+file enters this public comparison.
+
+Two further public encodes qualify the protected portrait SSIMULACRA2-80 curve.
+Distances 3.4158 and 3.3914 produce 769,571 and 774,430 bytes, with scores
+79.99093737 and 80.08663964. Their bracket width is 0.09570227. The same
+current-source log-byte interpolation estimates 770,030 bytes, 3.35% fewer
+than the preceding qualified PureJsImage estimate of 796,731 bytes. It also
+uses 6.10% fewer bytes than pinned jSquash and 9.15% fewer than wasm-vips.
+All 57.6 million public/native RGBA samples pass the same one-code limit,
+with exact alpha, unchanged caller data and closed ownership. The
+[SSIM80 report](results/large-transform-public-ssim80.json) keeps all six actual
+current points and separate historical references. Each metric uses its own
+frontier. This result does not close the remaining Butteraugli gaps.
+
+A separate full-search [12 MP photo point](results/large-transform-independent-point.json)
+uses 467,236 bytes at distance 3.2613, 6.78% fewer than the historical
+501,221-byte file at the same nominal setting. Butteraugli changes from
+1.9426093102 to 1.9462729692, and SSIMULACRA2 from 80.02962323 to 80.06949255.
+All 48 million public/native samples pass the same bounds. This single point
+does not establish a matched-quality independent-photo curve.
+
+The [large-gradient control](results/large-transform-gradient-control.json)
+uses 43,823 bytes instead of 52,429. Complete native/Rust/public grids agree
+within one code, alpha is exact, and mean public color error is 2.2590, below
+the unchanged 2.35 limit. Managed peak storage remains within the original
+64 MiB budget. Overall compression parity remains open.
+
+## Public Butteraugli-3 update
+
+Two complete public-package encodes at source `bc95029c` qualify the original
+portrait at Butteraugli 3. Distances 6.3 and 6.3645 produce 435,840 and 431,900
+bytes, with Butteraugli 2.9728338718 and 3.1211884022. Their bracket width is
+0.1483545304. Both peer brackets also pass the unchanged 0.25-unit limit.
+The estimates use the same nondominated log-byte interpolation without
+extrapolation.
+
+| Input | Butteraugli | PureJsImage bytes | jSquash bytes | Versus jSquash | wasm-vips bytes | Versus wasm-vips |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2400 × 3000 portrait | 3 | 435,116 | 360,116 | 20.83% larger | 367,537 | 18.39% larger |
+
+The [public result](results/original-portrait-ba3-public.json) records source and
+complete package hashes, actual encoded-file hashes, peer endpoints and validation.
+All 28.8 million public/native RGBA samples per file agree within one 8-bit code;
+alpha is exact, caller bytes are unchanged and managed storage closes. These
+measurements resolve two previously missing comparisons. They do not indicate a
+codec regression or establish overall parity. Experimental geometry and channel
+controls remain outside these public curves.
 
 ## Latest fine-photo update
 
@@ -46,10 +118,11 @@ ownership evidence retain their separate scopes.
 
 Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.
 
-Three confirmed portrait size gaps remain: Butteraugli 1 against jSquash and
+At the fine checkpoint, three confirmed portrait size gaps remained: Butteraugli 1 against jSquash and
 wasm-vips (15.39% and 8.40% larger), and Butteraugli 2 against jSquash (25.36%
-larger). Four portrait comparisons remain unresolved: jSquash SSIMULACRA2 70 and
-Butteraugli 3, and wasm-vips Butteraugli 2 and 3. No overall lossy parity or new
+larger). Four portrait comparisons were unresolved: jSquash SSIMULACRA2 70 and
+Butteraugli 3, and wasm-vips Butteraugli 2 and 3. The later public Butteraugli-3
+measurement above confirms two more gaps. No overall lossy parity or new
 speed/RSS result is claimed. The separate cached equal-coverage diagnostic is
 excluded from these public curves. Historical tables below keep their sources.
 
@@ -150,7 +223,7 @@ unchanged.
 The [predeclared plan](original-photo-matrix-plan.json) also includes the
 unresized tundra and Earthrise originals. Their inputs are verified; matched
 compression curves still need measurement. Encoder candidates must retain the
-passing earlier photo results and close the three remaining confirmed gaps before broader
+passing earlier photo results and close the confirmed portrait gaps before broader
 parity is claimed. HDR, float, CMYK and animation require their own equivalent
 public-API comparisons.
 

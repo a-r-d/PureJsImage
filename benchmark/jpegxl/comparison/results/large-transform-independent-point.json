@@ -1,0 +1,150 @@
+{
+  "completed": true,
+  "failure": null,
+  "phase": "final-source-package-pins",
+  "identity": {
+    "implementationRevision": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+    "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+    "implementationDirty": true
+  },
+  "planSha256": "b4589863434f2fad176a9b90fdff1a827000007e2aed98b2a6195471fc4ee4f1",
+  "result": {
+    "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-independent/output/public.jxl",
+    "artifactSha256": "cbb9e8cb044e7e6f305cc483892aa4e36223824f8ebdd3a9be0654a5c6343531",
+    "setting": 3.2613,
+    "bytes": 467236,
+    "butteraugli": 1.9462729692,
+    "ssimulacra2": 80.06949255,
+    "encodeMs": 1067370.56299,
+    "publicSamples": 48000000,
+    "maximumPublicError": 1,
+    "exactOpaqueAlpha": true,
+    "callerUnchanged": true,
+    "ownedPeak": 118839267,
+    "ownerLive": 0,
+    "ownerLiveAllocations": 0,
+    "defaultWorkingBytes": 1073741824,
+    "packages": [
+      {
+        "target": "jpegxl-specialized",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-independent/packages/jpegxl-specialized.mjs",
+        "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+        "bytes": 656740,
+        "expectedCeiling": 632000,
+        "exports": [
+          "convertJpegXlCmykLayerToRgba8",
+          "convertJpegXlFloat32LayerToRgba16",
+          "convertJpegXlFloatLayerToRgba16",
+          "convertJpegXlIccLayerToRgba16",
+          "encodeJpegXlAnimation",
+          "encodeJpegXlNative",
+          "inspectJpegReconstructionEligibility",
+          "inspectJpegXl",
+          "jpegXlNativeFloat32ColorPlanes",
+          "jpegXlNativeUnsignedPlanes",
+          "openJpegXlSequence",
+          "openJpegXlSession",
+          "reconstructJpegFromJpegXl",
+          "transcodeJpegToJpegXl"
+        ]
+      },
+      {
+        "target": "codec-jpegxl",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-independent/packages/codec-jpegxl.mjs",
+        "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+        "bytes": 584097,
+        "expectedCeiling": 559000,
+        "exports": [
+          "BlobSource",
+          "BufferPool",
+          "BufferSink",
+          "CodecRegistry",
+          "FileSink",
+          "FileSource",
+          "ImageError",
+          "MemorySource",
+          "Uint8ArraySink",
+          "createImageLibrary",
+          "defaultImageLimits",
+          "inspectJpegXlStructure",
+          "jpegxlCodec",
+          "pixelBytesPerPixel",
+          "pixelStorage"
+        ]
+      }
+    ],
+    "baselineRaw": {
+      "setting": 3.2613,
+      "bytes": 501221,
+      "butteraugli": 1.9426093102,
+      "ssimulacra2": 80.02962323,
+      "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.jxl",
+      "artifactSha256": "11dce6ccac3e5406c7b12b3623e1b40440ef9c7930be2e5d4b640a94334dbed8",
+      "report": "benchmark/jpegxl/comparison/results/original-cone-floor-controls.json",
+      "scope": "Immutable historical original public coarse source policy, before current large integration. Raw same-request comparison only; no matched-quality or overhead subtraction."
+    },
+    "rawComparison": {
+      "bytesRatio": 0.9321955783975532,
+      "butteraugliDelta": 0.003663659000000097,
+      "ssimulacra2Delta": 0.0398693200000082,
+      "matchedQuality": false,
+      "scope": "Actual same nominal request against immutable historical public control only; policies and source revisions differ. No interpolation or parity claim."
+    }
+  },
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-independent/packages/jpegxl-specialized.mjs",
+      "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+      "bytes": 656740,
+      "expectedCeiling": 632000,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ]
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-independent/packages/codec-jpegxl.mjs",
+      "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+      "bytes": 584097,
+      "expectedCeiling": 559000,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ]
+    }
+  ],
+  "imageEncodes": 1,
+  "publicSamples": 48000000,
+  "maximumPublicError": 1,
+  "elapsedMs": 1091313.930595,
+  "maximumRssKiB": 987812,
+  "overallParity": false,
+  "limitation": "One actual full-search public-package independent-photo point at distance3.2613. Complete public/nativeRGBA and fresh samePNG BA+SSIM. Source/menu/layout proof is separate; no matched curve, independent retention, overall parity or speed claim."
+}

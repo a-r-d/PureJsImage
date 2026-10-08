@@ -1,0 +1,363 @@
+{
+  "completed": true,
+  "scope": "CURRENT originalportrait BA3 only",
+  "sourceIdentity": {
+    "implementationRevision": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+    "implementationSourceSha256": "c2622f1785e8ade70c2211127f901084a1aa8ca790ccc5785df9d5ab3360d193",
+    "implementationDirty": false
+  },
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "sha256": "fe97a32c2adf8af6ef1194c4f4f962a2a0af01187c548b44777a5fc4e095c3b2",
+      "bytes": 631592,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "ceiling": 632000
+    },
+    {
+      "target": "codec-jpegxl",
+      "sha256": "8da0d83a17268ec63ddf6224a764401ca7f81258891a510ec87e752f196090ca",
+      "bytes": 558947,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "ceiling": 559000
+    }
+  ],
+  "points": [
+    {
+      "receipt": ".tmp/jpegxl-comparison-v1/current-portrait-ba3/output/result.json",
+      "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/public.jxl",
+      "artifactSha256": "f45ff368f9fc76ee993ea75f1d7bcc8ac1bacf813397c88351dea27c6b61c6fd",
+      "setting": 6.3,
+      "bytes": 435840,
+      "butteraugli": 2.9728338718,
+      "ssimulacra2": 64.42501385,
+      "encodeMs": 210666.14464100002,
+      "publicSamples": 28800000,
+      "maximumPublicError": 1,
+      "exactOpaqueAlpha": true,
+      "callerUnchanged": true,
+      "ownedPeak": 95854568,
+      "ownerLive": 0,
+      "packages": [
+        {
+          "target": "jpegxl-specialized",
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/jpegxl-specialized.mjs",
+          "sha256": "fe97a32c2adf8af6ef1194c4f4f962a2a0af01187c548b44777a5fc4e095c3b2",
+          "bytes": 631592,
+          "exports": [
+            "convertJpegXlCmykLayerToRgba8",
+            "convertJpegXlFloat32LayerToRgba16",
+            "convertJpegXlFloatLayerToRgba16",
+            "convertJpegXlIccLayerToRgba16",
+            "encodeJpegXlAnimation",
+            "encodeJpegXlNative",
+            "inspectJpegReconstructionEligibility",
+            "inspectJpegXl",
+            "jpegXlNativeFloat32ColorPlanes",
+            "jpegXlNativeUnsignedPlanes",
+            "openJpegXlSequence",
+            "openJpegXlSession",
+            "reconstructJpegFromJpegXl",
+            "transcodeJpegToJpegXl"
+          ],
+          "ceiling": 632000
+        },
+        {
+          "target": "codec-jpegxl",
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/codec-jpegxl.mjs",
+          "sha256": "8da0d83a17268ec63ddf6224a764401ca7f81258891a510ec87e752f196090ca",
+          "bytes": 558947,
+          "exports": [
+            "BlobSource",
+            "BufferPool",
+            "BufferSink",
+            "CodecRegistry",
+            "FileSink",
+            "FileSource",
+            "ImageError",
+            "MemorySource",
+            "Uint8ArraySink",
+            "createImageLibrary",
+            "defaultImageLimits",
+            "inspectJpegXlStructure",
+            "jpegxlCodec",
+            "pixelBytesPerPixel",
+            "pixelStorage"
+          ],
+          "ceiling": 559000
+        }
+      ]
+    },
+    {
+      "receipt": ".tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/result.json",
+      "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/public.jxl",
+      "artifactSha256": "950450ef885198e8991545c26bf7b6c84a21e6f1314f756630952dae696314ed",
+      "setting": 6.3645,
+      "bytes": 431900,
+      "butteraugli": 3.1211884022,
+      "ssimulacra2": 64.10757111,
+      "encodeMs": 213635.753131,
+      "publicSamples": 28800000,
+      "maximumPublicError": 1,
+      "exactOpaqueAlpha": true,
+      "callerUnchanged": true,
+      "ownedPeak": 95844319,
+      "ownerLive": 0,
+      "packages": [
+        {
+          "target": "jpegxl-specialized",
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/jpegxl-specialized.mjs",
+          "sha256": "fe97a32c2adf8af6ef1194c4f4f962a2a0af01187c548b44777a5fc4e095c3b2",
+          "bytes": 631592,
+          "exports": [
+            "convertJpegXlCmykLayerToRgba8",
+            "convertJpegXlFloat32LayerToRgba16",
+            "convertJpegXlFloatLayerToRgba16",
+            "convertJpegXlIccLayerToRgba16",
+            "encodeJpegXlAnimation",
+            "encodeJpegXlNative",
+            "inspectJpegReconstructionEligibility",
+            "inspectJpegXl",
+            "jpegXlNativeFloat32ColorPlanes",
+            "jpegXlNativeUnsignedPlanes",
+            "openJpegXlSequence",
+            "openJpegXlSession",
+            "reconstructJpegFromJpegXl",
+            "transcodeJpegToJpegXl"
+          ],
+          "ceiling": 632000
+        },
+        {
+          "target": "codec-jpegxl",
+          "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/codec-jpegxl.mjs",
+          "sha256": "8da0d83a17268ec63ddf6224a764401ca7f81258891a510ec87e752f196090ca",
+          "bytes": 558947,
+          "exports": [
+            "BlobSource",
+            "BufferPool",
+            "BufferSink",
+            "CodecRegistry",
+            "FileSink",
+            "FileSource",
+            "ImageError",
+            "MemorySource",
+            "Uint8ArraySink",
+            "createImageLibrary",
+            "defaultImageLimits",
+            "inspectJpegXlStructure",
+            "jpegxlCodec",
+            "pixelBytesPerPixel",
+            "pixelStorage"
+          ],
+          "ceiling": 559000
+        }
+      ]
+    }
+  ],
+  "frontier": [
+    {
+      "setting": 6.3645,
+      "bytes": 431900,
+      "score": -3.1211884022
+    },
+    {
+      "setting": 6.3,
+      "bytes": 435840,
+      "score": -2.9728338718
+    }
+  ],
+  "currentBracket": {
+    "lower": {
+      "setting": 6.3645,
+      "bytes": 431900,
+      "score": -3.1211884022
+    },
+    "upper": {
+      "setting": 6.3,
+      "bytes": 435840,
+      "score": -2.9728338718
+    },
+    "width": 0.14835453040000024
+  },
+  "currentButteraugli3Bytes": 435115.84329082567,
+  "comparisons": [
+    {
+      "peer": "jsquash",
+      "qualified": true,
+      "targetButteraugli": 3,
+      "currentPureBytes": 435115.84329082567,
+      "peerBytes": 360115.9749507289,
+      "currentBracket": {
+        "lower": {
+          "setting": 6.3645,
+          "bytes": 431900,
+          "score": -3.1211884022
+        },
+        "upper": {
+          "setting": 6.3,
+          "bytes": 435840,
+          "score": -2.9728338718
+        },
+        "width": 0.14835453040000024
+      },
+      "peerBracket": {
+        "lower": {
+          "setting": 39.081,
+          "bytes": 360031,
+          "score": -3.0638570786
+        },
+        "upper": {
+          "setting": 39.064,
+          "bytes": 360163,
+          "score": -2.9646680355
+        },
+        "width": 0.09918904309999999
+      },
+      "ratio": 1.208265874209991,
+      "excessPercent": 20.826587420999097,
+      "status": "confirmed-current-size-gap"
+    },
+    {
+      "peer": "vips",
+      "qualified": true,
+      "targetButteraugli": 3,
+      "currentPureBytes": 435115.84329082567,
+      "peerBytes": 367537.08418994205,
+      "currentBracket": {
+        "lower": {
+          "setting": 6.3645,
+          "bytes": 431900,
+          "score": -3.1211884022
+        },
+        "upper": {
+          "setting": 6.3,
+          "bytes": 435840,
+          "score": -2.9728338718
+        },
+        "width": 0.14835453040000024
+      },
+      "peerBracket": {
+        "lower": {
+          "setting": 3.1943,
+          "bytes": 365395,
+          "score": -3.027025938
+        },
+        "upper": {
+          "setting": 3.092,
+          "bytes": 378449,
+          "score": -2.8647279739
+        },
+        "width": 0.16229796409999997
+      },
+      "ratio": 1.1838692257403858,
+      "excessPercent": 18.38692257403858,
+      "status": "confirmed-current-size-gap"
+    }
+  ],
+  "pins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-portrait-ba3/output/result.json",
+      "sha256": "25589947062e849134a4a43ed4afae565cc7c2db62d3a93ff35cd36832606fd6"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/public.jxl",
+      "sha256": "f45ff368f9fc76ee993ea75f1d7bcc8ac1bacf813397c88351dea27c6b61c6fd"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/jpegxl-specialized.mjs",
+      "sha256": "fe97a32c2adf8af6ef1194c4f4f962a2a0af01187c548b44777a5fc4e095c3b2"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3/output/codec-jpegxl.mjs",
+      "sha256": "8da0d83a17268ec63ddf6224a764401ca7f81258891a510ec87e752f196090ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/result.json",
+      "sha256": "dcf94aae0f8b3fdd22249e271b828f3e432e52ad265d844bb945d5a38d3e0aa3"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/public.jxl",
+      "sha256": "950450ef885198e8991545c26bf7b6c84a21e6f1314f756630952dae696314ed"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/jpegxl-specialized.mjs",
+      "sha256": "fe97a32c2adf8af6ef1194c4f4f962a2a0af01187c548b44777a5fc4e095c3b2"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-portrait-ba3-second/output/codec-jpegxl.mjs",
+      "sha256": "8da0d83a17268ec63ddf6224a764401ca7f81258891a510ec87e752f196090ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-public-peer-continuation/output-jsquash/result.json",
+      "sha256": "df69d5ef47865ac1cdde732ae849deb53aa1a76e348caa1df49402876ae70f56"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/portrait-public-peer-continuation/output-jsquash/attempt-04/jsquash.jxl",
+      "sha256": "3c76468117d1f9192dc12f6b7797494d9dc367fabb75ae9d6c37049b96690692"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-jsquash-curve-1557-24/jsquash-39.064.jxl",
+      "sha256": "579f8d8fbb10c777961dff31211237fb33eadbcfdf0714dc069a368ec0b9aee2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-public-peer-continuation/output-vips/result.json",
+      "sha256": "14f535c9760f9efa6fba58f1eb313846af6123b3a0c0ee670d5e5a78cb9e1ced"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/portrait-public-peer-continuation/output-vips/attempt-03/vips.jxl",
+      "sha256": "412556e261e4df2f28230f9636ba54cf55fa7be0d715f7321cc4632423d47f39"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-vips-curve-1578-21/vips-3.092.jxl",
+      "sha256": "d726508a09a7b931b6e95b1545cc953d99080b9e90fe65ec176086cfbb6ae76b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-portrait-ba3-interpretation/run.ts",
+      "sha256": "48cc8bec7115b46d081873024b7d8ca4277f5c6eb19d90b4d77d9d8557522ea3"
+    },
+    {
+      "path": "benchmark/jpegxl/m7-recovery-curves.ts",
+      "sha256": "20271339e38bf95eef3dcbd8765b7ddd62717d66e65e9ff716a61b775d1c4705"
+    },
+    {
+      "path": "benchmark/jpegxl/m7-quality-curves.ts",
+      "sha256": "fae8e4076f08087ab4248de08ef621638f43e33ec25b70546a114c117ef45563"
+    }
+  ],
+  "newEncodes": 0,
+  "newCodecCalls": 0,
+  "newMetricCalls": 0,
+  "overallParity": false,
+  "limits": "Two actualCURRENTpublicpackages/E7files, samec262/bcsource/packages, complete28.8Mpublic/nativeRGBAwithin1/exactalpha/caller/zeroowners. UnchangedmaintainednegativeBA nondominatedlogbyteinterpolation, strictwidth<=.25, noextrapolation. Peerpublic2421continuations included. NohistoricalPure curve substitution, othercurrenttarget qualification, independentretention or overallparity claim."
+}

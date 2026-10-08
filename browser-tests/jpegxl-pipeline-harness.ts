@@ -1,15 +1,13 @@
-export { verifyJpegXlGroupContexts } from '../tests/helpers/jpegxl-group-contexts.ts'
 export { verifyCoefficientEntropyFloor } from '../tests/helpers/jpegxl-ac-entropy-floor.ts'
-export { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.ts'
 export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'
 export { verifyJpegXlArtwork } from '../tests/helpers/jpegxl-artwork.ts'
 export { verifyJpegXlCoefficientOrders } from '../tests/helpers/jpegxl-coefficient-orders.ts'
-export { verifyDct16Orders } from '../tests/helpers/jpegxl-dct16-orders.ts'
 export {
   verifyJpegXlDcAllocationRecovery,
   verifyJpegXlDcModel,
   verifyLargeJpegXlDcAllocationRecovery,
 } from '../tests/helpers/jpegxl-dc-model.ts'
+export { verifyDct16Orders } from '../tests/helpers/jpegxl-dct16-orders.ts'
 export { verifyDenseLosslessTraining } from '../tests/helpers/jpegxl-dense-training.ts'
 export { verifyJpegXlFamilyContexts } from '../tests/helpers/jpegxl-family-contexts.ts'
 export {
@@ -17,10 +15,12 @@ export {
   verifyRepeatedLosslessColors,
 } from '../tests/helpers/jpegxl-fast-lossless.ts'
 export { verifyFlatPaletteGraphic } from '../tests/helpers/jpegxl-flat-palette.ts'
+export { verifyJpegXlGroupContexts } from '../tests/helpers/jpegxl-group-contexts.ts'
 export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.ts'
-export { verifyJpegXlModularDcAlpha } from '../tests/helpers/jpegxl-modular-dc-alpha.ts'
 export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
 export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
+export { verifyLargeCoefficientOrders } from '../tests/helpers/jpegxl-large-orders.ts'
+export { verifyLargeSourceSelection } from '../tests/helpers/jpegxl-large-source.ts'
 export {
   verifyLearnedLosslessFixture,
   verifyReversibleLosslessColor,
@@ -29,6 +29,8 @@ export { verifyLearnedPalette } from '../tests/helpers/jpegxl-learned-palette.ts
 export { verifySampledZeroLearning } from '../tests/helpers/jpegxl-learner-shortcuts.ts'
 export { verifyJpegXlLocalContrast } from '../tests/helpers/jpegxl-local-contrast.ts'
 export { verifyLosslessPatchFixture } from '../tests/helpers/jpegxl-lossless-patches.ts'
+export { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.ts'
+export { verifyJpegXlModularDcAlpha } from '../tests/helpers/jpegxl-modular-dc-alpha.ts'
 export { verifyOpaqueJpegXlGradient } from '../tests/helpers/jpegxl-opaque-gradients.ts'
 export { verifyJpegXlPatchFeatures } from '../tests/helpers/jpegxl-patch-features.ts'
 export { verifySmallGroupPatch } from '../tests/helpers/jpegxl-small-groups.ts'
@@ -1707,6 +1709,4 @@ export const verifyLosslessPaletteRgba = async () => {
   return { bytes: encoded.length, rows }
 }
 
-export { verifyConePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'
-
-export { verifyFinePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'
+export { verifyConePhoto, verifyFinePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'

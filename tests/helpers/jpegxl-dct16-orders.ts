@@ -114,20 +114,23 @@ export function encodeDct16OrderFixture(learned: boolean): Uint8Array {
   }
 }
 
-export async function decodeDct16OrderFixture(encoded: Uint8Array): Promise<Uint8Array> {
+export async function decodeDct16OrderFixture(
+  encoded: Uint8Array,
+  width = 512,
+): Promise<Uint8Array> {
   const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
-  if (decoder?.width !== 512 || decoder.height !== 128 || decoder.pixelFormat !== 'rgb8')
+  if (decoder?.width !== width || decoder.height !== 128 || decoder.pixelFormat !== 'rgb8')
     throw new Error('DCT16 fixture layout changed')
-  const output = new Uint8Array(512 * 128 * 3)
+  const output = new Uint8Array(width * 128 * 3)
   let rows = 0
   for await (const block of decoder.decode()) {
     try {
-      if (block.x !== 0 || block.y !== rows || block.width !== 512)
+      if (block.x !== 0 || block.y !== rows || block.width !== width)
         throw new Error('DCT16 rows missing or duplicated')
       for (let y = 0; y < block.height; y++)
         output.set(
-          block.data.subarray(y * block.stride, y * block.stride + 512 * 3),
-          (rows + y) * 512 * 3,
+          block.data.subarray(y * block.stride, y * block.stride + width * 3),
+          (rows + y) * width * 3,
         )
       rows += block.height
     } finally {

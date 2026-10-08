@@ -2,16 +2,20 @@
 import alphaCompression from '../../../../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json'
 import alphaDirect from '../../../../benchmark/jpegxl/comparison/results/alpha-point-production-controls.json'
 import historicalPhotoCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
+import largeIndependent from '../../../../benchmark/jpegxl/comparison/results/large-transform-independent-point.json'
+import largeBa2 from '../../../../benchmark/jpegxl/comparison/results/large-transform-public-ba2.json'
+import largeSsim80 from '../../../../benchmark/jpegxl/comparison/results/large-transform-public-ssim80.json'
 import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
 import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
-import fineProduction from '../../../../benchmark/jpegxl/comparison/results/original-fine-production-controls.json'
-import middleProduction from '../../../../benchmark/jpegxl/comparison/results/original-middle-channel-controls.json'
 import coneFloor from '../../../../benchmark/jpegxl/comparison/results/original-cone-floor-controls.json'
-import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
+import fineProduction from '../../../../benchmark/jpegxl/comparison/results/original-fine-production-controls.json'
 import entropyControls from '../../../../benchmark/jpegxl/comparison/results/original-luma-context-controls.json'
-import spatialControls from '../../../../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json'
+import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
+import middleProduction from '../../../../benchmark/jpegxl/comparison/results/original-middle-channel-controls.json'
 import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
+import portraitBa3 from '../../../../benchmark/jpegxl/comparison/results/original-portrait-ba3-public.json'
+import spatialControls from '../../../../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json'
 import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
 import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
 import dcCompression from '../../../../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json'
@@ -92,6 +96,96 @@ const middleGap = (comparator: string): string => {
   if (!row || row.status !== 'adequate bracket') throw new Error('Missing middle-photo peer')
   return ((row.ratio - 1) * 100).toFixed(2)
 }
+
+if (
+  portraitBa3.completed !== true ||
+  portraitBa3.overallParity !== false ||
+  portraitBa3.currentBracket.width > 0.25 ||
+  portraitBa3.points.length !== 2 ||
+  portraitBa3.points.some(
+    (point) =>
+      point.publicSamples !== 28_800_000 ||
+      point.maximumPublicError > 1 ||
+      !point.exactOpaqueAlpha ||
+      !point.callerUnchanged ||
+      point.ownerLive !== 0,
+  ) ||
+  portraitBa3.comparisons.length !== 2 ||
+  portraitBa3.comparisons.some(
+    (row) => !row.qualified || row.peerBracket.width > 0.25 || row.ratio <= 1,
+  )
+)
+  throw new Error('Incomplete public portrait Butteraugli-three comparison')
+const portraitBa3Gap = (peer: string): string => {
+  const row = portraitBa3.comparisons.find((comparison) => comparison.peer === peer)
+  if (!row) throw new Error('Missing portrait Butteraugli-three peer')
+  return row.excessPercent.toFixed(2)
+}
+
+if (
+  !largeBa2.completed ||
+  largeBa2.overallParity ||
+  largeBa2.targetButteraugli !== 2 ||
+  largeBa2.bracket.width > 0.25 ||
+  largeBa2.rows.length !== 2 ||
+  largeBa2.rows.some(
+    (row) =>
+      row.publicSamples !== 28_800_000 ||
+      row.maximumPublicError > 1 ||
+      !row.exactOpaqueAlpha ||
+      !row.callerUnchanged ||
+      row.ownerLive !== 0,
+  ) ||
+  largeBa2.comparisons.length !== 2 ||
+  largeBa2.comparisons.some((row) => row.peerBracket.width > 0.25) ||
+  !largeIndependent.completed ||
+  largeIndependent.result.rawComparison.matchedQuality ||
+  largeIndependent.result.publicSamples !== 48_000_000 ||
+  largeIndependent.result.maximumPublicError > 1 ||
+  !largeIndependent.result.exactOpaqueAlpha ||
+  !largeIndependent.result.callerUnchanged ||
+  largeIndependent.result.ownerLive !== 0
+)
+  throw new Error('Incomplete public large-transform comparison')
+const largeBa2Peers = largeBa2.comparisons.map((row) => ({
+  name: row.peer === 'jsquash' ? 'jSquash' : 'wasm-vips',
+  bytes: Math.round(row.peerBytes).toLocaleString('en-US'),
+  difference: `${Math.abs(row.differencePercent).toFixed(2)}% ${row.ratio > 1 ? 'larger' : 'smaller'}`,
+}))
+const largeBa2Reduction = (-largeBa2.previousPublic.currentDifferencePercent).toFixed(2)
+if (
+  !largeSsim80.completed ||
+  largeSsim80.overallParity ||
+  largeSsim80.targetSsimulacra2 !== 80 ||
+  largeSsim80.bracket.width > 0.25 ||
+  largeSsim80.rows.length !== 6 ||
+  largeSsim80.rows.some(
+    (row) =>
+      row.publicSamples !== 28_800_000 ||
+      row.maximumPublicError > 1 ||
+      !row.exactOpaqueAlpha ||
+      !row.callerUnchanged ||
+      row.ownerLive !== 0 ||
+      row.ownerLiveAllocations !== 0,
+  ) ||
+  largeSsim80.comparisons.length !== 3 ||
+  largeSsim80.comparisons.some((row) => row.bracket.width > 0.25)
+)
+  throw new Error('Incomplete public large-transform SSIM80 comparison')
+const largeSsim80References = largeSsim80.comparisons.map((row) => ({
+  name:
+    row.subject === 'historical-purejsimage'
+      ? 'Preceding PureJsImage'
+      : row.subject === 'jsquash'
+        ? 'jSquash'
+        : 'wasm-vips',
+  bytes: Math.round(row.bytes).toLocaleString('en-US'),
+  difference: `${Math.abs(row.currentRelativeBytes * 100).toFixed(2)}% ${row.currentRelativeBytes > 0 ? 'larger' : 'smaller'}`,
+}))
+const largeIndependentReduction = (
+  (1 - largeIndependent.result.rawComparison.bytesRatio) *
+  100
+).toFixed(2)
 
 const record = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -571,12 +665,19 @@ if (
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
-<p id="jxl-fine-production-status">Overall lossy compression parity remains open. At matched Butteraugli 0.5, the qualified portrait curve uses 0.09% fewer bytes than pinned jSquash and 15.25% fewer than wasm-vips. The independent 12 MP photo also retains its passing fine comparison. {fineProduction.remainingConfirmedGaps.length} confirmed portrait size gaps and {fineProduction.unresolvedPortraitComparisonsPreserved.length} unresolved comparisons remain. <a href="/jpeg-xl/evidence/original-fine-production-controls.json" download>Current fine-photo public results and source bridge</a>.</p>
+<p id="jxl-fine-production-status">Overall lossy compression parity remains open. At matched Butteraugli 0.5, the qualified portrait curve uses 0.09% fewer bytes than pinned jSquash and 15.25% fewer than wasm-vips. The independent 12 MP photo also retains its passing fine comparison. That checkpoint left {fineProduction.remainingConfirmedGaps.length} confirmed portrait size gaps and {fineProduction.unresolvedPortraitComparisonsPreserved.length} unresolved comparisons. Later measurements below confirm two additional Butteraugli-three gaps. <a href="/jpeg-xl/evidence/original-fine-production-controls.json" download>Fine-photo public results and source bridge</a>.</p>
+
+<p id="jxl-portrait-ba3-status">The October 8 public-package measurement at source <code>{portraitBa3.sourceIdentity.implementationRevision.slice(0, 8)}</code> resolves the portrait's Butteraugli-three comparison. PureJsImage uses an estimated {Math.round(portraitBa3.currentButteraugli3Bytes).toLocaleString('en-US')} bytes, {portraitBa3Gap('jsquash')}% more than jSquash and {portraitBa3Gap('vips')}% more than wasm-vips. Both peer brackets and the PureJsImage bracket meet the unchanged 0.25-unit rule. These add two confirmed gaps to the three earlier middle/coarse gaps. The portrait's SSIMULACRA2-70 comparison still needs current public files. <a href="/jpeg-xl/evidence/original-portrait-ba3-public.json" download>Public Butteraugli-three files, package identities and validation</a>.</p>
+<p id="jxl-large-transform-status">The new large-transform public curve uses an estimated {Math.round(largeBa2.currentPublicBytes).toLocaleString('en-US')} bytes at matched portrait Butteraugli 2, {largeBa2Reduction}% fewer than the preceding qualified public result. The bracket width is {largeBa2.bracket.width.toFixed(6)}, within the unchanged 0.25-unit limit. All 57.6 million public/native RGBA samples pass within one code, with exact alpha, unchanged caller data and closed ownership. The jSquash gap remains open. <a href="/jpeg-xl/evidence/large-transform-public-ba2.json" download>Public Butteraugli-two endpoints and peer curves</a>.</p>
+<table id="jxl-large-transform-table"><caption>Portrait Butteraugli 2; estimated PureJsImage file size versus frozen peers</caption><thead><tr><th>Peer</th><th>Peer bytes</th><th>PureJsImage versus peer</th></tr></thead><tbody>{largeBa2Peers.map(row => <tr><td>{row.name}</td><td>{row.bytes}</td><td>{row.difference}</td></tr>)}</tbody></table>
+<p id="jxl-large-transform-ssim80-status">The protected portrait SSIMULACRA2-80 curve uses an estimated {Math.round(largeSsim80.currentPublicBytes).toLocaleString('en-US')} bytes. Its bracket width is {largeSsim80.bracket.width.toFixed(6)}, within the unchanged 0.25-unit limit. Both new endpoints pass all 57.6 million public/native samples, exact alpha, unchanged caller data and closed ownership. The current curve improves on the preceding result and both frozen peers. This does not close the remaining Butteraugli gaps. <a href="/jpeg-xl/evidence/large-transform-public-ssim80.json" download>Public SSIM80 endpoints and separate reference curves</a>.</p>
+<table id="jxl-large-transform-ssim80-table"><caption>Portrait SSIMULACRA2 80; current estimated file size versus separate references</caption><thead><tr><th>Reference</th><th>Reference bytes</th><th>Current PureJsImage versus reference</th></tr></thead><tbody>{largeSsim80References.map(row => <tr><td>{row.name}</td><td>{row.bytes}</td><td>{row.difference}</td></tr>)}</tbody></table>
+<p>The separate original 12 MP photo uses {largeIndependentReduction}% fewer bytes at the same nominal encoder setting. Butteraugli changes from {largeIndependent.result.baselineRaw.butteraugli.toFixed(4)} to {largeIndependent.result.butteraugli.toFixed(4)}, and SSIMULACRA2 from {largeIndependent.result.baselineRaw.ssimulacra2.toFixed(4)} to {largeIndependent.result.ssimulacra2.toFixed(4)}. Its full public/native grid passes. This is one same-setting control; a matched independent-photo curve remains pending. The large-gradient control retains its existing quality and memory limits after independent native/Rust qualification. <a href="/jpeg-xl/evidence/large-transform-independent-point.json" download>Independent public photo point</a> and <a href="/jpeg-xl/evidence/large-transform-gradient-control.json" download>Large-gradient validation</a>.</p>
 <div style="overflow:auto"><table id="jxl-fine-production-table"><caption>Qualified public files at matched Butteraugli 0.5; rounded byte estimates</caption><thead><tr><th>Input</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>Versus jSquash</th><th>wasm-vips bytes</th><th>Versus wasm-vips</th></tr></thead><tbody>{fineRows.map(row => <tr><td>{row.fixture}</td><td>{Math.round(row.bytes).toLocaleString('en-US')}</td><td>{Math.round(row.jsBytes).toLocaleString('en-US')}</td><td>{row.jsReduction}% smaller</td><td>{Math.round(row.vipsBytes).toLocaleString('en-US')}</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
 <p id="jxl-fine-ssim90-status">The portrait's matched SSIMULACRA2-90 estimate is {Math.round(fineSsim90).toLocaleString('en-US')} bytes, {fineSsim90Reduction}% below the preceding result.</p>
 <p>Each metric keeps its own nondominated log-byte frontier, unchanged 0.25-unit bracket rule and no extrapolation. Frozen peers and all failed attempts remain in the evidence. Cached research files are excluded from public curves. Package ceilings and exports are preserved. This establishes no new speed or isolated RSS result. Fine checkpoint source SHA-256: <code>{fineProduction.implementationSourceSha256}</code>.</p>
 <p>Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.</p>
-<p id="jxl-middle-channel-status">The latest B-channel change reduces the portrait's matched Butteraugli-1 estimate by {middleReduction}%, to {Math.round(middleProduction.interpolatedBytes).toLocaleString('en-US')} bytes. It remains {middleGap('jsquash')}% larger than jSquash and {middleGap('vips')}% larger than wasm-vips. The Butteraugli-2 gap against jSquash remains 25.36%. Three confirmed gaps and four unresolved comparisons remain. <a href="/jpeg-xl/evidence/original-middle-channel-controls.json" download>Current middle-photo public files and validation</a>.</p>
+<p id="jxl-middle-channel-status">The qualified B-channel change reduces the portrait's matched Butteraugli-1 estimate by {middleReduction}%, to {Math.round(middleProduction.interpolatedBytes).toLocaleString('en-US')} bytes. It remains {middleGap('jsquash')}% larger than jSquash and {middleGap('vips')}% larger than wasm-vips. The Butteraugli-2 gap against jSquash at this checkpoint is 25.36%. The later Butteraugli-three result above keeps its own source and files. <a href="/jpeg-xl/evidence/original-middle-channel-controls.json" download>Middle-photo public files and validation</a>.</p>
 <p>Both complete public files match all natural-order coefficients and non-order geometry from the scored research files. Their learned scan orders differ legally. An original harness assertion required identical orders; its failed receipts remain preserved. Separate saved-file validation confirms exact native PNG identity before either quality score is reused. Full checks, the unchanged generated photo regression and real Chromium coverage pass. Fine and coarse paths retain their preceding behavior. No independent-photo middle curve or new speed and RSS result is claimed. Current source SHA-256: <code>{middleProduction.identity.implementationSourceSha256}</code>.</p>
 <p id="jxl-cone-floor-status">The preceding middle/coarse curves reduce the portrait's matched Butteraugli-1 estimate by {conePortrait.reduction}%, to {coneSize(conePortrait.interpolatedBytes)} bytes. It remains {conePortraitGap('jsquash')}% larger than jSquash and {conePortraitGap('vips')}% larger than wasm-vips. The earlier original's Butteraugli-1 and SSIMULACRA2-90 comparisons also improve. The fine update above clears one of this checkpoint’s four confirmed gaps. <a href="/jpeg-xl/evidence/original-cone-floor-controls.json" download>Preceding middle/coarse curves, source pins and preservation controls</a>.</p>
 <div style="overflow:auto"><table id="jxl-cone-floor-table"><caption>Preceding middle/coarse curves on two original photos; rounded byte estimates</caption><thead><tr><th>Input</th><th>Metric</th><th>Target</th><th>PureJsImage bytes</th><th>Change from historical curve</th><th>Frozen jSquash bytes</th><th>Frozen wasm-vips bytes</th></tr></thead><tbody>{coneRows.map((row) => <tr><td>{row.fixtureLabel}</td><td>{row.metricLabel}</td><td>{row.target}</td><td>{coneSize(row.interpolatedBytes)}</td><td>{row.reduction}% smaller</td><td>{coneSize(row.jsquashBytes)}</td><td>{coneSize(row.vipsBytes)}</td></tr>)}</tbody></table></div>

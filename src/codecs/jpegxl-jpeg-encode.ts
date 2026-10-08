@@ -12,12 +12,21 @@ import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
-  type HybridUintEncoding,
   encodeForwardModularLzGroup,
   encodeHybridUintPacked,
   encodeRepeatedJpegXlAlphaGroup,
+  type HybridUintEncoding,
   hybridTokenForEncoding,
   JpegXlBitWriter,
+  jpegXlBitDepthDistribution,
+  jpegXlBlendModeDistribution,
+  jpegXlDimensionDistribution,
+  jpegXlExtraChannelCountDistribution,
+  jpegXlFrameSizeDistribution,
+  jpegXlNameLengthDistribution,
+  jpegXlSectionSizeDistribution,
+  jpegXlUpsamplingDistribution,
+  jpegXlZeroToThreeDistribution,
   type PrefixEncoding,
   packSigned,
   prepareJpegXlAlphaGroup,
@@ -31,15 +40,6 @@ import {
   writeModularHeader,
   writeModularTree,
   writePrefixCode,
-  jpegXlBitDepthDistribution,
-  jpegXlBlendModeDistribution,
-  jpegXlDimensionDistribution,
-  jpegXlExtraChannelCountDistribution,
-  jpegXlFrameSizeDistribution,
-  jpegXlNameLengthDistribution,
-  jpegXlSectionSizeDistribution,
-  jpegXlUpsamplingDistribution,
-  jpegXlZeroToThreeDistribution,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 import { applyJpegXlModularTree, learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
@@ -96,7 +96,7 @@ export interface VarDctCoefficientGeometry {
   readonly imageHeader?: Uint8Array
   /** Group-local AC storage may be reused after each visit. DC planes stay compact. */
   readonly loadAc?: (group: number, pass: number) => readonly VarDctCoefficientPlane[]
-  /** Three DCT8 orders, three small-transform orders, then optional three DCT16 orders. */
+  /** Three orders per family: DCT8, small, then optional DCT16, DCT32 and 16x32. */
   readonly coefficientOrders?: readonly Uint32Array[]
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
   readonly familyContexts?: boolean
@@ -110,6 +110,15 @@ export interface VarDctCoefficientGeometry {
 }
 
 type JpegDerivedGeometry = VarDctCoefficientGeometry
+
+const forwardStrategyWidths = Uint8Array.of(1, 1, 0, 0, 2, 4, 0, 0, 0, 0, 2, 4, 1, 1)
+const forwardStrategyHeights = Uint8Array.of(1, 1, 0, 0, 2, 4, 0, 0, 0, 0, 4, 2, 1, 1)
+const hasLargeForwardTransforms = (strategies: Int32Array | undefined): boolean =>
+  strategies !== undefined &&
+  (strategies.includes(4) ||
+    strategies.includes(5) ||
+    strategies.includes(10) ||
+    strategies.includes(11))
 
 const tokenFor = (value: number): number => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 2_147_483_647) {
@@ -494,7 +503,7 @@ const dcGroupPlanes = (
   const strategyMap = geometry.strategyMap,
     values = metadata[2]?.values,
     quantizationMap = geometry.quantizationMap
-  if (strategyMap && values && strategyMap.includes(4)) {
+  if (strategyMap && values && hasLargeForwardTransforms(strategyMap)) {
     const covered = allocateJpegXlArray(geometry.memory, Uint8Array, blockWidth * blockHeight)
     let count = 0
     for (let y = 0; y < blockHeight; y++)
@@ -502,14 +511,17 @@ const dcGroupPlanes = (
         if (covered[y * blockWidth + x] !== 0) continue
         const at = (blockY + y) * geometry.blocksWide + blockX + x,
           strategy = strategyMap[at] ?? 0,
-          extent = strategy === 4 ? 2 : 1
-        if (x + extent > blockWidth || y + extent > blockHeight)
-          throw invalidInput('DCT16 crosses DC group')
+          extentX = forwardStrategyWidths[strategy] ?? 0,
+          extentY = forwardStrategyHeights[strategy] ?? 0
+        if (extentX === 0 || extentY === 0)
+          throw unsupportedOperation('JPEG XL forward strategy is not supported')
+        if (x + extentX > blockWidth || y + extentY > blockHeight)
+          throw invalidInput('JPEG XL transform crosses DC group')
         values[count] = strategy
         values[blockWidth * blockHeight + count] =
           (quantizationMap?.[at] ?? geometry.quantAc ?? 1) - 1
-        for (let dy = 0; dy < extent; dy++)
-          for (let dx = 0; dx < extent; dx++) covered[(y + dy) * blockWidth + x + dx] = 1
+        for (let dy = 0; dy < extentY; dy++)
+          for (let dx = 0; dx < extentX; dx++) covered[(y + dy) * blockWidth + x + dx] = 1
         count++
       }
     if (count < blockWidth * blockHeight) {
@@ -872,6 +884,15 @@ const writeComponentBlockContexts = (
   const threshold = geometry.lumaThreshold
   const familyContexts = geometry.familyContexts === true
   const hasDct16 = geometry.strategyMap?.includes(4) ?? false
+  const hasDct32 = geometry.strategyMap?.includes(5) ?? false
+  const hasRectangle32 =
+    (geometry.strategyMap?.includes(10) ?? false) || (geometry.strategyMap?.includes(11) ?? false)
+  const usesFamilyContext = (order: number): boolean =>
+    familyContexts &&
+    (order === 1 ||
+      (hasDct16 && order === 2) ||
+      (hasDct32 && order === 3) ||
+      (hasRectangle32 && order === 6))
   writer.writeBits(0, 1)
   for (let channel = 0; channel < 3; channel++) {
     writer.writeBits(channel === 1 && threshold !== undefined ? 1 : 0, 4)
@@ -890,10 +911,7 @@ const writeComponentBlockContexts = (
     writer.writeBits(bits, 2)
     for (let channel = 0; channel < 3; channel++)
       for (let order = 0; order < 13; order++)
-        writer.writeBits(
-          channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0),
-          bits,
-        )
+        writer.writeBits(channel + (usesFamilyContext(order) ? 3 : 0), bits)
     return
   }
   const map = allocateJpegXlArray(writer.memory, Uint8Array, 78)
@@ -902,9 +920,7 @@ const writeComponentBlockContexts = (
   for (let channel = 0; channel < 3; channel++)
     for (let order = 0; order < 13; order++)
       for (let dc = 0; dc < 2; dc++) {
-        const context =
-          (channel + (familyContexts && (order === 1 || (hasDct16 && order === 2)) ? 3 : 0)) * 2 +
-          dc
+        const context = (channel + (usesFamilyContext(order) ? 3 : 0)) * 2 + dc
         map[next++] = context
         addFrequency(frequencies, context)
       }
@@ -1172,9 +1188,61 @@ const naturalDct16Order = (): Uint32Array => {
 }
 
 const dct16Order = naturalDct16Order()
+const naturalLargeOrder = (columns: 4, rows: 2 | 4): Uint32Array => {
+  const width = columns * 8,
+    rowScale = columns / rows,
+    size = rows * columns * 64,
+    order = new Uint32Array(size)
+  let next = rows * columns
+  for (let diagonal = 0; diagonal < width; diagonal++) {
+    for (let step = 0; step <= diagonal; step++) {
+      let x = step,
+        y = diagonal - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      if (y % rowScale !== 0) continue
+      y /= rowScale
+      const scan = x < columns && y < rows ? y * columns + x : next++
+      order[scan] = y * width + x
+    }
+  }
+  for (let reverse = width - 1; reverse > 0; reverse--) {
+    const diagonal = reverse - 1
+    for (let step = 0; step <= diagonal; step++) {
+      let x = width - 1 - (diagonal - step),
+        y = width - 1 - step
+      if ((diagonal & 1) !== 0) [x, y] = [y, x]
+      if (y % rowScale !== 0) continue
+      y /= rowScale
+      order[next++] = y * width + x
+    }
+  }
+  if (next !== size) throw invalidInput('JPEG XL large coefficient order is incomplete')
+  return order
+}
+const dct32Order = naturalLargeOrder(4, 4)
+const rectangle32Order = naturalLargeOrder(4, 2)
 const order = naturalOrder()
 const transposed = (position: number): number => (position & 7) * 8 + (position >>> 3)
 const naturalJpegXlOrder = Uint32Array.from(order, transposed)
+
+const forwardOrderFamilies = [
+  { wire: 0, natural: naturalJpegXlOrder, skip: 1 },
+  { wire: 1, natural: naturalJpegXlOrder, skip: 1 },
+  { wire: 2, natural: dct16Order, skip: 4 },
+  { wire: 3, natural: dct32Order, skip: 16 },
+  { wire: 6, natural: rectangle32Order, skip: 8 },
+] as const
+
+const forwardOrderFamily = (strategy: number): number =>
+  strategy === 0
+    ? 0
+    : strategy === 4
+      ? 2
+      : strategy === 5
+        ? 3
+        : strategy === 10 || strategy === 11
+          ? 4
+          : 1
 
 const optimizedCoefficientOrders = (
   geometry: Readonly<JpegDerivedGeometry>,
@@ -1202,25 +1270,28 @@ const optimizedCoefficientOrders = (
     }),
   )
 
-/** Count all passes in reusable forward groups; DCT16 counters are conditional. */
+/** Count all passes in reusable forward groups, allocating only the present order families. */
 export function* learnJpegXlForwardCoefficientOrders(
   geometry: Readonly<VarDctCoefficientGeometry>,
 ): Generator<void, readonly Uint32Array[], void> {
-  let hasDct16 = false
+  let familyCount = 2
   if (geometry.strategyMap) {
     for (let index = 0; index < geometry.strategyMap.length; index++) {
-      if (geometry.strategyMap[index] === 4) {
-        hasDct16 = true
-        break
-      }
+      familyCount = Math.max(familyCount, forwardOrderFamily(geometry.strategyMap[index] ?? 0) + 1)
     }
   }
   const counts = allocateJpegXlArray(geometry.memory, Uint32Array, 6 * 64)
-  let dct16Counts: Uint32Array | undefined
+  const largeCounts: Uint32Array[] = []
   const orders: Uint32Array[] = []
   let complete = false
   try {
-    if (hasDct16) dct16Counts = allocateJpegXlArray(geometry.memory, Uint32Array, 3 * 256)
+    for (let family = 2; family < familyCount; family++) {
+      const descriptor = forwardOrderFamilies[family]
+      if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
+      largeCounts.push(
+        allocateJpegXlArray(geometry.memory, Uint32Array, 3 * descriptor.natural.length),
+      )
+    }
     const groups = geometry.groupsAcross * geometry.groupsDown
     for (let group = 0; group < groups; group++) {
       const blockX = (group % geometry.groupsAcross) * 32
@@ -1238,25 +1309,26 @@ export function* learnJpegXlForwardCoefficientOrders(
             for (let x = 0; x < component.blocksPerLineForMcu; x++) {
               const strategy =
                 geometry.strategyMap?.[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
-              if (
-                strategy !== 0 &&
-                strategy !== 1 &&
-                strategy !== 4 &&
-                strategy !== 12 &&
-                strategy !== 13
-              )
+              const extentX = forwardStrategyWidths[strategy] ?? 0,
+                extentY = forwardStrategyHeights[strategy] ?? 0
+              if (extentX === 0 || extentY === 0)
                 throw unsupportedOperation('JPEG XL forward order strategy is not supported')
-              if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+              if ((x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0) continue
               const block = y * component.blocksPerLineForMcu + x
               const base = component.coefficientOffsets?.[block] ?? block * 64
               if (base < 0) throw invalidJpegXlInput('forward order leader is missing')
-              if (strategy === 4) {
-                if (!dct16Counts) throw invalidJpegXlInput('DCT16 order counters are missing')
-                for (let scan = 4; scan < 256; scan++) {
-                  const position = dct16Order[scan] ?? 0
+              const family = forwardOrderFamily(strategy)
+              if (family >= 2) {
+                const descriptor = forwardOrderFamilies[family],
+                  frequencies = largeCounts[family - 2]
+                if (!descriptor || !frequencies)
+                  throw invalidJpegXlInput('large order counters are missing')
+                const size = descriptor.natural.length
+                for (let scan = descriptor.skip; scan < size; scan++) {
+                  const position = descriptor.natural[scan] ?? 0
                   if ((component.coefficients[base + position] ?? 0) !== 0) {
-                    const histogram = channel * 256 + position
-                    dct16Counts[histogram] = (dct16Counts[histogram] ?? 0) + 1
+                    const histogram = channel * size + position
+                    frequencies[histogram] = (frequencies[histogram] ?? 0) + 1
                   }
                 }
               } else {
@@ -1272,14 +1344,16 @@ export function* learnJpegXlForwardCoefficientOrders(
       }
       yield
     }
-    for (let histogram = 0; histogram < (hasDct16 ? 9 : 6); histogram++) {
-      const large = histogram >= 6,
-        size = large ? 256 : 64,
-        skip = large ? 4 : 1
-      const natural = large ? dct16Order : naturalJpegXlOrder
-      const frequencies = large ? dct16Counts : counts
+    for (let histogram = 0; histogram < familyCount * 3; histogram++) {
+      const family = Math.floor(histogram / 3),
+        descriptor = forwardOrderFamilies[family]
+      if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
+      const natural = descriptor.natural,
+        size = natural.length,
+        skip = descriptor.skip
+      const frequencies = family >= 2 ? largeCounts[family - 2] : counts
       if (!frequencies) throw invalidJpegXlInput('forward order counters are missing')
-      const frequencyOffset = large ? (histogram - 6) * 256 : histogram * 64
+      const frequencyOffset = family >= 2 ? (histogram % 3) * size : histogram * 64
       const positions = allocateJpegXlArray(geometry.memory, Uint32Array, size - skip)
       try {
         for (let index = skip; index < size; index++) positions[index - skip] = natural[index] ?? 0
@@ -1301,7 +1375,7 @@ export function* learnJpegXlForwardCoefficientOrders(
     return Object.freeze(orders)
   } finally {
     geometry.memory?.release(counts)
-    if (dct16Counts) geometry.memory?.release(dct16Counts)
+    for (const frequencies of largeCounts) geometry.memory?.release(frequencies)
     if (!complete) for (const order of orders) geometry.memory?.release(order)
   }
 }
@@ -1586,9 +1660,12 @@ const visitAcGroup = (
       for (let x = 0; x < blockWidth; x += 1) {
         const strategy =
           geometry.strategyMap?.[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
-        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
-        const coveredBlocks = strategy === 4 ? 4 : 1,
-          extent = strategy === 4 ? 2 : 1,
+        const extentX = forwardStrategyWidths[strategy] ?? 0,
+          extentY = forwardStrategyHeights[strategy] ?? 0
+        if (extentX === 0 || extentY === 0)
+          throw unsupportedOperation('JPEG XL forward AC strategy is not supported')
+        if ((x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0) continue
+        const coveredBlocks = extentX * extentY,
           coefficientCount = coveredBlocks * 64
         for (const channel of [1, 0, 2]) {
           const shift = geometry.shifts[channel]
@@ -1604,14 +1681,18 @@ const visitAcGroup = (
           const componentY = ((geometry.loadAc ? 0 : blockY) + y) >> shift[1]
           const block = componentY * component.blocksPerLineForMcu + componentX
           const base = component.coefficientOffsets?.[block] ?? block * 64
+          if (base < 0) throw invalidJpegXlInput('AC coefficient leader is missing')
           const localX = x >> shift[0]
           const localY = y >> shift[1]
           const localWidth = blockWidth >> shift[0]
+          const family = forwardOrderFamily(strategy),
+            descriptor = forwardOrderFamilies[family]
           const coefficientOrder =
-            strategy === 4
-              ? (coefficientOrders[6 + channel] ?? dct16Order)
+            family >= 2
+              ? (coefficientOrders[family * 3 + channel] ?? descriptor?.natural)
               : coefficientOrders[channel + (geometry.coefficientOrders && strategy !== 0 ? 3 : 0)]
-          if (!coefficientOrder) throw invalidJpegXlInput('AC coefficient order is missing')
+          if (!coefficientOrder || coefficientOrder.length !== coefficientCount)
+            throw invalidJpegXlInput('AC coefficient order is missing')
           let lastNonzero = coveredBlocks - 1
           let nonzero = 0
           for (let scan = coveredBlocks; scan < coefficientCount; scan += 1) {
@@ -1651,8 +1732,8 @@ const visitAcGroup = (
           const nonzeroBucket =
             predicted < 8 ? predicted : 4 + Math.floor(Math.min(64, predicted) / 2)
           visit(nonzero, nonzeroBucket * blockContextCount + blockContext)
-          for (let dy = 0; dy < extent; dy++)
-            for (let dx = 0; dx < extent; dx++)
+          for (let dy = 0; dy < extentY; dy++)
+            for (let dx = 0; dx < extentX; dx++)
               nonzeroPlane[(localY + dy) * localWidth + localX + dx] = Math.ceil(
                 nonzero / coveredBlocks,
               )
@@ -1788,18 +1869,22 @@ const writeHfPass = (
   histogramConfigs?: readonly HybridUintEncoding[],
 ): AcEncoding => {
   let usedOrders = useClusteredAns ? 1 : 0
-  if (useClusteredAns && (coefficientOrders.length === 6 || coefficientOrders.length === 9)) {
+  if (
+    coefficientOrders.length >= 6 &&
+    coefficientOrders.length <= 15 &&
+    coefficientOrders.length % 3 === 0
+  ) {
     usedOrders = 0
     for (let family = 0; family < coefficientOrders.length / 3; family++) {
+      const descriptor = forwardOrderFamilies[family]
+      if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
       for (let channel = 0; channel < 3; channel++) {
         const order = coefficientOrders[family * 3 + channel]
-        if (!order || order.length !== (family === 2 ? 256 : 64))
+        if (!order || order.length !== descriptor.natural.length)
           throw invalidJpegXlInput('forward coefficient order is missing')
         for (let position = 0; position < order.length; position++) {
-          if (
-            order[position] !== (family === 2 ? dct16Order[position] : naturalJpegXlOrder[position])
-          ) {
-            usedOrders |= 1 << family
+          if (order[position] !== descriptor.natural[position]) {
+            usedOrders |= 1 << descriptor.wire
             break
           }
         }
@@ -1812,17 +1897,19 @@ const writeHfPass = (
     { value: 0 },
     { bits: 13, offset: 0 },
   ])
-  if ((usedOrders & 4) !== 0) {
+  if ((usedOrders & ~3) !== 0) {
     const orders: CoefficientOrderPermutation[] = []
-    for (let family = 0; family < 3; family++) {
-      if ((usedOrders & (1 << family)) === 0) continue
+    for (let family = 0; family < forwardOrderFamilies.length; family++) {
+      const descriptor = forwardOrderFamilies[family]
+      if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
+      if ((usedOrders & (1 << descriptor.wire)) === 0) continue
       for (let channel = 0; channel < 3; channel++) {
         const order = coefficientOrders[family * 3 + channel]
         if (!order) throw invalidJpegXlInput('signaled coefficient order is missing')
         orders.push({
           order,
-          natural: family === 2 ? dct16Order : naturalJpegXlOrder,
-          skip: family === 2 ? 4 : 1,
+          natural: descriptor.natural,
+          skip: descriptor.skip,
         })
       }
     }

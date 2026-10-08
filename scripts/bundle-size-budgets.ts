@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Learned DCT16 orders add about 1.7 KB while preserving decoded photo samples.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 559_000 },
-  // The complete specialized package includes the same first-party photo encoder.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 632_000 },
+  // Bounded DCT32/16x32 selection and learned orders add about 25 KB of first-party code.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 585_000 },
+  // The same encoder measures 656,740 bytes in the complete specialized package.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 658_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

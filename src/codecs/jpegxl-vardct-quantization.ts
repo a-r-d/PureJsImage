@@ -103,3 +103,29 @@ export const defaultJpegXlDct16Dequantization: readonly Float64Array[] = Object.
     [1157.504, -2.0531423, -1.4, -0.5068713, -0.4270873, -1.4856834, -4.920914],
   ].map((bands) => Float64Array.from(jpegXlDistanceWeights(16, 16, bands), (weight) => 1 / weight)),
 )
+
+export const defaultJpegXlDct32Dequantization: readonly Float64Array[] = Object.freeze(
+  [
+    [15718.408309825189, -1.025, -0.98, -0.9012, -0.4, -0.48819395464, -0.421064, -0.27],
+    [
+      7305.763681069598, -0.8041958212306402, -0.7633036457487539, -0.5566037999011146,
+      -0.49785304658857626, -0.43699592683512467, -0.4018086652624211, -0.27321683125358037,
+    ],
+    [
+      3803.5317372121503, -3.060733579805728, -2.0413270132490346, -2.023565015972742,
+      -0.5495389509954993, -0.4, -0.4, -0.3,
+    ],
+  ].map((bands) => Float64Array.from(jpegXlDistanceWeights(32, 32, bands), (weight) => 1 / weight)),
+)
+
+/** Both rectangle orientations use short-frequency rows and long-frequency columns. */
+export const defaultJpegXlRectangle32Dequantization: readonly Float64Array[] = Object.freeze(
+  [
+    [13844.971, -0.971138, -0.658, -0.42026, -0.22712, -0.2206, -0.226, -0.6],
+    [
+      4798.964, -0.6112531, -0.8377079, -0.7901486, -0.26927274, -0.38272768, -0.22924222,
+      -0.20719099,
+    ],
+    [1807.2369, -1.2, -1.2, -0.7, -0.7, -0.7, -0.4, -0.5],
+  ].map((bands) => Float64Array.from(jpegXlDistanceWeights(16, 32, bands), (weight) => 1 / weight)),
+)

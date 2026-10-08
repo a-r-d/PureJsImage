@@ -1,0 +1,55 @@
+{
+  "completed": true,
+  "failure": null,
+  "phase": "rust-full-grid",
+  "identity": {
+    "implementationRevision": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+    "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+    "implementationDirty": true
+  },
+  "planSha256": "cf309ee105469d9655c711af6a5f0cf7568d8957ed2a9fe77b7da22446ec3511",
+  "result": {
+    "bytes": 43823,
+    "encodedChecksum": 2148818418,
+    "decodedChecksum": 2560759752,
+    "samples": 16785408,
+    "alphaError": 0,
+    "meanColorError": 2.259022360373963,
+    "inputChecksum": 2068954295,
+    "ownedPeak": 56136264,
+    "ownedLive": 0,
+    "ownedAllocations": 0
+  },
+  "artifactSha256": "a0df53f4b2804796117511637fdd73e1d58455bfc77e5554eb2f7510c18e0549",
+  "grids": [
+    {
+      "name": "native",
+      "samples": 16785408,
+      "maximumPublicError": 1,
+      "maximumIndependentError": 0,
+      "exactOpaqueAlpha": true,
+      "pixelsSha256": "e3fc38306428933856a9cbaa11e085dfc135f03d50d07a7ff151523696840226",
+      "pngSha256": "a052403d9f77f74855a1c0d01e78efa12ada50030bd9fbdb9b08f895e545d99c",
+      "meanColorError": 2.267889586002318,
+      "toolSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "name": "rust",
+      "samples": 16785408,
+      "maximumPublicError": 1,
+      "maximumIndependentError": 1,
+      "exactOpaqueAlpha": true,
+      "pixelsSha256": "8babe37f0b2771999be798906c18eb42d2e0e3ab52172d653bd52a6c9b144adb",
+      "pngSha256": "2ea3fbc9d3f8ce9409eb48aa977b08bcb7f8debaf0bd1add80e618df0edf169b",
+      "meanColorError": 2.2681090623474867,
+      "toolSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    }
+  ],
+  "publicEncodes": 1,
+  "nativeCalls": 2,
+  "metricCalls": 0,
+  "elapsedMs": 173055.456195,
+  "maximumRssKiB": 656232,
+  "oldGoldenUpdated": false,
+  "scope": "Exact current public testhelper and limits; complete actual results saved before golden comparison. No policy/source/default/quality-tolerance changes. Current artifact independently checked against public/native/Rust complete grids."
+}

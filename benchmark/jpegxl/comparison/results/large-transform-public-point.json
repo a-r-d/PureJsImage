@@ -1,0 +1,133 @@
+{
+  "completed": true,
+  "failure": null,
+  "phase": "final-source-package-pins",
+  "identity": {
+    "implementationRevision": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+    "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+    "implementationDirty": true
+  },
+  "planSha256": "6f5f5c486552a138be0f23f1eb606405570a3f4336ff9499766bf9c3b3044fc9",
+  "result": {
+    "artifact": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-portrait-r3/output/public.jxl",
+    "artifactSha256": "6d604e097a2df589150796b94a6d1efbeab2a59847b8c6874a9bdc9e3b452fd7",
+    "setting": 3.6905,
+    "bytes": 717690,
+    "butteraugli": 1.8320224285,
+    "ssimulacra2": 78.59107954,
+    "encodeMs": 642659.708653,
+    "publicSamples": 28800000,
+    "maximumPublicError": 1,
+    "exactOpaqueAlpha": true,
+    "callerUnchanged": true,
+    "ownedPeak": 97596622,
+    "ownerLive": 0,
+    "ownerLiveAllocations": 0,
+    "defaultWorkingBytes": 1073741824,
+    "packages": [
+      {
+        "target": "jpegxl-specialized",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-portrait-r3/packages/jpegxl-specialized.mjs",
+        "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+        "bytes": 656740,
+        "expectedCeiling": 632000,
+        "exports": [
+          "convertJpegXlCmykLayerToRgba8",
+          "convertJpegXlFloat32LayerToRgba16",
+          "convertJpegXlFloatLayerToRgba16",
+          "convertJpegXlIccLayerToRgba16",
+          "encodeJpegXlAnimation",
+          "encodeJpegXlNative",
+          "inspectJpegReconstructionEligibility",
+          "inspectJpegXl",
+          "jpegXlNativeFloat32ColorPlanes",
+          "jpegXlNativeUnsignedPlanes",
+          "openJpegXlSequence",
+          "openJpegXlSession",
+          "reconstructJpegFromJpegXl",
+          "transcodeJpegToJpegXl"
+        ]
+      },
+      {
+        "target": "codec-jpegxl",
+        "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-portrait-r3/packages/codec-jpegxl.mjs",
+        "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+        "bytes": 584097,
+        "expectedCeiling": 559000,
+        "exports": [
+          "BlobSource",
+          "BufferPool",
+          "BufferSink",
+          "CodecRegistry",
+          "FileSink",
+          "FileSource",
+          "ImageError",
+          "MemorySource",
+          "Uint8ArraySink",
+          "createImageLibrary",
+          "defaultImageLimits",
+          "inspectJpegXlStructure",
+          "jpegxlCodec",
+          "pixelBytesPerPixel",
+          "pixelStorage"
+        ]
+      }
+    ]
+  },
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-portrait-r3/packages/jpegxl-specialized.mjs",
+      "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+      "bytes": 656740,
+      "expectedCeiling": 632000,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ]
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/current-large-public-portrait-r3/packages/codec-jpegxl.mjs",
+      "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+      "bytes": 584097,
+      "expectedCeiling": 559000,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ]
+    }
+  ],
+  "imageEncodes": 1,
+  "publicSamples": 28800000,
+  "maximumPublicError": 1,
+  "elapsedMs": 656853.740822,
+  "maximumRssKiB": 865728,
+  "overallParity": false,
+  "limitation": "One actual full-search public-package portrait point at distance3.6905. Complete public/nativeRGBA and fresh samePNG BA+SSIM. Source/menu/layout proof is separate; no matched curve, independent retention, overall parity or speed claim."
+}

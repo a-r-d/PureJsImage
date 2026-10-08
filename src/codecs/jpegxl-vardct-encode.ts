@@ -22,12 +22,22 @@ import {
   hasSmallVisiblePalette,
   packSigned,
 } from './jpegxl-modular-encode.ts'
+import { prepareJpegXlLargeMenus } from './jpegxl-vardct-large-menu.ts'
+import {
+  createJpegXlLargeSelector,
+  fillJpegXlLargeSourceWeights,
+  type JpegXlLargeSelection,
+  type JpegXlLargeSelector,
+} from './jpegxl-vardct-large-select.ts'
+import { forwardJpegXlDct32, forwardJpegXlRectangle32 } from './jpegxl-vardct-large-transforms.ts'
 import {
   defaultJpegXlDct4x8Dequantization,
   defaultJpegXlDct8Dequantization,
   defaultJpegXlDct16Dequantization,
+  defaultJpegXlDct32Dequantization,
   defaultJpegXlHornussDequantization,
   defaultJpegXlQuantizationBiases,
+  defaultJpegXlRectangle32Dequantization,
 } from './jpegxl-vardct-quantization.ts'
 
 // Uniform scores would only coarsen the image. Require source variation before
@@ -774,7 +784,7 @@ function* prepare8(
   const xPlane = allocateJpegXlArray(memory, Float32Array, 64)
   const yPlane = allocateJpegXlArray(memory, Float32Array, 64)
   const bPlane = allocateJpegXlArray(memory, Float32Array, 64)
-  const planes = [xPlane, yPlane, bPlane]
+  const planes: readonly [Float32Array, Float32Array, Float32Array] = [xPlane, yPlane, bPlane]
   const intermediate = allocateJpegXlArray(memory, Float32Array, 64)
   const transformed = allocateJpegXlArray(memory, Float32Array, 64)
   const colorTransfer = color?.transfer ?? { kind: 'srgb' }
@@ -1830,12 +1840,155 @@ function* prepare8(
     bAc = 1.25
   }
   const hasDct16 = strategyMap?.includes(4) ?? false
-  const groupCoefficientOffsets = hasDct16
+  let groupCoefficientOffsets = hasDct16
     ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
     : undefined
   const acStorage = Array.from({ length: 3 }, () =>
     allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64),
   )
+  let largePlanes: readonly [Float32Array, Float32Array, Float32Array] | undefined
+  let largeTransformed: readonly [Float32Array, Float32Array, Float32Array] | undefined
+  let largeIntermediate: Float32Array | undefined
+  if (
+    originalPhotoAc &&
+    distance >= 2 &&
+    distance <= 4 &&
+    strategyMap &&
+    blocksWide >= 4 &&
+    blocksHigh >= 4 &&
+    matrix === defaultForwardMatrix &&
+    xScale === 2 &&
+    bScale === 2
+  ) {
+    const scratch: ArrayBufferView[] = []
+    const retained: ArrayBufferView[] = []
+    let selector: JpegXlLargeSelector | undefined
+    let selected: JpegXlLargeSelection | undefined
+    try {
+      const xDc = components[0]?.coefficients,
+        yDc = components[1]?.coefficients,
+        bDc = components[2]?.coefficients
+      if (
+        !(xDc instanceof Int32Array) ||
+        !(yDc instanceof Int32Array) ||
+        !(bDc instanceof Int32Array)
+      )
+        throw invalidInput('Missing large transform original DC')
+      const largeSelector = createJpegXlLargeSelector(
+        memory,
+        blocksWide,
+        blocksHigh,
+        quantizationMap,
+      )
+      selector = largeSelector
+      const linearTile = memory.allocate(Float64Array, 34 * 34 * 3)
+      scratch.push(linearTile)
+      const weightMatrix = memory.allocate(Float64Array, 9)
+      scratch.push(weightMatrix)
+      weightMatrix.set(matrix)
+      const ratios = memory.allocate(Float64Array, 16)
+      scratch.push(ratios)
+      yield* prepareJpegXlLargeMenus({
+        memory,
+        blocksWide,
+        blocksHigh,
+        globalScale,
+        strategyMap,
+        quantizationMap,
+        dc: [xDc, yDc, bDc],
+        dcFactors: [
+          effectiveDistance * (dcQuantization[0] ?? 0),
+          effectiveDistance * (dcQuantization[1] ?? 0),
+          effectiveDistance * (dcQuantization[2] ?? 0),
+        ],
+        correlationX,
+        correlationB,
+        smoothDc: moderateAlphaDc,
+        fill8: (correlated, x, y) => {
+          if (correlated) fillCorrelated(x, y)
+          else fill(x, y)
+          return planes
+        },
+        quantizeAc,
+        fillWeights: (blockX, blockY, output) => {
+          for (let y = 0; y < 34; y++) {
+            const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))
+            for (let x = 0; x < 34; x++) {
+              const sourceX = Math.max(0, Math.min(width - 1, blockX * 8 + x - 1)),
+                source = (sourceY * width + sourceX) * 4,
+                destination = (y * 34 + x) * 3
+              linearTile[destination] = transfer[pixels[source] ?? 0] ?? 0
+              linearTile[destination + 1] = transfer[pixels[source + 1] ?? 0] ?? 0
+              linearTile[destination + 2] = transfer[pixels[source + 2] ?? 0] ?? 0
+            }
+          }
+          for (let y = 0; y < 4; y++)
+            for (let x = 0; x < 4; x++)
+              ratios[y * 4 + x] =
+                (correlationX[
+                  Math.floor((blockY + y) / 8) * colorTilesAcross + Math.floor((blockX + x) / 8)
+                ] ?? 0) / 84
+          fillJpegXlLargeSourceWeights(linearTile, weightMatrix, ratios, output)
+        },
+        learnBaselineCount: (nonzero, channel) =>
+          largeSelector.learnBaselineCount(nonzero, channel),
+        addWindow: (index, menu) => largeSelector.addWindow(index, menu),
+        // Preparation yields each tile row to the caller's cancellation checks.
+        check: () => {},
+      })
+      selector.finalize()
+      selected = selector.select(1)
+      if (selected.stats.selected > 0) {
+        const allocateTile = (): Float32Array => {
+          const tile = memory.allocate(Float32Array, 1024)
+          retained.push(tile)
+          return tile
+        }
+        largePlanes = [allocateTile(), allocateTile(), allocateTile()]
+        largeTransformed = [allocateTile(), allocateTile(), allocateTile()]
+        largeIntermediate = allocateTile()
+        if (!groupCoefficientOffsets) {
+          groupCoefficientOffsets = memory.allocate(Int32Array, 32 * 32)
+          retained.push(groupCoefficientOffsets)
+        }
+        // Every optional buffer is admitted before changing the original geometry.
+        // Commit all maps and DC without yielding, then release the complete menus.
+        const windowsAcross = Math.floor(blocksWide / 4)
+        for (let wy = 0; wy < Math.floor(blocksHigh / 4); wy++)
+          for (let wx = 0; wx < windowsAcross; wx++) {
+            const dcOffset = (wy * windowsAcross + wx) * 48
+            for (let y = 0; y < 4; y++)
+              for (let x = 0; x < 4; x++) {
+                const at = (wy * 4 + y) * blocksWide + wx * 4 + x,
+                  strategy = selected.map.strategy[at] ?? 0
+                if (strategy === 0) continue
+                strategyMap[at] = strategy
+                const cell = y * 4 + x
+                xDc[at] = selected.compactDc[dcOffset + 16 + cell] ?? 0
+                yDc[at] = selected.compactDc[dcOffset + cell] ?? 0
+                bDc[at] = selected.compactDc[dcOffset + 32 + cell] ?? 0
+              }
+          }
+        quantizationMap.set(selected.quantizationMap)
+        retained.length = 0
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      // Optional storage failed before the original maps or DC changed.
+      largePlanes = undefined
+      largeTransformed = undefined
+      largeIntermediate = undefined
+      if (!hasDct16) groupCoefficientOffsets = undefined
+    } finally {
+      selected?.release()
+      selector?.release()
+      for (const view of scratch) memory.release(view)
+      for (const view of retained) memory.release(view)
+    }
+  }
+  const rectanglePlanes = largePlanes?.map((plane) => plane.subarray(0, 512))
+  const rectangleTransformed = largeTransformed?.map((plane) => plane.subarray(0, 512))
+  const rectangleIntermediate = largeIntermediate?.subarray(0, 512)
   const fastAcInverse =
     effort === 1
       ? defaultJpegXlDct8Dequantization.map((table) => {
@@ -1856,14 +2009,65 @@ function* prepare8(
       for (let x = 0; x < blocksAcross; x++) {
         const globalIndex = (originY + y) * blocksWide + originX + x,
           strategy = strategyMap?.[globalIndex] ?? 0
-        if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
+        const transformWidth =
+            strategy === 5 || strategy === 11 ? 4 : strategy === 4 || strategy === 10 ? 2 : 1,
+          transformHeight =
+            strategy === 5 || strategy === 10 ? 4 : strategy === 4 || strategy === 11 ? 2 : 1
+        if (x % transformWidth !== 0 || y % transformHeight !== 0) continue
         const localIndex = y * blocksAcross + x,
           offset = groupCoefficientOffsets ? cursor : localIndex * 64
         if (groupCoefficientOffsets) {
           groupCoefficientOffsets[localIndex] = offset
-          cursor += strategy === 4 ? 256 : 64
+          cursor += transformWidth * transformHeight * 64
         }
         const localScale = 65536 / globalScale / (quantizationMap[globalIndex] ?? quantAc)
+        if (strategy === 5 || strategy === 10 || strategy === 11) {
+          const sourcePlanes = strategy === 5 ? largePlanes : rectanglePlanes,
+            transformedPlanes = strategy === 5 ? largeTransformed : rectangleTransformed,
+            work = strategy === 5 ? largeIntermediate : rectangleIntermediate,
+            tables =
+              strategy === 5
+                ? defaultJpegXlDct32Dequantization
+                : defaultJpegXlRectangle32Dequantization,
+            size = transformWidth * transformHeight * 64
+          if (!sourcePlanes || !transformedPlanes || !work)
+            throw invalidInput('Missing large transform group scratch')
+          for (let dy = 0; dy < transformHeight; dy++)
+            for (let dx = 0; dx < transformWidth; dx++) {
+              fillCorrelated(originX + x + dx, originY + y + dy)
+              for (let channel = 0; channel < 3; channel++) {
+                const source = planes[channel],
+                  destination = sourcePlanes[channel]
+                if (!source || !destination)
+                  throw invalidInput('Missing large transform source color')
+                for (let py = 0; py < 8; py++)
+                  for (let px = 0; px < 8; px++)
+                    destination[(dy * 8 + py) * transformWidth * 8 + dx * 8 + px] =
+                      source[py * 8 + px] ?? 0
+              }
+            }
+          for (let channel = 0; channel < 3; channel++) {
+            const source = sourcePlanes[channel],
+              coefficients = transformedPlanes[channel],
+              destination = acStorage[channel],
+              table = tables[channel]
+            if (!source || !coefficients || !destination || !table)
+              throw invalidInput('Missing large transform group color')
+            if (strategy === 5) forwardJpegXlDct32(source, work, coefficients)
+            else forwardJpegXlRectangle32(source, work, coefficients, strategy === 11)
+            destination.fill(0, offset, offset + size)
+            for (let p = 0; p < size; p++) {
+              if (p >>> 5 < (strategy === 5 ? 4 : 2) && (p & 31) < 4) continue
+              const value = quantizeAc(
+                (coefficients[p] ?? 0) / (localScale * (table[p] ?? 0)),
+                channel,
+              )
+              if (Math.abs(value) > 4095) throw unsupportedOperation('Large transform AC range')
+              destination[offset + p] = value
+            }
+          }
+          continue
+        }
         if (strategy === 4) {
           if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
             throw invalidInput('Missing DCT16 group scratch')

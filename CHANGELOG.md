@@ -4,6 +4,15 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Add bounded DCT32 and both 16x32/32x16 choices for regular effort-7 opaque
+  sRGB RGBA8 photos with more than 2,048 visible colors, above 4,194,304 and
+  through 16,777,216 pixels, at distances 2 through 4. Learn their coefficient
+  orders, verify complete independent pixels
+  and browser behavior, and retain the preceding path if optional storage cannot
+  fit. Matched compression qualification remains in progress.
+- Fix learned JPEG XL coefficient-order signaling when a single group uses
+  prefix entropy. Preserve complete pixels for square and rectangular transforms.
+
 - Fix JPEG XL opaque RGBA8 files with internal Modular DC frames. Decode their
   declared alpha dependency in single and grouped sections, and retain final
   pixels through ordinary, session, sequence and native-layer APIs.

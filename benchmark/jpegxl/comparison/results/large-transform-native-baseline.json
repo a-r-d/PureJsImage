@@ -1,0 +1,258 @@
+{
+  "completed": true,
+  "results": [
+    {
+      "id": "mixed-shared-natural",
+      "bytes": 1204,
+      "sha256": "84680ee6df77f42db3274bb48b1a1c90ec608c50972dffe3edc838e81fe14078",
+      "publicSha256": "309599385495546676b19c0d4a7b13d4093ff6fc5748c500ff05cc50eaa77961",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "6ba83b67d2e2c5404ce5af1aa3aff9c430112af77e4552b7cd1e85a226ee27c6",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "e1a287436e96c62a1200ee39822969120ea6e45195391ce717cb695d42a90527",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 2,
+      "familyContexts": false,
+      "learned": false,
+      "width": 512,
+      "height": 128
+    },
+    {
+      "id": "mixed-shared-learned",
+      "bytes": 705,
+      "sha256": "817d5e8e511fd040b640457c7ebce2a6519827c9453ccb84f308fc0f8f560887",
+      "publicSha256": "309599385495546676b19c0d4a7b13d4093ff6fc5748c500ff05cc50eaa77961",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "6ba83b67d2e2c5404ce5af1aa3aff9c430112af77e4552b7cd1e85a226ee27c6",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "e1a287436e96c62a1200ee39822969120ea6e45195391ce717cb695d42a90527",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 2,
+      "familyContexts": false,
+      "learned": true,
+      "width": 512,
+      "height": 128
+    },
+    {
+      "id": "mixed-family-natural",
+      "bytes": 1581,
+      "sha256": "ac5e6952cb1d79c8ca134dc3cc2a553b8644683b6b9b0fbe8abc8e606d34e5e2",
+      "publicSha256": "309599385495546676b19c0d4a7b13d4093ff6fc5748c500ff05cc50eaa77961",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "6ba83b67d2e2c5404ce5af1aa3aff9c430112af77e4552b7cd1e85a226ee27c6",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "e1a287436e96c62a1200ee39822969120ea6e45195391ce717cb695d42a90527",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 2,
+      "familyContexts": true,
+      "learned": false,
+      "width": 512,
+      "height": 128
+    },
+    {
+      "id": "mixed-family-learned",
+      "bytes": 896,
+      "sha256": "d3b5dff94f173decfd691fc5ebf479189386c3d8f4f8737ebd1e6bbbebe2c57f",
+      "publicSha256": "309599385495546676b19c0d4a7b13d4093ff6fc5748c500ff05cc50eaa77961",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "6ba83b67d2e2c5404ce5af1aa3aff9c430112af77e4552b7cd1e85a226ee27c6",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 196608,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "e1a287436e96c62a1200ee39822969120ea6e45195391ce717cb695d42a90527",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 2,
+      "familyContexts": true,
+      "learned": true,
+      "width": 512,
+      "height": 128
+    },
+    {
+      "id": "prefix-shared-natural",
+      "bytes": 19557,
+      "sha256": "466682d8323723e1b339af4fbe0afd675419ebb97dea728e7394d7c9a2f332c7",
+      "publicSha256": "385eb82dc8fc10feb5d5703d1bae66e7ecee288502461344d26779b2dede19d9",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "10b4194c1c0beffbf8e042b62f535dab95bbdde2ebb7fe6f55dc9759c66b3c7f",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "158fa41f33cc734f827563c5372abc346046fc017611626f7899115604b315ec",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 1,
+      "familyContexts": false,
+      "learned": false,
+      "width": 256,
+      "height": 128
+    },
+    {
+      "id": "prefix-shared-learned",
+      "bytes": 752,
+      "sha256": "afdb1e55aadc3234ae466e9de992c51557d4663631c35674fa8790d8a95a6fda",
+      "publicSha256": "385eb82dc8fc10feb5d5703d1bae66e7ecee288502461344d26779b2dede19d9",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "10b4194c1c0beffbf8e042b62f535dab95bbdde2ebb7fe6f55dc9759c66b3c7f",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "158fa41f33cc734f827563c5372abc346046fc017611626f7899115604b315ec",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 1,
+      "familyContexts": false,
+      "learned": true,
+      "width": 256,
+      "height": 128
+    },
+    {
+      "id": "prefix-family-natural",
+      "bytes": 19562,
+      "sha256": "ad21c99462bf9e4308caa3e938f0c28f453357b811fd52758899bef3f86c892a",
+      "publicSha256": "385eb82dc8fc10feb5d5703d1bae66e7ecee288502461344d26779b2dede19d9",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "10b4194c1c0beffbf8e042b62f535dab95bbdde2ebb7fe6f55dc9759c66b3c7f",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "158fa41f33cc734f827563c5372abc346046fc017611626f7899115604b315ec",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 1,
+      "familyContexts": true,
+      "learned": false,
+      "width": 256,
+      "height": 128
+    },
+    {
+      "id": "prefix-family-learned",
+      "bytes": 757,
+      "sha256": "82a2f9d8925a5bc4ed11e5a8a3f1f585860a51e7af6bf6ea43f2b54dc84c5815",
+      "publicSha256": "385eb82dc8fc10feb5d5703d1bae66e7ecee288502461344d26779b2dede19d9",
+      "grids": [
+        {
+          "name": "native",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "10b4194c1c0beffbf8e042b62f535dab95bbdde2ebb7fe6f55dc9759c66b3c7f",
+          "executableSha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+        },
+        {
+          "name": "rust",
+          "samples": 98304,
+          "maxError": 1,
+          "alphaExact": true,
+          "sha256": "158fa41f33cc734f827563c5372abc346046fc017611626f7899115604b315ec",
+          "executableSha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+        }
+      ],
+      "groups": 1,
+      "familyContexts": true,
+      "learned": true,
+      "width": 256,
+      "height": 128
+    }
+  ],
+  "fixtureSources": [
+    {
+      "path": "tests/helpers/jpegxl-large-orders.ts",
+      "sha256": "82bdf8eff6e438587a85f991c8a009e0ee4c81b6dd8fba0c7309216d4bedf44e"
+    },
+    {
+      "path": "tests/helpers/jpegxl-dct16-orders.ts",
+      "sha256": "9a87343b97074e7501bb2d4ab199b515820ff6ef262875da16eacf49eced6872"
+    }
+  ],
+  "qualifiedReceipts": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/large-production-foundation/result.json",
+      "sha256": "9382fd2cd2059262435e451ed98fc26dcb4ad2e5123f12347b88aaa0cab63707"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/large-prefix-foundation/result.json",
+      "sha256": "d34d24d138a09f96e0110c9d6967668b884bdfdedbe6a369e40b373c0acf60fe"
+    }
+  ],
+  "scope": "Eight deterministic firstparty mixed raw4/5/10/11 streams. Four two-group ANS plus four single-group prefix. Expected complete grids from separately qualified native/Rust foundation runs; no photo selection or compression parity claim."
+}
