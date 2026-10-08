@@ -30,6 +30,9 @@ import spatialControls from '../benchmark/jpegxl/comparison/results/original-spa
 import photoCompression from '../benchmark/jpegxl/comparison/results/photo-parity-production-controls.json' with {
   type: 'json',
 }
+import coneFloor from '../benchmark/jpegxl/comparison/results/original-cone-floor-controls.json' with {
+  type: 'json',
+}
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
 
 test('converter and exact grayscale JPEG round trip stay local', async ({ page }) => {
@@ -340,7 +343,22 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
   await expect(page.locator('#jxl-spatial-context-status')).toContainText(
     spatialControls.implementationSourceSha256,
   )
-  await expect(page.locator('main')).toContainText('Complete updated curves remain pending')
+  await expect(page.locator('#jxl-cone-floor-status')).toContainText('9.41%')
+  await expect(page.locator('#jxl-cone-floor-status')).toContainText('16.56% larger than jSquash')
+  const coneResponse = await page.request.get('/jpeg-xl/evidence/original-cone-floor-controls.json')
+  expect(coneResponse.ok()).toBe(true)
+  const coneDownloaded: unknown = await coneResponse.json()
+  expect(coneDownloaded).toEqual(coneFloor)
+  expect(coneDownloaded).toMatchObject({
+    completed: true,
+    sourceAdopted: true,
+    fullParity: false,
+    compiledPackagesIdenticalToMeasurements: true,
+  })
+  for (const row of coneFloor.comparisons.filter((row) => row.comparator === 'purejsimage'))
+    await expect(page.locator('#jxl-cone-floor-table')).toContainText(
+      Math.round(row.interpolatedBytes).toLocaleString('en-US'),
+    )
   for (const row of photoCompression.matchedFrozenPeerComparisons)
     await expect(page.locator('main')).toContainText(row.ratio.toFixed(3))
   await expect(page.locator('main')).toContainText('0.53% smaller')

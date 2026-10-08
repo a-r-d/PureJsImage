@@ -255,6 +255,28 @@ const fillXybBlock16 = (
   }
 }
 
+const canSearchConeFrame = (
+  width: number,
+  height: number,
+  distance: number,
+  channels: 1 | 3 | 4,
+  effort: 1 | 3 | 5 | 7,
+  sampleDepth: number,
+  progressive: boolean,
+  color: JpegXlForwardColor | undefined,
+): boolean =>
+  effort === 7 &&
+  channels === 4 &&
+  sampleDepth === 8 &&
+  (color?.storageBytes ?? 1) === 1 &&
+  !progressive &&
+  width * height > 4_194_304 &&
+  width * height <= 16_777_216 &&
+  distance > 1 &&
+  distance < 4 &&
+  (color?.primaries ?? 'srgb') === 'srgb' &&
+  (color?.transfer.kind ?? 'srgb') === 'srgb'
+
 /** Synchronous forward path used by conformance tools; public encoding uses the async path. */
 export const encodeJpegXlVarDct8 = (
   pixels: Uint8Array,
@@ -271,7 +293,7 @@ export const encodeJpegXlVarDct8 = (
 ): readonly Uint8Array[] => {
   const owned = memory ?? new JpegXlEncoderMemory(268_435_456)
   try {
-    const encode = (compressionSearch: boolean) =>
+    const encode = (compressionSearch: boolean, coneSearch = false) =>
       withJpegXlMemory(owned, () => {
         const steps = prepare8(
           pixels,
@@ -288,6 +310,7 @@ export const encodeJpegXlVarDct8 = (
           defaultImageLimits,
           'conservative',
           compressionSearch,
+          coneSearch,
         )
         let next = steps.next()
         while (!next.done) next = steps.next()
@@ -303,7 +326,7 @@ export const encodeJpegXlVarDct8 = (
             const learning = learnJpegXlForwardCoefficientOrders(geometry)
             let next = learning.next()
             while (!next.done) next = learning.next()
-            const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
+            const alternateGeometry = { ...geometry, coefficientOrders: next.value }
             const alternate = varDctCodestreamParts(
               { width, height },
               alternateGeometry,
@@ -314,7 +337,7 @@ export const encodeJpegXlVarDct8 = (
             for (const candidate of [geometry, alternateGeometry]) {
               try {
                 selected = withJpegXlMemory(owned, () => {
-                  const familyGeometry = { ...candidate, forwardFamilyContexts: true }
+                  const familyGeometry = { ...candidate, familyContexts: true }
                   const family = varDctCodestreamParts(
                     { width, height },
                     familyGeometry,
@@ -337,7 +360,31 @@ export const encodeJpegXlVarDct8 = (
         }
       })
     try {
-      return encode(true)
+      return withJpegXlMemory(owned, () => {
+        const baseline = encode(true)
+        if (
+          !canSearchConeFrame(
+            width,
+            height,
+            distance,
+            channels,
+            effort,
+            sampleDepth,
+            progressive,
+            color,
+          )
+        )
+          return baseline
+        try {
+          const candidate = encode(true, true)
+          return codestreamPartBytes(candidate) < codestreamPartBytes(baseline)
+            ? candidate
+            : baseline
+        } catch (error) {
+          if (!isJpegXlLimitExceeded(error)) throw error
+          return baseline
+        }
+      })
     } catch (error) {
       if (!isJpegXlLimitExceeded(error)) throw error
       return encode(false)
@@ -352,15 +399,16 @@ export interface JpegXlForwardFrameOptions {
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
   readonly strategyPolicy?: 'rate-distortion'
   readonly compressionSearch?: boolean
+  readonly coneSearch?: boolean
 }
 
 const usesForwardCoefficientOrderSearch = (
   geometry: Readonly<VarDctCoefficientGeometry>,
 ): boolean =>
   geometry.effort === 7 &&
-  geometry.loadAcGroup !== undefined &&
+  geometry.loadAc !== undefined &&
   geometry.groupsAcross * geometry.groupsDown > 1 &&
-  geometry.fullBlockWidth * geometry.fullBlockHeight >= 1_024
+  geometry.blocksWide * geometry.blocksHigh >= 1_024
 
 const codestreamPartBytes = (parts: readonly Uint8Array[]): number =>
   parts.reduce((total, part) => total + part.byteLength, 0)
@@ -415,6 +463,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
       limits,
       frame.strategyPolicy ?? 'conservative',
       frame.compressionSearch !== false,
+      frame.coneSearch === true,
     )
     await checkpoint()
     let next = steps.next()
@@ -439,7 +488,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
         } finally {
           learning.return([])
         }
-        const alternateGeometry = { ...geometry, forwardCoefficientOrders: next.value }
+        const alternateGeometry = { ...geometry, coefficientOrders: next.value }
         const alternateSections = await encodeVarDctCoefficientSectionsAsync(
           alternateGeometry,
           checkpoint,
@@ -457,7 +506,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
         for (const candidate of [geometry, alternateGeometry]) {
           try {
             selected = await withJpegXlMemoryAsync(memory, async () => {
-              const familyGeometry = { ...candidate, forwardFamilyContexts: true }
+              const familyGeometry = { ...candidate, familyContexts: true }
               const familySections = await encodeVarDctCoefficientSectionsAsync(
                 familyGeometry,
                 checkpoint,
@@ -495,8 +544,8 @@ export const encodeJpegXlVarDct8Async = async (
   limits: Readonly<ImageLimits> = defaultImageLimits,
   frame: Readonly<JpegXlForwardFrameOptions> = {},
 ): Promise<readonly Uint8Array[]> => {
-  try {
-    return await encodeJpegXlVarDct8CandidateAsync(
+  const encode = (options: Readonly<JpegXlForwardFrameOptions>): Promise<readonly Uint8Array[]> =>
+    encodeJpegXlVarDct8CandidateAsync(
       pixels,
       width,
       height,
@@ -510,26 +559,39 @@ export const encodeJpegXlVarDct8Async = async (
       progressive,
       color,
       limits,
-      frame,
+      options,
     )
+  try {
+    return await withJpegXlMemoryAsync(memory, async () => {
+      const baseline = await encode({ ...frame, coneSearch: false })
+      if (
+        frame.compressionSearch === false ||
+        frame.coneSearch === false ||
+        frame.reference ||
+        frame.patchGlobalSection ||
+        !canSearchConeFrame(
+          width,
+          height,
+          distance,
+          channels,
+          effort,
+          sampleDepth,
+          progressive,
+          color,
+        )
+      )
+        return baseline
+      try {
+        const candidate = await encode({ ...frame, coneSearch: true })
+        return codestreamPartBytes(candidate) < codestreamPartBytes(baseline) ? candidate : baseline
+      } catch (error) {
+        if (!isJpegXlLimitExceeded(error)) throw error
+        return baseline
+      }
+    })
   } catch (error) {
     if (!isJpegXlLimitExceeded(error) || frame.compressionSearch === false) throw error
-    return encodeJpegXlVarDct8CandidateAsync(
-      pixels,
-      width,
-      height,
-      distance,
-      memory,
-      checkpoint,
-      channels,
-      effort,
-      imageHeader,
-      sampleDepth,
-      progressive,
-      color,
-      limits,
-      { ...frame, compressionSearch: false },
-    )
+    return encode({ ...frame, compressionSearch: false, coneSearch: false })
   }
 }
 
@@ -548,6 +610,7 @@ function* prepare8(
   limits: Readonly<ImageLimits> = defaultImageLimits,
   strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
   compressionSearch = true,
+  coneSearch = false,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidJpegXlInput('dimensions must be positive safe integers')
@@ -561,9 +624,9 @@ function* prepare8(
     throw invalidJpegXlInput('RGB8 extent is inconsistent')
   if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)
     throw invalidJpegXlInput('forward conformance distance must be between 0.25 and 25')
-  const blockQuantization = 4
-  const globalScale = Math.round(65536 / (distance * blockQuantization))
-  const effectiveDistance = 65536 / globalScale / blockQuantization
+  const quantAc = 4
+  const globalScale = Math.round(65536 / (distance * quantAc))
+  const effectiveDistance = 65536 / globalScale / quantAc
   const sdrAlpha =
     effort === 7 &&
     channels === 4 &&
@@ -654,46 +717,32 @@ function* prepare8(
     : moderateAlphaDc
       ? [1 / 8192, 1 / 1024, 1 / 512]
       : [1 / 16384, 1 / 16384, 1 / 16384]
-  const fullBlockWidth = Math.ceil(width / 8)
-  const fullBlockHeight = Math.ceil(height / 8)
-  const deferredDcGroups =
+  const blocksWide = Math.ceil(width / 8)
+  const blocksHigh = Math.ceil(height / 8)
+  const deferredDc =
     effort === 1 &&
     channels !== 4 &&
     !progressive &&
-    Math.ceil(fullBlockWidth / 32) * Math.ceil(fullBlockHeight / 32) > 1 &&
-    Math.ceil(fullBlockWidth / 32) * Math.ceil(fullBlockHeight / 32) <= 256
-  const colorTilesAcross = Math.ceil(fullBlockWidth / 8)
-  const colorTilesDown = Math.ceil(fullBlockHeight / 8)
+    Math.ceil(blocksWide / 32) * Math.ceil(blocksHigh / 32) > 1 &&
+    Math.ceil(blocksWide / 32) * Math.ceil(blocksHigh / 32) <= 256
+  const colorTilesAcross = Math.ceil(blocksWide / 8)
+  const colorTilesDown = Math.ceil(blocksHigh / 8)
   const covarianceY = allocateJpegXlArray(memory, Float32Array, colorTilesAcross * colorTilesDown)
   const covarianceX = allocateJpegXlArray(memory, Float32Array, colorTilesAcross * colorTilesDown)
   const covarianceB = allocateJpegXlArray(memory, Float32Array, colorTilesAcross * colorTilesDown)
-  const colorCorrelationX = allocateJpegXlArray(
-    memory,
-    Int32Array,
-    colorTilesAcross * colorTilesDown,
-  )
-  const colorCorrelationB = allocateJpegXlArray(
-    memory,
-    Int32Array,
-    colorTilesAcross * colorTilesDown,
-  )
-  const blockQuantizationMap = allocateJpegXlArray(
-    memory,
-    Int32Array,
-    fullBlockWidth * fullBlockHeight,
-  )
-  blockQuantizationMap.fill(blockQuantization)
+  const correlationX = allocateJpegXlArray(memory, Int32Array, colorTilesAcross * colorTilesDown)
+  const correlationB = allocateJpegXlArray(memory, Int32Array, colorTilesAcross * colorTilesDown)
+  const quantizationMap = allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
+  quantizationMap.fill(quantAc)
   const fineRateMap = originalDarkAc
-    ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
+    ? allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
     : undefined
-  const blockStrategyMap =
-    effort >= 5
-      ? allocateJpegXlArray(memory, Int32Array, fullBlockWidth * fullBlockHeight)
-      : undefined
+  const strategyMap =
+    effort >= 5 ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh) : undefined
   const components: VarDctCoefficientPlane[] = Array.from({ length: 3 }, () => ({
-    blocksPerLineForMcu: fullBlockWidth,
-    blocksPerColumnForMcu: fullBlockHeight,
-    coefficients: allocateJpegXlArray(memory, Int32Array, fullBlockWidth * fullBlockHeight),
+    blocksPerLineForMcu: blocksWide,
+    blocksPerColumnForMcu: blocksHigh,
+    coefficients: allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh),
     coefficientStride: 1,
   }))
   const quantization = defaultJpegXlDct8Dequantization.map(() => {
@@ -976,10 +1025,10 @@ function* prepare8(
       }
     : fillColor
   const means = allocateJpegXlArray(memory, Float32Array, 3)
-  for (let blockY = 0; !deferredDcGroups && blockY < fullBlockHeight; blockY++) {
-    for (let blockX = 0; blockX < fullBlockWidth; blockX++) {
+  for (let blockY = 0; !deferredDc && blockY < blocksHigh; blockY++) {
+    for (let blockX = 0; blockX < blocksWide; blockX++) {
       fill(blockX, blockY)
-      const offset = blockY * fullBlockWidth + blockX
+      const offset = blockY * blocksWide + blockX
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel]
         const component = components[channel]
@@ -1019,7 +1068,7 @@ function* prepare8(
               ? 1
               : 0
         }
-        blockQuantizationMap[offset] = moderateAlphaDc
+        quantizationMap[offset] = moderateAlphaDc
           ? (originalDarkAc &&
               ((means[1] ?? 0) < 0.3 || ((means[1] ?? 0) < 0.5 && activity > 1.5)) &&
               yy >= 0.000064 &&
@@ -1036,12 +1085,12 @@ function* prepare8(
             : finerSdrAc
               ? 5
               : 4
-        if (brightPqAc && (means[1] ?? 0) >= 0.5 && blockQuantizationMap[offset] === 4)
-          blockQuantizationMap[offset] = 5
+        if (brightPqAc && (means[1] ?? 0) >= 0.5 && quantizationMap[offset] === 4)
+          quantizationMap[offset] = 5
         // Spend extra AC precision on strong SDR edges and thin PQ edges.
-        if (finerSdrAc && gradient > 0.01) blockQuantizationMap[offset] = 6
+        if (finerSdrAc && gradient > 0.01) quantizationMap[offset] = 6
         if (brightPqAc && distance >= 2 && distance <= 4 && gradient > 0.01 && activity > 3)
-          blockQuantizationMap[offset] = 6
+          quantizationMap[offset] = 6
       }
     }
     yield
@@ -1050,11 +1099,11 @@ function* prepare8(
     for (let tile = 0; tile < covarianceY.length; tile++) {
       const variance = covarianceY[tile] ?? 0
       if (variance < 1e-9) continue
-      colorCorrelationX[tile] = Math.max(
+      correlationX[tile] = Math.max(
         -128,
         Math.min(127, Math.round((84 * (covarianceX[tile] ?? 0)) / variance)),
       )
-      colorCorrelationB[tile] = Math.max(
+      correlationB[tile] = Math.max(
         -128,
         Math.min(127, Math.round((84 * (covarianceB[tile] ?? 0)) / variance)),
       )
@@ -1067,12 +1116,11 @@ function* prepare8(
   let currentAcRateWeightY = acRateWeightY
   const fillCorrelated = (blockX: number, blockY: number): void => {
     if (fineRateMap)
-      currentAcRateWeightY =
-        fineRateMap[blockY * fullBlockWidth + blockX] === 1 ? 0.05 : acRateWeightY
+      currentAcRateWeightY = fineRateMap[blockY * blocksWide + blockX] === 1 ? 0.05 : acRateWeightY
     fill(blockX, blockY)
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
-    const ratioX = (colorCorrelationX[tile] ?? 0) / 84
-    const ratioB = (colorCorrelationB[tile] ?? 0) / 84
+    const ratioX = (correlationX[tile] ?? 0) / 84
+    const ratioB = (correlationB[tile] ?? 0) / 84
     for (let position = 0; position < 64; position++) {
       xPlane[position] = (xPlane[position] ?? 0) - ratioX * (yPlane[position] ?? 0)
       bPlane[position] = (bPlane[position] ?? 0) - ratioB * (yPlane[position] ?? 0)
@@ -1110,15 +1158,15 @@ function* prepare8(
   const quantizeAc: (normalized: number, channel: number) => number =
     coarse || originalDarkAc ? rateAwareAc : Math.round
   const epfMaximumSharpness = channels === 4 ? 2 : 3
-  let epfSharpnessMap =
-    blockStrategyMap &&
+  let sharpnessMap =
+    strategyMap &&
     distance >= 2 &&
     (channels !== 4 || (effort === 7 && moderateSdrDc)) &&
     colorTransfer.kind === 'srgb' &&
     primaryCode === 1
-      ? allocateJpegXlArray(memory, Uint8Array, fullBlockWidth * fullBlockHeight)
+      ? allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
       : undefined
-  if (blockStrategyMap) {
+  if (strategyMap) {
     const alternatePolicy = strategyPolicy === 'rate-distortion'
     const errors = allocateJpegXlArray(memory, Float32Array, 3)
     const baselineErrors = allocateJpegXlArray(memory, Float32Array, 3)
@@ -1189,11 +1237,11 @@ function* prepare8(
       }
       return bits
     }
-    for (let y = 0; y < fullBlockHeight; y++) {
-      for (let x = 0; x < fullBlockWidth; x++) {
+    for (let y = 0; y < blocksHigh; y++) {
+      for (let x = 0; x < blocksWide; x++) {
         fillCorrelated(x, y)
-        const index = y * fullBlockWidth + x
-        let localScale = 65536 / globalScale / (blockQuantizationMap[index] ?? blockQuantization)
+        const index = y * blocksWide + x
+        let localScale = 65536 / globalScale / (quantizationMap[index] ?? quantAc)
         errors.fill(Infinity)
         let baselineBits = measureStrategy(0, localScale)
         // Refine excessive loss of local contrast before choosing a transform. Mean-normalized
@@ -1218,13 +1266,13 @@ function* prepare8(
               (errors[channel] ?? 0) / (variance + (channel === 0 ? 0.00000001 : 0.000001)),
             )
           }
-          const current = blockQuantizationMap[index] ?? blockQuantization
+          const current = quantizationMap[index] ?? quantAc
           const target = Math.min(8, Math.ceil(current * Math.sqrt(relativeError / 0.04)))
           // Fade toward the surrounding quality ranges without a large endpoint jump.
           const strength = Math.min(1, distance - 1, 5 - distance)
           const refined = current + Math.round(Math.max(0, target - current) * strength)
           if (refined > current) {
-            blockQuantizationMap[index] = refined
+            quantizationMap[index] = refined
             localScale = 65536 / globalScale / refined
             baselineBits = measureStrategy(0, localScale)
           }
@@ -1266,11 +1314,11 @@ function* prepare8(
             }
           }
         }
-        blockStrategyMap[index] = best
-        if (epfSharpnessMap) {
+        strategyMap[index] = best
+        if (sharpnessMap) {
           // Map quantization RMS through the normative EPF sigma relationship.
           // 1.17157287525381 is 4 - 2*sqrt(2); development calibration caps strength at 3.
-          epfSharpnessMap[index] = Math.min(
+          sharpnessMap[index] = Math.min(
             epfMaximumSharpness,
             Math.round(
               (Math.sqrt(selectedError) * 255 * 7 * 1.17157287525381) / (localScale * 0.46),
@@ -1284,17 +1332,17 @@ function* prepare8(
     memory.release(baselineErrors)
     memory.release(coefficientErrors)
   }
-  if (epfSharpnessMap) {
+  if (sharpnessMap) {
     let active = 0
-    for (const sharpness of epfSharpnessMap) active += sharpness > 0 ? 1 : 0
-    if (active * 2 < epfSharpnessMap.length) {
-      memory.release(epfSharpnessMap)
-      epfSharpnessMap = undefined
+    for (const sharpness of sharpnessMap) active += sharpness > 0 ? 1 : 0
+    if (active * 2 < sharpnessMap.length) {
+      memory.release(sharpnessMap)
+      sharpnessMap = undefined
     }
   }
-  const groupsAcross = Math.ceil(fullBlockWidth / 32)
+  const groupsAcross = Math.ceil(blocksWide / 32)
   // Estimate transform cost from natural-order hybrid tokens, zeros and nonzero counts.
-  const dct16Eligible = coarse && blockStrategyMap !== undefined
+  const dct16Eligible = coarse && strategyMap !== undefined
   const dct16Planes = dct16Eligible
     ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
     : undefined
@@ -1320,7 +1368,7 @@ function* prepare8(
         }
       }
   }
-  if (dct16Eligible && dct16Planes && dct16Intermediate && dct16Transformed && blockStrategyMap) {
+  if (dct16Eligible && dct16Planes && dct16Intermediate && dct16Transformed && strategyMap) {
     const counts = allocateJpegXlArray(memory, Uint32Array, 3 * 9 * 256),
       totals = allocateJpegXlArray(memory, Uint32Array, 3 * 9)
     const costs = allocateJpegXlArray(memory, Float64Array, 3 * 9 * 256)
@@ -1330,6 +1378,11 @@ function* prepare8(
       error16 = allocateJpegXlArray(memory, Float64Array, 3 * 256)
     const baselineError = allocateJpegXlArray(memory, Float64Array, 3),
       candidateError = allocateJpegXlArray(memory, Float64Array, 3)
+    const coneStrategy = coneSearch && originalPhotoAc && distance < 4
+    // DCT8 AC errors have been accumulated before DC uses this scratch. The next
+    // DCT8 quantization overwrites them before reading any AC error again.
+    const coneDcErrors = coneStrategy ? error8 : undefined
+    const sourceDcErrors = coneDcErrors
     const dc16 = allocateJpegXlArray(memory, Int32Array, 3 * 4),
       dcErrors = allocateJpegXlArray(memory, Float64Array, 3)
     const order8 = allocateJpegXlArray(memory, Uint16Array, 64),
@@ -1392,8 +1445,7 @@ function* prepare8(
     }
     const quantize8 = (x: number, y: number): void => {
       fillCorrelated(x, y)
-      const scale =
-        65536 / globalScale / (blockQuantizationMap[y * fullBlockWidth + x] ?? blockQuantization)
+      const scale = 65536 / globalScale / (quantizationMap[y * blocksWide + x] ?? quantAc)
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel],
           table = defaultJpegXlDct8Dequantization[channel]
@@ -1412,9 +1464,9 @@ function* prepare8(
         }
       }
     }
-    for (let y = 0; y < fullBlockHeight; y++) {
-      for (let x = 0; x < fullBlockWidth; x++)
-        if (blockStrategyMap[y * fullBlockWidth + x] === 0) {
+    for (let y = 0; y < blocksHigh; y++) {
+      for (let x = 0; x < blocksWide; x++)
+        if (strategyMap[y * blocksWide + x] === 0) {
           quantize8(x, y)
           for (let channel = 0; channel < 3; channel++) tokens(quantized8, channel, order8, 1, true)
         }
@@ -1427,143 +1479,171 @@ function* prepare8(
         )
     const resampleScale =
       1 / (Math.cos(Math.PI / 32) * Math.cos(Math.PI / 16) * Math.cos(Math.PI / 8))
-    for (let y = 0; y + 1 < fullBlockHeight; y += 2) {
-      for (let x = 0; x + 1 < fullBlockWidth; x += 2) {
-        const at = y * fullBlockWidth + x
+    for (let y = 0; y + 1 < blocksHigh; y += 2) {
+      for (let x = 0; x + 1 < blocksWide; x += 2) {
+        const at = y * blocksWide + x
         if (
-          blockStrategyMap[at] !== 0 ||
-          blockStrategyMap[at + 1] !== 0 ||
-          blockStrategyMap[at + fullBlockWidth] !== 0 ||
-          blockStrategyMap[at + fullBlockWidth + 1] !== 0
+          strategyMap[at] !== 0 ||
+          strategyMap[at + 1] !== 0 ||
+          strategyMap[at + blocksWide] !== 0 ||
+          strategyMap[at + blocksWide + 1] !== 0
         )
           continue
-        baselineError.fill(0)
-        const tile = Math.floor(y / 8) * colorTilesAcross + Math.floor(x / 8),
-          ratioX = (colorCorrelationX[tile] ?? 0) / 84,
-          ratioB = (colorCorrelationB[tile] ?? 0) / 84
-        let baselineBits = 0
-        for (let dy = 0; dy < 2; dy++)
-          for (let dx = 0; dx < 2; dx++) {
-            quantize8(x + dx, y + dy)
-            for (let channel = 0; channel < 3; channel++)
-              baselineBits += tokens(quantized8, channel, order8, 1, false)
-            for (let position = 1; position < 64; position++) {
-              const ey = error8[64 + position] ?? 0,
-                ex = (error8[position] ?? 0) + ratioX * ey,
-                eb = (error8[128 + position] ?? 0) + ratioB * ey
-              baselineError[0] = (baselineError[0] ?? 0) + (ex * ex) / 4
-              baselineError[1] = (baselineError[1] ?? 0) + (ey * ey) / 4
-              baselineError[2] = (baselineError[2] ?? 0) + (eb * eb) / 4
-            }
-            fill(x + dx, y + dy)
-            for (let channel = 0; channel < 3; channel++) {
-              const plane = planes[channel],
-                component = components[channel]
-              if (!plane || !component) throw invalidInput('Missing baseline DC')
-              let sum = 0
-              for (let p = 0; p < 64; p++) sum += plane[p] ?? 0
-              const error =
-                sum / 64 -
-                (component.coefficients[(y + dy) * fullBlockWidth + x + dx] ?? 0) *
-                  effectiveDistance *
-                  (dcQuantization[channel] ?? 0)
-              baselineError[channel] = (baselineError[channel] ?? 0) + (error * error) / 4
-            }
-          }
-        fillDct16(x, y, false)
-        for (let channel = 0; channel < 3; channel++) {
-          const plane = dct16Planes[channel],
-            coefficients = dct16Transformed[channel]
-          if (!plane || !coefficients) throw invalidInput('Missing candidate DC')
-          forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
-          const c00 = coefficients[0] ?? 0,
-            c10 = (coefficients[16] ?? 0) / resampleScale,
-            c01 = (coefficients[1] ?? 0) / resampleScale,
-            c11 = (coefficients[17] ?? 0) / (resampleScale * resampleScale),
-            step = effectiveDistance * (dcQuantization[channel] ?? 0)
-          const a = Math.round((c00 + c10 + c01 + c11) / step),
-            b = Math.round((c00 - c10 + c01 - c11) / step),
-            c = Math.round((c00 + c10 - c01 - c11) / step),
-            d = Math.round((c00 - c10 - c01 + c11) / step)
-          dc16[channel * 4] = a
-          dc16[channel * 4 + 1] = b
-          dc16[channel * 4 + 2] = c
-          dc16[channel * 4 + 3] = d
-          dcErrors[channel] =
-            (c00 - ((a + b + c + d) * step) / 4) ** 2 +
-            ((coefficients[16] ?? 0) - ((a - b + c - d) * step * resampleScale) / 4) ** 2 +
-            ((coefficients[1] ?? 0) - ((a + b - c - d) * step * resampleScale) / 4) ** 2 +
-            ((coefficients[17] ?? 0) -
-              ((a - b - c + d) * step * resampleScale * resampleScale) / 4) **
-              2
-        }
-        fillDct16(x, y, true)
-        for (let channel = 0; channel < 3; channel++) {
-          const plane = dct16Planes[channel],
-            coefficients = dct16Transformed[channel]
-          if (!plane || !coefficients) throw invalidInput('Missing candidate AC')
-          forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
-        }
-        let bestBits = baselineBits * 0.97 - 2,
-          bestQuantizer = 0
-        for (let quantizerIndex = 0; quantizerIndex < dct16Quantizers.length; quantizerIndex++) {
-          const quantizer = dct16Quantizers[quantizerIndex] ?? 4
-          const scale = 65536 / globalScale / quantizer
-          let inRange = true
-          quantized16.fill(0)
-          error16.fill(0)
-          candidateError.set(dcErrors)
-          for (let channel = 0; channel < 3; channel++) {
-            const coefficients = dct16Transformed[channel],
-              table = defaultJpegXlDct16Dequantization[channel]
-            if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
-            for (let p = 0; p < 256; p++) {
-              if (p >>> 4 < 2 && (p & 15) < 2) continue
-              const step = scale * (table[p] ?? 0),
-                value = quantizeAc((coefficients[p] ?? 0) / step, channel)
-              if (Math.abs(value) > 4095) {
-                inRange = false
-                break
+        // Preserve the original selector's complete choice before considering a
+        // cone candidate on a tile that otherwise retains its four DCT8 blocks.
+        for (let pass = 0; pass < (coneStrategy ? 2 : 1); pass++) {
+          const addStrategyError =
+            pass === 0 ? addJpegXlCodingStrategyError : addJpegXlConeStrategyError
+          baselineError.fill(0)
+          const tile = Math.floor(y / 8) * colorTilesAcross + Math.floor(x / 8),
+            ratioX = (correlationX[tile] ?? 0) / 84,
+            ratioB = (correlationB[tile] ?? 0) / 84
+          let baselineBits = 0
+          for (let dy = 0; dy < 2; dy++)
+            for (let dx = 0; dx < 2; dx++) {
+              quantize8(x + dx, y + dy)
+              for (let channel = 0; channel < 3; channel++)
+                baselineBits += tokens(quantized8, channel, order8, 1, false)
+              for (let position = 1; position < 64; position++) {
+                const ey = error8[64 + position] ?? 0,
+                  ex = (error8[position] ?? 0) + ratioX * ey,
+                  eb = (error8[128 + position] ?? 0) + ratioB * ey
+                addStrategyError(ex, ey, eb, 0.25, baselineError)
               }
-              quantized16[channel * 256 + p] = value
-              error16[channel * 256 + p] = (coefficients[p] ?? 0) - decoded(value, channel) * step
+              fill(x + dx, y + dy)
+              for (let channel = 0; channel < 3; channel++) {
+                const plane = planes[channel],
+                  component = components[channel]
+                if (!plane || !component) throw invalidInput('Missing baseline DC')
+                let sum = 0
+                for (let p = 0; p < 64; p++) sum += plane[p] ?? 0
+                const error =
+                  sum / 64 -
+                  (component.coefficients[(y + dy) * blocksWide + x + dx] ?? 0) *
+                    effectiveDistance *
+                    (dcQuantization[channel] ?? 0)
+                if (sourceDcErrors) sourceDcErrors[channel] = error
+                else baselineError[channel] = (baselineError[channel] ?? 0) + (error * error) / 4
+              }
+              if (sourceDcErrors)
+                addStrategyError(
+                  sourceDcErrors[0] ?? 0,
+                  sourceDcErrors[1] ?? 0,
+                  sourceDcErrors[2] ?? 0,
+                  0.25,
+                  baselineError,
+                )
+            }
+          fillDct16(x, y, false)
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = dct16Planes[channel],
+              coefficients = dct16Transformed[channel]
+            if (!plane || !coefficients) throw invalidInput('Missing candidate DC')
+            forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
+            const c00 = coefficients[0] ?? 0,
+              c10 = (coefficients[16] ?? 0) / resampleScale,
+              c01 = (coefficients[1] ?? 0) / resampleScale,
+              c11 = (coefficients[17] ?? 0) / (resampleScale * resampleScale),
+              step = effectiveDistance * (dcQuantization[channel] ?? 0)
+            const a = Math.round((c00 + c10 + c01 + c11) / step),
+              b = Math.round((c00 - c10 + c01 - c11) / step),
+              c = Math.round((c00 + c10 - c01 - c11) / step),
+              d = Math.round((c00 - c10 - c01 + c11) / step)
+            dc16[channel * 4] = a
+            dc16[channel * 4 + 1] = b
+            dc16[channel * 4 + 2] = c
+            dc16[channel * 4 + 3] = d
+            const e0 = c00 - ((a + b + c + d) * step) / 4
+            const e1 = (coefficients[16] ?? 0) - ((a - b + c - d) * step * resampleScale) / 4
+            const e2 = (coefficients[1] ?? 0) - ((a + b - c - d) * step * resampleScale) / 4
+            const e3 =
+              (coefficients[17] ?? 0) - ((a - b - c + d) * step * resampleScale * resampleScale) / 4
+            dcErrors[channel] = e0 * e0 + e1 * e1 + e2 * e2 + e3 * e3
+            if (coneDcErrors) {
+              coneDcErrors[channel] = e0
+              coneDcErrors[channel + 3] = e1
+              coneDcErrors[channel + 6] = e2
+              coneDcErrors[channel + 9] = e3
             }
           }
-          if (!inRange) continue
-          for (let p = 0; p < 256; p++) {
-            const ey = error16[256 + p] ?? 0,
-              ex = (error16[p] ?? 0) + ratioX * ey,
-              eb = (error16[512 + p] ?? 0) + ratioB * ey
-            candidateError[0] = (candidateError[0] ?? 0) + ex * ex
-            candidateError[1] = (candidateError[1] ?? 0) + ey * ey
-            candidateError[2] = (candidateError[2] ?? 0) + eb * eb
+          if (coneDcErrors) {
+            dcErrors.fill(0)
+            for (let frequency = 0; frequency < 4; frequency++)
+              addStrategyError(
+                coneDcErrors[frequency * 3] ?? 0,
+                coneDcErrors[frequency * 3 + 1] ?? 0,
+                coneDcErrors[frequency * 3 + 2] ?? 0,
+                1,
+                dcErrors,
+              )
           }
-          if (
-            (candidateError[0] ?? Infinity) > (baselineError[0] ?? 0) + 1e-15 ||
-            (candidateError[1] ?? Infinity) > (baselineError[1] ?? 0) + 1e-15 ||
-            (candidateError[2] ?? Infinity) > (baselineError[2] ?? 0) + 1e-15
-          )
-            continue
-          let bits = 0
-          for (let channel = 0; channel < 3; channel++)
-            bits += tokens(quantized16, channel, order16, 4, false)
-          if (bits < bestBits) {
-            bestBits = bits
-            bestQuantizer = quantizer
+          fillDct16(x, y, true)
+          for (let channel = 0; channel < 3; channel++) {
+            const plane = dct16Planes[channel],
+              coefficients = dct16Transformed[channel]
+            if (!plane || !coefficients) throw invalidInput('Missing candidate AC')
+            forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
           }
-        }
-        if (bestQuantizer === 0) continue
-        for (let dy = 0; dy < 2; dy++)
-          for (let dx = 0; dx < 2; dx++) {
-            const index = (y + dy) * fullBlockWidth + x + dx
-            blockStrategyMap[index] = 4
-            blockQuantizationMap[index] = bestQuantizer
+          let bestBits = baselineBits * 0.97 - 2,
+            bestQuantizer = 0
+          for (let quantizerIndex = 0; quantizerIndex < dct16Quantizers.length; quantizerIndex++) {
+            const quantizer = dct16Quantizers[quantizerIndex] ?? 4
+            const scale = 65536 / globalScale / quantizer
+            let inRange = true
+            quantized16.fill(0)
+            error16.fill(0)
+            candidateError.set(dcErrors)
             for (let channel = 0; channel < 3; channel++) {
-              const component = components[channel]
-              if (!component) throw invalidInput('Missing selected DC')
-              component.coefficients[index] = dc16[channel * 4 + dy * 2 + dx] ?? 0
+              const coefficients = dct16Transformed[channel],
+                table = defaultJpegXlDct16Dequantization[channel]
+              if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
+              for (let p = 0; p < 256; p++) {
+                if (p >>> 4 < 2 && (p & 15) < 2) continue
+                const step = scale * (table[p] ?? 0),
+                  value = quantizeAc((coefficients[p] ?? 0) / step, channel)
+                if (Math.abs(value) > 4095) {
+                  inRange = false
+                  break
+                }
+                quantized16[channel * 256 + p] = value
+                error16[channel * 256 + p] = (coefficients[p] ?? 0) - decoded(value, channel) * step
+              }
+            }
+            if (!inRange) continue
+            for (let p = 0; p < 256; p++) {
+              const ey = error16[256 + p] ?? 0,
+                ex = (error16[p] ?? 0) + ratioX * ey,
+                eb = (error16[512 + p] ?? 0) + ratioB * ey
+              addStrategyError(ex, ey, eb, 1, candidateError)
+            }
+            if (
+              (candidateError[0] ?? Infinity) > (baselineError[0] ?? 0) + 1e-15 ||
+              (candidateError[1] ?? Infinity) > (baselineError[1] ?? 0) + 1e-15 ||
+              (candidateError[2] ?? Infinity) > (baselineError[2] ?? 0) + 1e-15
+            )
+              continue
+            let bits = 0
+            for (let channel = 0; channel < 3; channel++)
+              bits += tokens(quantized16, channel, order16, 4, false)
+            if (bits < bestBits) {
+              bestBits = bits
+              bestQuantizer = quantizer
             }
           }
+          if (bestQuantizer === 0) continue
+          for (let dy = 0; dy < 2; dy++)
+            for (let dx = 0; dx < 2; dx++) {
+              const index = (y + dy) * blocksWide + x + dx
+              strategyMap[index] = 4
+              quantizationMap[index] = bestQuantizer
+              for (let channel = 0; channel < 3; channel++) {
+                const component = components[channel]
+                if (!component) throw invalidInput('Missing selected DC')
+                component.coefficients[index] = dc16[channel * 4 + dy * 2 + dx] ?? 0
+              }
+            }
+          break
+        }
       }
       yield
     }
@@ -1584,7 +1664,7 @@ function* prepare8(
     ])
       memory.release(scratch)
   }
-  const hasDct16 = blockStrategyMap?.includes(4) ?? false
+  const hasDct16 = strategyMap?.includes(4) ?? false
   const groupCoefficientOffsets = hasDct16
     ? allocateJpegXlArray(memory, Int32Array, 32 * 32)
     : undefined
@@ -1603,14 +1683,14 @@ function* prepare8(
   const fillAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
     const originX = (group % groupsAcross) * 32
     const originY = Math.floor(group / groupsAcross) * 32
-    const blocksAcross = Math.min(32, fullBlockWidth - originX)
-    const blocksDown = Math.min(32, fullBlockHeight - originY)
+    const blocksAcross = Math.min(32, blocksWide - originX)
+    const blocksDown = Math.min(32, blocksHigh - originY)
     groupCoefficientOffsets?.fill(-1, 0, blocksAcross * blocksDown)
     let cursor = 0
     for (let y = 0; y < blocksDown; y++) {
       for (let x = 0; x < blocksAcross; x++) {
-        const globalIndex = (originY + y) * fullBlockWidth + originX + x,
-          strategy = blockStrategyMap?.[globalIndex] ?? 0
+        const globalIndex = (originY + y) * blocksWide + originX + x,
+          strategy = strategyMap?.[globalIndex] ?? 0
         if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
         const localIndex = y * blocksAcross + x,
           offset = groupCoefficientOffsets ? cursor : localIndex * 64
@@ -1618,8 +1698,7 @@ function* prepare8(
           groupCoefficientOffsets[localIndex] = offset
           cursor += strategy === 4 ? 256 : 64
         }
-        const localScale =
-          65536 / globalScale / (blockQuantizationMap[globalIndex] ?? blockQuantization)
+        const localScale = 65536 / globalScale / (quantizationMap[globalIndex] ?? quantAc)
         if (strategy === 4) {
           if (!dct16Planes || !dct16Intermediate || !dct16Transformed)
             throw invalidInput('Missing DCT16 group scratch')
@@ -1653,12 +1732,12 @@ function* prepare8(
           const table = strategyTables(strategy)[channel]
           if (!plane || !destination || !table)
             throw invalidJpegXlInput('forward AC channel is missing')
-          if (deferredDcGroups) {
+          if (deferredDc) {
             const component = components[channel]
             if (!component) throw invalidJpegXlInput('forward DC channel is missing')
             let sum = 0
             for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
-            component.coefficients[(originY + y) * fullBlockWidth + originX + x] = Math.round(
+            component.coefficients[(originY + y) * blocksWide + originX + x] = Math.round(
               sum / (64 * effectiveDistance * (dcQuantization[channel] ?? 0)),
             )
           }
@@ -1693,7 +1772,7 @@ function* prepare8(
     : undefined
   let cachedGroup = -1
   let cachedPlanes: readonly VarDctCoefficientPlane[] = []
-  const loadAcGroup = passStorage
+  const loadAc = passStorage
     ? (group: number, pass: number): readonly VarDctCoefficientPlane[] => {
         if (cachedGroup !== group) {
           cachedPlanes = fillAcGroup(group)
@@ -1756,44 +1835,70 @@ function* prepare8(
     : undefined
   const geometry: VarDctCoefficientGeometry = {
     colorTransform: 'xyb',
-    forwardAcIterationSearch: originalDarkAc || originalPhotoAc,
-    forwardAdvancedModularSearch:
+    acIterationSearch: originalDarkAc || originalPhotoAc,
+    advancedModularSearch:
       coarse ||
       (compressionSearch && sdrAlpha && rgbDcPolicy && width * height > 4_194_304 && !progressive),
-    ...(blockStrategyMap ? { blockStrategyMap } : {}),
-    ...(epfSharpnessMap ? { epfSharpnessMap } : {}),
+    ...(strategyMap ? { strategyMap } : {}),
+    ...(sharpnessMap ? { sharpnessMap } : {}),
     chromaSubsampling: [0, 0, 0],
     shifts: [
       [0, 0],
       [0, 0],
       [0, 0],
     ],
-    fullBlockWidth,
-    fullBlockHeight,
+    blocksWide,
+    blocksHigh,
     groupsAcross,
-    groupsDown: Math.ceil(fullBlockHeight / 32),
-    dcGroupsAcross: Math.ceil(fullBlockWidth / 256),
-    dcGroupsDown: Math.ceil(fullBlockHeight / 256),
-    internalComponents: components,
-    dcPlaneComponents: [second, first, third],
+    groupsDown: Math.ceil(blocksHigh / 32),
+    dcAcross: Math.ceil(blocksWide / 256),
+    dcDown: Math.ceil(blocksHigh / 256),
+    acComponents: components,
+    dcComponents: [second, first, third],
     quantization,
     dcQuantization,
-    ...(moderateAlphaDc ? { adaptiveLfSmoothing: true } : {}),
-    defaultQuantization: true,
+    ...(moderateAlphaDc ? { smoothDc: true } : {}),
+    defaultMatrices: true,
     globalScale,
-    blockQuantization,
-    quantDc: blockQuantization,
-    blockQuantizationMap,
-    colorCorrelationX,
-    colorCorrelationB,
+    quantAc,
+    quantDc: quantAc,
+    quantizationMap,
+    correlationX,
+    correlationB,
     effort,
     progressive,
-    baseCorrelationB: 1,
-    loadAcGroup,
-    deferredDcGroups,
+    baseB: 1,
+    loadAc,
+    deferredDc,
     memory,
     ...(alpha ? { alpha } : {}),
     ...(imageHeader ? { imageHeader } : {}),
   }
   return geometry
+}
+
+function addJpegXlConeStrategyError(
+  x: number,
+  y: number,
+  b: number,
+  weight: number,
+  output: Float64Array,
+): void {
+  const red = y + x,
+    green = y - x,
+    blue = y + b
+  output[0] = (output[0] ?? 0) + red * red * weight
+  output[1] = (output[1] ?? 0) + green * green * weight
+  output[2] = (output[2] ?? 0) + blue * blue * weight
+}
+function addJpegXlCodingStrategyError(
+  x: number,
+  y: number,
+  b: number,
+  weight: number,
+  output: Float64Array,
+): void {
+  output[0] = (output[0] ?? 0) + x * x * weight
+  output[1] = (output[1] ?? 0) + y * y * weight
+  output[2] = (output[2] ?? 0) + b * b * weight
 }

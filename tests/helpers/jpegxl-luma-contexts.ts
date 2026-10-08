@@ -100,23 +100,23 @@ export const verifyJpegXlLumaContexts = async (
       [0, 0],
       [0, 0],
     ],
-    fullBlockWidth: across,
-    fullBlockHeight: down,
+    blocksWide: across,
+    blocksHigh: down,
     groupsAcross: Math.ceil(across / 32),
     groupsDown: Math.ceil(down / 32),
-    dcGroupsAcross: Math.ceil(across / 256),
-    dcGroupsDown: Math.ceil(down / 256),
-    internalComponents: [],
-    dcPlaneComponents: dc,
+    dcAcross: Math.ceil(across / 256),
+    dcDown: Math.ceil(down / 256),
+    acComponents: [],
+    dcComponents: dc,
     quantization: Array.from({ length: 3 }, () => new Int32Array(64).fill(1)),
     dcQuantization: [1 / 8192, 1 / 1024, 1 / 512],
-    defaultQuantization: true,
+    defaultMatrices: true,
     globalScale: 8192,
-    blockQuantization: 4,
+    quantAc: 4,
     quantDc: 4,
-    baseCorrelationB: 1,
+    baseB: 1,
     effort: 7,
-    forwardAcIterationSearch: true,
+    acIterationSearch: true,
     memory,
     alpha: {
       loadGroup: (group) => {
@@ -134,7 +134,7 @@ export const verifyJpegXlLumaContexts = async (
         }
       },
     },
-    loadAcGroup: (group) => {
+    loadAc: (group) => {
       const x = (group % Math.ceil(across / 32)) * 32,
         y = Math.floor(group / Math.ceil(across / 32)) * 32
       const groupWidth = Math.min(32, across - x),

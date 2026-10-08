@@ -1,0 +1,1482 @@
+{
+  "implementationRevision": "6d32b67b037d5e14b55c3842a428b784341120d2",
+  "implementationSourceSha256": "e0976829f3fa41ac24ea0b338727d82065fda130f881a78154048f781c5a5b3a",
+  "implementationDirty": true,
+  "completed": true,
+  "sourceAdopted": true,
+  "fullParity": false,
+  "scope": "two-original-photo-scoped-matched-curves",
+  "variant": "coarse",
+  "measuredCandidateSourceSha256": "2b7668ebd3aef41c7a5b7230da0d1b14d2d49a2454712c804ace0a66b80f09b9",
+  "compiledPackagesIdenticalToMeasurements": true,
+  "freshEncodedFiles": 19,
+  "freshCompleteIndependentGrids": 38,
+  "freshPublicDecodedSamples": 700800000,
+  "maximumBracketWidthPerMetric": 0.25,
+  "interpolation": "log bytes on each metric nondominated frontier",
+  "extrapolation": false,
+  "effort": 7,
+  "eligibleOriginalPixels": {
+    "minimumExclusive": 4194304,
+    "maximumInclusive": 16777216
+  },
+  "eligibleDistance": {
+    "minimumExclusive": 1,
+    "maximumExclusive": 4
+  },
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-actual-packages-2122/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623",
+      "bytes": 630636,
+      "originalCeiling": 631000,
+      "originalGatePassed": true,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "exactMeasuredCompiledPackage": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-actual-packages-2122/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68",
+      "bytes": 557987,
+      "originalCeiling": 558000,
+      "originalGatePassed": true,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "exactMeasuredCompiledPackage": true
+    }
+  ],
+  "outcomes": [
+    {
+      "fixture": "portrait-2400x3000",
+      "inputSha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+      "points": [
+        {
+          "setting": 0.54,
+          "bytes": 2845425,
+          "score": 91.88996962,
+          "butteraugli": 0.4807898104,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.jxl",
+          "artifactSha256": "8b424c4bb34cf12843795c2108cf23b64aa8135177c1a6939fb8c23933ec87fe",
+          "decodedSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+        },
+        {
+          "setting": 1.1,
+          "bytes": 1819612,
+          "score": 89.63692085,
+          "butteraugli": 0.8583306074,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.jxl",
+          "artifactSha256": "a05de5307d897896b0983808eab969e386908758283ec0b4338bc3747130c44e",
+          "decodedSha256": "4a77b0837b3defc54758c3e0bd298a8a4b1bfbe9290d3e951e917a101eae6e9c"
+        },
+        {
+          "setting": 1.25,
+          "bytes": 1657497,
+          "score": 89.00832081,
+          "butteraugli": 0.9287493229,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.jxl",
+          "artifactSha256": "fc9053f94a17f281cb1b678fc6b353b963dd9413df56d0af521877e7fb877fa3",
+          "decodedSha256": "63881385459576539193bdcebc52e34b66635fc215bf527ca81f77d27bd9987c"
+        },
+        {
+          "setting": 1.5,
+          "bytes": 1450775,
+          "score": 87.94699561,
+          "butteraugli": 1.115005374,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.jxl",
+          "artifactSha256": "3d191cbda3c039db753e5b490d8299fb1c49b6a2a5df1c9954b15d653067fcca",
+          "decodedSha256": "62c314ce57d7484a665cbcaa518ace62629af0bb5f55736e2a16ec1ef6ef6a3d"
+        },
+        {
+          "setting": 2.8,
+          "bytes": 870125,
+          "score": 81.50502474,
+          "butteraugli": 1.6139575243,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.jxl",
+          "artifactSha256": "cd7943d4380d15005b3b1693dc2327f6aec42b46b5c22a867ff673bc064bd349",
+          "decodedSha256": "a6472325e2182771b41b0b09f9ea46118715898aeca386e4faab709dbdf615da"
+        },
+        {
+          "setting": 3.3,
+          "bytes": 757085,
+          "score": 79.08170903,
+          "butteraugli": 1.8167151213,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.jxl",
+          "artifactSha256": "35343bacd1cb017cf0378da4e4f6a7f7cb93baefaff2d5d9f95aca0d0c00ffdb",
+          "decodedSha256": "d3c09db713a95a29ea13b626d64f3b72a628c2b48aee5da5c5489efac4e36a89"
+        },
+        {
+          "setting": 3.6428,
+          "bytes": 696557,
+          "score": 77.33094996,
+          "butteraugli": 1.9447795153,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.jxl",
+          "artifactSha256": "bab97168d7590db3691a8b0fb21acb92c365453cc1405fccf80e0dbc25dbd142",
+          "decodedSha256": "2fd3900a9454c7f9cff3f4f1d1a8fd0df52803bd6e9e8ec5b05b228cfb8f65e0"
+        },
+        {
+          "setting": 3.9,
+          "bytes": 656043,
+          "score": 76.10643022,
+          "butteraugli": 2.2342801094,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.jxl",
+          "artifactSha256": "587367ba2038c3355d87c4347fae01fcca93d9754589147d41488c2ef5532b74",
+          "decodedSha256": "d0460366d554145ee21d5765c25082d8d43e458df1d0eeac37b7b5474b977ef0"
+        },
+        {
+          "setting": 3.6905,
+          "bytes": 688954,
+          "score": 77.0517264,
+          "butteraugli": 2.1154539585,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.jxl",
+          "artifactSha256": "5ee12ddcf6ed569b076da93f85d55bf3c4ff9c8b9930e3fec9e6dcf6be9ae439",
+          "decodedSha256": "395b530cc323d0b7b1b26d871bdad0dc0300688dec516e818bde0a38d4b42387"
+        },
+        {
+          "setting": 3.1008,
+          "bytes": 799076,
+          "score": 80.05562246,
+          "butteraugli": 1.7163985968,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.jxl",
+          "artifactSha256": "7f035ee6efe4ff5e1bed11e04f752e085d49ea64bfc26668fc939458bf2abaa6",
+          "decodedSha256": "e9a0fa36f401dd57f050e72f7b29822e4ff4da76ac920d996b09e9d582276154"
+        },
+        {
+          "setting": 3.1118,
+          "bytes": 796485,
+          "score": 79.994163,
+          "butteraugli": 1.7502548695,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.jxl",
+          "artifactSha256": "0be76301101731ffd3c9dccc68a9478c4dc1bdced40f21f5321013ebe60ca389",
+          "decodedSha256": "1826e6db3f6ed1dee3fdf403590f8d93cc2a99f352f3ed737867646e7fc85c09"
+        }
+      ],
+      "measuredBands": [
+        {
+          "metric": "butteraugli",
+          "target": 0.5,
+          "status": "wide bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.1,
+              "bytes": 1819612,
+              "score": 89.63692085,
+              "butteraugli": 0.8583306074,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.jxl",
+              "artifactSha256": "a05de5307d897896b0983808eab969e386908758283ec0b4338bc3747130c44e",
+              "decodedSha256": "4a77b0837b3defc54758c3e0bd298a8a4b1bfbe9290d3e951e917a101eae6e9c"
+            },
+            "upper": {
+              "setting": 0.54,
+              "bytes": 2845425,
+              "score": 91.88996962,
+              "butteraugli": 0.4807898104,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.jxl",
+              "artifactSha256": "8b424c4bb34cf12843795c2108cf23b64aa8135177c1a6939fb8c23933ec87fe",
+              "decodedSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+            },
+            "width": 0.377540797
+          },
+          "width": 0.377540797,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "butteraugli",
+          "target": 1,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.5,
+              "bytes": 1450775,
+              "score": 87.94699561,
+              "butteraugli": 1.115005374,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.jxl",
+              "artifactSha256": "3d191cbda3c039db753e5b490d8299fb1c49b6a2a5df1c9954b15d653067fcca",
+              "decodedSha256": "62c314ce57d7484a665cbcaa518ace62629af0bb5f55736e2a16ec1ef6ef6a3d"
+            },
+            "upper": {
+              "setting": 1.25,
+              "bytes": 1657497,
+              "score": 89.00832081,
+              "butteraugli": 0.9287493229,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.jxl",
+              "artifactSha256": "fc9053f94a17f281cb1b678fc6b353b963dd9413df56d0af521877e7fb877fa3",
+              "decodedSha256": "63881385459576539193bdcebc52e34b66635fc215bf527ca81f77d27bd9987c"
+            },
+            "width": 0.1862560511000001
+          },
+          "width": 0.1862560511000001,
+          "interpolatedBytes": 1575149.1912773694
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 3.6905,
+              "bytes": 688954,
+              "score": 77.0517264,
+              "butteraugli": 2.1154539585,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.jxl",
+              "artifactSha256": "5ee12ddcf6ed569b076da93f85d55bf3c4ff9c8b9930e3fec9e6dcf6be9ae439",
+              "decodedSha256": "395b530cc323d0b7b1b26d871bdad0dc0300688dec516e818bde0a38d4b42387"
+            },
+            "upper": {
+              "setting": 3.6428,
+              "bytes": 696557,
+              "score": 77.33094996,
+              "butteraugli": 1.9447795153,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.jxl",
+              "artifactSha256": "bab97168d7590db3691a8b0fb21acb92c365453cc1405fccf80e0dbc25dbd142",
+              "decodedSha256": "2fd3900a9454c7f9cff3f4f1d1a8fd0df52803bd6e9e8ec5b05b228cfb8f65e0"
+            },
+            "width": 0.1706744431999998
+          },
+          "width": 0.1706744431999998,
+          "interpolatedBytes": 694087.9669501857
+        },
+        {
+          "metric": "butteraugli",
+          "target": 3,
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 70,
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 3.1118,
+              "bytes": 796485,
+              "score": 79.994163,
+              "butteraugli": 1.7502548695,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.jxl",
+              "artifactSha256": "0be76301101731ffd3c9dccc68a9478c4dc1bdced40f21f5321013ebe60ca389",
+              "decodedSha256": "1826e6db3f6ed1dee3fdf403590f8d93cc2a99f352f3ed737867646e7fc85c09"
+            },
+            "upper": {
+              "setting": 3.1008,
+              "bytes": 799076,
+              "score": 80.05562246,
+              "butteraugli": 1.7163985968,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.jxl",
+              "artifactSha256": "7f035ee6efe4ff5e1bed11e04f752e085d49ea64bfc26668fc939458bf2abaa6",
+              "decodedSha256": "e9a0fa36f401dd57f050e72f7b29822e4ff4da76ac920d996b09e9d582276154"
+            },
+            "width": 0.06145945999999469
+          },
+          "width": 0.06145945999999469,
+          "interpolatedBytes": 796730.714006474
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 90,
+          "status": "wide bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.1,
+              "bytes": 1819612,
+              "score": 89.63692085,
+              "butteraugli": 0.8583306074,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.jxl",
+              "artifactSha256": "a05de5307d897896b0983808eab969e386908758283ec0b4338bc3747130c44e",
+              "decodedSha256": "4a77b0837b3defc54758c3e0bd298a8a4b1bfbe9290d3e951e917a101eae6e9c"
+            },
+            "upper": {
+              "setting": 0.54,
+              "bytes": 2845425,
+              "score": 91.88996962,
+              "butteraugli": 0.4807898104,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.jxl",
+              "artifactSha256": "8b424c4bb34cf12843795c2108cf23b64aa8135177c1a6939fb8c23933ec87fe",
+              "decodedSha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+            },
+            "width": 2.2530487700000066
+          },
+          "width": 2.2530487700000066,
+          "interpolatedBytes": null
+        }
+      ],
+      "qualifiedTargets": [
+        {
+          "metric": "butteraugli",
+          "target": 1
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80
+        }
+      ]
+    },
+    {
+      "fixture": "im26-1416-original",
+      "inputSha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+      "points": [
+        {
+          "setting": 1.1,
+          "bytes": 1436221,
+          "score": 90.10111858,
+          "butteraugli": 0.9622725844,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.jxl",
+          "artifactSha256": "6dd1533ecadba68c54d5bf6cf7af211a95c828d500d24eb47637bbb55bb706c7",
+          "decodedSha256": "349affc7d67eaacebb523008bcedd8504c69d698056bee9e1dfd349038454f57"
+        },
+        {
+          "setting": 1.13,
+          "bytes": 1401005,
+          "score": 89.92000185,
+          "butteraugli": 1.0044631958,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.jxl",
+          "artifactSha256": "010b82bb2c8b0d5ba1b6d9c1e018ec099ebcc4fd177bf8b00f9c5df8d88cbfa9",
+          "decodedSha256": "e8945235dbba19a174aa9191cbe288633cb330aec5d08e19c1f9c3f181787a74"
+        },
+        {
+          "setting": 1.25,
+          "bytes": 1272869,
+          "score": 89.37108986,
+          "butteraugli": 0.9932314754,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.jxl",
+          "artifactSha256": "4de5511247291ea986c1ec36f098aa462ebd314264ec209f124eb4e48a8a4c1f",
+          "decodedSha256": "51a828eb90141958fe125757a7f979c6a5ab66d6cbf59737438365e9b3052b80"
+        },
+        {
+          "setting": 1.5,
+          "bytes": 1077612,
+          "score": 88.12337636,
+          "butteraugli": 1.1268560886,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.jxl",
+          "artifactSha256": "816312c4455c15bb81cbfdba68c644a98a029772ca8abe9baec3a488e77555ac",
+          "decodedSha256": "43a5fde1ab7e1845a49a1c27818c03ba1d30eaab940fcac99e1d122e9b656fc4"
+        },
+        {
+          "setting": 3.1,
+          "bytes": 527764,
+          "score": 80.61565537,
+          "butteraugli": 1.9135842323,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.jxl",
+          "artifactSha256": "5b21b5dffbb2dd87ce495e051669d30e07176a3fb60c06e87e13beefac7f505e",
+          "decodedSha256": "5555cd9d20e66d7e7d2e59bb956f961172be2b88b8339b16d483ba1d13024772"
+        },
+        {
+          "setting": 3.3,
+          "bytes": 494695,
+          "score": 79.85672817,
+          "butteraugli": 1.9943680763,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.jxl",
+          "artifactSha256": "dba0a09b5a0d6f877381302a45b7912a62793b951adf43f2b42cd77c8c96cc15",
+          "decodedSha256": "ccb9768f88d81b02d93b64edb4db816eacb118fb950489f9359fb1b2ef440e9b"
+        },
+        {
+          "setting": 3.5,
+          "bytes": 464498,
+          "score": 78.96760262,
+          "butteraugli": 2.0084095001,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.jxl",
+          "artifactSha256": "18bbde9ca172f067f554fa6d7c4a0eeeb94b6dac57cf82b2512be3224e4e1b6c",
+          "decodedSha256": "c50fb5abf5bf5b8c8e709ddc0f28ef5f2b57ac9b0c926bdd94d820ca45a9bfa9"
+        },
+        {
+          "setting": 3.2613,
+          "bytes": 501221,
+          "score": 80.02962323,
+          "butteraugli": 1.9426093102,
+          "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.jxl",
+          "artifactSha256": "11dce6ccac3e5406c7b12b3623e1b40440ef9c7930be2e5d4b640a94334dbed8",
+          "decodedSha256": "5b9571baaf311565b87cfa520a7b340894f7872b63c9c869a985a3fa792e8b76"
+        }
+      ],
+      "measuredBands": [
+        {
+          "metric": "butteraugli",
+          "target": 0.5,
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "butteraugli",
+          "target": 1,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.5,
+              "bytes": 1077612,
+              "score": 88.12337636,
+              "butteraugli": 1.1268560886,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.jxl",
+              "artifactSha256": "816312c4455c15bb81cbfdba68c644a98a029772ca8abe9baec3a488e77555ac",
+              "decodedSha256": "43a5fde1ab7e1845a49a1c27818c03ba1d30eaab940fcac99e1d122e9b656fc4"
+            },
+            "upper": {
+              "setting": 1.25,
+              "bytes": 1272869,
+              "score": 89.37108986,
+              "butteraugli": 0.9932314754,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.jxl",
+              "artifactSha256": "4de5511247291ea986c1ec36f098aa462ebd314264ec209f124eb4e48a8a4c1f",
+              "decodedSha256": "51a828eb90141958fe125757a7f979c6a5ab66d6cbf59737438365e9b3052b80"
+            },
+            "width": 0.13362461320000008
+          },
+          "width": 0.13362461320000008,
+          "interpolatedBytes": 1262177.3988395145
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 3.5,
+              "bytes": 464498,
+              "score": 78.96760262,
+              "butteraugli": 2.0084095001,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.jxl",
+              "artifactSha256": "18bbde9ca172f067f554fa6d7c4a0eeeb94b6dac57cf82b2512be3224e4e1b6c",
+              "decodedSha256": "c50fb5abf5bf5b8c8e709ddc0f28ef5f2b57ac9b0c926bdd94d820ca45a9bfa9"
+            },
+            "upper": {
+              "setting": 3.3,
+              "bytes": 494695,
+              "score": 79.85672817,
+              "butteraugli": 1.9943680763,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.jxl",
+              "artifactSha256": "dba0a09b5a0d6f877381302a45b7912a62793b951adf43f2b42cd77c8c96cc15",
+              "decodedSha256": "ccb9768f88d81b02d93b64edb4db816eacb118fb950489f9359fb1b2ef440e9b"
+            },
+            "width": 0.014041423799999952
+          },
+          "width": 0.014041423799999952,
+          "interpolatedBytes": 482354.28491476236
+        },
+        {
+          "metric": "butteraugli",
+          "target": 3,
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 70,
+          "status": "missing bracket",
+          "bracket": null,
+          "width": null,
+          "interpolatedBytes": null
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 3.3,
+              "bytes": 494695,
+              "score": 79.85672817,
+              "butteraugli": 1.9943680763,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.jxl",
+              "artifactSha256": "dba0a09b5a0d6f877381302a45b7912a62793b951adf43f2b42cd77c8c96cc15",
+              "decodedSha256": "ccb9768f88d81b02d93b64edb4db816eacb118fb950489f9359fb1b2ef440e9b"
+            },
+            "upper": {
+              "setting": 3.2613,
+              "bytes": 501221,
+              "score": 80.02962323,
+              "butteraugli": 1.9426093102,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.jxl",
+              "artifactSha256": "11dce6ccac3e5406c7b12b3623e1b40440ef9c7930be2e5d4b640a94334dbed8",
+              "decodedSha256": "5b9571baaf311565b87cfa520a7b340894f7872b63c9c869a985a3fa792e8b76"
+            },
+            "width": 0.17289506000000188
+          },
+          "width": 0.17289506000000188,
+          "interpolatedBytes": 500096.7778281186
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 90,
+          "status": "adequate bracket",
+          "bracket": {
+            "lower": {
+              "setting": 1.13,
+              "bytes": 1401005,
+              "score": 89.92000185,
+              "butteraugli": 1.0044631958,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.jxl",
+              "artifactSha256": "010b82bb2c8b0d5ba1b6d9c1e018ec099ebcc4fd177bf8b00f9c5df8d88cbfa9",
+              "decodedSha256": "e8945235dbba19a174aa9191cbe288633cb330aec5d08e19c1f9c3f181787a74"
+            },
+            "upper": {
+              "setting": 1.1,
+              "bytes": 1436221,
+              "score": 90.10111858,
+              "butteraugli": 0.9622725844,
+              "artifact": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.jxl",
+              "artifactSha256": "6dd1533ecadba68c54d5bf6cf7af211a95c828d500d24eb47637bbb55bb706c7",
+              "decodedSha256": "349affc7d67eaacebb523008bcedd8504c69d698056bee9e1dfd349038454f57"
+            },
+            "width": 0.1811167299999994
+          },
+          "width": 0.1811167299999994,
+          "interpolatedBytes": 1416451.948931076
+        }
+      ],
+      "qualifiedTargets": [
+        {
+          "metric": "butteraugli",
+          "target": 1
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 90
+        },
+        {
+          "metric": "butteraugli",
+          "target": 2
+        },
+        {
+          "metric": "ssimulacra2",
+          "target": 80
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 1575149.1912773694,
+      "peerBytes": 1738709.0504493013,
+      "ratio": 0.9059302882620492,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "jsquash",
+      "interpolatedBytes": 1575149.1912773694,
+      "peerBytes": 1351387.8673659936,
+      "ratio": 1.1655789054459338,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "vips",
+      "interpolatedBytes": 1575149.1912773694,
+      "peerBytes": 1438510.8975191994,
+      "ratio": 1.0949859288475403,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 694087.9669501857,
+      "peerBytes": 711403.0870098129,
+      "ratio": 0.9756606059549072,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "jsquash",
+      "interpolatedBytes": 694087.9669501857,
+      "peerBytes": 553693.8673726064,
+      "ratio": 1.2535590654882611,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "vips",
+      "interpolatedBytes": 694087.9669501857,
+      "peerBytes": null,
+      "ratio": null,
+      "status": "wide bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 796730.714006474,
+      "peerBytes": 818469.4826552395,
+      "ratio": 0.9734397321959499,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "jsquash",
+      "interpolatedBytes": 796730.714006474,
+      "peerBytes": 820041.0813111801,
+      "ratio": 0.9715741469105003,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "portrait-2400x3000",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "vips",
+      "interpolatedBytes": 796730.714006474,
+      "peerBytes": 847558.8957512625,
+      "ratio": 0.9400299117859706,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 1262177.3988395145,
+      "peerBytes": 1276114.6277484735,
+      "ratio": 0.9890783879395306,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "jsquash",
+      "interpolatedBytes": 1262177.3988395145,
+      "peerBytes": 1291164.6628635945,
+      "ratio": 0.9775495218713692,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 1,
+      "comparator": "vips",
+      "interpolatedBytes": 1262177.3988395145,
+      "peerBytes": 1396747.8274018776,
+      "ratio": 0.9036544565007982,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 1416451.948931076,
+      "peerBytes": 1424883.9578963267,
+      "ratio": 0.9940823188312826,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "comparator": "jsquash",
+      "interpolatedBytes": 1416451.948931076,
+      "peerBytes": 1639896.745378281,
+      "ratio": 0.8637445942392781,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 90,
+      "comparator": "vips",
+      "interpolatedBytes": 1416451.948931076,
+      "peerBytes": 1686910.5700101957,
+      "ratio": 0.8396722233606699,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 482354.28491476236,
+      "peerBytes": 489411.3165600191,
+      "ratio": 0.9855805711750613,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "jsquash",
+      "interpolatedBytes": 482354.28491476236,
+      "peerBytes": 521031.9585800119,
+      "ratio": 0.9257671760276294,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "butteraugli",
+      "target": 2,
+      "comparator": "vips",
+      "interpolatedBytes": 482354.28491476236,
+      "peerBytes": null,
+      "ratio": null,
+      "status": "wide bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "purejsimage",
+      "interpolatedBytes": 500096.7778281186,
+      "peerBytes": 513039.3076001926,
+      "ratio": 0.974772830111957,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "jsquash",
+      "interpolatedBytes": 500096.7778281186,
+      "peerBytes": 564887.7700861889,
+      "ratio": 0.8853028943285766,
+      "status": "adequate bracket"
+    },
+    {
+      "fixture": "im26-1416-original",
+      "metric": "ssimulacra2",
+      "target": 80,
+      "comparator": "vips",
+      "interpolatedBytes": 500096.7778281186,
+      "peerBytes": 557876.1249668878,
+      "ratio": 0.896429790498386,
+      "status": "adequate bracket"
+    }
+  ],
+  "preservation": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-tundra-preservation-2056.json",
+      "sha256": "075224546848f2cca0cd6c5d6b33ac74c4e3ceb7c67cd9742e073a8753ed8ae1",
+      "measuredSource": "4e6475917a466a362c51e8868d9d9121b2acea642a7567befc670cd51f66627d",
+      "carriedToCoarseOnlyBelowDistanceTwo": true,
+      "exactBaselineBytes": true,
+      "exactBaselinePixels": true,
+      "exactBaselineScores": true
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-earthrise-preservation-2063.json",
+      "sha256": "5dc5fede629961af705a6484a530b14b044e6e28f75e848a20edda74e0a75ecb",
+      "measuredSource": "4e6475917a466a362c51e8868d9d9121b2acea642a7567befc670cd51f66627d",
+      "carriedToCoarseOnlyBelowDistanceTwo": true,
+      "exactBaselineBytes": true,
+      "exactBaselinePixels": true,
+      "exactBaselineScores": true
+    }
+  ],
+  "remainingConfirmedGaps": [
+    {
+      "comparator": "jsquash",
+      "target": 0.5,
+      "ratio": 1.104991565804915,
+      "scope": "historical unchanged-quality-range result; no new matched curve"
+    },
+    {
+      "comparator": "jsquash",
+      "target": 1,
+      "ratio": 1.1655789054459338,
+      "scope": "fresh scoped matched curve"
+    },
+    {
+      "comparator": "jsquash",
+      "target": 2,
+      "ratio": 1.2535590654882611,
+      "scope": "fresh scoped matched curve"
+    },
+    {
+      "comparator": "vips",
+      "target": 1,
+      "ratio": 1.0949859288475403,
+      "scope": "fresh scoped matched curve"
+    }
+  ],
+  "originalHistoricalComparisonReportsUnchanged": true,
+  "peerEncodersRerun": false,
+  "physicalPins": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-formatted-2107.json",
+      "sha256": "3a29fd6b84ba715385ca4bb78eb391400b0bd19394dedc2e39cecbdfac353dcb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-curves-2057.json",
+      "sha256": "7b9984bac8b43ceb3c1facce40d995ee0d2968f2b299e4b5e196dd190fdc85d1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-reproduction-recovery-2117.json",
+      "sha256": "23de1c79a816f64206285feb4def299a8ee8eef04235305063617d61244e9583"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-coarse-qualification-2074.json",
+      "sha256": "98e98d0645d894155c1da3e28a57a0f23eec29473dbabbdfabaa8e1a8d7a4363"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-coarse-portrait-2400x3000-reproduction-2073.json",
+      "sha256": "a30f7a496ecfe53c24d7a74ecb5bb792a11ea02fa57456c7d59f3e5cf84e489c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/measure-cone-floor-coarse-2067.ts",
+      "sha256": "e12220cad09a995e73c3bd2aae111de5dbf42022501f84dc2fcd9055d97acf9e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-coarse-plan-2067.json",
+      "sha256": "fd118eed808d004f365d03d35104aa0cc8e23fef8da46a03dbc7cba10590cbec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-matrix-inputs-1579/plan.json",
+      "sha256": "2482e28e54292c58f5af3187b07b1ce3846703b39f52b5b8288ddea92916a57e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-matrix-candidates/2b7668ebd3aef41c7a5b7230da0d1b14d2d49a2454712c804ace0a66b80f09b9/plan.json",
+      "sha256": "a5534698fd34ba2552cd2f9030157f4bfbf3116bafaf2b68a9c0bea9640af23b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-matrix-inputs-1579/fixtures.json",
+      "sha256": "79811be5b306bf5f2db8a2e9c5a0c0b57a3a06237e6ede2d2e8c9fc33739dacb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/portrait-2400x3000.raw",
+      "sha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0"
+    },
+    {
+      "path": "benchmark/corpus/files/portrait-2400x3000.jpg",
+      "sha256": "2fe7a8ff672e9bbf5ffc63acc2f3c55946cf687e7a2db14d686b7494ad0c4679"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/portrait-2400x3000.png",
+      "sha256": "de740bcb9827df45d0081fac1bf18712cea8db263c6d64c6af0533d565f8925f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "6650f1a166a52c5e2cb4325216b8cbf318ea4bd75c8047575903b6c2a3ab1055",
+      "snapshotPath": ".tmp/jpegxl-comparison-v1/cone-floor-install-2121/backup-src-codecs-jpegxl-vardct-encode.ts"
+    },
+    {
+      "path": "src/codecs/jpegxl-jpeg-encode.ts",
+      "sha256": "0899b6ee6337d2eebf8a7317af745b3f7b0ab708ad4523f33ee6f0bdf174685b",
+      "snapshotPath": ".tmp/jpegxl-comparison-v1/cone-floor-install-2121/backup-src-codecs-jpegxl-jpeg-encode.ts"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/original-matrix-ledger.ts",
+      "sha256": "d94c35624f9cbea4e05b252385ef3829dd0039d4b2952325e805f5ed6568ed96"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+      "sha256": "d818e8fb8a5e052db3ed2ee15e858b0d8c4c2f5dcddb4300cdd169b416fb732c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/reference-black.png",
+      "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.native.npy",
+      "sha256": "67a573982d21922ecc13a57e8c5fe2c725a9b98ad821b408c47b3afc3ac580ad"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.rust.npy",
+      "sha256": "b2fc04690f120f59996ebf6b15bc2b013b8aadc248e8751734641e71eeab9562"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/jxl-rs-07ab48f/target/release/jxl_cli",
+      "sha256": "8fa34ff793b89a8eaec74b37a5e0f04b43ad97c385c094f2f90072d926466416"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.black.png",
+      "sha256": "7f4d374a3319a2fa2a9f6324b55d41827000b9f48a0fac28b8aefb74dcbd996f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.jxl",
+      "sha256": "8b424c4bb34cf12843795c2108cf23b64aa8135177c1a6939fb8c23933ec87fe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-0.54.png",
+      "sha256": "fe3362f47fa5c92ae4af447382caf24931b74bdf12a50f9819a88941b15599ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.native.npy",
+      "sha256": "f85554ca9342547b3968f68076436f67e7ac8673845c2c2b4ae5d4d52fb63f8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.rust.npy",
+      "sha256": "1d138fb05761a54c0ff6c2422582547c080d9d3a460655943bb57ee69a3d19ce"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.black.png",
+      "sha256": "f76b2bbb619ee5cf6c16e40ffcda30ed22fc1402fcf01efde6786a4d415915bc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.jxl",
+      "sha256": "a05de5307d897896b0983808eab969e386908758283ec0b4338bc3747130c44e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.1.png",
+      "sha256": "4a77b0837b3defc54758c3e0bd298a8a4b1bfbe9290d3e951e917a101eae6e9c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.native.npy",
+      "sha256": "221a4940dba8f6f68293832e46496a48e5d889ac3461fcacca196978e1d35ace"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.rust.npy",
+      "sha256": "f33707f21a04723eb90cf9d263756e39e4faeb59517869c5b301cc815089fee2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.black.png",
+      "sha256": "54d84d5d452319fd34b5f6db356e8fc1e57c44ad7e9c0be209a7f9cd59eacd9d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.jxl",
+      "sha256": "fc9053f94a17f281cb1b678fc6b353b963dd9413df56d0af521877e7fb877fa3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.25.png",
+      "sha256": "63881385459576539193bdcebc52e34b66635fc215bf527ca81f77d27bd9987c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.native.npy",
+      "sha256": "b546bd8493456bde94c207c84f7768b1ae6694ff2245eca2b2cedf4930dfb3e7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.rust.npy",
+      "sha256": "000728b0373ab0966e659dada597c553b0d207c5e25e595b07924b63bc6380f4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.black.png",
+      "sha256": "c4ff23218007a953e022e3acbb2b41b57f5c5c4331f064f5fb088f473a80b275"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.jxl",
+      "sha256": "3d191cbda3c039db753e5b490d8299fb1c49b6a2a5df1c9954b15d653067fcca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-portrait-2400x3000-reproduction-2073/purejsimage-1.5.png",
+      "sha256": "62c314ce57d7484a665cbcaa518ace62629af0bb5f55736e2a16ec1ef6ef6a3d"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117.json",
+      "sha256": "9d97abad41dabe3b7e690b8011d9c1c7d6e681716bd7e3ae48789bfc788c6074"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.raw",
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
+    },
+    {
+      "path": ".tmp/jpegxl-m7/visual-final-20260928-fixtures/im26-1416.ppm",
+      "sha256": "3ea7659be86ba62b9a25acf7a12fa1b77f6ce655ed199c6e628e0fb0e9f6170c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-matrix-inputs-1579/im26-1416-original.png",
+      "sha256": "8366c095c42733053f2f736012e96230f302a09154e8905c58560ac0b9685ee8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/reference-black.png",
+      "sha256": "a145f804c8a670f9560a5f1859d99743bb6bc938c649ad0d25224b0b4a4a84f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.native.npy",
+      "sha256": "b6837aaa7df6fd98794fefb1a37c5fcb1244ea4872ede145a17ff574f7cfe1fd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.rust.npy",
+      "sha256": "2ad63767c6530cbe8921329240b855266c1db2a04d9f577d8a93d4eaf3d36472"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.black.png",
+      "sha256": "6342f16365df6dc15bbb2e6b27e84140cd6b3edd224dc565990329376c3ce899"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.jxl",
+      "sha256": "6dd1533ecadba68c54d5bf6cf7af211a95c828d500d24eb47637bbb55bb706c7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.1.png",
+      "sha256": "349affc7d67eaacebb523008bcedd8504c69d698056bee9e1dfd349038454f57"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.native.npy",
+      "sha256": "ecd7b604db467c7be244987322c1f2544c1a0886c66ffe17d58e7d7b152e4c49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.rust.npy",
+      "sha256": "e42d781c84f9c88c9bab4b1d0687ffcf372a7284ccb1d3799603b81601b00b49"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.black.png",
+      "sha256": "e18f7bc23ad69085e272d0c22ff3e85a80b6ae2b2af02260e1cf91ac890b1301"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.jxl",
+      "sha256": "010b82bb2c8b0d5ba1b6d9c1e018ec099ebcc4fd177bf8b00f9c5df8d88cbfa9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.13.png",
+      "sha256": "e8945235dbba19a174aa9191cbe288633cb330aec5d08e19c1f9c3f181787a74"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.native.npy",
+      "sha256": "2b6051f5e012d4421bd76114d9eae8e9d9fd84b48180efeb4f5170857df7fcc7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.rust.npy",
+      "sha256": "6aaa149c922cc7ec35aa8088c1a02a622dd1e07aa952777c648d985dd525bbdb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.black.png",
+      "sha256": "95319bc64a51e80d4223423a66e13e60da1ddee320029cb788f6dd7ad45e48ec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.jxl",
+      "sha256": "4de5511247291ea986c1ec36f098aa462ebd314264ec209f124eb4e48a8a4c1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.25.png",
+      "sha256": "51a828eb90141958fe125757a7f979c6a5ab66d6cbf59737438365e9b3052b80"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.native.npy",
+      "sha256": "d470b32287a2e8af001dd0ba8f1df0b7e15cf9ad8cc538b21bbc6520b74b6dcd"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.rust.npy",
+      "sha256": "57fa28b8915bca2bd6a98dd2645593d9522709007fe8f912f3793eafced2165e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.black.png",
+      "sha256": "90fed02d8f8df33af8b5e1fa855142a27be81c70a46cb06bc1bf67b08ff64a7c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.jxl",
+      "sha256": "816312c4455c15bb81cbfdba68c644a98a029772ca8abe9baec3a488e77555ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/cone-floor-coarse-im26-1416-original-reproduction-recovery-2117/purejsimage-1.5.png",
+      "sha256": "43a5fde1ab7e1845a49a1c27818c03ba1d30eaab940fcac99e1d122e9b656fc4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-cone-floor-coarse-2074-all-bands.json",
+      "sha256": "d88f0c17e5186b34d57a956634eff33620135c02251a3dc69c8f0add9ee3ee1d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-cone-floor-coarse-2074.json",
+      "sha256": "c4cc342afad48d07a7b8e6a278f4976724d77ed10a9877350e8b9d8d66dbce59"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/reference-black.png",
+      "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.native.npy",
+      "sha256": "ad0933616104289ae85b48bddb5f1bf05e6ca17b19562d851eae455f03ff6943"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.rust.npy",
+      "sha256": "891320dd9df334e39309a9c5cc3d9d1cfda36bbd36dc9899483ced5ce402f77b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.black.png",
+      "sha256": "37d1047f0211c15aaeea1951271534b971a9bbd9a6039e46514c4f5d7b5cd1f3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.jxl",
+      "sha256": "cd7943d4380d15005b3b1693dc2327f6aec42b46b5c22a867ff673bc064bd349"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-2.8.png",
+      "sha256": "a6472325e2182771b41b0b09f9ea46118715898aeca386e4faab709dbdf615da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.native.npy",
+      "sha256": "925b9121eb84ebc2c11cd35f106a3b661702ccb4b71cfb10a057db5ab869adfe"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.rust.npy",
+      "sha256": "4f35aa9237920f3ea4eb66ed521f051d551648c75681a3b0d61561d90b3334a1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.black.png",
+      "sha256": "6cda8cf91350b2532b7ba452d13e91481c7e7b91548d2d25b435e95afd185473"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.jxl",
+      "sha256": "35343bacd1cb017cf0378da4e4f6a7f7cb93baefaff2d5d9f95aca0d0c00ffdb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.3.png",
+      "sha256": "d3c09db713a95a29ea13b626d64f3b72a628c2b48aee5da5c5489efac4e36a89"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.native.npy",
+      "sha256": "5e9641a9d34752124ff21a1379a7a6162541c1dd8c24d62ca44563fa4999362f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.rust.npy",
+      "sha256": "be1266a7709027a261ba81f59228e958f7b073a95b638bbeea425ddad497a147"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.black.png",
+      "sha256": "4513e15283c8408ba7c218b8102f04bc87b2f04e9ed354a11b6cf61d9e38dd96"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.jxl",
+      "sha256": "bab97168d7590db3691a8b0fb21acb92c365453cc1405fccf80e0dbc25dbd142"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.6428.png",
+      "sha256": "2fd3900a9454c7f9cff3f4f1d1a8fd0df52803bd6e9e8ec5b05b228cfb8f65e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.native.npy",
+      "sha256": "ea052596d2eed0936c0c8950b1ec42a9a5f1bdd70f078716035bc93fb6bd3f2d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.rust.npy",
+      "sha256": "50c0ecefff0c37861b6ff846aab0166899ad328810699663bc23d7ed41031e96"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.black.png",
+      "sha256": "964f2f4f32f04daf25c3694063da95eeaa7b1bc3f30ccbf2e4039c6ecd4a4a35"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.jxl",
+      "sha256": "587367ba2038c3355d87c4347fae01fcca93d9754589147d41488c2ef5532b74"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074/purejsimage-3.9.png",
+      "sha256": "d0460366d554145ee21d5765c25082d8d43e458df1d0eeac37b7b5474b977ef0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-cone-floor-coarse-2074-refine-1.json",
+      "sha256": "8bd4469aab366e5c0e4871caad5cd091cae5dad516d2f563d53b8246661da245"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/reference-black.png",
+      "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.native.npy",
+      "sha256": "4a0945734194cdff940be64223d5845c36cbdf6ca4c882349fa02a195b34358a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.rust.npy",
+      "sha256": "533259d2609a1a100aef3bb1ac5fed03aa3a0e852c94430ca360409f6bfc7ef3"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.black.png",
+      "sha256": "cb1fb4e0e0ffe021a97910dc1ab52851fe8f89f40625575532f378e603e6b875"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.jxl",
+      "sha256": "5ee12ddcf6ed569b076da93f85d55bf3c4ff9c8b9930e3fec9e6dcf6be9ae439"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-1/purejsimage-3.6905.png",
+      "sha256": "395b530cc323d0b7b1b26d871bdad0dc0300688dec516e818bde0a38d4b42387"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-cone-floor-coarse-2074-refine-2.json",
+      "sha256": "b7fb180d3a1341cb85aa12677bcb41beab8d9c2ffab8db41329122fa1201eef1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/reference-black.png",
+      "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.native.npy",
+      "sha256": "390a12e5f06d453bea9cd0b07b2db894fb50c3acc1be8212f17fb9d8cb9f11f7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.rust.npy",
+      "sha256": "78f61ad89444dddf5d22b57bb4c28e375f25da0bdf6469c37747494886c406b9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.black.png",
+      "sha256": "532ecb974ba6e7cb113ce3e2beb95c156b84f36ae7272ede69f7fc22c16315e8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.jxl",
+      "sha256": "7f035ee6efe4ff5e1bed11e04f752e085d49ea64bfc26668fc939458bf2abaa6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-2/purejsimage-3.1008.png",
+      "sha256": "e9a0fa36f401dd57f050e72f7b29822e4ff4da76ac920d996b09e9d582276154"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-cone-floor-coarse-2074-refine-3.json",
+      "sha256": "11ec6f8eae807791fa625fc3990783dd0981cedad68deb09191f56a96a9572eb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/reference-black.png",
+      "sha256": "c157972b4584dbb9ac953a91e0f53247ec1d0172a46773b65d2dfb50cd1162ff"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.native.npy",
+      "sha256": "e023a41285433c22c5a0edbc6ba15b5df9f1b63741aa3f6d5e89c41a7ab125f5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.rust.npy",
+      "sha256": "7a395dcd27dffdce325e3d141a49d4a10e0f80dde278c401815cd3ac26431f57"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.black.png",
+      "sha256": "6811f274ba0405c55a44e7ea387618a592e69a7208d81fc671e9c542e377397f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.jxl",
+      "sha256": "0be76301101731ffd3c9dccc68a9478c4dc1bdced40f21f5321013ebe60ca389"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/portrait-cone-floor-coarse-2074-refine-3/purejsimage-3.1118.png",
+      "sha256": "1826e6db3f6ed1dee3fdf403590f8d93cc2a99f352f3ed737867646e7fc85c09"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-cone-floor-coarse-retention-2075-all-bands.json",
+      "sha256": "366ce3369c06ec2becd6b64aeb4ba382209f36f01dd4f555e5bf663e404b50bc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-cone-floor-coarse-retention-2075.json",
+      "sha256": "17ac1c467848d64fdd98fd32dd168299dfd06578c02ec2613beffccace4a3e76"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/reference-black.png",
+      "sha256": "a145f804c8a670f9560a5f1859d99743bb6bc938c649ad0d25224b0b4a4a84f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.native.npy",
+      "sha256": "2a8d7e9a5ca7db2c6b802c6d459f04bb16ed9e297ffd1208dfbad877004bc854"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.rust.npy",
+      "sha256": "0b1b57cebd03e681b631057e938f0f020a899e288dd6831018c3cd99bfb051da"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.black.png",
+      "sha256": "aec870f40430aef401d3c5c074fc68e0b24108639111482ab4d45e47f9672cea"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.jxl",
+      "sha256": "5b21b5dffbb2dd87ce495e051669d30e07176a3fb60c06e87e13beefac7f505e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.1.png",
+      "sha256": "5555cd9d20e66d7e7d2e59bb956f961172be2b88b8339b16d483ba1d13024772"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.native.npy",
+      "sha256": "213775633a5969a2a70be1ba06a681dfa50d83383f63f3ad3c517c97533ecc6d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.rust.npy",
+      "sha256": "7c9454ea66b830c8c39740df2034338af83d9520b45cb050e55205d33e208a55"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.black.png",
+      "sha256": "c9f671659e4d6638c2d7a935df2469ed39254bed160275aba5448e7391de0e81"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.jxl",
+      "sha256": "dba0a09b5a0d6f877381302a45b7912a62793b951adf43f2b42cd77c8c96cc15"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.3.png",
+      "sha256": "ccb9768f88d81b02d93b64edb4db816eacb118fb950489f9359fb1b2ef440e9b"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.native.npy",
+      "sha256": "edd880e98d3d6ee2263cf771c74f0591242a4b19b2d4cf8259c2b51321e151b6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.rust.npy",
+      "sha256": "b9b520dbfb9949559cab19e5e61498dc355186e4f3f1257c596b7013e1096561"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.black.png",
+      "sha256": "3bcba7ccc3fa70609aba6e13894abc59cd31cff48e1949a91fbd5b17d528630a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.jxl",
+      "sha256": "18bbde9ca172f067f554fa6d7c4a0eeeb94b6dac57cf82b2512be3224e4e1b6c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075/purejsimage-3.5.png",
+      "sha256": "c50fb5abf5bf5b8c8e709ddc0f28ef5f2b57ac9b0c926bdd94d820ca45a9bfa9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-cone-floor-coarse-retention-2075-refine-1.json",
+      "sha256": "16fba7ea6b93c01119957b259f54c86ab368754def583b826d835906fddd280e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/jpegxl-specialized.js",
+      "sha256": "ca333743a02bde1bdf48a8c4e225d67890aebd5d9a561f11881ac755ba3c6623"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/codec-jpegxl.js",
+      "sha256": "4cb6292a6de9f860536e54c83603290e9617b828ce2301ed62a1abd5b876cb68"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/reference-black.png",
+      "sha256": "a145f804c8a670f9560a5f1859d99743bb6bc938c649ad0d25224b0b4a4a84f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.native.npy",
+      "sha256": "e849e7d956767388c65e0947a7bc3420099d62d70f00c2de62ba7a49d9ab5669"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.rust.npy",
+      "sha256": "0c1aff01a2a19e3d920fe8e272074bb2bec1cd4588f44f93f8487df28017c7f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.black.png",
+      "sha256": "ff8f16855001ca2a1ccd8b35eac4c88e77a4433a653d444ab4b44b17f7dbd9f6"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.jxl",
+      "sha256": "11dce6ccac3e5406c7b12b3623e1b40440ef9c7930be2e5d4b640a94334dbed8"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/original-butteraugli/original-cone-floor-coarse-retention-2075-refine-1/purejsimage-3.2613.png",
+      "sha256": "5b9571baaf311565b87cfa520a7b340894f7872b63c9c869a985a3fa792e8b76"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json",
+      "sha256": "cd43fc5c2746ef9123a373313c60922d6081e44c1b1f63fe305596450664ecd2"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
+      "sha256": "d818e8fb8a5e052db3ed2ee15e858b0d8c4c2f5dcddb4300cdd169b416fb732c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-tundra-preservation-2056.json",
+      "sha256": "075224546848f2cca0cd6c5d6b33ac74c4e3ceb7c67cd9742e073a8753ed8ae1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/cone-floor-earthrise-preservation-2063.json",
+      "sha256": "5dc5fede629961af705a6484a530b14b044e6e28f75e848a20edda74e0a75ecb"
+    }
+  ],
+  "policy": "Fresh actual complete public packages, both full independent grids, every public sample, exact alpha, caller and ownership checks qualify the listed source and scoped matched targets. Formatting changes source hashes but preserves every measured compiled package byte. Source preimages are rehashed from exact installation backups where the live source changed. Preserve every raw inversion, missing/wide band, failed predecessor and original attempt/package/bracket gate. Additional tundra/Earthrise controls are previously observed fixed-setting preservation, not held-out or broader matched curves. This report contains no representative timing/RSS improvement, universal lossy parity, HDR/CMYK/animation compression comparison or release claim. Focused/browser/full handoff receipts are recorded separately."
+}

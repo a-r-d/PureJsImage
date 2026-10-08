@@ -63,29 +63,29 @@ export interface VarDctCoefficientGeometry {
   readonly grayscale?: boolean
   readonly chromaSubsampling: readonly [number, number, number]
   readonly shifts: readonly (readonly [number, number])[]
-  readonly fullBlockWidth: number
-  readonly fullBlockHeight: number
+  readonly blocksWide: number
+  readonly blocksHigh: number
   readonly groupsAcross: number
   readonly groupsDown: number
-  readonly dcGroupsAcross: number
-  readonly dcGroupsDown: number
-  readonly internalComponents: readonly VarDctCoefficientPlane[]
-  readonly dcPlaneComponents: readonly VarDctCoefficientPlane[]
+  readonly dcAcross: number
+  readonly dcDown: number
+  readonly acComponents: readonly VarDctCoefficientPlane[]
+  readonly dcComponents: readonly VarDctCoefficientPlane[]
   readonly quantization: readonly Int32Array[]
   readonly dcQuantization?: readonly number[]
-  readonly adaptiveLfSmoothing?: boolean
-  readonly acQuantizationScale?: number
-  readonly baseCorrelationB?: number
-  readonly defaultQuantization?: boolean
+  readonly smoothDc?: boolean
+  readonly acScale?: number
+  readonly baseB?: number
+  readonly defaultMatrices?: boolean
   readonly globalScale?: number
   readonly quantDc?: number
-  readonly blockQuantization?: number
-  readonly blockStrategyMap?: Int32Array
-  readonly blockQuantizationMap?: Int32Array
-  readonly colorCorrelationX?: Int32Array
-  readonly colorCorrelationB?: Int32Array
+  readonly quantAc?: number
+  readonly strategyMap?: Int32Array
+  readonly quantizationMap?: Int32Array
+  readonly correlationX?: Int32Array
+  readonly correlationB?: Int32Array
   readonly effort?: 1 | 3 | 5 | 7
-  readonly epfSharpnessMap?: Uint8Array
+  readonly sharpnessMap?: Uint8Array
   readonly alpha?: Readonly<{
     loadGroup: (group: number) => Plane
     paletteSearch?: boolean
@@ -93,17 +93,17 @@ export interface VarDctCoefficientGeometry {
   readonly progressive?: boolean
   readonly imageHeader?: Uint8Array
   /** Group-local AC storage may be reused after each visit. DC planes stay compact. */
-  readonly loadAcGroup?: (group: number, pass: number) => readonly VarDctCoefficientPlane[]
+  readonly loadAc?: (group: number, pass: number) => readonly VarDctCoefficientPlane[]
   /** Three channel orders for DCT8, followed by the three small-transform orders. */
-  readonly forwardCoefficientOrders?: readonly Uint32Array[]
+  readonly coefficientOrders?: readonly Uint32Array[]
   /** Forward search may separate DCT8 from Hornuss and split-transform AC models. */
-  readonly forwardFamilyContexts?: boolean
-  readonly forwardLumaThreshold?: number
-  readonly forwardGroupContexts?: boolean
-  readonly forwardAdvancedModularSearch?: boolean
-  readonly forwardAcIterationSearch?: boolean
+  readonly familyContexts?: boolean
+  readonly lumaThreshold?: number
+  readonly groupContexts?: boolean
+  readonly advancedModularSearch?: boolean
+  readonly acIterationSearch?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
-  readonly deferredDcGroups?: boolean
+  readonly deferredDc?: boolean
   readonly memory?: JpegXlEncoderMemory
 }
 
@@ -353,12 +353,12 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
     Object.freeze([maximumShiftX - horizontal, maximumShiftY - vertical] as const),
   )
   const componentForInternal = colorTransform === 'ycbcr' ? [1, 0, 2] : [0, 1, 2]
-  const internalComponents = componentForInternal.map((index) => {
+  const acComponents = componentForInternal.map((index) => {
     const component = components[index]
     if (!component) throw invalidInput('JPEG component mapping is incomplete')
     return component
   })
-  const chromaSubsampling = internalComponents.map((component) => {
+  const chromaSubsampling = acComponents.map((component) => {
     const sourceIndex = components.indexOf(component)
     const raw = rawForComponent[sourceIndex]
     if (!raw) throw invalidInput('JPEG sampling descriptor is missing')
@@ -375,29 +375,28 @@ const geometryFor = (image: JpegCoefficientImage): JpegDerivedGeometry => {
   const shifts = rawInternal.map(([horizontal, vertical]) =>
     Object.freeze([maximumRawX - horizontal, maximumRawY - vertical] as const),
   )
-  const fullBlockWidth = Math.ceil(Math.ceil(image.width / 8) / 2 ** maximumRawX) * 2 ** maximumRawX
-  const fullBlockHeight =
-    Math.ceil(Math.ceil(image.height / 8) / 2 ** maximumRawY) * 2 ** maximumRawY
+  const blocksWide = Math.ceil(Math.ceil(image.width / 8) / 2 ** maximumRawX) * 2 ** maximumRawX
+  const blocksHigh = Math.ceil(Math.ceil(image.height / 8) / 2 ** maximumRawY) * 2 ** maximumRawY
   const dcPlaneIndexes = colorTransform === 'ycbcr' ? [0, 1, 2] : [1, 0, 2]
-  const dcPlaneComponents = dcPlaneIndexes.map((index) => {
+  const dcComponents = dcPlaneIndexes.map((index) => {
     const component = components[index]
     if (!component) throw invalidInput('JPEG DC component mapping is incomplete')
     return component
   })
-  const quantization = internalComponents.map((component) => transpose(component.quantization))
+  const quantization = acComponents.map((component) => transpose(component.quantization))
   return Object.freeze({
     colorTransform,
     grayscale,
     chromaSubsampling: Object.freeze(chromaSubsampling),
     shifts: Object.freeze(shifts),
-    fullBlockWidth,
-    fullBlockHeight,
-    groupsAcross: Math.ceil(fullBlockWidth / 32),
-    groupsDown: Math.ceil(fullBlockHeight / 32),
-    dcGroupsAcross: Math.ceil(fullBlockWidth / 256),
-    dcGroupsDown: Math.ceil(fullBlockHeight / 256),
-    internalComponents: Object.freeze(internalComponents),
-    dcPlaneComponents: Object.freeze(dcPlaneComponents),
+    blocksWide,
+    blocksHigh,
+    groupsAcross: Math.ceil(blocksWide / 32),
+    groupsDown: Math.ceil(blocksHigh / 32),
+    dcAcross: Math.ceil(blocksWide / 256),
+    dcDown: Math.ceil(blocksHigh / 256),
+    acComponents: Object.freeze(acComponents),
+    dcComponents: Object.freeze(dcComponents),
     quantization: Object.freeze(quantization),
   })
 }
@@ -427,13 +426,13 @@ const dcGroupPlanes = (
   geometry: Readonly<JpegDerivedGeometry>,
   group: number,
 ): readonly Plane[] => {
-  const groupX = group % geometry.dcGroupsAcross
-  const groupY = Math.floor(group / geometry.dcGroupsAcross)
+  const groupX = group % geometry.dcAcross
+  const groupY = Math.floor(group / geometry.dcAcross)
   const blockX = groupX * 256
   const blockY = groupY * 256
-  const blockWidth = Math.min(256, geometry.fullBlockWidth - blockX)
-  const blockHeight = Math.min(256, geometry.fullBlockHeight - blockY)
-  const dcPlanes = geometry.dcPlaneComponents.map((component, planeIndex) => {
+  const blockWidth = Math.min(256, geometry.blocksWide - blockX)
+  const blockHeight = Math.min(256, geometry.blocksHigh - blockY)
+  const dcPlanes = geometry.dcComponents.map((component, planeIndex) => {
     const internalChannel = planeIndex < 2 ? planeIndex ^ 1 : planeIndex
     const shift = geometry.shifts[internalChannel]
     const quantization = geometry.quantization[internalChannel]
@@ -482,31 +481,31 @@ const dcGroupPlanes = (
       values: allocateJpegXlArray(geometry.memory, Int32Array, blockWidth * blockHeight),
     }),
   ]
-  if (geometry.blockQuantization !== undefined)
-    metadata[2]?.values.fill(geometry.blockQuantization - 1, blockWidth * blockHeight)
+  if (geometry.quantAc !== undefined)
+    metadata[2]?.values.fill(geometry.quantAc - 1, blockWidth * blockHeight)
   const epfValues = metadata[3]?.values
-  if (geometry.epfSharpnessMap && epfValues)
+  if (geometry.sharpnessMap && epfValues)
     for (let y = 0; y < blockHeight; y++)
       for (let x = 0; x < blockWidth; x++)
         epfValues[y * blockWidth + x] =
-          geometry.epfSharpnessMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
-  const strategyMap = geometry.blockStrategyMap,
+          geometry.sharpnessMap[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
+  const strategyMap = geometry.strategyMap,
     values = metadata[2]?.values,
-    quantizationMap = geometry.blockQuantizationMap
+    quantizationMap = geometry.quantizationMap
   if (strategyMap && values && strategyMap.includes(4)) {
     const covered = allocateJpegXlArray(geometry.memory, Uint8Array, blockWidth * blockHeight)
     let count = 0
     for (let y = 0; y < blockHeight; y++)
       for (let x = 0; x < blockWidth; x++) {
         if (covered[y * blockWidth + x] !== 0) continue
-        const at = (blockY + y) * geometry.fullBlockWidth + blockX + x,
+        const at = (blockY + y) * geometry.blocksWide + blockX + x,
           strategy = strategyMap[at] ?? 0,
           extent = strategy === 4 ? 2 : 1
         if (x + extent > blockWidth || y + extent > blockHeight)
           throw invalidInput('DCT16 crosses DC group')
         values[count] = strategy
         values[blockWidth * blockHeight + count] =
-          (quantizationMap?.[at] ?? geometry.blockQuantization ?? 1) - 1
+          (quantizationMap?.[at] ?? geometry.quantAc ?? 1) - 1
         for (let dy = 0; dy < extent; dy++)
           for (let dx = 0; dx < extent; dx++) covered[(y + dy) * blockWidth + x + dx] = 1
         count++
@@ -521,25 +520,25 @@ const dcGroupPlanes = (
     }
     geometry.memory?.release(covered)
   } else {
-    const strategyMap = geometry.blockStrategyMap
+    const strategyMap = geometry.strategyMap
     const strategyValues = metadata[2]?.values
     if (strategyMap && strategyValues)
       for (let y = 0; y < blockHeight; y++)
         for (let x = 0; x < blockWidth; x++)
           strategyValues[y * blockWidth + x] =
-            strategyMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
-    const quantizationMap = geometry.blockQuantizationMap
+            strategyMap[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
+    const quantizationMap = geometry.quantizationMap
     const codedQuantization = metadata[2]?.values
     if (quantizationMap && codedQuantization) {
       for (let y = 0; y < blockHeight; y++)
         for (let x = 0; x < blockWidth; x++)
           codedQuantization[blockWidth * blockHeight + y * blockWidth + x] =
-            (quantizationMap[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 1) - 1
+            (quantizationMap[(blockY + y) * geometry.blocksWide + blockX + x] ?? 1) - 1
     }
   }
-  const colorTileWidth = Math.ceil(geometry.fullBlockWidth / 8)
+  const colorTileWidth = Math.ceil(geometry.blocksWide / 8)
   for (let channel = 0; channel < 2; channel++) {
-    const source = channel === 0 ? geometry.colorCorrelationX : geometry.colorCorrelationB
+    const source = channel === 0 ? geometry.correlationX : geometry.correlationB
     const destination = metadata[channel]?.values
     if (!source || !destination) continue
     for (let y = 0; y < correlationHeight; y++)
@@ -868,9 +867,9 @@ const writeComponentBlockContexts = (
   writer: JpegXlBitWriter,
   geometry: Readonly<JpegDerivedGeometry>,
 ): void => {
-  const threshold = geometry.forwardLumaThreshold
-  const familyContexts = geometry.forwardFamilyContexts === true
-  const hasDct16 = geometry.blockStrategyMap?.includes(4) ?? false
+  const threshold = geometry.lumaThreshold
+  const familyContexts = geometry.familyContexts === true
+  const hasDct16 = geometry.strategyMap?.includes(4) ?? false
   writer.writeBits(0, 1)
   for (let channel = 0; channel < 3; channel++) {
     writer.writeBits(channel === 1 && threshold !== undefined ? 1 : 0, 4)
@@ -935,12 +934,12 @@ const prepareSharedAlphaCode = (
     if (
       !alpha ||
       alpha.paletteSearch === false ||
-      !geometry.loadAcGroup ||
+      !geometry.loadAc ||
       geometry.effort !== 7 ||
-      !geometry.defaultQuantization ||
+      !geometry.defaultMatrices ||
       groupCount < 2 ||
       groupCount > 64 ||
-      geometry.fullBlockWidth * geometry.fullBlockHeight < 1024
+      geometry.blocksWide * geometry.blocksHigh < 1024
     )
       return undefined
     let changing = false
@@ -986,10 +985,7 @@ const prepareSharedAlphaCode = (
     const root = commonNodes?.[0]
     if (!commonNodes || !root || root.kind !== 'branch') return undefined
     const firstGroupId =
-      1 +
-      3 * geometry.dcGroupsAcross * geometry.dcGroupsDown +
-      17 +
-      (geometry.progressive ? groupCount : 0)
+      1 + 3 * geometry.dcAcross * geometry.dcDown + 17 + (geometry.progressive ? groupCount : 0)
     const shifted = (node: JpegXlModularNode): JpegXlModularNode =>
       node.kind === 'leaf'
         ? { ...node, context: node.context + 1 }
@@ -1096,7 +1092,7 @@ const writeLfGlobal = (
     { bits: 16, offset: 258 },
   ])
   writeF16(writer, 0)
-  writeF16(writer, geometry.baseCorrelationB ?? 0)
+  writeF16(writer, geometry.baseB ?? 0)
   writer.writeBits(128, 8)
   writer.writeBits(128, 8)
   writer.writeBits(1, 1)
@@ -1119,8 +1115,8 @@ const writeLfGlobal = (
         writer,
         geometry.alpha.loadGroup(0),
         encoding,
-        !!geometry.loadAcGroup && geometry.effort !== 1,
-        !!geometry.loadAcGroup && geometry.effort === 7,
+        !!geometry.loadAc && geometry.effort !== 1,
+        !!geometry.loadAc && geometry.effort === 7,
         geometry.alpha.paletteSearch,
       )
     else writeModularHeader(writer, true)
@@ -1182,7 +1178,7 @@ const optimizedCoefficientOrders = (
   geometry: Readonly<JpegDerivedGeometry>,
 ): readonly Uint32Array[] =>
   Object.freeze(
-    geometry.internalComponents.map((component) => {
+    geometry.acComponents.map((component) => {
       const nonzero = new Uint32Array(64)
       const blocks = component.blocksPerLineForMcu * component.blocksPerColumnForMcu
       for (let block = 0; block < blocks; block += 1) {
@@ -1214,7 +1210,7 @@ export function* learnJpegXlForwardCoefficientOrders(
     const blockX = (group % geometry.groupsAcross) * 32
     const blockY = Math.floor(group / geometry.groupsAcross) * 32
     for (let pass = 0; pass < (geometry.progressive ? 2 : 1); pass++) {
-      const components = geometry.loadAcGroup?.(group, pass)
+      const components = geometry.loadAc?.(group, pass)
       if (!components || components.length !== 3)
         throw invalidJpegXlInput('forward order group is missing')
       for (let channel = 0; channel < 3; channel++) {
@@ -1225,7 +1221,7 @@ export function* learnJpegXlForwardCoefficientOrders(
         for (let y = 0; y < component.blocksPerColumnForMcu; y++) {
           for (let x = 0; x < component.blocksPerLineForMcu; x++) {
             const strategy =
-              geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+              geometry.strategyMap?.[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
             if (strategy === 4) continue
             if (strategy !== 0 && strategy !== 1 && strategy !== 12 && strategy !== 13)
               throw unsupportedOperation('JPEG XL forward order strategy is not supported')
@@ -1281,11 +1277,11 @@ const predictNonzeroCount = (plane: Int32Array, width: number, x: number, y: num
 }
 
 const acBlockContextCount = (geometry: Readonly<JpegDerivedGeometry>): 3 | 6 | 12 =>
-  geometry.forwardLumaThreshold === undefined
-    ? geometry.forwardFamilyContexts
+  geometry.lumaThreshold === undefined
+    ? geometry.familyContexts
       ? 6
       : 3
-    : geometry.forwardFamilyContexts
+    : geometry.familyContexts
       ? 12
       : 6
 const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 })
@@ -1520,11 +1516,11 @@ const visitAcGroup = (
     const groupY = Math.floor(group / geometry.groupsAcross)
     const blockX = groupX * 32
     const blockY = groupY * 32
-    const blockWidth = Math.min(32, geometry.fullBlockWidth - blockX)
-    const blockHeight = Math.min(32, geometry.fullBlockHeight - blockY)
+    const blockWidth = Math.min(32, geometry.blocksWide - blockX)
+    const blockHeight = Math.min(32, geometry.blocksHigh - blockY)
     const blockContextCount = acBlockContextCount(geometry)
-    const familyContexts = geometry.forwardFamilyContexts === true
-    const components = geometry.loadAcGroup?.(group, pass) ?? geometry.internalComponents
+    const familyContexts = geometry.familyContexts === true
+    const components = geometry.loadAc?.(group, pass) ?? geometry.acComponents
     const nonzeroPlanes = contextsNeeded
       ? components.map((_, channel) => {
           const shift = geometry.shifts[channel]
@@ -1539,7 +1535,7 @@ const visitAcGroup = (
     for (let y = 0; y < blockHeight; y += 1) {
       for (let x = 0; x < blockWidth; x += 1) {
         const strategy =
-          geometry.blockStrategyMap?.[(blockY + y) * geometry.fullBlockWidth + blockX + x] ?? 0
+          geometry.strategyMap?.[(blockY + y) * geometry.blocksWide + blockX + x] ?? 0
         if (strategy === 4 && ((x & 1) !== 0 || (y & 1) !== 0)) continue
         const coveredBlocks = strategy === 4 ? 4 : 1,
           extent = strategy === 4 ? 2 : 1,
@@ -1554,8 +1550,8 @@ const visitAcGroup = (
             (y & (2 ** shift[1] - 1)) !== 0
           )
             continue
-          const componentX = ((geometry.loadAcGroup ? 0 : blockX) + x) >> shift[0]
-          const componentY = ((geometry.loadAcGroup ? 0 : blockY) + y) >> shift[1]
+          const componentX = ((geometry.loadAc ? 0 : blockX) + x) >> shift[0]
+          const componentY = ((geometry.loadAc ? 0 : blockY) + y) >> shift[1]
           const block = componentY * component.blocksPerLineForMcu + componentX
           const base = component.coefficientOffsets?.[block] ?? block * 64
           const localX = x >> shift[0]
@@ -1564,9 +1560,7 @@ const visitAcGroup = (
           const coefficientOrder =
             strategy === 4
               ? dct16Order
-              : coefficientOrders[
-                  channel + (geometry.forwardCoefficientOrders && strategy !== 0 ? 3 : 0)
-                ]
+              : coefficientOrders[channel + (geometry.coefficientOrders && strategy !== 0 ? 3 : 0)]
           if (!coefficientOrder) throw invalidJpegXlInput('AC coefficient order is missing')
           let lastNonzero = coveredBlocks - 1
           let nonzero = 0
@@ -1593,13 +1587,13 @@ const visitAcGroup = (
           if (!nonzeroPlane) throw invalidJpegXlInput('AC channel model is missing')
           const baseContext =
             (channel === 1 ? 0 : channel === 0 ? 1 : 2) + (familyContexts && strategy !== 0 ? 3 : 0)
-          const threshold = geometry.forwardLumaThreshold
+          const threshold = geometry.lumaThreshold
           const blockContext =
             threshold === undefined
               ? baseContext
               : baseContext * 2 +
-                ((geometry.dcPlaneComponents[0]?.coefficients[
-                  (blockY + y) * geometry.fullBlockWidth + blockX + x
+                ((geometry.dcComponents[0]?.coefficients[
+                  (blockY + y) * geometry.blocksWide + blockX + x
                 ] ?? 0) > threshold
                   ? 1
                   : 0)
@@ -1654,11 +1648,11 @@ const writeHfGlobal = (
   hybridConfig: Readonly<HybridUintEncoding> = acHybridConfig,
   histogramConfigs?: readonly HybridUintEncoding[],
 ): AcEncoding => {
-  writer.writeBits(geometry.defaultQuantization ? 1 : 0, 1)
-  for (let table = 0; !geometry.defaultQuantization && table < 17; table += 1) {
+  writer.writeBits(geometry.defaultMatrices ? 1 : 0, 1)
+  for (let table = 0; !geometry.defaultMatrices && table < 17; table += 1) {
     writer.writeBits(table === 0 ? 7 : 0, 3)
     if (table !== 0) continue
-    writeF16(writer, geometry.acQuantizationScale ?? 1 / (8 * 255))
+    writeF16(writer, geometry.acScale ?? 1 / (8 * 255))
     writePlanes(writer, quantizationPlanes(geometry), modularEncoding)
   }
   const groupCount = geometry.groupsAcross * geometry.groupsDown
@@ -1804,7 +1798,7 @@ const writeAcGroup = (
       )
       return
     }
-    const packedAcValues = getPackedClusteredAcValues(geometry.forwardAcIterationSearch === true)
+    const packedAcValues = getPackedClusteredAcValues(geometry.acIterationSearch === true)
     const maximumValues = 3 * 64 * 32 * 32
     const values = allocateJpegXlArray(writer.memory, Uint32Array, maximumValues)
     const contexts = allocateJpegXlArray(writer.memory, Uint16Array, maximumValues)
@@ -1934,9 +1928,8 @@ function* localForwardSections(
   geometry.memory?.release(scratch.contexts)
   geometry.memory?.release(scratch.entropy.packedValues)
   geometry.memory?.release(scratch.entropy.renormalizedWords)
-  const dcPlanes = Array.from(
-    { length: geometry.dcGroupsAcross * geometry.dcGroupsDown },
-    (_, group) => dcGroupPlanes(geometry, group),
+  const dcPlanes = Array.from({ length: geometry.dcAcross * geometry.dcDown }, (_, group) =>
+    dcGroupPlanes(geometry, group),
   )
   const modularFrequencies = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
   for (const planes of dcPlanes) collectPlanes(modularFrequencies, planes, false)
@@ -1989,7 +1982,7 @@ function* localForwardSections(
     sectionCost([...commonSizes, prefixHf.length, ...prefixSizes]) <
     sectionCost([...commonSizes, hf.length, ...ac.map((section) => section.length)])
   ) {
-    for (const section of ac) geometry.memory?.release(section)
+    releaseCoefficientSections(geometry, ac)
     ac.length = 0
     for (let group = 0; group < groupCount; group++) {
       const section = finishSection(
@@ -2011,30 +2004,28 @@ function* coefficientSectionSteps(
   profiler?: JpegXlJpegEncodeProfiler,
   sharedAlpha?: Readonly<SharedAlphaCode>,
 ): Generator<void, readonly Uint8Array[], void> {
-  const dcGroupCount = geometry.dcGroupsAcross * geometry.dcGroupsDown
+  const dcGroupCount = geometry.dcAcross * geometry.dcDown
   const acContextCount = acBlockContextCount(geometry) * (37 + 458)
   const groupCount = geometry.groupsAcross * geometry.groupsDown
   const useClusteredAns =
-    geometry.effort !== 1 &&
-    groupCount > 1 &&
-    geometry.fullBlockWidth * geometry.fullBlockHeight >= 1_024
+    geometry.effort !== 1 && groupCount > 1 && geometry.blocksWide * geometry.blocksHigh >= 1_024
   const coefficientOrders =
-    geometry.forwardCoefficientOrders ??
-    (!useClusteredAns || geometry.loadAcGroup
+    geometry.coefficientOrders ??
+    (!useClusteredAns || geometry.loadAc
       ? Object.freeze([naturalJpegXlOrder, naturalJpegXlOrder, naturalJpegXlOrder])
       : optimizedCoefficientOrders(geometry))
-  if (geometry.deferredDcGroups) return yield* localForwardSections(geometry, coefficientOrders)
+  if (geometry.deferredDc) return yield* localForwardSections(geometry, coefficientOrders)
   let started = performance.now()
   const dcPlanes = Array.from({ length: dcGroupCount }, (_, group) =>
     dcGroupPlanes(geometry, group),
   )
   const modularFrequencies = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
-  const localDc = !!geometry.loadAcGroup && useClusteredAns
+  const localDc = !!geometry.loadAc && useClusteredAns
   if (localDc) modularFrequencies[0] = 1
   else for (const planes of dcPlanes) collectPlanes(modularFrequencies, planes, useClusteredAns)
-  if (!geometry.defaultQuantization)
+  if (!geometry.defaultMatrices)
     collectPlanes(modularFrequencies, quantizationPlanes(geometry), useClusteredAns)
-  if (geometry.alpha && (!geometry.loadAcGroup || geometry.effort === 1)) {
+  if (geometry.alpha && (!geometry.loadAc || geometry.effort === 1)) {
     for (let group = 0; group < groupCount; group++) {
       collectPlanes(modularFrequencies, [geometry.alpha.loadGroup(group)], useClusteredAns)
       yield
@@ -2049,10 +2040,10 @@ function* coefficientSectionSteps(
     ),
   )
   started = performance.now()
-  const packedAcValues = getPackedClusteredAcValues(geometry.forwardAcIterationSearch === true)
+  const packedAcValues = getPackedClusteredAcValues(geometry.acIterationSearch === true)
   let histogramCount = 1
   let groupHistograms: Uint8Array | undefined
-  if (geometry.forwardGroupContexts && useClusteredAns && !geometry.progressive && groupCount > 1) {
+  if (geometry.groupContexts && useClusteredAns && !geometry.progressive && groupCount > 1) {
     const groupFrequencies = Array.from({ length: groupCount }, () =>
       allocateJpegXlArray(geometry.memory, Uint32Array, 512),
     )
@@ -2107,9 +2098,9 @@ function* coefficientSectionSteps(
   } = useClusteredAns
     ? compactAcHistograms(
         acFrequencies,
-        geometry.forwardAcIterationSearch
+        geometry.acIterationSearch
           ? 256
-          : geometry.loadAcGroup
+          : geometry.loadAc
             ? geometry.effort === 7
               ? 96
               : geometry.effort === 5
@@ -2117,13 +2108,13 @@ function* coefficientSectionSteps(
                 : 32
             : 192,
         geometry.memory,
-        geometry.forwardAcIterationSearch ? 24 : 6,
+        geometry.acIterationSearch ? 24 : 6,
       )
     : Object.freeze({
         contextMap: allocateJpegXlArray(geometry.memory, Uint8Array, 1),
         frequencies: acFrequencies,
       })
-  if (useClusteredAns && geometry.forwardAcIterationSearch) {
+  if (useClusteredAns && geometry.acIterationSearch) {
     const rawFrequencies = Array.from({ length: compactAc.frequencies.length }, () =>
       allocateJpegXlArray(geometry.memory, Uint32Array, 8192),
     )
@@ -2201,8 +2192,8 @@ function* coefficientSectionSteps(
         dcPlanes[0] ?? [],
         modularEncoding,
         localDc,
-        geometry.effort === 7 && geometry.loadAcGroup !== undefined,
-        geometry.forwardAdvancedModularSearch === true,
+        geometry.effort === 7 && geometry.loadAc !== undefined,
+        geometry.advancedModularSearch === true,
       )
       const acEncoding = writeHfGlobal(
         writer,
@@ -2213,7 +2204,7 @@ function* coefficientSectionSteps(
         compactAc.contextMap,
         compactAc.frequencies,
         histogramCount,
-        geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
+        geometry.acIterationSearch ? denseAcHybridConfig : acHybridConfig,
         compactAc.histogramConfigs,
       )
       writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
@@ -2245,8 +2236,8 @@ function* coefficientSectionSteps(
             planes,
             modularEncoding as ModularEncoding,
             localDc,
-            geometry.effort === 7 && geometry.loadAcGroup !== undefined,
-            geometry.forwardAdvancedModularSearch === true,
+            geometry.effort === 7 && geometry.loadAc !== undefined,
+            geometry.advancedModularSearch === true,
           ),
         geometry.memory,
       ),
@@ -2270,7 +2261,7 @@ function* coefficientSectionSteps(
       compactAc.contextMap,
       compactAc.frequencies,
       histogramCount,
-      geometry.forwardAcIterationSearch ? denseAcHybridConfig : acHybridConfig,
+      geometry.acIterationSearch ? denseAcHybridConfig : acHybridConfig,
       compactAc.histogramConfigs,
     )
   }, geometry.memory)
@@ -2301,8 +2292,8 @@ function* coefficientSectionSteps(
               writer,
               geometry.alpha.loadGroup(group),
               alphaEncoding,
-              !!geometry.loadAcGroup && geometry.effort !== 1,
-              !!geometry.loadAcGroup && geometry.effort === 7,
+              !!geometry.loadAc && geometry.effort !== 1,
+              !!geometry.loadAc && geometry.effort === 7,
               geometry.alpha.paletteSearch,
             )
         }
@@ -2318,6 +2309,12 @@ function* coefficientSectionSteps(
   return Object.freeze([lf, ...dc, hf, ...ac])
 }
 
+const releaseCoefficientSections = (
+  geometry: Readonly<JpegDerivedGeometry>,
+  sections: readonly Uint8Array[],
+): void => {
+  for (const section of sections) geometry.memory?.release(section)
+}
 const coefficientSectionsCost = (sections: readonly Uint8Array[]): number =>
   sectionCost(sections.map((section) => section.length))
 
@@ -2344,7 +2341,7 @@ const encodeCoefficientSectionsWithAlpha = (
           : undefined
       })
       if (alternative) {
-        for (const section of original) geometry.memory?.release(section)
+        releaseCoefficientSections(geometry, original)
         return alternative
       }
     } catch (error) {
@@ -2386,7 +2383,7 @@ const encodeCoefficientSectionsWithAlphaAsync = (
           : undefined
       })
       if (alternative) {
-        for (const section of original) geometry.memory?.release(section)
+        releaseCoefficientSections(geometry, original)
         return alternative
       }
     } catch (error) {
@@ -2402,16 +2399,15 @@ const encodeVarDctCoefficientSectionsBaseline = (
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
   withJpegXlMemory(geometry.memory, () => {
-    if (!geometry.forwardAcIterationSearch)
-      return encodeCoefficientSectionsWithAlpha(geometry, profiler)
+    if (!geometry.acIterationSearch) return encodeCoefficientSectionsWithAlpha(geometry, profiler)
     const baseline = encodeCoefficientSectionsWithAlpha(
-      { ...geometry, forwardAcIterationSearch: false },
+      { ...geometry, acIterationSearch: false },
       profiler,
     )
     try {
       const refined = encodeCoefficientSectionsWithAlpha(geometry, profiler)
       const wins = coefficientSectionsCost(refined) < coefficientSectionsCost(baseline)
-      for (const section of wins ? baseline : refined) geometry.memory?.release(section)
+      releaseCoefficientSections(geometry, wins ? baseline : refined)
       return wins ? refined : baseline
     } catch (error) {
       if (!isJpegXlLimitExceeded(error)) throw error
@@ -2424,17 +2420,17 @@ const encodeVarDctCoefficientSectionsBaselineAsync = (
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(geometry.memory, async () => {
-    if (!geometry.forwardAcIterationSearch)
+    if (!geometry.acIterationSearch)
       return encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
     const baseline = await encodeCoefficientSectionsWithAlphaAsync(
-      { ...geometry, forwardAcIterationSearch: false },
+      { ...geometry, acIterationSearch: false },
       checkpoint,
     )
     try {
       await checkpoint()
       const refined = await encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
       const wins = coefficientSectionsCost(refined) < coefficientSectionsCost(baseline)
-      for (const section of wins ? baseline : refined) geometry.memory?.release(section)
+      releaseCoefficientSections(geometry, wins ? baseline : refined)
       return wins ? refined : baseline
     } catch (error) {
       if (!isJpegXlLimitExceeded(error)) throw error
@@ -2445,18 +2441,18 @@ const encodeVarDctCoefficientSectionsBaselineAsync = (
 const prepareLumaContextGeometry = (
   geometry: Readonly<JpegDerivedGeometry>,
 ): Readonly<JpegDerivedGeometry> | undefined => {
-  const component = geometry.dcPlaneComponents[0]
+  const component = geometry.dcComponents[0]
   if (
-    !geometry.forwardAcIterationSearch ||
-    !geometry.defaultQuantization ||
+    !geometry.acIterationSearch ||
+    !geometry.defaultMatrices ||
     geometry.colorTransform !== 'xyb' ||
     geometry.progressive ||
-    geometry.deferredDcGroups ||
-    geometry.forwardLumaThreshold !== undefined ||
-    geometry.fullBlockWidth * geometry.fullBlockHeight <= 65536 ||
+    geometry.deferredDc ||
+    geometry.lumaThreshold !== undefined ||
+    geometry.blocksWide * geometry.blocksHigh <= 65536 ||
     !component ||
     component.coefficientStride !== 1 ||
-    component.coefficients.length !== geometry.fullBlockWidth * geometry.fullBlockHeight
+    component.coefficients.length !== geometry.blocksWide * geometry.blocksHigh
   )
     return undefined
   for (const shift of geometry.shifts) if (shift[0] !== 0 || shift[1] !== 0) return undefined
@@ -2465,7 +2461,7 @@ const prepareLumaContextGeometry = (
     values.sort()
     const threshold = values[values.length >>> 1]
     if (threshold === undefined) throw invalidJpegXlInput('DC median is missing')
-    return { ...geometry, forwardLumaThreshold: threshold }
+    return { ...geometry, lumaThreshold: threshold }
   } finally {
     geometry.memory?.release(values)
   }
@@ -2483,7 +2479,7 @@ export const encodeVarDctCoefficientSections = (
           const contextual = prepareLumaContextGeometry(geometry)
           if (!contextual) return undefined
           const sections = encodeCoefficientSectionsWithAlpha(
-            { ...contextual, forwardGroupContexts: grouped },
+            { ...contextual, groupContexts: grouped },
             profiler,
           )
           return coefficientSectionsCost(sections) < coefficientSectionsCost(selected)
@@ -2491,7 +2487,7 @@ export const encodeVarDctCoefficientSections = (
             : undefined
         })
         if (alternative) {
-          for (const section of selected) geometry.memory?.release(section)
+          releaseCoefficientSections(geometry, selected)
           selected = alternative
         }
       } catch (error) {
@@ -2515,7 +2511,7 @@ export const encodeVarDctCoefficientSectionsAsync = (
           if (!contextual) return undefined
           await checkpoint()
           const sections = await encodeCoefficientSectionsWithAlphaAsync(
-            { ...contextual, forwardGroupContexts: grouped },
+            { ...contextual, groupContexts: grouped },
             checkpoint,
           )
           return coefficientSectionsCost(sections) < coefficientSectionsCost(selected)
@@ -2523,7 +2519,7 @@ export const encodeVarDctCoefficientSectionsAsync = (
             : undefined
         })
         if (alternative) {
-          for (const section of selected) geometry.memory?.release(section)
+          releaseCoefficientSections(geometry, selected)
           selected = alternative
         }
       } catch (error) {
@@ -2601,7 +2597,7 @@ export const varDctCodestreamParts = (
   writer.writeBits(0, 1)
   writeU32(writer, frame.reference ? 2 : 0, jpegXlZeroToThreeDistribution)
   writer.writeBits(0, 1)
-  writeU64(writer, (geometry.adaptiveLfSmoothing ? 0 : 128) | (frame.patches ? 2 : 0))
+  writeU64(writer, (geometry.smoothDc ? 0 : 128) | (frame.patches ? 2 : 0))
   if (geometry.colorTransform !== 'xyb')
     writer.writeBits(geometry.colorTransform === 'ycbcr' ? 1 : 0, 1)
   if (geometry.colorTransform === 'ycbcr') {
@@ -2642,8 +2638,8 @@ export const varDctCodestreamParts = (
   writeU32(writer, 0, jpegXlNameLengthDistribution)
   writer.writeBits(0, 1)
   writer.writeBits(0, 1)
-  writer.writeBits(geometry.epfSharpnessMap ? 2 : 0, 2)
-  if (geometry.epfSharpnessMap) writer.writeBits(0, 3)
+  writer.writeBits(geometry.sharpnessMap ? 2 : 0, 2)
+  if (geometry.sharpnessMap) writer.writeBits(0, 3)
   writeU64(writer, 0)
   writeU64(writer, 0)
   writer.writeBits(0, 1)
@@ -2716,7 +2712,7 @@ export const encodeJpegCoefficientImageAsJpegXl = (
   const virtualPlaneLease = geometry.grayscale
     ? memory?.allocate(
         'jpeg-transcode-grayscale-virtual-plane',
-        geometry.internalComponents[0]?.coefficients.byteLength ?? 0,
+        geometry.acComponents[0]?.coefficients.byteLength ?? 0,
       )
     : undefined
   try {

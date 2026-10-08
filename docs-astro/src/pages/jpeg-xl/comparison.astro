@@ -5,6 +5,7 @@ import historicalPhotoCompression from '../../../../benchmark/jpegxl/comparison/
 import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-dense-training-production-controls.json'
 import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
+import coneFloor from '../../../../benchmark/jpegxl/comparison/results/original-cone-floor-controls.json'
 import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
 import entropyControls from '../../../../benchmark/jpegxl/comparison/results/original-luma-context-controls.json'
 import spatialControls from '../../../../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json'
@@ -25,6 +26,55 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const n = (v: unknown) => (typeof v === 'number' ? v : 0)
 const text = (v: unknown) => (typeof v === 'string' ? v : 'unavailable')
 const subjects = ['purejsimage', 'jsquash', 'oxide', 'vips']
+
+if (
+  coneFloor.completed !== true ||
+  coneFloor.sourceAdopted !== true ||
+  coneFloor.fullParity !== false ||
+  !coneFloor.compiledPackagesIdenticalToMeasurements ||
+  coneFloor.remainingConfirmedGaps.length === 0
+)
+  throw new Error('Incomplete scoped original-photo cone comparisons')
+const coneRows = coneFloor.comparisons
+  .filter((row) => row.comparator === 'purejsimage')
+  .map((row) => {
+    if (typeof row.ratio !== 'number') throw new Error('Missing scoped historical comparison')
+    const peer = (comparator: string) =>
+      coneFloor.comparisons.find(
+        (other) =>
+          other.fixture === row.fixture &&
+          other.metric === row.metric &&
+          other.target === row.target &&
+          other.comparator === comparator,
+      )
+    return {
+      ...row,
+      fixtureLabel:
+        row.fixture === 'portrait-2400x3000' ? '2400 × 3000 portrait' : '4000 × 3000 photo',
+      metricLabel: row.metric === 'butteraugli' ? 'Butteraugli' : 'SSIMULACRA2',
+      reduction: ((1 - row.ratio) * 100).toFixed(2),
+      jsquashBytes: peer('jsquash')?.peerBytes ?? null,
+      vipsBytes: peer('vips')?.peerBytes ?? null,
+    }
+  })
+const conePortrait = coneRows.find(
+  (row) => row.fixture === 'portrait-2400x3000' && row.metric === 'butteraugli' && row.target === 1,
+)
+if (!conePortrait) throw new Error('Missing current portrait target-one result')
+const coneSize = (value: number | null) =>
+  value === null ? 'Unresolved' : Math.round(value).toLocaleString('en-US')
+const conePortraitGap = (comparator: string) => {
+  const row = coneFloor.comparisons.find(
+    (row) =>
+      row.fixture === 'portrait-2400x3000' &&
+      row.metric === 'butteraugli' &&
+      row.target === 1 &&
+      row.comparator === comparator,
+  )
+  if (!row || typeof row.ratio !== 'number') throw new Error('Missing current portrait peer result')
+  return ((row.ratio - 1) * 100).toFixed(2)
+}
+
 const portraitGapPercentages = portraitBaseline.comparisons.flatMap((row) =>
   row.comparator === 'jsquash' &&
   row.metric === 'butteraugli' &&
@@ -448,9 +498,12 @@ if (
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
 <section class="jxl-card quick">
 <h2>Quick answer</h2>
+<p id="jxl-cone-floor-status">The latest original-photo curves reduce the portrait's matched Butteraugli-1 estimate by {conePortrait.reduction}%, to {coneSize(conePortrait.interpolatedBytes)} bytes. It remains {conePortraitGap('jsquash')}% larger than jSquash and {conePortraitGap('vips')}% larger than wasm-vips. The earlier original's Butteraugli-1 and SSIMULACRA2-90 comparisons also improve. {coneFloor.remainingConfirmedGaps.length} confirmed portrait comparisons still have size gaps. <a href="/jpeg-xl/evidence/original-cone-floor-controls.json" download>Latest scoped curves, source pins and preservation controls</a>.</p>
+<div style="overflow:auto"><table id="jxl-cone-floor-table"><caption>Latest scoped curves on two original photos; rounded byte estimates</caption><thead><tr><th>Input</th><th>Metric</th><th>Target</th><th>PureJsImage bytes</th><th>Change from historical curve</th><th>Frozen jSquash bytes</th><th>Frozen wasm-vips bytes</th></tr></thead><tbody>{coneRows.map((row) => <tr><td>{row.fixtureLabel}</td><td>{row.metricLabel}</td><td>{row.target}</td><td>{coneSize(row.interpolatedBytes)}</td><td>{row.reduction}% smaller</td><td>{coneSize(row.jsquashBytes)}</td><td>{coneSize(row.vipsBytes)}</td></tr>)}</tbody></table></div>
+<p>These scoped curves use {coneFloor.freshEncodedFiles} fresh complete public-package files, {coneFloor.freshCompleteIndependentGrids} complete native/Rust grids and {coneFloor.freshPublicDecodedSamples.toLocaleString('en-US')} checked public samples, with exact alpha and unchanged caller data. Additional tundra and Earthrise controls retain the exact baseline. Selection may encode a second candidate and keeps the smaller complete file, with baseline recovery on optional working-storage failure. This establishes neither a speed nor a memory improvement. Both metrics keep their own frontier, the original 0.25-unit bracket rule and no extrapolation. The peer encoders were not rerun; unresolved peer estimates remain unresolved. Current source SHA-256: <code>{coneFloor.implementationSourceSha256}</code>.</p>
 <p id="jxl-original-matrix-status">Overall lossy compression parity remains open. The additional unresized 2400 × 3000 portrait baseline uses {portraitMinimumGap}–{portraitMaximumGap}% more bytes than jSquash at three separately matched Butteraugli targets, despite competitive SSIMULACRA2 results. The earlier 12 MP photo results below keep their separate scope. <a href="/jpeg-xl/evidence/ORIGINAL-MATRIX.md" download>Broader photo results and remaining gaps</a> and <a href="/jpeg-xl/evidence/original-matrix-portrait-baseline.json" download>Verified portrait baseline</a>.</p>
 <p>The preceding median-luminance entropy change saves {entropyMinimumReduction}–{entropyMaximumReduction}% on six fixed-setting controls across the portrait, earlier photo, tundra and Earthrise originals, with identical decoded pixels and both quality scores. <a href="/jpeg-xl/evidence/original-luma-context-controls.json" download>Median-luminance entropy controls</a>.</p>
-<p id="jxl-spatial-context-status">The spatial histogram change saves another {spatialMinimumReduction}–{spatialMaximumReduction}% on five of those six controls. Earthrise keeps the preceding bytes. Every decoded pixel and both quality scores remain identical. This adds encoding work and does not close the portrait's matched-quality gaps. Complete updated curves remain pending; the tables below retain their preceding measured baseline. Spatial source SHA-256: <code>{spatialControls.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/original-spatial-context-controls.json" download>Spatial entropy preservation controls</a>.</p>
+<p id="jxl-spatial-context-status">The spatial histogram change saves another {spatialMinimumReduction}–{spatialMaximumReduction}% on five of those six controls. Earthrise keeps the preceding bytes. Every decoded pixel and both quality scores remain identical. This adds encoding work and does not close the portrait's matched-quality gaps. The historical tables below retain their earlier curve source; the latest scoped curves are shown separately. Spatial source SHA-256: <code>{spatialControls.implementationSourceSha256}</code>. <a href="/jpeg-xl/evidence/original-spatial-context-controls.json" download>Spatial entropy preservation controls</a>.</p>
 <p>On the original 4000 × 3000 photo, PureJsImage uses 9–13% fewer bytes than jSquash and 8–16% fewer than wasm-vips at matched SSIMULACRA2 70, 80 and 90. It also uses fewer bytes at all four matched Butteraugli targets against jSquash and both resolved targets against wasm-vips; two wasm-vips targets remain unresolved under the unchanged rules. Parity applies to the resolved targets on this photo; other original-size photos, HDR, float, CMYK and animation need separate matched compression evidence. <a href="/jpeg-xl/evidence/ORIGINAL-PHOTO.md" download>Original-size photo results and limits</a> and <a href="/jpeg-xl/evidence/original-photo-production-controls.json" download>Current production controls</a>.</p>
 <div style="overflow:auto"><table><caption>Original 4000 × 3000 photo at matched SSIMULACRA2</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalPhotoRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString('en-US')}</td><td>{row.jsquashBytes.toLocaleString('en-US')}</td><td>{row.vipsBytes.toLocaleString('en-US')}</td><td>{row.jsquashReduction}% smaller</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
 <div style="overflow:auto"><table><caption>Same original photo at independently matched Butteraugli targets; lower error is better</caption><thead><tr><th>Target</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>wasm-vips bytes</th><th>Versus jSquash</th><th>Versus wasm-vips</th></tr></thead><tbody>{originalButteraugliRows.map((row) => <tr><td>{row.target}</td><td>{row.bytes.toLocaleString("en-US")}</td><td>{row.jsquashBytes.toLocaleString("en-US")}</td><td>{row.vipsBytes}</td><td>{row.jsquashReduction}</td><td>{row.vipsReduction}</td></tr>)}</tbody></table></div>

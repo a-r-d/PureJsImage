@@ -1705,3 +1705,5 @@ export const verifyLosslessPaletteRgba = async () => {
   if (rows !== height) throw new Error('RGBA row count changed')
   return { bytes: encoded.length, rows }
 }
+
+export { verifyConePhoto } from '../tests/helpers/jpegxl-cone-selection.ts'

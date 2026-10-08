@@ -2,11 +2,12 @@
 
 ## Quick answer
 
-Overall lossy compression parity remains open. The additional unresized
-2400 × 3000 portrait exposes a real Butteraugli size gap against jSquash:
-PureJsImage uses 10.50–28.66% more bytes at the three adequately matched
-targets. It uses slightly fewer bytes at matched SSIMULACRA2 80 and 90.
-The earlier [12 MP photo](ORIGINAL-PHOTO.md) keeps its separate passing results.
+Overall lossy compression parity remains open. The latest scoped portrait
+Butteraugli-1 curve improves by 9.41%, to an estimated 1,575,149 bytes. It
+remains 16.56% larger than jSquash and 9.50% larger than wasm-vips.
+The earlier [12 MP photo](ORIGINAL-PHOTO.md) also improves at Butteraugli 1
+and SSIMULACRA2 90. 4 confirmed portrait comparisons still have size gaps.
+The historical all-band table below keeps its original source and unresolved bands.
 
 The preceding median-luminance entropy change saves 0.13–0.56% on six fixed-setting controls across
 four originals, with identical decoded pixels and both quality scores.
@@ -17,8 +18,39 @@ The latest [spatial histogram change](results/original-spatial-context-controls.
 saves another 0.07–0.82% on five of those six controls. Earthrise keeps the
 preceding bytes. Every decoded pixel and both quality scores remain identical.
 These changes add encoding work and do not close the portrait's matched-quality
-gaps. Complete updated curves remain pending. The table below retains the
-preceding baseline.
+gaps. The latest scoped curves below keep separate evidence from the
+historical all-band baseline.
+
+## Latest scoped curves
+
+| Input | Metric | Target | Latest bytes | Versus historical curve | Frozen jSquash bytes | Frozen wasm-vips bytes |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 2400 × 3000 portrait | Butteraugli | 1 | 1,575,149 | 9.41% smaller | 1,351,388 | 1,438,511 |
+| 2400 × 3000 portrait | Butteraugli | 2 | 694,088 | 2.43% smaller | 553,694 | Unresolved |
+| 2400 × 3000 portrait | SSIMULACRA2 | 80 | 796,731 | 2.66% smaller | 820,041 | 847,559 |
+| 4000 × 3000 photo | Butteraugli | 1 | 1,262,177 | 1.09% smaller | 1,291,165 | 1,396,748 |
+| 4000 × 3000 photo | SSIMULACRA2 | 90 | 1,416,452 | 0.59% smaller | 1,639,897 | 1,686,911 |
+| 4000 × 3000 photo | Butteraugli | 2 | 482,354 | 1.44% smaller | 521,032 | Unresolved |
+| 4000 × 3000 photo | SSIMULACRA2 | 80 | 500,097 | 2.52% smaller | 564,888 | 557,876 |
+
+[Scoped production evidence](results/original-cone-floor-controls.json) records
+19 fresh complete public-package files, 38 complete native/Rust grids and
+700,800,000 public decoded samples. Every alpha sample and caller buffer
+is preserved, and managed storage closes after each file. The formatted
+production packages reproduce every measured compiled byte and keep the
+original 558,000/631,000-byte ceilings.
+
+Additional DCT16 choices apply to opaque standard-sRGB RGBA8 originals above
+4,194,304 and through 16,777,216 pixels, at effort 7 and distances above one and
+below four. Selection can encode an additional candidate and retains the smaller
+complete file; optional storage failure retains the baseline. This adds work
+and establishes no representative speed or RSS improvement.
+
+The earlier photo's matched preservation gates pass. Previously observed
+tundra and Earthrise controls keep the exact baseline bytes, pixels and both
+scores. They do not supply a held-out or broader matched-curve claim.
+Unmeasured bands, exhausted frozen peer budgets and every failed predecessor
+remain separate. The peers were not rerun.
 
 ## Portrait baseline
 
