@@ -1,0 +1,38 @@
+benchmark/optimization-log.md
+  s_2b0ba550ad1491::t_e2e9f39300fec5 4553-4558
+  s_2b0ba550ad1491::t_60d969479c0b14 4515-4516
+  s_2b0ba550ad1491::t_560a763e6e0d17 4511-4514
+  s_2b0ba550ad1491::t_615e2e79dd3193 4535-4544
+  s_2b0ba550ad1491::t_33c20776c3c26d 4531-4532
+  s_2b0ba550ad1491::t_240b5b0b3f8947 4521-4522
+  s_2b0ba550ad1491::t_8d083f62e038be 4523-4524
+  s_2b0ba550ad1491::t_fccdaf6e37b41a 4517-4518
+  s_2b0ba550ad1491::t_cdc03408edc1b2 4549-4552
+  s_2b0ba550ad1491::t_2eb044142ef6ba 4527-4528
+  s_2b0ba550ad1491::t_ac31f0a25b8596 4559-4562
+  s_2b0ba550ad1491::t_aec747a69f2114 4533-4534
+  s_2b0ba550ad1491::t_0e305847b86138 10,4567-4568
+  s_2b0ba550ad1491::t_64a7d4b8492158 4525-4526
+  s_2b0ba550ad1491::t_33a3219f999dea 4529-4530
+  s_2b0ba550ad1491::t_321d7eae1eee9f 4545-4548
+  s_2b0ba550ad1491::t_d904fdc4cb7cf5 4563-4566
+  s_2b0ba550ad1491::t_dd01cec64c0932 4519-4520
+.github/workflows/ci.yml
+  s_2b0ba550ad1491::t_c1ca88711ea4bb 95-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2ca3236ab0797f8220c75148afb65e8b461ace93",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
