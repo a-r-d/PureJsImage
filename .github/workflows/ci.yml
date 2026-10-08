@@ -48,7 +48,8 @@ jobs:
   browser:
     name: Browser ${{ matrix.browser }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Include setup, compatibility cases and both ten-minute photo attempts.
+    timeout-minutes: 50
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --user 1001 --ipc=host
