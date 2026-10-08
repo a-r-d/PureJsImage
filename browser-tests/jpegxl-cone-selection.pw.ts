@@ -22,8 +22,8 @@ test('JPEG XL original-photo selection preserves independently verified samples'
   })
   const result: unknown = JSON.parse(payload)
   expect(result).toMatchObject({
-    bytes: 152237,
-    encodedChecksum: 2809558404,
+    bytes: 127590,
+    encodedChecksum: 3528318311,
     decodedChecksum: 1449741427,
     callerChecksum: 3043653419,
     selectedDct16Blocks: 65532,
@@ -31,7 +31,7 @@ test('JPEG XL original-photo selection preserves independently verified samples'
     bScale: 1,
     samples: 2057 * 2040 * 4,
     alphaError: 0,
-    ownedPeak: 56124443,
+    ownedPeak: 56010579,
     ownedLive: 0,
     ownedAllocations: 0,
   })

@@ -115,7 +115,7 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
   // Both complete compression-first searches need headroom on shared CI CPUs.
   test.setTimeout(1_200_000)
   const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  expect(expected.bytes).toBe(52_620)
+  expect(expected.bytes).toBe(52_429)
   expect(expected.decodedChecksum).toBe(3167701458)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)

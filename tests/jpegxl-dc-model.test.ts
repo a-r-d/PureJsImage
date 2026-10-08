@@ -23,8 +23,8 @@ it('recovers large opaque images after optional filter-map allocation failure', 
 it('preserves opaque gradient precision above four megapixels within its working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
   // Complete native and Rust grids independently qualify this cutoff regression.
-  expect(result.bytes).toBe(52_620)
-  expect(result.encodedChecksum).toBe(2431704422)
+  expect(result.bytes).toBe(52_429)
+  expect(result.encodedChecksum).toBe(1153706508)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(3167701458)
   expect(result.samples).toBe(2049 * 2048 * 4)

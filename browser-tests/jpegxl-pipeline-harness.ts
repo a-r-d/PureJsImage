@@ -4,6 +4,7 @@ export { verifyJpegXlLumaContexts } from '../tests/helpers/jpegxl-luma-contexts.
 export { verifyJpegXlAlphaEntropy } from '../tests/helpers/jpegxl-alpha-entropy.ts'
 export { verifyJpegXlArtwork } from '../tests/helpers/jpegxl-artwork.ts'
 export { verifyJpegXlCoefficientOrders } from '../tests/helpers/jpegxl-coefficient-orders.ts'
+export { verifyDct16Orders } from '../tests/helpers/jpegxl-dct16-orders.ts'
 export {
   verifyJpegXlDcAllocationRecovery,
   verifyJpegXlDcModel,
