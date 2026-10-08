@@ -6,6 +6,7 @@ import denseLossless from '../../../../benchmark/jpegxl/comparison/results/lossl
 import groupLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-group-search-production-controls.json'
 import repeatedLossless from '../../../../benchmark/jpegxl/comparison/results/lossless-rct-production-controls.json'
 import fineProduction from '../../../../benchmark/jpegxl/comparison/results/original-fine-production-controls.json'
+import middleProduction from '../../../../benchmark/jpegxl/comparison/results/original-middle-channel-controls.json'
 import coneFloor from '../../../../benchmark/jpegxl/comparison/results/original-cone-floor-controls.json'
 import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
 import entropyControls from '../../../../benchmark/jpegxl/comparison/results/original-luma-context-controls.json'
@@ -72,6 +73,25 @@ const fineSsim90Reduction = (
   (1 - fineSsim90 / fineProduction.protectedSSIM90.baselineBytes) *
   100
 ).toFixed(2)
+
+if (
+  !middleProduction.completed ||
+  !middleProduction.productionQualified ||
+  !middleProduction.sourceAdopted ||
+  middleProduction.fullParity ||
+  !middleProduction.validation.fullCheck.completed ||
+  !middleProduction.validation.chromiumCone.completed ||
+  !middleProduction.validation.savedFileRecovery.completed ||
+  middleProduction.bracket.width > 0.25 ||
+  middleProduction.comparisons.length !== 2
+)
+  throw new Error('Incomplete middle-photo public comparison')
+const middleReduction = ((1 - middleProduction.ratioToPrior) * 100).toFixed(2)
+const middleGap = (comparator: string): string => {
+  const row = middleProduction.comparisons.find((row) => row.comparator === comparator)
+  if (!row || row.status !== 'adequate bracket') throw new Error('Missing middle-photo peer')
+  return ((row.ratio - 1) * 100).toFixed(2)
+}
 
 const record = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -554,8 +574,10 @@ if (
 <p id="jxl-fine-production-status">Overall lossy compression parity remains open. At matched Butteraugli 0.5, the qualified portrait curve uses 0.09% fewer bytes than pinned jSquash and 15.25% fewer than wasm-vips. The independent 12 MP photo also retains its passing fine comparison. {fineProduction.remainingConfirmedGaps.length} confirmed portrait size gaps and {fineProduction.unresolvedPortraitComparisonsPreserved.length} unresolved comparisons remain. <a href="/jpeg-xl/evidence/original-fine-production-controls.json" download>Current fine-photo public results and source bridge</a>.</p>
 <div style="overflow:auto"><table id="jxl-fine-production-table"><caption>Qualified public files at matched Butteraugli 0.5; rounded byte estimates</caption><thead><tr><th>Input</th><th>PureJsImage bytes</th><th>jSquash bytes</th><th>Versus jSquash</th><th>wasm-vips bytes</th><th>Versus wasm-vips</th></tr></thead><tbody>{fineRows.map(row => <tr><td>{row.fixture}</td><td>{Math.round(row.bytes).toLocaleString('en-US')}</td><td>{Math.round(row.jsBytes).toLocaleString('en-US')}</td><td>{row.jsReduction}% smaller</td><td>{Math.round(row.vipsBytes).toLocaleString('en-US')}</td><td>{row.vipsReduction}% smaller</td></tr>)}</tbody></table></div>
 <p id="jxl-fine-ssim90-status">The portrait's matched SSIMULACRA2-90 estimate is {Math.round(fineSsim90).toLocaleString('en-US')} bytes, {fineSsim90Reduction}% below the preceding result.</p>
-<p>Each metric keeps its own nondominated log-byte frontier, unchanged 0.25-unit bracket rule and no extrapolation. Frozen peers and all failed attempts remain in the evidence. Cached research files are excluded from public curves. Package ceilings and exports are preserved. This establishes no new speed or isolated RSS result. Adopted source SHA-256: <code>{fineProduction.implementationSourceSha256}</code>.</p>
+<p>Each metric keeps its own nondominated log-byte frontier, unchanged 0.25-unit bracket rule and no extrapolation. Frozen peers and all failed attempts remain in the evidence. Cached research files are excluded from public curves. Package ceilings and exports are preserved. This establishes no new speed or isolated RSS result. Fine checkpoint source SHA-256: <code>{fineProduction.implementationSourceSha256}</code>.</p>
 <p>Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.</p>
+<p id="jxl-middle-channel-status">The latest B-channel change reduces the portrait's matched Butteraugli-1 estimate by {middleReduction}%, to {Math.round(middleProduction.interpolatedBytes).toLocaleString('en-US')} bytes. It remains {middleGap('jsquash')}% larger than jSquash and {middleGap('vips')}% larger than wasm-vips. The Butteraugli-2 gap against jSquash remains 25.36%. Three confirmed gaps and four unresolved comparisons remain. <a href="/jpeg-xl/evidence/original-middle-channel-controls.json" download>Current middle-photo public files and validation</a>.</p>
+<p>Both complete public files match all natural-order coefficients and non-order geometry from the scored research files. Their learned scan orders differ legally. An original harness assertion required identical orders; its failed receipts remain preserved. Separate saved-file validation confirms exact native PNG identity before either quality score is reused. Full checks, the unchanged generated photo regression and real Chromium coverage pass. Fine and coarse paths retain their preceding behavior. No independent-photo middle curve or new speed and RSS result is claimed. Current source SHA-256: <code>{middleProduction.identity.implementationSourceSha256}</code>.</p>
 <p id="jxl-cone-floor-status">The preceding middle/coarse curves reduce the portrait's matched Butteraugli-1 estimate by {conePortrait.reduction}%, to {coneSize(conePortrait.interpolatedBytes)} bytes. It remains {conePortraitGap('jsquash')}% larger than jSquash and {conePortraitGap('vips')}% larger than wasm-vips. The earlier original's Butteraugli-1 and SSIMULACRA2-90 comparisons also improve. The fine update above clears one of this checkpoint’s four confirmed gaps. <a href="/jpeg-xl/evidence/original-cone-floor-controls.json" download>Preceding middle/coarse curves, source pins and preservation controls</a>.</p>
 <div style="overflow:auto"><table id="jxl-cone-floor-table"><caption>Preceding middle/coarse curves on two original photos; rounded byte estimates</caption><thead><tr><th>Input</th><th>Metric</th><th>Target</th><th>PureJsImage bytes</th><th>Change from historical curve</th><th>Frozen jSquash bytes</th><th>Frozen wasm-vips bytes</th></tr></thead><tbody>{coneRows.map((row) => <tr><td>{row.fixtureLabel}</td><td>{row.metricLabel}</td><td>{row.target}</td><td>{coneSize(row.interpolatedBytes)}</td><td>{row.reduction}% smaller</td><td>{coneSize(row.jsquashBytes)}</td><td>{coneSize(row.vipsBytes)}</td></tr>)}</tbody></table></div>
 <p>These scoped curves use {coneFloor.freshEncodedFiles} fresh complete public-package files, {coneFloor.freshCompleteIndependentGrids} complete native/Rust grids and {coneFloor.freshPublicDecodedSamples.toLocaleString('en-US')} checked public samples, with exact alpha and unchanged caller data. Additional tundra and Earthrise controls retain the exact baseline. Selection may encode a second candidate and keeps the smaller complete file, with baseline recovery on optional working-storage failure. This establishes neither a speed nor a memory improvement. Both metrics keep their own frontier, the original 0.25-unit bracket rule and no extrapolation. The peer encoders were not rerun; unresolved peer estimates remain unresolved. Preceding scoped source SHA-256: <code>{coneFloor.implementationSourceSha256}</code>.</p>

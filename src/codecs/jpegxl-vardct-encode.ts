@@ -1825,6 +1825,10 @@ function* prepare8(
     ])
       memory.release(scratch)
   }
+  if (originalPhotoAc && distance < 2) {
+    bScale = 1
+    bAc = 1.25
+  }
   const hasDct16 = strategyMap?.includes(4) ?? false
   const groupCoefficientOffsets = hasDct16
     ? allocateJpegXlArray(memory, Int32Array, 32 * 32)

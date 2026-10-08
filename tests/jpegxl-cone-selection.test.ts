@@ -29,11 +29,13 @@ it('preserves independently verified photo samples across partial JPEG XL groups
   const result: unknown = await namespace.verifyConePhoto()
   // Complete native/Rust grids qualify all samples above the actual photo-size guard.
   expect(result).toMatchObject({
-    bytes: 155537,
-    encodedChecksum: 912860250,
-    decodedChecksum: 1125665758,
+    bytes: 152237,
+    encodedChecksum: 2809558404,
+    decodedChecksum: 1449741427,
     callerChecksum: 3043653419,
     selectedDct16Blocks: 65532,
+    xScale: 2,
+    bScale: 1,
     samples: 2057 * 2040 * 4,
     alphaError: 0,
     ownedLive: 0,

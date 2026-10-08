@@ -47,11 +47,38 @@ ownership evidence retain their separate scopes.
 Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.
 
 Three confirmed portrait size gaps remain: Butteraugli 1 against jSquash and
-wasm-vips (16.56% and 9.50% larger), and Butteraugli 2 against jSquash (25.36%
+wasm-vips (15.39% and 8.40% larger), and Butteraugli 2 against jSquash (25.36%
 larger). Four portrait comparisons remain unresolved: jSquash SSIMULACRA2 70 and
 Butteraugli 3, and wasm-vips Butteraugli 2 and 3. No overall lossy parity or new
 speed/RSS result is claimed. The separate cached equal-coverage diagnostic is
 excluded from these public curves. Historical tables below keep their sources.
+
+## Latest middle-photo update
+
+The qualified B-channel change reduces the portrait's matched Butteraugli-1
+estimate to 1,559,334 bytes, 1.00% below the preceding public result. It remains
+15.39% larger than pinned jSquash and 8.40% larger than pinned wasm-vips.
+The two complete public files bracket the target with a width of 0.18624,
+within the unchanged 0.25-unit limit. The estimate uses log-byte interpolation
+without extrapolation. Peer encoders were not rerun.
+
+| Input | Butteraugli | PureJsImage bytes | jSquash bytes | wasm-vips bytes |
+| --- | ---: | ---: | ---: | ---: |
+| 2400 × 3000 portrait | 1 | 1,559,334 | 1,351,388 | 1,438,511 |
+
+The [middle-photo controls](results/original-middle-channel-controls.json)
+record both public files and their source and package identities. All 43.2 million
+natural-order coefficients and non-order geometry match the scored research files.
+The production encoder learns different legal coefficient scan orders. An original
+harness assertion incorrectly required those orders to match; its failed receipts
+remain preserved. Separate saved-file validation confirms exact native PNG identity
+before reusing either quality score, without reencoding the photos.
+
+The unchanged generated photo regression passes all public samples and both complete
+native/Rust float grids. Full checks and real Chromium coverage pass. Fine distances
+at most one and coarse distances at least two retain their preceding paths. This
+does not establish an independent-photo middle curve, overall parity or new speed
+and RSS results.
 
 ## Preceding middle/coarse curves
 

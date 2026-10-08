@@ -46,6 +46,8 @@ for (const width of [512, 513] as const)
     test(`JPEG XL grouped lossless preserves hidden RGBA across runtimes, width=${width}, effort=${effort}`, async ({
       page,
     }) => {
+      // This deadline includes both Node and browser effort-7 encodes.
+      if (width === 513 && effort === 7) test.setTimeout(180_000)
       const expected = await verifyGroupedLosslessSearch(width, effort)
       expect(expected).toMatchObject({
         samples: width * 512 * 4,

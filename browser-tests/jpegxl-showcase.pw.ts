@@ -36,6 +36,9 @@ import coneFloor from '../benchmark/jpegxl/comparison/results/original-cone-floo
 import fineProduction from '../benchmark/jpegxl/comparison/results/original-fine-production-controls.json' with {
   type: 'json',
 }
+import middleProduction from '../benchmark/jpegxl/comparison/results/original-middle-channel-controls.json' with {
+  type: 'json',
+}
 import comparison from '../benchmark/jpegxl/comparison/website-data.json' with { type: 'json' }
 
 test('converter and exact grayscale JPEG round trip stay local', async ({ page }) => {
@@ -380,6 +383,19 @@ test('comparison and seven routes have distinct canonicals and usable evidence d
       Math.round(row.interpolatedBytes).toLocaleString('en-US'),
     )
   await expect(page.locator('#jxl-cone-floor-status')).toContainText('9.41%')
+  const middleResponse = await page.request.get(
+    '/jpeg-xl/evidence/original-middle-channel-controls.json',
+  )
+  expect(middleResponse.ok()).toBe(true)
+  expect(await middleResponse.json()).toEqual(middleProduction)
+  await expect(page.locator('#jxl-middle-channel-status')).toContainText('1.00%')
+  await expect(page.locator('#jxl-middle-channel-status')).toContainText('1,559,334 bytes')
+  await expect(page.locator('#jxl-middle-channel-status')).toContainText(
+    '15.39% larger than jSquash',
+  )
+  await expect(page.locator('#jxl-middle-channel-status')).toContainText(
+    '8.40% larger than wasm-vips',
+  )
   await expect(page.locator('#jxl-cone-floor-status')).toContainText('16.56% larger than jSquash')
   const coneResponse = await page.request.get('/jpeg-xl/evidence/original-cone-floor-controls.json')
   expect(coneResponse.ok()).toBe(true)

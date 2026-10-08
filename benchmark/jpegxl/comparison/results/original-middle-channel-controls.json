@@ -1,0 +1,233 @@
+{
+  "completed": true,
+  "sourceAdopted": true,
+  "productionQualified": true,
+  "fullParity": false,
+  "scope": "portrait-butteraugli-one-middle-B-channel-scale",
+  "identity": {
+    "implementationRevision": "52699cb1dea294762d1f4a238e05b2540420c8a2",
+    "implementationSourceSha256": "5edb762179ceb5bce7cc2513f536202dd417772eaab38d183f8abba46ec7ab6d",
+    "implementationDirty": true
+  },
+  "interpolation": "Maintained nondominated log-byte frontier; maximum bracket width 0.25; no extrapolation.",
+  "points": [
+    {
+      "setting": 1.25,
+      "bytes": 1640497,
+      "score": -0.9287682772,
+      "artifactSha256": "2c92717fe4596c754c91d10c225a87868d2206a5e90ac5c60f9d0c8357662414",
+      "nativePngSha256": "a3be62a75bc7dd5532f8f52d6c54258933afcbb02fafe9d8e9665c560d32c11b"
+    },
+    {
+      "setting": 1.5,
+      "bytes": 1436681,
+      "score": -1.1150064468,
+      "artifactSha256": "d246666795cbc5382d93bc262db90c6455a3cd7e09b7f0fec152b9d684a38a43",
+      "nativePngSha256": "4616cf36c6346636e9a6930265f5b64894b618f8585ce4d1faa05ec00e17a274"
+    }
+  ],
+  "inversions": 0,
+  "bracket": {
+    "lower": {
+      "setting": 1.5,
+      "bytes": 1436681,
+      "score": -1.1150064468,
+      "artifactSha256": "d246666795cbc5382d93bc262db90c6455a3cd7e09b7f0fec152b9d684a38a43",
+      "nativePngSha256": "4616cf36c6346636e9a6930265f5b64894b618f8585ce4d1faa05ec00e17a274"
+    },
+    "upper": {
+      "setting": 1.25,
+      "bytes": 1640497,
+      "score": -0.9287682772,
+      "artifactSha256": "2c92717fe4596c754c91d10c225a87868d2206a5e90ac5c60f9d0c8357662414",
+      "nativePngSha256": "a3be62a75bc7dd5532f8f52d6c54258933afcbb02fafe9d8e9665c560d32c11b"
+    },
+    "width": 0.18623816960000006
+  },
+  "interpolatedBytes": 1559333.5454987122,
+  "priorPublicBytes": 1575149.1912773694,
+  "ratioToPrior": 0.9899592712447566,
+  "comparisons": [
+    {
+      "comparator": "jsquash",
+      "peerBytes": 1351387.8673659936,
+      "interpolatedBytes": 1559333.5454987122,
+      "ratio": 1.1538756438135176,
+      "status": "adequate bracket"
+    },
+    {
+      "comparator": "vips",
+      "peerBytes": 1438510.8975191994,
+      "interpolatedBytes": 1559333.5454987122,
+      "ratio": 1.0839914721451738,
+      "status": "adequate bracket"
+    }
+  ],
+  "publicSemanticWords": 43200000,
+  "nativeDecodedSamples": 57600000,
+  "ownershipClosed": true,
+  "exactOpaqueAlpha": true,
+  "packageBytes": [
+    {
+      "target": "jpegxl-specialized",
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-source-bridge2367/installed-packages/jpegxl-specialized.mjs",
+      "bytes": 629850,
+      "sha256": "be23425cbccdb7c149f79259a9de4a0ea3b8018704a277b6b5c0819d357e1e0d"
+    },
+    {
+      "target": "codec-jpegxl",
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-source-bridge2367/installed-packages/codec-jpegxl.mjs",
+      "bytes": 557205,
+      "sha256": "4c523b0a337082ad96c0e4ab540ac7dd2b06c749ab7d5d39e3c630b9bc8bb313"
+    }
+  ],
+  "validation": {
+    "fullCheck": {
+      "label": "full-check",
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "timedOut": false,
+      "closed": true,
+      "groupGone": true,
+      "deadlineMs": 3600000,
+      "executable": "/home/ard/.nvm/versions/node/v22.21.1/bin/node",
+      "args": [
+        "/home/ard/.nvm/versions/node/v22.21.1/lib/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "check"
+      ],
+      "elapsedMs": 915177.2734289999,
+      "logPath": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/middle-b1-validation-cohort/output/full-check.log",
+      "logSha256": "815a9664f68f5c039206e1700752572e53259cf3051261df2775bc8c91d3c169",
+      "browser": false,
+      "completed": true
+    },
+    "chromiumCone": {
+      "label": "chromium-cone",
+      "code": 0,
+      "signal": null,
+      "error": null,
+      "timedOut": false,
+      "closed": true,
+      "groupGone": true,
+      "deadlineMs": 800000,
+      "executable": "/usr/bin/taskset",
+      "args": [
+        "-c",
+        "0-1",
+        "/home/ard/.nvm/versions/node/v24.16.0/bin/node",
+        "node_modules/@playwright/test/cli.js",
+        "test",
+        "browser-tests/jpegxl-cone-selection.pw.ts",
+        "--project=chromium",
+        "--workers=1",
+        "--retries=0",
+        "--reporter=line,json",
+        "--output=/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/middle-b1-validation-cohort/output/browser-traces"
+      ],
+      "elapsedMs": 299917.9762609999,
+      "logPath": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-comparison-v1/middle-b1-validation-cohort/output/chromium-cone.log",
+      "logSha256": "c4572d8fd0aca32cafc46089e39ef027485b860c7482a0bd9acb4a7a804d89b9",
+      "browser": true,
+      "completed": true
+    },
+    "originalPublicCohortCompleted": false,
+    "originalPublicCohortFailure": "Public/cached entropy-order equality assertion. Natural coefficients and all non-order geometry matched; production relearns legal orders from final coefficients.",
+    "savedFileRecovery": {
+      "completed": true,
+      "resultSha256": "56ac9e0813ac75a07f0679c61044f1e8514386a63ba5c35cca28e86e27512053",
+      "failedOriginalReceiptsUnchanged": true,
+      "files": 2,
+      "completeNaturalCoefficientWords": 43200000,
+      "nativeSamples": 57600000,
+      "allNonorderGeometryEqual": true,
+      "entropyOrdersLegalButDifferent": true,
+      "scoreReusedOnlyAfterExactNativePngIdentity": true,
+      "exactOpaqueAlpha": true,
+      "decoderFinalOwnedBytes": 0,
+      "decoderFinalOwnedAllocations": 0,
+      "imageEncodes": 0,
+      "packageBuilds": 0,
+      "metricCalls": 0,
+      "nativeCalls": 2,
+      "elapsedMs": 19830.088143999998
+    },
+    "sourcePackageBridge": {
+      "completed": true,
+      "installedSourceBridgeOnly": true,
+      "before": {
+        "implementationRevision": "52699cb1dea294762d1f4a238e05b2540420c8a2",
+        "implementationSourceSha256": "5edb762179ceb5bce7cc2513f536202dd417772eaab38d183f8abba46ec7ab6d",
+        "implementationDirty": true
+      },
+      "candidateSourceSha256": "5edb762179ceb5bce7cc2513f536202dd417772eaab38d183f8abba46ec7ab6d",
+      "normalizedSourceSha256": "eaf22d025e94c5c05e3427a8f5ec6a4d9cd637e0883823525851465d26c4b627",
+      "sourceFiles": 46,
+      "completeReverseSourceIdentity": true,
+      "preparedSha256": "957c75587be60fd2708f1f26b134f737ac76d7464ca0548922fccf93dd13d550",
+      "images": 0,
+      "nativeCalls": 0,
+      "metrics": 0,
+      "packageBuilds": 0,
+      "limits": "New installed package byte identities, actual photo output proofs and focused/browser/full checks are separate required gates; this bridge claims source identity only."
+    }
+  },
+  "sourceBridge": {
+    "completed": true,
+    "installedSourceBridgeOnly": true,
+    "before": {
+      "implementationRevision": "52699cb1dea294762d1f4a238e05b2540420c8a2",
+      "implementationSourceSha256": "5edb762179ceb5bce7cc2513f536202dd417772eaab38d183f8abba46ec7ab6d",
+      "implementationDirty": true
+    },
+    "candidateSourceSha256": "5edb762179ceb5bce7cc2513f536202dd417772eaab38d183f8abba46ec7ab6d",
+    "normalizedSourceSha256": "eaf22d025e94c5c05e3427a8f5ec6a4d9cd637e0883823525851465d26c4b627",
+    "sourceFiles": 46,
+    "completeReverseSourceIdentity": true,
+    "preparedSha256": "957c75587be60fd2708f1f26b134f737ac76d7464ca0548922fccf93dd13d550",
+    "images": 0,
+    "nativeCalls": 0,
+    "metrics": 0,
+    "packageBuilds": 0,
+    "limits": "New installed package byte identities, actual photo output proofs and focused/browser/full checks are separate required gates; this bridge claims source identity only."
+  },
+  "provenance": [
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-public-order-recovery-strict/result.json",
+      "sha256": "56ac9e0813ac75a07f0679c61044f1e8514386a63ba5c35cca28e86e27512053"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-public-adopted/output125/result.json",
+      "sha256": "590c0b7304aa166bbb66fb59029ca0b4745e3676c7bba821cda69c5cc0a2e873"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-public-adopted/output150/result.json",
+      "sha256": "84a5025aedb8bca7b1da02924eeb6e131af1e6fcef4b4f516f6dd785bbe41377"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-cone-floor-controls.json",
+      "sha256": "8685fe086979ee236f0522a41e547cf1eaf28e4f99a18e02b19d2ef9196e5208"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-validation-cohort/output/result.json",
+      "sha256": "4acdf60c0015cf56314c21193ce40eadb2c613acb97f297c28152b289056100e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-source-bridge2367/installed-packages/result.json",
+      "sha256": "8265885f464a69a7184b0acae058498d5c542bc79da2ccac89895b6ee979eaf9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-source-bridge2367/installed.json",
+      "sha256": "fba1e07bedc00d9dc26bf99b95c3550642b9932226a953706d1701da2b8c5078"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-cone-qualification-2366/output/result.json",
+      "sha256": "e7f8168240d8a6dbfb32aa4816bbf5cded27a323eb1389984e9068cc46b840e7"
+    }
+  ],
+  "remainingConfirmedPortraitGaps": 3,
+  "unresolvedPortraitComparisons": 4,
+  "limitations": "Two actual public encoder files. Quality scores reused only after exact native PNG identity with independently scored cached B1 candidates. No new peer encode, metric call, full-photo Rust grid, independent-photo public curve, speed or isolated RSS claim. Fine distances at most one and coarse distances at least two retain prior behavior by the exact reversible source insertion.",
+  "date": "2026-10-08"
+}
