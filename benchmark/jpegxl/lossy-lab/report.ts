@@ -184,6 +184,8 @@ export function renderBaselineReport(value: unknown, speedSummary?: unknown): st
   if (mode !== 'screen' && mode !== 'lab' && mode !== 'holdout')
     throw new Error('Baseline report requires a curve run')
   const variant = string(summary.variant)
+  if (summary.intervalPolicy !== undefined && summary.intervalPolicy !== 'required-ranges')
+    throw new Error('Unknown quality interval policy')
   const selected = count(summary.selectedImages, 'selected images')
   if (selected === 0) throw new Error('No selected images')
   const rows = comparisons(summary.comparisons, selected)
@@ -204,7 +206,9 @@ export function renderBaselineReport(value: unknown, speedSummary?: unknown): st
     '',
     `Status: **${complete ? 'complete for selected images' : 'incomplete'}**. Computed comparisons: ${rows.length}/${expected}; required-range coverage: ${covered}/${expected}; failures: ${failures.length}; omissions: ${omissions.length}.`,
     '',
-    'Negative BD-rate means fewer bytes at equal quality. Every computable common interval remains in the aggregates, including partial coverage. Target conclusions remain pending until coverage is complete.',
+    summary.intervalPolicy === 'required-ranges'
+      ? 'Negative BD-rate means fewer bytes at equal quality. SSIMULACRA2 integrates over 60–90 and Butteraugli max over 0.5–3; Butteraugli 3-norm uses the common measured interval. Partial band coverage remains in the aggregates and is reported. Target conclusions remain pending until coverage is complete.'
+      : 'Negative BD-rate means fewer bytes at equal quality. Every computable common interval remains in the aggregates, including partial coverage. Target conclusions remain pending until coverage is complete.',
     '',
     '| Metric | Peer | Mean | Median | p90 | Worst | Computed images | Required coverage |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',

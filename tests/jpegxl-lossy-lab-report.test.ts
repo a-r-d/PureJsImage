@@ -182,6 +182,17 @@ describe('lossy lab baseline report', () => {
     ).toThrow(/metric/)
   })
 
+  it('distinguishes fixed quality bands from historical common-interval reports', () => {
+    const report = renderBaselineReport({ ...summary(), intervalPolicy: 'required-ranges' })
+    expect(report).toContain('SSIMULACRA2 integrates over 60–90')
+    expect(report).toContain('Butteraugli max over 0.5–3')
+    expect(report).toContain('Butteraugli 3-norm uses the common measured interval')
+    expect(renderBaselineReport(summary())).toContain('Every computable common interval')
+    expect(() => renderBaselineReport({ ...summary(), intervalPolicy: 'unknown' })).toThrow(
+      'Unknown quality interval policy',
+    )
+  })
+
   it('provides a CLI that writes only the requested Markdown file', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'jpegxl-lossy-report-'))
     try {

@@ -1,7 +1,13 @@
 import { spawn } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { object, string } from '../comparison/model.ts'
+import { object } from '../comparison/model.ts'
+import {
+  type PreparedFixture,
+  parseLabMode,
+  parsePreparedManifest,
+  selectPreparedFixtures,
+} from './fixture-selection.ts'
 import { bdRate, type QualityMetric, summarizeBdRates } from './metrics.ts'
 import { type CurvePoint, type Engine, missingSettings, parsePoint } from './model.ts'
 
@@ -12,12 +18,11 @@ const argument = (name: string, fallback: string): string => {
 }
 const manifestPath = argument('--manifest', '.tmp/jpegxl-lossy-lab/corpus/manifest.json')
 const directory = argument('--out', '.tmp/jpegxl-lossy-lab/baseline')
-const mode = argument('--mode', 'screen')
+const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
 const workers = Number(argument('--workers', '2'))
 const budgetSeconds = Number(argument('--budget-seconds', mode === 'screen' ? '600' : '3600'))
 if (
-  !['screen', 'lab', 'speed', 'holdout', 'watch'].includes(mode) ||
   !/^[a-z0-9-]+$/u.test(variant) ||
   !Number.isInteger(workers) ||
   workers < 1 ||
@@ -32,62 +37,50 @@ if (mode === 'holdout' && !args.includes('--promotion'))
   throw new Error('Holdout runs require --promotion')
 if (mode === 'watch' && !args.includes('--promotion'))
   throw new Error('Full watch curves require --promotion')
-const manifest = object(JSON.parse(await readFile(manifestPath, 'utf8')))
-if (!Array.isArray(manifest.fixtures) || !Array.isArray(manifest.screenIds))
-  throw new Error('Prepared fixture manifest missing')
-const screenIds = manifest.screenIds.map(string)
+const rawManifest = object(JSON.parse(await readFile(manifestPath, 'utf8')))
+const manifest = parsePreparedManifest(rawManifest)
 const watchManifestPath = argument('--watch-manifest', '')
-if (watchManifestPath) {
-  if (mode !== 'speed')
-    throw new Error('Additional original fixtures are for isolated speed measurements')
-  const watchManifest = object(JSON.parse(await readFile(watchManifestPath, 'utf8')))
-  if (!Array.isArray(watchManifest.fixtures)) throw new Error('Original watch manifest missing')
-  const watchCount = Number(argument('--watch-count', '2'))
-  if (!Number.isInteger(watchCount) || watchCount < 1 || watchCount > watchManifest.fixtures.length)
-    throw new Error('Invalid original watch count')
-  manifest.fixtures.push(...watchManifest.fixtures.slice(0, watchCount))
-}
+const selection = selectPreparedFixtures(manifest, {
+  mode,
+  promotion: args.includes('--promotion'),
+  only: argument('--only', ''),
+  skipLarge: args.includes('--screen-skip-large'),
+  ...(watchManifestPath
+    ? {
+        additionalWatch: parsePreparedManifest(
+          JSON.parse(await readFile(watchManifestPath, 'utf8')),
+        ),
+        watchCount: Number(argument('--watch-count', '2')),
+      }
+    : {}),
+})
 const metrics: QualityMetric[] = ['ssimulacra2', 'butteraugliMax', 'butteraugliNorm3']
+const qualityIntervals = {
+  ssimulacra2: { minimum: 60, maximum: 90 },
+  butteraugliMax: { minimum: 0.5, maximum: 3 },
+  butteraugliNorm3: undefined,
+}
 const engines: Engine[] = ['purejsimage', 'jsquash', 'vips']
 const distances =
-  mode === 'screen' ? [0.35, 1.5, 4.5, 9] : [0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9]
+  mode === 'screen' ? [0.25, 1.5, 6, 25] : [0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9, 16, 25]
 const peerSettings = {
-  jsquash: [20, 40, 60, 75, 85, 92, 97, 99],
-  vips: [0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9],
+  jsquash: [1, 10, 20, 40, 60, 75, 85, 92, 97, 99, 100],
+  vips: [0.1, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9, 16, 25],
 }
-interface Fixture {
-  id: string
-  png: string
-  split: string
-  kind: string
-  fixtureSha256: string
-}
-const fixtures: Fixture[] = manifest.fixtures
-  .map((value) => {
-    const row = object(value)
-    return {
-      id: string(row.id),
-      png: string(row.png),
-      split: string(row.split),
-      kind: string(row.kind),
-      fixtureSha256: string(row.fixtureSha256),
-    }
-  })
-  .filter((fixture) => {
-    if (mode === 'holdout') return fixture.split === 'holdout'
-    if (fixture.split !== 'development') return false
-    if (mode === 'watch') return fixture.kind === 'watch'
-    if (mode === 'speed') return fixture.kind === 'lab' || fixture.kind === 'watch'
-    return fixture.kind === 'lab' && (mode === 'lab' || screenIds.includes(fixture.id))
-  })
-const only = argument('--only', '')
-const selected = only ? fixtures.filter((fixture) => fixture.id === only) : fixtures
-if (!selected.length) throw new Error('No fixtures selected')
+type Fixture = PreparedFixture
+const selected = selection.fixtures
 await mkdir(directory, { recursive: true })
 const started = Date.now()
 const results = new Map<string, Map<Engine, CurvePoint[]>>()
 const fixtureKey = (fixture: Fixture): string => `${fixture.id}:${fixture.kind}`
-const failures: { id: string; engine: Engine; detail: string }[] = []
+const failures: { id: string; engine: Engine; detail: string }[] =
+  selection.preparationFailures.flatMap((failure) =>
+    engines.map((engine) => ({ id: failure.id, engine, detail: `Preparation: ${failure.error}` })),
+  )
+for (const id of selection.missingRequestedIds)
+  if (!selection.preparationFailures.some((failure) => failure.id === id))
+    for (const engine of engines)
+      failures.push({ id, engine, detail: 'Requested fixture missing from prepared manifest' })
 const omissions: { id: string; engine: Engine; reason: string }[] = []
 const comparisons: {
   id: string
@@ -118,12 +111,12 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
       ? join(directory, `${variant}-${engine}`, `${fixture.id}-${fixture.kind}`)
       : join(
           '.tmp/jpegxl-lossy-lab/peer-cache',
-          `${engine === 'jsquash' ? 'jsquash-1.3.0' : 'vips-0.0.19'}-${mode === 'speed' ? 'speed' : 'curve'}`,
+          `${engine === 'jsquash' ? 'jsquash-1.3.0' : 'vips-0.0.19'}-curve`,
           fixture.fixtureSha256,
         )
   const resultPath = join(resultDirectory, 'result.json')
   let cached: unknown = null
-  if (engine !== 'purejsimage' && mode !== 'speed') {
+  if (mode !== 'speed' && (engine !== 'purejsimage' || args.includes('--resume-own'))) {
     try {
       cached = JSON.parse(await readFile(resultPath, 'utf8'))
     } catch {
@@ -226,6 +219,7 @@ if (mode !== 'speed')
             own.map((point) => ({ quality: point[metric], bytes: point.bytes })),
             reference.map((point) => ({ quality: point[metric], bytes: point.bytes })),
             metric,
+            qualityIntervals[metric],
           )
           comparisons.push({
             id,
@@ -300,7 +294,7 @@ const processPeakRssBytes = Math.max(
 )
 await writeFile(
   join(directory, 'summary.json'),
-  `${JSON.stringify({ mode, variant, workers, manifestPath, selectedImages: selected.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: manifest.drops, complete: failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * 6) }, null, 2)}\n`,
+  `${JSON.stringify({ mode, variant, workers, manifestPath, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * 6) }, null, 2)}\n`,
 )
 console.log(
   JSON.stringify({

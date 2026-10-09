@@ -5,10 +5,13 @@ Follow [the steering plan](../LOSSY_STEERING.md). The unchanged encoder baseline
 the encoder. The current table and experiment rows live in
 [lossy-lab-log.md](../lossy-lab-log.md).
 
-The campaign is paused at Aaron's request. The first
+The campaign is paused at the owner's request. See the
+[stopping checkpoint](PAUSED-CHECKPOINT.md) for saved results and unfinished work.
+The first
 [screen report](BASELINE-SCREEN.md) is incomplete: two large own-encoder curves
-timed out, and several metric curves lack the required overlap or are
-nonmonotone. Full development and isolated speed baselines remain pending.
+timed out, and several metric curves lacked the required overlap or were rejected
+for local rate reversals. The measurement fixes now retain those reversals.
+Full development and isolated speed baselines remain pending.
 
 ```sh
 node benchmark/jpegxl/lossy-lab/corpus-worker.ts --out .tmp/jpegxl-lossy-lab/corpus-v1
@@ -28,10 +31,19 @@ run after timing. Every valid point retains SSIMULACRA2, Butteraugli max and
 Butteraugli 3-norm. Peer curves are cached by fixture bytes and pinned package
 version; extending a ladder computes only missing settings.
 
-The screen uses four own distances, 0.35, 1.5, 4.5 and 9. The full ladder adds
-0.5, 0.75, 1, 2, 3 and 6. jSquash uses qualities 20–99; vips uses distances
-0.25–9. Per-image BD-rate integrates monotone cubic log-byte curves over their
-common interval. Required-range coverage and all failures remain explicit.
+The screen uses four own distances, 0.25, 1.5, 6 and 25. The full ladder adds
+0.35, 0.5, 0.75, 1, 2, 3, 4.5, 9 and 16. jSquash uses qualities 1–100; vips uses distances
+0.1–25. Per-image BD-rate integrates shape-preserving cubic log-byte curves over
+SSIMULACRA2 60–90 and Butteraugli max 0.5–3, clipped to measured overlap.
+Butteraugli 3-norm uses the common measured interval. Required-range coverage and
+all failures remain explicit.
+Local rate reversals remain in the measured curve. Exact quality ties use mean
+log bytes. No Pareto filtering or isotonic fitting discards measurements.
+`--resume-own` continues an unchanged baseline in the same output directory.
+Use a fresh variant and directory after every encoder change.
+The initial 2080-square own curves exceeded the screen budget. Until speed
+improves, `--screen-skip-large` uses 14 of the fixed 16 photos and records both
+omissions. The full lab retains both large crops and all 64 photos.
 
 Speed ratios need isolated measurements, with one worker. Prepare originals
 separately, then include the first two deterministic watch photos:
@@ -48,5 +60,6 @@ timings from parallel jobs do not establish the isolated speed target.
 The 56 nonphoto development cases have a separate `--set secondary` preparation
 mode. Holdout preparation requires `--set holdout --promotion-holdout`, and its
 measurement requires `--mode holdout --promotion`. Full original watch curves
-require `--mode watch --promotion`. Read holdout aggregate results only; choose
+require `--mode watch --promotion` and successful preparation of all ten declared
+originals. Read holdout aggregate results only; choose
 hypotheses from development results.

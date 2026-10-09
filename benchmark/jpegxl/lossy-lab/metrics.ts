@@ -13,7 +13,10 @@ export interface QualityInterval {
 export interface BdRateResult {
   percent: number
   meanLogRateDifference: number
+  /** Interval actually integrated, after clipping any requested interval. */
   overlap: QualityInterval
+  /** Shared measured extent, used to validate required-range coverage. */
+  measuredOverlap: QualityInterval
   requiredRange: QualityInterval | null
   coversRequiredRange: boolean
 }
@@ -84,7 +87,7 @@ function at(values: ArrayLike<number>, index: number): number {
 
 function curve(points: readonly RatePoint[], direction: 1 | -1): Curve {
   if (!Array.isArray(points)) throw new Error('Rate curve must be an array')
-  const unique = new Map<number, number>()
+  const unique = new Map<number, { logBytes: number; count: number }>()
   for (const value of points) {
     if (!isRecord(value)) throw new Error('Invalid rate point')
     const quality = finite(value.quality, 'Quality')
@@ -93,8 +96,14 @@ function curve(points: readonly RatePoint[], direction: 1 | -1): Curve {
     if (direction === -1 && quality < 0) throw new Error('Butteraugli must be nonnegative')
     const x = direction * quality
     const previous = unique.get(x)
-    // At equal measured quality, retain the least expensive actual encoding.
-    if (previous === undefined || bytes < previous) unique.set(x, bytes)
+    // A single-valued interpolant needs one ordinate per quality. Average tied
+    // measurements in log space so every encoding contributes equally; choosing
+    // minimum bytes would silently favor the encoder's cheapest measurement.
+    if (previous === undefined) unique.set(x, { logBytes: Math.log(bytes), count: 1 })
+    else {
+      previous.logBytes += Math.log(bytes)
+      previous.count++
+    }
   }
   const sorted = [...unique].sort((a, b) => a[0] - b[0])
   if (sorted.length < 2) throw new Error('Rate curve needs two distinct qualities')
@@ -103,9 +112,7 @@ function curve(points: readonly RatePoint[], direction: 1 | -1): Curve {
   let i = 0
   for (const point of sorted) {
     quality[i] = point[0]
-    logBytes[i] = Math.log(point[1])
-    if (i > 0 && at(logBytes, i) < at(logBytes, i - 1))
-      throw new Error('Rate curve must be monotone: bytes cannot fall as quality improves')
+    logBytes[i] = point[1].logBytes / point[1].count
     i++
   }
   finite(at(quality, quality.length - 1) - at(quality, 0), 'Quality span')
@@ -115,11 +122,15 @@ function curve(points: readonly RatePoint[], direction: 1 | -1): Curve {
 function endpointSlope(h0: number, h1: number, d0: number, d1: number): number {
   const ratio = h0 / (h0 + h1)
   const slope = (1 + ratio) * d0 - ratio * d1
-  return Math.max(0, Math.min(3 * d0, slope))
+  if (Math.sign(slope) !== Math.sign(d0)) return 0
+  if (Math.sign(d0) !== Math.sign(d1) && Math.abs(slope) > 3 * Math.abs(d0)) return 3 * d0
+  return slope
 }
 
 // PCHIP uses harmonic interior derivatives and limited endpoint derivatives,
-// preserving monotonicity without the overshoot of an unconstrained cubic fit.
+// preserving each interval's shape, including measured local extrema. A globally
+// monotone fit cannot interpolate rate reversals without changing observations.
+// Retain all knots rather than taking a Pareto envelope or fitting isotonic rates.
 function pchipSlopes(x: Float64Array, y: Float64Array): Float64Array {
   const n = x.length
   const widths = new Float64Array(n - 1)
@@ -143,7 +154,7 @@ function pchipSlopes(x: Float64Array, y: Float64Array): Float64Array {
   for (let i = 1; i < n - 1; i++) {
     const left = at(secants, i - 1)
     const right = at(secants, i)
-    if (left === 0 || right === 0) continue
+    if (left === 0 || right === 0 || Math.sign(left) !== Math.sign(right)) continue
     const sum = at(widths, i - 1) + at(widths, i)
     const w1 = 1 + at(widths, i) / sum
     const w2 = 1 + at(widths, i - 1) / sum
@@ -186,15 +197,28 @@ export function bdRate(
   candidate: readonly RatePoint[],
   reference: readonly RatePoint[],
   metric: QualityMetric,
+  requestedInterval?: QualityInterval,
 ): BdRateResult {
   if (metric !== 'ssimulacra2' && metric !== 'butteraugliMax' && metric !== 'butteraugliNorm3')
     throw new Error('Unknown quality metric')
   const direction = metric === 'ssimulacra2' ? 1 : -1
   const a = curve(candidate, direction)
   const b = curve(reference, direction)
-  const minimum = Math.max(at(a.quality, 0), at(b.quality, 0))
-  const maximum = Math.min(at(a.quality, a.quality.length - 1), at(b.quality, b.quality.length - 1))
+  let minimum = Math.max(at(a.quality, 0), at(b.quality, 0))
+  let maximum = Math.min(at(a.quality, a.quality.length - 1), at(b.quality, b.quality.length - 1))
   if (!(maximum > minimum)) throw new Error('Rate curves have no positive quality overlap')
+  const measuredOverlap =
+    direction === 1 ? { minimum, maximum } : { minimum: -maximum, maximum: -minimum }
+  if (requestedInterval !== undefined) {
+    if (!isRecord(requestedInterval)) throw new Error('Invalid requested quality interval')
+    const lower = finite(requestedInterval.minimum, 'Requested interval minimum')
+    const upper = finite(requestedInterval.maximum, 'Requested interval maximum')
+    if (!(upper > lower)) throw new Error('Requested quality interval must have positive width')
+    minimum = Math.max(minimum, direction === 1 ? lower : -upper)
+    maximum = Math.min(maximum, direction === 1 ? upper : -lower)
+    if (!(maximum > minimum))
+      throw new Error('Requested quality interval has no positive measured overlap')
+  }
   const meanLogRateDifference = finite(
     (integrate(a, minimum, maximum) - integrate(b, minimum, maximum)) / (maximum - minimum),
     'Mean log rate difference',
@@ -210,10 +234,12 @@ export function bdRate(
     percent: finite(100 * Math.expm1(meanLogRateDifference), 'BD-rate'),
     meanLogRateDifference,
     overlap,
+    measuredOverlap,
     requiredRange,
     coversRequiredRange:
       requiredRange === null ||
-      (overlap.minimum <= requiredRange.minimum && overlap.maximum >= requiredRange.maximum),
+      (measuredOverlap.minimum <= requiredRange.minimum &&
+        measuredOverlap.maximum >= requiredRange.maximum),
   }
 }
 

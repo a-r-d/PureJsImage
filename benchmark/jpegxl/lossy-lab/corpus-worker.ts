@@ -136,6 +136,7 @@ async function main(): Promise<void> {
               })),
           ],
           screenIds: secondary === undefined ? corpus.screen.map((entry) => entry.id) : [],
+          requestedIds: fixtures.map((entry) => entry.id),
           preprocessing:
             'First-party JPEG/PNG decode and deterministic native-pixel crop; no resizing or hand-selected coordinates. All engines receive this same PNG.',
           fixtures: completed.map((entry) => ({
