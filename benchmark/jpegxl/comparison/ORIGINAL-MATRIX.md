@@ -4,9 +4,10 @@
 
 Overall lossy compression parity remains open. The latest qualified portrait
 Butteraugli-0.5 curve is 0.09% smaller than pinned jSquash and 15.25% smaller
-than pinned wasm-vips. The three earlier middle/coarse gaps remain. New public
-files also confirm portrait Butteraugli-3 gaps of 20.83% against jSquash and
-18.39% against wasm-vips. The new large-transform curve reduces the portrait's
+than pinned wasm-vips. The three earlier middle/coarse gaps remain. The latest public
+coarse curve estimates 385,082 bytes at Butteraugli 3, leaving gaps of 6.93%
+against jSquash and 4.77% against wasm-vips. Five confirmed portrait gaps
+remain open. The new large-transform curve reduces the portrait's
 Butteraugli-2 estimate by 2.66%, leaving a 22.02% gap against jSquash while
 beating wasm-vips by 6.74%. The portrait's SSIMULACRA2-70 comparison still needs
 current public files. The earlier 12 MP photo retains its passing fine result.
@@ -73,24 +74,46 @@ the unchanged 2.35 limit. Managed peak storage remains within the original
 
 ## Public Butteraugli-3 update
 
-Two complete public-package encodes at source `bc95029c` qualify the original
-portrait at Butteraugli 3. Distances 6.3 and 6.3645 produce 435,840 and 431,900
-bytes, with Butteraugli 2.9728338718 and 3.1211884022. Their bracket width is
-0.1483545304. Both peer brackets also pass the unchanged 0.25-unit limit.
-The estimates use the same nondominated log-byte interpolation without
-extrapolation.
+Two complete public-package encodes qualify the original portrait at
+Butteraugli 3. Distances 5.857 and 5.9471 produce 389,618 and 384,099 bytes,
+with Butteraugli 2.9048168659 and 3.0207769871. Their bracket width is
+0.1159601212. Both frozen peer brackets also pass the unchanged 0.25-unit
+limit. The estimate uses the same nondominated log-byte interpolation without
+extrapolation. Only these two actual public files enter the new curve.
 
 | Input | Butteraugli | PureJsImage bytes | jSquash bytes | Versus jSquash | wasm-vips bytes | Versus wasm-vips |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 2400 × 3000 portrait | 3 | 435,116 | 360,116 | 20.83% larger | 367,537 | 18.39% larger |
+| 2400 × 3000 portrait | 3 | 385,082 | 360,116 | 6.93% larger | 367,537 | 4.77% larger |
 
-The [public result](results/original-portrait-ba3-public.json) records source and
-complete package hashes, actual encoded-file hashes, peer endpoints and validation.
-All 28.8 million public/native RGBA samples per file agree within one 8-bit code;
-alpha is exact, caller bytes are unchanged and managed storage closes. These
-measurements resolve two previously missing comparisons. They do not indicate a
-codec regression or establish overall parity. Experimental geometry and channel
-controls remain outside these public curves.
+The [coarse public result](results/coherent-coarse-public.json) records exact
+source and package bridges, actual artifact hashes and validation. The formatted
+implementation reproduces all four qualified Node/browser package
+bytes. Its measured codec and specialized packages fit the adopted 594,000 and
+667,000-byte ceilings. The earlier prototype's package-budget failure remains
+separate historical evidence. The source-trained coefficient model adds about
+9 KB to the minified encoder package.
+
+All 57.6 million Node public/native RGBA samples agree within one 8-bit code;
+alpha is exact, caller bytes are unchanged and managed storage closes. Raw
+SSIMULACRA2 scores are 63.53505915 and 63.15206802; no matched SSIM gain is
+claimed. Real Chromium reproduces the 389,618-byte Node artifact exactly, and
+fresh native pixels match the saved reference. All 28.8 million browser/native
+samples pass the same bounds. Cancellation before source transforms and explicit
+constructor memory rejection pass; optional-stage low-memory fallback remains
+unqualified.
+
+A separate 4000 × 3000 photo at distance 5.857 produces exactly the same
+262,669-byte stream in the candidate and fresh baseline, with Butteraugli
+2.9262928963 and SSIMULACRA2 69.53691064. Both files check all 48 million
+public/native samples. This is one-setting retention, without a new independent
+matched-quality curve or size gain.
+
+The [preceding public comparison](results/original-portrait-ba3-public.json)
+keeps its bc95029c/c262 source, distance-6.3/6.3645 files and 435,116-byte
+estimate unchanged. Five portrait size gaps remain open: Butteraugli 1 against
+both peers, Butteraugli 2 against jSquash, and Butteraugli 3 against both peers.
+The current portrait SSIMULACRA2-70 comparison remains unresolved. No overall
+lossy compression parity is claimed.
 
 ## Latest fine-photo update
 

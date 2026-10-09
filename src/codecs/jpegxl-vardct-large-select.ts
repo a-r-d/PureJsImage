@@ -16,6 +16,8 @@ export interface JpegXlLargeWindowMenu {
   readonly nonzeroCounts: Uint16Array
   readonly dcRates: Float64Array
   readonly baselineCoefficientRate: number
+  readonly baselineMagnitudeRate?: number
+  readonly baselineConditionalRate?: number
   readonly baselineError: number
   readonly baselineCounts: Uint16Array
   readonly compactDc: Int32Array
@@ -59,6 +61,9 @@ export interface JpegXlLargeSelector {
   addWindow(index: number, menu: JpegXlLargeWindowMenu): void
   finalize(): void
   select(multiplier: number, check?: () => void): JpegXlLargeSelection
+  selectOriginalBudget(
+    check?: () => void,
+  ): Generator<void, JpegXlLargeSelection | undefined, undefined>
   release(): void
 }
 
@@ -87,6 +92,7 @@ export function createJpegXlLargeSelector(
   blocksWide: number,
   blocksHigh: number,
   baselineQ: Int32Array,
+  coherent = false,
 ): JpegXlLargeSelector {
   requireValue(
     Number.isSafeInteger(blocksWide) &&
@@ -118,6 +124,10 @@ export function createJpegXlLargeSelector(
     held.push(dc)
     const oldRates = memory.allocate(Float64Array, windows)
     held.push(oldRates)
+    const oldMagnitudes = coherent ? memory.allocate(Float64Array, windows) : undefined
+    if (oldMagnitudes) held.push(oldMagnitudes)
+    const oldConditional = coherent ? memory.allocate(Float64Array, windows) : undefined
+    if (oldConditional) held.push(oldConditional)
     const oldErrors = memory.allocate(Float64Array, windows)
     held.push(oldErrors)
     const oldCounts = memory.allocate(Uint16Array, windows * 48)
@@ -132,6 +142,7 @@ export function createJpegXlLargeSelector(
       finalized = false,
       released = false,
       baselineRate = 0,
+      normalizationBaselineRate = 0,
       baselineError = 0
     const live = (): void => requireValue(!released, 'large transform selector is released')
     const countCost = (nonzero: number, channel: number): number => {
@@ -164,6 +175,9 @@ export function createJpegXlLargeSelector(
             menu.dcRates.length === 3 &&
             menu.baselineCounts.length === 48 &&
             menu.compactDc.length === 144 &&
+            (!coherent ||
+              (validCost(menu.baselineMagnitudeRate ?? NaN) &&
+                validCost(menu.baselineConditionalRate ?? NaN))) &&
             validCost(menu.baselineCoefficientRate) &&
             validCost(menu.baselineError),
           'invalid large transform window menu',
@@ -185,6 +199,10 @@ export function createJpegXlLargeSelector(
         dcRates.set(menu.dcRates, index * 3)
         oldCounts.set(menu.baselineCounts, index * 48)
         dc.set(menu.compactDc, index * 144)
+        if (oldMagnitudes && oldConditional) {
+          oldMagnitudes[index] = menu.baselineMagnitudeRate ?? 0
+          oldConditional[index] = menu.baselineConditionalRate ?? 0
+        }
         oldRates[index] = menu.baselineCoefficientRate
         oldErrors[index] = menu.baselineError
         baselineError += menu.baselineError
@@ -211,14 +229,26 @@ export function createJpegXlLargeSelector(
             )
         baselineRate = 0
         for (let window = 0; window < windows; window++) {
-          let oldRate = oldRates[window] ?? 0
+          let oldRate = oldRates[window] ?? 0,
+            countRate = 0
           for (let slot = 0; slot < 16; slot++)
             for (let channel = 0; channel < 3; channel++) {
               const n = oldCounts[(window * 16 + slot) * 3 + channel] ?? absentCount
-              if (n !== absentCount) oldRate += countCost(n, channel)
+              if (n !== absentCount) {
+                const cost = countCost(n, channel)
+                oldRate += cost
+                countRate += cost
+              }
             }
-          oldRates[window] = oldRate
-          baselineRate += oldRate
+          normalizationBaselineRate += oldRate
+          const objectiveRate =
+            oldConditional && oldMagnitudes
+              ? (oldConditional[window] ?? 0) +
+                countRate +
+                (oldRate - countRate - (oldMagnitudes[window] ?? 0))
+              : oldRate
+          oldRates[window] = objectiveRate
+          baselineRate += objectiveRate
           for (let choice = 0; choice < 45; choice++) {
             const at = window * 45 + choice
             let rate = rates[at] ?? 0
@@ -239,10 +269,13 @@ export function createJpegXlLargeSelector(
       select(multiplier, check) {
         live()
         requireValue(
-          finalized && Number.isFinite(multiplier) && multiplier > 0,
+          finalized && Number.isFinite(multiplier) && (coherent ? multiplier >= 0 : multiplier > 0),
           'invalid large transform selection multiplier',
         )
-        const lambda = baselineError === 0 ? 0 : (baselineRate / baselineError) * multiplier
+        const lambda =
+          baselineError === 0
+            ? 0
+            : ((coherent ? normalizationBaselineRate : baselineRate) / baselineError) * multiplier
         requireValue(Number.isFinite(lambda), 'invalid large transform objective scale')
         const output: ArrayBufferView[] = []
         try {
@@ -383,6 +416,64 @@ export function createJpegXlLargeSelector(
           throw error
         }
       },
+      *selectOriginalBudget(check) {
+        live()
+        requireValue(
+          coherent && finalized,
+          'Original error budget requires finalized coherent menus',
+        )
+        let pending: JpegXlLargeSelection | undefined
+        const evaluate = (multiplier: number): JpegXlLargeSelectionStats => {
+          pending = this.select(multiplier, check)
+          const stats = pending.stats
+          pending.release()
+          pending = undefined
+          return stats
+        }
+        try {
+          const initial = evaluate(1)
+          yield
+          if (
+            initial.baselineError === 0 ||
+            initial.baselineRate === 0 ||
+            initial.lambda === 0 ||
+            initial.selectedError > initial.baselineError
+          )
+            return undefined
+          const budget = initial.baselineError
+          let best = initial
+          evaluate(1)
+          yield
+          let low = evaluate(0),
+            high = initial
+          yield
+          if (low.selectedError <= budget && low.selectedRate < best.selectedRate) best = low
+          if (low.selectedError > budget) {
+            for (let i = 0; i < 64; i++) {
+              const midpoint = (low.lambdaMultiplier + high.lambdaMultiplier) / 2
+              if (midpoint === low.lambdaMultiplier || midpoint === high.lambdaMultiplier) break
+              const point = evaluate(midpoint)
+              yield
+              if (point.selectedError <= budget) {
+                high = point
+                if (point.selectedRate < best.selectedRate) best = point
+              } else low = point
+            }
+          }
+          if (best.selectedRate >= initial.baselineRate || best.selected === 0) return undefined
+          pending = this.select(best.lambdaMultiplier, check)
+          requireValue(
+            pending.stats.selectedError <= budget &&
+              pending.stats.selectedRate < initial.baselineRate,
+            'Original error budget is infeasible',
+          )
+          const result = pending
+          pending = undefined
+          return result
+        } finally {
+          pending?.release()
+        }
+      },
       release() {
         if (!released) {
           for (const view of held) memory.release(view)
@@ -396,7 +487,7 @@ export function createJpegXlLargeSelector(
   }
 }
 
-/** Same coefficient magnitude proxy as the COUNT research selector. */
+/** Coefficient magnitude proxy used to normalize the COUNT selector. */
 export function jpegXlLargeCoefficientRate(value: number): number {
   return value === 0 ? 0 : 1 + 2 * Math.log2(1 + Math.abs(value))
 }
@@ -418,7 +509,7 @@ export function fillJpegXlLargeSourceWeights(
   )
   const adaptation = 1 / 256,
     bias = 0.0037930732552754493
-  // Root provides linear conversion once; arithmetic order matches the source-field prototype.
+  // The caller provides linear conversion once for the complete source tile.
   const light = (x: number, y: number): number => {
     const at = (y * 34 + x) * 3,
       r = linearRgb[at] ?? 0,

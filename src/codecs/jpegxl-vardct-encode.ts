@@ -1,3 +1,8 @@
+import {
+  createCoherentCoefficientModel,
+  createNaturalLargeOrder,
+  type CoherentCoefficientModel,
+} from './jpegxl-vardct-coefficient-model.ts'
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
@@ -1986,9 +1991,9 @@ function* prepare8(
       for (const view of retained) memory.release(view)
     }
   }
-  const rectanglePlanes = largePlanes?.map((plane) => plane.subarray(0, 512))
-  const rectangleTransformed = largeTransformed?.map((plane) => plane.subarray(0, 512))
-  const rectangleIntermediate = largeIntermediate?.subarray(0, 512)
+  let rectanglePlanes = largePlanes?.map((plane) => plane.subarray(0, 512))
+  let rectangleTransformed = largeTransformed?.map((plane) => plane.subarray(0, 512))
+  let rectangleIntermediate = largeIntermediate?.subarray(0, 512)
   const fastAcInverse =
     effort === 1
       ? defaultJpegXlDct8Dequantization.map((table) => {
@@ -1998,7 +2003,11 @@ function* prepare8(
           return inverse
         })
       : undefined
-  const fillAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
+  const fillAcGroup = (
+    group: number,
+    activeStrategies: Int32Array | undefined = strategyMap,
+    activeQ: Int32Array = quantizationMap,
+  ): readonly VarDctCoefficientPlane[] => {
     const originX = (group % groupsAcross) * 32
     const originY = Math.floor(group / groupsAcross) * 32
     const blocksAcross = Math.min(32, blocksWide - originX)
@@ -2008,7 +2017,7 @@ function* prepare8(
     for (let y = 0; y < blocksDown; y++) {
       for (let x = 0; x < blocksAcross; x++) {
         const globalIndex = (originY + y) * blocksWide + originX + x,
-          strategy = strategyMap?.[globalIndex] ?? 0
+          strategy = activeStrategies?.[globalIndex] ?? 0
         const transformWidth =
             strategy === 5 || strategy === 11 ? 4 : strategy === 4 || strategy === 10 ? 2 : 1,
           transformHeight =
@@ -2020,7 +2029,7 @@ function* prepare8(
           groupCoefficientOffsets[localIndex] = offset
           cursor += transformWidth * transformHeight * 64
         }
-        const localScale = 65536 / globalScale / (quantizationMap[globalIndex] ?? quantAc)
+        const localScale = 65536 / globalScale / (activeQ[globalIndex] ?? quantAc)
         if (strategy === 5 || strategy === 10 || strategy === 11) {
           const sourcePlanes = strategy === 5 ? largePlanes : rectanglePlanes,
             transformedPlanes = strategy === 5 ? largeTransformed : rectangleTransformed,
@@ -2246,7 +2255,249 @@ function* prepare8(
     ...(alpha ? { alpha } : {}),
     ...(imageHeader ? { imageHeader } : {}),
   }
-  return geometry
+  let resultGeometry = geometry
+  if (
+    originalPhotoAc &&
+    distance > 4 &&
+    strategyMap &&
+    blocksWide >= 4 &&
+    blocksHigh >= 4 &&
+    matrix === defaultForwardMatrix &&
+    xScale === 2 &&
+    bScale === 2
+  ) {
+    const scratch: ArrayBufferView[] = []
+    const retained: ArrayBufferView[] = []
+    let selector: JpegXlLargeSelector | undefined
+    let selected: JpegXlLargeSelection | undefined
+    let coefficientModel: CoherentCoefficientModel | undefined
+    try {
+      const xDc = components[0]?.coefficients,
+        yDc = components[1]?.coefficients,
+        bDc = components[2]?.coefficients
+      if (
+        !(xDc instanceof Int32Array) ||
+        !(yDc instanceof Int32Array) ||
+        !(bDc instanceof Int32Array)
+      )
+        throw invalidInput('Missing large transform original DC')
+      const originalOrders = yield* learnJpegXlForwardCoefficientOrders(geometry)
+      for (const order of originalOrders) retained.push(order)
+      const model = createCoherentCoefficientModel(memory)
+      coefficientModel = model
+      const cost = memory.allocate(Float64Array, 6)
+      scratch.push(cost)
+      // Train only immutable original integer leaders, including incomplete fringes.
+      for (let group = 0; group < groupsAcross * geometry.groupsDown; group++) {
+        const original = loadAc(group, 0),
+          first = original[0]
+        if (!first) throw invalidInput('Missing coherent original group')
+        const ox = (group % groupsAcross) * 32,
+          oy = Math.floor(group / groupsAcross) * 32
+        for (let y = 0; y < first.blocksPerColumnForMcu; y++)
+          for (let x = 0; x < first.blocksPerLineForMcu; x++) {
+            const strategy = strategyMap[(oy + y) * blocksWide + ox + x] ?? 0
+            if (strategy === 4 && (x % 2 !== 0 || y % 2 !== 0)) continue
+            if (
+              strategy !== 0 &&
+              strategy !== 1 &&
+              strategy !== 4 &&
+              strategy !== 12 &&
+              strategy !== 13
+            )
+              throw invalidInput('Invalid coherent original strategy')
+            for (let c = 0; c < 3; c++) {
+              const plane = original[c],
+                order = originalOrders[(strategy === 4 ? 6 : strategy === 0 ? 0 : 3) + c]
+              if (!plane || !(plane.coefficients instanceof Int16Array) || !order)
+                throw invalidInput('Missing coherent original coefficients')
+              const offset =
+                plane.coefficientOffsets?.[y * plane.blocksPerLineForMcu + x] ??
+                (y * plane.blocksPerLineForMcu + x) * 64
+              if (offset < 0) throw invalidInput('Missing coherent original leader')
+              model.learn(
+                plane.coefficients,
+                order,
+                strategy === 4 ? 4 : 1,
+                c === 1 ? 0 : c === 0 ? 1 : 2,
+                offset,
+                cost,
+              )
+            }
+          }
+        yield
+      }
+      model.freeze()
+      const canonicalOrders: Uint32Array[] = []
+      for (let i = 0; i < originalOrders.length; i++) {
+        const stored = originalOrders[i]
+        if (!stored) throw invalidInput('Missing coherent source order')
+        const canonical = memory.allocate(Uint32Array, stored.length)
+        scratch.push(canonical)
+        for (let p = 0; p < stored.length; p++) {
+          const value = stored[p] ?? 0
+          canonical[p] = i < 6 ? (value & 7) * 8 + (value >>> 3) : value
+        }
+        canonicalOrders.push(canonical)
+      }
+      while (canonicalOrders.length < 9) {
+        const unused = memory.allocate(Uint32Array, 0)
+        scratch.push(unused)
+        canonicalOrders.push(unused)
+      }
+      const rectangleOrder = createNaturalLargeOrder(memory, 2)
+      scratch.push(rectangleOrder)
+      canonicalOrders.push(rectangleOrder)
+      const squareOrder = createNaturalLargeOrder(memory, 4)
+      scratch.push(squareOrder)
+      canonicalOrders.push(squareOrder)
+      const largeSelector = createJpegXlLargeSelector(
+        memory,
+        blocksWide,
+        blocksHigh,
+        quantizationMap,
+        true,
+      )
+      selector = largeSelector
+      const linearTile = memory.allocate(Float64Array, 34 * 34 * 3)
+      scratch.push(linearTile)
+      const weightMatrix = memory.allocate(Float64Array, 9)
+      scratch.push(weightMatrix)
+      weightMatrix.set(matrix)
+      const ratios = memory.allocate(Float64Array, 16)
+      scratch.push(ratios)
+      yield* prepareJpegXlLargeMenus({
+        memory,
+        coherent: { model, canonicalOrders },
+        blocksWide,
+        blocksHigh,
+        globalScale,
+        strategyMap,
+        quantizationMap,
+        dc: [xDc, yDc, bDc],
+        dcFactors: [
+          effectiveDistance * (dcQuantization[0] ?? 0),
+          effectiveDistance * (dcQuantization[1] ?? 0),
+          effectiveDistance * (dcQuantization[2] ?? 0),
+        ],
+        correlationX,
+        correlationB,
+        smoothDc: moderateAlphaDc,
+        fill8: (correlated, x, y) => {
+          if (correlated) fillCorrelated(x, y)
+          else fill(x, y)
+          return planes
+        },
+        quantizeAc,
+        fillWeights: (blockX, blockY, output) => {
+          for (let y = 0; y < 34; y++) {
+            const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))
+            for (let x = 0; x < 34; x++) {
+              const sourceX = Math.max(0, Math.min(width - 1, blockX * 8 + x - 1)),
+                source = (sourceY * width + sourceX) * 4,
+                destination = (y * 34 + x) * 3
+              linearTile[destination] = transfer[pixels[source] ?? 0] ?? 0
+              linearTile[destination + 1] = transfer[pixels[source + 1] ?? 0] ?? 0
+              linearTile[destination + 2] = transfer[pixels[source + 2] ?? 0] ?? 0
+            }
+          }
+          for (let y = 0; y < 4; y++)
+            for (let x = 0; x < 4; x++)
+              ratios[y * 4 + x] =
+                (correlationX[
+                  Math.floor((blockY + y) / 8) * colorTilesAcross + Math.floor((blockX + x) / 8)
+                ] ?? 0) / 84
+          fillJpegXlLargeSourceWeights(linearTile, weightMatrix, ratios, output)
+        },
+        learnBaselineCount: (nonzero, channel) =>
+          largeSelector.learnBaselineCount(nonzero, channel),
+        addWindow: (index, menu) => largeSelector.addWindow(index, menu),
+        // Preparation yields each tile row to the caller's cancellation checks.
+        check: () => {},
+      })
+      selector.finalize()
+      selected = yield* selector.selectOriginalBudget()
+      if (selected && selected.stats.selected > 0) {
+        const allocateTile = (): Float32Array => {
+          const tile = memory.allocate(Float32Array, 1024)
+          retained.push(tile)
+          return tile
+        }
+        largePlanes = [allocateTile(), allocateTile(), allocateTile()]
+        largeTransformed = [allocateTile(), allocateTile(), allocateTile()]
+        largeIntermediate = allocateTile()
+        if (!groupCoefficientOffsets) {
+          groupCoefficientOffsets = memory.allocate(Int32Array, 32 * 32)
+          retained.push(groupCoefficientOffsets)
+        }
+        rectanglePlanes = largePlanes.map((plane) => plane.subarray(0, 512))
+        rectangleTransformed = largeTransformed.map((plane) => plane.subarray(0, 512))
+        rectangleIntermediate = largeIntermediate.subarray(0, 512)
+        const stagedStrategies = memory.allocate(Int32Array, strategyMap.length)
+        scratch.push(stagedStrategies)
+        stagedStrategies.set(strategyMap)
+        for (let i = 0; i < stagedStrategies.length; i++)
+          if (selected.map.strategy[i] !== 0) stagedStrategies[i] = selected.map.strategy[i] ?? 0
+        // Final large-order learning also completes before the geometry transaction.
+        const selectedQ = selected.quantizationMap
+        const finalOrders = yield* learnJpegXlForwardCoefficientOrders({
+          ...geometry,
+          strategyMap: stagedStrategies,
+          quantizationMap: selectedQ,
+          loadAc: (group) => fillAcGroup(group, stagedStrategies, selectedQ),
+        })
+        for (let i = 0; i < finalOrders.length; i++) {
+          const order = finalOrders[i]
+          if (!order) throw invalidInput('Missing coherent final order')
+          if (i < originalOrders.length) memory.release(order)
+          else retained.push(order)
+        }
+        resultGeometry = {
+          ...geometry,
+          coefficientOrders: [...originalOrders, ...finalOrders.slice(originalOrders.length)],
+        }
+        // Every optional buffer is admitted before changing the original geometry.
+        // Commit all maps and DC without yielding, then release the complete menus.
+        const windowsAcross = Math.floor(blocksWide / 4)
+        for (let wy = 0; wy < Math.floor(blocksHigh / 4); wy++)
+          for (let wx = 0; wx < windowsAcross; wx++) {
+            const dcOffset = (wy * windowsAcross + wx) * 48
+            for (let y = 0; y < 4; y++)
+              for (let x = 0; x < 4; x++) {
+                const at = (wy * 4 + y) * blocksWide + wx * 4 + x,
+                  strategy = selected.map.strategy[at] ?? 0
+                if (strategy === 0) continue
+                strategyMap[at] = strategy
+                const cell = y * 4 + x
+                xDc[at] = selected.compactDc[dcOffset + 16 + cell] ?? 0
+                yDc[at] = selected.compactDc[dcOffset + cell] ?? 0
+                bDc[at] = selected.compactDc[dcOffset + 32 + cell] ?? 0
+              }
+          }
+        quantizationMap.set(selected.quantizationMap)
+        retained.length = 0
+      }
+    } catch (error) {
+      if (!isJpegXlLimitExceeded(error)) throw error
+      // Optional storage failed before the original maps or DC changed.
+      largePlanes = undefined
+      largeTransformed = undefined
+      largeIntermediate = undefined
+      rectanglePlanes = undefined
+      rectangleTransformed = undefined
+      rectangleIntermediate = undefined
+      if (!hasDct16) groupCoefficientOffsets = undefined
+    } finally {
+      cachedGroup = -1
+      cachedPlanes = []
+      coefficientModel?.release()
+      selected?.release()
+      selector?.release()
+      for (const view of scratch) memory.release(view)
+      for (const view of retained) memory.release(view)
+    }
+  }
+  return resultGeometry
 }
 
 function addJpegXlConeStrategyError(

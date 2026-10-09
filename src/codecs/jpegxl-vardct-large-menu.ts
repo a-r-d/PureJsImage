@@ -1,3 +1,4 @@
+import type { CoherentCoefficientModel } from './jpegxl-vardct-coefficient-model.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlEncoderMemory } from './jpegxl-encoder-memory.ts'
 import {
@@ -27,6 +28,10 @@ type Planes = readonly [Float64Array, Float64Array, Float64Array]
 type SourcePlanes = readonly [Float32Array, Float32Array, Float32Array]
 export interface JpegXlLargeMenuInput {
   readonly memory: JpegXlEncoderMemory
+  readonly coherent?: {
+    readonly model: CoherentCoefficientModel
+    readonly canonicalOrders: readonly Uint32Array[]
+  }
   readonly blocksWide: number
   readonly blocksHigh: number
   readonly globalScale: number
@@ -291,6 +296,29 @@ export function* prepareJpegXlLargeMenus(
   const doubles = (size: number): Planes => [f64(size), f64(size), f64(size)],
     floats = (size: number): SourcePlanes => [f32(size), f32(size), f32(size)]
   try {
+    const coherent = input.coherent
+    const integers = coherent ? own(memory.allocate(Int16Array, 1024)) : undefined
+    const cost = coherent ? f64(6) : undefined
+    const price = (strategy: number, channel: number): number => {
+      if (!coherent || !integers || !cost) throw invalidJpegXlInput('Missing coherent menu storage')
+      const index =
+        strategy === 5
+          ? 10
+          : strategy === 10 || strategy === 11
+            ? 9
+            : (strategy === 4 ? 6 : strategy === 0 ? 0 : 3) + channel
+      const order = coherent.canonicalOrders[index]
+      if (!order) throw invalidJpegXlInput('Missing coherent canonical order')
+      coherent.model.estimateInto(
+        integers,
+        order,
+        strategy === 5 ? 16 : strategy === 10 || strategy === 11 ? 8 : strategy === 4 ? 4 : 1,
+        channel === 1 ? 0 : channel === 0 ? 1 : 2,
+        0,
+        cost,
+      )
+      return cost[0] ?? 0
+    }
     const source = doubles(1024),
       baseline = doubles(1024),
       coefficients = doubles(1024),
@@ -456,7 +484,9 @@ export function* prepareJpegXlLargeMenus(
         const tile = Math.floor(by / 8) * Math.ceil(wide / 8) + Math.floor(bx / 8),
           rx = (input.correlationX[tile] ?? 0) / 84,
           rb = (input.correlationB[tile] ?? 0) / 84
-        let baselineCoefficientRate = dcRate(bx, by, undefined)
+        let baselineCoefficientRate = dcRate(bx, by, undefined),
+          baselineMagnitudeRate = 0,
+          baselineConditionalRate = 0
         for (let dy = 0; dy < 4; dy++)
           for (let dx = 0; dx < 4; dx++) {
             const x = bx + dx,
@@ -481,6 +511,7 @@ export function* prepareJpegXlLargeMenus(
               const coeff = coefficients[c]!,
                 matrix = table(strategy)[c]!
               coeff.fill(0)
+              integers?.fill(0)
               let nonzero = 0
               const scale = 65536 / globalScale / q
               for (let p = 0; p < count; p++)
@@ -489,9 +520,14 @@ export function* prepareJpegXlLargeMenus(
                     value = input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
                   requireValue(Math.abs(value) <= 4095, 'Original large-menu AC range')
                   baselineCoefficientRate += rateToken(value)
+                  if (integers) {
+                    baselineMagnitudeRate += rateToken(value)
+                    integers[p] = value
+                  }
                   if (value !== 0) nonzero++
                   coeff[p] = decoded(value, c) * step
                 }
+              if (coherent) baselineConditionalRate += price(strategy, c)
               baselineCounts[(dy * 4 + dx) * 3 + c] = nonzero
               input.learnBaselineCount(nonzero, c)
             }
@@ -593,16 +629,19 @@ export function* prepareJpegXlLargeMenus(
                   matrix = defaultJpegXlRectangle32Dequantization[c]!,
                   scale = 65536 / globalScale / q
                 coeff.fill(0)
+                integers?.fill(0)
                 let nonzero = 0
                 for (let p = 0; p < 512; p++)
                   if (!(p >>> 5 < 2 && (p & 31) < 4)) {
                     const step = scale * (matrix[p] ?? 0),
                       value = input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
                     requireValue(Math.abs(value) <= 4095, 'Rectangle large-menu AC range')
-                    rate += rateToken(value)
+                    if (integers) integers[p] = value
+                    else rate += rateToken(value)
                     if (value !== 0) nonzero++
                     coeff[p] = decoded(value, c) * step
                   }
+                if (coherent) rate += price(horizontal ? 11 : 10, c)
                 nonzeroCounts[at * 3 + c] = nonzero
               }
               for (let p = 0; p < 512; p++)
@@ -649,16 +688,19 @@ export function* prepareJpegXlLargeMenus(
               matrix = defaultJpegXlDct32Dequantization[c]!,
               scale = 65536 / globalScale / q
             coeff.fill(0)
+            integers?.fill(0)
             let nonzero = 0
             for (let p = 0; p < 1024; p++)
               if (!(p >>> 5 < 4 && (p & 31) < 4)) {
                 const step = scale * (matrix[p] ?? 0),
                   value = input.quantizeAc((squareTransformed[c]?.[p] ?? 0) / step, c)
                 requireValue(Math.abs(value) <= 4095, 'Square large-menu AC range')
-                rate += rateToken(value)
+                if (integers) integers[p] = value
+                else rate += rateToken(value)
                 if (value !== 0) nonzero++
                 coeff[p] = decoded(value, c) * step
               }
+            if (coherent) rate += price(5, c)
             nonzeroCounts[at * 3 + c] = nonzero
           }
           for (let p = 0; p < 1024; p++)
@@ -682,6 +724,7 @@ export function* prepareJpegXlLargeMenus(
           nonzeroCounts,
           dcRates,
           baselineCoefficientRate,
+          ...(coherent ? { baselineMagnitudeRate, baselineConditionalRate } : {}),
           baselineError,
           baselineCounts,
           compactDc,

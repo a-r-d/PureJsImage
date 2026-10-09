@@ -14,7 +14,7 @@ import entropyControls from '../../../../benchmark/jpegxl/comparison/results/ori
 import portraitBaseline from '../../../../benchmark/jpegxl/comparison/results/original-matrix-portrait-baseline.json'
 import middleProduction from '../../../../benchmark/jpegxl/comparison/results/original-middle-channel-controls.json'
 import originalPhoto from '../../../../benchmark/jpegxl/comparison/results/original-photo-production-controls.json'
-import portraitBa3 from '../../../../benchmark/jpegxl/comparison/results/original-portrait-ba3-public.json'
+import portraitBa3 from '../../../../benchmark/jpegxl/comparison/results/coherent-coarse-public.json'
 import spatialControls from '../../../../benchmark/jpegxl/comparison/results/original-spatial-context-controls.json'
 import compressionLossless from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort1-public.json'
 import compressionLossless7 from '../../../../benchmark/jpegxl/comparison/results/parity-funded-sampling-effort7-public.json'
@@ -100,26 +100,40 @@ const middleGap = (comparator: string): string => {
 if (
   portraitBa3.completed !== true ||
   portraitBa3.overallParity !== false ||
+  portraitBa3.productionQualified !== true ||
+  portraitBa3.sourceAdopted !== true ||
+  portraitBa3.packageSizeGatesPassed !== true ||
   portraitBa3.currentBracket.width > 0.25 ||
+  portraitBa3.remainingConfirmedGaps.length !== 5 ||
   portraitBa3.points.length !== 2 ||
   portraitBa3.points.some(
     (point) =>
-      point.publicSamples !== 28_800_000 ||
-      point.maximumPublicError > 1 ||
-      !point.exactOpaqueAlpha ||
-      !point.callerUnchanged ||
-      point.ownerLive !== 0,
+      point.validation.publicSamples !== 28_800_000 ||
+      point.validation.maximumError > 1 ||
+      !point.validation.exactAlpha ||
+      !point.validation.callerUnchanged ||
+      point.validation.ownerLiveBytes !== 0 ||
+      point.validation.ownerLiveAllocations !== 0,
   ) ||
   portraitBa3.comparisons.length !== 2 ||
   portraitBa3.comparisons.some(
-    (row) => !row.qualified || row.peerBracket.width > 0.25 || row.ratio <= 1,
-  )
+    (row) => !row.qualified || row.peerBracket.width > 0.25 || row.relativeBytes <= 0,
+  ) ||
+  portraitBa3.packages.length !== 4 ||
+  portraitBa3.packages.some((row) => !row.adoptedBudgetPassed || !row.byteIdentityToPrototype) ||
+  portraitBa3.browserScope.samples !== 28_800_000 ||
+  portraitBa3.browserScope.maximumError > 1 ||
+  !portraitBa3.browserScope.exactAlpha ||
+  !portraitBa3.browserScope.callerUnchanged ||
+  portraitBa3.browserScope.ownership.liveBytes !== 0 ||
+  !portraitBa3.independent.exactArtifactIdentity ||
+  portraitBa3.independent.matchedComparisons !== 0
 )
   throw new Error('Incomplete public portrait Butteraugli-three comparison')
 const portraitBa3Gap = (peer: string): string => {
   const row = portraitBa3.comparisons.find((comparison) => comparison.peer === peer)
   if (!row) throw new Error('Missing portrait Butteraugli-three peer')
-  return row.excessPercent.toFixed(2)
+  return row.gapPercent.toFixed(2)
 }
 
 if (
@@ -667,7 +681,8 @@ if (
 <h2>Quick answer</h2>
 <p id="jxl-fine-production-status">Overall lossy compression parity remains open. At matched Butteraugli 0.5, the qualified portrait curve uses 0.09% fewer bytes than pinned jSquash and 15.25% fewer than wasm-vips. The independent 12 MP photo also retains its passing fine comparison. That checkpoint left {fineProduction.remainingConfirmedGaps.length} confirmed portrait size gaps and {fineProduction.unresolvedPortraitComparisonsPreserved.length} unresolved comparisons. Later measurements below confirm two additional Butteraugli-three gaps. <a href="/jpeg-xl/evidence/original-fine-production-controls.json" download>Fine-photo public results and source bridge</a>.</p>
 
-<p id="jxl-portrait-ba3-status">The October 8 public-package measurement at source <code>{portraitBa3.sourceIdentity.implementationRevision.slice(0, 8)}</code> resolves the portrait's Butteraugli-three comparison. PureJsImage uses an estimated {Math.round(portraitBa3.currentButteraugli3Bytes).toLocaleString('en-US')} bytes, {portraitBa3Gap('jsquash')}% more than jSquash and {portraitBa3Gap('vips')}% more than wasm-vips. Both peer brackets and the PureJsImage bracket meet the unchanged 0.25-unit rule. These add two confirmed gaps to the three earlier middle/coarse gaps. The portrait's SSIMULACRA2-70 comparison still needs current public files. <a href="/jpeg-xl/evidence/original-portrait-ba3-public.json" download>Public Butteraugli-three files, package identities and validation</a>.</p>
+<p id="jxl-portrait-ba3-status">The latest public-package portrait curve uses an estimated {Math.round(portraitBa3.currentButteraugli3Bytes).toLocaleString('en-US')} bytes at Butteraugli three, {portraitBa3Gap('jsquash')}% more than jSquash and {portraitBa3Gap('vips')}% more than wasm-vips. Its bracket width is {portraitBa3.currentBracket.width.toFixed(6)}; all three brackets meet the unchanged 0.25-unit rule. Five confirmed portrait size gaps remain open. The current portrait SSIMULACRA2-70 comparison remains unresolved. Exact formatted source and package-byte bridges retain these results at source <code>{portraitBa3.sourceIdentity.implementationSourceSha256.slice(0, 8)}</code>. <a href="/jpeg-xl/evidence/coherent-coarse-public.json" download>Current coarse public comparison and validation</a>. The <a href="/jpeg-xl/evidence/original-portrait-ba3-public.json" download>preceding source-specific measurement</a> remains historical.</p>
+<p>Both complete Node files check all 57.6 million public/native RGBA samples within one code, with exact alpha, unchanged caller data and closed ownership. Real Chromium produces the exact same 389,618-byte Node file and checks all 28.8 million browser/native samples. The separate 12 MP photo keeps an identical 262,669-byte stream at distance 5.857; this is one-setting retention, without a new matched curve or size gain. Optional-stage low-memory fallback remains unqualified. Raw SSIMULACRA2 scores stay separate from the Butteraugli frontier. All four integrated package builds fit the adopted size ceilings.</p>
 <p id="jxl-large-transform-status">The new large-transform public curve uses an estimated {Math.round(largeBa2.currentPublicBytes).toLocaleString('en-US')} bytes at matched portrait Butteraugli 2, {largeBa2Reduction}% fewer than the preceding qualified public result. The bracket width is {largeBa2.bracket.width.toFixed(6)}, within the unchanged 0.25-unit limit. All 57.6 million public/native RGBA samples pass within one code, with exact alpha, unchanged caller data and closed ownership. The jSquash gap remains open. <a href="/jpeg-xl/evidence/large-transform-public-ba2.json" download>Public Butteraugli-two endpoints and peer curves</a>.</p>
 <table id="jxl-large-transform-table"><caption>Portrait Butteraugli 2; estimated PureJsImage file size versus frozen peers</caption><thead><tr><th>Peer</th><th>Peer bytes</th><th>PureJsImage versus peer</th></tr></thead><tbody>{largeBa2Peers.map(row => <tr><td>{row.name}</td><td>{row.bytes}</td><td>{row.difference}</td></tr>)}</tbody></table>
 <p id="jxl-large-transform-ssim80-status">The protected portrait SSIMULACRA2-80 curve uses an estimated {Math.round(largeSsim80.currentPublicBytes).toLocaleString('en-US')} bytes. Its bracket width is {largeSsim80.bracket.width.toFixed(6)}, within the unchanged 0.25-unit limit. Both new endpoints pass all 57.6 million public/native samples, exact alpha, unchanged caller data and closed ownership. The current curve improves on the preceding result and both frozen peers. This does not close the remaining Butteraugli gaps. <a href="/jpeg-xl/evidence/large-transform-public-ssim80.json" download>Public SSIM80 endpoints and separate reference curves</a>.</p>

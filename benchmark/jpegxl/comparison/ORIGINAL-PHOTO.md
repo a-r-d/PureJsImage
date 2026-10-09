@@ -38,12 +38,12 @@ ownership evidence retain their separate scopes.
 
 Fine allocation requires variation in the existing source importance scores. Inputs with nearly uniform source scores keep the preceding fine-quality path. All six published photo settings remain admitted. Their original files, decoder grids and quality scores are reused through an exact admission-only source bridge. The corrected complete packages are measured separately and remain within the original size ceilings. No photo was reencoded and no photo metric was refreshed for this guard correction.
 
-Three confirmed portrait size gaps remain: Butteraugli 1 against jSquash and
-wasm-vips (16.56% and 9.50% larger), and Butteraugli 2 against jSquash (25.36%
-larger). Four portrait comparisons remain unresolved: jSquash SSIMULACRA2 70 and
-Butteraugli 3, and wasm-vips Butteraugli 2 and 3. No overall lossy parity or new
-speed/RSS result is claimed. The separate cached equal-coverage diagnostic is
-excluded from these public curves. Historical tables below keep their sources.
+The latest [portrait matrix](ORIGINAL-MATRIX.md) retains five confirmed size
+gaps: Butteraugli 1 against both peers, Butteraugli 2 against jSquash and
+Butteraugli 3 against both peers. Its qualified current coarse estimate is
+385,082 bytes at Butteraugli 3. The current portrait SSIMULACRA2-70 comparison
+remains unresolved. This page's earlier source-specific tables stay unchanged;
+no overall lossy parity or new speed/RSS result is claimed.
 
 ## Earlier matched-quality checkpoint on the original input
 

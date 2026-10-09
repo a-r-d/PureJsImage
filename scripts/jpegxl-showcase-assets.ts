@@ -59,6 +59,7 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     'original-fine-production-controls.json',
     'original-middle-channel-controls.json',
     'original-portrait-ba3-public.json',
+    'coherent-coarse-public.json',
     'large-transform-public-ba2.json',
     'large-transform-public-ssim80.json',
     'large-transform-independent-point.json',

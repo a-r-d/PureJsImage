@@ -1,0 +1,2535 @@
+{
+  "schemaVersion": 1,
+  "completed": true,
+  "scope": "Qualified coarse original-portrait public curve retained through exact formatted working-tree source equivalence and four actual package builds; real-browser and independent evidence remain separately scoped.",
+  "sourceIdentity": {
+    "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+    "implementationSourceSha256": "170c6e6609fe16bdd92b0ec9bb2d40df9697195d227273b3e09e0f7c39e54733",
+    "implementationDirty": true
+  },
+  "productionSourceBridge": {
+    "status": "qualified-working-tree",
+    "qualified": true,
+    "receipt": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/result.json",
+      "sha256": "5dc9ab0fbddc08b009f5c8798817d2a784709f07c199038b150d3fde3958809e"
+    },
+    "plan": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/plan.json",
+      "sha256": "dd7a5a0776db014843856dbbafc00bddb4bec68e7f3c8195add8495c4c36cedc"
+    },
+    "formattedSourceIdentity": {
+      "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+      "implementationSourceSha256": "170c6e6609fe16bdd92b0ec9bb2d40df9697195d227273b3e09e0f7c39e54733",
+      "implementationDirty": true
+    },
+    "sourceBridge": [
+      {
+        "path": "src/codecs/jpegxl-vardct-encode.ts",
+        "sha256": "c148b5d5d312070b1bd33091da7b8658eb8afeccce86c043efae47938b8c026c",
+        "prototypeSha256": "761c0d1588d303a75d36e1799f09865a769028d0488a8d269034787f93b1f8ce"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-large-menu.ts",
+        "sha256": "128e41a32a910c9b0f33e21f6655b5d6e52eac06dbc46cff616455e4ef23773c",
+        "prototypeSha256": "6216c286538a995ae46d87544080891b414d3a7b6744a8db38bc8a999d2d1a63"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-large-select.ts",
+        "sha256": "18463d372948ad2cb3eb1406860b617673bddd47559cb4fbc4f3a9771988ccef",
+        "prototypeSha256": "52f7c583b55327ee7b1d18534e7e601f6f7d7a6cb1b6334119ff0a520260299c"
+      },
+      {
+        "path": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+        "sha256": "debe5ef0307794f2cf2454fa7ca601fa9fd70bf42efe371673bf6867e6c9f2ca",
+        "prototypeSha256": "4771400a72d5e2d1ef1b164a04a3b272d46191a515ec111109b80bf7889a2154"
+      }
+    ],
+    "focusedTestsReused": 25,
+    "newFocusedTests": 9,
+    "rootBrowserCheckReused": true,
+    "realBrowserEvidenceRetainedSeparately": true,
+    "artifactsReusedByExactSourceEquivalence": true,
+    "lowMemoryScope": "Focused tests exercise real model partial LIMIT and selector staged-output LIMIT plus generator.throw. They do not claim whole eligible encoder optional-stage fallback coverage."
+  },
+  "publicationReady": true,
+  "productionQualified": true,
+  "sourceAdopted": true,
+  "fullCommitGate": "passed npm run check",
+  "overallParity": false,
+  "remainingConfirmedGaps": [
+    {
+      "metric": "Butteraugli",
+      "target": 1,
+      "peer": "jsquash"
+    },
+    {
+      "metric": "Butteraugli",
+      "target": 1,
+      "peer": "vips"
+    },
+    {
+      "metric": "Butteraugli",
+      "target": 2,
+      "peer": "jsquash"
+    },
+    {
+      "metric": "Butteraugli",
+      "target": 3,
+      "peer": "jsquash"
+    },
+    {
+      "metric": "Butteraugli",
+      "target": 3,
+      "peer": "vips"
+    }
+  ],
+  "unresolvedCurrentPortraitComparisons": [
+    {
+      "metric": "SSIMULACRA2",
+      "target": 70,
+      "peer": "jsquash"
+    }
+  ],
+  "currentButteraugli3Bytes": 385082.0777927637,
+  "currentBracket": {
+    "lower": {
+      "strength": 1,
+      "setting": 5.9471,
+      "bytes": 384099,
+      "score": -3.0207769871,
+      "eligibleSaving": 0,
+      "originalControl": false
+    },
+    "upper": {
+      "strength": 1,
+      "setting": 5.857,
+      "bytes": 389618,
+      "score": -2.9048168659,
+      "eligibleSaving": 0,
+      "originalControl": false
+    },
+    "width": 0.1159601212000001
+  },
+  "publicCurve": {
+    "strength": 1,
+    "points": [
+      {
+        "strength": 1,
+        "setting": 5.857,
+        "bytes": 389618,
+        "score": -2.9048168659,
+        "eligibleSaving": 0,
+        "originalControl": false
+      },
+      {
+        "strength": 1,
+        "setting": 5.9471,
+        "bytes": 384099,
+        "score": -3.0207769871,
+        "eligibleSaving": 0,
+        "originalControl": false
+      }
+    ],
+    "frontier": [
+      {
+        "strength": 1,
+        "setting": 5.9471,
+        "bytes": 384099,
+        "score": -3.0207769871,
+        "eligibleSaving": 0,
+        "originalControl": false
+      },
+      {
+        "strength": 1,
+        "setting": 5.857,
+        "bytes": 389618,
+        "score": -2.9048168659,
+        "eligibleSaving": 0,
+        "originalControl": false
+      }
+    ],
+    "bracket": {
+      "lower": {
+        "strength": 1,
+        "setting": 5.9471,
+        "bytes": 384099,
+        "score": -3.0207769871,
+        "eligibleSaving": 0,
+        "originalControl": false
+      },
+      "upper": {
+        "strength": 1,
+        "setting": 5.857,
+        "bytes": 389618,
+        "score": -2.9048168659,
+        "eligibleSaving": 0,
+        "originalControl": false
+      },
+      "width": 0.1159601212000001
+    },
+    "adequateBracket": true,
+    "matchedBytes": 385082.0777927637,
+    "ratioToLambda0": null,
+    "savingVersusLambda0": null
+  },
+  "points": [
+    {
+      "setting": 5.857,
+      "bytes": 389618,
+      "butteraugli": 2.9048168659,
+      "ssimulacra2": 63.53505915,
+      "artifact": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/candidate.jxl",
+        "sha256": "badb93a91fbc8b15d4d34b7bd89e6667bc507bf47ad41c0e3425e91f0f374002"
+      },
+      "receipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/result.json",
+        "sha256": "04725419a8574e43a38233d288baa3f6895ca0e81f8cc89df8d3ad2ce840445d"
+      },
+      "plan": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/plan.json",
+        "sha256": "7483a9cfd187e695df31df06ba0a9d02579fda251566db086434cc5ef26eec8c"
+      },
+      "scoreReceipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/score/joint-score.json",
+        "sha256": "3ea744cfbd5a5594c92cd9384b0b8e6e288589075c43a89e8431fa25ea901550"
+      },
+      "nativePng": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/score/native-rgb8.png",
+        "sha256": "862b8ab22bb866461dd281220285bc161bd946e2b497b49109fe3e83cbd6b923"
+      },
+      "baseSourceIdentity": {
+        "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+        "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+        "implementationDirty": false
+      },
+      "package": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-candidate.mjs",
+        "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+        "bytes": 593107
+      },
+      "input": {
+        "sha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+        "fixture": "portrait-2400x3000"
+      },
+      "validation": {
+        "publicSamples": 28800000,
+        "maximumError": 1,
+        "exactAlpha": true,
+        "callerUnchanged": true,
+        "ownerLiveBytes": 0,
+        "ownerLiveAllocations": 0,
+        "managedPeakBytes": 96162358,
+        "fullPublicSearch": true,
+        "defaultWorkingBytes": 1073741824
+      },
+      "timings": {
+        "encodeMs": 343699.49058800004,
+        "nativeBothMetricsMs": 8741.933704999974,
+        "publicNativePixelsMs": 6182.042162999976
+      }
+    },
+    {
+      "setting": 5.9471,
+      "bytes": 384099,
+      "butteraugli": 3.0207769871,
+      "ssimulacra2": 63.15206802,
+      "artifact": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/candidate.jxl",
+        "sha256": "aada067c7e8969f05b9f9e20c814c7e11c54fb44e7a3e419389e6392bbe32da4"
+      },
+      "receipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/result.json",
+        "sha256": "591b6b3505781919ee03baf43ca231d5ef1961f1b4631bebacbdb4e420b011c1"
+      },
+      "plan": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/plan.json",
+        "sha256": "1d8ecb133c45fcff5f05597bb53a70b5b7f5c86dc5e0f2e6893ccdf01ec6fef0"
+      },
+      "scoreReceipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/score/joint-score.json",
+        "sha256": "d67cd911f10983042f53df3adf4f2fd2fe008e2af6b0ac302ef8d4ca893422a0"
+      },
+      "nativePng": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/score/native-rgb8.png",
+        "sha256": "18b468be82dc2880599ce1c78680338b98c959c9824ae132381600d8d4f0eab9"
+      },
+      "baseSourceIdentity": {
+        "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+        "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+        "implementationDirty": false
+      },
+      "package": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-candidate.mjs",
+        "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+        "bytes": 593107
+      },
+      "input": {
+        "sha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0",
+        "fixture": "portrait-2400x3000"
+      },
+      "validation": {
+        "publicSamples": 28800000,
+        "maximumError": 1,
+        "exactAlpha": true,
+        "callerUnchanged": true,
+        "ownerLiveBytes": 0,
+        "ownerLiveAllocations": 0,
+        "managedPeakBytes": 96128894,
+        "fullPublicSearch": true,
+        "defaultWorkingBytes": 1073741824
+      },
+      "timings": {
+        "encodeMs": 352726.943997,
+        "nativeBothMetricsMs": 8143.921219000011,
+        "publicNativePixelsMs": 6235.3568339999765
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "peer": "jsquash",
+      "qualified": true,
+      "metric": "Butteraugli",
+      "target": 3,
+      "peerBytes": 360115.9749507289,
+      "peerBracket": {
+        "lower": {
+          "setting": 39.081,
+          "bytes": 360031,
+          "score": -3.0638570786
+        },
+        "upper": {
+          "setting": 39.064,
+          "bytes": 360163,
+          "score": -2.9646680355
+        },
+        "width": 0.09918904309999999
+      },
+      "currentBytes": 385082.0777927637,
+      "currentBracket": {
+        "lower": {
+          "strength": 1,
+          "setting": 5.9471,
+          "bytes": 384099,
+          "score": -3.0207769871,
+          "eligibleSaving": 0,
+          "originalControl": false
+        },
+        "upper": {
+          "strength": 1,
+          "setting": 5.857,
+          "bytes": 389618,
+          "score": -2.9048168659,
+          "eligibleSaving": 0,
+          "originalControl": false
+        },
+        "width": 0.1159601212000001
+      },
+      "relativeBytes": 0.06932795148965742,
+      "gapPercent": 6.9327951489657424,
+      "scope": "New actual public prototype curve versus separately pinned peer endpoints; no private points or extrapolation."
+    },
+    {
+      "peer": "vips",
+      "qualified": true,
+      "metric": "Butteraugli",
+      "target": 3,
+      "peerBytes": 367537.08418994205,
+      "peerBracket": {
+        "lower": {
+          "setting": 3.1943,
+          "bytes": 365395,
+          "score": -3.027025938
+        },
+        "upper": {
+          "setting": 3.092,
+          "bytes": 378449,
+          "score": -2.8647279739
+        },
+        "width": 0.16229796409999997
+      },
+      "currentBytes": 385082.0777927637,
+      "currentBracket": {
+        "lower": {
+          "strength": 1,
+          "setting": 5.9471,
+          "bytes": 384099,
+          "score": -3.0207769871,
+          "eligibleSaving": 0,
+          "originalControl": false
+        },
+        "upper": {
+          "strength": 1,
+          "setting": 5.857,
+          "bytes": 389618,
+          "score": -2.9048168659,
+          "eligibleSaving": 0,
+          "originalControl": false
+        },
+        "width": 0.1159601212000001
+      },
+      "relativeBytes": 0.04773666211531036,
+      "gapPercent": 4.773666211531036,
+      "scope": "New actual public prototype curve versus separately pinned peer endpoints; no private points or extrapolation."
+    }
+  ],
+  "precedingPublicReference": {
+    "receipt": {
+      "path": "benchmark/jpegxl/comparison/results/original-portrait-ba3-public.json",
+      "sha256": "7a9f2f82260d318969418e21382dd67947b0a5e16e8c7891c42a47ec75ebeaef"
+    },
+    "sourceIdentity": {
+      "implementationRevision": "bc95029c0ddeba59a2e6453f6cd9846e1914db5b",
+      "implementationSourceSha256": "c2622f1785e8ade70c2211127f901084a1aa8ca790ccc5785df9d5ab3360d193",
+      "implementationDirty": false
+    },
+    "matchedBytes": 435115.84329082567,
+    "reductionFraction": 0.11498952812118135,
+    "scope": "Historical c262/bc95029c context retained unchanged; its files never enter the new curve."
+  },
+  "nodeScope": {
+    "portraitPublicSamples": 57600000,
+    "fullSearch": true,
+    "matchedSsim": false
+  },
+  "browserScope": {
+    "receipt": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/result.json",
+      "sha256": "9b9af6ae3aaf8f8ec6c86ac072708c6589fd42e4e246a83132bf073b1b373fa2"
+    },
+    "nativeProof": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/native-proof.json",
+      "sha256": "9ca3a5a4eb197579502531205cd3ff9cef9d087e60ff281612be5a3375ea1a92"
+    },
+    "plan": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/plan.json",
+      "sha256": "e24c6ec3e0342666cf1475525607abfed4f5e5218fdd33922a72c58139cf34fc"
+    },
+    "package": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/browser-codec-jpegxl-candidate.mjs",
+      "sha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2"
+    },
+    "artifactSha256": "badb93a91fbc8b15d4d34b7bd89e6667bc507bf47ad41c0e3425e91f0f374002",
+    "samples": 28800000,
+    "maximumError": 1,
+    "exactAlpha": true,
+    "callerUnchanged": true,
+    "ownership": {
+      "liveBytes": 0,
+      "liveAllocations": 0,
+      "peakBytes": 96162358
+    },
+    "cancellation": {
+      "liveBytes": 0,
+      "liveAllocations": 0,
+      "peakBytes": 28800000
+    },
+    "explicitLimitAdmission": true,
+    "optionalLowMemoryFallbackQualified": false,
+    "encodeMs": 381629.2999999523,
+    "decodeMs": 8931.899999976158
+  },
+  "independent": {
+    "scope": "One 12MP same-setting baseline/candidate pair; exact encoded bytes and both fresh scores retained. No independent matched curve or new size gain.",
+    "candidate": {
+      "setting": 5.857,
+      "bytes": 262669,
+      "butteraugli": 2.9262928963,
+      "ssimulacra2": 69.53691064,
+      "artifact": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/candidate.jxl",
+        "sha256": "be4a35e4f6e35006f027cb49c93632ed9b17d73fd659bb1e79fd859792dc6574"
+      },
+      "receipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/result.json",
+        "sha256": "ba7987a69087f02d90203b13eece31f2de81e6da2c8a19a7ba20663ee0533ad1"
+      },
+      "plan": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/plan.json",
+        "sha256": "def21eedea9f1925514c4192b83f2a59b013db10c5540c696d8471da9720c187"
+      },
+      "scoreReceipt": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/score/joint-score.json",
+        "sha256": "12a14a247d26ae503c5a2195feeb5599932b37600accfc473e8e573262f5915c"
+      },
+      "nativePng": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/score/native-rgb8.png",
+        "sha256": "7d2f82a2176727bf731cf816fe856e03881a7cfaf129654d43d576c77e6501c5"
+      },
+      "baseSourceIdentity": {
+        "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+        "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+        "implementationDirty": false
+      },
+      "package": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-candidate.mjs",
+        "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+        "bytes": 593107
+      },
+      "input": {
+        "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+        "fixture": "im26-1416-original"
+      },
+      "validation": {
+        "publicSamples": 48000000,
+        "maximumError": 1,
+        "exactAlpha": true,
+        "callerUnchanged": true,
+        "ownerLiveBytes": 0,
+        "ownerLiveAllocations": 0,
+        "managedPeakBytes": 117600521,
+        "fullPublicSearch": true,
+        "defaultWorkingBytes": 1073741824
+      },
+      "timings": {
+        "encodeMs": 489202.168377,
+        "nativeBothMetricsMs": 12440.851031000027,
+        "publicNativePixelsMs": 11058.228048999968
+      }
+    },
+    "baseline": {
+      "setting": 5.857,
+      "bytes": 262669,
+      "butteraugli": 2.9262928963,
+      "ssimulacra2": 69.53691064,
+      "artifact": {
+        "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/candidate.jxl",
+        "sha256": "be4a35e4f6e35006f027cb49c93632ed9b17d73fd659bb1e79fd859792dc6574"
+      },
+      "receipt": {
+        "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/result.json",
+        "sha256": "b28345cd992521159daad735459b388db8a70320161dfa02b397b1ce9d2098bf"
+      },
+      "plan": {
+        "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/plan.json",
+        "sha256": "8ab5ee6fd891b3f42cbce25fb93ad4a7a7758411654df9e478c7ab4fe4a90512"
+      },
+      "scoreReceipt": {
+        "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/score/joint-score.json",
+        "sha256": "cf61c91596010d54459f2f601feeb18d710d1789a03f9d485018ff289c6cf7f9"
+      },
+      "nativePng": {
+        "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/score/native-rgb8.png",
+        "sha256": "7d2f82a2176727bf731cf816fe856e03881a7cfaf129654d43d576c77e6501c5"
+      },
+      "baseSourceIdentity": {
+        "implementationRevision": "2ac3e1abc12fc4416194f1e510e98dbbb7994ddc",
+        "implementationSourceSha256": "7fa4526a6a1a3729b1973eb5f13c2132c49bceca65fa6961a0f64d223c997c2d",
+        "implementationDirty": false
+      },
+      "package": {
+        "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-baseline.mjs",
+        "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+        "bytes": 584097
+      },
+      "input": {
+        "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959",
+        "fixture": "im26-1416-original"
+      },
+      "validation": {
+        "publicSamples": 48000000,
+        "maximumError": 1,
+        "exactAlpha": true,
+        "callerUnchanged": true,
+        "ownerLiveBytes": 0,
+        "ownerLiveAllocations": 0,
+        "managedPeakBytes": 117600521,
+        "fullPublicSearch": true,
+        "defaultWorkingBytes": 1073741824
+      },
+      "timings": {
+        "encodeMs": 373294.140414,
+        "nativeBothMetricsMs": 12878.889994999976,
+        "publicNativePixelsMs": 11641.59211800003
+      }
+    },
+    "exactArtifactIdentity": true,
+    "matchedComparisons": 0
+  },
+  "packages": [
+    {
+      "target": "jpegxl-specialized",
+      "platform": "node",
+      "bytes": 665767,
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/node-jpegxl-specialized.mjs",
+      "currentCeiling": 658000,
+      "proposedCeiling": 667000,
+      "ceilingIncrease": 9000,
+      "currentBudgetPassed": false,
+      "proposedBudgetPassed": true,
+      "proposedHeadroom": 1233,
+      "qualifiedPrototypeBytes": 665767,
+      "qualifiedPrototypeSha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "byteIdentityToPrototype": true,
+      "qualifiedBaselineBytes": 656740,
+      "growthFromQualifiedBaseline": 9027,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "importPassed": true,
+      "nodeBuiltinImports": [],
+      "externalPackageImports": 0,
+      "runtimeDependencies": 0,
+      "aliasResolutions": 0,
+      "modules": [
+        {
+          "module": "src/errors.ts",
+          "bytesInOutput": 239
+        },
+        {
+          "module": "src/limits.ts",
+          "bytesInOutput": 1560
+        },
+        {
+          "module": "src/abort.ts",
+          "bytesInOutput": 315
+        },
+        {
+          "module": "src/pixel.ts",
+          "bytesInOutput": 1769
+        },
+        {
+          "module": "src/source-identity-contract.ts",
+          "bytesInOutput": 288
+        },
+        {
+          "module": "src/source.ts",
+          "bytesInOutput": 6025
+        },
+        {
+          "module": "src/metadata.ts",
+          "bytesInOutput": 1459
+        },
+        {
+          "module": "src/codecs/brotli.ts",
+          "bytesInOutput": 9365
+        },
+        {
+          "module": "src/codecs/helpers.ts",
+          "bytesInOutput": 450
+        },
+        {
+          "module": "src/codecs/isobmff.ts",
+          "bytesInOutput": 1139
+        },
+        {
+          "module": "src/codecs/jpegxl-errors.ts",
+          "bytesInOutput": 74
+        },
+        {
+          "module": "src/codecs/jpegxl-container.ts",
+          "bytesInOutput": 7061
+        },
+        {
+          "module": "src/codecs/icc.ts",
+          "bytesInOutput": 24503
+        },
+        {
+          "module": "src/codecs/jpegxl-bitstream.ts",
+          "bytesInOutput": 13325
+        },
+        {
+          "module": "src/codecs/jpegxl-chroma.ts",
+          "bytesInOutput": 1058
+        },
+        {
+          "module": "src/codecs/jpegxl-frame-features.ts",
+          "bytesInOutput": 2702
+        },
+        {
+          "module": "src/codecs/jpegxl-icc.ts",
+          "bytesInOutput": 6291
+        },
+        {
+          "module": "src/codecs/jpegxl-limits.ts",
+          "bytesInOutput": 1494
+        },
+        {
+          "module": "src/codecs/jpegxl-splines.ts",
+          "bytesInOutput": 3179
+        },
+        {
+          "module": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 69433
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+          "bytesInOutput": 12025
+        },
+        {
+          "module": "src/codecs/jpegxl-inspect.ts",
+          "bytesInOutput": 3279
+        },
+        {
+          "module": "src/jpegxl.ts",
+          "bytesInOutput": 0
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+          "bytesInOutput": 11424
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-jpeg.ts",
+          "bytesInOutput": 16087
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+          "bytesInOutput": 8295
+        },
+        {
+          "module": "src/sink.ts",
+          "bytesInOutput": 339
+        },
+        {
+          "module": "src/codecs/jpeg-encode.ts",
+          "bytesInOutput": 20988
+        },
+        {
+          "module": "src/codecs/jpeg-source.ts",
+          "bytesInOutput": 5376
+        },
+        {
+          "module": "src/codecs/jpeg-baseline.ts",
+          "bytesInOutput": 36133
+        },
+        {
+          "module": "src/codecs/jpeg-metadata.ts",
+          "bytesInOutput": 2788
+        },
+        {
+          "module": "src/codecs/jpeg.ts",
+          "bytesInOutput": 6218
+        },
+        {
+          "module": "src/codecs/jpeg-coefficients.ts",
+          "bytesInOutput": 851
+        },
+        {
+          "module": "src/hdr/srgb-icc.ts",
+          "bytesInOutput": 2042
+        },
+        {
+          "module": "src/codecs/jpeg-marker-walk.ts",
+          "bytesInOutput": 1538
+        },
+        {
+          "module": "src/codecs/jpeg-display-semantics.ts",
+          "bytesInOutput": 1472
+        },
+        {
+          "module": "src/codecs/jpegxl-color.ts",
+          "bytesInOutput": 2672
+        },
+        {
+          "module": "src/codecs/jpegxl-exif.ts",
+          "bytesInOutput": 1627
+        },
+        {
+          "module": "src/codecs/jpegxl-encoder-memory.ts",
+          "bytesInOutput": 2706
+        },
+        {
+          "module": "src/codecs/jpegxl-flat-patches.ts",
+          "bytesInOutput": 2408
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-rct.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-tree.ts",
+          "bytesInOutput": 7301
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+          "bytesInOutput": 3147
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-encode.ts",
+          "bytesInOutput": 40423
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-transforms.ts",
+          "bytesInOutput": 2674
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-select.ts",
+          "bytesInOutput": 7304
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-quantization.ts",
+          "bytesInOutput": 2599
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-menu.ts",
+          "bytesInOutput": 11710
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-encode.ts",
+          "bytesInOutput": 31639
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 78859
+        },
+        {
+          "module": "src/color.ts",
+          "bytesInOutput": 3830
+        },
+        {
+          "module": "src/codecs/jpegxl-native-encode.ts",
+          "bytesInOutput": 10933
+        },
+        {
+          "module": "src/codecs/jpegxl-float-encode.ts",
+          "bytesInOutput": 5336
+        },
+        {
+          "module": "src/codecs/jpegxl-float-color.ts",
+          "bytesInOutput": 1904
+        },
+        {
+          "module": "src/codecs/jpegxl-patch-blend.ts",
+          "bytesInOutput": 1290
+        },
+        {
+          "module": "src/codecs/jpegxl-progressive-plan.ts",
+          "bytesInOutput": 4955
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-memory.ts",
+          "bytesInOutput": 2828
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-render.ts",
+          "bytesInOutput": 63476
+        },
+        {
+          "module": "src/codecs/jpegxl-native-samples.ts",
+          "bytesInOutput": 1690
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence.ts",
+          "bytesInOutput": 18697
+        },
+        {
+          "module": "src/codecs/jpegxl-native-pixel.ts",
+          "bytesInOutput": 11546
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-pixels.ts",
+          "bytesInOutput": 3414
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct.ts",
+          "bytesInOutput": 7591
+        },
+        {
+          "module": "src/codecs/jpegxl.ts",
+          "bytesInOutput": 9716
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-data.ts",
+          "bytesInOutput": 5319
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-transcode.ts",
+          "bytesInOutput": 9567
+        },
+        {
+          "module": "src/codecs/jpegxl-level10.ts",
+          "bytesInOutput": 5151
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence-encode.ts",
+          "bytesInOutput": 5930
+        },
+        {
+          "module": "src/execution-plan-contract.ts",
+          "bytesInOutput": 54
+        },
+        {
+          "module": "src/codecs/jpegxl-session.ts",
+          "bytesInOutput": 11709
+        },
+        {
+          "module": "bundle-size-entry.ts",
+          "bytesInOutput": 0
+        }
+      ],
+      "adoptedCeiling": 667000,
+      "adoptedBudgetPassed": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "node",
+      "bytes": 593107,
+      "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/node-codec-jpegxl.mjs",
+      "currentCeiling": 585000,
+      "proposedCeiling": 594000,
+      "ceilingIncrease": 9000,
+      "currentBudgetPassed": false,
+      "proposedBudgetPassed": true,
+      "proposedHeadroom": 893,
+      "qualifiedPrototypeBytes": 593107,
+      "qualifiedPrototypeSha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+      "byteIdentityToPrototype": true,
+      "qualifiedBaselineBytes": 584097,
+      "growthFromQualifiedBaseline": 9010,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "importPassed": true,
+      "nodeBuiltinImports": [
+        "node:events",
+        "node:fs/promises",
+        "node:os",
+        "node:path",
+        "node:zlib",
+        "node:fs/promises",
+        "node:fs/promises",
+        "node:fs/promises",
+        "node:fs/promises",
+        "node:fs/promises"
+      ],
+      "externalPackageImports": 0,
+      "runtimeDependencies": 0,
+      "aliasResolutions": 0,
+      "modules": [
+        {
+          "module": "src/errors.ts",
+          "bytesInOutput": 315
+        },
+        {
+          "module": "src/abort.ts",
+          "bytesInOutput": 139
+        },
+        {
+          "module": "src/limits.ts",
+          "bytesInOutput": 1612
+        },
+        {
+          "module": "src/pixel.ts",
+          "bytesInOutput": 7382
+        },
+        {
+          "module": "src/convert.ts",
+          "bytesInOutput": 3787
+        },
+        {
+          "module": "src/pipeline.ts",
+          "bytesInOutput": 12203
+        },
+        {
+          "module": "src/source-identity-contract.ts",
+          "bytesInOutput": 329
+        },
+        {
+          "module": "src/source.ts",
+          "bytesInOutput": 5332
+        },
+        {
+          "module": "src/crop.ts",
+          "bytesInOutput": 914
+        },
+        {
+          "module": "src/lut.ts",
+          "bytesInOutput": 1149
+        },
+        {
+          "module": "src/metadata.ts",
+          "bytesInOutput": 1316
+        },
+        {
+          "module": "src/orient.ts",
+          "bytesInOutput": 3198
+        },
+        {
+          "module": "src/resize.ts",
+          "bytesInOutput": 19763
+        },
+        {
+          "module": "src/precision-plan.ts",
+          "bytesInOutput": 4534
+        },
+        {
+          "module": "src/rotate.ts",
+          "bytesInOutput": 3676
+        },
+        {
+          "module": "src/executor.ts",
+          "bytesInOutput": 9593
+        },
+        {
+          "module": "src/codec.ts",
+          "bytesInOutput": 1452
+        },
+        {
+          "module": "src/input-format.ts",
+          "bytesInOutput": 3745
+        },
+        {
+          "module": "src/index.ts",
+          "bytesInOutput": 20
+        },
+        {
+          "module": "src/image-core.ts",
+          "bytesInOutput": 6278
+        },
+        {
+          "module": "src/accelerator.ts",
+          "bytesInOutput": 490
+        },
+        {
+          "module": "src/execution-plan-contract.ts",
+          "bytesInOutput": 53
+        },
+        {
+          "module": "src/node-runtime.ts",
+          "bytesInOutput": 3701
+        },
+        {
+          "module": "src/memory-temporary-store.ts",
+          "bytesInOutput": 884
+        },
+        {
+          "module": "src/sink.ts",
+          "bytesInOutput": 339
+        },
+        {
+          "module": "src/node-sink.ts",
+          "bytesInOutput": 696
+        },
+        {
+          "module": "src/node-source.ts",
+          "bytesInOutput": 1540
+        },
+        {
+          "module": "src/node-platform.ts",
+          "bytesInOutput": 287
+        },
+        {
+          "module": "src/node-image.ts",
+          "bytesInOutput": 40
+        },
+        {
+          "module": "src/image.ts",
+          "bytesInOutput": 22
+        },
+        {
+          "module": "bundle-size-entry.ts",
+          "bytesInOutput": 0
+        },
+        {
+          "module": "src/codecs/jpegxl.ts",
+          "bytesInOutput": 9812
+        },
+        {
+          "module": "src/codecs/icc.ts",
+          "bytesInOutput": 22915
+        },
+        {
+          "module": "src/codecs/jpegxl-color.ts",
+          "bytesInOutput": 2682
+        },
+        {
+          "module": "src/codecs/jpegxl-errors.ts",
+          "bytesInOutput": 79
+        },
+        {
+          "module": "src/codecs/jpegxl-container.ts",
+          "bytesInOutput": 7081
+        },
+        {
+          "module": "src/codecs/brotli.ts",
+          "bytesInOutput": 7051
+        },
+        {
+          "module": "src/codecs/helpers.ts",
+          "bytesInOutput": 345
+        },
+        {
+          "module": "src/codecs/isobmff.ts",
+          "bytesInOutput": 1149
+        },
+        {
+          "module": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 69464
+        },
+        {
+          "module": "src/codecs/jpegxl-bitstream.ts",
+          "bytesInOutput": 13330
+        },
+        {
+          "module": "src/codecs/jpegxl-chroma.ts",
+          "bytesInOutput": 1061
+        },
+        {
+          "module": "src/codecs/jpegxl-frame-features.ts",
+          "bytesInOutput": 2702
+        },
+        {
+          "module": "src/codecs/jpegxl-icc.ts",
+          "bytesInOutput": 6299
+        },
+        {
+          "module": "src/codecs/jpegxl-limits.ts",
+          "bytesInOutput": 1499
+        },
+        {
+          "module": "src/codecs/jpegxl-splines.ts",
+          "bytesInOutput": 3179
+        },
+        {
+          "module": "src/codecs/jpegxl-exif.ts",
+          "bytesInOutput": 1634
+        },
+        {
+          "module": "src/codecs/jpegxl-float-encode.ts",
+          "bytesInOutput": 5354
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 78537
+        },
+        {
+          "module": "src/codecs/jpegxl-encoder-memory.ts",
+          "bytesInOutput": 2712
+        },
+        {
+          "module": "src/codecs/jpegxl-flat-patches.ts",
+          "bytesInOutput": 2408
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-rct.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-tree.ts",
+          "bytesInOutput": 7305
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+          "bytesInOutput": 3147
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-encode.ts",
+          "bytesInOutput": 31530
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-encode.ts",
+          "bytesInOutput": 35975
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-transforms.ts",
+          "bytesInOutput": 2674
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-select.ts",
+          "bytesInOutput": 7309
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-quantization.ts",
+          "bytesInOutput": 2599
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-menu.ts",
+          "bytesInOutput": 11714
+        },
+        {
+          "module": "src/codecs/jpegxl-native-encode.ts",
+          "bytesInOutput": 10953
+        },
+        {
+          "module": "src/color.ts",
+          "bytesInOutput": 3835
+        },
+        {
+          "module": "src/codecs/jpegxl-native-pixel.ts",
+          "bytesInOutput": 11567
+        },
+        {
+          "module": "src/codecs/jpegxl-float-color.ts",
+          "bytesInOutput": 1909
+        },
+        {
+          "module": "src/codecs/jpegxl-native-samples.ts",
+          "bytesInOutput": 1699
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-render.ts",
+          "bytesInOutput": 56097
+        },
+        {
+          "module": "src/codecs/jpegxl-patch-blend.ts",
+          "bytesInOutput": 1294
+        },
+        {
+          "module": "src/codecs/jpegxl-progressive-plan.ts",
+          "bytesInOutput": 259
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-jpeg.ts",
+          "bytesInOutput": 16097
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-memory.ts",
+          "bytesInOutput": 2836
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence.ts",
+          "bytesInOutput": 18768
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct.ts",
+          "bytesInOutput": 7602
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-pixels.ts",
+          "bytesInOutput": 3418
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+          "bytesInOutput": 7814
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+          "bytesInOutput": 7408
+        },
+        {
+          "module": "src/codec-entries/jpegxl.ts",
+          "bytesInOutput": 0
+        }
+      ],
+      "adoptedCeiling": 594000,
+      "adoptedBudgetPassed": true
+    },
+    {
+      "target": "jpegxl-specialized",
+      "platform": "browser",
+      "bytes": 665767,
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/browser-jpegxl-specialized.mjs",
+      "currentCeiling": 658000,
+      "proposedCeiling": 667000,
+      "ceilingIncrease": 9000,
+      "currentBudgetPassed": false,
+      "proposedBudgetPassed": true,
+      "proposedHeadroom": 1233,
+      "qualifiedPrototypeBytes": 665767,
+      "qualifiedPrototypeSha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "byteIdentityToPrototype": true,
+      "qualifiedBaselineBytes": 656740,
+      "growthFromQualifiedBaseline": 9027,
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "importPassed": true,
+      "nodeBuiltinImports": [],
+      "externalPackageImports": 0,
+      "runtimeDependencies": 0,
+      "aliasResolutions": 0,
+      "modules": [
+        {
+          "module": "src/errors.ts",
+          "bytesInOutput": 239
+        },
+        {
+          "module": "src/limits.ts",
+          "bytesInOutput": 1560
+        },
+        {
+          "module": "src/abort.ts",
+          "bytesInOutput": 315
+        },
+        {
+          "module": "src/pixel.ts",
+          "bytesInOutput": 1769
+        },
+        {
+          "module": "src/source-identity-contract.ts",
+          "bytesInOutput": 288
+        },
+        {
+          "module": "src/source.ts",
+          "bytesInOutput": 6025
+        },
+        {
+          "module": "src/metadata.ts",
+          "bytesInOutput": 1459
+        },
+        {
+          "module": "src/codecs/brotli.ts",
+          "bytesInOutput": 9365
+        },
+        {
+          "module": "src/codecs/helpers.ts",
+          "bytesInOutput": 450
+        },
+        {
+          "module": "src/codecs/isobmff.ts",
+          "bytesInOutput": 1139
+        },
+        {
+          "module": "src/codecs/jpegxl-errors.ts",
+          "bytesInOutput": 74
+        },
+        {
+          "module": "src/codecs/jpegxl-container.ts",
+          "bytesInOutput": 7061
+        },
+        {
+          "module": "src/codecs/icc.ts",
+          "bytesInOutput": 24503
+        },
+        {
+          "module": "src/codecs/jpegxl-bitstream.ts",
+          "bytesInOutput": 13325
+        },
+        {
+          "module": "src/codecs/jpegxl-chroma.ts",
+          "bytesInOutput": 1058
+        },
+        {
+          "module": "src/codecs/jpegxl-frame-features.ts",
+          "bytesInOutput": 2702
+        },
+        {
+          "module": "src/codecs/jpegxl-icc.ts",
+          "bytesInOutput": 6291
+        },
+        {
+          "module": "src/codecs/jpegxl-limits.ts",
+          "bytesInOutput": 1494
+        },
+        {
+          "module": "src/codecs/jpegxl-splines.ts",
+          "bytesInOutput": 3179
+        },
+        {
+          "module": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 69433
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+          "bytesInOutput": 12025
+        },
+        {
+          "module": "src/codecs/jpegxl-inspect.ts",
+          "bytesInOutput": 3279
+        },
+        {
+          "module": "src/jpegxl.ts",
+          "bytesInOutput": 0
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct.ts",
+          "bytesInOutput": 11424
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-jpeg.ts",
+          "bytesInOutput": 16087
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+          "bytesInOutput": 8295
+        },
+        {
+          "module": "src/sink.ts",
+          "bytesInOutput": 339
+        },
+        {
+          "module": "src/codecs/jpeg-encode.ts",
+          "bytesInOutput": 20988
+        },
+        {
+          "module": "src/codecs/jpeg-source.ts",
+          "bytesInOutput": 5376
+        },
+        {
+          "module": "src/codecs/jpeg-baseline.ts",
+          "bytesInOutput": 36133
+        },
+        {
+          "module": "src/codecs/jpeg-metadata.ts",
+          "bytesInOutput": 2788
+        },
+        {
+          "module": "src/codecs/jpeg.ts",
+          "bytesInOutput": 6218
+        },
+        {
+          "module": "src/codecs/jpeg-coefficients.ts",
+          "bytesInOutput": 851
+        },
+        {
+          "module": "src/hdr/srgb-icc.ts",
+          "bytesInOutput": 2042
+        },
+        {
+          "module": "src/codecs/jpeg-marker-walk.ts",
+          "bytesInOutput": 1538
+        },
+        {
+          "module": "src/codecs/jpeg-display-semantics.ts",
+          "bytesInOutput": 1472
+        },
+        {
+          "module": "src/codecs/jpegxl-color.ts",
+          "bytesInOutput": 2672
+        },
+        {
+          "module": "src/codecs/jpegxl-exif.ts",
+          "bytesInOutput": 1627
+        },
+        {
+          "module": "src/codecs/jpegxl-encoder-memory.ts",
+          "bytesInOutput": 2706
+        },
+        {
+          "module": "src/codecs/jpegxl-flat-patches.ts",
+          "bytesInOutput": 2408
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-rct.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-tree.ts",
+          "bytesInOutput": 7301
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+          "bytesInOutput": 3147
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-encode.ts",
+          "bytesInOutput": 40423
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-transforms.ts",
+          "bytesInOutput": 2674
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-select.ts",
+          "bytesInOutput": 7304
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-quantization.ts",
+          "bytesInOutput": 2599
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-menu.ts",
+          "bytesInOutput": 11710
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-encode.ts",
+          "bytesInOutput": 31639
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 78859
+        },
+        {
+          "module": "src/color.ts",
+          "bytesInOutput": 3830
+        },
+        {
+          "module": "src/codecs/jpegxl-native-encode.ts",
+          "bytesInOutput": 10933
+        },
+        {
+          "module": "src/codecs/jpegxl-float-encode.ts",
+          "bytesInOutput": 5336
+        },
+        {
+          "module": "src/codecs/jpegxl-float-color.ts",
+          "bytesInOutput": 1904
+        },
+        {
+          "module": "src/codecs/jpegxl-patch-blend.ts",
+          "bytesInOutput": 1290
+        },
+        {
+          "module": "src/codecs/jpegxl-progressive-plan.ts",
+          "bytesInOutput": 4955
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-memory.ts",
+          "bytesInOutput": 2828
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-render.ts",
+          "bytesInOutput": 63476
+        },
+        {
+          "module": "src/codecs/jpegxl-native-samples.ts",
+          "bytesInOutput": 1690
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence.ts",
+          "bytesInOutput": 18697
+        },
+        {
+          "module": "src/codecs/jpegxl-native-pixel.ts",
+          "bytesInOutput": 11546
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-pixels.ts",
+          "bytesInOutput": 3414
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct.ts",
+          "bytesInOutput": 7591
+        },
+        {
+          "module": "src/codecs/jpegxl.ts",
+          "bytesInOutput": 9716
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-data.ts",
+          "bytesInOutput": 5319
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-transcode.ts",
+          "bytesInOutput": 9567
+        },
+        {
+          "module": "src/codecs/jpegxl-level10.ts",
+          "bytesInOutput": 5151
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence-encode.ts",
+          "bytesInOutput": 5930
+        },
+        {
+          "module": "src/execution-plan-contract.ts",
+          "bytesInOutput": 54
+        },
+        {
+          "module": "src/codecs/jpegxl-session.ts",
+          "bytesInOutput": 11709
+        },
+        {
+          "module": "bundle-size-entry.ts",
+          "bytesInOutput": 0
+        }
+      ],
+      "adoptedCeiling": 667000,
+      "adoptedBudgetPassed": true
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "browser",
+      "bytes": 591774,
+      "sha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2",
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/browser-codec-jpegxl.mjs",
+      "currentCeiling": 585000,
+      "proposedCeiling": 594000,
+      "ceilingIncrease": 9000,
+      "currentBudgetPassed": false,
+      "proposedBudgetPassed": true,
+      "proposedHeadroom": 2226,
+      "qualifiedPrototypeBytes": 591774,
+      "qualifiedPrototypeSha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2",
+      "byteIdentityToPrototype": true,
+      "qualifiedBaselineBytes": 582764,
+      "growthFromQualifiedBaseline": 9010,
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "CodecRegistry",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "importPassed": true,
+      "nodeBuiltinImports": [],
+      "externalPackageImports": 0,
+      "runtimeDependencies": 0,
+      "aliasResolutions": 0,
+      "modules": [
+        {
+          "module": "src/errors.ts",
+          "bytesInOutput": 315
+        },
+        {
+          "module": "src/abort.ts",
+          "bytesInOutput": 139
+        },
+        {
+          "module": "src/limits.ts",
+          "bytesInOutput": 1612
+        },
+        {
+          "module": "src/source-identity-contract.ts",
+          "bytesInOutput": 329
+        },
+        {
+          "module": "src/source.ts",
+          "bytesInOutput": 5332
+        },
+        {
+          "module": "src/pixel.ts",
+          "bytesInOutput": 7382
+        },
+        {
+          "module": "src/convert.ts",
+          "bytesInOutput": 3787
+        },
+        {
+          "module": "src/pipeline.ts",
+          "bytesInOutput": 12203
+        },
+        {
+          "module": "src/crop.ts",
+          "bytesInOutput": 914
+        },
+        {
+          "module": "src/lut.ts",
+          "bytesInOutput": 1149
+        },
+        {
+          "module": "src/metadata.ts",
+          "bytesInOutput": 1316
+        },
+        {
+          "module": "src/orient.ts",
+          "bytesInOutput": 3198
+        },
+        {
+          "module": "src/resize.ts",
+          "bytesInOutput": 19763
+        },
+        {
+          "module": "src/precision-plan.ts",
+          "bytesInOutput": 4534
+        },
+        {
+          "module": "src/rotate.ts",
+          "bytesInOutput": 3676
+        },
+        {
+          "module": "src/executor.ts",
+          "bytesInOutput": 9593
+        },
+        {
+          "module": "src/browser-runtime.ts",
+          "bytesInOutput": 4819
+        },
+        {
+          "module": "src/memory-temporary-store.ts",
+          "bytesInOutput": 884
+        },
+        {
+          "module": "src/sink.ts",
+          "bytesInOutput": 339
+        },
+        {
+          "module": "src/browser-platform.ts",
+          "bytesInOutput": 164
+        },
+        {
+          "module": "src/image-core.ts",
+          "bytesInOutput": 6278
+        },
+        {
+          "module": "src/accelerator.ts",
+          "bytesInOutput": 490
+        },
+        {
+          "module": "src/codec.ts",
+          "bytesInOutput": 1452
+        },
+        {
+          "module": "src/input-format.ts",
+          "bytesInOutput": 3745
+        },
+        {
+          "module": "src/execution-plan-contract.ts",
+          "bytesInOutput": 53
+        },
+        {
+          "module": "src/browser.ts",
+          "bytesInOutput": 39
+        },
+        {
+          "module": "bundle-size-entry.ts",
+          "bytesInOutput": 0
+        },
+        {
+          "module": "src/codecs/jpegxl.ts",
+          "bytesInOutput": 9812
+        },
+        {
+          "module": "src/codecs/icc.ts",
+          "bytesInOutput": 22915
+        },
+        {
+          "module": "src/codecs/jpegxl-color.ts",
+          "bytesInOutput": 2682
+        },
+        {
+          "module": "src/codecs/jpegxl-errors.ts",
+          "bytesInOutput": 79
+        },
+        {
+          "module": "src/codecs/jpegxl-container.ts",
+          "bytesInOutput": 7081
+        },
+        {
+          "module": "src/codecs/brotli.ts",
+          "bytesInOutput": 7051
+        },
+        {
+          "module": "src/codecs/helpers.ts",
+          "bytesInOutput": 345
+        },
+        {
+          "module": "src/codecs/isobmff.ts",
+          "bytesInOutput": 1149
+        },
+        {
+          "module": "src/codecs/jpegxl-decode.ts",
+          "bytesInOutput": 69464
+        },
+        {
+          "module": "src/codecs/jpegxl-bitstream.ts",
+          "bytesInOutput": 13330
+        },
+        {
+          "module": "src/codecs/jpegxl-chroma.ts",
+          "bytesInOutput": 1061
+        },
+        {
+          "module": "src/codecs/jpegxl-frame-features.ts",
+          "bytesInOutput": 2702
+        },
+        {
+          "module": "src/codecs/jpegxl-icc.ts",
+          "bytesInOutput": 6299
+        },
+        {
+          "module": "src/codecs/jpegxl-limits.ts",
+          "bytesInOutput": 1499
+        },
+        {
+          "module": "src/codecs/jpegxl-splines.ts",
+          "bytesInOutput": 3179
+        },
+        {
+          "module": "src/codecs/jpegxl-exif.ts",
+          "bytesInOutput": 1634
+        },
+        {
+          "module": "src/codecs/jpegxl-float-encode.ts",
+          "bytesInOutput": 5354
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-encode.ts",
+          "bytesInOutput": 78537
+        },
+        {
+          "module": "src/codecs/jpegxl-encoder-memory.ts",
+          "bytesInOutput": 2712
+        },
+        {
+          "module": "src/codecs/jpegxl-flat-patches.ts",
+          "bytesInOutput": 2408
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-rct.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-modular-tree.ts",
+          "bytesInOutput": 7305
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+          "bytesInOutput": 3147
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-encode.ts",
+          "bytesInOutput": 31530
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-encode.ts",
+          "bytesInOutput": 35975
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-forward-transforms.ts",
+          "bytesInOutput": 2362
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-transforms.ts",
+          "bytesInOutput": 2674
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-select.ts",
+          "bytesInOutput": 7309
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-quantization.ts",
+          "bytesInOutput": 2599
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-large-menu.ts",
+          "bytesInOutput": 11714
+        },
+        {
+          "module": "src/codecs/jpegxl-native-encode.ts",
+          "bytesInOutput": 10953
+        },
+        {
+          "module": "src/color.ts",
+          "bytesInOutput": 3835
+        },
+        {
+          "module": "src/codecs/jpegxl-native-pixel.ts",
+          "bytesInOutput": 11567
+        },
+        {
+          "module": "src/codecs/jpegxl-float-color.ts",
+          "bytesInOutput": 1909
+        },
+        {
+          "module": "src/codecs/jpegxl-native-samples.ts",
+          "bytesInOutput": 1699
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-render.ts",
+          "bytesInOutput": 56097
+        },
+        {
+          "module": "src/codecs/jpegxl-patch-blend.ts",
+          "bytesInOutput": 1294
+        },
+        {
+          "module": "src/codecs/jpegxl-progressive-plan.ts",
+          "bytesInOutput": 259
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-jpeg.ts",
+          "bytesInOutput": 16097
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct-memory.ts",
+          "bytesInOutput": 2836
+        },
+        {
+          "module": "src/codecs/jpegxl-sequence.ts",
+          "bytesInOutput": 18768
+        },
+        {
+          "module": "src/codecs/jpegxl-vardct.ts",
+          "bytesInOutput": 7602
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-pixels.ts",
+          "bytesInOutput": 3418
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruct-source.ts",
+          "bytesInOutput": 7814
+        },
+        {
+          "module": "src/codecs/jpegxl-jpeg-reconstruction.ts",
+          "bytesInOutput": 7408
+        },
+        {
+          "module": "src/codec-entries/jpegxl.ts",
+          "bytesInOutput": 0
+        }
+      ],
+      "adoptedCeiling": 594000,
+      "adoptedBudgetPassed": true
+    }
+  ],
+  "prototypePackages": [
+    {
+      "target": "jpegxl-specialized",
+      "platform": "node",
+      "kind": "baseline",
+      "bytes": 656740,
+      "ceiling": 658000,
+      "budgetPassed": true,
+      "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "jpegxl-specialized",
+      "platform": "node",
+      "kind": "candidate",
+      "bytes": 665767,
+      "ceiling": 658000,
+      "budgetPassed": false,
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "node",
+      "kind": "baseline",
+      "bytes": 584097,
+      "ceiling": 585000,
+      "budgetPassed": true,
+      "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "node",
+      "kind": "candidate",
+      "bytes": 593107,
+      "ceiling": 585000,
+      "budgetPassed": false,
+      "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "BufferSink",
+        "CodecRegistry",
+        "FileSink",
+        "FileSource",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "jpegxl-specialized",
+      "platform": "browser",
+      "kind": "baseline",
+      "bytes": 656740,
+      "ceiling": 658000,
+      "budgetPassed": true,
+      "sha256": "9bb8180960c756a6ad65d74f855f82895e778d0b140f689980c2202e079e3f60",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "jpegxl-specialized",
+      "platform": "browser",
+      "kind": "candidate",
+      "bytes": 665767,
+      "ceiling": 658000,
+      "budgetPassed": false,
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f",
+      "exports": [
+        "convertJpegXlCmykLayerToRgba8",
+        "convertJpegXlFloat32LayerToRgba16",
+        "convertJpegXlFloatLayerToRgba16",
+        "convertJpegXlIccLayerToRgba16",
+        "encodeJpegXlAnimation",
+        "encodeJpegXlNative",
+        "inspectJpegReconstructionEligibility",
+        "inspectJpegXl",
+        "jpegXlNativeFloat32ColorPlanes",
+        "jpegXlNativeUnsignedPlanes",
+        "openJpegXlSequence",
+        "openJpegXlSession",
+        "reconstructJpegFromJpegXl",
+        "transcodeJpegToJpegXl"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "browser",
+      "kind": "baseline",
+      "bytes": 582764,
+      "ceiling": 585000,
+      "budgetPassed": true,
+      "sha256": "3a3f6c6dfe70bed2b86ac8e1543d93da960f3fcd3553d3efef3c96e67ee347e0",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "CodecRegistry",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    },
+    {
+      "target": "codec-jpegxl",
+      "platform": "browser",
+      "kind": "candidate",
+      "bytes": 591774,
+      "ceiling": 585000,
+      "budgetPassed": false,
+      "sha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2",
+      "exports": [
+        "BlobSource",
+        "BufferPool",
+        "CodecRegistry",
+        "ImageError",
+        "MemorySource",
+        "Uint8ArraySink",
+        "createImageLibrary",
+        "defaultImageLimits",
+        "inspectJpegXlStructure",
+        "jpegxlCodec",
+        "pixelBytesPerPixel",
+        "pixelStorage"
+      ],
+      "externalImports": 0,
+      "runtimeDependencies": 0
+    }
+  ],
+  "packageSizeGatesPassed": true,
+  "prototypePackageSizeGatesPassed": false,
+  "productionAdopted": true,
+  "sourceReports": [
+    {
+      "path": "../../../../../tmp/jpegxl-coherent-coarse-publication-2583-r1.log",
+      "sha256": "4020ff05bfd1f4ac8ca8cebcb1bb5e606573d6ac52b1857eb01f61d91d096364"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/entry.ts",
+      "sha256": "c304c920778bd8ed54c7cfb90b778e921fea83913d1136e391f9a8d67b767e78"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/candidate.jxl",
+      "sha256": "be4a35e4f6e35006f027cb49c93632ed9b17d73fd659bb1e79fd859792dc6574"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/result.json",
+      "sha256": "ba7987a69087f02d90203b13eece31f2de81e6da2c8a19a7ba20663ee0533ad1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/score/joint-score.json",
+      "sha256": "12a14a247d26ae503c5a2195feeb5599932b37600accfc473e8e573262f5915c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/score/native-rgb8.png",
+      "sha256": "7d2f82a2176727bf731cf816fe856e03881a7cfaf129654d43d576c77e6501c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/output/score/score.json",
+      "sha256": "23e00acc162dee6e89cb003edc11119c23006c0826659549ec40f0a248116445"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/plan.json",
+      "sha256": "def21eedea9f1925514c4192b83f2a59b013db10c5540c696d8471da9720c187"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-independent-5857/run.ts",
+      "sha256": "29b8cbde3e375ad93123184209f2332cd46e935d6824651c03dee94402049c1f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/entry.ts",
+      "sha256": "2a97d1e1bb101855a3c08f0aa86d127093e205e92af39758f4f2fd2fdf805d27"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/candidate.jxl",
+      "sha256": "badb93a91fbc8b15d4d34b7bd89e6667bc507bf47ad41c0e3425e91f0f374002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/result.json",
+      "sha256": "04725419a8574e43a38233d288baa3f6895ca0e81f8cc89df8d3ad2ce840445d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/score/joint-score.json",
+      "sha256": "3ea744cfbd5a5594c92cd9384b0b8e6e288589075c43a89e8431fa25ea901550"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/score/native-rgb8.png",
+      "sha256": "862b8ab22bb866461dd281220285bc161bd946e2b497b49109fe3e83cbd6b923"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/output/score/score.json",
+      "sha256": "ba471379041d2a2b8ff1832c074716f0c509ecf1e95d6a579a6de6160b6d6bf7"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/plan.json",
+      "sha256": "7483a9cfd187e695df31df06ba0a9d02579fda251566db086434cc5ef26eec8c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-5857/run.ts",
+      "sha256": "c7e18471a6ed918fbc9c39cb60bde30a67ed58a798c5ac412e772ba42c2f7ed9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/entry.ts",
+      "sha256": "76dad1d405fd0c8f9aa0046d2fd231e2f07d0ebf630d8f1681380f5ae92f0f2a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/candidate.jxl",
+      "sha256": "aada067c7e8969f05b9f9e20c814c7e11c54fb44e7a3e419389e6392bbe32da4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/result.json",
+      "sha256": "591b6b3505781919ee03baf43ca231d5ef1961f1b4631bebacbdb4e420b011c1"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/score/joint-score.json",
+      "sha256": "d67cd911f10983042f53df3adf4f2fd2fe008e2af6b0ac302ef8d4ca893422a0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/score/native-rgb8.png",
+      "sha256": "18b468be82dc2880599ce1c78680338b98c959c9824ae132381600d8d4f0eab9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/output/score/score.json",
+      "sha256": "8e6cc07ece9f5b496e1e8bbcc0925e44eb075ac95aa627ce963002e69953957f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/plan.json",
+      "sha256": "1d8ecb133c45fcff5f05597bb53a70b5b7f5c86dc5e0f2e6893ccdf01ec6fef0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-portrait-59471/run.ts",
+      "sha256": "ffd6e205b5a5b9533e48b969c8cdfc6d44c0d40122f92180af16e573f6b669ca"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-postrun/output/result.json",
+      "sha256": "0f480867a6cc8b175ad8462ee2818a04f1e6c6a7b5b04e5189421feeffb66b13"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-postrun/plan.json",
+      "sha256": "879e98eadfbe210dcc1bf04ffacd3d1264fe7f637331e09385f10ecacba776b5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-budget-public-postrun/reference-public-ba3.json",
+      "sha256": "7a9f2f82260d318969418e21382dd67947b0a5e16e8c7891c42a47ec75ebeaef"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/bridge.ts",
+      "sha256": "5c36aa38e6d9ed084349be46b467009a826cc8626c926d6deb03e0e1e82dc4ac"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/browser-codec-jpegxl.mjs",
+      "sha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/browser-jpegxl-specialized.mjs",
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/node-codec-jpegxl.mjs",
+      "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/node-jpegxl-specialized.mjs",
+      "sha256": "f954a5a1f7e129639fc2171a1f37686eb8118ddfee19c80a25f1c48d0d0da85f"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/output/result.json",
+      "sha256": "5dc9ab0fbddc08b009f5c8798817d2a784709f07c199038b150d3fde3958809e"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/plan.json",
+      "sha256": "dd7a5a0776db014843856dbbafc00bddb4bec68e7f3c8195add8495c4c36cedc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-integration-qualification/run.ts",
+      "sha256": "9e3b6c8ad3b0f958a2e17b7b9e95efdc657d2648a4fbf66d08df914bb57562d5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/encode.ts",
+      "sha256": "761c0d1588d303a75d36e1799f09865a769028d0488a8d269034787f93b1f8ce"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/menu.ts",
+      "sha256": "6216c286538a995ae46d87544080891b414d3a7b6744a8db38bc8a999d2d1a63"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/model.ts",
+      "sha256": "4771400a72d5e2d1ef1b164a04a3b272d46191a515ec111109b80bf7889a2154"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/plan.json",
+      "sha256": "56735c3bd37971e586ea1ac20be99d081b3a7c3ac80ee3540e868b9484898405"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/select.ts",
+      "sha256": "52f7c583b55327ee7b1d18534e7e601f6f7d7a6cb1b6334119ff0a520260299c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/browser-codec-jpegxl-candidate.mjs",
+      "sha256": "58a3ea31aa0179fd4862ab9573e8dff5f48328d92a933832c2685e1445f07bc2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-baseline.mjs",
+      "sha256": "6dfd06c81350733e537052b91048172b8dd4a7a6df3a1901bdb16bc8646f15bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/node-codec-jpegxl-candidate.mjs",
+      "sha256": "7efe1cd1781b2fd5ad9c6c31fbb586471f4f1d660406cbbaa629ba0c05eab220"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-production-prototype/static-output/result.json",
+      "sha256": "07eef426014718cb011e2a013a3ee72f89fbc74f48a5a612c271f5002234a67d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/checks.ts",
+      "sha256": "ff28cfaa9f6eef609df3fe226f937eed850654cbb48f182193ad111c2acf3eb4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/math.ts",
+      "sha256": "97b336e39e88d023779d6d895c33f67121fda8ca63727f26015851ff2933d790"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/prepare.ts",
+      "sha256": "9c9e608124777add1fec78b891e06ddf59a78dc9c22816096be2e0a77310534c"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/proposed-edits.md",
+      "sha256": "8b3b02e747796f62de9b5b433688fc66937f156310b570d6cd6278501570ab67"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/run.ts",
+      "sha256": "86190e69100a6a77401c22ec04ad6f94574282e342eb24a0bc83a0ce890f8e8d"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/tsconfig.json",
+      "sha256": "357b2072ae44baa4a34cb90d582cfb6bd1250365008f88a33ef59ab9dbff2dec"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication/entry.ts",
+      "sha256": "ad7fb4aa76f1818cd44f626bcb6a02f897cde4808ac4f74711c9d3c06ee0d961"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication/plan.json",
+      "sha256": "9d4e2eb72709e9cc1569099d84e99a179fea0ed07e72c5cad7f6549f4d53c003"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication/run.ts",
+      "sha256": "b33859d6bd61054f6ba11d8451a14ad998fa79a212265183471ba95081efd119"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/entry.ts",
+      "sha256": "586d9577cdf869391c7ad6a80e787642ab1558f642cf74e59b0c6b95dc8c3fa9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/browser-candidate.jxl",
+      "sha256": "badb93a91fbc8b15d4d34b7bd89e6667bc507bf47ad41c0e3425e91f0f374002"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/fresh-native.png",
+      "sha256": "862b8ab22bb866461dd281220285bc161bd946e2b497b49109fe3e83cbd6b923"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/native-proof.json",
+      "sha256": "9ca3a5a4eb197579502531205cd3ff9cef9d087e60ff281612be5a3375ea1a92"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/output/result.json",
+      "sha256": "9b9af6ae3aaf8f8ec6c86ac072708c6589fd42e4e246a83132bf073b1b373fa2"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/page.ts",
+      "sha256": "8047d497a320124267d202748efdf87b6f43964c45f15290e6d46239a58f21cb"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/plan.json",
+      "sha256": "e24c6ec3e0342666cf1475525607abfed4f5e5218fdd33922a72c58139cf34fc"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-real-browser/run.ts",
+      "sha256": "53aef6957d6242fdd11caaa5027185a7dabc0dadc418615f4c4ca9e592775b32"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/entry.ts",
+      "sha256": "02ce988f9ee8faa6233543100bf78f243fb6879d392b5e4a2b03d147f3dd4d30"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/candidate.jxl",
+      "sha256": "be4a35e4f6e35006f027cb49c93632ed9b17d73fd659bb1e79fd859792dc6574"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/result.json",
+      "sha256": "b28345cd992521159daad735459b388db8a70320161dfa02b397b1ce9d2098bf"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/score/joint-score.json",
+      "sha256": "cf61c91596010d54459f2f601feeb18d710d1789a03f9d485018ff289c6cf7f9"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/score/native-rgb8.png",
+      "sha256": "7d2f82a2176727bf731cf816fe856e03881a7cfaf129654d43d576c77e6501c5"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/output/score/score.json",
+      "sha256": "c4fa8bc67f379d6dd10d68d7c716373798bd85287fec19fd438bc224c62d73df"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/plan.json",
+      "sha256": "8ab5ee6fd891b3f42cbce25fb93ad4a7a7758411654df9e478c7ab4fe4a90512"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/current-budget-baseline-independent-5857/run.ts",
+      "sha256": "2d9c978c89f05e9e8b63104ccce8dcd68ab9c4e1860124394b64fe05ecfb208a"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/fixtures/im26-1416-original.raw",
+      "sha256": "929b9e7363d25b1a8c4a6d2f8381786597bc14b4d718cd7af1b641fda446e959"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/heldout-originals-1436/portrait-2400x3000.raw",
+      "sha256": "d5246fdc90aa908a94ccc6eab2c99a013dd35737d80af1030ac1a6645e7519e0"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/matched-cache-audit2373/curves.ts",
+      "sha256": "ebe025c0e8a33be315e9330d8cf45e78dcf2cfd08d33869a97c4cce8183b50d4"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/middle-b1-source-bridge2367/installed.json",
+      "sha256": "fba1e07bedc00d9dc26bf99b95c3550642b9932226a953706d1701da2b8c5078"
+    },
+    {
+      "path": ".tmp/jpegxl-comparison-v1/portrait-public-peer-continuation/score-base.ts",
+      "sha256": "8ab0b04f8fa6edf595840b28f2f0396667d1cabb6a4ba3e2c907c0a78c1485b7"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/butteraugli_main",
+      "sha256": "2bf52b536892c8b027843dd9fd72316262a524d22270e53ef12e9c971b0c6bde"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-m7-metrics/tools/ssimulacra2",
+      "sha256": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740"
+    },
+    {
+      "path": ".tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl",
+      "sha256": "8da836ae132de221c53532a8296cc5b9e5f4bef16df4fcf4681f8b61ee4f3788"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/io.ts",
+      "sha256": "14fd1de073f7151e9a79338dff23d0f5b3541a4bb98092c52043132f16396725"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/model.ts",
+      "sha256": "5909ffc0714e7aacacd4324c00648e70460e49f56d1f0b216a20ba330da0bc3e"
+    },
+    {
+      "path": "benchmark/jpegxl/comparison/results/original-portrait-ba3-public.json",
+      "sha256": "7a9f2f82260d318969418e21382dd67947b0a5e16e8c7891c42a47ec75ebeaef"
+    },
+    {
+      "path": "benchmark/jpegxl/m7-quality-curves.ts",
+      "sha256": "fae8e4076f08087ab4248de08ef621638f43e33ec25b70546a114c117ef45563"
+    },
+    {
+      "path": "benchmark/jpegxl/m7-recovery-curves.ts",
+      "sha256": "20271339e38bf95eef3dcbd8765b7ddd62717d66e65e9ff716a61b775d1c4705"
+    },
+    {
+      "path": "benchmark/jpegxl/m8-output-digest.ts",
+      "sha256": "f6667871c2a7c0e66bf332e00b8cef54dbcdfe4c79c3e5996b27331d5a73a73d"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "9f0d45377aa935ea66867bb22b7bb062592210dae82a3e097427d19294946f1f"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3bfca128ae3383812a060e629340f46a4fcbe7d667f82ee11b4cbeb3c8978eab"
+    },
+    {
+      "path": "scripts/bundle-size-budgets.ts",
+      "sha256": "8bc8d434699472ce33dec5b49d8c4e727ef154a2f2de6eb5d0ddf8fbffc1f83f"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-coefficient-model.ts",
+      "sha256": "debe5ef0307794f2cf2454fa7ca601fa9fd70bf42efe371673bf6867e6c9f2ca"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-encode.ts",
+      "sha256": "c148b5d5d312070b1bd33091da7b8658eb8afeccce86c043efae47938b8c026c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-large-menu.ts",
+      "sha256": "128e41a32a910c9b0f33e21f6655b5d6e52eac06dbc46cff616455e4ef23773c"
+    },
+    {
+      "path": "src/codecs/jpegxl-vardct-large-select.ts",
+      "sha256": "18463d372948ad2cb3eb1406860b617673bddd47559cb4fbc4f3a9771988ccef"
+    }
+  ],
+  "measurementMethod": "Unchanged negative-Butteraugli nondominated frontier, maximum bracket width0.25 and maintained log-byte interpolation. Only two actual public points enter the estimate. All raw SSIMULACRA2 scores retained separately.",
+  "generator": {
+    "planSha256": "a06250d294da2e2d96800b1c148a4f6c817a1303fb4a9cfdb422d393373f7da8",
+    "script": {
+      "path": ".tmp/jpegxl-comparison-v1/coherent-coarse-publication-r1/run.ts",
+      "sha256": "86190e69100a6a77401c22ec04ad6f94574282e342eb24a0bc83a0ce890f8e8d"
+    },
+    "metricCalls": 0,
+    "imageCalls": 0,
+    "nativeCalls": 0,
+    "sourceFdct": 0,
+    "buildCalls": 0
+  },
+  "fullCommitProof": {
+    "command": "npm run check",
+    "status": "completed",
+    "code": 0,
+    "signal": null,
+    "implementationSourceSha256": "170c6e6609fe16bdd92b0ec9bb2d40df9697195d227273b3e09e0f7c39e54733",
+    "tests": {
+      "passed": 3752,
+      "skipped": 3
+    },
+    "receipt": {
+      "path": ".tmp/jpegxl-m7/bounded-runs/coherent-coarse-full-check-2585-r1.json",
+      "sha256": "7d4edb5324132e9fbf037013d84eb8d5af1b90106370ac96508165c0ffa58bd5"
+    },
+    "log": {
+      "path": "/tmp/jpegxl-coherent-coarse-full-check-2585-r1.log",
+      "sha256": "871bb071a7ba839be0973de89cf90a58deff8f0f9d3b15a7cfe69ee999d9ba31"
+    },
+    "scope": "Complete root terminal repository handoff gate. Original measured parent revision/dirty source identity and all sourceReports remain unchanged; no new image, codec, native or metric run.",
+    "files": {
+      "passed": 289,
+      "skipped": 1
+    },
+    "startedAt": "2026-10-09T03:54:03.885Z",
+    "finishedAt": "2026-10-09T04:10:20.325Z"
+  }
+}
