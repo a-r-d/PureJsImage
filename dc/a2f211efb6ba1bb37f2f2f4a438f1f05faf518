@@ -1,0 +1,58 @@
+benchmark/jpegxl/lossy-lab/report.ts
+  s_2b0ba550ad1491::t_1a86ab83cc6cc4 187-188,209-211
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_4fee33f88cea14 36-39,44-46,63-64
+  s_2b0ba550ad1491::t_8a8beda73b53aa 34-35,40-43
+  s_2b0ba550ad1491::t_2cdb53b213211c 8-10,12-14
+benchmark/jpegxl/lossy-lab/metrics.ts
+  s_2b0ba550ad1491::t_bbcd4eab4de66e 210-211
+  s_2b0ba550ad1491::t_141f66c15ce456 16,18-19,200,207-208,212-221,237,241-242
+  s_2b0ba550ad1491::t_3f3b0ada5c371c 90,99-106,115,125-127,131-133,157
+tests/jpegxl-lossy-lab-report.test.ts
+  s_2b0ba550ad1491::t_4fee33f88cea14 185-194
+  s_2b0ba550ad1491::t_f979ae77af0ca9 184
+tests/jpegxl-lossy-lab-metrics.test.ts
+  s_2b0ba550ad1491::t_bbcd4eab4de66e 177-180,193-200,205-208,229-232,238-240,245-259
+  s_2b0ba550ad1491::t_8f493cb191f053 131-134,136-139,141-144,273-280,282-289,294-300,312-313,315-318,322-323,325-328,331,349,351-354
+  s_2b0ba550ad1491::t_b65ccc6396c3a8 175-176,181-192,201-204,209-228,233-237,241-244,260-261
+  s_2b0ba550ad1491::t_4910999c8961c7 69,129-130,135,140,145,272,281,290-293,301-311,314,319-321,324,329-330,332-348,350,355-359
+benchmark/jpegxl/lossy-lab/run.ts
+  s_2b0ba550ad1491::t_1a86ab83cc6cc4 58-62,222,297
+  s_2b0ba550ad1491::t_5286c269ea4ef7 4,114
+  s_2b0ba550ad1491::t_ff110d0ff012b2 5,7-10,21,40-41,43-49,53-56,70-71,76-83
+  s_2b0ba550ad1491::t_08fa719d64521d 65,67-68,119
+  s_2b0ba550ad1491::t_9a71193e5d5238 6,50-52
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_8209dddca07053 20-23,48-51
+  s_2b0ba550ad1491::t_4fee33f88cea14 24-29
+  s_2b0ba550ad1491::t_2cdb53b213211c 3,10-11,14,18-19,33-35,37-47
+benchmark/jpegxl/lossy-lab/corpus-worker.ts
+  s_2b0ba550ad1491::t_85a3f34fe579dd 139
+benchmark/jpegxl/lossy-lab/PAUSED-CHECKPOINT.md
+  s_2b0ba550ad1491::t_8209dddca07053 46-49
+  s_2b0ba550ad1491::t_2cdb53b213211c 1-45,50-60
+tests/jpegxl-lossy-lab-fixture-selection.test.ts
+  s_2b0ba550ad1491::t_2f39bfb4bf2be7 1-10,23,30-38,43-51,59-63,76-82,93-96,105-106,117-129,133-148,164-167
+  s_2b0ba550ad1491::t_26622acc8edd11 11-22,24-29,39-42,52-58,64-75,83-92,97-104,107-116,130-132,149-163
+benchmark/jpegxl/lossy-lab/fixture-selection.ts
+  s_2b0ba550ad1491::t_815ff0f8ae406f 183-184
+  s_2b0ba550ad1491::t_26622acc8edd11 47-54,65-66,68-71,81-82,105-110,112-113,118-122,124-132,137-141,147-148,151-161,168-171,180-182,186-196
+  s_2b0ba550ad1491::t_85a3f34fe579dd 1-46,55-64,67,72-80,83-104,111,114-117,123,133,135-136,142-146,149,162-167,172-179,185,197
+  s_2b0ba550ad1491::t_2f39bfb4bf2be7 134,150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dca2f211efb6ba1bb37f2f2f4a438f1f05faf518",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
