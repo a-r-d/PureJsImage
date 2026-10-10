@@ -5,6 +5,17 @@ import {
   verifyLargeJpegXlDcAllocationRecovery,
 } from './helpers/jpegxl-dc-model.ts'
 
+it('keeps the shared opaque path usable when every optional sharpness-map allocation fails', async () => {
+  const result = await verifyLargeJpegXlDcAllocationRecovery(4, 33, 65)
+  expect(result.bytes).toBeGreaterThan(0)
+  expect(result.samples).toBe(33 * 65 * 4)
+  expect(result.alphaError).toBe(0)
+  expect(result.meanColorError).toBeLessThan(3)
+  expect(result.rejectedAllocations).toBeGreaterThan(0)
+  expect(result.ownedLive).toBe(0)
+  expect(result.ownedAllocations).toBe(0)
+})
+
 it('recovers large opaque images after optional filter-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery()
   expect(result.bytes).toBe(66_242)

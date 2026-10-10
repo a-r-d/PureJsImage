@@ -5,19 +5,13 @@ import { type ImageLimitOptions, resolveLimits, validateImageDimensions } from '
 import { inspectIccProfile } from './icc.ts'
 import { jpegXlContainerSignature } from './jpegxl-container.ts'
 import type { JpegXlAnimationHeader, JpegXlFrameStructure } from './jpegxl-decode.ts'
+import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import { encodeJpegXlIccCommands } from './jpegxl-icc.ts'
 import { type JpegXlLimitOptions, resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
   acceptsJpegXlColorSemantics,
   JpegXlBitWriter,
-  packSigned,
-  writeColorEncoding,
-  writeHybridUint,
-  writeModularHeader,
-  writeModularTree,
-  writePositiveF16,
-  writePrefixCode,
   jpegXlAlphaDimensionShiftDistribution,
   jpegXlAnimationDenominatorDistribution,
   jpegXlAnimationLoopsDistribution,
@@ -25,6 +19,13 @@ import {
   jpegXlExtraChannelCountDistribution,
   jpegXlNameLengthDistribution,
   jpegXlSectionSizeDistribution,
+  packSigned,
+  writeColorEncoding,
+  writeHybridUint,
+  writeModularHeader,
+  writeModularTree,
+  writePositiveF16,
+  writePrefixCode,
   writeU32,
 } from './jpegxl-modular-encode.ts'
 
@@ -587,7 +588,7 @@ export const encodeJpegXlNative = async (
       }
     }
   }
-  const payloadBytes = sections.reduce((sum, section) => sum + section.length, 0)
+  const payloadBytes = jpegXlPartsByteLength(sections)
   const writer = new JpegXlBitWriter(undefined, maximum)
   writeJpegXlNativeImageHeader(
     writer,

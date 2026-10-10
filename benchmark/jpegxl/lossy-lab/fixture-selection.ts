@@ -1,12 +1,13 @@
 import { object, string } from '../comparison/model.ts'
 import { selectDevelopmentCorpus } from './corpus.ts'
+import { type CurvePoint, type Engine, parsePoint } from './model.ts'
 
-export type LabMode = 'screen' | 'lab' | 'speed' | 'holdout' | 'watch'
+export type LabMode = 'screen' | 'lab' | 'scale' | 'speed' | 'holdout' | 'watch'
 export interface PreparedFixture {
   readonly id: string
   readonly png: string
   readonly split: 'development' | 'holdout' | 'watch-reference'
-  readonly kind: 'lab' | 'watch'
+  readonly kind: 'lab' | 'scale' | 'watch'
   readonly fixtureSha256: string
   readonly largeGateRepresentative: boolean
 }
@@ -47,6 +48,7 @@ export function parseLabMode(value: string): LabMode {
   if (
     value === 'screen' ||
     value === 'lab' ||
+    value === 'scale' ||
     value === 'speed' ||
     value === 'holdout' ||
     value === 'watch'
@@ -64,7 +66,10 @@ export function parsePreparedManifest(value: unknown): PreparedManifest {
     const kind = string(fixture.kind)
     if (split !== 'development' && split !== 'holdout' && split !== 'watch-reference')
       throw new Error('Invalid fixture split')
-    if (kind !== 'lab' && kind !== 'watch') throw new Error('Invalid fixture kind')
+    if (kind !== 'lab' && kind !== 'scale' && kind !== 'watch')
+      throw new Error('Invalid fixture kind')
+    if (kind === 'scale' && split !== 'development')
+      throw new Error('Scale crops must be development fixtures')
     if (split === 'watch-reference' && kind !== 'watch')
       throw new Error('Watch reference must be a watch fixture')
     if (typeof fixture.largeGateRepresentative !== 'boolean')
@@ -106,14 +111,15 @@ export function selectPreparedFixtures(
     throw new Error(`${mode} runs require promotion`)
   if (options.skipLarge && mode !== 'screen')
     throw new Error('Large fixture reduction is screen-only')
-  if (options.additionalWatch && mode !== 'speed')
-    throw new Error('Additional watch fixtures are for speed measurements')
+  if (options.additionalWatch && mode !== 'speed' && mode !== 'scale')
+    throw new Error('Additional watch fixtures are for speed or scale measurements')
   const loaded = [...manifest.fixtures, ...(options.additionalWatch?.fixtures ?? [])]
   if (mode !== 'holdout' && loaded.some((fixture) => fixture.split === 'holdout'))
     throw new Error('Holdout fixtures are forbidden in development and speed runs')
   const eligible = manifest.fixtures.filter((fixture) => {
     if (mode === 'holdout') return fixture.split === 'holdout' && fixture.kind === 'lab'
     if (mode === 'watch') return fixture.kind === 'watch'
+    if (mode === 'scale') return fixture.split === 'development' && fixture.kind === 'scale'
     if (mode === 'speed') return fixture.kind === 'lab' || fixture.kind === 'watch'
     return (
       fixture.split === 'development' &&
@@ -193,5 +199,50 @@ export function selectPreparedFixtures(
     preparationFailures,
     missingRequestedIds,
     complete: missingRequestedIds.length === 0 && preparationFailures.length === 0,
+  }
+}
+
+/** Old result files have no mode field; their isolated baseline ledger supplies it. */
+export function validateBaselineSpeedResume(value: unknown): void {
+  const row = object(value)
+  if (row.mode !== 'speed' || row.variant !== 'baseline' || row.workers !== 1)
+    throw new Error('Speed resume requires an isolated baseline speed ledger')
+}
+
+export function baselineSpeedPoints(
+  value: unknown,
+  fixtureSha256: string,
+  engine: Engine,
+): CurvePoint[] {
+  try {
+    const row = object(value)
+    if (
+      row.fixtureSha256 !== fixtureSha256 ||
+      row.engine !== engine ||
+      row.effort !== 7 ||
+      !Array.isArray(row.points)
+    )
+      return []
+    const setting = engine === 'jsquash' ? 80 : 2
+    const points = row.points.map(parsePoint)
+    if (
+      points.length !== 1 ||
+      points.some(
+        (point) =>
+          point.setting !== setting ||
+          point.bytes <= 0 ||
+          point.encodeMs <= 0 ||
+          point.processPeakRssBytes < 0 ||
+          (point.managedPeakBytes !== null && point.managedPeakBytes < 0),
+      )
+    )
+      return []
+    if (row.failures !== undefined) {
+      if (!Array.isArray(row.failures)) return []
+      if (row.failures.some((value) => object(value).setting === setting)) return []
+    }
+    return points
+  } catch {
+    return []
   }
 }

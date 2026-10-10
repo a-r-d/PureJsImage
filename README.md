@@ -459,12 +459,12 @@ Generated from the repository manifests and recorded package metrics (package ve
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
 | Core API | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Common web codecs | 652.9 KiB | 239.2 KiB | 198.6 KiB |
-| All stable codecs | 1346.7 KiB | 465.5 KiB | 375.5 KiB |
+| Common web codecs | 653.2 KiB | 239.3 KiB | 198.8 KiB |
+| All stable codecs | 1347.8 KiB | 466.4 KiB | 376.7 KiB |
 | Scientific platform | 197.5 KiB | 56.3 KiB | 47.4 KiB |
-| All scientific readers | 1244.1 KiB | 359.9 KiB | 287.1 KiB |
+| All scientific readers | 1244.4 KiB | 360.0 KiB | 287.2 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
-| All Geo readers | 626.3 KiB | 189.6 KiB | 153.5 KiB |
+| All Geo readers | 626.6 KiB | 189.7 KiB | 153.4 KiB |
 
 The extracted npm package is 8.4 MiB with 1 production package, including PureJsImage itself. This is unpacked size, not the compressed npm tarball.
 <!-- documentation:summary:end -->
@@ -478,10 +478,10 @@ Generated for purejsimage 0.17.0. Use these imports to select an entry point; th
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
 | Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 652.9 KiB | 239.2 KiB | 198.6 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1346.7 KiB | 465.5 KiB | 375.5 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 653.2 KiB | 239.3 KiB | 198.8 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1347.8 KiB | 466.4 KiB | 376.7 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 197.5 KiB | 56.3 KiB | 47.4 KiB |
-| Scientific readers: all | `purejsimage/scientific/readers/all` | 1244.1 KiB | 359.9 KiB | 287.1 KiB |
+| Scientific readers: all | `purejsimage/scientific/readers/all` | 1244.4 KiB | 360.0 KiB | 287.2 KiB |
 
 The 8 optional JPEG, PNG, and WebP accelerator assets total 175.7 KiB raw WASM and are loaded only through explicit accelerator imports. See the unpacked package total above; these assets are separate from the JavaScript transfer sizes.
 

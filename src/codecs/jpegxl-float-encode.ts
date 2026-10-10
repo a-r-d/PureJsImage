@@ -5,6 +5,7 @@ import { invalidInput, limitExceeded, truncatedInput, unsupportedOperation } fro
 import { defaultImageLimits, validateImageDimensions } from '../limits.ts'
 import { type PixelBlock, pixelStorage } from '../pixel.ts'
 import type { ImageSink } from '../sink.ts'
+import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import {
   acceptsJpegXlColorSemantics,
@@ -144,7 +145,7 @@ export const createJpegXlFloatEncoder = (sink: ImageSink, request: EncodeRequest
   if (required > BigInt(workingLimit) || inputBytes > BigInt(limits.maxDecodedBytes))
     throw limitExceeded('JPEG XL float encoder working storage exceeds its configured limit')
   const boxes = encodedJpegXlMetadataBoxes({ ...request, metadata: otherMetadata }, true)
-  const boxBytes = boxes.reduce((sum, box) => sum + box.byteLength, 0)
+  const boxBytes = jpegXlPartsByteLength(boxes)
   if (boxBytes + 49 >= outputLimit)
     throw limitExceeded('JPEG XL float output metadata exceeds maxOutputBytes')
   let planes = Array.from(

@@ -159,13 +159,19 @@ export const verifyJpegXlDcModel = async (
 type Owned = ReturnType<JpegXlEncoderMemory['allocate']>
 class RejectLargeOpaqueFilterMap extends JpegXlEncoderMemory {
   rejectedAllocations = 0
+  private readonly blocks: number
+
+  constructor(maxWorkingBytes: number, blocks: number) {
+    super(maxWorkingBytes)
+    this.blocks = blocks
+  }
 
   override allocate<T extends Owned>(
     arrayType: { new (length: number): T; readonly BYTES_PER_ELEMENT: number },
     length: number,
     scope = this.currentScope,
   ): T {
-    if (Object.is(arrayType, Uint8Array) && length === Math.ceil(2049 / 8) * Math.ceil(2048 / 8)) {
+    if (Object.is(arrayType, Uint8Array) && length === this.blocks) {
       this.rejectedAllocations++
       throw limitExceeded('Deliberate optional large-image filter-map allocation failure')
     }
@@ -173,12 +179,17 @@ class RejectLargeOpaqueFilterMap extends JpegXlEncoderMemory {
   }
 }
 
-export const verifyLargeJpegXlDcAllocationRecovery = async (distance = 4) => {
-  const width = 2049,
-    height = 2048,
-    pixels = jpegXlDcModelPixels(width, height),
+export const verifyLargeJpegXlDcAllocationRecovery = async (
+  distance = 4,
+  width = 2049,
+  height = 2048,
+) => {
+  const pixels = jpegXlDcModelPixels(width, height),
     original = checksum(pixels),
-    memory = new RejectLargeOpaqueFilterMap(67_108_864)
+    memory = new RejectLargeOpaqueFilterMap(
+      67_108_864,
+      Math.ceil(width / 8) * Math.ceil(height / 8),
+    )
   let encoded: Uint8Array | undefined
   try {
     const parts = await encodeJpegXlVarDct8Async(

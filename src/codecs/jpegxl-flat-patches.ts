@@ -64,7 +64,9 @@ export const findFlatScreenshotPatches = (
   height: number,
   memory: JpegXlEncoderMemory,
   channels: 3 | 4 = 3,
+  compareAlpha = true,
 ): JpegXlFlatPatchGroup[] => {
+  const comparisonChannels = compareAlpha ? channels : 3
   const count = width * height
   const background = allocateJpegXlArray(memory, Uint8Array, count)
   const root = allocateJpegXlArray(memory, Int32Array, count)
@@ -186,7 +188,7 @@ export const findFlatScreenshotPatches = (
         for (let x = 0; x < a.width; x++) {
           const first = ((a.y + y) * width + a.x + x) * channels,
             second = ((b.y + y) * width + b.x + x) * channels
-          for (let channel = 0; channel < channels; channel++)
+          for (let channel = 0; channel < comparisonChannels; channel++)
             if (pixels[first + channel] !== pixels[second + channel]) return false
         }
       }
@@ -200,7 +202,7 @@ export const findFlatScreenshotPatches = (
         for (let y = 0; y < patch.height; y++) {
           for (let x = 0; x < patch.width; x++) {
             const offset = ((patch.y + y) * width + patch.x + x) * channels
-            for (let channel = 0; channel < channels; channel++)
+            for (let channel = 0; channel < comparisonChannels; channel++)
               hash = Math.imul(hash ^ (pixels[offset + channel] ?? 0), 16_777_619)
           }
         }

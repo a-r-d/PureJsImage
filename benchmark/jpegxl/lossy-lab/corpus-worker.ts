@@ -67,10 +67,11 @@ async function main(): Promise<void> {
     set !== 'screen' &&
     set !== 'full' &&
     set !== 'watch' &&
+    set !== 'scale' &&
     set !== 'holdout' &&
     set !== 'secondary'
   )
-    throw new Error('Set must be screen, full, watch, holdout or secondary')
+    throw new Error('Set must be screen, full, scale, watch, holdout or secondary')
   if (set === 'holdout' && !args.includes('--promotion-holdout'))
     throw new Error('Holdout preparation requires --promotion-holdout')
   const sourceDirectory = value('--sources')
@@ -97,9 +98,11 @@ async function main(): Promise<void> {
         ? corpus.screen
         : set === 'full'
           ? corpus.normal
-          : set === 'watch'
-            ? corpus.watch
-            : selectHoldoutForPromotion(options)
+          : set === 'scale'
+            ? corpus.scale
+            : set === 'watch'
+              ? corpus.watch
+              : selectHoldoutForPromotion(options)
   const only = value('--only')
   const fixtures = only === undefined ? candidates : candidates.filter((entry) => entry.id === only)
   if (fixtures.length === 0) throw new Error(`No fixture selected: ${only ?? set}`)
@@ -142,7 +145,7 @@ async function main(): Promise<void> {
           fixtures: completed.map((entry) => ({
             id: entry.fixture.id,
             split: entry.fixture.split,
-            kind: set === 'watch' ? 'watch' : 'lab',
+            kind: set === 'watch' ? 'watch' : set === 'scale' ? 'scale' : 'lab',
             png: entry.pngPath,
             width: entry.fixture.crop.width,
             height: entry.fixture.crop.height,

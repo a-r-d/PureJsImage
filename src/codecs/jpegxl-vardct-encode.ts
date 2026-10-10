@@ -1,8 +1,3 @@
-import {
-  createCoherentCoefficientModel,
-  createNaturalLargeOrder,
-  type CoherentCoefficientModel,
-} from './jpegxl-vardct-coefficient-model.ts'
 import type { PixelColorSemantics } from '../color.ts'
 import { invalidInput, unsupportedOperation } from '../errors.ts'
 import { defaultImageLimits, type ImageLimits, validateImageDimensions } from '../limits.ts'
@@ -10,6 +5,7 @@ import { createStructuredRgbMatrix, nclxToLinear, nclxToLinearSrgbMatrix } from 
 import {
   allocateJpegXlArray,
   JpegXlEncoderMemory,
+  jpegXlPartsByteLength,
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
@@ -17,6 +13,8 @@ import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
+  estimateJpegXlForwardOrderBits,
+  jpegXlCoefficientColorBits,
   learnJpegXlForwardCoefficientOrders,
   type VarDctCoefficientGeometry,
   type VarDctCoefficientPlane,
@@ -24,10 +22,16 @@ import {
 } from './jpegxl-jpeg-encode.ts'
 import {
   encodeHybridUintPacked,
+  hasOpaque8BitAlpha,
   hasSmallVisiblePalette,
   packSigned,
 } from './jpegxl-modular-encode.ts'
-import { prepareJpegXlLargeMenus } from './jpegxl-vardct-large-menu.ts'
+import {
+  type CoherentCoefficientModel,
+  createCoherentCoefficientModel,
+  createNaturalLargeOrder,
+} from './jpegxl-vardct-coefficient-model.ts'
+import { type JpegXlLargeMenuInput, prepareJpegXlLargeMenus } from './jpegxl-vardct-large-menu.ts'
 import {
   createJpegXlLargeSelector,
   fillJpegXlLargeSourceWeights,
@@ -212,6 +216,7 @@ const fillXybBlockAligned = (
 const fillXybBlockAlignedFast = (
   pixels: Uint8Array,
   width: number,
+  channels: 3 | 4,
   blockX: number,
   blockY: number,
   xPlane: Float32Array,
@@ -231,8 +236,8 @@ const fillXybBlockAlignedFast = (
     m7 = matrix[7] ?? 0,
     m8 = matrix[8] ?? 0
   for (let y = 0; y < 8; y++) {
-    let offset = ((blockY * 8 + y) * width + blockX * 8) * 3
-    for (let x = 0; x < 8; x++, offset += 3) {
+    let offset = ((blockY * 8 + y) * width + blockX * 8) * channels
+    for (let x = 0; x < 8; x++, offset += channels) {
       const red = transfer[pixels[offset] ?? 0] ?? 0
       const green = transfer[pixels[offset + 1] ?? 0] ?? 0
       const blue = transfer[pixels[offset + 2] ?? 0] ?? 0
@@ -296,11 +301,13 @@ const canSearchConeFrame = (
   sampleDepth: number,
   progressive: boolean,
   color: JpegXlForwardColor | undefined,
+  pixels: Uint8Array,
 ): boolean =>
   effort === 7 &&
-  channels === 4 &&
+  (channels === 3 || channels === 4) &&
   sampleDepth === 8 &&
   (color?.storageBytes ?? 1) === 1 &&
+  (channels === 3 || ((color?.alphaBitDepth ?? 8) === 8 && hasOpaque8BitAlpha(pixels))) &&
   !progressive &&
   width * height > 4_194_304 &&
   width * height <= 16_777_216 &&
@@ -347,44 +354,31 @@ export const encodeJpegXlVarDct8 = (
         let next = steps.next()
         while (!next.done) next = steps.next()
         const geometry = next.value
-        const baseline = varDctCodestreamParts(
-          { width, height },
+        const baseline = forwardFrameParts(
+          width,
+          height,
           geometry,
           encodeVarDctCoefficientSections(geometry),
+          {},
         )
         if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
         try {
           return withJpegXlMemory(owned, () => {
-            const learning = learnJpegXlForwardCoefficientOrders(geometry)
-            let next = learning.next()
-            while (!next.done) next = learning.next()
-            const alternateGeometry = { ...geometry, coefficientOrders: next.value }
-            const alternate = varDctCodestreamParts(
-              { width, height },
-              alternateGeometry,
-              encodeVarDctCoefficientSections(alternateGeometry),
+            const choosing = chooseForwardOrderGeometry(geometry)
+            let next = choosing.next()
+            while (!next.done) next = choosing.next()
+            const selectedGeometry = next.value
+            if (selectedGeometry === geometry) return baseline
+            const alternate = forwardFrameParts(
+              width,
+              height,
+              selectedGeometry,
+              encodeVarDctCoefficientSections(selectedGeometry),
+              {},
             )
-            let selected =
-              codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
-            for (const candidate of [geometry, alternateGeometry]) {
-              try {
-                selected = withJpegXlMemory(owned, () => {
-                  const familyGeometry = { ...candidate, familyContexts: true }
-                  const family = varDctCodestreamParts(
-                    { width, height },
-                    familyGeometry,
-                    encodeVarDctCoefficientSections(familyGeometry),
-                  )
-                  return codestreamPartBytes(family) < codestreamPartBytes(selected)
-                    ? family
-                    : selected
-                })
-              } catch (error) {
-                if (!isJpegXlLimitExceeded(error)) throw error
-                break
-              }
-            }
-            return selected
+            return codestreamPartBytes(alternate) < codestreamPartBytes(baseline)
+              ? alternate
+              : baseline
           })
         } catch (error) {
           if (!isJpegXlLimitExceeded(error)) throw error
@@ -404,6 +398,7 @@ export const encodeJpegXlVarDct8 = (
             sampleDepth,
             progressive,
             color,
+            pixels,
           )
         )
           return baseline
@@ -442,8 +437,35 @@ const usesForwardCoefficientOrderSearch = (
   geometry.groupsAcross * geometry.groupsDown > 1 &&
   geometry.blocksWide * geometry.blocksHigh >= 1_024
 
+function* chooseForwardOrderGeometry(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): Generator<void, Readonly<VarDctCoefficientGeometry>, undefined> {
+  const coefficientOrders = yield* learnJpegXlForwardCoefficientOrders(geometry)
+  const alternateGeometry = { ...geometry, coefficientOrders }
+  let selected = geometry,
+    bestEstimate = Infinity
+  for (const candidate of [
+    geometry,
+    alternateGeometry,
+    { ...geometry, familyContexts: true },
+    { ...alternateGeometry, familyContexts: true },
+  ]) {
+    // The estimator releases its histograms before the next candidate is visited.
+    const estimated = yield* estimateJpegXlForwardOrderBits(candidate)
+    if (estimated < bestEstimate) {
+      bestEstimate = estimated
+      selected = candidate
+    }
+  }
+  return selected
+}
+
+const colorFrameBits = new WeakMap<readonly Uint8Array[], number>()
+const opaqueColorFrames = new WeakSet<readonly Uint8Array[]>()
+export const jpegXlVarDctColorBits = (parts: readonly Uint8Array[]): number =>
+  colorFrameBits.get(parts) ?? jpegXlPartsByteLength(parts) * 8
 const codestreamPartBytes = (parts: readonly Uint8Array[]): number =>
-  parts.reduce((total, part) => total + part.byteLength, 0)
+  opaqueColorFrames.has(parts) ? jpegXlVarDctColorBits(parts) / 8 : jpegXlPartsByteLength(parts)
 
 const forwardFrameParts = (
   width: number,
@@ -457,10 +479,13 @@ const forwardFrameParts = (
   const selectedSections = frame.patchGlobalSection
     ? [frame.patchGlobalSection(global), ...sections.slice(1)]
     : sections
-  return varDctCodestreamParts({ width, height }, geometry, selectedSections, {
+  const parts = varDctCodestreamParts({ width, height }, geometry, selectedSections, {
     reference: frame.reference === true,
     patches: frame.patchGlobalSection !== undefined,
   })
+  colorFrameBits.set(parts, jpegXlCoefficientColorBits(sections))
+  if (geometry.opaqueColorCost) opaqueColorFrames.add(parts)
+  return parts
 }
 
 const encodeJpegXlVarDct8CandidateAsync = (
@@ -510,49 +535,31 @@ const encodeJpegXlVarDct8CandidateAsync = (
     if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
     try {
       return await withJpegXlMemoryAsync(memory, async () => {
-        const learning = learnJpegXlForwardCoefficientOrders(geometry)
-        let next = learning.next()
+        const choosing = chooseForwardOrderGeometry(geometry)
+        let next = choosing.next()
         try {
           while (!next.done) {
             await checkpoint()
-            next = learning.next()
+            next = choosing.next()
           }
         } finally {
-          learning.return([])
+          choosing.return(geometry)
         }
-        const alternateGeometry = { ...geometry, coefficientOrders: next.value }
+        const selectedGeometry = next.value
+        if (selectedGeometry === geometry) return baseline
         const alternateSections = await encodeVarDctCoefficientSectionsAsync(
-          alternateGeometry,
+          selectedGeometry,
           checkpoint,
         )
         await checkpoint()
         const alternate = forwardFrameParts(
           width,
           height,
-          alternateGeometry,
+          selectedGeometry,
           alternateSections,
           frame,
         )
-        let selected =
-          codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
-        for (const candidate of [geometry, alternateGeometry]) {
-          try {
-            selected = await withJpegXlMemoryAsync(memory, async () => {
-              const familyGeometry = { ...candidate, familyContexts: true }
-              const familySections = await encodeVarDctCoefficientSectionsAsync(
-                familyGeometry,
-                checkpoint,
-              )
-              await checkpoint()
-              const family = forwardFrameParts(width, height, familyGeometry, familySections, frame)
-              return codestreamPartBytes(family) < codestreamPartBytes(selected) ? family : selected
-            })
-          } catch (error) {
-            if (!isJpegXlLimitExceeded(error)) throw error
-            break
-          }
-        }
-        return selected
+        return codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
       })
     } catch (error) {
       if (!isJpegXlLimitExceeded(error)) throw error
@@ -610,6 +617,7 @@ export const encodeJpegXlVarDct8Async = async (
           sampleDepth,
           progressive,
           color,
+          pixels,
         )
       )
         return baseline
@@ -659,32 +667,27 @@ function* prepare8(
   const quantAc = 4
   const globalScale = Math.round(65536 / (distance * quantAc))
   const effectiveDistance = 65536 / globalScale / quantAc
-  const sdrAlpha =
-    effort === 7 &&
-    channels === 4 &&
+  const sdrInput =
+    (channels === 3 || channels === 4) &&
     sampleDepth === 8 &&
     sampleBytes === 1 &&
     (color?.primaries ?? 'srgb') === 'srgb' &&
     (color?.transfer.kind ?? 'srgb') === 'srgb'
-  let rgbDcPolicy = channels === 3
+  const opaqueSdrInput =
+    sdrInput &&
+    (channels === 3 || ((color?.alphaBitDepth ?? 8) === 8 && hasOpaque8BitAlpha(pixels)))
+  const sdrColor = effort === 7 && sdrInput
+  const sdrAlpha = sdrColor && channels === 4
+  const sdrOpaqueColor = sdrColor && opaqueSdrInput
+  let rgbDcPolicy = channels === 3 || ((effort === 3 || effort === 5) && opaqueSdrInput)
   let smallVisiblePalette: boolean | undefined
-  if (
-    sdrAlpha &&
-    (distance > 1 || (compressionSearch && width * height > 4_194_304)) &&
-    (width * height <= 4_194_304 || (compressionSearch && width * height <= 16_777_216)) &&
-    (color?.alphaBitDepth ?? 8) === 8
-  ) {
-    rgbDcPolicy = true
-    for (let offset = 3; offset < pixels.length; offset += 4) {
-      if (pixels[offset] !== 255) {
-        rgbDcPolicy = false
-        break
-      }
-    }
+  if (sdrOpaqueColor) {
+    // Opaque RGB and RGBA use the same color policy; alpha storage stays separate.
+    rgbDcPolicy = distance > 1 || compressionSearch
     if (rgbDcPolicy) {
       try {
         // Artwork with few visible colors keeps its established DC policy.
-        smallVisiblePalette = hasSmallVisiblePalette(pixels, memory)
+        smallVisiblePalette = hasSmallVisiblePalette(pixels, memory, channels === 3 ? 3 : 4)
         rgbDcPolicy = !smallVisiblePalette
       } catch (error) {
         if (!isJpegXlLimitExceeded(error)) throw error
@@ -719,7 +722,7 @@ function* prepare8(
     (color?.transfer.kind ?? 'srgb') === 'srgb'
   const finerSdrAc =
     effort === 7 &&
-    channels === 3 &&
+    (channels === 3 || sdrOpaqueColor) &&
     sampleDepth === 8 &&
     sampleBytes === 1 &&
     distance >= 2 &&
@@ -728,24 +731,16 @@ function* prepare8(
     (color?.transfer.kind ?? 'srgb') === 'srgb'
   const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
   const originalDarkAc =
-    compressionSearch &&
-    sdrAlpha &&
-    rgbDcPolicy &&
-    !progressive &&
-    width * height > 4_194_304 &&
-    distance <= 1
+    compressionSearch && sdrOpaqueColor && rgbDcPolicy && !progressive && distance <= 1
   let xScale: 0 | 2 = 2
   let xAc = 1
   let bScale: 1 | 2 = 2
   let bAc = 1
   const originalPhotoAc =
-    compressionSearch &&
-    sdrAlpha &&
-    rgbDcPolicy &&
-    !progressive &&
-    width * height > 4_194_304 &&
-    distance > 1
-  const moderateAlphaDc = sdrAlpha
+    compressionSearch && sdrOpaqueColor && rgbDcPolicy && !progressive && distance > 1
+  const moderateAlphaDc = sdrAlpha && !sdrOpaqueColor
+  const photoColorQuantization = originalDarkAc || originalPhotoAc
+  const smoothColorDc = moderateAlphaDc || photoColorQuantization
   const dcQuantization = moderateSdrDc
     ? originalPhotoAc
       ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
@@ -839,7 +834,7 @@ function* prepare8(
   }
   const cubeRootTable =
     effort === 1 &&
-    channels === 3 &&
+    (channels === 3 || opaqueSdrInput) &&
     sampleBytes === 1 &&
     (width & 7) === 0 &&
     (height & 7) === 0 &&
@@ -870,22 +865,23 @@ function* prepare8(
           }
         }
       : sampleBytes === 1
-        ? channels === 3 && (width & 7) === 0 && (height & 7) === 0
-          ? cubeRootTable
+        ? cubeRootTable
+          ? (blockX: number, blockY: number) =>
+              fillXybBlockAlignedFast(
+                pixels,
+                width,
+                channels,
+                blockX,
+                blockY,
+                xPlane,
+                yPlane,
+                bPlane,
+                transfer,
+                matrix,
+                cubeRootTable,
+              )
+          : channels === 3 && (width & 7) === 0 && (height & 7) === 0
             ? (blockX: number, blockY: number) =>
-                fillXybBlockAlignedFast(
-                  pixels,
-                  width,
-                  blockX,
-                  blockY,
-                  xPlane,
-                  yPlane,
-                  bPlane,
-                  transfer,
-                  matrix,
-                  cubeRootTable,
-                )
-            : (blockX: number, blockY: number) =>
                 fillXybBlockAligned(
                   pixels,
                   width,
@@ -897,20 +893,20 @@ function* prepare8(
                   transfer,
                   matrix,
                 )
-          : (blockX: number, blockY: number) =>
-              fillXybBlock(
-                pixels,
-                width,
-                height,
-                blockX,
-                blockY,
-                xPlane,
-                yPlane,
-                bPlane,
-                channels,
-                transfer,
-                matrix,
-              )
+            : (blockX: number, blockY: number) =>
+                fillXybBlock(
+                  pixels,
+                  width,
+                  height,
+                  blockX,
+                  blockY,
+                  xPlane,
+                  yPlane,
+                  bPlane,
+                  channels,
+                  transfer,
+                  matrix,
+                )
         : (blockX: number, blockY: number) =>
             fillXybBlock16(
               pixels,
@@ -1025,7 +1021,9 @@ function* prepare8(
         }
       : defaultFillColor
   const alphaMask =
-    channels === 4 && effort > 1 ? allocateJpegXlArray(memory, Uint8Array, 64) : undefined
+    channels === 4 && effort > 1 && !sdrOpaqueColor
+      ? allocateJpegXlArray(memory, Uint8Array, 64)
+      : undefined
   const fill = alphaMask
     ? (blockX: number, blockY: number) => {
         fillColor(blockX, blockY)
@@ -1126,23 +1124,24 @@ function* prepare8(
               ? 1
               : 0
         }
-        quantizationMap[offset] = moderateAlphaDc
-          ? (originalDarkAc &&
-              ((means[1] ?? 0) < 0.3 || ((means[1] ?? 0) < 0.5 && activity > 1.5)) &&
-              yy >= 0.000064 &&
-              yy < 0.001) ||
-            (originalPhotoAc &&
-              ((distance < 2 &&
-                (((means[1] ?? 0) < 0.3 && gradient > 0.01 && yy < 0.05) ||
-                  ((means[1] ?? 0) < 0.5 && activity > 2 && yy >= 0.000064 && yy < 0.005))) ||
-                (distance >= 4 && (means[1] ?? 0) > 0.5 && yy >= 0.000064 && yy < 0.005)))
-            ? 8
-            : 7
-          : yy < 0.000064 || activity < 0.15
-            ? 6
-            : finerSdrAc
-              ? 5
-              : 4
+        quantizationMap[offset] =
+          moderateAlphaDc || photoColorQuantization
+            ? (originalDarkAc &&
+                ((means[1] ?? 0) < 0.3 || ((means[1] ?? 0) < 0.5 && activity > 1.5)) &&
+                yy >= 0.000064 &&
+                yy < 0.001) ||
+              (originalPhotoAc &&
+                ((distance < 2 &&
+                  (((means[1] ?? 0) < 0.3 && gradient > 0.01 && yy < 0.05) ||
+                    ((means[1] ?? 0) < 0.5 && activity > 2 && yy >= 0.000064 && yy < 0.005))) ||
+                  (distance >= 4 && (means[1] ?? 0) > 0.5 && yy >= 0.000064 && yy < 0.005)))
+              ? 8
+              : 7
+            : yy < 0.000064 || activity < 0.15
+              ? 6
+              : finerSdrAc
+                ? 5
+                : 4
         if (brightPqAc && (means[1] ?? 0) >= 0.5 && quantizationMap[offset] === 4)
           quantizationMap[offset] = 5
         // Spend extra AC precision on strong SDR edges and thin PQ edges.
@@ -1197,9 +1196,8 @@ function* prepare8(
     moderateSdrDc &&
     effort === 7 &&
     (distance >= 6 || originalPhotoAc) &&
-    channels === 4 &&
-    !progressive &&
-    width * height <= 16_777_216
+    sdrOpaqueColor &&
+    !progressive
   const acRateWeightChroma = originalDarkAc || originalPhotoAc ? 0.04 : 0.02
   const rateAwareAc = (normalized: number, channel: number): number => {
     const bias = defaultJpegXlQuantizationBiases[channel] ?? 1
@@ -1217,15 +1215,22 @@ function* prepare8(
   }
   const quantizeAc: (normalized: number, channel: number) => number =
     coarse || originalDarkAc ? rateAwareAc : Math.round
-  const epfMaximumSharpness = channels === 4 ? 2 : 3
-  let sharpnessMap =
+  const epfMaximumSharpness = opaqueSdrInput || channels !== 4 ? 3 : 2
+  let sharpnessMap: Uint8Array | undefined
+  if (
     strategyMap &&
     distance >= 2 &&
-    (channels !== 4 || (effort === 7 && moderateSdrDc)) &&
+    (opaqueSdrInput || channels !== 4 || (effort === 7 && moderateSdrDc)) &&
     colorTransfer.kind === 'srgb' &&
     primaryCode === 1
-      ? allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
-      : undefined
+  ) {
+    try {
+      sharpnessMap = allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
+    } catch (error) {
+      // The shared opaque policy also reaches this map in the bounded fallback.
+      if (!isJpegXlLimitExceeded(error)) throw error
+    }
+  }
   if (strategyMap) {
     const alternatePolicy = strategyPolicy === 'rate-distortion'
     const errors = allocateJpegXlArray(memory, Float32Array, 3)
@@ -1309,7 +1314,7 @@ function* prepare8(
         // DCT energy equals pixel variance. The floors avoid spending bits on
         // tiny residuals, including decorrelated X chroma.
         // One bounded refinement retains the existing quantizer as the fallback.
-        if (effort === 7 && channels === 3 && distance > 1 && distance < 5) {
+        if (effort === 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
           let relativeError = 0
           for (let channel = 0; channel < 3; channel++) {
             const plane = planes[channel]
@@ -1854,17 +1859,101 @@ function* prepare8(
   let largePlanes: readonly [Float32Array, Float32Array, Float32Array] | undefined
   let largeTransformed: readonly [Float32Array, Float32Array, Float32Array] | undefined
   let largeIntermediate: Float32Array | undefined
-  if (
+  function* prepareLargeMenus(
+    largeSelector: JpegXlLargeSelector,
+    sourceStrategies: Int32Array,
+    dc: readonly [Int32Array, Int32Array, Int32Array],
+    scratch: ArrayBufferView[],
+    coherent?: JpegXlLargeMenuInput['coherent'],
+  ): Generator<void, void, undefined> {
+    const linearTile = memory.allocate(Float64Array, 34 * 34 * 3)
+    scratch.push(linearTile)
+    const weightMatrix = memory.allocate(Float64Array, 9)
+    scratch.push(weightMatrix)
+    weightMatrix.set(matrix)
+    const ratios = memory.allocate(Float64Array, 16)
+    scratch.push(ratios)
+    yield* prepareJpegXlLargeMenus({
+      memory,
+      ...(coherent ? { coherent } : {}),
+      blocksWide,
+      blocksHigh,
+      globalScale,
+      strategyMap: sourceStrategies,
+      quantizationMap,
+      dc,
+      dcFactors: [
+        effectiveDistance * (dcQuantization[0] ?? 0),
+        effectiveDistance * (dcQuantization[1] ?? 0),
+        effectiveDistance * (dcQuantization[2] ?? 0),
+      ],
+      correlationX,
+      correlationB,
+      smoothDc: smoothColorDc,
+      fill8: (correlated, x, y) => {
+        if (correlated) fillCorrelated(x, y)
+        else fill(x, y)
+        return planes
+      },
+      quantizeAc,
+      fillWeights: (blockX, blockY, output) => {
+        for (let y = 0; y < 34; y++) {
+          const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))
+          for (let x = 0; x < 34; x++) {
+            const sourceX = Math.max(0, Math.min(width - 1, blockX * 8 + x - 1)),
+              source = (sourceY * width + sourceX) * channels,
+              destination = (y * 34 + x) * 3
+            linearTile[destination] = transfer[pixels[source] ?? 0] ?? 0
+            linearTile[destination + 1] = transfer[pixels[source + 1] ?? 0] ?? 0
+            linearTile[destination + 2] = transfer[pixels[source + 2] ?? 0] ?? 0
+          }
+        }
+        for (let y = 0; y < 4; y++)
+          for (let x = 0; x < 4; x++)
+            ratios[y * 4 + x] =
+              (correlationX[
+                Math.floor((blockY + y) / 8) * colorTilesAcross + Math.floor((blockX + x) / 8)
+              ] ?? 0) / 84
+        fillJpegXlLargeSourceWeights(linearTile, weightMatrix, ratios, output)
+      },
+      learnBaselineCount: (nonzero, channel) => largeSelector.learnBaselineCount(nonzero, channel),
+      addWindow: (index, menu) => largeSelector.addWindow(index, menu),
+      // Preparation yields each tile row to the caller's cancellation checks.
+      check: () => {},
+    })
+  }
+  const commitLargeSelection = (
+    selected: JpegXlLargeSelection,
+    strategies: Int32Array,
+    dc: readonly [Int32Array, Int32Array, Int32Array],
+  ): void => {
+    const windowsAcross = Math.floor(blocksWide / 4),
+      [xDc, yDc, bDc] = dc
+    for (let wy = 0; wy < Math.floor(blocksHigh / 4); wy++)
+      for (let wx = 0; wx < windowsAcross; wx++) {
+        const dcOffset = (wy * windowsAcross + wx) * 48
+        for (let y = 0; y < 4; y++)
+          for (let x = 0; x < 4; x++) {
+            const at = (wy * 4 + y) * blocksWide + wx * 4 + x,
+              strategy = selected.map.strategy[at] ?? 0
+            if (strategy === 0) continue
+            strategies[at] = strategy
+            const cell = y * 4 + x
+            xDc[at] = selected.compactDc[dcOffset + 16 + cell] ?? 0
+            yDc[at] = selected.compactDc[dcOffset + cell] ?? 0
+            bDc[at] = selected.compactDc[dcOffset + 32 + cell] ?? 0
+          }
+      }
+    quantizationMap.set(selected.quantizationMap)
+  }
+  const largeColorGeometry =
     originalPhotoAc &&
-    distance >= 2 &&
-    distance <= 4 &&
-    strategyMap &&
     blocksWide >= 4 &&
     blocksHigh >= 4 &&
     matrix === defaultForwardMatrix &&
     xScale === 2 &&
     bScale === 2
-  ) {
+  if (largeColorGeometry && distance >= 2 && distance <= 4 && strategyMap) {
     const scratch: ArrayBufferView[] = []
     const retained: ArrayBufferView[] = []
     let selector: JpegXlLargeSelector | undefined
@@ -1886,61 +1975,7 @@ function* prepare8(
         quantizationMap,
       )
       selector = largeSelector
-      const linearTile = memory.allocate(Float64Array, 34 * 34 * 3)
-      scratch.push(linearTile)
-      const weightMatrix = memory.allocate(Float64Array, 9)
-      scratch.push(weightMatrix)
-      weightMatrix.set(matrix)
-      const ratios = memory.allocate(Float64Array, 16)
-      scratch.push(ratios)
-      yield* prepareJpegXlLargeMenus({
-        memory,
-        blocksWide,
-        blocksHigh,
-        globalScale,
-        strategyMap,
-        quantizationMap,
-        dc: [xDc, yDc, bDc],
-        dcFactors: [
-          effectiveDistance * (dcQuantization[0] ?? 0),
-          effectiveDistance * (dcQuantization[1] ?? 0),
-          effectiveDistance * (dcQuantization[2] ?? 0),
-        ],
-        correlationX,
-        correlationB,
-        smoothDc: moderateAlphaDc,
-        fill8: (correlated, x, y) => {
-          if (correlated) fillCorrelated(x, y)
-          else fill(x, y)
-          return planes
-        },
-        quantizeAc,
-        fillWeights: (blockX, blockY, output) => {
-          for (let y = 0; y < 34; y++) {
-            const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))
-            for (let x = 0; x < 34; x++) {
-              const sourceX = Math.max(0, Math.min(width - 1, blockX * 8 + x - 1)),
-                source = (sourceY * width + sourceX) * 4,
-                destination = (y * 34 + x) * 3
-              linearTile[destination] = transfer[pixels[source] ?? 0] ?? 0
-              linearTile[destination + 1] = transfer[pixels[source + 1] ?? 0] ?? 0
-              linearTile[destination + 2] = transfer[pixels[source + 2] ?? 0] ?? 0
-            }
-          }
-          for (let y = 0; y < 4; y++)
-            for (let x = 0; x < 4; x++)
-              ratios[y * 4 + x] =
-                (correlationX[
-                  Math.floor((blockY + y) / 8) * colorTilesAcross + Math.floor((blockX + x) / 8)
-                ] ?? 0) / 84
-          fillJpegXlLargeSourceWeights(linearTile, weightMatrix, ratios, output)
-        },
-        learnBaselineCount: (nonzero, channel) =>
-          largeSelector.learnBaselineCount(nonzero, channel),
-        addWindow: (index, menu) => largeSelector.addWindow(index, menu),
-        // Preparation yields each tile row to the caller's cancellation checks.
-        check: () => {},
-      })
+      yield* prepareLargeMenus(largeSelector, strategyMap, [xDc, yDc, bDc], scratch)
       selector.finalize()
       selected = selector.select(1)
       if (selected.stats.selected > 0) {
@@ -1958,23 +1993,7 @@ function* prepare8(
         }
         // Every optional buffer is admitted before changing the original geometry.
         // Commit all maps and DC without yielding, then release the complete menus.
-        const windowsAcross = Math.floor(blocksWide / 4)
-        for (let wy = 0; wy < Math.floor(blocksHigh / 4); wy++)
-          for (let wx = 0; wx < windowsAcross; wx++) {
-            const dcOffset = (wy * windowsAcross + wx) * 48
-            for (let y = 0; y < 4; y++)
-              for (let x = 0; x < 4; x++) {
-                const at = (wy * 4 + y) * blocksWide + wx * 4 + x,
-                  strategy = selected.map.strategy[at] ?? 0
-                if (strategy === 0) continue
-                strategyMap[at] = strategy
-                const cell = y * 4 + x
-                xDc[at] = selected.compactDc[dcOffset + 16 + cell] ?? 0
-                yDc[at] = selected.compactDc[dcOffset + cell] ?? 0
-                bDc[at] = selected.compactDc[dcOffset + 32 + cell] ?? 0
-              }
-          }
-        quantizationMap.set(selected.quantizationMap)
+        commitLargeSelection(selected, strategyMap, [xDc, yDc, bDc])
         retained.length = 0
       }
     } catch (error) {
@@ -2216,10 +2235,15 @@ function* prepare8(
     colorTransform: 'xyb',
     xScale,
     bScale,
+    opaqueColorCost: sdrOpaqueColor,
     acIterationSearch: originalDarkAc || originalPhotoAc,
     advancedModularSearch:
       coarse ||
-      (compressionSearch && sdrAlpha && rgbDcPolicy && width * height > 4_194_304 && !progressive),
+      (compressionSearch &&
+        sdrOpaqueColor &&
+        rgbDcPolicy &&
+        width * height > 4_194_304 &&
+        !progressive),
     ...(strategyMap ? { strategyMap } : {}),
     ...(sharpnessMap ? { sharpnessMap } : {}),
     chromaSubsampling: [0, 0, 0],
@@ -2238,7 +2262,7 @@ function* prepare8(
     dcComponents: [second, first, third],
     quantization,
     dcQuantization,
-    ...(moderateAlphaDc ? { smoothDc: true } : {}),
+    ...(smoothColorDc ? { smoothDc: true } : {}),
     defaultMatrices: true,
     globalScale,
     quantAc,
@@ -2256,16 +2280,7 @@ function* prepare8(
     ...(imageHeader ? { imageHeader } : {}),
   }
   let resultGeometry = geometry
-  if (
-    originalPhotoAc &&
-    distance > 4 &&
-    strategyMap &&
-    blocksWide >= 4 &&
-    blocksHigh >= 4 &&
-    matrix === defaultForwardMatrix &&
-    xScale === 2 &&
-    bScale === 2
-  ) {
+  if (largeColorGeometry && distance > 4 && strategyMap) {
     const scratch: ArrayBufferView[] = []
     const retained: ArrayBufferView[] = []
     let selector: JpegXlLargeSelector | undefined
@@ -2359,61 +2374,9 @@ function* prepare8(
         true,
       )
       selector = largeSelector
-      const linearTile = memory.allocate(Float64Array, 34 * 34 * 3)
-      scratch.push(linearTile)
-      const weightMatrix = memory.allocate(Float64Array, 9)
-      scratch.push(weightMatrix)
-      weightMatrix.set(matrix)
-      const ratios = memory.allocate(Float64Array, 16)
-      scratch.push(ratios)
-      yield* prepareJpegXlLargeMenus({
-        memory,
-        coherent: { model, canonicalOrders },
-        blocksWide,
-        blocksHigh,
-        globalScale,
-        strategyMap,
-        quantizationMap,
-        dc: [xDc, yDc, bDc],
-        dcFactors: [
-          effectiveDistance * (dcQuantization[0] ?? 0),
-          effectiveDistance * (dcQuantization[1] ?? 0),
-          effectiveDistance * (dcQuantization[2] ?? 0),
-        ],
-        correlationX,
-        correlationB,
-        smoothDc: moderateAlphaDc,
-        fill8: (correlated, x, y) => {
-          if (correlated) fillCorrelated(x, y)
-          else fill(x, y)
-          return planes
-        },
-        quantizeAc,
-        fillWeights: (blockX, blockY, output) => {
-          for (let y = 0; y < 34; y++) {
-            const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))
-            for (let x = 0; x < 34; x++) {
-              const sourceX = Math.max(0, Math.min(width - 1, blockX * 8 + x - 1)),
-                source = (sourceY * width + sourceX) * 4,
-                destination = (y * 34 + x) * 3
-              linearTile[destination] = transfer[pixels[source] ?? 0] ?? 0
-              linearTile[destination + 1] = transfer[pixels[source + 1] ?? 0] ?? 0
-              linearTile[destination + 2] = transfer[pixels[source + 2] ?? 0] ?? 0
-            }
-          }
-          for (let y = 0; y < 4; y++)
-            for (let x = 0; x < 4; x++)
-              ratios[y * 4 + x] =
-                (correlationX[
-                  Math.floor((blockY + y) / 8) * colorTilesAcross + Math.floor((blockX + x) / 8)
-                ] ?? 0) / 84
-          fillJpegXlLargeSourceWeights(linearTile, weightMatrix, ratios, output)
-        },
-        learnBaselineCount: (nonzero, channel) =>
-          largeSelector.learnBaselineCount(nonzero, channel),
-        addWindow: (index, menu) => largeSelector.addWindow(index, menu),
-        // Preparation yields each tile row to the caller's cancellation checks.
-        check: () => {},
+      yield* prepareLargeMenus(largeSelector, strategyMap, [xDc, yDc, bDc], scratch, {
+        model,
+        canonicalOrders,
       })
       selector.finalize()
       selected = yield* selector.selectOriginalBudget()
@@ -2458,23 +2421,7 @@ function* prepare8(
         }
         // Every optional buffer is admitted before changing the original geometry.
         // Commit all maps and DC without yielding, then release the complete menus.
-        const windowsAcross = Math.floor(blocksWide / 4)
-        for (let wy = 0; wy < Math.floor(blocksHigh / 4); wy++)
-          for (let wx = 0; wx < windowsAcross; wx++) {
-            const dcOffset = (wy * windowsAcross + wx) * 48
-            for (let y = 0; y < 4; y++)
-              for (let x = 0; x < 4; x++) {
-                const at = (wy * 4 + y) * blocksWide + wx * 4 + x,
-                  strategy = selected.map.strategy[at] ?? 0
-                if (strategy === 0) continue
-                strategyMap[at] = strategy
-                const cell = y * 4 + x
-                xDc[at] = selected.compactDc[dcOffset + 16 + cell] ?? 0
-                yDc[at] = selected.compactDc[dcOffset + cell] ?? 0
-                bDc[at] = selected.compactDc[dcOffset + 32 + cell] ?? 0
-              }
-          }
-        quantizationMap.set(selected.quantizationMap)
+        commitLargeSelection(selected, strategyMap, [xDc, yDc, bDc])
         retained.length = 0
       }
     } catch (error) {

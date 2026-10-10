@@ -1023,12 +1023,15 @@ class EntropyReader implements JpegBitReader {
     return this.#offset
   }
 
-  finish(): void {
+  finish(expectedTerminalRestart?: number): void {
     this.#bits = 0
     this.#bitCount = 0
     if (this.#ended) return
+    let terminalRestartConsumed = false
     while (this.#offset < this.#data.byteLength) {
       if (byte(this.#data, this.#offset) !== 0xff) {
+        if (terminalRestartConsumed)
+          throw invalidInput('JPEG terminal restart must be followed by EOI')
         this.#offset += 1
         continue
       }
@@ -1041,8 +1044,12 @@ class EntropyReader implements JpegBitReader {
       }
       const marker = byte(this.#data, this.#offset)
       this.#offset += 1
-      if (marker === 0) continue
+      if (marker === 0 && !terminalRestartConsumed) continue
       if (marker === 0xd9) return
+      if (marker === expectedTerminalRestart && !terminalRestartConsumed) {
+        terminalRestartConsumed = true
+        continue
+      }
       throw invalidInput('Baseline JPEG contains additional unsupported scans')
     }
     throw truncatedInput('JPEG end marker is missing')
@@ -2322,7 +2329,12 @@ export const decodeBaselineJpeg = async function* (
     currentPlanes = previous ?? componentPlanes(jpeg, blockSize)
     for (const plane of currentPlanes) plane.fill(0)
   }
-  await reader.finish()
+  // Some sequential encoders terminate a complete DRI interval with its RST marker.
+  const terminalRestart =
+    !entropyEnded && jpeg.restartInterval > 0 && totalMcus % jpeg.restartInterval === 0
+      ? 0xd0 + (restart & 7)
+      : undefined
+  await reader.finish(terminalRestart)
   if (!pendingPlanes) return
   replicateBottomHalo(jpeg, pendingPlanes, blockSize)
   const data = recycledOutput.pop() ?? new Uint8Array(outputBytes)

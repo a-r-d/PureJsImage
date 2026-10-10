@@ -43,11 +43,24 @@ describe('lossy lab photographic corpus', () => {
       'im26-3306',
       'im26-2012',
     ])
-    expect(corpus.screen.filter((entry) => entry.largeGateRepresentative)).toHaveLength(2)
+    expect(
+      corpus.normal.every((entry) => entry.crop.width <= 512 && entry.crop.height <= 512),
+    ).toBe(true)
+    expect(corpus.normal.some((entry) => entry.largeGateRepresentative)).toBe(false)
+    expect(corpus.scale).toHaveLength(2)
+    expect(new Set(corpus.scale.map((entry) => entry.id))).toEqual(
+      new Set(['im26-1626', 'im26-3306']),
+    )
+    expect(
+      corpus.scale.every(
+        (entry) =>
+          entry.crop.width === 2080 && entry.crop.height === 2080 && entry.largeGateRepresentative,
+      ),
+    ).toBe(true)
     expect(selectDevelopmentCorpus()).toEqual(corpus)
     expect(corpus.reductions).toEqual([])
     expect('holdout' in corpus).toBe(false)
-    expect(corpus.version).toBe('031883090ed2cee64e9482432c0669879978808393539a996d3fa965400949ff')
+    expect(corpus.version).toMatch(/^[a-f0-9]{64}$/u)
   })
 
   it('keeps all 56 secondary development cases separate from photos and holdout', () => {

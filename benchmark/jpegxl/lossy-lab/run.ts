@@ -3,10 +3,12 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { object } from '../comparison/model.ts'
 import {
+  baselineSpeedPoints,
   type PreparedFixture,
   parseLabMode,
   parsePreparedManifest,
   selectPreparedFixtures,
+  validateBaselineSpeedResume,
 } from './fixture-selection.ts'
 import { bdRate, type QualityMetric, summarizeBdRates } from './metrics.ts'
 import { type CurvePoint, type Engine, missingSettings, parsePoint } from './model.ts'
@@ -20,6 +22,7 @@ const manifestPath = argument('--manifest', '.tmp/jpegxl-lossy-lab/corpus/manife
 const directory = argument('--out', '.tmp/jpegxl-lossy-lab/baseline')
 const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
+const rgb = args.includes('--rgb')
 const workers = Number(argument('--workers', '2'))
 const budgetSeconds = Number(argument('--budget-seconds', mode === 'screen' ? '600' : '3600'))
 if (
@@ -33,6 +36,13 @@ if (
   throw new Error('Invalid lab mode, variant, worker count or budget')
 if (mode === 'speed' && workers !== 1)
   throw new Error('Speed measurements require one isolated worker')
+const resumeSpeed = args.includes('--resume-speed')
+if (resumeSpeed && (mode !== 'speed' || variant !== 'baseline' || rgb))
+  throw new Error('--resume-speed is only for baseline speed continuation')
+if (args.includes('--resume-own') && variant !== 'baseline')
+  throw new Error('Candidate performance measurements cannot reuse own results')
+if (resumeSpeed)
+  validateBaselineSpeedResume(JSON.parse(await readFile(join(directory, 'progress.json'), 'utf8')))
 if (mode === 'holdout' && !args.includes('--promotion'))
   throw new Error('Holdout runs require --promotion')
 if (mode === 'watch' && !args.includes('--promotion'))
@@ -62,10 +72,12 @@ const qualityIntervals = {
 }
 const engines: Engine[] = ['purejsimage', 'jsquash', 'vips']
 const distances =
-  mode === 'screen' ? [0.25, 1.5, 6, 25] : [0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9, 16, 25]
+  mode === 'screen' || mode === 'scale'
+    ? [0.5, 1, 2, 4, 7]
+    : [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5]
 const peerSettings = {
-  jsquash: [1, 10, 20, 40, 60, 75, 85, 92, 97, 99, 100],
-  vips: [0.1, 0.25, 0.35, 0.5, 0.75, 1, 1.5, 2, 3, 4.5, 6, 9, 16, 25],
+  jsquash: [1, 10, 20, 40, 50, 60, 65, 70, 75, 80, 85, 88, 92, 95, 97, 99, 100],
+  vips: [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5],
 }
 type Fixture = PreparedFixture
 const selected = selection.fixtures
@@ -92,9 +104,11 @@ const comparisons: {
 
 const jobs = selected.flatMap((fixture) => engines.map((engine) => ({ fixture, engine })))
 let next = 0
+let reusedSpeedJobs = 0
+let measuredSpeedJobs = 0
 let pendingLedger = Promise.resolve()
 const ledger = async (): Promise<void> => {
-  const text = `${JSON.stringify({ startedAt: new Date(started).toISOString(), mode, variant, budgetSeconds, workers, selected: selected.length, totalJobs: jobs.length, completedJobs: [...results.values()].reduce((sum, row) => sum + row.size, 0), failures, omissions }, null, 2)}\n`
+  const text = `${JSON.stringify({ startedAt: new Date(started).toISOString(), mode, variant, budgetSeconds, workers, resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, selected: selected.length, totalJobs: jobs.length, completedJobs: [...results.values()].reduce((sum, row) => sum + row.size, 0), failures, omissions }, null, 2)}\n`
   pendingLedger = pendingLedger.then(() => writeFile(join(directory, 'progress.json'), text))
   await pendingLedger
 }
@@ -116,20 +130,31 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
         )
   const resultPath = join(resultDirectory, 'result.json')
   let cached: unknown = null
-  if (mode !== 'speed' && (engine !== 'purejsimage' || args.includes('--resume-own'))) {
+  if (
+    resumeSpeed ||
+    (mode !== 'speed' && (engine !== 'purejsimage' || args.includes('--resume-own')))
+  ) {
     try {
       cached = JSON.parse(await readFile(resultPath, 'utf8'))
     } catch {
       /* Cache miss. */
     }
   }
-  const cachedRow = cached === null ? null : object(cached)
-  const sameFixture =
-    cachedRow?.fixtureSha256 === fixture.fixtureSha256 &&
-    cachedRow.engine === engine &&
-    Array.isArray(cachedRow.points)
-  const cachedPoints =
-    sameFixture && Array.isArray(cachedRow?.points) ? cachedRow.points.map(parsePoint) : []
+  const cachedRow = cached === null || resumeSpeed ? null : object(cached)
+  const resumedPoints = resumeSpeed
+    ? baselineSpeedPoints(cached, fixture.fixtureSha256, engine)
+    : []
+  const sameFixture = resumeSpeed
+    ? resumedPoints.length === 1
+    : cachedRow?.fixtureSha256 === fixture.fixtureSha256 &&
+      cachedRow.engine === engine &&
+      Array.isArray(cachedRow.points) &&
+      (cachedRow.channels ?? 4) === (engine === 'purejsimage' && rgb ? 3 : 4)
+  const cachedPoints = resumeSpeed
+    ? resumedPoints
+    : sameFixture && Array.isArray(cachedRow?.points)
+      ? cachedRow.points.map(parsePoint)
+      : []
   const missing = missingSettings(settings, cachedPoints)
   const cacheValid = sameFixture && missing.length === 0
   if (!cacheValid) {
@@ -150,6 +175,7 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
           resultDirectory,
           missing.join(','),
           ...(sameFixture ? ['--append'] : []),
+          ...(engine === 'purejsimage' && rgb ? ['--rgb'] : []),
         ],
         { stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, OMP_NUM_THREADS: '1' } },
       )
@@ -178,6 +204,11 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
   if (row.fixtureSha256 !== fixture.fixtureSha256 || !Array.isArray(row.points))
     throw new Error('Worker fixture/result mismatch')
   const points = row.points.map(parsePoint).filter((point) => settings.includes(point.setting))
+  if (mode === 'speed') {
+    if (missingSettings(settings, points).length !== 0) throw new Error('Speed measurement missing')
+    if (cacheValid) reusedSpeedJobs++
+    else measuredSpeedJobs++
+  }
   const key = fixtureKey(fixture)
   let entry = results.get(key)
   if (!entry) {
@@ -294,7 +325,7 @@ const processPeakRssBytes = Math.max(
 )
 await writeFile(
   join(directory, 'summary.json'),
-  `${JSON.stringify({ mode, variant, workers, manifestPath, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * 6) }, null, 2)}\n`,
+  `${JSON.stringify({ mode, variant, workers, manifestPath, measurementRun: resumeSpeed ? 'partial resumed baseline speed run' : 'fresh measurement run', resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * 6) }, null, 2)}\n`,
 )
 console.log(
   JSON.stringify({

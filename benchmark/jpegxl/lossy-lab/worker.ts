@@ -30,7 +30,18 @@ const pixels = {
   data: new Uint8Array(image.data),
   interpretation: 'srgb',
 }
+const rgb = engine === 'purejsimage' && process.argv.includes('--rgb')
+const inputFormat = rgb ? 'rgb8' : 'rgba8'
+const inputChannels = rgb ? 3 : 4
+const inputPixels = rgb ? new Uint8Array(image.width * image.height * 3) : pixels.data
+if (rgb)
+  for (let source = 0, target = 0; source < pixels.data.length; source += 4) {
+    inputPixels[target++] = pixels.data[source] ?? 0
+    inputPixels[target++] = pixels.data[source + 1] ?? 0
+    inputPixels[target++] = pixels.data[source + 2] ?? 0
+  }
 const originalHash = hash(pixels.data)
+const inputHash = hash(inputPixels)
 for (let offset = 3; offset < pixels.data.length; offset += 4)
   if (pixels.data[offset] !== 255) throw new Error('Photo lab requires opaque RGBA8')
 await mkdir(directory, { recursive: true })
@@ -68,6 +79,7 @@ if (process.argv.includes('--append')) {
   if (
     saved.fixtureSha256 !== hash(await readFile(reference)) ||
     saved.engine !== engine ||
+    (saved.channels ?? 4) !== inputChannels ||
     !Array.isArray(saved.points)
   )
     throw new Error('Cached peer fixture changed')
@@ -84,7 +96,7 @@ try {
         const encoder = await jpegxlCodec.createEncoder?.(sink, {
           width: pixels.width,
           height: pixels.height,
-          pixelFormat: 'rgba8',
+          pixelFormat: inputFormat,
           limits: defaultImageLimits,
           options: { mode: 'lossy', effort: 7, distance: setting },
           colorSemantics: {
@@ -93,7 +105,7 @@ try {
             transfer: { kind: 'srgb' },
             matrix: 'identity',
             range: 'full',
-            alpha: 'straight',
+            alpha: rgb ? 'none' : 'straight',
             provenance: 'container-signaled',
             renderingIntent: 'relative',
           },
@@ -104,9 +116,9 @@ try {
           y: 0,
           width: pixels.width,
           height: pixels.height,
-          stride: pixels.width * 4,
-          format: 'rgba8',
-          data: pixels.data,
+          stride: pixels.width * inputChannels,
+          format: inputFormat,
+          data: inputPixels,
         })
         await encoder.finish()
         bytes = sink.toUint8Array()
@@ -127,6 +139,7 @@ try {
       }
       const encodeMs = performance.now() - started
       if (hash(pixels.data) !== originalHash) throw new Error('Encoder changed input pixels')
+      if (hash(inputPixels) !== inputHash) throw new Error('Encoder changed color input')
       const artifact = join(directory, `${setting}.jxl`)
       const decoded = join(directory, `${setting}.png`)
       await writeFile(artifact, bytes)
@@ -154,7 +167,7 @@ try {
     }
     await writeFile(
       join(directory, 'result.json'),
-      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, effort: 7, points, failures }, null, 2)}\n`,
+      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort: 7, points, failures }, null, 2)}\n`,
     )
   }
 } finally {

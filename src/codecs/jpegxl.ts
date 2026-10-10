@@ -334,16 +334,17 @@ const describeJpegXlDecoder = (
     ),
     estimatedWorkingBytes:
       colorExtraBytes +
-      (fullFrameFallback
-        ? frame.width * frame.height * frame.channelCount * 32 +
-          frame.sections.reduce((sum, part) => sum + part.length, 0)
-        : encoding === 'sequence'
-          ? frame.width * frame.height * frame.channelCount * 96 +
-            frame.sections.reduce((sum, part) => sum + part.length, 0)
-          : encoding === 'vardct'
-            ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
-            : frame.width * Math.min(frame.height, frame.groupDimension) * frame.channelCount * 16 +
-              frame.sections.reduce((sum, part) => sum + part.length, 0)),
+      (!fullFrameFallback && encoding === 'vardct'
+        ? Number(estimateJpegXlVarDctWorkingMemory(frame).requiredBytes)
+        : frame.sections.reduce((sum, part) => sum + part.length, 0) +
+          (fullFrameFallback
+            ? frame.width * frame.height * frame.channelCount * 32
+            : encoding === 'sequence'
+              ? frame.width * frame.height * frame.channelCount * 96
+              : frame.width *
+                Math.min(frame.height, frame.groupDimension) *
+                frame.channelCount *
+                16)),
     conversions: Object.freeze([
       ...(expandedGray ? ['gray-to-rgb'] : []),
       ...(decoder.colorSemantics?.alpha === 'straight' && frame.alphaAssociated

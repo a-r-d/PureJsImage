@@ -1,14 +1,21 @@
-# Current lossy encoder gate audit
+# Baseline lossy encoder gate audit
 
-Task 1 inventory, 2026-10-09. No gate has been changed or tested by this audit.
-Trials begin after the lab baseline required by
-[LOSSY_STEERING.md](../LOSSY_STEERING.md). Each proposed trial changes one gate
-and uses development BD-rate, speed and memory. The size of a previous measured
-image is not a reason to retain an admission window.
+Task 1 inventory, 2026-10-09, before the resumed E1/E2 trials. The conditions
+below describe the unchanged encoder baseline at `dca2f211`.
+[Checkpoint feedback](../LOSSY_FEEDBACK.md) replaced the original gate-by-gate
+work order with channel equivalence, the four area guards as one bundle, and
+tool ablation. The size of a previous measured image is not a reason to retain
+an admission window.
+
+The current unpromoted E1/E2 trial shares effort-7 opaque RGB/RGBA color policy
+and removes the four area guards named in E2. The full 64-photo E2 result and
+all 14 E3 tool screens are recorded in [the lab log](../lossy-lab-log.md) and
+[the tool-cost table](TOOL-COSTS.md). Temporary tool-off trials are restored
+after each measurement. No tool removal has been promoted.
 
 Scope is the tracked VarDCT forward path and the public lossy controller that can
 replace its output. Lossless-only Modular searches and decoder gates are outside
-this inventory. Source locations below refer to the current checkout; function
+this inventory. Source locations below refer to the baseline; function
 names help locate them after edits. Provenance is recorded in
 [PROVENANCE.md](../PROVENANCE.md).
 

@@ -16,6 +16,7 @@ import {
   allocateJpegXlArray,
   copyJpegXlArray,
   JpegXlEncoderMemory,
+  jpegXlPartsByteLength,
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
@@ -27,7 +28,7 @@ import {
   chooseJpegXlModularRct,
 } from './jpegxl-modular-rct.ts'
 import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
-import { encodeJpegXlVarDct8Async } from './jpegxl-vardct-encode.ts'
+import { encodeJpegXlVarDct8Async, jpegXlVarDctColorBits } from './jpegxl-vardct-encode.ts'
 
 export class JpegXlBitWriter {
   #bytes: Uint8Array<ArrayBuffer>
@@ -1954,12 +1955,18 @@ const predictorCandidates = (effort: JpegXlLosslessEffort): readonly number[] =>
         ? Object.freeze([1, 2, 3, 4, 5, 6, 13])
         : Object.freeze([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
 
+const modularSampleCount = (planes: Readonly<ModularPlanes>): number => {
+  let count = 0
+  for (const plane of planes.values) count += plane.length
+  return count
+}
+
 const predictorCandidatesForPlanes = (
   planes: Readonly<ModularPlanes>,
   effort: JpegXlLosslessEffort,
 ): readonly number[] => {
   const candidates = predictorCandidates(effort)
-  const sampleCount = planes.values.reduce((sum, plane) => sum + plane.length, 0)
+  const sampleCount = modularSampleCount(planes)
   return sampleCount <= 32_768 ? candidates : candidates.filter((candidate) => candidate !== 6)
 }
 
@@ -2013,7 +2020,7 @@ const chooseGroupPredictors = (
   effort: JpegXlLosslessEffort,
   memory?: JpegXlEncoderMemory,
 ): readonly number[] => {
-  const sampleCount = planes.values.reduce((sum, plane) => sum + plane.length, 0)
+  const sampleCount = modularSampleCount(planes)
   if (sampleCount <= 32_768) return choosePredictors(planes, effort, memory)
   const candidates = predictorCandidatesForPlanes(planes, effort)
   const selected: number[] = []
@@ -2292,7 +2299,7 @@ const buildResidualPlan = (
     for (let context = 0; context < leafToChannel.length; context += 1) {
       channelContexts[leafToChannel[context] ?? 0] = context
     }
-    const originalCount = planes.values.reduce((sum, plane) => sum + plane.length, 0)
+    const originalCount = modularSampleCount(planes)
     const residuals = allocateJpegXlArray(memory, Uint32Array, originalCount)
     const residualContexts = allocateJpegXlArray(memory, Uint16Array, originalCount)
     let residualPosition = 0
@@ -2806,7 +2813,7 @@ const encodeFastFrameSections = (
     ]
     for (let index = 0; index < dcGroupCount; index += 1)
       sections.push(allocateJpegXlArray(memory, Uint8Array, 0))
-    let sectionBytes = sections.reduce((sum, section) => sum + section.length, 0)
+    let sectionBytes = jpegXlPartsByteLength(sections)
     for (let groupY = 0; groupY < groupsDown; groupY += 1) {
       for (let groupX = 0; groupX < groupsAcross; groupX += 1) {
         const originX = groupX * groupDimension
@@ -2990,9 +2997,7 @@ const encodeChannelPrefixFrameSections = (
             false,
             memory,
           )
-          const limit =
-            resolveJpegXlLimits().maxCodestreamBytes -
-            sections.reduce((sum, section) => sum + section.length, 0)
+          const limit = resolveJpegXlLimits().maxCodestreamBytes - jpegXlPartsByteLength(sections)
           const raw = await encodeFastChannelGroup(planes, false, limit, memory, checkpoint)
           if (planes.values.length < 3) return raw
           applyModularRct(planes.values)
@@ -3789,8 +3794,7 @@ const encodeGroupCandidate = (
         false,
         splitOverhead,
       )
-      if (baseline.bytes.length * 256 < planes.values.reduce((sum, plane) => sum + plane.length, 0))
-        return baseline
+      if (baseline.bytes.length * 256 < modularSampleCount(planes)) return baseline
       try {
         const expanded = await withJpegXlMemoryAsync(memory, async () => {
           const candidate = await encodeGroupCandidate(
@@ -3832,7 +3836,7 @@ const encodeGroupCandidate = (
         expandedTraining,
         splitOverhead,
       )
-      const samples = planes.values.reduce((sum, plane) => sum + plane.length, 0)
+      const samples = modularSampleCount(planes)
       if (baseline.bytes.length * 256 < samples) return baseline
       try {
         const learned = await withJpegXlMemoryAsync(memory, async () => {
@@ -4421,7 +4425,7 @@ const frameSectionBytes = (sections: readonly Uint8Array[]): number => {
 
 const concatenate = (parts: readonly Uint8Array[], memory?: JpegXlEncoderMemory): Uint8Array => {
   return withJpegXlMemory(memory, () => {
-    const length = parts.reduce((sum, part) => sum + part.length, 0)
+    const length = jpegXlPartsByteLength(parts)
     const output = allocateJpegXlArray(memory, Uint8Array, length)
     let offset = 0
     for (const part of parts) {
@@ -4543,7 +4547,7 @@ export const encodedJpegXlMetadataBoxes = (
         concatenate([boxHeader('jumb', metadata.jumbf.byteLength, memory), metadata.jumbf], memory),
       )
     }
-    const metadataBytes = boxes.reduce((sum, box) => sum + box.length, 0)
+    const metadataBytes = jpegXlPartsByteLength(boxes)
     if (metadataBytes > resolveJpegXlLimits().maxMetadataBytes) {
       throw limitExceeded('JPEG XL preserved metadata exceeds maxMetadataBytes')
     }
@@ -4676,24 +4680,94 @@ interface EncodedJpegXlCodestream {
   readonly header: Uint8Array
   readonly sections: readonly Uint8Array[]
   readonly byteLength: number
+  readonly colorBits?: number
 }
+
+// Estimate visible RGB coding with clamped-gradient residuals and two rows.
+// Alpha and image/container headers never enter this common color estimate.
+export const estimateJpegXlModularColorBits = (
+  pixels: Uint8Array,
+  width: number,
+  channels: 3 | 4,
+  memory?: JpegXlEncoderMemory,
+): number =>
+  withJpegXlMemory(memory, () => {
+    if (
+      !Number.isSafeInteger(width) ||
+      width < 1 ||
+      pixels.length < width * channels ||
+      pixels.length % (width * channels) !== 0
+    )
+      throw invalidJpegXlInput('opaque color estimate extent is invalid')
+    const frequencies = allocateJpegXlArray(memory, Uint32Array, 3 * 1021)
+    const rows = allocateJpegXlArray(memory, Int16Array, 2 * width * 3)
+    const height = pixels.length / (width * channels)
+    for (let y = 0; y < height; y++) {
+      const current = (y & 1) * width * 3,
+        previous = ((y & 1) ^ 1) * width * 3
+      for (let x = 0; x < width; x++) {
+        const at = (y * width + x) * channels,
+          row = x * 3
+        const green = pixels[at + 1] ?? 0
+        rows[current + row] = pixels[at] ?? 0
+        rows[current + row + 1] = green
+        rows[current + row + 2] = pixels[at + 2] ?? 0
+        for (let c = 0; c < 3; c++) {
+          const left =
+            x > 0 ? (rows[current + row + c - 3] ?? 0) : y > 0 ? (rows[previous + row + c] ?? 0) : 0
+          const top = y > 0 ? (rows[previous + row + c] ?? 0) : left
+          const topLeft = x > 0 && y > 0 ? (rows[previous + row + c - 3] ?? 0) : left
+          const prediction = Math.max(
+            Math.min(left, top),
+            Math.min(Math.max(left, top), left + top - topLeft),
+          )
+          const symbol = c * 1021 + 510 + (rows[current + row + c] ?? 0) - prediction
+          frequencies[symbol] = (frequencies[symbol] ?? 0) + 1
+        }
+      }
+    }
+    const count = width * height
+    let bits = 0
+    for (let c = 0; c < 3; c++) {
+      let occupied = 0
+      for (let symbol = 0; symbol < 1021; symbol++) {
+        const frequency = frequencies[c * 1021 + symbol] ?? 0
+        if (frequency === 0) continue
+        occupied++
+        bits += frequency * Math.log2(count / frequency)
+      }
+      // Ten bits identify a residual; twelve bits describe its normalized count.
+      bits += occupied * (10 + 12)
+    }
+    return bits
+  })
+
+const patchColorBits = (
+  groups: readonly DocumentPatchGroup[],
+  memory: JpegXlEncoderMemory,
+): number =>
+  withJpegXlMemory(
+    memory,
+    () => writeDocumentPatchFeatures(new Uint8Array(0), groups, memory, 0).length * 8,
+  )
 
 const quantizeFlatPalette = (
   pixels: Uint8Array,
   width: number,
   distance: number,
   memory: JpegXlEncoderMemory,
+  channels: 3 | 4 = 4,
 ): Uint8Array | undefined => {
-  if (distance < 2 || width < 2 || pixels.length < width * 8) return undefined
+  if (distance < 2 || width < 2 || pixels.length < width * channels * 2) return undefined
   const keys = allocateJpegXlArray(memory, Uint32Array, 4096)
   const mapped = allocateJpegXlArray(memory, Uint32Array, 4096)
   const flags = allocateJpegXlArray(memory, Uint8Array, 4096)
   try {
-    const stride = width * 4,
+    const stride = width * channels,
       step = distance * 8
     let count = 0
-    for (let offset = 0; offset < pixels.length; offset += 4) {
-      if (pixels[offset + 3] !== 255) return undefined
+    for (let offset = 0; offset < pixels.length; offset += channels) {
+      if (channels === 4 && pixels[offset + 3] !== 255) return undefined
       const color =
         ((pixels[offset] ?? 0) << 16) | ((pixels[offset + 1] ?? 0) << 8) | (pixels[offset + 2] ?? 0)
       let slot = (Math.imul(color ^ (color >>> 16), 0x9e3779b1) >>> 0) & 4095
@@ -4703,14 +4777,14 @@ const quantizeFlatPalette = (
         flags[slot] = 1
         if (++count > 2048) return undefined
       }
-      if (offset < pixels.length - stride && offset % stride < stride - 4) {
+      if (offset < pixels.length - stride && offset % stride < stride - channels) {
         let flat = true
-        for (let channel = 0; channel < 4; channel++) {
+        for (let channel = 0; channel < channels; channel++) {
           const value = pixels[offset + channel]
           if (
-            value !== pixels[offset + 4 + channel] ||
+            value !== pixels[offset + channels + channel] ||
             value !== pixels[offset + stride + channel] ||
-            value !== pixels[offset + stride + 4 + channel]
+            value !== pixels[offset + stride + channels + channel]
           ) {
             flat = false
             break
@@ -4737,7 +4811,7 @@ const quantizeFlatPalette = (
       }
     if (!changed) return undefined
     const output = allocateJpegXlArray(memory, Uint8Array, pixels.length)
-    for (let offset = 0; offset < pixels.length; offset += 4) {
+    for (let offset = 0; offset < pixels.length; offset += channels) {
       const color =
         ((pixels[offset] ?? 0) << 16) | ((pixels[offset + 1] ?? 0) << 8) | (pixels[offset + 2] ?? 0)
       let slot = (Math.imul(color ^ (color >>> 16), 0x9e3779b1) >>> 0) & 4095
@@ -4746,7 +4820,7 @@ const quantizeFlatPalette = (
       output[offset] = next >>> 16
       output[offset + 1] = next >>> 8
       output[offset + 2] = next
-      output[offset + 3] = 255
+      if (channels === 4) output[offset + 3] = pixels[offset + 3] ?? 255
     }
     return output
   } finally {
@@ -4756,18 +4830,24 @@ const quantizeFlatPalette = (
   }
 }
 
+export const hasOpaque8BitAlpha = (pixels: Uint8Array): boolean => {
+  for (let offset = 3; offset < pixels.length; offset += 4) if (pixels[offset] !== 255) return false
+  return true
+}
+
 // Keep a Modular candidate for artwork with a bounded visible-color palette.
 export const hasSmallVisiblePalette = (
   pixels: Uint8Array,
   memory?: JpegXlEncoderMemory,
+  channels: 3 | 4 = 4,
 ): boolean => {
   const colors = allocateJpegXlArray(memory, Uint32Array, 4_096)
   let occupied: Uint8Array | undefined
   try {
     occupied = allocateJpegXlArray(memory, Uint8Array, 4_096)
     let count = 0
-    for (let offset = 0; offset < pixels.length; offset += 4) {
-      const alpha = pixels[offset + 3] ?? 0
+    for (let offset = 0; offset < pixels.length; offset += channels) {
+      const alpha = channels === 3 ? 255 : (pixels[offset + 3] ?? 0)
       if (alpha === 0) continue
       const color =
         (((pixels[offset] ?? 0) << 24) |
@@ -4803,8 +4883,10 @@ export const useLargeDocumentModularCandidate = (
     >
   >,
 ): boolean => {
+  const channels = format === 'rgba8' ? 4 : 3
   if (
-    format !== 'rgb8' ||
+    (format !== 'rgb8' && format !== 'rgba8') ||
+    pixels.length !== width * height * channels ||
     width * height < 8_000_000 ||
     options.effort !== 7 ||
     options.distance < 2 ||
@@ -4814,9 +4896,11 @@ export const useLargeDocumentModularCandidate = (
     options.colorSemantics.transfer.kind !== 'srgb'
   )
     return false
+  if (channels === 4 && !hasOpaque8BitAlpha(pixels)) return false
+  const sampleStride = channels * 64
   let white = 0
   let sampled = 0
-  for (let offset = 0; offset < pixels.length; offset += 192) {
+  for (let offset = 0; offset < pixels.length; offset += sampleStride) {
     sampled++
     if (
       (pixels[offset] ?? 0) >= 248 &&
@@ -4849,6 +4933,7 @@ const findDocumentPatches = (
   height: number,
   memory: JpegXlEncoderMemory,
   channels: 3 | 4 = 3,
+  compareAlpha = true,
 ): DocumentPatchGroup[] => {
   const count = width * height
   const visited = allocateJpegXlArray(memory, Uint8Array, count)
@@ -4924,7 +5009,7 @@ const findDocumentPatches = (
           pixels[a] !== pixels[b] ||
           pixels[a + 1] !== pixels[b + 1] ||
           pixels[a + 2] !== pixels[b + 2] ||
-          (channels === 4 && pixels[a + 3] !== pixels[b + 3])
+          (channels === 4 && compareAlpha && pixels[a + 3] !== pixels[b + 3])
         )
           return false
       }
@@ -4942,7 +5027,8 @@ const findDocumentPatches = (
           hash = Math.imul(hash ^ (pixels[offset] ?? 0), 16_777_619)
           hash = Math.imul(hash ^ (pixels[offset + 1] ?? 0), 16_777_619)
           hash = Math.imul(hash ^ (pixels[offset + 2] ?? 0), 16_777_619)
-          if (channels === 4) hash = Math.imul(hash ^ (pixels[offset + 3] ?? 0), 16_777_619)
+          if (channels === 4 && compareAlpha)
+            hash = Math.imul(hash ^ (pixels[offset + 3] ?? 0), 16_777_619)
         }
       }
       const bucket = byHash.get(hash) ?? []
@@ -5159,23 +5245,7 @@ const writeDocumentFrameHeader = (
   return writer.finish()
 }
 
-export const encodeJpegXlDocumentPatchCandidate = async (
-  pixels: Uint8Array,
-  width: number,
-  height: number,
-  options: Readonly<ResolvedJpegXlEncodeOptions>,
-  memory: JpegXlEncoderMemory,
-  checkpoint: () => Promise<void>,
-  format: 'rgb8' | 'rgba8' = 'rgb8',
-  finder: 'document' | 'flat' = 'document',
-  allowSmallGroups = false,
-  localColorSamples = 0,
-): Promise<EncodedJpegXlCodestream | undefined> => {
-  const channels = format === 'rgba8' ? 4 : 3
-  const groups =
-    finder === 'flat'
-      ? findFlatScreenshotPatches(pixels, width, height, memory, channels)
-      : findDocumentPatches(pixels, width, height, memory, channels)
+const countPatchAtlas = (groups: readonly DocumentPatchGroup[]) => {
   let placements = 0,
     covered = 0,
     atlasPixels = 0
@@ -5184,14 +5254,10 @@ export const encodeJpegXlDocumentPatchCandidate = async (
     covered += group.source.width * group.source.height * group.placements.length
     atlasPixels += group.source.width * group.source.height
   }
-  if (
-    groups.length === 0 ||
-    groups.length > 1_024 ||
-    placements < (options.mode === 'lossless' ? 40 : 500) ||
-    covered < width * height * (finder === 'flat' ? 0.005 : 0.05) ||
-    atlasPixels > (finder === 'flat' ? 262_144 : 1_000_000)
-  )
-    return undefined
+  return { placements, covered, atlasPixels }
+}
+
+const layoutPatchAtlas = (groups: DocumentPatchGroup[], atlasPixels: number) => {
   groups.sort(
     (left, right) =>
       right.source.height - left.source.height || right.source.width - left.source.width,
@@ -5213,6 +5279,37 @@ export const encodeJpegXlDocumentPatchCandidate = async (
     shelfHeight = Math.max(shelfHeight, patch.height)
   }
   const atlasHeight = shelfY + shelfHeight
+  return { atlasWidth, atlasHeight }
+}
+
+export const encodeJpegXlDocumentPatchCandidate = async (
+  pixels: Uint8Array,
+  width: number,
+  height: number,
+  options: Readonly<ResolvedJpegXlEncodeOptions>,
+  memory: JpegXlEncoderMemory,
+  checkpoint: () => Promise<void>,
+  format: 'rgb8' | 'rgba8' = 'rgb8',
+  finder: 'document' | 'flat' = 'document',
+  allowSmallGroups = false,
+  localColorSamples = 0,
+  opaqueColor = false,
+): Promise<EncodedJpegXlCodestream | undefined> => {
+  const channels = format === 'rgba8' ? 4 : 3
+  const groups =
+    finder === 'flat'
+      ? findFlatScreenshotPatches(pixels, width, height, memory, channels, !opaqueColor)
+      : findDocumentPatches(pixels, width, height, memory, channels, !opaqueColor)
+  const { placements, covered, atlasPixels } = countPatchAtlas(groups)
+  if (
+    groups.length === 0 ||
+    groups.length > 1_024 ||
+    placements < (options.mode === 'lossless' ? 40 : 500) ||
+    covered < width * height * (finder === 'flat' ? 0.005 : 0.05) ||
+    atlasPixels > (finder === 'flat' ? 262_144 : 1_000_000)
+  )
+    return undefined
+  const { atlasWidth, atlasHeight } = layoutPatchAtlas(groups, atlasPixels)
   if (atlasHeight > 1_024) return undefined
   const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * channels)
   const display = copyJpegXlArray(memory, Uint8Array, pixels)
@@ -5309,8 +5406,20 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   )
   const header = concatenate([imageHeader, referenceHeader], memory)
   const sections = [...referenceSections, displayHeader, ...patchedDisplaySections]
-  const byteLength = header.length + sections.reduce((sum, part) => sum + part.length, 0)
-  return { header, sections, byteLength }
+  const byteLength = header.length + jpegXlPartsByteLength(sections)
+  return {
+    header,
+    sections,
+    byteLength,
+    ...(opaqueColor
+      ? {
+          colorBits:
+            estimateJpegXlModularColorBits(atlas, atlasWidth, channels, memory) +
+            estimateJpegXlModularColorBits(display, width, channels, memory) +
+            patchColorBits(groups, memory),
+        }
+      : {}),
+  }
 }
 
 const encodeJpegXlScreenshotPatchCandidate = async (
@@ -5322,17 +5431,12 @@ const encodeJpegXlScreenshotPatchCandidate = async (
   memory: JpegXlEncoderMemory,
   checkpoint: () => Promise<void>,
   limits: Readonly<ImageLimits>,
+  format: 'rgb8' | 'rgba8' = 'rgb8',
 ): Promise<EncodedJpegXlCodestream | undefined> => {
-  if (!hasFlatScreenshotBackground(pixels, width, height)) return undefined
-  const groups = findFlatScreenshotPatches(pixels, width, height, memory)
-  let placements = 0,
-    covered = 0,
-    atlasPixels = 0
-  for (const group of groups) {
-    placements += group.placements.length
-    covered += group.source.width * group.source.height * group.placements.length
-    atlasPixels += group.source.width * group.source.height
-  }
+  const channels = format === 'rgba8' ? 4 : 3
+  if (!hasFlatScreenshotBackground(pixels, width, height, channels)) return undefined
+  const groups = findFlatScreenshotPatches(pixels, width, height, memory, channels, false)
+  const { placements, covered, atlasPixels } = countPatchAtlas(groups)
   if (
     groups.length === 0 ||
     groups.length > 1_024 ||
@@ -5341,55 +5445,42 @@ const encodeJpegXlScreenshotPatchCandidate = async (
     atlasPixels > 262_144
   )
     return undefined
-  groups.sort(
-    (left, right) =>
-      right.source.height - left.source.height || right.source.width - left.source.width,
-  )
-  const atlasWidth = Math.min(1_024, Math.max(64, Math.ceil(Math.sqrt(atlasPixels * 1.4))))
-  let shelfX = 0,
-    shelfY = 0,
-    shelfHeight = 0
-  for (const group of groups) {
-    const patch = group.source
-    if (shelfX + patch.width > atlasWidth) {
-      shelfY += shelfHeight
-      shelfX = 0
-      shelfHeight = 0
-    }
-    group.atlasX = shelfX
-    group.atlasY = shelfY
-    shelfX += patch.width
-    shelfHeight = Math.max(shelfHeight, patch.height)
-  }
-  const atlasHeight = shelfY + shelfHeight
+  const { atlasWidth, atlasHeight } = layoutPatchAtlas(groups, atlasPixels)
   if (atlasHeight > 1_024) return undefined
-  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * 3)
+  const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * channels)
   const display = copyJpegXlArray(memory, Uint8Array, pixels)
   atlas.fill(255)
   for (const group of groups) {
     const source = group.source
     for (let y = 0; y < source.height; y++) {
-      const from = ((source.y + y) * width + source.x) * 3
-      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * 3
-      atlas.set(pixels.subarray(from, from + source.width * 3), to)
+      const from = ((source.y + y) * width + source.x) * channels
+      const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * channels
+      atlas.set(pixels.subarray(from, from + source.width * channels), to)
     }
     for (const patch of group.placements) {
       const backgroundX = Math.max(0, patch.x - 1),
         backgroundY = Math.max(0, patch.y - 1),
-        background = (backgroundY * width + backgroundX) * 3
+        background = (backgroundY * width + backgroundX) * channels
       const red = pixels[background] ?? 0,
         green = pixels[background + 1] ?? 0,
         blue = pixels[background + 2] ?? 0
       for (let y = 0; y < patch.height; y++) {
         for (let x = 0; x < patch.width; x++) {
-          const at = ((patch.y + y) * width + patch.x + x) * 3
+          const at = ((patch.y + y) * width + patch.x + x) * channels
           display[at] = red
           display[at + 1] = green
           display[at + 2] = blue
+          if (channels === 4) display[at + 3] = 255
         }
       }
     }
   }
+  const forwardColor = {
+    ...options.colorSemantics,
+    storageBytes: 1,
+    intensityTarget: options.toneMapping.intensityTarget,
+    ...(options.alphaBitDepth === undefined ? {} : { alphaBitDepth: options.alphaBitDepth }),
+  } as const
   await checkpoint()
   const reference = await encodeJpegXlVarDct8Async(
     atlas,
@@ -5398,12 +5489,12 @@ const encodeJpegXlScreenshotPatchCandidate = async (
     1,
     memory,
     checkpoint,
-    3,
+    channels,
     3,
     imageHeader,
     8,
     false,
-    undefined,
+    forwardColor,
     limits,
     { reference: true },
   )
@@ -5414,14 +5505,17 @@ const encodeJpegXlScreenshotPatchCandidate = async (
     options.distance,
     memory,
     checkpoint,
-    3,
+    channels,
     options.effort,
     new Uint8Array(0),
     8,
     false,
-    undefined,
+    forwardColor,
     limits,
-    { patchGlobalSection: (section) => writeDocumentPatchFeatures(section, groups, memory) },
+    {
+      patchGlobalSection: (section) =>
+        writeDocumentPatchFeatures(section, groups, memory, channels === 4 ? 1 : 0),
+    },
   )
   const header = reference[0]
   if (!header) throw invalidJpegXlInput('screenshot reference header is missing')
@@ -5429,7 +5523,11 @@ const encodeJpegXlScreenshotPatchCandidate = async (
   return {
     header,
     sections,
-    byteLength: header.length + sections.reduce((sum, part) => sum + part.length, 0),
+    byteLength: header.length + jpegXlPartsByteLength(sections),
+    colorBits:
+      jpegXlVarDctColorBits(reference) +
+      jpegXlVarDctColorBits(displayed) +
+      patchColorBits(groups, memory),
   }
 }
 
@@ -5448,6 +5546,15 @@ const encodeLossyCodestream = (
     writeImageHeader(writer, width, height, format, options, true)
     const imageHeader = writer.finish()
     const forwardChannels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
+    const opaqueSdrColor =
+      (format === 'rgb8' ||
+        (format === 'rgba8' && options.alphaBitDepth === 8 && hasOpaque8BitAlpha(pixels))) &&
+      options.effort === 7 &&
+      options.sampleBitDepth === 8 &&
+      options.colorSemantics.primaries === 'srgb' &&
+      options.colorSemantics.transfer.kind === 'srgb'
+    const colorFormat = format === 'rgba8' ? 'rgba8' : 'rgb8'
+    const colorStride = colorFormat === 'rgba8' ? 4 : 3
     const forwardColor = {
       ...options.colorSemantics,
       storageBytes: format.endsWith('16') ? 2 : 1,
@@ -5474,16 +5581,22 @@ const encodeLossyCodestream = (
     const primary = {
       header,
       sections: parts.slice(1),
-      byteLength: parts.reduce((sum, part) => sum + part.length, 0),
+      byteLength: jpegXlPartsByteLength(parts),
     }
-    let selected: EncodedJpegXlCodestream = primary
+    let selected: EncodedJpegXlCodestream = { ...primary, colorBits: jpegXlVarDctColorBits(parts) }
+    const cost = (candidate: EncodedJpegXlCodestream): number => {
+      if (!opaqueSdrColor) return candidate.byteLength * 8
+      if (candidate.colorBits === undefined)
+        throw invalidJpegXlInput('opaque color cost is missing')
+      return candidate.colorBits
+    }
     if (
-      format === 'rgba8' &&
+      (opaqueSdrColor || format === 'rgba8') &&
       options.effort === 7 &&
       !options.progressive &&
       width * height <= 1_048_576 &&
       options.sampleBitDepth === 8 &&
-      options.alphaBitDepth === 8 &&
+      (format === 'rgb8' || options.alphaBitDepth === 8) &&
       options.colorSemantics.primaries === 'srgb' &&
       options.colorSemantics.transfer.kind === 'srgb'
     ) {
@@ -5491,22 +5604,29 @@ const encodeLossyCodestream = (
       try {
         const modular = await withJpegXlMemoryAsync(memory, async () => {
           await checkpoint()
-          if (!hasSmallVisiblePalette(pixels, memory)) return undefined
+          if (!hasSmallVisiblePalette(pixels, memory, colorStride)) return undefined
           smallPalette = true
           let normalized: Uint8Array | undefined
-          for (let offset = 0; offset < pixels.length; offset += 4) {
-            if (
-              pixels[offset + 3] === 0 &&
-              ((pixels[offset] ?? 0) | (pixels[offset + 1] ?? 0) | (pixels[offset + 2] ?? 0)) !== 0
-            ) {
-              normalized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
-              normalized.set(pixels)
-              break
+          if (format === 'rgba8') {
+            for (let offset = 0; offset < pixels.length; offset += 4) {
+              if (
+                pixels[offset + 3] === 0 &&
+                ((pixels[offset] ?? 0) | (pixels[offset + 1] ?? 0) | (pixels[offset + 2] ?? 0)) !==
+                  0
+              ) {
+                normalized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
+                normalized.set(pixels)
+                break
+              }
             }
           }
           if (normalized)
             for (let offset = 0; offset < normalized.length; offset += 4)
               if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
+          const colorBits = opaqueSdrColor
+            ? estimateJpegXlModularColorBits(normalized ?? pixels, width, colorStride, memory)
+            : undefined
+          if (colorBits !== undefined && !(colorBits * 20 <= cost(selected) * 19)) return undefined
           const candidate = await encodeCodestream(
             normalized ?? pixels,
             width,
@@ -5516,11 +5636,13 @@ const encodeLossyCodestream = (
             memory,
             checkpoint,
           )
-          // Promote only winning output; all optional scratch and losing output close here.
-          return candidate.byteLength * 20 <= primary.byteLength * 19 ? candidate : undefined
+          const measured = colorBits === undefined ? candidate : { ...candidate, colorBits }
+          return cost(measured) * 20 <= cost(selected) * 19 ? measured : undefined
         })
-        // Keep exact alpha when the optional Modular candidate saves bytes.
-        if (modular) selected = modular
+        // Both layouts retain their original alpha samples.
+        if (modular) {
+          selected = modular
+        }
       } catch (error) {
         if (!isLimitExceeded(error)) throw error
       }
@@ -5528,8 +5650,19 @@ const encodeLossyCodestream = (
         try {
           const quantized = await withJpegXlMemoryAsync(memory, async () => {
             await checkpoint()
-            const normalized = quantizeFlatPalette(pixels, width, options.distance, memory)
+            const normalized = quantizeFlatPalette(
+              pixels,
+              width,
+              options.distance,
+              memory,
+              colorStride,
+            )
             if (!normalized) return undefined
+            const colorBits = opaqueSdrColor
+              ? estimateJpegXlModularColorBits(normalized, width, colorStride, memory)
+              : undefined
+            if (colorBits !== undefined && !(colorBits * 20 <= cost(selected) * 19))
+              return undefined
             const candidate = await encodeCodestream(
               normalized,
               width,
@@ -5539,17 +5672,19 @@ const encodeLossyCodestream = (
               memory,
               checkpoint,
             )
-            // Preserve the previous Modular winner as well as the VarDCT size floor.
-            return candidate.byteLength * 20 <= selected.byteLength * 19 ? candidate : undefined
+            const measured = colorBits === undefined ? candidate : { ...candidate, colorBits }
+            return cost(measured) * 20 <= cost(selected) * 19 ? measured : undefined
           })
-          if (quantized) selected = quantized
+          if (quantized) {
+            selected = quantized
+          }
         } catch (error) {
           if (!isLimitExceeded(error)) throw error
         }
       }
     }
     if (
-      format === 'rgb8' &&
+      opaqueSdrColor &&
       options.effort === 7 &&
       !options.progressive &&
       options.distance >= 1 &&
@@ -5583,16 +5718,16 @@ const encodeLossyCodestream = (
         const alternate: EncodedJpegXlCodestream = {
           header: alternateHeader,
           sections: alternateParts.slice(1),
-          byteLength: alternateParts.reduce((sum, part) => sum + part.length, 0),
+          byteLength: jpegXlPartsByteLength(alternateParts),
+          colorBits: jpegXlVarDctColorBits(alternateParts),
         }
-        // Compare actual streams; the block-level bit estimate misses entropy contexts.
-        if (alternate.byteLength * 100 <= selected.byteLength * 99) selected = alternate
+        if (cost(alternate) * 100 <= cost(selected) * 99) selected = alternate
       } catch (error) {
         if (!isLimitExceeded(error)) throw error
       }
     }
     if (
-      format === 'rgb8' &&
+      opaqueSdrColor &&
       options.effort === 7 &&
       !options.progressive &&
       options.distance >= 2 &&
@@ -5613,9 +5748,9 @@ const encodeLossyCodestream = (
           memory,
           checkpoint,
           limits,
+          colorFormat,
         )
-        if (screenshot && screenshot.byteLength * 200 <= selected.byteLength * 199)
-          selected = screenshot
+        if (screenshot && cost(screenshot) * 200 <= cost(selected) * 199) selected = screenshot
       } catch (error) {
         if (!isLimitExceeded(error)) throw error
       }
@@ -5629,14 +5764,20 @@ const encodeLossyCodestream = (
         quantized,
         width,
         height,
-        'rgb8',
+        colorFormat,
         options,
         memory,
         checkpoint,
       )
       // The enclosing memory scope retains only the selected codestream.
+      const measuredModular = opaqueSdrColor
+        ? {
+            ...modular,
+            colorBits: estimateJpegXlModularColorBits(quantized, width, colorStride, memory),
+          }
+        : modular
       const documentSelected =
-        modular.byteLength * 5 <= selected.byteLength * 4 ? modular : selected
+        cost(measuredModular) * 5 <= cost(selected) * 4 ? measuredModular : selected
       try {
         const patched = await encodeJpegXlDocumentPatchCandidate(
           pixels,
@@ -5645,8 +5786,13 @@ const encodeLossyCodestream = (
           options,
           memory,
           checkpoint,
+          colorFormat,
+          'document',
+          false,
+          0,
+          opaqueSdrColor,
         )
-        return patched && patched.byteLength * 20 <= documentSelected.byteLength * 19
+        return patched && cost(patched) * 20 <= cost(documentSelected) * 19
           ? patched
           : documentSelected
       } catch (error) {
@@ -5706,7 +5852,7 @@ const encodeCodestream = (
             checkpoint,
             evidence,
           )
-    const sectionBytes = sections.reduce((sum, section) => sum + section.length, 0)
+    const sectionBytes = jpegXlPartsByteLength(sections)
     const remainingOutputBytes = (memory?.outputLimit ?? 134_217_728) - sectionBytes
     if (remainingOutputBytes < 1)
       throw limitExceeded('JPEG XL encoded output exceeds maxOutputBytes')
@@ -5728,7 +5874,7 @@ const encodeCodestream = (
     const selected = Object.freeze({
       header,
       sections,
-      byteLength: sections.reduce((sum, section) => sum + section.length, header.length),
+      byteLength: jpegXlPartsByteLength(sections, header.length),
     })
     if (
       localColor ||
@@ -6286,7 +6432,7 @@ class JpegXlModularEncoder implements ImageEncoder {
         this.#options.container,
         this.#memory,
       )
-      const metadataBytes = metadataBoxes.reduce((sum, box) => sum + box.length, 0)
+      const metadataBytes = jpegXlPartsByteLength(metadataBoxes)
       const outputBytes = codestream.byteLength + (prefix?.length ?? 0) + metadataBytes
       const jpegXlLimits = resolveJpegXlLimits()
       if (outputBytes > (this.#options.maxOutputBytes ?? jpegXlLimits.maxCodestreamBytes)) {

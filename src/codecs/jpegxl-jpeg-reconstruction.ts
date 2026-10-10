@@ -1,6 +1,7 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
 import { decodeBrotli, encodeBrotli } from './brotli.ts'
 import { JpegXlBitReader } from './jpegxl-bitstream.ts'
+import { jpegXlPartsByteLength } from './jpegxl-encoder-memory.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 
@@ -496,7 +497,7 @@ const writeDeltaIndexes = (
 }
 
 const concatenate = (parts: readonly Uint8Array[]): Uint8Array => {
-  const length = parts.reduce((sum, part) => sum + part.byteLength, 0)
+  const length = jpegXlPartsByteLength(parts)
   if (!Number.isSafeInteger(length)) throw limitExceeded('JPEG XL reconstruction data is too large')
   const output = new Uint8Array(length)
   let offset = 0

@@ -65,6 +65,7 @@ export interface DevelopmentCorpus {
   readonly config: CorpusConfig
   readonly normal: readonly LabFixture[]
   readonly screen: readonly LabFixture[]
+  readonly scale: readonly LabFixture[]
   readonly watch: readonly LabFixture[]
   readonly reductions: readonly CorpusReduction[]
   readonly secondaryIds: readonly string[]
@@ -237,7 +238,10 @@ export function selectDevelopmentCorpus(options: CorpusOptions = {}): Developmen
   )
   const normal = ordered
     .slice(0, config.normalCount)
-    .map((entry) => fixture(entry, largeIds.has(entry.id) ? config.largeEdge : config.normalEdge))
+    .map((entry) => fixture(entry, config.normalEdge))
+  const scale = defaultLarge
+    .filter((entry) => largeIds.has(entry.id))
+    .map((entry) => fixture(entry, config.largeEdge))
   const byId = new Map(normal.map((entry) => [entry.id, entry]))
   const screen = ordered.slice(0, config.screenCount).map((entry) => {
     const selected = byId.get(entry.id)
@@ -279,21 +283,26 @@ export function selectDevelopmentCorpus(options: CorpusOptions = {}): Developmen
       reason: `Reduced quick screen from 16 to ${config.screenCount} images`,
     })
   for (const entry of normal) {
-    const defaultEdge = defaultLarge.some((large) => large.id === entry.id) ? 2080 : 512
-    const requested = largeIds.has(entry.id) ? config.largeEdge : config.normalEdge
-    if (requested < defaultEdge)
+    if (config.normalEdge < 512)
       reductions.push({
         id: entry.id,
-        kind: defaultEdge === 2080 ? 'large-crop-size' : 'normal-crop-size',
-        reason: `Crop edge reduced from ${defaultEdge} to ${requested}`,
+        kind: 'normal-crop-size',
+        reason: `Lab crop edge reduced from 512 to ${config.normalEdge}`,
       })
   }
+  if (config.largeEdge < 2080)
+    for (const entry of scale)
+      reductions.push({
+        id: entry.id,
+        kind: 'large-crop-size',
+        reason: `Scale crop edge reduced from 2080 to ${config.largeEdge}`,
+      })
   for (const entry of defaultLarge)
     if (!largeIds.has(entry.id))
       reductions.push({
         id: entry.id,
         kind: 'large-crop-count',
-        reason: 'Large gate representative omitted by count reduction',
+        reason: 'Scale representative omitted by count reduction',
       })
   const version = hash(
     JSON.stringify({
@@ -301,6 +310,7 @@ export function selectDevelopmentCorpus(options: CorpusOptions = {}): Developmen
       sourceRevision: selection.revision,
       config,
       normal: normal.map(({ sourcePath: _path, ...entry }) => entry),
+      scale: scale.map(({ sourcePath: _path, ...entry }) => entry),
     }),
   )
   return {
@@ -308,6 +318,7 @@ export function selectDevelopmentCorpus(options: CorpusOptions = {}): Developmen
     config,
     normal,
     screen,
+    scale,
     watch,
     reductions,
     secondaryIds: selection.cases

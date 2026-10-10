@@ -4,6 +4,12 @@ Owner decisions (Aaron, 2026-10-09). These override any earlier campaign framing
 benchmark/optimization-log.md. Read this file at the start of every session. If it
 conflicts with an older log entry, this file wins.
 
+Also read [LOSSY_FEEDBACK.md](LOSSY_FEEDBACK.md). The owner's checkpoint feedback
+corrects baseline preparation and replaces work-order steps 1–2 with E1–E4.
+Also read [LOSSY_PROMOTION_GUIDANCE.md](LOSSY_PROMOTION_GUIDANCE.md). The owner's
+2026-10-10 decisions authorize candidate repairs after the plateau and govern
+preservation, promotion and the bounded final Butteraugli phase.
+
 1. The lossy encoder is a fully independent first-party encoder. It does not try to
    reproduce libjxl's heuristics or constants.
 2. The goal is close parity, not exact parity. The targets are in section 1. When
@@ -13,20 +19,21 @@ conflicts with an older log entry, this file wins.
 
 ## 1. Targets
 
-Measure on the holdout photo split (section 4), at effort 7, against @jsquash/jxl
-1.3.0 at effort 7. Use the mean per-image BD-rate. Negative means our files are
-smaller.
+Measure on the holdout photo split (section 4), at effort 7. Butteraugli targets
+use wasm-vips 0.0.19 (libjxl 0.12.0); retain @jsquash/jxl 1.3.0 at effort 7
+as a reference. Use the mean per-image BD-rate. Negative means our files are smaller.
 
-- SSIMULACRA2: at most 0%. We currently win here; protect that.
+- SSIMULACRA2: at most 0% against both peers. Protect that.
 - Butteraugli 3-norm: at most +5%.
 - Butteraugli max: at most +8%.
 - No single holdout photo may be worse than +20% on any of the three metrics.
-- Report wasm-vips 0.0.19 alongside. It has no separate target.
+- Report both peers in every result table.
 
 Speed: measure effort-7 encode wall time in single-threaded Node on the same
 machine. Take the median over the lab set and over the full-resolution watch set.
-It must be within 10x of jSquash effort 7. Stretch goal: 5x. If the measured
-baseline is already within 10x, report it and propose a tighter target.
+It must be within 3x of jSquash effort 7 on the 512-square lab crops and within
+5x on full-resolution watch originals. Aaron confirmed these tighter targets on
+2026-10-09 after the checkpoint feedback.
 
 Memory: effort-7 managed peak on full-resolution originals must not exceed today's
 value. This is the Lambda memory northstar in AGENTS.md.

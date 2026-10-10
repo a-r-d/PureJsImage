@@ -14,6 +14,12 @@ import { createResizeTransform } from '../src/resize.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
 import { MemorySource } from '../src/source.ts'
 import {
+  createTerminalRestartFixture,
+  decodeTerminalFixture,
+  verifyJpegTerminalRestart,
+  withJpegTerminalSuffix,
+} from './helpers/jpeg-terminal-restart.ts'
+import {
   channelSwappingRgbProfile,
   constantGrayCmykProfile,
   rgbLutOnlyProfile,
@@ -991,6 +997,30 @@ describe('JPEG pixel pipeline', () => {
       width: 35,
       height: 19,
     })
+  })
+
+  it('accepts only an optional correctly sequenced terminal restart before EOI', async () => {
+    expect((await verifyJpegTerminalRestart()).checks).toBe(30)
+    const original = await createTerminalRestartFixture()
+    const input = withJpegTerminalSuffix(original, [0xff, 0xd3, 0xff, 0xd9])
+    const actual = await (await Image.open(input, { tolerantDecoding: false })).png().toBuffer()
+    const expected = await (await Image.open(original, { tolerantDecoding: false }))
+      .png()
+      .toBuffer()
+    expect(actual).toEqual(expected)
+    const independent = await sharp(input).removeAlpha().raw().toBuffer()
+    const reference = await sharp(original).removeAlpha().raw().toBuffer()
+    expect(independent).toEqual(reference)
+    // Refill through a long marker-fill suffix without retaining source-sized pixels.
+    const filled = withJpegTerminalSuffix(original, [
+      ...new Uint8Array(65_536).fill(0xff),
+      0xd3,
+      0xff,
+      0xd9,
+    ])
+    expect(await decodeTerminalFixture(filled, false)).toEqual(
+      await decodeTerminalFixture(original, false),
+    )
   })
 
   it('recovers malformed restart streams by default and keeps strict decoding explicit', async () => {

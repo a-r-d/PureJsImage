@@ -1,6 +1,12 @@
 import { invalidInput, limitExceeded } from '../errors.ts'
 import { invalidJpegXlInput } from './jpegxl-errors.ts'
 
+export const jpegXlPartsByteLength = (parts: readonly Uint8Array[], initial = 0): number => {
+  let length = initial
+  for (const part of parts) length += part.byteLength
+  return length
+}
+
 type OwnedArray =
   | Uint8Array<ArrayBuffer>
   | Uint16Array<ArrayBuffer>

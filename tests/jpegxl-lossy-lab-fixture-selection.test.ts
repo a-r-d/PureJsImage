@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { selectDevelopmentCorpus } from '../benchmark/jpegxl/lossy-lab/corpus.ts'
 import {
+  baselineSpeedPoints,
   type PreparedFixture,
   parseLabMode,
   parsePreparedManifest,
   selectPreparedFixtures,
+  validateBaselineSpeedResume,
 } from '../benchmark/jpegxl/lossy-lab/fixture-selection.ts'
 
 const corpus = selectDevelopmentCorpus()
@@ -118,18 +120,94 @@ describe('lossy lab prepared fixture selection', () => {
     expect(incomplete.missingRequestedIds).toEqual(['portrait-2400x3000'])
   })
 
-  it('temporarily drops only the two large screen fixtures and leaves full lab intact', () => {
+  it('keeps all 16 small screen crops and prepares large scale crops separately', () => {
     const input = parsePreparedManifest(manifest(labFixtures))
     const screen = selectPreparedFixtures(input, { mode: 'screen', skipLarge: true })
-    expect(screen.fixtures).toHaveLength(14)
+    expect(screen.fixtures).toHaveLength(16)
     expect(screen.complete).toBe(true)
-    expect(screen.drops.map((drop) => drop.id)).toEqual(['im26-1626', 'im26-3306'])
-    expect(screen.drops.every((drop) => drop.reason.includes('ten-minute'))).toBe(true)
+    expect(screen.drops).toEqual([])
     expect(selectPreparedFixtures(input, { mode: 'screen' }).fixtures).toHaveLength(16)
     expect(selectPreparedFixtures(input, { mode: 'lab' }).fixtures).toHaveLength(64)
     expect(() => selectPreparedFixtures(input, { mode: 'lab', skipLarge: true })).toThrow(
       'screen-only',
     )
+  })
+
+  it('selects only scale crops with optional separately hashed originals', () => {
+    const scale = corpus.scale.map((entry) => prepared(entry.id, 'development', 'scale', true))
+    const input = parsePreparedManifest(
+      manifest([...labFixtures, ...scale.map((entry) => ({ ...entry, id: `${entry.id}-scale` }))]),
+    )
+    expect(selectPreparedFixtures(input, { mode: 'scale' }).fixtures).toHaveLength(2)
+    const standalone = parsePreparedManifest(manifest(scale))
+    const selected = selectPreparedFixtures(standalone, {
+      mode: 'scale',
+      additionalWatch: parsePreparedManifest(manifest(watchFixtures)),
+      watchCount: 2,
+    })
+    expect(selected.fixtures.map((entry) => entry.kind)).toEqual([
+      'scale',
+      'scale',
+      'watch',
+      'watch',
+    ])
+    expect(selected.complete).toBe(true)
+    expect(parseLabMode('scale')).toBe('scale')
+  })
+
+  it('resumes only complete matching isolated baseline speed measurements', () => {
+    validateBaselineSpeedResume({ mode: 'speed', variant: 'baseline', workers: 1 })
+    for (const ledger of [
+      { mode: 'lab', variant: 'baseline', workers: 1 },
+      { mode: 'speed', variant: 'candidate', workers: 1 },
+      { mode: 'speed', variant: 'baseline', workers: 2 },
+    ])
+      expect(() => validateBaselineSpeedResume(ledger)).toThrow('isolated baseline')
+    const point = {
+      setting: 2,
+      bytes: 123,
+      encodeMs: 5,
+      managedPeakBytes: 100,
+      processPeakRssBytes: 200,
+      ssimulacra2: 80,
+      butteraugliMax: 1,
+      butteraugliNorm3: 0.5,
+    }
+    const row = {
+      engine: 'purejsimage',
+      effort: 7,
+      fixtureSha256: 'old',
+      points: [point],
+      failures: [],
+    }
+    expect(baselineSpeedPoints(row, 'old', 'purejsimage')).toEqual([point])
+    // Two formerly large crops now have different PNG hashes and must be timed again.
+    expect(baselineSpeedPoints(row, 'new-512-crop', 'purejsimage')).toEqual([])
+    expect(baselineSpeedPoints(row, 'old', 'jsquash')).toEqual([])
+    expect(baselineSpeedPoints({ ...row, effort: 6 }, 'old', 'purejsimage')).toEqual([])
+    expect(
+      baselineSpeedPoints({ ...row, points: [{ ...point, setting: 3 }] }, 'old', 'purejsimage'),
+    ).toEqual([])
+    expect(
+      baselineSpeedPoints(
+        { ...row, points: [point, { ...point, setting: 3 }] },
+        'old',
+        'purejsimage',
+      ),
+    ).toEqual([])
+    expect(
+      baselineSpeedPoints(
+        { ...row, failures: [{ setting: 2, error: 'failed' }] },
+        'old',
+        'purejsimage',
+      ),
+    ).toEqual([])
+    expect(baselineSpeedPoints({ ...row, points: [{ setting: 2 }] }, 'old', 'purejsimage')).toEqual(
+      [],
+    )
+    expect(baselineSpeedPoints(null, 'old', 'purejsimage')).toEqual([])
+    const peer = { ...row, engine: 'jsquash', points: [{ ...point, setting: 80 }] }
+    expect(baselineSpeedPoints(peer, 'old', 'jsquash')).toEqual(peer.points)
   })
 
   it('reports preparation failures and missing requested fixtures for development', () => {

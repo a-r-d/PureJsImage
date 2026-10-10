@@ -309,14 +309,17 @@ export class JpegEntropyReader {
     return this.position
   }
 
-  async finish(): Promise<void> {
+  async finish(expectedTerminalRestart?: number): Promise<void> {
     this.#bits = 0
     this.#bitCount = 0
     if (this.#ended) return
+    let terminalRestartConsumed = false
     while (true) {
       if (this.available < 4) await this.refill()
       if (this.#offset >= this.#end) throw truncatedInput('JPEG end marker is missing')
       if (this.#buffer[this.#offset] !== 0xff) {
+        if (terminalRestartConsumed)
+          throw invalidInput('JPEG terminal restart must be followed by EOI')
         this.#offset += 1
         continue
       }
@@ -331,8 +334,12 @@ export class JpegEntropyReader {
       }
       const marker = this.#buffer[this.#offset] ?? 0
       this.#offset += 1
-      if (marker === 0) continue
+      if (marker === 0 && !terminalRestartConsumed) continue
       if (marker === 0xd9) return
+      if (marker === expectedTerminalRestart && !terminalRestartConsumed) {
+        terminalRestartConsumed = true
+        continue
+      }
       throw invalidInput('Baseline JPEG contains additional unsupported scans')
     }
   }
