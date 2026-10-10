@@ -117,9 +117,9 @@ describe('JPEG XL opaque palette compression', () => {
   it('preserves flat-region colors throughout the image while reducing edge detail', async () => {
     const pixels = graphic(),
       encoded = await encode(pixels, 128, 128, 2)
-    // These complete file and pixel fingerprints were independently checked in native and Rust decoders.
-    expect(encoded.length).toBe(771)
-    expect(sha256(encoded)).toBe('b4625ce925f63aa18b79bae729d25051f767b0dd46fe9d61dab794566fcf8005')
+    // Actual common color cost admits the exact palette; both decoders qualify the fingerprints.
+    expect(encoded.length).toBe(904)
+    expect(sha256(encoded)).toBe('7aa0ee5590472a768cef1dd2103d2974062e21ed7efc937b558f437c7dbcd423')
     const decoded = await decode(encoded, 128, 128)
     let checksum = 2166136261,
       maximumError = 0,
@@ -137,15 +137,17 @@ describe('JPEG XL opaque palette compression', () => {
       }
     }
     expect(preservedColors).toBeGreaterThan(16)
-    expect(checksum).toBe(2495421557)
-    expect(maximumError).toBe(8)
+    expect(checksum).toBe(997369701)
+    // The qualified complete grid now preserves every source sample exactly.
+    expect(maximumError).toBe(0)
   })
 
   it('recovers the original primary stream when optional palette storage cannot fit', async () => {
     const pixels = graphic(),
       encoded = await encode(pixels, 128, 128, 2, 1500000)
-    expect(encoded.length).toBe(10986)
-    expect(sha256(encoded)).toBe('53cdc06172bf2fd1f2801c075eab0dd6811cce244ab7e8619227ba0c9bc7cd8a')
+    // Shared opaque precision changes the bounded fallback, qualified by both decoders.
+    expect(encoded.length).toBe(11393)
+    expect(sha256(encoded)).toBe('404d4d52a88f8e1e037e1e81987215a9157a77a42455567172fc69838a6ea882')
     const decoded = await decode(encoded, 128, 128)
     let maximumError = 0
     for (let at = 0; at < pixels.length; at++) {

@@ -46,7 +46,7 @@ import { readJpegXlSourceFrameStructures } from '../src/codecs/jpegxl-decode.ts'
 import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
 import {
   encodeJpegXlDocumentPatchCandidate,
-  useLargeDocumentModularCandidate,
+  isLargeDocumentModularCandidate,
 } from '../src/codecs/jpegxl-modular-encode.ts'
 import { encodeJpegXlVarDct8 } from '../src/codecs/jpegxl-vardct-encode.ts'
 import { pngCodec } from '../src/codecs/png.ts'
@@ -305,9 +305,9 @@ export const verifyJpegXlLargeDocumentSelection = () => {
       renderingIntent: 'relative',
     },
   } as const
-  const eligible = useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  const eligible = isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
   pixels.fill(0)
-  const darkExcluded = !useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
+  const darkExcluded = !isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)
   return { eligible, darkExcluded }
 }
 

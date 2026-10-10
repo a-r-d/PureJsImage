@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { useLargeDocumentModularCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
+import { isLargeDocumentModularCandidate } from '../src/codecs/jpegxl-modular-encode.ts'
 
 const srgb = {
   family: 'rgb',
@@ -25,21 +25,21 @@ describe('JPEG XL large-document lossy selection', () => {
       sampleBitDepth: 8,
       colorSemantics: srgb,
     } as const
-    expect(useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)).toBe(true)
+    expect(isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)).toBe(true)
     expect(
-      useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', {
+      isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', {
         ...options,
         effort: 3,
       }),
     ).toBe(false)
     expect(
-      useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', {
+      isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', {
         ...options,
         distance: 1,
       }),
     ).toBe(false)
-    expect(useLargeDocumentModularCandidate(pixels, width, height, 'rgba8', options)).toBe(false)
+    expect(isLargeDocumentModularCandidate(pixels, width, height, 'rgba8', options)).toBe(false)
     pixels.fill(0)
-    expect(useLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)).toBe(false)
+    expect(isLargeDocumentModularCandidate(pixels, width, height, 'rgb8', options)).toBe(false)
   })
 })

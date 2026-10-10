@@ -28,6 +28,7 @@ async function roundtrip(
   format: 'rgb8' | 'rgba8',
   distance: number,
   effort: 1 | 3 | 5 | 7,
+  progressive: boolean,
 ): Promise<Uint8Array> {
   const before = input.slice()
   const channels = format === 'rgb8' ? 3 : 4
@@ -37,7 +38,7 @@ async function roundtrip(
     height,
     pixelFormat: format,
     colorSemantics: { ...semantics, alpha: format === 'rgb8' ? 'none' : 'straight' },
-    options: { mode: 'lossy', effort, distance },
+    options: { mode: 'lossy', effort, distance, progressive },
     limits: defaultImageLimits,
   })
   if (!encoder) throw new Error('JPEG XL encoder missing')
@@ -122,7 +123,9 @@ export interface JpegXlRgbRgbaEquivalenceResult {
   }[]
 }
 
-export async function verifyJpegXlRgbRgbaEquivalence(): Promise<JpegXlRgbRgbaEquivalenceResult> {
+export async function verifyJpegXlRgbRgbaEquivalence(
+  progressive = false,
+): Promise<JpegXlRgbRgbaEquivalenceResult> {
   const rgb = new Uint8Array(width * height * 3)
   const rgba = new Uint8Array(width * height * 4)
   const colors = new Set<number>()
@@ -150,8 +153,8 @@ export async function verifyJpegXlRgbRgbaEquivalence(): Promise<JpegXlRgbRgbaEqu
     { effort: 3, distance: 3 },
     { effort: 5, distance: 3 },
   ] as const) {
-    const rgbPixels = await roundtrip(rgb, 'rgb8', distance, effort)
-    const rgbaPixels = await roundtrip(rgba, 'rgba8', distance, effort)
+    const rgbPixels = await roundtrip(rgb, 'rgb8', distance, effort, progressive)
+    const rgbaPixels = await roundtrip(rgba, 'rgba8', distance, effort, progressive)
     unchanged(rgbPixels, rgbaPixels, `RGB/RGBA effort ${effort}, distance ${distance}`)
     let checksum = 0
     for (const value of rgbPixels) checksum = (Math.imul(checksum, 31) + value) >>> 0

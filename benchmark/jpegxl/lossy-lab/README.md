@@ -1,13 +1,18 @@
 # JPEG XL lossy lab
 
-Follow [the steering plan](../LOSSY_STEERING.md) and
-[checkpoint feedback](../LOSSY_FEEDBACK.md). The campaign resumed on 2026-10-09.
+Follow [the steering plan](../LOSSY_STEERING.md),
+[checkpoint feedback](../LOSSY_FEEDBACK.md) and the owner's
+[promotion guidance](../LOSSY_PROMOTION_GUIDANCE.md). The campaign resumed on 2026-10-09.
 The corrected baseline uses the unchanged encoder at `dca2f211`; its full
 development and isolated speed results are published in [BASELINE.md](BASELINE.md).
 The current table and experiment rows live in
-[lossy-lab-log.md](../lossy-lab-log.md). The E1/E2 configuration remains an
-unpromoted trial. All 14 E3 screens are measured in [TOOL-COSTS.md](TOOL-COSTS.md);
-full development confirmation is still required.
+[lossy-lab-log.md](../lossy-lab-log.md). E4 with palette precheck is preserved
+on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every completed
+80-point screen and all 576 full-development files byte for byte. Current
+qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
+All 14 E3 screens are measured in
+[TOOL-COSTS.md](TOOL-COSTS.md). Full promotion is still required before main or
+the bounded Butteraugli phase.
 
 The [stopping checkpoint](PAUSED-CHECKPOINT.md) and earlier
 [screen report](BASELINE-SCREEN.md) retain the previous campaign history.

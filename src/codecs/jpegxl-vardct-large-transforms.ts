@@ -30,19 +30,21 @@ export const forwardJpegXlDct32 = (
   samples: Float32Array,
   intermediate: Float32Array,
   coefficients: Float32Array,
+  lfOnly = false,
 ): void => {
   if (samples.length !== 1024 || intermediate.length !== 1024 || coefficients.length !== 1024)
     throw invalidJpegXlInput('DCT32 requires three 1024-value buffers')
+  const frequencies = lfOnly ? 4 : 32
   for (let y = 0; y < 32; y++) {
-    for (let horizontal = 0; horizontal < 32; horizontal++) {
+    for (let horizontal = 0; horizontal < frequencies; horizontal++) {
       let sum = 0
       for (let x = 0; x < 32; x++)
         sum += (samples[y * 32 + x] ?? 0) * (basis32[horizontal * 32 + x] ?? 0)
       intermediate[y * 32 + horizontal] = sum
     }
   }
-  for (let horizontal = 0; horizontal < 32; horizontal++) {
-    for (let vertical = 0; vertical < 32; vertical++) {
+  for (let horizontal = 0; horizontal < frequencies; horizontal++) {
+    for (let vertical = 0; vertical < frequencies; vertical++) {
       let sum = 0
       for (let y = 0; y < 32; y++)
         sum += (intermediate[y * 32 + horizontal] ?? 0) * (basis32[vertical * 32 + y] ?? 0)
@@ -132,13 +134,16 @@ export const forwardJpegXlRectangle32 = (
   intermediate: Float32Array,
   coefficients: Float32Array,
   horizontal: boolean,
+  lfOnly = false,
 ): void => {
   if (samples.length !== 512 || intermediate.length !== 512 || coefficients.length !== 512)
     throw invalidJpegXlInput('16x32 transform requires three 512-value buffers')
   const rowStep = horizontal ? 32 : 1,
-    columnStep = horizontal ? 1 : 16
+    columnStep = horizontal ? 1 : 16,
+    longFrequencies = lfOnly ? 4 : 32,
+    shortFrequencies = lfOnly ? 2 : 16
   for (let short = 0; short < 16; short++)
-    for (let frequency = 0; frequency < 32; frequency++) {
+    for (let frequency = 0; frequency < longFrequencies; frequency++) {
       let sum = 0
       for (let long = 0; long < 32; long++)
         sum +=
@@ -146,8 +151,8 @@ export const forwardJpegXlRectangle32 = (
           (basis32[frequency * 32 + long] ?? 0)
       intermediate[short * 32 + frequency] = sum
     }
-  for (let short = 0; short < 16; short++)
-    for (let long = 0; long < 32; long++) {
+  for (let short = 0; short < shortFrequencies; short++)
+    for (let long = 0; long < longFrequencies; long++) {
       let sum = 0
       for (let position = 0; position < 16; position++)
         sum += (intermediate[position * 32 + long] ?? 0) * (basis16[short * 16 + position] ?? 0)

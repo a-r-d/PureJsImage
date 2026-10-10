@@ -589,15 +589,16 @@ export function* prepareJpegXlLargeMenus(
             for (let c = 0; c < 3; c++) {
               const raw = rawHalf[c]!,
                 output = transformed[c]!
-              forwardJpegXlRectangle32(raw, rectangleScratch, output, horizontal)
+              forwardJpegXlRectangle32(raw, rectangleScratch, output, horizontal, c !== 1)
               quantizeJpegXlRectangle32Dc(output, factors[c] ?? 0, compactWords, 0, horizontal)
               for (let y = 0; y < bh; y++)
                 for (let x = 0; x < bw; x++)
                   dcWords[c * 16 + (oy + y) * 4 + ox + x] = compactWords[y * bw + x] ?? 0
-              if (c !== 1)
+              if (c !== 1) {
                 for (let p = 0; p < 512; p++)
                   raw[p] = (raw[p] ?? 0) - (c === 0 ? rx : rb) * (rawHalf[1][p] ?? 0)
-              forwardJpegXlRectangle32(raw, rectangleScratch, output, horizontal)
+                forwardJpegXlRectangle32(raw, rectangleScratch, output, horizontal)
+              }
             }
           }
           fillHalo(bx, by, dcWords)
@@ -667,13 +668,14 @@ export function* prepareJpegXlLargeMenus(
         for (let c = 0; c < 3; c++) {
           const raw = squareRaw[c]!,
             output = squareTransformed[c]!
-          forwardJpegXlDct32(raw, forwardScratch, output)
+          forwardJpegXlDct32(raw, forwardScratch, output, c !== 1)
           quantizeJpegXlDct32Dc(output, factors[c] ?? 0, compactWords, 0)
           dcWords.set(compactWords, c * 16)
-          if (c !== 1)
+          if (c !== 1) {
             for (let p = 0; p < 1024; p++)
               raw[p] = (raw[p] ?? 0) - (c === 0 ? rx : rb) * (squareRaw[1][p] ?? 0)
-          forwardJpegXlDct32(raw, forwardScratch, output)
+            forwardJpegXlDct32(raw, forwardScratch, output)
+          }
           forwardPhysical(source[c]!, false, true, sourceCoefficients[c]!, doubleScratch)
         }
         fillHalo(bx, by, dcWords)

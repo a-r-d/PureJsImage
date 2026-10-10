@@ -11,14 +11,18 @@ import {
 
 describe('JPEG XL larger photo transforms', () => {
   for (const [width, height, previousBytes, checksum] of [
-    [129, 65, 681, 3367695530],
-    [257, 129, 1721, 4248577614],
-    [2065, 17, 2455, 1145807969],
-    [17, 2065, 2768, 723715316],
+    // Shared photo quantization changes the digest while preserving the original error bound.
+    [129, 65, 681, 812191697],
+    // The same shared photo policy covers the larger partial group.
+    [257, 129, 1721, 717277342],
+    // Geometry admission restores standalone strip precision and the valid 2x2 transform.
+    [2065, 17, 2455, 826275486],
+    // The transposed strip uses the same geometry rule and precision.
+    [17, 2065, 2768, 3492195716],
   ] as const) {
     it(`keeps exact alpha and bounded color error across partial groups at ${width}x${height}`, async () => {
       const result = await verifyJpegXlLargeBlocks(width, height)
-      // Complete native/Rust grids independently verify these original fields.
+      // Complete native/Rust grids agree within one code value, with exact alpha.
       expect(result.bytes).toBeLessThan(previousBytes)
       expect(result.alphaError).toBe(0)
       expect(result.meanColorError).toBeLessThan(1.5)
@@ -28,21 +32,23 @@ describe('JPEG XL larger photo transforms', () => {
     })
   }
 
-  it('recovers the exact preceding stream at the original minimum working budget', async () => {
+  it('recovers the exact preceding stream at the original working budget', async () => {
     const limited = await encodeJpegXlLargeBlocks(129, 65, 797_262)
     const preceding = await encodeJpegXlLargeBlocks(129, 65, 797_262, false, false)
     expect(limited.encoded).toEqual(preceding.encoded)
-    expect(limited.encoded.length).toBe(681)
-    expect(limited.ownedPeak).toBe(797_262)
+    // Shared fallback precision changes output; removing dead scratch lowers its exact peak.
+    expect(limited.encoded.length).toBe(606)
+    expect(limited.ownedPeak).toBe(797198)
     const decoded = await verifyJpegXlLargeBlocks(129, 65, 797_262)
-    expect(decoded.decodedChecksum).toBe(775643947)
+    expect(decoded.decodedChecksum).toBe(3711444055)
     expect(decoded.alphaError).toBe(0)
   })
 
-  it('rejects the original insufficient budget with closed ownership', async () => {
+  it('rejects the insufficient budget with closed ownership', async () => {
     const pixels = jpegXlLargeBlockPixels()
     const before = pixels.slice()
-    const memory = new JpegXlEncoderMemory(797_261)
+    // Removing 64 bytes of scratch moved this adjacent failure boundary down by 64 bytes.
+    const memory = new JpegXlEncoderMemory(797_197)
     await expect(
       encodeJpegXlVarDct8Async(pixels, 129, 65, 9, memory, async () => {}, 4, 7),
     ).rejects.toMatchObject({ code: 'LIMIT_EXCEEDED' })
@@ -56,6 +62,7 @@ describe('JPEG XL larger photo transforms', () => {
     const current = await encodeJpegXlLargeBlocks(257, 129, 16_777_216, true)
     const preceding = await encodeJpegXlLargeBlocks(257, 129, 16_777_216, true, false)
     expect(current.encoded).toEqual(preceding.encoded)
+    // Progressive filtering and luminance refinement restore this independently verified preceding stream.
     expect(current.encoded.length).toBe(1939)
     const decoded = await verifyJpegXlLargeBlocks(257, 129, 16_777_216, true)
     expect(decoded.decodedChecksum).toBe(1254500280)

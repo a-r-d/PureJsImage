@@ -9,7 +9,7 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.ts'
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
@@ -298,7 +298,7 @@ const writeAlphaPlane = (
         )
       })
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
   }
   if (candidate) {
@@ -668,7 +668,7 @@ const writeDcCandidate = (
         candidate = alternative
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
   }
   if (candidate) {
@@ -677,7 +677,7 @@ const writeDcCandidate = (
       writer.writeEncodedBits(candidate.bytes, candidate.bitLength)
       return
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     } finally {
       writer.memory?.release(candidate.bytes)
     }
@@ -723,12 +723,12 @@ const writeDcMetadata = (
           }
         } catch (error) {
           // New optional search must preserve any already-completed left candidate.
-          if (!isJpegXlLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
         }
         return selected
       })
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
   }
   writeDcCandidate(
@@ -817,7 +817,7 @@ const writeForwardDcColorPlanes = (
         return { bytes: originalBytes, bitLength: originalBits }
       })
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
   }
   writeDcCandidate(
@@ -1542,7 +1542,7 @@ const compactAcHistograms = (
             logs: allocateJpegXlArray(memory, Float64Array, 512),
           }))
         } catch (error) {
-          if (!isJpegXlLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
         }
       }
       if (costs) {
@@ -2398,10 +2398,13 @@ function* coefficientSectionSteps(
       const best = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
       let bestCost = Infinity,
         bestConfig: HybridUintEncoding = denseAcHybridConfig
+      // Skip the same empty tail for every hybrid configuration without changing symbol order.
+      let rawLength = raw.length
+      while (rawLength > 0 && raw[rawLength - 1] === 0) rawLength--
       for (const config of acHybridCandidates) {
         withJpegXlMemory(geometry.memory, () => {
           const frequencies = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
-          for (let value = 0; value < raw.length; value++) {
+          for (let value = 0; value < rawLength; value++) {
             const frequency = raw[value] ?? 0
             if (frequency === 0) continue
             const token = encodeHybridUintPacked(value, config) & 255
@@ -2413,7 +2416,7 @@ function* coefficientSectionSteps(
           const normalized = encoding.histograms[0]?.frequencies
           if (!normalized) throw invalidJpegXlInput('Missing candidate normalized frequencies')
           let cost = writer.bitPosition
-          for (let value = 0; value < raw.length; value++) {
+          for (let value = 0; value < rawLength; value++) {
             const frequency = raw[value] ?? 0
             if (frequency === 0) continue
             const packed = encodeHybridUintPacked(value, config),
@@ -2439,6 +2442,10 @@ function* coefficientSectionSteps(
       frequencies: selectedFrequencies,
       histogramConfigs: selectedConfigs,
     }
+  }
+  if (useClusteredAns) {
+    for (const frequencies of acFrequencies) geometry.memory?.release(frequencies)
+    acFrequencies.length = 0
   }
   profiler?.record(
     'ac-statistics',
@@ -2637,7 +2644,7 @@ const encodeCoefficientSectionsWithAlpha = (
         return alternative
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
     return original
   })
@@ -2677,7 +2684,7 @@ const encodeCoefficientSectionsWithAlphaAsync = (
         return alternative
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
     return original
   })
@@ -2698,7 +2705,7 @@ const encodeVarDctCoefficientSectionsBaseline = (
       const refined = encodeCoefficientSectionsWithAlpha(geometry, profiler)
       return selectCoefficientSections(geometry, baseline, refined)
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       return baseline
     }
   })
@@ -2719,7 +2726,7 @@ const encodeVarDctCoefficientSectionsBaselineAsync = (
       const refined = await encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
       return selectCoefficientSections(geometry, baseline, refined)
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       return baseline
     }
   })
@@ -2775,7 +2782,7 @@ export const encodeVarDctCoefficientSections = (
           selected = alternative
         }
       } catch (error) {
-        if (!isJpegXlLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     return selected
@@ -2805,7 +2812,7 @@ export const encodeVarDctCoefficientSectionsAsync = (
           selected = alternative
         }
       } catch (error) {
-        if (!isJpegXlLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     return selected

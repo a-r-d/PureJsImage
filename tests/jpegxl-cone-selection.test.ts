@@ -27,10 +27,10 @@ it('preserves independently verified photo samples across partial JPEG XL groups
   )
     throw new Error('JPEG XL fixture export is missing')
   const result: unknown = await namespace.verifyConePhoto()
-  // Complete native/Rust grids qualify all samples above the actual photo-size guard.
+  // Estimated order/family selection changes serialization; both decoders retain these pixels.
   expect(result).toMatchObject({
-    bytes: 127590,
-    encodedChecksum: 3528318311,
+    bytes: 127948,
+    encodedChecksum: 527620913,
     decodedChecksum: 1449741427,
     callerChecksum: 3043653419,
     selectedDct16Blocks: 65532,

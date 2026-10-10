@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { expect, it } from 'vitest'
 
-it('exercises fine JPEG XL channel and spatial quantization above the photo-size guard', async () => {
+it('exercises fine JPEG XL channel and spatial quantization on a large photo', async () => {
   const bundle = await build({
     entryPoints: [fileURLToPath(new URL('./helpers/jpegxl-cone-selection.ts', import.meta.url))],
     bundle: true,
@@ -26,10 +26,11 @@ it('exercises fine JPEG XL channel and spatial quantization above the photo-size
   )
     throw new Error('JPEG XL fine fixture export is missing')
   const result: unknown = await namespace.verifyFinePhoto()
+  // Shared fine photo precision changes the stream and pixels, qualified by both decoders.
   expect(result).toMatchObject({
-    bytes: 191161,
-    encodedChecksum: 2834716027,
-    decodedChecksum: 2715510112,
+    bytes: 204765,
+    encodedChecksum: 1015827701,
+    decodedChecksum: 3722419263,
     callerChecksum: 2647578060,
     samples: 2049 * 2048 * 4,
     coveredRows: 2048,

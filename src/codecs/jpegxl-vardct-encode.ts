@@ -9,7 +9,11 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput, isJpegXlLimitExceeded } from './jpegxl-errors.ts'
+import {
+  invalidJpegXlInput,
+  isJpegXlLimitExceeded,
+  rethrowJpegXlNonLimitError,
+} from './jpegxl-errors.ts'
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
@@ -381,7 +385,7 @@ export const encodeJpegXlVarDct8 = (
               : baseline
           })
         } catch (error) {
-          if (!isJpegXlLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
           return baseline
         }
       })
@@ -408,12 +412,12 @@ export const encodeJpegXlVarDct8 = (
             ? candidate
             : baseline
         } catch (error) {
-          if (!isJpegXlLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
           return baseline
         }
       })
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       return encode(false)
     }
   } finally {
@@ -562,7 +566,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
         return codestreamPartBytes(alternate) < codestreamPartBytes(baseline) ? alternate : baseline
       })
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       return baseline
     }
   })
@@ -625,7 +629,7 @@ export const encodeJpegXlVarDct8Async = async (
         const candidate = await encode({ ...frame, coneSearch: true })
         return codestreamPartBytes(candidate) < codestreamPartBytes(baseline) ? candidate : baseline
       } catch (error) {
-        if (!isJpegXlLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
         return baseline
       }
     })
@@ -690,7 +694,7 @@ function* prepare8(
         smallVisiblePalette = hasSmallVisiblePalette(pixels, memory, channels === 3 ? 3 : 4)
         rgbDcPolicy = !smallVisiblePalette
       } catch (error) {
-        if (!isJpegXlLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
         rgbDcPolicy = false
       }
     }
@@ -706,50 +710,48 @@ function* prepare8(
       // Keep the established exact Modular artwork candidate's selection floor.
       alphaPaletteSearch = !(smallVisiblePalette ?? hasSmallVisiblePalette(pixels, memory))
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       alphaPaletteSearch = false
     }
   }
   // Keep fine DC precision outside the measured SDR experiments.
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
-  const moderateSdrDc =
-    distance > 1 &&
-    effort !== 1 &&
-    rgbDcPolicy &&
-    sampleDepth === 8 &&
-    sampleBytes === 1 &&
-    (color?.primaries ?? 'srgb') === 'srgb' &&
-    (color?.transfer.kind ?? 'srgb') === 'srgb'
-  const finerSdrAc =
-    effort === 7 &&
-    (channels === 3 || sdrOpaqueColor) &&
-    sampleDepth === 8 &&
-    sampleBytes === 1 &&
-    distance >= 2 &&
-    distance <= 4 &&
-    (color?.primaries ?? 'srgb') === 'srgb' &&
-    (color?.transfer.kind ?? 'srgb') === 'srgb'
+  const moderateSdrDc = distance > 1 && effort !== 1 && rgbDcPolicy && sdrInput
+  const finerSdrAc = sdrOpaqueColor && !progressive && distance >= 2 && distance <= 4
   const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
+  const blocksWide = Math.ceil(width / 8)
+  const blocksHigh = Math.ceil(height / 8)
+  // The photo tools share 4x4-cell context; strips keep their standalone precision.
+  const photoContext = blocksWide >= 4 && blocksHigh >= 4
   const originalDarkAc =
-    compressionSearch && sdrOpaqueColor && rgbDcPolicy && !progressive && distance <= 1
+    compressionSearch &&
+    sdrOpaqueColor &&
+    rgbDcPolicy &&
+    photoContext &&
+    !progressive &&
+    distance <= 1
   let xScale: 0 | 2 = 2
   let xAc = 1
   let bScale: 1 | 2 = 2
   let bAc = 1
   const originalPhotoAc =
-    compressionSearch && sdrOpaqueColor && rgbDcPolicy && !progressive && distance > 1
-  const moderateAlphaDc = sdrAlpha && !sdrOpaqueColor
+    compressionSearch &&
+    sdrOpaqueColor &&
+    rgbDcPolicy &&
+    photoContext &&
+    !progressive &&
+    distance > 1
+  // Progressive passes keep standalone Q7/DC smoothing rather than the unsplit photo policy.
+  const baselineColorPrecision = sdrColor && (progressive || !sdrOpaqueColor || !photoContext)
   const photoColorQuantization = originalDarkAc || originalPhotoAc
-  const smoothColorDc = moderateAlphaDc || photoColorQuantization
+  const smoothColorDc = baselineColorPrecision || photoColorQuantization
   const dcQuantization = moderateSdrDc
     ? originalPhotoAc
       ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
       : [1 / 16384, 1 / 4096, 1 / 2048]
-    : moderateAlphaDc
+    : baselineColorPrecision
       ? [1 / 8192, 1 / 1024, 1 / 512]
       : [1 / 16384, 1 / 16384, 1 / 16384]
-  const blocksWide = Math.ceil(width / 8)
-  const blocksHigh = Math.ceil(height / 8)
   const deferredDc =
     effort === 1 &&
     channels !== 4 &&
@@ -765,9 +767,21 @@ function* prepare8(
   const correlationB = allocateJpegXlArray(memory, Int32Array, colorTilesAcross * colorTilesDown)
   const quantizationMap = allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
   quantizationMap.fill(quantAc)
-  const fineRateMap = originalDarkAc
-    ? allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
-    : undefined
+  let optionalBlockMapRefused = false
+  const optionalBlockMap = (): Uint8Array | undefined => {
+    try {
+      return allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
+    } catch (error) {
+      rethrowJpegXlNonLimitError(error)
+      optionalBlockMapRefused = true
+      return undefined
+    }
+  }
+  const fineRateMap = originalDarkAc ? optionalBlockMap() : undefined
+  const usesFineAcRate = (meanY: number, yy: number, activity: number): boolean =>
+    yy >= 0.000064 &&
+    yy < 0.005 &&
+    ((meanY > 0.5 && activity < 1.5) || (meanY < 0.5 && activity > 1.5))
   const strategyMap =
     effort >= 5 ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh) : undefined
   const components: VarDctCoefficientPlane[] = Array.from({ length: 3 }, () => ({
@@ -1067,7 +1081,7 @@ function* prepare8(
       reserve = allocateJpegXlArray(memory, Float32Array, 70)
       sourceScores = allocateJpegXlArray(memory, Float64Array, blocksWide * blocksHigh)
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     } finally {
       if (reserve) memory.release(reserve)
     }
@@ -1117,15 +1131,10 @@ function* prepare8(
         const activity = gradient / Math.max(yy, 1e-12)
         if (fineRateMap) {
           const meanY = means[1] ?? 0
-          fineRateMap[offset] =
-            yy >= 0.000064 &&
-            yy < 0.005 &&
-            ((meanY > 0.5 && activity < 1.5) || (meanY < 0.5 && activity > 1.5))
-              ? 1
-              : 0
+          fineRateMap[offset] = usesFineAcRate(meanY, yy, activity) ? 1 : 0
         }
         quantizationMap[offset] =
-          moderateAlphaDc || photoColorQuantization
+          baselineColorPrecision || photoColorQuantization
             ? (originalDarkAc &&
                 ((means[1] ?? 0) < 0.3 || ((means[1] ?? 0) < 0.5 && activity > 1.5)) &&
                 yy >= 0.000064 &&
@@ -1177,6 +1186,24 @@ function* prepare8(
       currentAcRateWeightY =
         fineRateMap[blockY * blocksWide + blockX] === 1 ? fineAcRateWeightY : acRateWeightY
     fill(blockX, blockY)
+    if (originalDarkAc && !fineRateMap) {
+      // Preserve the fine-quality policy if its optional cache cannot be allocated.
+      let sum = 0
+      for (let p = 0; p < 64; p++) sum += yPlane[p] ?? 0
+      const meanY = Math.fround(sum / 64)
+      let yy = 0,
+        gradient = 0
+      for (let p = 0; p < 64; p++) {
+        const sample = yPlane[p] ?? 0,
+          delta = sample - meanY
+        yy += delta * delta
+        if ((p & 7) !== 0) gradient += (sample - (yPlane[p - 1] ?? 0)) ** 2
+        if (p >= 8) gradient += (sample - (yPlane[p - 8] ?? 0)) ** 2
+      }
+      currentAcRateWeightY = usesFineAcRate(meanY, yy, gradient / Math.max(yy, 1e-12))
+        ? fineAcRateWeightY
+        : acRateWeightY
+    }
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
     const ratioX = (correlationX[tile] ?? 0) / 84
     const ratioB = (correlationB[tile] ?? 0) / 84
@@ -1199,37 +1226,53 @@ function* prepare8(
     sdrOpaqueColor &&
     !progressive
   const acRateWeightChroma = originalDarkAc || originalPhotoAc ? 0.04 : 0.02
+  // Reuse the common zero/unit penalties and the bias-independent magnitude-two centroid.
+  const acPenaltyTwo = 1 + 2 * Math.log2(3)
+  const acCentroidTwo = 2 - 0.145 / 2
   const rateAwareAc = (normalized: number, channel: number): number => {
     const bias = defaultJpegXlQuantizationBiases[channel] ?? 1
     const weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma
     const magnitude = Math.abs(normalized),
       lower = Math.floor(magnitude),
       upper = lower + 1
-    const lowValue = lower === 0 ? 0 : lower === 1 ? bias : lower - 0.145 / lower
-    const highValue = upper === 1 ? bias : upper - 0.145 / upper
+    const lowValue =
+      lower === 0 ? 0 : lower === 1 ? bias : lower === 2 ? acCentroidTwo : lower - 0.145 / lower
+    const highValue = upper === 1 ? bias : upper === 2 ? acCentroidTwo : upper - 0.145 / upper
     const lowCost =
-      (magnitude - lowValue) ** 2 + weight * (lower === 0 ? 0 : 1 + 2 * Math.log2(1 + lower))
-    const highCost = (magnitude - highValue) ** 2 + weight * (1 + 2 * Math.log2(1 + upper))
+      (magnitude - lowValue) ** 2 +
+      weight *
+        (lower === 0
+          ? 0
+          : lower === 1
+            ? 3
+            : lower === 2
+              ? acPenaltyTwo
+              : 1 + 2 * Math.log2(1 + lower))
+    const highCost =
+      (magnitude - highValue) ** 2 +
+      weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : 1 + 2 * Math.log2(1 + upper))
     const value = highCost < lowCost ? upper : lower
     return normalized < 0 ? -value : value
   }
   const quantizeAc: (normalized: number, channel: number) => number =
     coarse || originalDarkAc ? rateAwareAc : Math.round
-  const epfMaximumSharpness = opaqueSdrInput || channels !== 4 ? 3 : 2
+  // Progressive low-palette texture has no moderate photo filter model. Applying
+  // its two EPF passes anyway loses fine colored detail in the public texture test.
+  const progressiveOpaque = sdrOpaqueColor && progressive
+  const epfMaximumSharpness = !progressiveOpaque && (opaqueSdrInput || channels !== 4) ? 3 : 2
+  const refinementFirstChannel = progressiveOpaque ? 1 : 0
+  const refinementEndChannel = progressiveOpaque ? 2 : 3
   let sharpnessMap: Uint8Array | undefined
   if (
     strategyMap &&
     distance >= 2 &&
-    (opaqueSdrInput || channels !== 4 || (effort === 7 && moderateSdrDc)) &&
+    (progressiveOpaque
+      ? moderateSdrDc
+      : opaqueSdrInput || channels !== 4 || (effort === 7 && moderateSdrDc)) &&
     colorTransfer.kind === 'srgb' &&
     primaryCode === 1
   ) {
-    try {
-      sharpnessMap = allocateJpegXlArray(memory, Uint8Array, blocksWide * blocksHigh)
-    } catch (error) {
-      // The shared opaque policy also reaches this map in the bounded fallback.
-      if (!isJpegXlLimitExceeded(error)) throw error
-    }
+    sharpnessMap = optionalBlockMap()
   }
   if (strategyMap) {
     const alternatePolicy = strategyPolicy === 'rate-distortion'
@@ -1316,7 +1359,9 @@ function* prepare8(
         // One bounded refinement retains the existing quantizer as the fallback.
         if (effort === 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
           let relativeError = 0
-          for (let channel = 0; channel < 3; channel++) {
+          // Progressive passes retain chroma precision; refine their luminance
+          // contrast without promoting small decorrelated chroma residuals to Q8.
+          for (let channel = refinementFirstChannel; channel < refinementEndChannel; channel++) {
             const plane = planes[channel]
             if (!plane) throw invalidInput('Missing refinement channel')
             let sum = 0,
@@ -1508,7 +1553,7 @@ function* prepare8(
         fineAcRateWeightY = 0.025
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       // Optional scratch failed before any Q or output policy was changed.
     } finally {
       if (rates) memory.release(rates)
@@ -1521,7 +1566,7 @@ function* prepare8(
 
   const groupsAcross = Math.ceil(blocksWide / 32)
   // Estimate transform cost from natural-order hybrid tokens, zeros and nonzero counts.
-  const dct16Eligible = coarse && strategyMap !== undefined
+  const dct16Eligible = coarse && blocksWide >= 2 && blocksHigh >= 2 && strategyMap !== undefined
   const dct16Planes = dct16Eligible
     ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
     : undefined
@@ -1946,8 +1991,25 @@ function* prepare8(
       }
     quantizationMap.set(selected.quantizationMap)
   }
+  const allocateLargeScratch = (retained: ArrayBufferView[]) => {
+    const allocateTile = (): Float32Array => {
+      const tile = memory.allocate(Float32Array, 1024)
+      retained.push(tile)
+      return tile
+    }
+    largePlanes = [allocateTile(), allocateTile(), allocateTile()]
+    largeTransformed = [allocateTile(), allocateTile(), allocateTile()]
+    largeIntermediate = allocateTile()
+    if (!groupCoefficientOffsets) {
+      groupCoefficientOffsets = memory.allocate(Int32Array, 32 * 32)
+      retained.push(groupCoefficientOffsets)
+    }
+    return [largePlanes, largeTransformed, largeIntermediate] as const
+  }
   const largeColorGeometry =
     originalPhotoAc &&
+    // Preserve preceding geometry after a LIMIT instead of searching four larger optional maps.
+    !optionalBlockMapRefused &&
     blocksWide >= 4 &&
     blocksHigh >= 4 &&
     matrix === defaultForwardMatrix &&
@@ -1979,25 +2041,14 @@ function* prepare8(
       selector.finalize()
       selected = selector.select(1)
       if (selected.stats.selected > 0) {
-        const allocateTile = (): Float32Array => {
-          const tile = memory.allocate(Float32Array, 1024)
-          retained.push(tile)
-          return tile
-        }
-        largePlanes = [allocateTile(), allocateTile(), allocateTile()]
-        largeTransformed = [allocateTile(), allocateTile(), allocateTile()]
-        largeIntermediate = allocateTile()
-        if (!groupCoefficientOffsets) {
-          groupCoefficientOffsets = memory.allocate(Int32Array, 32 * 32)
-          retained.push(groupCoefficientOffsets)
-        }
+        ;[largePlanes, largeTransformed, largeIntermediate] = allocateLargeScratch(retained)
         // Every optional buffer is admitted before changing the original geometry.
         // Commit all maps and DC without yielding, then release the complete menus.
         commitLargeSelection(selected, strategyMap, [xDc, yDc, bDc])
         retained.length = 0
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       // Optional storage failed before the original maps or DC changed.
       largePlanes = undefined
       largeTransformed = undefined
@@ -2381,18 +2432,7 @@ function* prepare8(
       selector.finalize()
       selected = yield* selector.selectOriginalBudget()
       if (selected && selected.stats.selected > 0) {
-        const allocateTile = (): Float32Array => {
-          const tile = memory.allocate(Float32Array, 1024)
-          retained.push(tile)
-          return tile
-        }
-        largePlanes = [allocateTile(), allocateTile(), allocateTile()]
-        largeTransformed = [allocateTile(), allocateTile(), allocateTile()]
-        largeIntermediate = allocateTile()
-        if (!groupCoefficientOffsets) {
-          groupCoefficientOffsets = memory.allocate(Int32Array, 32 * 32)
-          retained.push(groupCoefficientOffsets)
-        }
+        ;[largePlanes, largeTransformed, largeIntermediate] = allocateLargeScratch(retained)
         rectanglePlanes = largePlanes.map((plane) => plane.subarray(0, 512))
         rectangleTransformed = largeTransformed.map((plane) => plane.subarray(0, 512))
         rectangleIntermediate = largeIntermediate.subarray(0, 512)
@@ -2425,7 +2465,7 @@ function* prepare8(
         retained.length = 0
       }
     } catch (error) {
-      if (!isJpegXlLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
       // Optional storage failed before the original maps or DC changed.
       largePlanes = undefined
       largeTransformed = undefined

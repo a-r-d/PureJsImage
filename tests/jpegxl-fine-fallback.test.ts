@@ -67,8 +67,9 @@ it('retains original JPEG XL bytes when optional fine quantizer scratch is unava
     expect(rejectedMenus).toBe(1)
     expect(digest(pixels)).toBe(inputHash)
     const encoded = sink.toUint8Array()
-    expect(encoded.length).toBe(303446)
-    expect(digest(encoded)).toBe('c45efd9ac2c9b13957554e9a095d582f896e8d717792461eb4a74157c0cb7510')
+    // Shared opaque precision changes the verified preceding stream after scratch refusal.
+    expect(encoded.length).toBe(251186)
+    expect(digest(encoded)).toBe('2a5c2c36082c3f50fe2384c2b617c32b3abbc1a2fc88632f647be0b5aa7959b3')
     if (
       !('managedLiveBytes' in encoder) ||
       !('managedLiveAllocations' in encoder) ||

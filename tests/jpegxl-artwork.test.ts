@@ -18,9 +18,10 @@ describe('JPEG XL exact artwork candidate', () => {
 
   it('keeps the complete prior stream when optional exact search exceeds working storage', async () => {
     const result = await verifyJpegXlArtwork({ maxWorkingBytes: 8_388_608 })
-    expect(result.bytes).toBe(3159)
-    expect(result.encodedChecksum).toBe(2065653775)
-    expect(result.decodedChecksum).toBe(2319986359)
+    // Shared opaque color selection changes this bounded fallback, qualified by both decoders.
+    expect(result.bytes).toBe(4635)
+    expect(result.encodedChecksum).toBe(4070846719)
+    expect(result.decodedChecksum).toBe(2423965623)
     expect(result.alphaError).toBe(0)
     expect(result.ownedPeak).toBeLessThanOrEqual(8_388_608)
     expect(result.ownedLive).toBe(0)
@@ -43,13 +44,15 @@ describe('JPEG XL exact artwork candidate', () => {
   for (const [options, encodedChecksum, decodedChecksum] of [
     [{ progressive: true }, 913551628, 2319986359],
     [{ depth: 16 }, 904015805, 1237593230],
-    [{ width: 1025, height: 1025 }, 4009859427, 2374356855],
+    // Visible-color admission now preserves every sample above the former area ceiling.
+    [{ width: 1025, height: 1025 }, 2194658254, 4058247199],
     [{ width: 512, height: 512 }, 2502169417, 3681525189],
   ] as const)
     it(`preserves the existing protected path for ${JSON.stringify(options)}`, async () => {
       const result = await verifyJpegXlArtwork(options)
       expect(result.encodedChecksum).toBe(encodedChecksum)
-      if ('width' in options && options.width === 1025) expect(result.bytes).toBe(3589)
+      if ('width' in options && options.width === 1025) expect(result.bytes).toBe(893)
+      if ('width' in options && options.width === 1025) expect(result.visibleError).toBe(0)
       expect(result.decodedChecksum).toBe(decodedChecksum)
       expect(result.alphaError).toBe(0)
       expect(result.ownedLive).toBe(0)

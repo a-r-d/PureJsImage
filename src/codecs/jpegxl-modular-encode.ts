@@ -20,7 +20,11 @@ import {
   withJpegXlMemory,
   withJpegXlMemoryAsync,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput, isJpegXlLimitExceeded as isLimitExceeded } from './jpegxl-errors.ts'
+import {
+  invalidJpegXlInput,
+  isJpegXlLimitExceeded as isLimitExceeded,
+  rethrowJpegXlNonLimitError,
+} from './jpegxl-errors.ts'
 import { findFlatScreenshotPatches, hasFlatScreenshotBackground } from './jpegxl-flat-patches.ts'
 import { resolveJpegXlLimits } from './jpegxl-limits.ts'
 import {
@@ -28,7 +32,11 @@ import {
   chooseJpegXlModularRct,
 } from './jpegxl-modular-rct.ts'
 import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
-import { encodeJpegXlVarDct8Async, jpegXlVarDctColorBits } from './jpegxl-vardct-encode.ts'
+import {
+  encodeJpegXlVarDct8Async,
+  jpegXlVarDctColorBits,
+  type JpegXlForwardFrameOptions,
+} from './jpegxl-vardct-encode.ts'
 
 export class JpegXlBitWriter {
   #bytes: Uint8Array<ArrayBuffer>
@@ -3116,7 +3124,7 @@ const encodeSingleGroupSection = (
           try {
             repeated = encodePrepared(prepared, true)
           } catch (error) {
-            if (!isLimitExceeded(error)) throw error
+            rethrowJpegXlNonLimitError(error)
           }
         }
         let bytes: Uint8Array
@@ -3236,7 +3244,7 @@ const encodeSingleGroupSection = (
           candidates.push(alternative)
         }
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     if (prepared.transforms.squeeze) {
@@ -3295,7 +3303,7 @@ const encodeSingleGroupSection = (
             })
             if (extra) variants.push(extra)
           } catch (error) {
-            if (!isLimitExceeded(error)) throw error
+            rethrowJpegXlNonLimitError(error)
           }
           return variants.reduce((smallest, variant) =>
             variant.length < smallest.length ? variant : smallest,
@@ -3487,7 +3495,7 @@ export const encodeRepeatedJpegXlAlphaGroup = (
         selected = alternative
       }
     } catch (error) {
-      if (!isLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
     return selected
   })
@@ -3743,7 +3751,7 @@ export const writeLearnedTree = (
       writer.writeEncodedBits(bytes, bits)
     })
   } catch (error) {
-    if (!isLimitExceeded(error)) throw error
+    rethrowJpegXlNonLimitError(error)
     writeLearnedTreePrefix(writer, nodes)
   }
 }
@@ -3817,7 +3825,7 @@ const encodeGroupCandidate = (
           return expanded
         }
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
       return baseline
     }
@@ -3861,7 +3869,7 @@ const encodeGroupCandidate = (
           return learned
         }
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
       return baseline
     }
@@ -3982,7 +3990,7 @@ const encodeGroupCandidate = (
             selected = { ...selected, bytes: candidate }
           } else memory?.release(candidate)
         } catch (error) {
-          if (!isLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
         }
       }
     }
@@ -4764,8 +4772,12 @@ const quantizeFlatPalette = (
   const flags = allocateJpegXlArray(memory, Uint8Array, 4096)
   try {
     const stride = width * channels,
-      step = distance * 8
-    let count = 0
+      step = distance * 8,
+      lowerStep = Math.floor(step),
+      fraction = step - lowerStep,
+      strength = Math.min(1, Math.max(0, distance - 2))
+    let count = 0,
+      hasFlatColor = false
     for (let offset = 0; offset < pixels.length; offset += channels) {
       if (channels === 4 && pixels[offset + 3] !== 255) return undefined
       const color =
@@ -4790,21 +4802,37 @@ const quantizeFlatPalette = (
             break
           }
         }
-        if (flat) flags[slot] = 3
+        if (flat) {
+          flags[slot] = 3
+          hasFlatColor = true
+        }
       }
     }
+    // A color-count admission alone does not make textured artwork a flat palette.
+    if (!hasFlatColor) return undefined
     let changed = false
     for (let slot = 0; slot < flags.length; slot++)
       if (flags[slot]) {
         const color = keys[slot] ?? 0,
           green = (color >>> 8) & 255
+        // Interpolate fixed integer grids before projection, rather than switching
+        // the entire palette when a distance-dependent nearest grid changes.
+        const lowerTarget = Math.min(
+          255,
+          Math.floor((green + lowerStep / 2) / lowerStep) * lowerStep,
+        )
+        const upperStep = lowerStep + 1
+        const upperTarget = Math.min(
+          255,
+          Math.floor((green + upperStep / 2) / upperStep) * upperStep,
+        )
         const delta =
           flags[slot] === 3
             ? 0
-            : Math.min(255, Math.floor((green + step / 2) / step) * step) - green
-        const red = Math.max(0, Math.min(255, (color >>> 16) + delta)) | 0
-        const nextGreen = Math.max(0, Math.min(255, green + delta)) | 0
-        const blue = Math.max(0, Math.min(255, (color & 255) + delta)) | 0
+            : (lowerTarget + (upperTarget - lowerTarget) * fraction - green) * strength
+        const red = Math.round(Math.max(0, Math.min(255, (color >>> 16) + delta)))
+        const nextGreen = Math.round(Math.max(0, Math.min(255, green + delta)))
+        const blue = Math.round(Math.max(0, Math.min(255, (color & 255) + delta)))
         const next = (red << 16) | (nextGreen << 8) | blue
         mapped[slot] = next
         if (next !== color) changed = true
@@ -4871,7 +4899,7 @@ export const hasSmallVisiblePalette = (
 }
 
 // Limit the extra effort-7 search to large white-background documents.
-export const useLargeDocumentModularCandidate = (
+export const isLargeDocumentModularCandidate = (
   pixels: Uint8Array,
   width: number,
   height: number,
@@ -5174,7 +5202,7 @@ export const writeDocumentPatchFeatures = (
         return best
       })
     } catch (error) {
-      if (!isLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
     memory.release(values)
     const writer = new JpegXlBitWriter(memory)
@@ -5546,13 +5574,15 @@ const encodeLossyCodestream = (
     writeImageHeader(writer, width, height, format, options, true)
     const imageHeader = writer.finish()
     const forwardChannels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
-    const opaqueSdrColor =
-      (format === 'rgb8' ||
-        (format === 'rgba8' && options.alphaBitDepth === 8 && hasOpaque8BitAlpha(pixels))) &&
+    const sdrColor =
       options.effort === 7 &&
       options.sampleBitDepth === 8 &&
       options.colorSemantics.primaries === 'srgb' &&
       options.colorSemantics.transfer.kind === 'srgb'
+    const opaqueSdrColor =
+      (format === 'rgb8' ||
+        (format === 'rgba8' && options.alphaBitDepth === 8 && hasOpaque8BitAlpha(pixels))) &&
+      sdrColor
     const colorFormat = format === 'rgba8' ? 'rgba8' : 'rgb8'
     const colorStride = colorFormat === 'rgba8' ? 4 : 3
     const forwardColor = {
@@ -5561,21 +5591,24 @@ const encodeLossyCodestream = (
       intensityTarget: options.toneMapping.intensityTarget,
       ...(options.alphaBitDepth === undefined ? {} : { alphaBitDepth: options.alphaBitDepth }),
     } as const
-    const parts = await encodeJpegXlVarDct8Async(
-      pixels,
-      width,
-      height,
-      options.distance,
-      memory,
-      checkpoint,
-      forwardChannels,
-      options.effort,
-      imageHeader,
-      options.sampleBitDepth,
-      options.progressive,
-      forwardColor,
-      limits,
-    )
+    const encodeForward = (frame?: Readonly<JpegXlForwardFrameOptions>) =>
+      encodeJpegXlVarDct8Async(
+        pixels,
+        width,
+        height,
+        options.distance,
+        memory,
+        checkpoint,
+        forwardChannels,
+        options.effort,
+        imageHeader,
+        options.sampleBitDepth,
+        options.progressive,
+        forwardColor,
+        limits,
+        frame,
+      )
+    const parts = await encodeForward()
     const header = parts[0]
     if (!header) throw invalidJpegXlInput('forward header is missing')
     const primary = {
@@ -5592,13 +5625,9 @@ const encodeLossyCodestream = (
     }
     if (
       (opaqueSdrColor || format === 'rgba8') &&
-      options.effort === 7 &&
+      sdrColor &&
       !options.progressive &&
-      width * height <= 1_048_576 &&
-      options.sampleBitDepth === 8 &&
-      (format === 'rgb8' || options.alphaBitDepth === 8) &&
-      options.colorSemantics.primaries === 'srgb' &&
-      options.colorSemantics.transfer.kind === 'srgb'
+      (format === 'rgb8' || options.alphaBitDepth === 8)
     ) {
       let smallPalette = false
       try {
@@ -5623,10 +5652,39 @@ const encodeLossyCodestream = (
           if (normalized)
             for (let offset = 0; offset < normalized.length; offset += 4)
               if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
-          const colorBits = opaqueSdrColor
-            ? estimateJpegXlModularColorBits(normalized ?? pixels, width, colorStride, memory)
-            : undefined
-          if (colorBits !== undefined && !(colorBits * 20 <= cost(selected) * 19)) return undefined
+          if (opaqueSdrColor && format === 'rgba8') {
+            // Both opaque layouts compare the same actual RGB lossless stream. The scalar
+            // return releases the probe copy and its encoded storage before RGBA encoding.
+            const colorBits = await withJpegXlMemoryAsync(memory, async () => {
+              const rgb = allocateJpegXlArray(memory, Uint8Array, (pixels.length / 4) * 3)
+              for (let source = 0, target = 0; source < pixels.length; source += 4, target += 3) {
+                rgb[target] = pixels[source] ?? 0
+                rgb[target + 1] = pixels[source + 1] ?? 0
+                rgb[target + 2] = pixels[source + 2] ?? 0
+              }
+              const canonical = await encodeCodestream(
+                rgb,
+                width,
+                height,
+                'rgb8',
+                { ...options, mode: 'lossless' },
+                memory,
+                checkpoint,
+              )
+              return canonical.byteLength * 8
+            })
+            if (!(colorBits * 20 <= cost(selected) * 19)) return undefined
+            const candidate = await encodeCodestream(
+              pixels,
+              width,
+              height,
+              format,
+              { ...options, mode: 'lossless' },
+              memory,
+              checkpoint,
+            )
+            return { ...candidate, colorBits }
+          }
           const candidate = await encodeCodestream(
             normalized ?? pixels,
             width,
@@ -5636,15 +5694,19 @@ const encodeLossyCodestream = (
             memory,
             checkpoint,
           )
-          const measured = colorBits === undefined ? candidate : { ...candidate, colorBits }
+          const measured = opaqueSdrColor
+            ? { ...candidate, colorBits: candidate.byteLength * 8 }
+            : candidate
           return cost(measured) * 20 <= cost(selected) * 19 ? measured : undefined
         })
         // Both layouts retain their original alpha samples.
         if (modular) {
+          // An accepted exact opaque palette ends lossy competition in both layouts.
+          if (opaqueSdrColor) return modular
           selected = modular
         }
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
       if (smallPalette && options.distance >= 2) {
         try {
@@ -5679,40 +5741,21 @@ const encodeLossyCodestream = (
             selected = quantized
           }
         } catch (error) {
-          if (!isLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
         }
       }
     }
     if (
       opaqueSdrColor &&
-      options.effort === 7 &&
       !options.progressive &&
       options.distance >= 1 &&
       options.distance <= 4 &&
       width * height >= 262_144 &&
-      width * height <= 12_000_000 &&
-      options.sampleBitDepth === 8 &&
-      options.colorSemantics.primaries === 'srgb' &&
-      options.colorSemantics.transfer.kind === 'srgb'
+      width * height <= 12_000_000
     ) {
       try {
         await checkpoint()
-        const alternateParts = await encodeJpegXlVarDct8Async(
-          pixels,
-          width,
-          height,
-          options.distance,
-          memory,
-          checkpoint,
-          forwardChannels,
-          options.effort,
-          imageHeader,
-          options.sampleBitDepth,
-          options.progressive,
-          forwardColor,
-          limits,
-          { strategyPolicy: 'rate-distortion' },
-        )
+        const alternateParts = await encodeForward({ strategyPolicy: 'rate-distortion' })
         const alternateHeader = alternateParts[0]
         if (!alternateHeader) throw invalidJpegXlInput('alternate header is missing')
         const alternate: EncodedJpegXlCodestream = {
@@ -5723,20 +5766,16 @@ const encodeLossyCodestream = (
         }
         if (cost(alternate) * 100 <= cost(selected) * 99) selected = alternate
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     if (
       opaqueSdrColor &&
-      options.effort === 7 &&
       !options.progressive &&
       options.distance >= 2 &&
       options.distance <= 4 &&
       width * height >= 262_144 &&
-      width * height <= 4_194_304 &&
-      options.sampleBitDepth === 8 &&
-      options.colorSemantics.primaries === 'srgb' &&
-      options.colorSemantics.transfer.kind === 'srgb'
+      width * height <= 4_194_304
     ) {
       try {
         const screenshot = await encodeJpegXlScreenshotPatchCandidate(
@@ -5752,10 +5791,10 @@ const encodeLossyCodestream = (
         )
         if (screenshot && cost(screenshot) * 200 <= cost(selected) * 199) selected = screenshot
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
-    if (!useLargeDocumentModularCandidate(pixels, width, height, format, options)) return selected
+    if (!isLargeDocumentModularCandidate(pixels, width, height, format, options)) return selected
     try {
       const quantized = allocateJpegXlArray(memory, Uint8Array, pixels.length)
       for (let index = 0; index < pixels.length; index++)
@@ -5924,7 +5963,7 @@ const encodeCodestream = (
         const candidate = await search()
         return candidate.byteLength < selected.byteLength ? candidate : selected
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
         return selected
       }
     }
@@ -5955,7 +5994,7 @@ const encodeCodestream = (
           )
           if (patched && patched.byteLength < best.byteLength) best = patched
         } catch (error) {
-          if (!isLimitExceeded(error)) throw error
+          rethrowJpegXlNonLimitError(error)
         }
       }
     }
@@ -5971,7 +6010,7 @@ const encodeCodestream = (
           }
         }
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     return best
@@ -6554,7 +6593,7 @@ export const encodeForwardModularLzGroup = (
       })
       if (expanded) plans.push(expanded)
     } catch (error) {
-      if (!isLimitExceeded(error)) throw error
+      rethrowJpegXlNonLimitError(error)
     }
     let selected: Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined
     let smallest = originalBits
@@ -6589,7 +6628,7 @@ export const encodeForwardModularLzGroup = (
               }),
             )
           } catch (error) {
-            if (!isLimitExceeded(error)) throw error
+            rethrowJpegXlNonLimitError(error)
           }
         }
       }
@@ -6610,7 +6649,7 @@ export const encodeForwardModularLzGroup = (
           }),
         )
       } catch (error) {
-        if (!isLimitExceeded(error)) throw error
+        rethrowJpegXlNonLimitError(error)
       }
     }
     return selected

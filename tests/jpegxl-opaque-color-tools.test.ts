@@ -9,7 +9,7 @@ import {
   hasOpaque8BitAlpha,
   hasSmallVisiblePalette,
   resolveJpegXlEncodeOptions,
-  useLargeDocumentModularCandidate,
+  isLargeDocumentModularCandidate,
 } from '../src/codecs/jpegxl-modular-encode.ts'
 import { defaultImageLimits } from '../src/limits.ts'
 import { Uint8ArraySink } from '../src/sink.ts'
@@ -312,16 +312,16 @@ describe('Opaque JPEG XL public replacement tools', () => {
       sampleBitDepth: 8,
       colorSemantics: semantics('rgb8'),
     } as const
-    expect(useLargeDocumentModularCandidate(rgb, width, height, 'rgb8', options)).toBe(true)
+    expect(isLargeDocumentModularCandidate(rgb, width, height, 'rgb8', options)).toBe(true)
     expect(
-      useLargeDocumentModularCandidate(rgba, width, height, 'rgba8', {
+      isLargeDocumentModularCandidate(rgba, width, height, 'rgba8', {
         ...options,
         colorSemantics: semantics('rgba8'),
       }),
     ).toBe(true)
     rgba[3] = 254
     expect(
-      useLargeDocumentModularCandidate(rgba, width, height, 'rgba8', {
+      isLargeDocumentModularCandidate(rgba, width, height, 'rgba8', {
         ...options,
         colorSemantics: semantics('rgba8'),
       }),
