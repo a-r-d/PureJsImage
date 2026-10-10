@@ -248,7 +248,7 @@ const writeDimension = (writer: JpegXlBitWriter, dimension: number): void =>
   writeU32(writer, dimension, jpegXlDimensionDistribution)
 
 type JpegXlSampleBitDepth = 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16
-type JpegXlLosslessEffort = 1 | 3 | 5 | 7
+type JpegXlLosslessEffort = 1 | 3 | 5 | 7 | 9
 
 interface ModularGroupSearchEvidence {
   readonly x: number
@@ -2080,7 +2080,7 @@ const chooseGroupPredictors = (
       const height = planes.heights[channel]
       if (height === undefined) throw invalidJpegXlInput('group search height is missing')
       const bandHeight = Math.min(height, 16)
-      const bands = height <= bandHeight ? 1 : effort === 7 ? 4 : 2
+      const bands = height <= bandHeight ? 1 : effort >= 7 ? 4 : 2
       let weightedScore = 0
       let fixedScore = 0
       for (let band = 0; band < bands; band++) {
@@ -2438,11 +2438,11 @@ const buildTokenPlan = (
     // Every match consumes at least three residuals and emits two tokens, so
     // token capacity never exceeds the original residual count.
     // All groups use a fixed-capacity match cache; collisions evict old history.
-    const histories = effort === 7 ? 4 : 1
+    const histories = effort >= 7 ? 4 : 1
     const capacity = useLz77
       ? Math.min(
           2 ** Math.ceil(Math.log2(originalCount * 2)),
-          effort === 7 ? maxLz77Entries : 65_536,
+          effort >= 7 ? maxLz77Entries : 65_536,
         )
       : 0
     const matchKeys = allocateJpegXlArray(memory, Uint32Array, capacity)
@@ -3176,7 +3176,7 @@ const encodeSingleGroupSection = (
       candidates.push(encodePrepared(prepared, true, true))
     }
     const learnedEligible =
-      effort === 7 &&
+      effort >= 7 &&
       prepared.planes.values.length <= 4 &&
       !prepared.transforms.squeeze &&
       !prepared.transforms.scalarPalettes
@@ -3269,7 +3269,7 @@ const encodeSingleGroupSection = (
       }
     }
     if (
-      effort === 7 &&
+      effort >= 7 &&
       format === 'rgba8' &&
       width * height <= 1_048_576 &&
       prepared.transforms.palette?.deltaCount === 0
@@ -3783,7 +3783,7 @@ const encodeGroupCandidate = (
     const { planes, transforms } = prepared
     if (
       expandedTraining &&
-      effort === 7 &&
+      effort >= 7 &&
       planes.values.length <= 4 &&
       !transforms.squeeze &&
       !transforms.scalarPalettes &&
@@ -3829,7 +3829,7 @@ const encodeGroupCandidate = (
       }
       return baseline
     }
-    if (effort === 7 && transforms.palette && paletteSearch === 'select') {
+    if (effort >= 7 && transforms.palette && paletteSearch === 'select') {
       // Preserve the complete previous group policy while optional palette training runs.
       const baseline = await encodeGroupCandidate(
         prepared,
@@ -3933,7 +3933,7 @@ const encodeGroupCandidate = (
         selectedPlan = contextual.plan
       }
     }
-    if (effort === 7) {
+    if (effort >= 7) {
       if (
         planes.values.length <= 4 &&
         // A near-zero raw stream, or a smaller palette below half a bit per residual,
@@ -4089,8 +4089,7 @@ const encodeAdaptiveFrameSections = (
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
     const useRct = !localColor && chooseMultiGroupRct(pixels, format)
-    const scalarSearch =
-      format === 'rgb16' && effort === 7 && hasSparse16BitChannels(pixels, memory)
+    const scalarSearch = format === 'rgb16' && effort >= 7 && hasSparse16BitChannels(pixels, memory)
     const globalWriter = new JpegXlBitWriter(memory)
     const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
     frequencies[0] = 1
@@ -4916,7 +4915,7 @@ export const isLargeDocumentModularCandidate = (
     (format !== 'rgb8' && format !== 'rgba8') ||
     pixels.length !== width * height * channels ||
     width * height < 8_000_000 ||
-    options.effort !== 7 ||
+    options.effort < 7 ||
     options.distance < 2 ||
     options.progressive ||
     options.sampleBitDepth !== 8 ||
@@ -5382,7 +5381,7 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   const smallGroups =
     allowSmallGroups &&
     options.mode === 'lossless' &&
-    options.effort === 7 &&
+    options.effort >= 7 &&
     finder === 'flat' &&
     Math.max(width, height) > 1_024 &&
     Math.ceil(width / 256) * Math.ceil(height / 256) <= 64
@@ -5575,7 +5574,7 @@ const encodeLossyCodestream = (
     const imageHeader = writer.finish()
     const forwardChannels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
     const sdrColor =
-      options.effort === 7 &&
+      options.effort >= 7 &&
       options.sampleBitDepth === 8 &&
       options.colorSemantics.primaries === 'srgb' &&
       options.colorSemantics.transfer.kind === 'srgb'
@@ -5745,14 +5744,8 @@ const encodeLossyCodestream = (
         }
       }
     }
-    if (
-      opaqueSdrColor &&
-      !options.progressive &&
-      options.distance >= 1 &&
-      options.distance <= 4 &&
-      width * height >= 262_144 &&
-      width * height <= 12_000_000
-    ) {
+    // Effort 9 retains the complete strategy alternative for every input layout.
+    if (options.effort === 9) {
       try {
         await checkpoint()
         const alternateParts = await encodeForward({ strategyPolicy: 'rate-distortion' })
@@ -5918,7 +5911,7 @@ const encodeCodestream = (
     if (
       localColor ||
       options.mode !== 'lossless' ||
-      (options.effort !== 7 && options.effort !== 1) ||
+      (options.effort < 7 && options.effort !== 1) ||
       !isRgb8(format) ||
       width * height < 262_144 ||
       width * height > 4_194_304 ||
@@ -6103,9 +6096,10 @@ export const resolveJpegXlEncodeOptions = (
     options.effort !== 1 &&
     options.effort !== 3 &&
     options.effort !== 5 &&
-    options.effort !== 7
+    options.effort !== 7 &&
+    options.effort !== 9
   ) {
-    throw invalidJpegXlInput('encoder effort must be 1, 3, 5, or 7')
+    throw invalidJpegXlInput('encoder effort must be 1, 3, 5, 7, or 9')
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidJpegXlInput('encoder container must be a boolean')

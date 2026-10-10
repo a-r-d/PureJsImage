@@ -57,6 +57,7 @@ const verifyPhoto = async (
   width = conePhotoWidth,
   height = conePhotoHeight,
   pixels = createConePhoto(),
+  effort: 7 | 9 = 7,
 ) => {
   const callerChecksum = checksum(pixels)
   const encoder = await codec.createEncoder?.(sink, {
@@ -75,7 +76,7 @@ const verifyPhoto = async (
     },
     options: {
       mode: 'lossy',
-      effort: 7,
+      effort,
       distance,
       container: false,
       ...(distance <= 1 ? { maxWorkingBytes: 67_108_864 } : {}),
@@ -216,7 +217,9 @@ const verifyPhoto = async (
   }
 }
 
-export const verifyConePhoto = (sink = new Uint8ArraySink()) => verifyPhoto(1.25, sink, jpegxlCodec)
+// Complete cone alternatives moved to effort 9; keep the same fixture and quality limits.
+export const verifyConePhoto = (sink = new Uint8ArraySink()) =>
+  verifyPhoto(1.25, sink, jpegxlCodec, conePhotoWidth, conePhotoHeight, createConePhoto(), 9)
 
 export const verifyFinePhoto = (
   sink = new Uint8ArraySink(),

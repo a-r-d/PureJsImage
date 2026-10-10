@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { verifyJpegXlLumaContexts } from './helpers/jpegxl-luma-contexts.ts'
 
-describe('JPEG XL original-size luma and spatial contexts', () => {
+// The owner moved complete luma alternatives to effort 9; recovery bounds stay strict.
+describe('JPEG XL effort-9 luma and spatial contexts', () => {
   for (const asynchronous of [false, true]) {
     it(`preserves complete pixels through both optional LIMIT paths, async=${asynchronous}`, async () => {
       const preceding = await verifyJpegXlLumaContexts(asynchronous, 'limit')
@@ -51,12 +52,31 @@ describe('JPEG XL original-size luma and spatial contexts', () => {
       expect(result.callerPreserved).toBe(true)
     }, 180_000)
   }
-  it('does not attempt original-size models at the 65536-block boundary', async () => {
-    const result = await verifyJpegXlLumaContexts(false, 'none', false)
+  it('does not attempt complete luma alternatives at effort 7', async () => {
+    const result = await verifyJpegXlLumaContexts(false, 'none', false, 7)
     expect(result.hits).toBe(0)
     expect(result.groupHits).toBe(0)
     expect(result.samples).toBe((256 * 8 - 3) * (256 * 8 - 1) * 4)
     expect(result.live).toBe(0)
     expect(result.allocations).toBe(0)
   }, 120_000)
+  it('attempts complete luma alternatives at effort 9 below the former size gate', async () => {
+    const fast = await verifyJpegXlLumaContexts(false, 'none', false, 7, [255, 257])
+    const result = await verifyJpegXlLumaContexts(false, 'none', false, 9, [255, 257])
+    expect(fast.hits).toBe(0)
+    expect(fast.groupHits).toBe(0)
+    expect(fast.samples).toBe(result.samples)
+    expect(fast.alphaError).toBe(0)
+    expect(fast.live).toBe(0)
+    expect(fast.allocations).toBe(0)
+    expect(fast.peak).toBeLessThanOrEqual(67_108_864)
+    expect(result.hits).toBe(2)
+    expect(result.groupHits).toBeGreaterThan(1)
+    expect(result.samples).toBe((255 * 8 - 3) * (257 * 8 - 1) * 4)
+    expect(result.callerPreserved).toBe(true)
+    expect(result.alphaError).toBe(0)
+    expect(result.live).toBe(0)
+    expect(result.allocations).toBe(0)
+    expect(result.peak).toBeLessThanOrEqual(67_108_864)
+  }, 300_000)
 })

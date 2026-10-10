@@ -9,7 +9,7 @@ import { initialize } from '../comparison/adapters.ts'
 import { hash, metrics, oracle, work } from '../comparison/io.ts'
 import { number, object } from '../comparison/model.ts'
 import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
-import { type CurvePoint, parsePoint } from './model.ts'
+import { type CurvePoint, curveMatches, parsePoint } from './model.ts'
 
 const [engine, reference, directory, settingsArgument] = process.argv.slice(2)
 if (
@@ -19,6 +19,10 @@ if (
   !settingsArgument
 )
   throw new Error('Usage: worker.ts engine reference.png output-directory comma-separated-settings')
+const effortAt = process.argv.indexOf('--effort')
+const effortArgument = effortAt === -1 ? '7' : process.argv[effortAt + 1]
+if (effortArgument !== '7' && effortArgument !== '9') throw new Error('Invalid worker effort')
+const effort = effortArgument === '9' ? 9 : 7
 const settings = settingsArgument.split(',').map(Number)
 if (!settings.length || settings.some((setting) => !Number.isFinite(setting) || setting <= 0))
   throw new Error('Invalid settings ladder')
@@ -77,9 +81,7 @@ const failures: { setting: number; error: string }[] = []
 if (process.argv.includes('--append')) {
   const saved = object(JSON.parse(await readFile(join(directory, 'result.json'), 'utf8')))
   if (
-    saved.fixtureSha256 !== hash(await readFile(reference)) ||
-    saved.engine !== engine ||
-    (saved.channels ?? 4) !== inputChannels ||
+    !curveMatches(saved, hash(await readFile(reference)), engine, inputChannels, effort) ||
     !Array.isArray(saved.points)
   )
     throw new Error('Cached peer fixture changed')
@@ -98,7 +100,7 @@ try {
           height: pixels.height,
           pixelFormat: inputFormat,
           limits: defaultImageLimits,
-          options: { mode: 'lossy', effort: 7, distance: setting },
+          options: { mode: 'lossy', effort, distance: setting },
           colorSemantics: {
             family: 'rgb',
             primaries: 'srgb',
@@ -133,7 +135,7 @@ try {
           throw new Error('Encoder scratch retained')
       } else {
         if (!adapter?.encode) throw new Error('Public peer encoder missing')
-        const encoded = await adapter.encode(pixels, { effort: 7, lossless: false, value: setting })
+        const encoded = await adapter.encode(pixels, { effort, lossless: false, value: setting })
         if (encoded.kind !== 'jxl') throw new Error('Encoder did not return JPEG XL')
         bytes = encoded.bytes
       }
@@ -167,7 +169,7 @@ try {
     }
     await writeFile(
       join(directory, 'result.json'),
-      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort: 7, points, failures }, null, 2)}\n`,
+      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort, points, failures }, null, 2)}\n`,
     )
   }
 } finally {

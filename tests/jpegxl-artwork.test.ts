@@ -18,9 +18,9 @@ describe('JPEG XL exact artwork candidate', () => {
 
   it('keeps the complete prior stream when optional exact search exceeds working storage', async () => {
     const result = await verifyJpegXlArtwork({ maxWorkingBytes: 8_388_608 })
-    // Shared opaque color selection changes this bounded fallback, qualified by both decoders.
-    expect(result.bytes).toBe(4635)
-    expect(result.encodedChecksum).toBe(4070846719)
+    // Single-stream model choice changes this bounded fallback; both decoders retain its pixels.
+    expect(result.bytes).toBe(4634)
+    expect(result.encodedChecksum).toBe(475657513)
     expect(result.decodedChecksum).toBe(2423965623)
     expect(result.alphaError).toBe(0)
     expect(result.ownedPeak).toBeLessThanOrEqual(8_388_608)
@@ -42,8 +42,10 @@ describe('JPEG XL exact artwork candidate', () => {
     }, 60_000)
 
   for (const [options, encodedChecksum, decodedChecksum] of [
-    [{ progressive: true }, 913551628, 2319986359],
-    [{ depth: 16 }, 904015805, 1237593230],
+    // Training both progressive passes changes serialization; both decoders retain these pixels.
+    [{ progressive: true }, 3216902223, 2319986359],
+    // Single-stream histogram selection changes 16-bit serialization; both decoders retain these pixels.
+    [{ depth: 16 }, 1035208047, 1237593230],
     // Visible-color admission now preserves every sample above the former area ceiling.
     [{ width: 1025, height: 1025 }, 2194658254, 4058247199],
     [{ width: 512, height: 512 }, 2502169417, 3681525189],

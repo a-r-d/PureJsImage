@@ -337,7 +337,9 @@
         "tests/jpegxl-large-select.test.ts",
         "tests/jpegxl-vardct-large-menu.test.ts",
         "tests/jpegxl-vardct-large-transforms.test.ts",
-        "browser-tests/jpegxl-large-orders.pw.ts"
+        "browser-tests/jpegxl-large-orders.pw.ts",
+        "tests/jpegxl-effort9.test.ts",
+        "browser-tests/jpegxl-effort9.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",
@@ -402,7 +404,8 @@
           "benchmark/jpegxl/comparison/verify-original-photo-compression.ts",
           "benchmark/jpegxl/comparison/results/original-photo-production-controls.json",
           "benchmark/jpegxl/comparison/results/original-photo-endpoint-qualification.json",
-          "benchmark/jpegxl/comparison/results/original-lossy-heldout-controls.json"
+          "benchmark/jpegxl/comparison/results/original-lossy-heldout-controls.json",
+          "tests/jpegxl-effort9.test.ts"
         ]
       }
     },

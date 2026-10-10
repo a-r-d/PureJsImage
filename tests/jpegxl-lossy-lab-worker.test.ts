@@ -25,3 +25,18 @@ describe('lossy lab worker', () => {
     expect(missingSettings([0.25, 1, 6, 9], [point])).toEqual([0.25, 6, 9])
   })
 })
+
+it('keeps effort 9 out of exploration and separates peer cache efforts', async () => {
+  const { parseCampaignEffort, curveMatches } = await import(
+    '../benchmark/jpegxl/lossy-lab/model.ts'
+  )
+  expect(parseCampaignEffort('7', 'lab', false)).toBe(7)
+  expect(parseCampaignEffort('9', 'screen', true)).toBe(9)
+  expect(() => parseCampaignEffort('9', 'lab', true)).toThrow('promotion screen')
+  expect(() => parseCampaignEffort('9', 'screen', false)).toThrow('promotion screen')
+  expect(() => parseCampaignEffort('8', 'screen', true)).toThrow()
+  const saved = { fixtureSha256: 'fixture', engine: 'jsquash', channels: 4, effort: 7, points: [] }
+  expect(curveMatches(saved, 'fixture', 'jsquash', 4, 7)).toBe(true)
+  expect(curveMatches(saved, 'fixture', 'jsquash', 4, 9)).toBe(false)
+  expect(curveMatches({ ...saved, effort: 9 }, 'fixture', 'jsquash', 4, 9)).toBe(true)
+})

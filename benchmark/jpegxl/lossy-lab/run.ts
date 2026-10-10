@@ -11,7 +11,14 @@ import {
   validateBaselineSpeedResume,
 } from './fixture-selection.ts'
 import { bdRate, type QualityMetric, summarizeBdRates } from './metrics.ts'
-import { type CurvePoint, type Engine, missingSettings, parsePoint } from './model.ts'
+import {
+  type CurvePoint,
+  type Engine,
+  curveMatches,
+  missingSettings,
+  parseCampaignEffort,
+  parsePoint,
+} from './model.ts'
 
 const args = process.argv.slice(2)
 const argument = (name: string, fallback: string): string => {
@@ -22,6 +29,9 @@ const manifestPath = argument('--manifest', '.tmp/jpegxl-lossy-lab/corpus/manife
 const directory = argument('--out', '.tmp/jpegxl-lossy-lab/baseline')
 const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
+const effort = parseCampaignEffort(argument('--effort', '7'), mode, args.includes('--promotion'))
+const effortSevenReference = argument('--effort7-reference', '')
+if (effort === 9 && !effortSevenReference) throw new Error('Effort 9 requires --effort7-reference')
 const rgb = args.includes('--rgb')
 const workers = Number(argument('--workers', '2'))
 const budgetSeconds = Number(argument('--budget-seconds', mode === 'screen' ? '600' : '3600'))
@@ -36,6 +46,8 @@ if (
   throw new Error('Invalid lab mode, variant, worker count or budget')
 if (mode === 'speed' && workers !== 1)
   throw new Error('Speed measurements require one isolated worker')
+if (effort === 9 && workers !== 1)
+  throw new Error('Effort 9 promotion comparison requires one isolated worker')
 const resumeSpeed = args.includes('--resume-speed')
 if (resumeSpeed && (mode !== 'speed' || variant !== 'baseline' || rgb))
   throw new Error('--resume-speed is only for baseline speed continuation')
@@ -71,6 +83,8 @@ const qualityIntervals = {
   butteraugliNorm3: undefined,
 }
 const engines: Engine[] = ['purejsimage', 'jsquash', 'vips']
+const comparisonPeers: readonly Engine[] =
+  effort === 9 ? ['jsquash', 'vips', 'purejsimage'] : ['jsquash', 'vips']
 const distances =
   mode === 'screen' || mode === 'scale'
     ? [0.5, 1, 2, 4, 7]
@@ -108,12 +122,14 @@ let reusedSpeedJobs = 0
 let measuredSpeedJobs = 0
 let pendingLedger = Promise.resolve()
 const ledger = async (): Promise<void> => {
-  const text = `${JSON.stringify({ startedAt: new Date(started).toISOString(), mode, variant, budgetSeconds, workers, resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, selected: selected.length, totalJobs: jobs.length, completedJobs: [...results.values()].reduce((sum, row) => sum + row.size, 0), failures, omissions }, null, 2)}\n`
+  const text = `${JSON.stringify({ startedAt: new Date(started).toISOString(), mode, variant, effort, budgetSeconds, workers, resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, selected: selected.length, totalJobs: jobs.length, completedJobs: [...results.values()].reduce((sum, row) => sum + row.size, 0), failures, omissions }, null, 2)}\n`
   pendingLedger = pendingLedger.then(() => writeFile(join(directory, 'progress.json'), text))
   await pendingLedger
 }
 await ledger()
 async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
+  const engineEffort = engine === 'vips' ? 7 : effort
+  const freshEffortNinePeer = effort === 9 && engine === 'jsquash'
   const settings =
     mode === 'speed'
       ? [engine === 'jsquash' ? 80 : 2]
@@ -121,18 +137,20 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
         ? distances
         : peerSettings[engine]
   const resultDirectory =
-    engine === 'purejsimage' || mode === 'speed'
+    engine === 'purejsimage' || mode === 'speed' || freshEffortNinePeer
       ? join(directory, `${variant}-${engine}`, `${fixture.id}-${fixture.kind}`)
       : join(
           '.tmp/jpegxl-lossy-lab/peer-cache',
-          `${engine === 'jsquash' ? 'jsquash-1.3.0' : 'vips-0.0.19'}-curve`,
+          `${engine === 'jsquash' ? 'jsquash-1.3.0' : 'vips-0.0.19'}-curve${engineEffort === 9 ? '-effort9' : ''}`,
           fixture.fixtureSha256,
         )
   const resultPath = join(resultDirectory, 'result.json')
   let cached: unknown = null
   if (
     resumeSpeed ||
-    (mode !== 'speed' && (engine !== 'purejsimage' || args.includes('--resume-own')))
+    (mode !== 'speed' &&
+      !freshEffortNinePeer &&
+      (engine !== 'purejsimage' || args.includes('--resume-own')))
   ) {
     try {
       cached = JSON.parse(await readFile(resultPath, 'utf8'))
@@ -146,10 +164,14 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
     : []
   const sameFixture = resumeSpeed
     ? resumedPoints.length === 1
-    : cachedRow?.fixtureSha256 === fixture.fixtureSha256 &&
-      cachedRow.engine === engine &&
-      Array.isArray(cachedRow.points) &&
-      (cachedRow.channels ?? 4) === (engine === 'purejsimage' && rgb ? 3 : 4)
+    : cachedRow !== null &&
+      curveMatches(
+        cachedRow,
+        fixture.fixtureSha256,
+        engine,
+        engine === 'purejsimage' && rgb ? 3 : 4,
+        engineEffort,
+      )
   const cachedPoints = resumeSpeed
     ? resumedPoints
     : sameFixture && Array.isArray(cachedRow?.points)
@@ -174,6 +196,8 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
           fixture.png,
           resultDirectory,
           missing.join(','),
+          '--effort',
+          String(engineEffort),
           ...(sameFixture ? ['--append'] : []),
           ...(engine === 'purejsimage' && rgb ? ['--rgb'] : []),
         ],
@@ -201,7 +225,16 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
       throw new Error(output.stderr || `Worker exited ${output.code}; inspect ${resultPath}`)
   }
   const row = object(JSON.parse(await readFile(resultPath, 'utf8')))
-  if (row.fixtureSha256 !== fixture.fixtureSha256 || !Array.isArray(row.points))
+  if (
+    !curveMatches(
+      row,
+      fixture.fixtureSha256,
+      engine,
+      engine === 'purejsimage' && rgb ? 3 : 4,
+      engineEffort,
+    ) ||
+    !Array.isArray(row.points)
+  )
     throw new Error('Worker fixture/result mismatch')
   const points = row.points.map(parsePoint).filter((point) => settings.includes(point.setting))
   if (mode === 'speed') {
@@ -237,12 +270,33 @@ async function workLoop(): Promise<void> {
   }
 }
 await Promise.all(Array.from({ length: workers }, () => workLoop()))
+const effortSevenCurves = new Map<string, CurvePoint[]>()
+if (effort === 9)
+  for (const fixture of selected) {
+    const row = object(
+      JSON.parse(
+        await readFile(
+          join(effortSevenReference, `${fixture.id}-${fixture.kind}`, 'result.json'),
+          'utf8',
+        ),
+      ),
+    )
+    if (
+      !curveMatches(row, fixture.fixtureSha256, 'purejsimage', rgb ? 3 : 4, 7) ||
+      !Array.isArray(row.points)
+    )
+      throw new Error('Effort 7 reference fixture or effort mismatch')
+    const points = row.points.map(parsePoint).filter((point) => distances.includes(point.setting))
+    if (points.length !== distances.length || missingSettings(distances, points).length)
+      throw new Error('Effort 7 reference ladder incomplete')
+    effortSevenCurves.set(fixtureKey(fixture), points)
+  }
 if (mode !== 'speed')
   for (const [id, curves] of results) {
     const own = curves.get('purejsimage')
     if (!own) continue
-    for (const peer of ['jsquash', 'vips'] as const) {
-      const reference = curves.get(peer)
+    for (const peer of comparisonPeers) {
+      const reference = peer === 'purejsimage' ? effortSevenCurves.get(id) : curves.get(peer)
       if (!reference) continue
       for (const metric of metrics) {
         try {
@@ -275,9 +329,10 @@ if (mode !== 'speed')
       }
     }
   }
-const table = ['jsquash', 'vips'].flatMap((peer) =>
+const table = comparisonPeers.flatMap((peer) =>
   metrics.map((metric) => ({
     peer,
+    referenceEffort: peer === 'jsquash' ? effort : 7,
     metric,
     ...summarizeBdRates(
       comparisons
@@ -288,6 +343,7 @@ const table = ['jsquash', 'vips'].flatMap((peer) =>
 )
 const speed = engines.map((engine) => ({
   engine,
+  effort: engine === 'vips' ? 7 : effort,
   lab: summarizeBdRates(
     selected
       .filter((fixture) => fixture.kind === 'lab')
@@ -311,6 +367,23 @@ const speed = engines.map((engine) => ({
       ),
   ),
 }))
+const effortSevenSpeed =
+  effort === 9
+    ? summarizeBdRates(
+        [...effortSevenCurves.values()].flatMap((points) => points.map((point) => point.encodeMs)),
+      )
+    : null
+const ownMedian = speed.find((row) => row.engine === 'purejsimage')?.lab?.median
+const jsquashMedian = speed.find((row) => row.engine === 'jsquash')?.lab?.median
+const effortNineSpeedRatios =
+  effort === 9
+    ? {
+        versusOwnEffortSeven:
+          ownMedian !== undefined && effortSevenSpeed ? ownMedian / effortSevenSpeed.median : null,
+        versusJsquashEffortNine:
+          ownMedian !== undefined && jsquashMedian !== undefined ? ownMedian / jsquashMedian : null,
+      }
+    : null
 const managedPeakBytes = Math.max(
   0,
   ...[...results.values()].flatMap(
@@ -325,7 +398,7 @@ const processPeakRssBytes = Math.max(
 )
 await writeFile(
   join(directory, 'summary.json'),
-  `${JSON.stringify({ mode, variant, workers, manifestPath, measurementRun: resumeSpeed ? 'partial resumed baseline speed run' : 'fresh measurement run', resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * 6) }, null, 2)}\n`,
+  `${JSON.stringify({ mode, variant, effort, effortSevenReference, effortSevenSpeed, effortNineSpeedRatios, workers, manifestPath, measurementRun: resumeSpeed ? 'partial resumed baseline speed run' : 'fresh measurement run', resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * (effort === 9 ? 9 : 6)) }, null, 2)}\n`,
 )
 console.log(
   JSON.stringify({

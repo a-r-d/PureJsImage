@@ -28,7 +28,8 @@ After each repair, run the quick screen. Each metric's mean BD-rate must stay
 within 0.3% of the preserved candidate. Promotion requires full development,
 holdout aggregate, scale crops, watch originals, isolated speed, native libjxl
 and jxl-rs decoding, `npm run check`, `npm run browser:check`, and the existing
-bundle and memory ceilings. Then commit to main.
+memory ceilings. Bundle size is reported but is not a gate under the
+[2026-10-10 amendment](LOSSY_EFFORT9_AMENDMENT.md). Then commit to main.
 
 ## Targets
 
@@ -36,7 +37,8 @@ Butteraugli targets use wasm-vips 0.0.19 (libjxl 0.12.0). Keep jSquash 1.3.0,
 which wraps a 2022 development snapshot, in every report as a reference.
 SSIMULACRA2 must remain at or below 0% against both peers. The steering's
 Butteraugli limits, individual-image guards, 3x crop and 5x original speed
-targets, memory limits and bundle ceilings continue to apply.
+targets and memory limits continue to apply. The effort-9 amendment supersedes
+the earlier bundle restriction and approves the slow public effort tier.
 
 ## Bounded Butteraugli phase after promotion
 

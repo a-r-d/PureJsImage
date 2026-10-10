@@ -26,10 +26,10 @@ it('exercises fine JPEG XL channel and spatial quantization on a large photo', a
   )
     throw new Error('JPEG XL fine fixture export is missing')
   const result: unknown = await namespace.verifyFinePhoto()
-  // Shared fine photo precision changes the stream and pixels, qualified by both decoders.
+  // Effort 7 omits complete alternatives; both decoders retain the original fine-photo pixels.
   expect(result).toMatchObject({
-    bytes: 204765,
-    encodedChecksum: 1015827701,
+    bytes: 380202,
+    encodedChecksum: 1879902157,
     decodedChecksum: 3722419263,
     callerChecksum: 2647578060,
     samples: 2049 * 2048 * 4,

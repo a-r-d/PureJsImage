@@ -13,10 +13,10 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   core: { maxMinifiedBytes: 64 * 1024 },
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
-  // Large-transform selection adds about 25 KB; source-trained coefficient costs add 9 KB.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 594_000 },
-  // The complete specialized package measures 665,767 bytes with the same encoder.
-  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 667_000 },
+  // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 610_000 },
+  // The specialized entry includes the same effort-9 searches.
+  'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 685_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },
   geo: { baselineMinifiedBytes: 138_715, maxMinifiedBytes: 181_000 },
   'geo-readers-all': { baselineMinifiedBytes: 626_956, maxMinifiedBytes: 816_000 },

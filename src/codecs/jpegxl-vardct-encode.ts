@@ -296,30 +296,6 @@ const fillXybBlock16 = (
   }
 }
 
-const canSearchConeFrame = (
-  width: number,
-  height: number,
-  distance: number,
-  channels: 1 | 3 | 4,
-  effort: 1 | 3 | 5 | 7,
-  sampleDepth: number,
-  progressive: boolean,
-  color: JpegXlForwardColor | undefined,
-  pixels: Uint8Array,
-): boolean =>
-  effort === 7 &&
-  (channels === 3 || channels === 4) &&
-  sampleDepth === 8 &&
-  (color?.storageBytes ?? 1) === 1 &&
-  (channels === 3 || ((color?.alphaBitDepth ?? 8) === 8 && hasOpaque8BitAlpha(pixels))) &&
-  !progressive &&
-  width * height > 4_194_304 &&
-  width * height <= 16_777_216 &&
-  distance > 1 &&
-  distance < 4 &&
-  (color?.primaries ?? 'srgb') === 'srgb' &&
-  (color?.transfer.kind ?? 'srgb') === 'srgb'
-
 /** Synchronous forward path used by conformance tools; public encoding uses the async path. */
 export const encodeJpegXlVarDct8 = (
   pixels: Uint8Array,
@@ -328,7 +304,7 @@ export const encodeJpegXlVarDct8 = (
   distance: number,
   memory?: JpegXlEncoderMemory,
   channels: 1 | 3 | 4 = 3,
-  effort: 1 | 3 | 5 | 7 = 3,
+  effort: 1 | 3 | 5 | 7 | 9 = 3,
   imageHeader?: Uint8Array,
   sampleDepth = 8,
   progressive = false,
@@ -392,20 +368,7 @@ export const encodeJpegXlVarDct8 = (
     try {
       return withJpegXlMemory(owned, () => {
         const baseline = encode(true)
-        if (
-          !canSearchConeFrame(
-            width,
-            height,
-            distance,
-            channels,
-            effort,
-            sampleDepth,
-            progressive,
-            color,
-            pixels,
-          )
-        )
-          return baseline
+        if (effort !== 9) return baseline
         try {
           const candidate = encode(true, true)
           return codestreamPartBytes(candidate) < codestreamPartBytes(baseline)
@@ -436,7 +399,7 @@ export interface JpegXlForwardFrameOptions {
 const usesForwardCoefficientOrderSearch = (
   geometry: Readonly<VarDctCoefficientGeometry>,
 ): boolean =>
-  geometry.effort === 7 &&
+  (geometry.effort ?? 0) >= 7 &&
   geometry.loadAc !== undefined &&
   geometry.groupsAcross * geometry.groupsDown > 1 &&
   geometry.blocksWide * geometry.blocksHigh >= 1_024
@@ -500,7 +463,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
   memory: JpegXlEncoderMemory,
   checkpoint: () => Promise<void>,
   channels: 1 | 3 | 4 = 3,
-  effort: 1 | 3 | 5 | 7 = 3,
+  effort: 1 | 3 | 5 | 7 | 9 = 3,
   imageHeader?: Uint8Array,
   sampleDepth = 8,
   progressive = false,
@@ -579,7 +542,7 @@ export const encodeJpegXlVarDct8Async = async (
   memory: JpegXlEncoderMemory,
   checkpoint: () => Promise<void>,
   channels: 1 | 3 | 4 = 3,
-  effort: 1 | 3 | 5 | 7 = 3,
+  effort: 1 | 3 | 5 | 7 | 9 = 3,
   imageHeader?: Uint8Array,
   sampleDepth = 8,
   progressive = false,
@@ -607,23 +570,7 @@ export const encodeJpegXlVarDct8Async = async (
   try {
     return await withJpegXlMemoryAsync(memory, async () => {
       const baseline = await encode({ ...frame, coneSearch: false })
-      if (
-        frame.compressionSearch === false ||
-        frame.coneSearch === false ||
-        frame.reference ||
-        frame.patchGlobalSection ||
-        !canSearchConeFrame(
-          width,
-          height,
-          distance,
-          channels,
-          effort,
-          sampleDepth,
-          progressive,
-          color,
-          pixels,
-        )
-      )
+      if (frame.compressionSearch === false || frame.coneSearch === false || effort !== 9)
         return baseline
       try {
         const candidate = await encode({ ...frame, coneSearch: true })
@@ -646,7 +593,7 @@ function* prepare8(
   distance: number,
   memory: JpegXlEncoderMemory,
   channels: 1 | 3 | 4,
-  effort: 1 | 3 | 5 | 7,
+  effort: 1 | 3 | 5 | 7 | 9,
   imageHeader: Uint8Array | undefined,
   sampleDepth: number,
   progressive: boolean,
@@ -680,7 +627,7 @@ function* prepare8(
   const opaqueSdrInput =
     sdrInput &&
     (channels === 3 || ((color?.alphaBitDepth ?? 8) === 8 && hasOpaque8BitAlpha(pixels)))
-  const sdrColor = effort === 7 && sdrInput
+  const sdrColor = effort >= 7 && sdrInput
   const sdrAlpha = sdrColor && channels === 4
   const sdrOpaqueColor = sdrColor && opaqueSdrInput
   let rgbDcPolicy = channels === 3 || ((effort === 3 || effort === 5) && opaqueSdrInput)
@@ -718,7 +665,7 @@ function* prepare8(
   // Modest channel-specific steps reduce SDR DC payload without coarse color blocks.
   const moderateSdrDc = distance > 1 && effort !== 1 && rgbDcPolicy && sdrInput
   const finerSdrAc = sdrOpaqueColor && !progressive && distance >= 2 && distance <= 4
-  const brightPqAc = effort === 7 && channels === 3 && color?.transfer.kind === 'pq'
+  const brightPqAc = effort >= 7 && channels === 3 && color?.transfer.kind === 'pq'
   const blocksWide = Math.ceil(width / 8)
   const blocksHigh = Math.ceil(height / 8)
   // The photo tools share 4x4-cell context; strips keep their standalone precision.
@@ -1221,7 +1168,7 @@ function* prepare8(
   const coarse =
     compressionSearch &&
     moderateSdrDc &&
-    effort === 7 &&
+    effort >= 7 &&
     (distance >= 6 || originalPhotoAc) &&
     sdrOpaqueColor &&
     !progressive
@@ -1268,7 +1215,7 @@ function* prepare8(
     distance >= 2 &&
     (progressiveOpaque
       ? moderateSdrDc
-      : opaqueSdrInput || channels !== 4 || (effort === 7 && moderateSdrDc)) &&
+      : opaqueSdrInput || channels !== 4 || (effort >= 7 && moderateSdrDc)) &&
     colorTransfer.kind === 'srgb' &&
     primaryCode === 1
   ) {
@@ -1357,7 +1304,7 @@ function* prepare8(
         // DCT energy equals pixel variance. The floors avoid spending bits on
         // tiny residuals, including decorrelated X chroma.
         // One bounded refinement retains the existing quantizer as the fallback.
-        if (effort === 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
+        if (effort >= 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
           let relativeError = 0
           // Progressive passes retain chroma precision; refine their luminance
           // contrast without promoting small decorrelated chroma residuals to Q8.
@@ -1566,7 +1513,9 @@ function* prepare8(
 
   const groupsAcross = Math.ceil(blocksWide / 32)
   // Estimate transform cost from natural-order hybrid tokens, zeros and nonzero counts.
-  const dct16Eligible = coarse && blocksWide >= 2 && blocksHigh >= 2 && strategyMap !== undefined
+  // A cone alternative needs a complete 2x2 block window, at any image size.
+  const dct16Eligible =
+    (coarse || coneSearch) && blocksWide >= 2 && blocksHigh >= 2 && strategyMap !== undefined
   const dct16Planes = dct16Eligible
     ? Array.from({ length: 3 }, () => allocateJpegXlArray(memory, Float32Array, 256))
     : undefined
@@ -1602,7 +1551,7 @@ function* prepare8(
       error16 = allocateJpegXlArray(memory, Float64Array, 3 * 256)
     const baselineError = allocateJpegXlArray(memory, Float64Array, 3),
       candidateError = allocateJpegXlArray(memory, Float64Array, 3)
-    const coneStrategy = coneSearch && originalPhotoAc && distance < 4
+    const coneStrategy = coneSearch
     // DCT8 AC errors have been accumulated before DC uses this scratch. The next
     // DCT8 quantization overwrites them before reading any AC error again.
     const coneDcErrors = coneStrategy ? error8 : undefined
@@ -2287,14 +2236,10 @@ function* prepare8(
     xScale,
     bScale,
     opaqueColorCost: sdrOpaqueColor,
-    acIterationSearch: originalDarkAc || originalPhotoAc,
-    advancedModularSearch:
-      coarse ||
-      (compressionSearch &&
-        sdrOpaqueColor &&
-        rgbDcPolicy &&
-        width * height > 4_194_304 &&
-        !progressive),
+    // Complete alternatives belong to the slow tier, independent of area or channels.
+    acIterationSearch: compressionSearch && effort === 9,
+    acModelRefinement: compressionSearch && effort >= 7,
+    advancedModularSearch: compressionSearch && effort === 9,
     ...(strategyMap ? { strategyMap } : {}),
     ...(sharpnessMap ? { sharpnessMap } : {}),
     chromaSubsampling: [0, 0, 0],

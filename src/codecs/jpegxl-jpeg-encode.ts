@@ -87,7 +87,7 @@ export interface VarDctCoefficientGeometry {
   readonly quantizationMap?: Int32Array
   readonly correlationX?: Int32Array
   readonly correlationB?: Int32Array
-  readonly effort?: 1 | 3 | 5 | 7
+  readonly effort?: 1 | 3 | 5 | 7 | 9
   readonly sharpnessMap?: Uint8Array
   readonly alpha?: Readonly<{
     loadGroup: (group: number) => Plane
@@ -105,6 +105,8 @@ export interface VarDctCoefficientGeometry {
   readonly groupContexts?: boolean
   readonly advancedModularSearch?: boolean
   readonly acIterationSearch?: boolean
+  /** Choose histogram models before serializing one stream, without a complete alternative. */
+  readonly acModelRefinement?: boolean
   /** Compare opaque color coding without alpha payload or image/container headers. */
   readonly opaqueColorCost?: boolean
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
@@ -951,7 +953,7 @@ const prepareSharedAlphaCode = (
       !alpha ||
       alpha.paletteSearch === false ||
       !geometry.loadAc ||
-      geometry.effort !== 7 ||
+      (geometry.effort ?? 0) < 7 ||
       !geometry.defaultMatrices ||
       groupCount < 2 ||
       groupCount > 64 ||
@@ -1134,7 +1136,7 @@ const writeLfGlobal = (
         geometry.alpha.loadGroup(0),
         encoding,
         !!geometry.loadAc && geometry.effort !== 1,
-        !!geometry.loadAc && geometry.effort === 7,
+        !!geometry.loadAc && (geometry.effort ?? 0) >= 7,
         geometry.alpha.paletteSearch,
       )
     else writeModularHeader(writer, true)
@@ -1433,6 +1435,8 @@ const acHybridCandidates: readonly HybridUintEncoding[] = Object.freeze([
 ])
 let densePackedAcValues: Uint32Array | undefined
 let packedClusteredAcValues: Uint32Array | undefined
+const refinesAcModel = (geometry: Readonly<JpegDerivedGeometry>): boolean =>
+  geometry.acModelRefinement === true || geometry.acIterationSearch === true
 const getPackedClusteredAcValues = (dense = false): Uint32Array => {
   if (dense) {
     if (densePackedAcValues) return densePackedAcValues
@@ -2057,7 +2061,7 @@ const writeAcGroup = (
       )
       return
     }
-    const packedAcValues = getPackedClusteredAcValues(geometry.acIterationSearch === true)
+    const packedAcValues = getPackedClusteredAcValues(refinesAcModel(geometry))
     const maximumValues = 3 * 64 * 32 * 32
     const values = allocateJpegXlArray(writer.memory, Uint32Array, maximumValues)
     const contexts = allocateJpegXlArray(writer.memory, Uint16Array, maximumValues)
@@ -2303,7 +2307,7 @@ function* coefficientSectionSteps(
     ),
   )
   started = performance.now()
-  const packedAcValues = getPackedClusteredAcValues(geometry.acIterationSearch === true)
+  const packedAcValues = getPackedClusteredAcValues(refinesAcModel(geometry))
   let histogramCount = 1
   let groupHistograms: Uint8Array | undefined
   if (geometry.groupContexts && useClusteredAns && !geometry.progressive && groupCount > 1) {
@@ -2361,35 +2365,44 @@ function* coefficientSectionSteps(
   } = useClusteredAns
     ? compactAcHistograms(
         acFrequencies,
-        geometry.acIterationSearch
+        refinesAcModel(geometry)
           ? 256
           : geometry.loadAc
-            ? geometry.effort === 7
+            ? (geometry.effort ?? 0) >= 7
               ? 96
               : geometry.effort === 5
                 ? 64
                 : 32
             : 192,
         geometry.memory,
-        geometry.acIterationSearch ? 24 : 6,
+        refinesAcModel(geometry) ? 24 : 6,
       )
     : Object.freeze({
         contextMap: allocateJpegXlArray(geometry.memory, Uint8Array, 1),
         frequencies: acFrequencies,
       })
-  if (useClusteredAns && geometry.acIterationSearch) {
+  if (useClusteredAns && refinesAcModel(geometry)) {
     const rawFrequencies = Array.from({ length: compactAc.frequencies.length }, () =>
       allocateJpegXlArray(geometry.memory, Uint32Array, 8192),
     )
     for (let group = 0; group < groupCount; group++) {
       const contextOffset = (groupHistograms?.[group] ?? 0) * acContextCount
-      visitAcGroup(geometry, coefficientOrders, group, (value, context) => {
-        const histogram = compactAc.contextMap[contextOffset + context],
-          frequencies = histogram === undefined ? undefined : rawFrequencies[histogram]
-        if (!frequencies || value < 0 || value >= frequencies.length)
-          throw invalidJpegXlInput('AC value or histogram outside hybrid search')
-        frequencies[value] = (frequencies[value] ?? 0) + 1
-      })
+      // Both progressive passes share these histograms. Training only pass zero
+      // leaves refinement symbols with zero ANS frequency when the model is used.
+      for (let pass = 0; pass < (geometry.progressive ? 2 : 1); pass++)
+        visitAcGroup(
+          geometry,
+          coefficientOrders,
+          group,
+          (value, context) => {
+            const histogram = compactAc.contextMap[contextOffset + context],
+              frequencies = histogram === undefined ? undefined : rawFrequencies[histogram]
+            if (!frequencies || value < 0 || value >= frequencies.length)
+              throw invalidJpegXlInput('AC value or histogram outside hybrid search')
+            frequencies[value] = (frequencies[value] ?? 0) + 1
+          },
+          pass,
+        )
       yield
     }
     const selectedFrequencies: Uint32Array[] = [],
@@ -2470,8 +2483,8 @@ function* coefficientSectionSteps(
         dcPlanes[0] ?? [],
         modularEncoding,
         localDc,
-        geometry.effort === 7 && geometry.loadAc !== undefined,
-        geometry.advancedModularSearch === true,
+        (geometry.effort ?? 0) >= 7 && geometry.loadAc !== undefined,
+        geometry.effort === 9 && geometry.advancedModularSearch === true,
       )
       const acEncoding = writeHfGlobal(
         writer,
@@ -2482,7 +2495,7 @@ function* coefficientSectionSteps(
         compactAc.contextMap,
         compactAc.frequencies,
         histogramCount,
-        geometry.acIterationSearch ? denseAcHybridConfig : acHybridConfig,
+        refinesAcModel(geometry) ? denseAcHybridConfig : acHybridConfig,
         compactAc.histogramConfigs,
       )
       writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
@@ -2517,8 +2530,8 @@ function* coefficientSectionSteps(
           planes,
           modularEncoding as ModularEncoding,
           localDc,
-          geometry.effort === 7 && geometry.loadAc !== undefined,
-          geometry.advancedModularSearch === true,
+          (geometry.effort ?? 0) >= 7 && geometry.loadAc !== undefined,
+          geometry.effort === 9 && geometry.advancedModularSearch === true,
         )
         colorBits += writer.bitPosition
       }, geometry.memory),
@@ -2538,7 +2551,7 @@ function* coefficientSectionSteps(
       compactAc.contextMap,
       compactAc.frequencies,
       histogramCount,
-      geometry.acIterationSearch ? denseAcHybridConfig : acHybridConfig,
+      refinesAcModel(geometry) ? denseAcHybridConfig : acHybridConfig,
       compactAc.histogramConfigs,
     )
     colorBits += writer.bitPosition
@@ -2572,7 +2585,7 @@ function* coefficientSectionSteps(
               geometry.alpha.loadGroup(group),
               alphaEncoding,
               !!geometry.loadAc && geometry.effort !== 1,
-              !!geometry.loadAc && geometry.effort === 7,
+              !!geometry.loadAc && (geometry.effort ?? 0) >= 7,
               geometry.alpha.paletteSearch,
             )
         }
@@ -2696,9 +2709,10 @@ const encodeVarDctCoefficientSectionsBaseline = (
   profiler?: JpegXlJpegEncodeProfiler,
 ): readonly Uint8Array[] =>
   withJpegXlMemory(geometry.memory, () => {
-    if (!geometry.acIterationSearch) return encodeCoefficientSectionsWithAlpha(geometry, profiler)
+    if (geometry.effort !== 9 || !geometry.acIterationSearch)
+      return encodeCoefficientSectionsWithAlpha(geometry, profiler)
     const baseline = encodeCoefficientSectionsWithAlpha(
-      { ...geometry, acIterationSearch: false },
+      { ...geometry, acIterationSearch: false, acModelRefinement: false },
       profiler,
     )
     try {
@@ -2715,10 +2729,10 @@ const encodeVarDctCoefficientSectionsBaselineAsync = (
   checkpoint: () => Promise<void>,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(geometry.memory, async () => {
-    if (!geometry.acIterationSearch)
+    if (geometry.effort !== 9 || !geometry.acIterationSearch)
       return encodeCoefficientSectionsWithAlphaAsync(geometry, checkpoint)
     const baseline = await encodeCoefficientSectionsWithAlphaAsync(
-      { ...geometry, acIterationSearch: false },
+      { ...geometry, acIterationSearch: false, acModelRefinement: false },
       checkpoint,
     )
     try {
@@ -2736,13 +2750,9 @@ const prepareLumaContextGeometry = (
 ): Readonly<JpegDerivedGeometry> | undefined => {
   const component = geometry.dcComponents[0]
   if (
+    geometry.effort !== 9 ||
     !geometry.acIterationSearch ||
-    !geometry.defaultMatrices ||
-    geometry.colorTransform !== 'xyb' ||
-    geometry.progressive ||
-    geometry.deferredDc ||
     geometry.lumaThreshold !== undefined ||
-    geometry.blocksWide * geometry.blocksHigh <= 65536 ||
     !component ||
     component.coefficientStride !== 1 ||
     component.coefficients.length !== geometry.blocksWide * geometry.blocksHigh

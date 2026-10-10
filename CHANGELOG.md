@@ -4,6 +4,11 @@ All notable changes to PureJsImage are documented in this file.
 
 ## [Unreleased]
 
+- Add slow JPEG XL effort 9. It retains effort 7's tools and adds complete AC
+  iteration, strategy, luma-context, cone-frame and advanced Modular DC searches.
+  Effort 7 omits these alternatives. Effort 9 lossless encoding uses the effort-7
+  search policy. Compression and speed qualification remains on the candidate branch.
+
 - Add bounded DCT32 and both 16x32/32x16 choices for regular effort-7 opaque
   sRGB RGBA8 photos with more than 2,048 visible colors, above 4,194,304 and
   through 16,777,216 pixels, at distances 2 through 4. Learn their coefficient

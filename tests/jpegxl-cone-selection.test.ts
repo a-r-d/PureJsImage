@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'
 import { expect, it } from 'vitest'
 
-it('preserves independently verified photo samples across partial JPEG XL groups', async () => {
+it('preserves independently verified effort-9 cone photo samples across partial JPEG XL groups', async () => {
   // Match the bundled public path used by independent qualification and browsers.
   const bundle = await build({
     entryPoints: [fileURLToPath(new URL('./helpers/jpegxl-cone-selection.ts', import.meta.url))],

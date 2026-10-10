@@ -9,6 +9,8 @@ corrects baseline preparation and replaces work-order steps 1–2 with E1–E4.
 Also read [LOSSY_PROMOTION_GUIDANCE.md](LOSSY_PROMOTION_GUIDANCE.md). The owner's
 2026-10-10 decisions authorize candidate repairs after the plateau and govern
 preservation, promotion and the bounded final Butteraugli phase.
+The [effort-9 amendment](LOSSY_EFFORT9_AMENDMENT.md) removes the bundle promotion
+gate and approves the slow effort-9 search tier.
 
 1. The lossy encoder is a fully independent first-party encoder. It does not try to
    reproduce libjxl's heuristics or constants.
@@ -38,8 +40,9 @@ It must be within 3x of jSquash effort 7 on the 512-square lab crops and within
 Memory: effort-7 managed peak on full-resolution originals must not exceed today's
 value. This is the Lambda memory northstar in AGENTS.md.
 
-Package: existing bundle ceilings stay. Raising one requires Aaron's approval and a
-stated BD-rate gain.
+Package: report bundle size at every session end. Bundle size is not a campaign
+constraint or promotion gate. Raise check ceilings as needed and record their new
+values in the commit message, as approved on 2026-10-10.
 
 ## 2. Independence rules
 
@@ -106,7 +109,7 @@ Promotion level (only for changes that pass the lab):
      with exact alpha;
   4. npm run check;
   5. npm run browser:check;
-  6. bundle and memory ceilings.
+  6. memory ceilings.
 - The commit message states the change, the development and holdout BD-rate deltas,
   and the speed delta. Nothing else is needed.
 
@@ -161,8 +164,11 @@ but do not let them block the photo work.
 - Speed-only changes must keep BD-rate within plus or minus 0.2%.
 - Effort 7 should not encode several complete candidate files and keep the smallest.
   Replace those searches with estimated-cost selection.
-- A slower tier (effort 8 or 9) may keep those searches. Adding a public effort tier
-  needs Aaron's approval.
+- Effort 9 is the approved slow tier. It is effort 7 plus AC iteration, RGB
+  strategy, luma-context, cone-frame and exhaustive advanced Modular DC searches.
+  Gate those searches by effort only, never area or channel count. Lab work stays
+  on effort 7. Do not tune effort 9; run its screen once at promotion and report
+  BD-rate and speed against our effort 7 and jSquash effort 9.
 
 ## 7. Work order
 
@@ -232,14 +238,16 @@ but do not let them block the photo work.
 - Plateau: stop if about 15 lab experiments in a row produce less than 1% cumulative
   development BD-rate improvement. Report the remaining hypotheses ranked by
   estimated upside.
-- Ask Aaron before you change the targets, raise bundle or memory ceilings, add a
-  public effort tier, or touch the release version.
+- Ask Aaron before changing targets or memory ceilings, adding another public
+  effort tier, or touching the release version. Bundle ceiling changes and effort
+  9 are already approved for this campaign.
 
 ## 10. End-of-session report
 
 Keep it to 20 lines or fewer:
 - the BD-rate table (development full lab; holdout only after a promotion);
 - the speed ratio;
+- bundle size (reported, not a promotion gate);
 - experiments run, kept, reverted and promoted;
 - commits;
 - the next three hypotheses.

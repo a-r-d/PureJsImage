@@ -65,7 +65,8 @@ interface JpegXlEncodeBaseOptions {
   maxWorkingBytes?: number
   /** Maximum encoded bytes, including container and metadata; at most 128 MiB. */
   maxOutputBytes?: number
-  effort?: 1 | 3 | 5 | 7
+  /** Effort 9 is slow: effort 7 plus complete lossy alternative searches. */
+  effort?: 1 | 3 | 5 | 7 | 9
   container?: boolean
   /** Select the minimum valid codestream level by default. Level 10 requires container output. */
   codestreamLevel?: 'auto' | 5 | 10
@@ -483,9 +484,10 @@ export const createJpegXlEncodeOperation = (options: JpegXlEncodeOptions): Pipel
     options.effort !== 1 &&
     options.effort !== 3 &&
     options.effort !== 5 &&
-    options.effort !== 7
+    options.effort !== 7 &&
+    options.effort !== 9
   ) {
-    throw invalidInput('JPEG XL effort must be 1, 3, 5, or 7')
+    throw invalidInput('JPEG XL effort must be 1, 3, 5, 7, or 9')
   }
   if (options.container !== undefined && typeof options.container !== 'boolean') {
     throw invalidInput('JPEG XL container must be a boolean')

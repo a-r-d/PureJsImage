@@ -18,9 +18,9 @@ it('keeps the shared opaque path usable when every optional sharpness-map alloca
 
 it('recovers large opaque images after optional filter-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery()
-  // Refused optional maps retain preceding geometry, qualified by both independent decoders.
-  expect(result.bytes).toBe(56490)
-  expect(result.encodedChecksum).toBe(1025777929)
+  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
+  expect(result.bytes).toBe(66880)
+  expect(result.encodedChecksum).toBe(3798656743)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(164368939)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -34,9 +34,9 @@ it('recovers large opaque images after optional filter-map allocation failure', 
 
 it('preserves opaque gradient precision above four megapixels within its working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  // Shared color/order selection changes this stream; both decoders qualify the same error limit.
-  expect(result.bytes).toBe(43663)
-  expect(result.encodedChecksum).toBe(3098140889)
+  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
+  expect(result.bytes).toBe(48634)
+  expect(result.encodedChecksum).toBe(2417484758)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(1202901999)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -49,9 +49,9 @@ it('preserves opaque gradient precision above four megapixels within its working
 
 it('preserves fine-quality opaque gradients within the original working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
-  // Shared fine photo precision changes these pixels, qualified by native and Rust decoders.
-  expect(result.bytes).toBe(1497094)
-  expect(result.encodedChecksum).toBe(3270274125)
+  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
+  expect(result.bytes).toBe(1501856)
+  expect(result.encodedChecksum).toBe(3301767643)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(216671879)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -64,9 +64,9 @@ it('preserves fine-quality opaque gradients within the original working budget',
 
 it('returns the preceding fine-quality stream after optional rate-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery(0.54)
-  // Recomputing the refused optional map preserves the normal fine-quality pixels.
-  expect(result.bytes).toBe(1_497_054)
-  expect(result.encodedChecksum).toBe(1404451838)
+  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
+  expect(result.bytes).toBe(1501816)
+  expect(result.encodedChecksum).toBe(72296575)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(216671879)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -80,9 +80,9 @@ it('returns the preceding fine-quality stream after optional rate-map allocation
 
 it('encodes textured gradients with learned DC models and the photo filter', async () => {
   const result = await verifyJpegXlDcModel()
-  // Content-qualified photo precision changes this small stream, verified by both decoders.
-  expect(result.bytes).toBe(2383)
-  expect(result.encodedChecksum).toBe(792771564)
+  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
+  expect(result.bytes).toBe(2596)
+  expect(result.encodedChecksum).toBe(706920282)
   expect(result.inputChecksum).toBe(3720133924)
   expect(result.decodedChecksum).toBe(4003423285)
   expect(result.samples).toBe(513 * 257 * 4)
@@ -98,9 +98,9 @@ for (const asynchronous of [false, true]) {
       asynchronous,
     async () => {
       const result = await verifyJpegXlDcAllocationRecovery(asynchronous)
-      // Shared precision changes the same verified preceding pixels in both recovery modes.
-      expect(result.bytes).toBe(3008)
-      expect(result.encodedChecksum).toBe(3595891780)
+      // Single-stream model choice changes both recovery streams; both decoders retain these pixels.
+      expect(result.bytes).toBe(3176)
+      expect(result.encodedChecksum).toBe(3563359273)
       expect(result.inputChecksum).toBe(3720133924)
       expect(result.decodedChecksum).toBe(4003423285)
       expect(result.samples).toBe(513 * 257 * 4)

@@ -72,9 +72,11 @@ export const verifyJpegXlLumaContexts = async (
   asynchronous: boolean,
   failure: Failure = 'none',
   eligible = true,
+  effort: 7 | 9 = 9,
+  blockDimensions?: readonly [number, number],
 ) => {
-  const across = eligible ? 257 : 256,
-    down = 256,
+  const across = blockDimensions?.[0] ?? (eligible ? 257 : 256),
+    down = blockDimensions?.[1] ?? 256,
     blocks = across * down
   const width = across * 8 - 3,
     height = down * 8 - 1
@@ -91,7 +93,12 @@ export const verifyJpegXlLumaContexts = async (
   const alpha = new Int32Array(256 * 256)
   const alphaPalette = Uint8Array.of(0, 128, 255)
   const alphaAt = (x: number, y: number): number => alphaPalette[((x >>> 4) + (y >>> 4)) % 3] ?? 0
-  const memory = new LumaMemory(257 * 256, failure)
+  // A 65536-element probe also counts ordinary alpha scratch. Keep the legacy
+  // effort-7 control probe, and use an odd block count for the new effort-9 case.
+  const memory = new LumaMemory(
+    blockDimensions ? blocks : effort === 7 ? 257 * 256 : blocks,
+    failure,
+  )
   const geometry: VarDctCoefficientGeometry = {
     colorTransform: 'xyb',
     chromaSubsampling: [0, 0, 0],
@@ -115,8 +122,8 @@ export const verifyJpegXlLumaContexts = async (
     quantAc: 4,
     quantDc: 4,
     baseB: 1,
-    effort: 7,
-    acIterationSearch: true,
+    effort,
+    acIterationSearch: effort === 9,
     memory,
     alpha: {
       loadGroup: (group) => {

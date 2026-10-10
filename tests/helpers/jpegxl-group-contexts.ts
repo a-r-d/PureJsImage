@@ -83,7 +83,7 @@ export const verifyJpegXlGroupContexts = async (asynchronous: boolean) => {
         quantDc: 4,
         baseB: 1,
         effort: 7,
-        acIterationSearch: true,
+        acModelRefinement: true,
         groupContexts: true,
         ...(threshold === undefined ? {} : { lumaThreshold: threshold }),
         memory,

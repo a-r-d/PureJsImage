@@ -458,9 +458,9 @@ Generated from the repository manifests and recorded package metrics (package ve
 
 | Bundle | Minified JS | gzip | Brotli |
 | --- | ---: | ---: | ---: |
-| Core API | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Common web codecs | 653.2 KiB | 239.3 KiB | 198.8 KiB |
-| All stable codecs | 1347.8 KiB | 466.7 KiB | 377.0 KiB |
+| Core API | 19.5 KiB | 6.6 KiB | 5.9 KiB |
+| Common web codecs | 653.2 KiB | 239.3 KiB | 199.0 KiB |
+| All stable codecs | 1347.5 KiB | 466.7 KiB | 377.0 KiB |
 | Scientific platform | 197.5 KiB | 56.3 KiB | 47.4 KiB |
 | All scientific readers | 1244.4 KiB | 360.0 KiB | 287.2 KiB |
 | Geo raster platform | 138.1 KiB | 37.5 KiB | 32.0 KiB |
@@ -477,9 +477,9 @@ Generated for purejsimage 0.17.0. Use these imports to select an entry point; th
 
 | Bundle | Import | Minified JS | gzip | Brotli |
 | --- | --- | ---: | ---: | ---: |
-| Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 6.0 KiB |
-| Core + common web codecs | `purejsimage/codecs/web` | 653.2 KiB | 239.3 KiB | 198.8 KiB |
-| Core + all stable codecs | `purejsimage/codecs/all` | 1347.8 KiB | 466.7 KiB | 377.0 KiB |
+| Core API initial chunk | `purejsimage` | 19.5 KiB | 6.6 KiB | 5.9 KiB |
+| Core + common web codecs | `purejsimage/codecs/web` | 653.2 KiB | 239.3 KiB | 199.0 KiB |
+| Core + all stable codecs | `purejsimage/codecs/all` | 1347.5 KiB | 466.7 KiB | 377.0 KiB |
 | Core + scientific platform | `purejsimage/scientific` | 197.5 KiB | 56.3 KiB | 47.4 KiB |
 | Scientific readers: all | `purejsimage/scientific/readers/all` | 1244.4 KiB | 360.0 KiB | 287.2 KiB |
 

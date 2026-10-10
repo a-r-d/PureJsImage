@@ -749,6 +749,9 @@ export async function native(input: Uint8Array): Promise<Uint8Array> {
   return (await images.open(input)).jpegxl({effort:7,maxWorkingBytes:268435456,maxOutputBytes:134217728}).toUint8Array()
 }
 
+export async function slowJpegXl(input: Uint8Array): Promise<Uint8Array> {
+  return (await images.open(input)).jpegxl({mode:'lossy',distance:3,effort:9}).toUint8Array()
+}
 export async function hlgStorage(input: Uint8Array): Promise<Uint8Array> {
   return (await images.open(input)).convertPixelFormat({format:'rgb16'}).jpegxl().toUint8Array()
 }

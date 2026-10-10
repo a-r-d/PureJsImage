@@ -116,7 +116,7 @@ export const verifyCoefficientEntropyFloor = async (
     quantAc: 4,
     quantDc: 4,
     baseB: 1,
-    effort: 7,
+    effort: 9,
     alpha: {
       loadGroup: (group) => {
         const plane = alphaGroups[group]

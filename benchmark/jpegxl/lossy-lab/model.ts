@@ -31,3 +31,26 @@ export function missingSettings(
 ): number[] {
   return settings.filter((setting) => !points.some((point) => point.setting === setting))
 }
+
+/** Exploration stays at effort 7. The slow tier has one promotion screen. */
+export function parseCampaignEffort(value: string, mode: string, promotion: boolean): 7 | 9 {
+  if (value === '7') return 7
+  if (value === '9' && mode === 'screen' && promotion) return 9
+  throw new Error('Effort 9 requires a promotion screen; lab work uses effort 7')
+}
+export function curveMatches(
+  value: unknown,
+  fixtureSha256: string,
+  engine: Engine,
+  channels: number,
+  effort: 7 | 9,
+): boolean {
+  const row = object(value)
+  return (
+    row.fixtureSha256 === fixtureSha256 &&
+    row.engine === engine &&
+    (row.channels ?? 4) === channels &&
+    row.effort === effort &&
+    Array.isArray(row.points)
+  )
+}

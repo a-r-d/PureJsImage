@@ -2,13 +2,16 @@
 
 Follow [the steering plan](../LOSSY_STEERING.md),
 [checkpoint feedback](../LOSSY_FEEDBACK.md) and the owner's
-[promotion guidance](../LOSSY_PROMOTION_GUIDANCE.md). The campaign resumed on 2026-10-09.
+[promotion guidance](../LOSSY_PROMOTION_GUIDANCE.md), plus the
+[effort-9 amendment](../LOSSY_EFFORT9_AMENDMENT.md). The campaign resumed on 2026-10-09.
 The corrected baseline uses the unchanged encoder at `dca2f211`; its full
 development and isolated speed results are published in [BASELINE.md](BASELINE.md).
 The current table and experiment rows live in
 [lossy-lab-log.md](../lossy-lab-log.md). E4 with palette precheck is preserved
 on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every completed
-80-point screen and all 576 full-development files byte for byte. Current
+80-point screen and all 576 full-development files byte for byte through repair
+commit `468a5bec`. The later owner-directed search migration changes effort-7
+files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
 All 14 E3 screens are measured in
 [TOOL-COSTS.md](TOOL-COSTS.md). Full promotion is still required before main or
@@ -30,7 +33,9 @@ and screen crop is 512 square. Two separate scale crops are 2080 square and use
 checks belong to promotion candidates. Preparation uses the first-party JPEG and
 PNG pipeline. Explicit crop/count reductions and every missing job are recorded.
 
-Each curve uses the public effort-7 encoder. Initialization and input preparation
+Development curves use the public effort-7 encoder. Effort 9 is reserved for one
+promotion screen, with separate cached peer curves and an explicit effort-7
+reference root. Initialization and input preparation
 are outside encode timing. Native libjxl decoding and both development scorers
 run after timing. Every valid point retains SSIMULACRA2, Butteraugli max and
 Butteraugli 3-norm. Peer curves are cached by fixture bytes and pinned package
