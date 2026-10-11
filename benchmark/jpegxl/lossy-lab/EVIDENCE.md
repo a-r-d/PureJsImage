@@ -1546,3 +1546,61 @@ Bundles are 600,497 / 673,295 bytes; ceilings remain 610,000 / 685,000. No main
 promotion, holdout opening, effort-9 comparison screen or compression trial
 occurred. Next work is the invariant crossing margin, exact menu work on the
 actual median input and estimated selection behind the migration regressions.
+
+## Estimated-selection diagnosis checkpoint, 2026-10-11
+
+Six hypotheses retain no source changes after `285ff996`. Five are reverted;
+the tiny hybrid-only variant is preserved but unqualified. The source returns
+to `8e49806ef27e37328246284a2236c255ff4594fbd9240647befd417af81ea6c0`.
+The earlier complete development, isolated speed, decoder and Chromium results
+therefore still describe the retained encoder. No rejected screen is presented
+as full-development qualification. Holdout remains unopened.
+
+| Work | Preserved raw evidence |
+| --- | --- |
+| Invariant tie margin, three of seven timing wins | `.tmp/jpegxl-lossy-lab/promotion-tie-margin-validation/`, `promotion-tie-margin-pairs/statistics.json` |
+| Actual median crop profile | `.tmp/jpegxl-lossy-lab/promotion-285-median-profile/profile-run.json`, `profile-summary.json`, `encode.cpuprofile` |
+| Estimator count, hybrid and combined repairs | `.tmp/jpegxl-lossy-lab/promotion-order-estimator-count-screen/versus-285.json`, `promotion-order-estimator-hybrid-screen/versus-285.json`, `promotion-order-estimator-model-screen/versus-285.json` |
+| Rejected and shelved estimator source variants | `.tmp/jpegxl-lossy-lab/promotion-order-estimator-count-validation/rejected-source.ts`, `promotion-order-estimator-hybrid-validation/trial-source.ts`, `promotion-order-estimator-model-validation/rejected-source.ts` |
+| Our own candidate rank and actual section sizes | `.tmp/jpegxl-lossy-lab/promotion-order-rank-diagnostic/`, `promotion-ac-refinement-rank-diagnostic/` |
+| Estimated AC model choice, screen and isolated pairs | `.tmp/jpegxl-lossy-lab/promotion-ac-estimated-choice-screen/versus-285.json`, `promotion-ac-estimated-choice-pairs/statistics.json`, `promotion-ac-estimated-choice-validation/` |
+| Matching model reuse, screen and correctness | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-screen/versus-285.json`, `promotion-ac-model-reuse-validation/` |
+| Model reuse, seven pairs and 21-pair confirmation | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-pairs/statistics.json`, `promotion-ac-model-reuse-confirmation/statistics.json`, `summary.json` |
+
+The existing ordinary order estimator correctly ranks our refined candidates
+on im26-3000 at distances 2, 4 and 7. Increasing its histogram count selects
+worse files. The second diagnosis finds a different issue: at distance 7 the
+selected refined AC sections use 4,908 bytes, while the ordinary model uses
+4,839. Refined wins at distances 2 and 4. These extra first-party serializations
+are removed instrumentation. No peer internal state or encoder source is used.
+
+Choosing baseline or refined model by estimated cost gives screen deltas of
+-0.08274% SSIM, -0.06755% Butteraugli 3-norm and -0.03963% max, with no individual
+regressions. Its first version slows the pinned crop 1.74327% in seven pairs.
+Reusing the matching estimator model removes duplicate clustering but still
+slows it 0.79124% in 21 pairs, with nine wins and paired MAD 1.28864 points.
+The benefit does not justify either slowdown. Both sources and focused tests
+remain preserved outside the package. Full lab is skipped for these rejected
+variants. Managed screen peak stays 32,646,275 bytes; all guards use zero swap.
+
+Bundle sizes remain 600,497 / 673,295 bytes on the restored source, with unchanged
+610,000 / 685,000 ceilings. All five complete searches remain enabled only at
+effort 9. The tier is untuned and its comparison screen still waits for promotion.
+Next work needs a fresh profile or a different selection mechanism; LL-041's
+neutral advanced DC estimate is not a new untested idea.
+
+Fresh restored-source full check: 3,923 passes, three held layout failures and
+three skips across 306 files, 487.87s. All static gates pass, including
+browser:check. Guard runtime is 8m51.274s, peak 2.3 GiB, zero swap. The three
+existing assertions and every original property bound remain unchanged.
+Prior full development, isolated speed, 23 native/Rust grids and 29 Chromium
+cases are reused on exactly the same production source.
+
+Cleanup removes 485 reproducible PNGs / 216,757,555 bytes and preserves 485
+encoded files and 165 complete results. The two diagnostic stream sets, inputs,
+scores, source variants, logs and profiles stay intact. Each removed raster and
+its encoded file and result metadata are revalidated against the saved plan.
+Final receipts are in
+`.tmp/jpegxl-lossy-lab/promotion-selection-diagnosis-checkpoint/`: `final-summary.json`,
+`frozen-source.json`, `check.log`, `decoded-cleanup-plan.json`,
+`decoded-cleanup-complete.json` and `cleanup.log`. No main promotion occurs.

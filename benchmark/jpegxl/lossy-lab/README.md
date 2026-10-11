@@ -21,9 +21,9 @@ files match `5a89a125` exactly. Fresh isolated median falls 0.74168% and mean
 falls 0.17793%; the 3.41767x jSquash ratio still fails the 3x target. This is a
 small measured gain. Compression is unchanged. Seven existing benchmark tests
 protect fresh speed measurements from output-directory reuse. The fresh full
-check has 3,923 passes, three held layout failures and three skips in 489.38s;
-all static gates pass, including browser:check. Scoped cleanup removes 1,157 reproducible
-PNGs / 513,574,567 bytes and preserves 1,157 encoded files and 517 completed results.
+check has 3,923 passes, three held layout failures and three skips in 487.87s;
+all static gates pass, including browser:check. Earlier cleanup removed 1,157 reproducible
+PNGs / 513,574,567 bytes and preserved 1,157 encoded files and 517 completed results.
 Bundles measure 600,497 / 673,295 bytes, within unchanged 610,000 / 685,000
 check ceilings. Bundle size remains report-only.
 See LL-305 for
@@ -34,6 +34,18 @@ qualification is replaced by 23 fresh native/Rust grids and all 29 real Chromium
 cases on the retained stack. Original expectations
 and quality bounds stay unchanged. Effort 9 remains untuned; its comparison
 screen waits for promotion.
+The latest six hypotheses add no retained source changes. Five estimator and
+model-selection screens, plus isolated timing, reject five changes; the tiny
+hybrid-only variant remains shelved and unqualified. Our own section-size
+diagnostic finds that the simpler AC model saves 69 bytes on im26-3000 at
+distance 7. Estimated selection recovers only 0.06755% Butteraugli 3-norm on the
+screen. Its first implementation slows the pinned crop 1.74327%; model reuse
+still slows it 0.79124% in 21 confirmation pairs. Both are reverted under the
+speed trade rule. The preserved source remains `285ff996`, with all earlier
+gains and effort-9 searches intact. LL-345 through LL-353 record the trials and
+their raw evidence. The restored-source check repeats the same three held
+failures. This session's cleanup removes 485 derived PNGs / 216,757,555 bytes
+and preserves 485 encoded files, 165 complete results and every source variant.
 Fresh isolated speed requires a new output directory, even if an existing
 directory is empty. The explicit validated baseline continuation and cached
 non-speed peer curves retain their existing behavior.
