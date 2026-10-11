@@ -1442,3 +1442,40 @@ preserving 390 encoded files and 326 complete results. Final receipts:
 `decoded-cleanup-complete.json` and `cleanup.log`. Bundles stay
 600,019 / 672,835 bytes; ceilings stay 610,000 / 685,000. Holdout and the effort-9
 screen remain reserved; no main promotion or new compression trial occurred.
+
+## Eight restored-candidate speed trials, 2026-10-11
+
+All eight hypotheses are reverted. Geometry hoisting and paired order estimates
+preserve every screen and isolated file, but the combined aggregate median is
+neutral (-0.08103%) and mean rises 2.71384%; its fresh jSquash ratio is 3.32753x.
+Bulk cache copies also preserve every file but have no aggregate gain: median
++2.09747%, mean +6.58171%, ratio 3.42028x. Both peers slow in each run, so these
+measurements establish no gain rather than a causal regression. Production
+returns exactly to `e36ee9e6`, source hash
+`eb1d370c511c95fdf8afcfd6a820b7f1932b5fc51a1c7192db1345e652ef6fa7`.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| Partial histogram costs | `.tmp/jpegxl-lossy-lab/promotion-hist-cost-prune-validation/`; `promotion-hist-cost-prune-pairs/statistics.json` |
+| Large coefficient-step cache | `.tmp/jpegxl-lossy-lab/promotion-large-step-cache-validation/`; `promotion-large-step-cache-pairs/statistics.json` |
+| Geometry setup and confirmation | `.tmp/jpegxl-lossy-lab/promotion-ac-geometry-hoist-confirmation/statistics.json`; `promotion-ac-geometry-hoist-screen/byte-comparison.json` |
+| Paired estimates and ten rejected tests | `.tmp/jpegxl-lossy-lab/promotion-paired-order-validation/rejected-jpegxl-jpeg-encode.ts`, `rejected-jpegxl-vardct-encode.ts`, `rejected-test.ts`; `promotion-paired-order-confirmation/statistics.json` |
+| Rejected combined aggregate | `.tmp/jpegxl-lossy-lab/promotion-paired-order-speed/summary.json`, `versus-e36.json`, `byte-comparison.json` |
+| Exact rectangular pair reuse | `.tmp/jpegxl-lossy-lab/promotion-rectangle-pairs-validation/direct-comparison.json`; `promotion-rectangle-pairs-confirmation/statistics.json` |
+| Bulk cache copy trial | `.tmp/jpegxl-lossy-lab/promotion-tile-copy-confirmation/statistics.json`; `promotion-tile-copy-screen/byte-comparison.json`; `promotion-tile-copy-validation/rejected-source.ts` |
+| Rejected bulk-copy aggregate | `.tmp/jpegxl-lossy-lab/promotion-tile-copy-speed/summary.json`, `versus-e36.json`, `byte-comparison.json` |
+| Zero correlation and centroid writes | `.tmp/jpegxl-lossy-lab/promotion-zero-correlation-pairs/statistics.json`; `promotion-zero-centroid-confirmation/statistics.json` |
+| Restored profile and next median inputs | `.tmp/jpegxl-lossy-lab/promotion-pair-restored-profile/profile-run.json`, `profile-summary.json`; `promotion-speed-repairs-checkpoint-validation/median-inputs.json` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-speed-repairs-checkpoint-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `cleanup.log` |
+
+Cleanup removes 947 decoded PNGs / 428,836,841 bytes and preserves 947 encoded
+files and 755 complete results. Inputs, curves, metrics, rejected source and raw
+timing evidence remain. Fresh full check: 3,923 passes, three unchanged held
+layout failures and three skips across 306 files, 519.92s. Every static gate
+passes, including browser:check. Guard runtime is 9m27.768s, peak 2.8 GiB,
+zero swap. Final receipts: `promotion-speed-repairs-checkpoint-validation/frozen-source.json`,
+`final-summary.json` and `check.log`, under `.tmp/jpegxl-lossy-lab/`.
+Prior full-development, twenty-one native/Rust grids and 29 real Chromium cases
+are reused on identical production. Bundles remain 600,019 / 672,835 bytes;
+ceilings stay 610,000 / 685,000. Qualified crop speed remains 3.41785x jSquash.
+No holdout opening, effort-9 comparison screen or compression trial occurred.

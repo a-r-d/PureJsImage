@@ -14,15 +14,16 @@ commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
 Earlier active-index, source-block, transform and clustering speed gains remain
-retained. The latest three hypotheses are reverted: AC summary caching,
-specialized residual loops and empty-menu error reuse. The cache passes the
-80-point screen but has no aggregate speed gain; its fresh ratio is 3.43331x
-jSquash. Production returns exactly to `6ee9191a`; qualified compression and
-the saved 3.41785x speed ratio remain unchanged. Seven new benchmark tests
-protect fresh speed measurements from output-directory reuse. The full check
-has 3,923 passes, three held layout failures and three skips; all static gates
-pass. Scoped cleanup removes 390 reproducible PNGs and preserves encoded files
-and completed results. See LL-305 for
+retained. The latest eight speed hypotheses are reverted. Confirmed local
+geometry, paired-estimator and bulk-copy gains fail aggregate qualification;
+their fresh ratios are 3.32753x and 3.42028x jSquash. Production returns exactly
+to `e36ee9e6`; qualified compression and the saved 3.41785x speed ratio remain
+unchanged. Seven existing benchmark tests
+protect fresh speed measurements from output-directory reuse. The fresh full
+check has 3,923 passes, three held layout failures and three skips in 519.92s;
+all static gates pass, including browser:check. Scoped cleanup removes 947 reproducible
+PNGs / 428,836,841 bytes and preserves 947 encoded files and 755 completed results.
+See LL-305 for
 an accidental reuse and the marked loss of older raw timing records; its
 historical aggregate reduction remains available.
 Three held mode/frame assertions and development entry remain open. Prior
