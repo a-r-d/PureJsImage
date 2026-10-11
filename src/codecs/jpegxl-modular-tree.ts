@@ -8,7 +8,8 @@ import {
   type JpegXlEncoderMemory,
   withJpegXlMemory,
 } from './jpegxl-encoder-memory.ts'
-import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.ts'
+import { sortJpegXlModularTrainingKeys } from './jpegxl-modular-sort.ts'
 
 type Decision =
   | { readonly kind: 'leaf'; readonly predictor: number }
@@ -295,6 +296,14 @@ const learnPlane = (
         const leftLog = allocateJpegXlArray(memory, Float64Array, modes)
         const rightLog = allocateJpegXlArray(memory, Float64Array, modes)
         const leftExtras = allocateJpegXlArray(memory, Uint32Array, modes)
+        let sortScratch: Float64Array | undefined
+        if (samples.length >= 1024) {
+          try {
+            sortScratch = allocateJpegXlArray(memory, Float64Array, samples.length)
+          } catch (error) {
+            rethrowJpegXlNonLimitError(error)
+          }
+        }
         let bestGain = ((96 + symbols * 4) * count * splitOverhead) / plane.length
         let bestFeature = -1,
           bestSplit = 0
@@ -303,7 +312,10 @@ const learnPlane = (
             const sample = samples[i] ?? 0
             sorted[i] = (features[sample * properties.length + feature] ?? 0) * count + sample
           }
-          sorted.sort()
+          // The prefix scan uses the same numeric key order, including ties.
+          // Optional scratch is allocated after required storage; LIMIT keeps native sorting.
+          if (sortScratch) sortJpegXlModularTrainingKeys(sorted, sortScratch, leftCounts)
+          else sorted.sort()
           leftCounts.fill(0)
           rightCounts.set(counts)
           leftLog.fill(0)

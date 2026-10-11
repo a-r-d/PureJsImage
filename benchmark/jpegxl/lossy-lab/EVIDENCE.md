@@ -9,7 +9,9 @@ The preceding repair checkpoint `468a5bec` has 3,855 passing tests, three
 failures and three skips; all 576 development files are byte-identical to the
 preserved candidate there. The owner's effort-9 amendment and the final AC model
 repair now change effort-7 files. Their current full-development, fresh isolated
-speed and independent-decoder evidence is indexed at the end of this document.
+speed and independent-decoder evidence is indexed below, followed by the
+large-DCT and tree-sorting speed repairs. Those repairs preserve the amended
+effort-7 files exactly.
 The three mode/frame assertions remain unchanged pending an owner decision.
 Compression and speed still fail promotion entry; holdout remains unopened.
 
@@ -450,3 +452,71 @@ reconstruction during coefficient-section passes.
 | Complete follow-up check receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-speed-followup-check-final-20261010.json` |
 | First-party V8 trace and exact output | `.tmp/jpegxl-lossy-lab/promotion-large-menu-jit/trace.log`, `point/result.json` |
 | V8 diagnostic guard receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-large-menu-jit-20261010.json` |
+
+## Tree-sorting checkpoint, 2026-10-10
+
+The retained radix sort replaces repeated comparison sorting of exact integer
+training keys. It preserves numerical key order and all split choices. Required
+node storage is allocated first; an optional scratch LIMIT keeps numeric sorting.
+Scratch is scoped and at most 524,288 bytes per evaluator. Eight ordering tests
+and twenty-seven original lossless/palette properties pass, including the exact
+streams at the original working limits. No property bound or expected value changes.
+
+All seven cold pairs on the slowest crop, im26-1468, favor the sort, with a paired
+median improvement of 18.49103%. All eighty screen and 576 full-lab files match
+`a3b2c290` exactly. Every mean and individual BD-rate delta is zero. The full lab
+retains 384 comparisons and 209 partial-range warnings, so its strict completeness
+flag remains false. Peer, preserved-candidate and same-ladder baseline means stay
+unchanged. Compression entry still fails, and holdout remains unopened.
+
+All 192 isolated jobs are measured fresh with one worker. Own mean time falls
+7.41821% to 4,089.797ms and worst time falls from 21,823.296ms to 17,698.043ms.
+Median changes only -0.35406%, to 3,158.689ms. Ratios are 6.47819x jSquash and
+9.18201x vips; the 3x target still fails. Managed full-lab peak rises 215,961 bytes
+to 34,476,008 bytes. Isolated worker RSS rises 4.70681% to 305,065,984 bytes.
+Originals remain unqualified against 5x and 131.14 MiB.
+
+The preceding XYB reuse trial is reverted after twenty-one pairs fail to confirm
+a speed gain. Reusing the tree evaluator has a small initial gain, six of seven
+wins at -1.21630%, but lacks longer confirmation. Its source is saved and reverted
+while the larger sorting hotspot is addressed. These are speed repairs; the
+post-promotion Butteraugli phase has not started.
+
+Seventeen fresh complete grids pass both native libjxl and jxl-rs within one code
+value with exact alpha. They cover three affected lossless cases, eleven effort-9
+cases and three photos. All eleven learned-palette/lossless Chromium cases pass.
+The full check has 3,883 passing tests, three unchanged layout failures and three
+skips across 303 files. All static gates, including browser:check, pass. The suite
+takes 551.60s; the guard takes 9m53.50s at 2.5 GiB with zero swap. Current source
+hash is `aa533430a31d3657642e61ce6c5875c690c70272a7382d1d1c4c32567ed6db71`.
+
+Bundles are 594,832 and 667,649 bytes, with unchanged ceilings of 610,000 and
+685,000 bytes. Effort 9 remains untuned; its comparison screen waits for promotion.
+Cleanup removes 1,012 reproducible PNGs and reclaims 439,879,813 bytes (419.50 MiB),
+preserving all 1,012 corresponding JXL files and 372 result files. Deletion
+records include PNG, JXL and metadata hashes. Inputs, scores, peer curves, source
+snapshots, profiles and independent decoder grids remain. No temporary file is
+checked in.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| XYB focused tests and rejected source | `.tmp/jpegxl-lossy-lab/promotion-xyb-reuse-validation/focused.log`, `transforms.log`, `rejected-source.ts` |
+| XYB twenty-one-pair confirmation | `.tmp/jpegxl-lossy-lab/promotion-xyb-reuse-confirmation/summary.json` |
+| XYB identical screen | `.tmp/jpegxl-lossy-lab/promotion-xyb-reuse-screen/versus-a3b2.json`, `byte-comparison.json` |
+| Slowest-crop CPU profile and reduction | `.tmp/jpegxl-lossy-lab/promotion-slow-crop-profile/profile-run.json`, `profile-summary.json`, `im26-1468-d2.cpuprofile` |
+| Shelved evaluator tests, source and pairs | `.tmp/jpegxl-lossy-lab/promotion-tree-kernel-validation/focused.log`, `source.ts`, `.tmp/jpegxl-lossy-lab/promotion-tree-kernel-pairs/summary.json` |
+| Sort ordering and original properties | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-validation/sort.log`, `focused.log`, `types.log` |
+| Seven counterbalanced sort pairs | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-pairs/summary.json` |
+| Sort screen and exact files | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-screen/summary.json`, `versus-a3b2.json`, `byte-comparison.json` |
+| Full development and exact files | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-full/summary.json`, `byte-comparison.json` |
+| Full same-ladder comparisons | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-full/versus-a3b2.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Fresh isolated timing and exact files | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-speed/summary.json`, `versus-a3b2.json`, `byte-comparison.json`, `progress.json` |
+| Complete native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Real Chromium and full check | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-validation/browser.log`, `check.log`, `final-summary.json` |
+| Bundle and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-validation/size.log`, `documentation-write.log` |
+| Scoped cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-tree-radix-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+All bounded-run receipts for this checkpoint have IDs beginning
+`promotion-tree-radix-` under `.tmp/jpegxl-m7/bounded-runs/`. The next speed
+hypotheses are constant-feature prefix scans, invariant menu dequantization and
+bounded reconstruction reuse. Main remains unchanged; no promotion is claimed.
