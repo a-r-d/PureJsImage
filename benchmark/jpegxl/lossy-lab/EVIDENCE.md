@@ -373,3 +373,80 @@ remain. The active tests do not read these benchmark directories.
 | Complete full-check bounded receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-check-final-20261010.json` |
 | Final browser graph and type check | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/browser.log` |
 | Scoped decoded-PNG cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+## Reverted speed trials and the original profile
+
+All three follow-up speed trials are reverted against `8e66f7b9`. Their fixed
+sixteen-photo screens each produce eighty byte-identical files, with zero mean
+and individual BD-rate changes. LF reuse has a paired median change of -0.70164%
+in twenty-one confirmation pairs, with fourteen wins. The zero/unit shortcut
+wins four of seven pairs. Float64 reflected transforms win only one of seven
+pairs, with a paired median change of +1.07261%. These results do not establish
+a retained speed gain. Original source and trial-only test snapshots are saved.
+Full development and isolated aggregate speed remain the preceding measurements.
+
+The fresh full-resolution diagnostic uses only the pinned development original
+im26-2004, 2945x4417, at effort 7 and distance 2. Cold profiled encoding takes
+117.526 seconds and produces 3,936,324 bytes. Large-menu evaluation is the largest
+stage at 53.428 seconds inclusive. Rate-aware rounding takes 10.848 seconds
+inclusive, source XYB filling takes 8.898 seconds self, and coefficient sections
+take 19.807 seconds inclusive. These times overlap. The profile covers startup,
+PNG preparation and hashing as well as encoding; it is not isolated speed or RSS
+qualification. V8 records five microseconds of negative sample intervals, which
+the reducer reports and clamps only for weighting.
+
+Managed peak is 82,494,849 bytes (78.673 MiB), with zero live encoder allocations
+at completion. The encoder unit peaks at 383.3 MiB, with zero swap. The source
+hash remains `04f6766dfcf515f45f5d0a0184542a40f6f67a8bed8b3a998b964b81f51f5ed2`.
+All 52,032,260 RGBA samples agree within one color code value through pinned
+native libjxl, jxl-rs and our public decoder. Alpha is exact and the independent
+peers also agree within one code value. This one original does not qualify the
+ten-original watch set or the 5x peer speed target. The first profile harness
+launch fails before encoding because the manifest parser omits dimensions; its
+receipt remains preserved. The corrected harness pins dimensions, verifies the
+fixture hash and passes strict TypeScript before running.
+
+Scoped cleanup removes 324 reproducible decoded PNGs and reclaims 144,004,146
+bytes (137.33 MiB). Their encoded streams and 132 complete result files remain,
+with hashes recorded before deletion. Independent original decoder grids,
+prepared inputs, all profiles, timing pairs and rejected source snapshots remain.
+Bundles are unchanged at 593,922 and 666,746 bytes, with unchanged check ceilings
+of 610,000 and 685,000 bytes. No new compression trial or effort-9 tuning occurs.
+
+The fresh full check finishes with 3,875 passing tests, three unchanged layout
+failures and three skips across 302 files. All static gates pass, including
+browser:check. All fifteen public effort-9 tests, ten luma-context tests and the
+large cone case pass. The suite takes 711.56 seconds; the guard records exit 1
+after 12m33.07s, peak 2.4 GiB, zero swap. The final summary verifies the production
+source is clean and unchanged from `8e66f7b9`. No test expectation changes.
+
+One V8 diagnostic then checks the large-menu generator on im26-3012 at distance
+2. The complete file matches the saved stream exactly. The trace shows completed
+TurboFan optimization and inlined rate-aware rounding, along with cold
+type-feedback and precision deoptimizations. It does not demonstrate rejection
+due to function size or a steady-state JIT bottleneck. Timing from this diagnostic
+is not an isolated speed comparison. The next repairs should target the measured
+work: repeated XYB conversion, invariant dequantization calculations and bounded
+reconstruction during coefficient-section passes.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| LF trial tests and initial pairs | `.tmp/jpegxl-lossy-lab/promotion-lf-validation/focused.log`, `promotion-lf-pairs/summary.json` |
+| Twenty-one LF confirmation pairs | `.tmp/jpegxl-lossy-lab/promotion-lf-confirmation/summary.json` |
+| LF screen and complete file comparisons | `.tmp/jpegxl-lossy-lab/promotion-lf-screen/versus-8e66.json`, `byte-comparison.json` |
+| LF rejected source and test | `.tmp/jpegxl-lossy-lab/promotion-lf-validation/rejected-large-menu.ts`, `rejected-large-menu-test.ts` |
+| Zero/unit trial tests and pairs | `.tmp/jpegxl-lossy-lab/promotion-zero-fast-validation/focused.log`, `promotion-zero-fast-pairs/summary.json` |
+| Zero/unit screen and rejected source | `.tmp/jpegxl-lossy-lab/promotion-zero-fast-screen/versus-8e66.json`, `byte-comparison.json`, `.tmp/jpegxl-lossy-lab/promotion-zero-fast-validation/rejected-source.ts` |
+| Float64 trial tests and pairs | `.tmp/jpegxl-lossy-lab/promotion-physical-dct-validation/focused.log`, `promotion-physical-dct-pairs/summary.json` |
+| Float64 screen and rejected source | `.tmp/jpegxl-lossy-lab/promotion-physical-dct-screen/versus-8e66.json`, `byte-comparison.json`, `.tmp/jpegxl-lossy-lab/promotion-physical-dct-validation/rejected-source.ts` |
+| Original profile receipt and reduction | `.tmp/jpegxl-lossy-lab/promotion-original-profile-r1/profile-run.json`, `profile-summary.json`, `reduction.log` |
+| Original CPU samples | `.tmp/jpegxl-lossy-lab/promotion-original-profile-r1/im26-2004-d2.cpuprofile` |
+| Original complete decoder comparisons | `.tmp/jpegxl-lossy-lab/promotion-original-profile-r1/decoder-result.json`, `decoders.log` |
+| Failed original harness receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-original-profile-20261010.json` |
+| Successful original profile guard | `.tmp/jpegxl-m7/bounded-runs/promotion-original-profile-r1-20261010.json` |
+| Original decoder guard | `.tmp/jpegxl-m7/bounded-runs/promotion-original-profile-decoders-20261010.json` |
+| Follow-up cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-speed-followup-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+| Fresh full-check log and final source summary | `.tmp/jpegxl-lossy-lab/promotion-speed-followup-validation/check-final.log`, `final-summary.json` |
+| Complete follow-up check receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-speed-followup-check-final-20261010.json` |
+| First-party V8 trace and exact output | `.tmp/jpegxl-lossy-lab/promotion-large-menu-jit/trace.log`, `point/result.json` |
+| V8 diagnostic guard receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-large-menu-jit-20261010.json` |
