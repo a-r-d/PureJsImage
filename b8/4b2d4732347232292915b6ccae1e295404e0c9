@@ -1,0 +1,75 @@
+tests/jpegxl-vardct-large-menu.test.ts
+  s_2b0ba550ad1491::t_353b236e03c1ca 65,68-73,76,78
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_f003f7982fea66 23-25
+  s_2b0ba550ad1491::t_9d7cc7530a23ef 16-22
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_8d6fb4b2d586e1 1024,1164,1166-1203
+  s_2b0ba550ad1491::t_cd4669a09be2f7 1165
+  s_2b0ba550ad1491::t_41d01769e7a215 1292,1298-1301,1310,1701-1706,1930-1931
+  s_2b0ba550ad1491::t_353b236e03c1ca 39-42,1294,1303-1309,1322,1351,1353
+  s_2b0ba550ad1491::t_feaa85ad54bcfe 1935-1937
+  s_2b0ba550ad1491::t_3a9c174ab451cf 38
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_1e9c67b40ac198 1244-1245,1262
+  s_2b0ba550ad1491::t_9d6a014e0d9c9c 1206-1243,1251-1261,1264-1267
+  s_2b0ba550ad1491::t_f003f7982fea66 1246-1250,1263,1268
+tests/jpegxl-opaque-color-tools.test.ts
+  s_2b0ba550ad1491::t_3af69eff6f4832 380-381
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_23c2136086baac 610
+  s_2b0ba550ad1491::t_61345defeaa7e5 587-588
+  s_2b0ba550ad1491::t_8d6fb4b2d586e1 593-594
+  s_2b0ba550ad1491::t_cb4c1a3b65a75a 609
+  s_2b0ba550ad1491::t_65b10e6c1b6f9a 579-580
+  s_2b0ba550ad1491::t_30d6c682e77498 585-586
+  s_2b0ba550ad1491::t_5d0e46537f7ba1 597-598
+  s_2b0ba550ad1491::t_211abb13e8ff14 581-582
+  s_2b0ba550ad1491::t_9ee98fc612abd5 607-608
+  s_2b0ba550ad1491::t_c61381d9c73c44 613-614
+  s_2b0ba550ad1491::t_e757729d267bec 603-604
+  s_2b0ba550ad1491::t_d6c348c9744cbe 583-584
+  s_2b0ba550ad1491::t_f003f7982fea66 14,22,621-622
+  s_2b0ba550ad1491::t_9d7cc7530a23ef 3,11,13,15,23,26
+  s_2b0ba550ad1491::t_5914f301e55eaa 577-578
+  s_2b0ba550ad1491::t_1e9c67b40ac198 29
+  s_2b0ba550ad1491::t_805073ca31da64 595-596
+  s_2b0ba550ad1491::t_a86d264f7803d0 611-612
+  s_2b0ba550ad1491::t_d2d6d43110e96f 591-592
+  s_2b0ba550ad1491::t_9d6a014e0d9c9c 619-620
+  s_2b0ba550ad1491::t_6e9126d3cf2ec6 599-600
+  s_2b0ba550ad1491::t_b5f6bda3a34bdb 605-606
+  s_2b0ba550ad1491::t_f76d5be9b0aec9 589-590
+  s_2b0ba550ad1491::t_96bf732b36f1d3 601-602
+  s_2b0ba550ad1491::t_949ccbc59a9e3e 617-618
+  s_2b0ba550ad1491::t_190859fa01959f 615-616
+src/codecs/jpegxl-vardct-large-menu.ts
+  s_2b0ba550ad1491::t_353b236e03c1ca 29-32,61,423,426,431,433-435,438-447,770,772,788,849,851,867
+  s_2b0ba550ad1491::t_96bf732b36f1d3 277-282,304,568-584,769,816,848,895
+  s_2b0ba550ad1491::t_c8b05304e31ad7 792-793,795-797,812,871-872,874-876,891
+  s_2b0ba550ad1491::t_377a30ae41732c 561-567
+README.md
+  s_2b0ba550ad1491::t_91b638d4ce02a0 463,482
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_3a29838a3bf657 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_fef926cca0261a 109-111,129
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_f99812e8945a50 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b84b2d4732347232292915b6ccae1e295404e0c9",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
