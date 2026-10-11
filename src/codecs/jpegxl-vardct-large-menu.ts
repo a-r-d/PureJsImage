@@ -470,12 +470,34 @@ export function* prepareJpegXlLargeMenus(
           compactDc[family * 48 + (c === 0 ? 1 : c === 1 ? 0 : 2) * 16 + p] =
             dcWords[c * 16 + p] ?? 0
     }
-    const physicalError = (count: number, weight: number): number => {
+    const physicalError = (
+      count: number,
+      weight: number,
+      lfRows: 2 | 4,
+      ratioX: number,
+      ratioB: number,
+    ): number => {
+      const sourceX = sourceCoefficients[0],
+        sourceY = sourceCoefficients[1],
+        sourceB = sourceCoefficients[2],
+        x = coefficients[0],
+        y = coefficients[1],
+        b = coefficients[2],
+        blueLuma = 1 + ratioB
       let sum = 0
       for (let p = 0; p < count; p++) {
-        const ex = (sourceCoefficients[0][p] ?? 0) - (coefficients[0][p] ?? 0),
-          ey = (sourceCoefficients[1][p] ?? 0) - (coefficients[1][p] ?? 0),
-          eb = (sourceCoefficients[2][p] ?? 0) - (coefficients[2][p] ?? 0)
+        const sy = y[p] ?? 0
+        let sx = x[p] ?? 0,
+          sb = b[p] ?? 0
+        // Compact LF is already physical. Restore AC while measuring its error,
+        // avoiding a separate pass and writes to coefficient scratch.
+        if (p >>> 5 >= lfRows || (p & 31) >= 4) {
+          sx += ratioX * sy
+          sb += blueLuma * sy
+        }
+        const ex = (sourceX[p] ?? 0) - sx,
+          ey = (sourceY[p] ?? 0) - sy,
+          eb = (sourceB[p] ?? 0) - sb
         sum += (ey + ex) ** 2 + (ey - ex) ** 2 + eb ** 2
       }
       return sum * count * weight
@@ -659,12 +681,6 @@ export function* prepareJpegXlLargeMenus(
                 if (coherent) rate += price(horizontal ? 11 : 10, c)
                 nonzeroCounts[at * 3 + c] = nonzero
               }
-              for (let p = 0; p < 512; p++)
-                if (!(p >>> 5 < 2 && (p & 31) < 4)) {
-                  const sy = coefficients[1][p] ?? 0
-                  coefficients[0][p] = (coefficients[0][p] ?? 0) + rx * sy
-                  coefficients[2][p] = (coefficients[2][p] ?? 0) + (1 + rb) * sy
-                }
               for (let c = 0; c < 3; c++) {
                 for (let y = 0; y < bh; y++)
                   for (let x = 0; x < bw; x++)
@@ -672,7 +688,7 @@ export function* prepareJpegXlLargeMenus(
                 insertLf(compactPhysical, coefficients[c]!, horizontal ? 11 : 10)
               }
               coefficientRates[at] = rate
-              errors[at] = physicalError(512, weight)
+              errors[at] = physicalError(512, weight, 2, rx, rb)
             }
           }
         }
@@ -723,12 +739,6 @@ export function* prepareJpegXlLargeMenus(
             if (coherent) rate += price(5, c)
             nonzeroCounts[at * 3 + c] = nonzero
           }
-          for (let p = 0; p < 1024; p++)
-            if (!(p >>> 5 < 4 && (p & 31) < 4)) {
-              const sy = coefficients[1][p] ?? 0
-              coefficients[0][p] = (coefficients[0][p] ?? 0) + rx * sy
-              coefficients[2][p] = (coefficients[2][p] ?? 0) + (1 + rb) * sy
-            }
           for (let c = 0; c < 3; c++) {
             for (let y = 0; y < 4; y++)
               for (let x = 0; x < 4; x++)
@@ -736,7 +746,7 @@ export function* prepareJpegXlLargeMenus(
             insertLf(compactPhysical, coefficients[c]!, 5)
           }
           coefficientRates[at] = rate
-          errors[at] = physicalError(1024, weight)
+          errors[at] = physicalError(1024, weight, 4, rx, rb)
         }
         input.addWindow(window++, {
           coefficientRates,

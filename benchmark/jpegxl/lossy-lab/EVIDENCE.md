@@ -939,3 +939,76 @@ retained, none reverted or promoted. Main remains unchanged.
 Bounded-run receipt IDs start with `promotion-order-single-` under
 `.tmp/jpegxl-m7/bounded-runs/`. Zero-shortcut receipt IDs start with
 `promotion-quantizer-zero-`. The post-promotion Butteraugli phase has not started.
+
+## Fused large-menu correlation and error, 2026-10-11
+
+The candidate remains unpromoted. The retained repair restores AC color
+correlations while measuring physical error, avoiding a separate scratch-buffer
+pass. Physical LF and Float64 addition order stay the same. Four speed ideas
+were tried: this repair is retained, while combined quantization/error loops,
+source reuse and redundant coefficient-clear removal were reverted after timing.
+No compression trial or effort-9 tuning took place.
+
+All eighty screen files, 576 full-development files and sixty-four timed files
+match `80f1c42c` exactly. All mean and individual BD-rate deltas are zero.
+The full lab has no encode failures; all 384 comparisons contribute, retaining
+the 209 prior partial-range warnings.
+
+| Full development mean BD-rate | jSquash 1.3.0 reference | wasm-vips 0.0.19 target | Same-ladder baseline delta |
+| --- | ---: | ---: | ---: |
+| SSIMULACRA2 | -1.63003% | +0.77349% | -2.26705% |
+| Butteraugli 3-norm | +12.86651% | +9.54668% | -2.40864% |
+| Butteraugli max | +15.85564% | +7.53200% | +3.28058% |
+
+Fresh one-worker timing completes all 192 jobs without failures, omissions or
+reused timings. Own median is 2,230.120ms, down 2.25751%; mean is 3,126.933ms,
+down 1.80395%, and worst is 15,116.300ms, down 1.31319%. Fresh peer medians
+are 483.883ms for jSquash and 339.093ms for vips, giving ratios 4.60880x and
+6.57672x. The 3x crop target still fails. Managed full-lab and speed peaks remain
+34,260,047 and 34,223,399 bytes. Worker RSS is 301,445,120 bytes, up 1.88556%.
+Holdout, scale and original promotion runs remain fenced by the existing entry
+gates; the original memory ceiling remains 131.14 MiB.
+
+Twenty-one fresh native/Rust grids pass, including eleven effort-9 fixtures;
+color error stays within one native code and alpha is exact. All 29 real
+Chromium cases pass. The current profile identifies large-menu work at 0.49871s
+self and 0.97765s inclusive, and rate-aware rounding at 0.19287s self. Profile
+timing is diagnostic only. The measured source hash is
+`73073bee7970e65ce1f45500c9b86af14f6ed617c14d5c4da00c021808bc16a5`.
+
+Cleanup removes only 965 reproducible decoded PNGs and reclaims 425,035,104
+bytes (405.35 MiB). All 965 JXL files and 389 complete results remain, along with
+inputs, scores, source snapshots, profiles and independent decoder grids.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Retained fusion, focused properties and isolated confirmation | `.tmp/jpegxl-lossy-lab/promotion-menu-fusion-validation/`, `.tmp/jpegxl-lossy-lab/promotion-menu-fusion-confirmation/summary.json`, `statistics.json` |
+| Reverted speed trials | `.tmp/jpegxl-lossy-lab/promotion-menu-quantize-validation/`, `promotion-menu-source-validation/`, `promotion-menu-clear-validation/`, their paired results and `promotion-menu-clear-confirmation/` |
+| Fixed repair screen | `.tmp/jpegxl-lossy-lab/promotion-menu-fusion-screen/byte-comparison.json`, `versus-80f1.json` |
+| Full development and baseline comparisons | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-80f1.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-speed/summary.json`, `reduction.json`, `versus-80f1.json`, `byte-comparison.json`, `progress.json` |
+| Native/Rust pixels | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Current profile | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-profile/profile-run.json`, `profile-summary.json`, `im26-3012-d2.cpuprofile` |
+| Chromium, source identity and scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/browser.log`, `frozen-source.json`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipt IDs start with `promotion-menu-fused-` under
+`.tmp/jpegxl-m7/bounded-runs/`. Trial receipt IDs use `promotion-menu-fusion-`,
+`promotion-menu-quantize-`, `promotion-menu-source-` and `promotion-menu-clear-`.
+
+Final qualification confirms unchanged measured production source. The complete
+repository check has 3,902 passes, three held mode/frame failures and three skips
+across 304 files. Every static gate passes, including browser:check, packaging
+and unchanged ceilings. No expectation or property bound was changed. The suite
+takes 485.53s; the complete guard takes 9m32.02s at 2.4 GiB, zero swap. The
+Chromium guard takes 4m16.63s at 1.7 GiB, zero swap. The earlier held Node mode
+control remains retained under the preceding checkpoint.
+
+Bundles are 597,105 and 669,923 bytes, down 138 and 141 bytes. Approved ceilings
+remain 610,000 and 685,000, and bundle size remains report-only. The candidate
+still fails the existing development and 3x crop entry gates. Main is unchanged;
+the post-promotion Butteraugli phase has not started.
+
+| Final qualification | Raw artifact |
+| --- | --- |
+| Complete repository check and measured source | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/check.log`, `final-summary.json`, `frozen-source.json` |
+| Bundle reports and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/size.log`, `documentation-write.log` |

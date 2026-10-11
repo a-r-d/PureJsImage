@@ -13,12 +13,12 @@ on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every complet
 commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
-The latest repairs bypass redundant zero-rounding costs and select effort-7
-order/family geometry before serializing one stream. Full-development mean
-BD-rate changes stay within +0.11% of `1ce9c615`; every individual change stays
-below 1.22%. Fresh isolated median speed improves 8.415%; the absolute crop
-ratio is still 4.70549x jSquash. Three held mode/frame assertions and development
-entry remain open. Twenty-one native/Rust grids and 29 real Chromium cases pass.
+The latest repair restores large-menu AC color correlations during physical
+error measurement, avoiding a separate scratch-buffer pass. Every screen and
+full-development file matches `80f1c42c`; compression scores are unchanged.
+Fresh isolated median speed improves 2.258%; the absolute crop ratio is still
+4.60880x jSquash. Three held mode/frame assertions and development entry remain
+open. Twenty-one fresh native/Rust grids and 29 real Chromium cases pass.
 The earlier selector case encounters the held Node mode expectation before
 reaching Chromium. Effort 9 remains untuned, and its comparison screen still
 waits for promotion.
