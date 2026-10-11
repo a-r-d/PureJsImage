@@ -1,0 +1,58 @@
+src/codecs/jpegxl-vardct-large-menu.ts
+  s_2b0ba550ad1491::t_f72b48652cd3b4 586,600-619
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_7412ffa29e1507 1303-1304
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_7715db52f45bff 644-645
+  s_2b0ba550ad1491::t_9ad669b9197f1f 650-651
+  s_2b0ba550ad1491::t_d041c383c0222e 646-647
+  s_2b0ba550ad1491::t_cadc9ae9fddf08 652-653
+  s_2b0ba550ad1491::t_b71c73891aa0c3 656-657
+  s_2b0ba550ad1491::t_0406f67bd9b78d 638-639
+  s_2b0ba550ad1491::t_e6774112ba02a8 636-637
+  s_2b0ba550ad1491::t_3ce47fb3e85945 626-627
+  s_2b0ba550ad1491::t_23cee56c9b2b85 634-635
+  s_2b0ba550ad1491::t_fd4d096887ae36 3,11,13-16,24,27
+  s_2b0ba550ad1491::t_14ba09fd483a78 658-659
+  s_2b0ba550ad1491::t_3790337e084c34 640-641
+  s_2b0ba550ad1491::t_320b3e077d871d 666-667
+  s_2b0ba550ad1491::t_d1ee6fb4336ebc 630-631
+  s_2b0ba550ad1491::t_b8dbeb9129f8ff 660-663
+  s_2b0ba550ad1491::t_8b14ab8b3cdc67 642-643
+  s_2b0ba550ad1491::t_f4f28ca2d2ccec 628-629
+  s_2b0ba550ad1491::t_ba889272ad0ad6 654-655
+  s_2b0ba550ad1491::t_0ce32e2f682968 664-665
+  s_2b0ba550ad1491::t_84f1afef97687a 624-625
+  s_2b0ba550ad1491::t_a556e85f898d90 648-649
+  s_2b0ba550ad1491::t_16d6190a599966 632-633
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_c33b4cdc792d05 1269-1309
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_0d3702f08f262d 16-22
+tests/jpegxl-vardct-large-menu.test.ts
+  s_2b0ba550ad1491::t_c554cd2db61383 70
+README.md
+  s_2b0ba550ad1491::t_5529c9d7268c2a 463,482
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_62f70e59477c3f 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_1735c0a7554c4f 109-111,129
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_ce6366d8d57471 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3bdeda6696071e72a5b61281a2be1427e3f9f942",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
