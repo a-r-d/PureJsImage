@@ -2,6 +2,25 @@ import { describe, expect, it } from 'vitest'
 import { verifyCoefficientEntropyFloor } from './helpers/jpegxl-ac-entropy-floor.ts'
 
 describe('JPEG XL optional AC entropy search', () => {
+  it('preserves signed AC boundaries across intervening models and cooperative encoding', async () => {
+    const baseline = await verifyCoefficientEntropyFloor(false, false, 'none', true)
+    const first = await verifyCoefficientEntropyFloor(false, true, 'none', true)
+    await verifyCoefficientEntropyFloor(false, true)
+    const repeated = await verifyCoefficientEntropyFloor(true, true, 'none', true)
+    expect(first.bytes).toBeLessThanOrEqual(baseline.bytes)
+    expect(repeated.bytes).toBe(first.bytes)
+    expect(repeated.encodedChecksum).toBe(first.encodedChecksum)
+    for (const result of [first, repeated]) {
+      expect(result.decodedChecksum).toBe(baseline.decodedChecksum)
+      expect(result.samples).toBe(513 * 129 * 4)
+      expect(result.alphaError).toBe(0)
+      expect(result.callerPreserved).toBe(true)
+      expect(result.ownedPeak).toBeLessThanOrEqual(16_777_216)
+      expect(result.ownedLive).toBe(0)
+      expect(result.ownedAllocations).toBe(0)
+    }
+  })
+
   for (const asynchronous of [false, true]) {
     it(`keeps the complete file floor and exact decoded RGBA, async=${asynchronous}`, async () => {
       const baseline = await verifyCoefficientEntropyFloor(asynchronous, false)

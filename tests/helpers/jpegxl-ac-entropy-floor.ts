@@ -61,11 +61,17 @@ export const verifyCoefficientEntropyFloor = async (
   asynchronous: boolean,
   refined: boolean,
   failure: FailureMode = 'none',
+  acBoundaries = false,
 ) => {
   const width = 513,
     height = 129,
     blocksAcross = Math.ceil(width / 8),
     blocksDown = Math.ceil(height / 8)
+  // Signed AC values span packed unsigned values 255/256 and the full range.
+  // Ordinary fixtures keep their existing samples.
+  const boundaryValues = acBoundaries
+    ? Int32Array.of(0, 1, -1, 127, -128, 128, -129, 4095, -4095)
+    : undefined
   const components = Array.from({ length: 3 }, (_, channel) => {
     const coefficients = new Int32Array(blocksAcross * blocksDown * 64)
     for (let block = 0; block < blocksAcross * blocksDown; block++) {
@@ -81,6 +87,7 @@ export const verifyCoefficientEntropyFloor = async (
               : -magnitude
             : 0
       }
+      if (boundaryValues) coefficients.set(boundaryValues, base + 1)
     }
     return { blocksPerLineForMcu: blocksAcross, blocksPerColumnForMcu: blocksDown, coefficients }
   })

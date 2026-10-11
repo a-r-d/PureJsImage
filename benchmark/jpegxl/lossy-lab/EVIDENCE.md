@@ -1307,3 +1307,47 @@ Bounded receipts use the matching `split-quantizer-`, `error-rows-`,
 `channel-quantizer-`, `dct16-unroll-`, `channel-order-`, `context-shifts-`,
 `plane-no-clear-`, `small-tokens-` and `promotion-row-stack-` prefixes under
 `.tmp/jpegxl-m7/bounded-runs/`. LL-235 onward records this session's evidence.
+
+## Eight reverted speed trials, 2026-10-11
+
+LL-257 through LL-270 record eight measured speed hypotheses and two refreshed
+profiles. All eight are reverted. The provisional bounded hybrid lookup gives
+a tentative 0.531% paired median gain in 21 pairs, with thirteen wins. Fresh
+timing across all 64 crops and both peers gives only 0.069% median improvement,
+0.349% mean improvement and a 3.44714x jSquash ratio. All 192 jobs are fresh,
+without failures or reused timings. The test crop is 1.17% slower than the prior
+checkpoint. The lookup and its 16 KiB storage are removed.
+
+Restored production source is exactly `3bdeda66`, with source hash
+`eb1d370c511c95fdf8afcfd6a820b7f1932b5fc51a1c7192db1345e652ef6fa7`.
+Prior full-development curves, native/Rust grids, real Chromium coverage,
+bundle sizes and retained gains therefore still apply. No rejected candidate
+is sent through holdout or the effort-9 comparison screen.
+
+A new regression covers packed signed values around 255/256 and the complete
+AC range through +/-4095, with an intervening histogram model and cooperative
+encoding. It preserves the complete-file floor, decoded colors, exact alpha,
+caller data and ownership bounds on restored source. Ten focused entropy cases
+pass. Cleanup removes 470 reproducible PNGs / 215,905,332 bytes and retains
+470 encoded files and 406 complete results.
+
+The fresh repository check has 3,911 passes, the same three held mode/frame
+failures and three skips across 304 files. Every static gate passes, including
+browser:check. The added boundary case passes in the complete suite. Bundles
+stay 600,019 / 672,835 bytes, with unchanged 610,000 / 685,000 ceilings.
+Final qualification confirms restored production source is unchanged, so the
+prior 576-point full-development, 21 native/Rust and 29 real Chromium results
+remain valid. Development entry and the held assertions still prevent main
+promotion; holdout and the effort-9 comparison screen remain reserved.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| Initial trials | `.tmp/jpegxl-lossy-lab/promotion-normalized-coeff-pairs/`, `promotion-sparse-clear-pairs/`, `promotion-menu-packed-pairs/`, `promotion-hybrid-cache-pairs/`, `promotion-nonzero-context-pairs/`, `promotion-strategy-plane-pairs/`, `promotion-ac-tail-pairs/`, `promotion-zero-store-pairs/` |
+| Confirmations | `.tmp/jpegxl-lossy-lab/promotion-hybrid-cache-confirmation/`, `promotion-nonzero-context-confirmation/` |
+| Refreshed profiles | `.tmp/jpegxl-lossy-lab/promotion-post-menu-profile/profile-summary.json`, `promotion-hybrid-stack-profile/profile-summary.json` |
+| Fixed screen | `.tmp/jpegxl-lossy-lab/promotion-hybrid-cache-screen/byte-comparison.json`, `versus-3bdeda66.json` |
+| Fresh isolated trial speed | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-speed/summary.json`, `reduction.json`, `versus-3bdeda66.json`, `byte-comparison.json`, `progress.json` |
+| Rejected and restored source | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/frozen-source.json`, `trial-source.ts`, `restored-source.json` |
+| Restored regression coverage | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/restored-boundaries.log` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `cleanup.log` |
+| Full repository qualification | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/check.log`, `final-summary.json`, `post-doc-source.json`, `committed-source.json` |

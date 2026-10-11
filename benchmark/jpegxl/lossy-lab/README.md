@@ -19,10 +19,17 @@ and clustering repairs remain retained. Every screen and full-development file
 matches `b84b2d47`; compression scores are unchanged.
 The two repairs have confirmed local gains, but the fresh 64-crop median improves
 only 0.142%, a neutral aggregate result. The absolute crop ratio is still
-3.41785x jSquash. Three held mode/frame assertions and development entry remain
+3.41785x jSquash. Eight later speed hypotheses are all reverted. The provisional
+hybrid lookup's aggregate median gain is only 0.069%, despite a tentative local
+gain. Production source returns exactly to `3bdeda66`, preserving prior gains.
+A new signed-AC boundary regression passes on restored source, and cleanup
+removes 470 decoded PNGs while preserving every encoded file and result.
+Three held mode/frame assertions and development entry remain
 open. Twenty-one fresh native/Rust grids and all 29 real Chromium cases pass.
-The final repository check has 3,910 passes, the same three held mode/frame
+The latest repository check has 3,911 passes, the same three held mode/frame
 failures and three skips. Every static gate passes, including browser:check.
+Prior independent decoding and Chromium qualification still applies to the
+identical restored production source. No original expectation changes.
 The earlier selector case encounters the held Node mode expectation before
 reaching Chromium. Effort 9 remains untuned, and its comparison screen still
 waits for promotion.
