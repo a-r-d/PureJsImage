@@ -144,6 +144,54 @@ describe('bounded JPEG XL large-transform menus', () => {
     expect(input.memory.liveAllocations).toBe(0)
     expect(input.memory.peakBytes).toBeLessThan(300_000)
   })
+  it('preserves signed even and odd source energy in both rectangles and the square', () => {
+    const input = fixture()
+    const planes = [new Float32Array(1024), new Float32Array(1024), new Float32Array(1024)] as const
+    const block = [new Float32Array(64), new Float32Array(64), new Float32Array(64)] as const
+    const energy = new Float64Array(5)
+    for (let y = 0; y < 32; y++)
+      for (let x = 0; x < 32; x++) {
+        const at = y * 32 + x
+        for (const c of [0, 1, 2] as const)
+          planes[c][at] =
+            ((c + 1) / 16) *
+            Math.cos(((2 * x + 1) * (c === 1 ? 30 : 31) * Math.PI) / 64) *
+            Math.cos(((2 * y + 1) * (c === 0 ? 30 : 31) * Math.PI) / 64)
+        const sx = planes[0][at] ?? 0,
+          sy = planes[1][at] ?? 0,
+          sb = (planes[2][at] ?? 0) + sy,
+          error = (sy + sx) ** 2 + (sy - sx) ** 2 + sb ** 2
+        // Parseval's identity gives spatial error when all reconstructed AC
+        // and compact DC are zero, independently of the forward transform.
+        for (const index of [x < 16 ? 0 : 1, y < 16 ? 2 : 3, 4])
+          energy[index] = (energy[index] ?? 0) + error
+      }
+    for (const dc of input.dc) dc.fill(0)
+    let windows = 0
+    for (const _ of prepareJpegXlLargeMenus({
+      ...input,
+      fill8: (_correlated, bx, by) => {
+        for (const c of [0, 1, 2] as const)
+          for (let y = 0; y < 8; y++)
+            for (let x = 0; x < 8; x++)
+              block[c][y * 8 + x] = planes[c][(by * 8 + y) * 32 + bx * 8 + x] ?? 0
+        return block
+      },
+      quantizeAc: () => 0,
+      addWindow: (_index, menu) => {
+        windows++
+        expect([...menu.compactDc]).toEqual(new Array<number>(144).fill(0))
+        expect(menu.baselineError).toBeCloseTo(energy[4] ?? 0, 10)
+        for (let i = 0; i < 45; i++)
+          expect(menu.errors[i]).toBeCloseTo(energy[i < 36 ? Math.floor(i / 9) : 4] ?? 0, 10)
+      },
+    })) {
+      /* consume cooperative yields */
+    }
+    expect(windows).toBe(1)
+    expect(input.memory.liveBytes).toBe(0)
+    expect(input.memory.liveAllocations).toBe(0)
+  })
   it('learns each edge leader once and excludes DCT16 followers', () => {
     const input = fixture(5, 5)
     for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) input.strategyMap[y * 5 + x] = 4

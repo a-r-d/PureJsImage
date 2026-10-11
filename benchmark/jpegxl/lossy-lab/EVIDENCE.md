@@ -1074,3 +1074,69 @@ Bounded-run receipts use `promotion-converged-` under
 `.tmp/jpegxl-m7/bounded-runs/`. Trial receipt IDs use `promotion-threshold-`,
 `promotion-sparse-hist-`, `promotion-cluster-convergence-` and
 `promotion-physical-layout-`.
+
+## Cached reflected transform pairs, 2026-10-11
+
+Only reflected-pair caching is retained in this session. The physical Float64
+transforms prepare sums and differences once per row, then reuse them across
+frequencies in existing 32-element scratch. LL-098 recomputed each reflected
+pair per frequency; the new variant removes that repeated work. Fifteen isolated
+cold pairs all favor the repair, with median -3.11924%. No managed allocation is
+added. Original-coefficient reuse is deferred after source inspection: its
+buffers are overwritten and released before menu selection, which may change Q.
+
+Twenty focused menu/model properties pass, including an independent spatial
+energy check for signed even and odd frequencies in both rectangles and the
+square. All eighty screen files, 576 development files and sixty-four timed
+files match `a1d1a8bf`. All incremental mean and individual BD-rate deltas are
+zero. All 64 development images contribute to 384 comparisons, with 209 unchanged
+partial-range warnings. Peer means and same-ladder baseline deltas remain in
+the lab log. Existing development entry fails, and holdout remains unopened.
+
+Fresh isolated timing measures all 192 engine jobs with one worker and no reused
+times. Own median is 2,134.364ms versus jSquash 487.266ms and vips 336.318ms:
+4.38028x and 6.34627x. Against `a1d1a8bf`, own median falls 3.35695%, mean falls
+1.80569% to 3,039.994ms and worst rises 0.12403% to 14,947.001ms. Full managed
+peak stays 34,260,047 bytes; isolated managed peak stays 34,223,399 bytes.
+Worker RSS is 298,164,224 bytes, down 0.99961%. The 3x crop gate still fails.
+Originals remain unqualified against the fixed 131.14 MiB and 5x limits.
+
+All 21 fresh native/Rust grids pass, including eleven untuned effort-9 fixtures.
+Native color error stays within one code and alpha is exact. All 29 fresh
+Chromium cases pass. The complete repository check has 3,903 passes, the same
+three held mode/frame failures and three skips across 304 files. Every static
+gate passes, including browser:check, packaging and unchanged ceilings. No
+original expectation, property bound, dependency or release version changes.
+Final qualification confirms measured and tested production source agree:
+`8556a2bba4a09f0e2e82c2130b05dbb1596a84f57815b683b68812ab38356f7d`.
+
+Bundles are 597,618 and 670,438 bytes, up 369 bytes each. Approved ceilings stay
+610,000 and 685,000; bundle size remains report-only. Scoped cleanup removes
+894 reproducible PNGs and reclaims 389,201,049 bytes while retaining all 894
+encoded files and 318 complete results. Inputs, scores, profiles, sources,
+oracle grids and logs remain preserved. One speed trial is retained. Reusing
+original coefficients is deferred after source inspection. None is promoted; main is
+unchanged. No compression trial, effort-9 tuning or post-promotion Butteraugli
+phase has started.
+
+The fresh profile attributes physical transforms 0.05376s self, menu work
+0.52346s self / 0.89172s inclusive and rate-aware rounding 0.19232s self.
+Profile time is diagnostic only. Next hypotheses are final-channel quantization
+and error fusion, unchanged-centroid cost reuse, and proven bounds that avoid
+dominated transform work.
+
+| Verification | Raw artifact |
+| --- | --- |
+| Initial source inspection and profile | `.tmp/jpegxl-lossy-lab/promotion-original-ac-profile/profile-run.json`, `profile-summary.json` |
+| Counterbalanced seven- and fifteen-pair timing | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-pairs/summary.json`, `statistics.json` and `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-confirmation/summary.json`, `statistics.json` |
+| Fixed screen | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-screen/byte-comparison.json`, `versus-a1d1a8bf.json` |
+| Full development and baseline comparisons | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-a1d1a8bf.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-speed/summary.json`, `reduction.json`, `versus-a1d1a8bf.json`, `byte-comparison.json`, `progress.json` |
+| Retained-source profile | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-profile/profile-run.json`, `profile-summary.json` |
+| Native/Rust pixels | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Focused cases, repository, Chromium and measured source | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-validation/focused-final-r1.log`, `check.log`, `browser.log`, `final-summary.json`, `frozen-source.json` |
+| Bundles, generated documentation and cleanup | `.tmp/jpegxl-lossy-lab/promotion-physical-pair-cache-validation/size.log`, `documentation-write.log`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipts use `promotion-physical-pair-cache-` under
+`.tmp/jpegxl-m7/bounded-runs/`. The initial profile receipt uses
+`promotion-original-ac-profile`.

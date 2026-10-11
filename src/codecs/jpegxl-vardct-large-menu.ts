@@ -193,36 +193,69 @@ function forwardPhysical(
   square: boolean,
   output: Float64Array,
   scratch: Float64Array,
+  pairs: Float64Array,
 ): void {
   if (square) {
-    for (let y = 0; y < 32; y++)
+    for (let y = 0; y < 32; y++) {
+      // Prepare reflected sums/differences once for all output frequencies.
+      for (let x = 0; x < 16; x++) {
+        const left = samples[y * 32 + x] ?? 0,
+          right = samples[y * 32 + 31 - x] ?? 0
+        pairs[x] = left + right
+        pairs[16 + x] = left - right
+      }
       for (let h = 0; h < 32; h++) {
         let sum = 0
-        for (let x = 0; x < 32; x++) sum += (samples[y * 32 + x] ?? 0) * (b32[h * 32 + x] ?? 0)
+        const offset = (h & 1) * 16
+        for (let x = 0; x < 16; x++) sum += (pairs[offset + x] ?? 0) * (b32[h * 32 + x] ?? 0)
         scratch[y * 32 + h] = sum
       }
-    for (let h = 0; h < 32; h++)
+    }
+    for (let h = 0; h < 32; h++) {
+      for (let y = 0; y < 16; y++) {
+        const top = scratch[y * 32 + h] ?? 0,
+          bottom = scratch[(31 - y) * 32 + h] ?? 0
+        pairs[y] = top + bottom
+        pairs[16 + y] = top - bottom
+      }
       for (let v = 0; v < 32; v++) {
         let sum = 0
-        for (let y = 0; y < 32; y++) sum += (scratch[y * 32 + h] ?? 0) * (b32[v * 32 + y] ?? 0)
+        const offset = (v & 1) * 16
+        for (let y = 0; y < 16; y++) sum += (pairs[offset + y] ?? 0) * (b32[v * 32 + y] ?? 0)
         output[h * 32 + v] = sum / 32
       }
+    }
   } else {
     const row = horizontal ? 32 : 1,
       column = horizontal ? 1 : 16
-    for (let s = 0; s < 16; s++)
+    for (let s = 0; s < 16; s++) {
+      for (let p = 0; p < 16; p++) {
+        const left = samples[s * row + p * column] ?? 0,
+          right = samples[s * row + (31 - p) * column] ?? 0
+        pairs[p] = left + right
+        pairs[16 + p] = left - right
+      }
       for (let l = 0; l < 32; l++) {
         let sum = 0
-        for (let p = 0; p < 32; p++)
-          sum += (samples[s * row + p * column] ?? 0) * (b32[l * 32 + p] ?? 0)
+        const offset = (l & 1) * 16
+        for (let p = 0; p < 16; p++) sum += (pairs[offset + p] ?? 0) * (b32[l * 32 + p] ?? 0)
         scratch[s * 32 + l] = sum
       }
-    for (let s = 0; s < 16; s++)
-      for (let l = 0; l < 32; l++) {
+    }
+    for (let l = 0; l < 32; l++) {
+      for (let p = 0; p < 8; p++) {
+        const top = scratch[p * 32 + l] ?? 0,
+          bottom = scratch[(15 - p) * 32 + l] ?? 0
+        pairs[p] = top + bottom
+        pairs[8 + p] = top - bottom
+      }
+      for (let s = 0; s < 16; s++) {
         let sum = 0
-        for (let p = 0; p < 16; p++) sum += (scratch[p * 32 + l] ?? 0) * (b16[s * 16 + p] ?? 0)
+        const offset = (s & 1) * 8
+        for (let p = 0; p < 8; p++) sum += (pairs[offset + p] ?? 0) * (b16[s * 16 + p] ?? 0)
         output[s * 32 + l] = sum / Math.sqrt(512)
       }
+    }
   }
 }
 function insertLf(dc: Float64Array, output: Float64Array, strategy: 4 | 5 | 10 | 11): void {
@@ -651,6 +684,7 @@ export function* prepareJpegXlLargeMenus(
                 false,
                 sourceCoefficients[c]!,
                 doubleScratch,
+                smallBlock,
               )
             }
             for (let qi = 0; qi < jpegXlLargeQuantizers.length; qi++) {
@@ -706,7 +740,14 @@ export function* prepareJpegXlLargeMenus(
               raw[p] = (raw[p] ?? 0) - (c === 0 ? rx : rb) * (squareRaw[1][p] ?? 0)
             forwardJpegXlDct32(raw, forwardScratch, output)
           }
-          forwardPhysical(source[c]!, false, true, sourceCoefficients[c]!, doubleScratch)
+          forwardPhysical(
+            source[c]!,
+            false,
+            true,
+            sourceCoefficients[c]!,
+            doubleScratch,
+            smallBlock,
+          )
         }
         fillHalo(bx, by, dcWords)
         dcRates[2] = dcRate(bx, by, dcWords)
