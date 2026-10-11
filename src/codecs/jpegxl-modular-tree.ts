@@ -38,6 +38,11 @@ interface TrainingNode {
 
 const properties = [9, 10, 11, 12, 13, 15] as const
 
+// The hybrid token determines its extra-bit count; no per-sample copy is needed.
+const residualExtraBitCounts = Uint8Array.from({ length: 256 }, (_, token) =>
+  token < 16 ? 0 : Math.floor((token - 16) / 4) + 2,
+)
+
 const weightedPredictor = (width: number, memory?: JpegXlEncoderMemory): JpegXlWeightedPredictor =>
   new JpegXlWeightedPredictor(width, defaultJpegXlWeightedPredictor, {
     predictions: allocateJpegXlArray(memory, Float64Array, 4),
@@ -199,7 +204,6 @@ const learnPlane = (
     const modes = candidates.length
     const features = allocateJpegXlArray(memory, Int32Array, count * properties.length)
     const tokens = allocateJpegXlArray(memory, Uint8Array, count * modes)
-    const extras = allocateJpegXlArray(memory, Uint8Array, count * modes)
     const indices = allocateJpegXlArray(memory, Uint32Array, count)
     const positions = allocateJpegXlArray(memory, Uint32Array, count)
     const countLog = allocateJpegXlArray(memory, Float64Array, count + 1)
@@ -252,7 +256,6 @@ const learnPlane = (
               : (residuals[residualOffset + position] ?? 0),
         )
         tokens[sample * modes + mode] = token
-        extras[sample * modes + mode] = token < 16 ? 0 : Math.floor((token - 16) / 4) + 2
       }
       sample++
     }
@@ -266,7 +269,7 @@ const learnPlane = (
             const token = tokens[sample * modes + mode] ?? 0
             const index = mode * 256 + token
             counts[index] = (counts[index] ?? 0) + 1
-            extraBits[mode] = (extraBits[mode] ?? 0) + (extras[sample * modes + mode] ?? 0)
+            extraBits[mode] = (extraBits[mode] ?? 0) + (residualExtraBitCounts[token] ?? 0)
           }
         }
         let bestMode = 0,
@@ -332,8 +335,10 @@ const learnPlane = (
             const value = nextValue,
               sample = key - value * count,
               offset = sample * modes,
-              index0 = tokens[offset] ?? 0,
-              index1 = 256 + (tokens[offset + 1] ?? 0),
+              token0 = tokens[offset] ?? 0,
+              token1 = tokens[offset + 1] ?? 0,
+              index0 = token0,
+              index1 = 256 + token1,
               left0 = leftCounts[index0] ?? 0,
               right0 = rightCounts[index0] ?? 0,
               left1 = leftCounts[index1] ?? 0,
@@ -346,17 +351,18 @@ const learnPlane = (
             rightCounts[index0] = right0 - 1
             leftCounts[index1] = left1 + 1
             rightCounts[index1] = right1 - 1
-            leftExtra0 = (leftExtra0 + (extras[offset] ?? 0)) >>> 0
-            leftExtra1 = (leftExtra1 + (extras[offset + 1] ?? 0)) >>> 0
+            leftExtra0 = (leftExtra0 + (residualExtraBitCounts[token0] ?? 0)) >>> 0
+            leftExtra1 = (leftExtra1 + (residualExtraBitCounts[token1] ?? 0)) >>> 0
             if (modes === 3) {
-              const index2 = 512 + (tokens[offset + 2] ?? 0),
+              const token2 = tokens[offset + 2] ?? 0,
+                index2 = 512 + token2,
                 left2 = leftCounts[index2] ?? 0,
                 right2 = rightCounts[index2] ?? 0
               leftLog2 = leftLog2 + (countLog[left2 + 1] ?? 0) - (countLog[left2] ?? 0)
               rightLog2 = rightLog2 + (countLog[right2 - 1] ?? 0) - (countLog[right2] ?? 0)
               leftCounts[index2] = left2 + 1
               rightCounts[index2] = right2 - 1
-              leftExtra2 = (leftExtra2 + (extras[offset + 2] ?? 0)) >>> 0
+              leftExtra2 = (leftExtra2 + (residualExtraBitCounts[token2] ?? 0)) >>> 0
             }
             // Reuse this boundary value to decode the next key, including skipped splits.
             nextValue = Math.floor((sorted[i + 1] ?? 0) / count)

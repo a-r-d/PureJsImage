@@ -2344,8 +2344,9 @@ export class JpegXlWeightedPredictor {
   }
 
   #errorWeight(error: number, maximumWeight: number): number {
-    const shift = Math.max(0, Math.floor(Math.log2(error + 1)) - 5)
-    const divisor = weightedDivision[Math.floor(error / 2 ** shift)]
+    // Error sums are Uint32; handle error + 1 reaching 2^32 before clz32 wraps it.
+    const shift = Math.max(0, error === 0xffffffff ? 27 : 26 - Math.clz32(error + 1))
+    const divisor = weightedDivision[error >>> shift]
     if (divisor === undefined) throw invalidJpegXlInput('weighted predictor state is invalid')
     return 4 + Math.floor((maximumWeight * divisor) / 2 ** shift)
   }
@@ -2435,7 +2436,8 @@ export class JpegXlWeightedPredictor {
       )
 
     let weightSum = firstWeight + secondWeight + thirdWeight + fourthWeight
-    const weightShift = Math.floor(Math.log2(weightSum)) - 4
+    // Four u4 weights give a sum in [16, 1,006,632,976], below 2^30.
+    const weightShift = 27 - Math.clz32(weightSum)
     const firstScaledWeight = firstWeight >>> weightShift
     const secondScaledWeight = secondWeight >>> weightShift
     const thirdScaledWeight = thirdWeight >>> weightShift

@@ -597,3 +597,107 @@ Bounded-run receipts use the IDs `promotion-post-sort-profile-20261010`,
 The next speed hypotheses are exact integer bit lengths in weighted prediction,
 invariant menu dequantization and bounded reconstruction reuse. Main remains
 unchanged; no promotion is claimed.
+
+## Weighted-predictor and tree-storage checkpoint, 2026-10-11
+
+Weighted prediction now uses exact Uint32 bit lengths instead of logarithms,
+including the error-plus-one boundary at 2^32. Five new integer-boundary cases
+pass with the original twenty-seven learned lossless/palette properties and
+seven global Modular palette/squeeze cases. A temporary comparison against
+the frozen first-party reference matches 80,685 seeded and boundary predictions.
+No property threshold or existing expected value changes.
+
+The initial timing attempt overlaps an external eight-worker test suite and
+stops after two complete pairs. The excluded rows and terminal receipt remain.
+After that suite exits, all seven clean counterbalanced cold pairs on im26-1468
+favor the repair: paired median -4.19198%, MAD 0.34925 percentage points.
+Base median/MAD is 16,668.238/141.753ms; candidate is 16,027.722/153.608ms.
+This result applies to one slow crop, not the aggregate speed target.
+
+The physical-DCT unroll remains shelved. Seven initial pairs favor it in four
+cases, with paired median -2.38727% and MAD 2.21533 percentage points. The
+fifteen-pair confirmation overlaps a second external test/typecheck batch.
+All fifteen files remain identical, but dispersion rises: median -2.39795%,
+MAD 4.61240 percentage points, ten wins. That run finishes before the requested
+stop. No subset is used; the original transform source is restored, and the
+trial source and all measurements remain available for a clean comparison.
+
+The retained tree repair derives extra-bit counts from already stored tokens.
+It removes up to 196,608 bytes per learner and every corresponding sample
+write, adding one 256-byte module table. All 39 focused cases pass unchanged,
+including constrained-memory pinned streams and fallback behavior. Seven
+im26-1468 pairs give six wins, paired median -0.97108%, MAD 0.88539 percentage
+points. Seven neighboring im26-3012 pairs give five wins, median -1.00570%,
+MAD 0.81881 percentage points. Those small speed gains remain unconfirmed;
+retention rests on the deterministic allocation and work reduction with no
+observed representative regression.
+
+Both eighty-point screens are byte-identical to their respective preceding
+sources. All 576 full-development files match `2a8ad950` exactly; every mean
+and individual BD-rate delta is zero. Peer means and the full-lab same-ladder
+baseline deltas remain unchanged. All 384 comparisons compute, with the same
+209 partial-range warnings. Strict required-range completeness stays false.
+The full run takes 9m54.10s with 1.3 GiB cgroup peak and zero swap. Managed
+peak falls 215,901 bytes to 34,260,047. Compression entry still fails and
+holdout remains unopened. Frozen production source hash is
+`873de65f124897c2d0fc9cd8e9d5345110a8a9e95022ee2f13b8a435b0d6b212`.
+
+All 192 isolated speed jobs finish with fresh timings, no failures and no
+omissions. All 64 own files match the previous checkpoint. Own mean falls
+3.51623% to 3,901.078ms and worst falls 7.80833% to 15,536.853ms. Median
+falls 1.01913% to 3,144.828ms; no meaningful median gain is claimed. Fresh
+jSquash and vips medians are 492.293ms and 343.961ms, giving 6.38812x and
+9.14298x ratios. The 3x target still fails. Managed peak falls 215,901 bytes
+to 34,223,399, while worker RSS is 297,627,648 bytes, up 0.22483%. The
+single-worker run takes 7m5.54s at 427.8 MiB cgroup peak with zero swap.
+The background build processes observed at startup become idle; subsequent
+host checks show no competing test batch.
+
+Seventeen fresh complete fixture/photo grids agree in both native libjxl and
+jxl-rs within one native color code, with exact alpha. They cover three
+affected lossless cases, eleven effort-9 cases and three development photos.
+All eleven learned-palette/lossless Chromium cases pass, including constrained
+memory, both depths and group boundaries. Decoder guard: 1m2.70s, 413.1 MiB;
+browser guard: 2m57.78s, 2 GiB; zero swap. Bundles measure 594,993 and
+667,807 bytes; ceilings remain 610,000 and 685,000. Effort 9 remains untuned,
+and its comparison screen waits for promotion.
+
+Scoped cleanup removes 1,014 reproducible PNGs and reclaims 440,889,223 bytes
+(420.46 MiB), preserving 1,014 corresponding JXL files and 374 result files.
+The deletion records retain PNG, JXL and metadata hashes. Inputs, scores,
+peer curves, source snapshots, profiles and independent decoder grids remain,
+along with the excluded partial timing artifacts. No temporary file is staged.
+
+All static gates, including browser:check and unchanged ceilings, pass. The
+complete repository check has 3,888 passes, the same three held frame/layout
+failures and three skips across 304 files. The suite takes 505.63s; the guard
+takes 9m7.95s at 2.5 GiB with zero swap. The final summary verifies that the
+source stays frozen through measurement and qualification. No property bound
+or existing expected value changes. Main remains unchanged, holdout stays
+closed, and no promotion is claimed.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Weighted arithmetic comparison and new boundary cases | `.tmp/jpegxl-lossy-lab/promotion-weighted-validation/kernel.json`, `focused.log`, `types.log`, `source.ts` |
+| Excluded partial weighted timing | `.tmp/jpegxl-lossy-lab/promotion-weighted-pairs/rows.json`, `.tmp/jpegxl-m7/bounded-runs/promotion-weighted-pairs-20261011.json` |
+| Clean seven-pair weighted result | `.tmp/jpegxl-lossy-lab/promotion-weighted-pairs-r1/summary.json`, `statistics.json` |
+| Weighted screen and complete byte comparison | `.tmp/jpegxl-lossy-lab/promotion-weighted-screen/versus-2a8a.json`, `byte-comparison.json` |
+| Shelved unroll source and focused tests | `.tmp/jpegxl-lossy-lab/promotion-physical-unroll-validation/source.ts`, `focused.log`, `coefficients.log`, `coefficients-r1.log` |
+| Initial and contaminated confirmation pairs | `.tmp/jpegxl-lossy-lab/promotion-physical-unroll-pairs/summary.json`, `statistics.json`, `.tmp/jpegxl-lossy-lab/promotion-physical-unroll-confirmation/summary.json`, `statistics.json` |
+| Storage tests and frozen identity | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-validation/focused.log`, `frozen-source.json`, `types.log`, `biome.log` |
+| Storage slow-crop and neighbor pairs | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-pairs/summary.json`, `statistics.json`, `.tmp/jpegxl-lossy-lab/promotion-extra-bit-neighbor/summary.json`, `statistics.json` |
+| Storage screen and complete byte comparison | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-screen/versus-LL121.json`, `byte-comparison.json` |
+| Full development and complete byte comparison | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-full/summary.json`, `reduction.json`, `byte-comparison.json` |
+| Full same-ladder comparisons | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-full/versus-2a8a.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Fresh isolated timing and exact files | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-speed/summary.json`, `versus-2a8a.json`, `byte-comparison.json`, `progress.json` |
+| Complete native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Real Chromium and full check | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-validation/browser.log`, `check.log`, `final-summary.json` |
+| Bundles and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-validation/size.log`, `documentation-write.log` |
+| Scoped cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-extra-bit-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipt IDs start with `promotion-weighted-`,
+`promotion-physical-unroll-` and `promotion-extra-bit-` under
+`.tmp/jpegxl-m7/bounded-runs/`. The next speed hypotheses are bounded
+reconstruction reuse, a clean physical-dot unroll confirmation and invariant
+dequantization steps. The bounded post-promotion Butteraugli phase has not
+started.
