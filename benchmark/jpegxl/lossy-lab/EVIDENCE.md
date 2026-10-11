@@ -1140,3 +1140,66 @@ dominated transform work.
 Bounded-run receipts use `promotion-physical-pair-cache-` under
 `.tmp/jpegxl-m7/bounded-runs/`. The initial profile receipt uses
 `promotion-original-ac-profile`.
+
+## 2026-10-11: plane quantization and zero reuse
+
+Three speed repairs are retained: one call per large AC plane, a bounded zero/unit
+crossing computed once per plane, and reuse of proven zero values at coarser Q.
+Optional 8,192-byte token and 3,072-byte zero-mask scratch preserves the existing
+path when allocation is refused. Five added properties cover nonconstant menus,
+both refusals, nonfinite tokens and callback cleanup. Original expectations and
+quality bounds are unchanged.
+
+All eighty screen files, 576 full-development files and 64 timed files match
+`6fadd286` exactly. Every incremental mean and individual BD-rate delta is zero.
+All 64 photos and 384 peer comparisons contribute; the same 209 partial-range
+warnings remain. Full means vs jSquash are -1.63003% SSIMULACRA2, +12.86651%
+Butteraugli 3-norm and +15.85564% max. Current vips means are +0.77349%, +9.54668%
+and +7.53200%. Same-ladder full-baseline deltas are -2.26705%, -2.40864% and
++3.28058%. Original development entry still fails, and holdout remains unopened.
+
+All 192 isolated timing jobs are fresh, with one worker and both peers measured
+again. Median own encode time falls 11.64711% to 1,885.772ms; mean falls 6.62346%
+to 2,838.641ms; worst rises 0.94469% to 15,088.203ms. The absolute ratios are
+3.92274x jSquash and 5.55843x current vips. The 3x target still fails. Managed
+full-lab peak stays 34,260,047 bytes and isolated peak stays 34,223,399 bytes.
+Worker RSS falls 0.84897% to 295,632,896 bytes. Originals remain unqualified.
+
+All 21 fresh native/Rust grids pass, including eleven untuned effort-9 fixtures,
+with color agreement within one code and exact alpha. All 29 fresh Chromium
+cases pass. The repository check has 3,908 passes, the same three held mode/frame
+failures and three skips across 304 files. All static gates pass, including
+browser:check, packaging, documentation and unchanged ceilings. Final
+qualification confirms measured and tested production source agree:
+`a769d44214725027d9ed9d98464a4de6a8880bd7f497ef8fe17eda33df5499ff`.
+
+Bundles are 598,836 and 671,650 bytes, up 1,218 and 1,212. Ceilings stay 610,000
+and 685,000; size remains report-only. Scoped cleanup removes 1,267 reproducible
+PNGs and reclaims 564,442,498 bytes while retaining all 1,267 encoded files and
+563 complete results. Inputs, scores, profiles, sources, oracle grids and logs
+remain preserved. Eight speed hypotheses were measured, three retained and five
+reverted. None is promoted; main is unchanged. No compression trial or effort-9
+tuning occurred, and the post-promotion Butteraugli phase has not started.
+
+The fresh profile attributes plane rounding 0.18679s self, menu work 0.24709s
+self / 0.72096s inclusive and color filling 0.07282s self. Next hypotheses are
+active AC-index visits during coarser quantization, one-block XYB source reuse,
+and channel-specific scalar rounding. Profile time is diagnostic only.
+
+| Verification | Raw artifact |
+| --- | --- |
+| Plane rounding, seven and fifteen pairs | `.tmp/jpegxl-lossy-lab/promotion-plane-rounding-pairs/summary.json`, `statistics.json` and `.tmp/jpegxl-lossy-lab/promotion-plane-rounding-confirmation/summary.json`, `statistics.json` |
+| Plane crossing, seven and twenty-one pairs | `.tmp/jpegxl-lossy-lab/promotion-plane-unit-pairs/summary.json`, `statistics.json` and `.tmp/jpegxl-lossy-lab/promotion-plane-unit-confirmation/summary.json`, `statistics.json` |
+| Zero reuse, seven and fifteen pairs | `.tmp/jpegxl-lossy-lab/promotion-plane-zero-pairs/summary.json`, `statistics.json` and `.tmp/jpegxl-lossy-lab/promotion-plane-zero-confirmation/summary.json`, `statistics.json` |
+| Individual fixed screens | `.tmp/jpegxl-lossy-lab/promotion-plane-rounding-screen/`, `promotion-plane-unit-screen/`, `promotion-plane-stack-screen/` |
+| Full development and baseline comparisons | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-6fadd286.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-speed/summary.json`, `reduction.json`, `versus-6fadd286.json`, `byte-comparison.json`, `progress.json` |
+| Retained-source profile | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-profile/profile-run.json`, `profile-summary.json` |
+| Native/Rust pixels | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Focused cases, repository, Chromium and measured source | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-validation/focused-final.log`, `check.log`, `browser.log`, `final-summary.json`, `frozen-source.json` |
+| Bundles, generated documentation and cleanup | `.tmp/jpegxl-lossy-lab/promotion-plane-stack-validation/size.log`, `documentation-write.log`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipts use `promotion-plane-rounding-`, `promotion-plane-unit-`,
+`promotion-plane-zero-` and `promotion-plane-stack-` under
+`.tmp/jpegxl-m7/bounded-runs/`. The five reverted trials and refreshed baseline
+profile are logged in LL-194 through LL-200.

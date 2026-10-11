@@ -13,11 +13,12 @@ on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every complet
 commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
-The latest repair caches reflected physical-DCT source pairs once per row in
-existing scratch, avoiding repeated arithmetic across output frequencies. Every
-screen and full-development file matches `a1d1a8bf`; compression scores are unchanged.
-Fresh isolated median speed improves 3.357%; the absolute crop ratio is still
-4.38028x jSquash. Three held mode/frame assertions and development entry remain
+The latest repairs quantize large AC planes in one call, hoist the bounded
+zero/unit crossing and reuse proven zero values at coarser quantizers. Refused
+optional scratch keeps the established path. Every screen and full-development
+file matches `6fadd286`; compression scores are unchanged.
+Fresh isolated median speed improves 11.647%; the absolute crop ratio is still
+3.92274x jSquash. Three held mode/frame assertions and development entry remain
 open. Twenty-one fresh native/Rust grids and 29 real Chromium cases pass.
 The earlier selector case encounters the held Node mode expectation before
 reaching Chromium. Effort 9 remains untuned, and its comparison screen still

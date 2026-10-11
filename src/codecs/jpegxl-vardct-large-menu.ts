@@ -1,5 +1,5 @@
 import type { CoherentCoefficientModel } from './jpegxl-vardct-coefficient-model.ts'
-import { invalidJpegXlInput } from './jpegxl-errors.ts'
+import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.ts'
 import type { JpegXlEncoderMemory } from './jpegxl-encoder-memory.ts'
 import {
   forwardJpegXlDct8,
@@ -46,6 +46,18 @@ export interface JpegXlLargeMenuInput {
   /** Borrowed 8x8 planes; consumed before the next call. */
   readonly fill8: (correlated: boolean, x: number, y: number) => SourcePlanes
   readonly quantizeAc: (value: number, channel: number) => number
+  /** Same rounding in one plane call; refused optional scratch uses quantizeAc. */
+  readonly quantizeLargeAc?: (
+    transformed: Float32Array,
+    matrix: Float64Array,
+    scale: number,
+    channel: number,
+    count: 512 | 1024,
+    output: Float64Array,
+    zeroMask?: Uint8Array,
+  ) => void
+  /** Fixed positive steps and a monotonic zero interval permit descending-Q reuse. */
+  readonly monotonicLargeZeros?: boolean
   readonly fillWeights: (x: number, y: number, output: Float32Array) => void
   readonly learnBaselineCount: (nonzero: number, channel: number) => void
   readonly addWindow: (index: number, menu: JpegXlLargeWindowMenu) => void
@@ -390,6 +402,30 @@ export function* prepareJpegXlLargeMenus(
       dcRates = f64(3),
       baselineCounts = u16(48),
       compactDc = i32(144)
+    let largeValues: Float64Array | undefined
+    if (input.quantizeLargeAc) {
+      try {
+        // Keep nonfinite and out-of-range tokens visible to the same range checks.
+        largeValues = f64(1024)
+      } catch (error) {
+        rethrowJpegXlNonLimitError(error)
+      }
+    }
+    let largeZeroFlags: Uint8Array | undefined
+    if (largeValues && input.monotonicLargeZeros) {
+      try {
+        largeZeroFlags = own(memory.allocate(Uint8Array, 3 * 1024))
+      } catch (error) {
+        rethrowJpegXlNonLimitError(error)
+      }
+    }
+    const zeroMasks = largeZeroFlags
+      ? [
+          largeZeroFlags.subarray(0, 1024),
+          largeZeroFlags.subarray(1024, 2048),
+          largeZeroFlags.subarray(2048, 3072),
+        ]
+      : undefined
     const transformOriginal = (x: number, y: number, strategy: number): SourcePlanes => {
       requireValue(
         strategy === 0 || strategy === 1 || strategy === 4 || strategy === 12 || strategy === 13,
@@ -687,7 +723,9 @@ export function* prepareJpegXlLargeMenus(
                 smallBlock,
               )
             }
-            for (let qi = 0; qi < jpegXlLargeQuantizers.length; qi++) {
+            largeZeroFlags?.fill(0)
+            for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
+              const qi = largeZeroFlags ? jpegXlLargeQuantizers.length - 1 - position : position
               const q = jpegXlLargeQuantizers[qi]!,
                 at = orientation * 18 + half * 9 + qi
               let rate = 0
@@ -695,13 +733,25 @@ export function* prepareJpegXlLargeMenus(
                 const coeff = coefficients[c]!,
                   matrix = defaultJpegXlRectangle32Dequantization[c]!,
                   scale = 65536 / globalScale / q
+                if (largeValues)
+                  input.quantizeLargeAc?.(
+                    transformed[c]!,
+                    matrix,
+                    scale,
+                    c,
+                    512,
+                    largeValues,
+                    zeroMasks?.[c],
+                  )
                 coeff.fill(0)
                 integers?.fill(0)
                 let nonzero = 0
                 for (let p = 0; p < 512; p++)
                   if (!(p >>> 5 < 2 && (p & 31) < 4)) {
                     const step = scale * (matrix[p] ?? 0),
-                      value = input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
+                      value = largeValues
+                        ? (largeValues[p] ?? 0)
+                        : input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
                     if (value === 0) {
                       coeff[p] = 0 * step
                       continue
@@ -752,7 +802,9 @@ export function* prepareJpegXlLargeMenus(
         fillHalo(bx, by, dcWords)
         dcRates[2] = dcRate(bx, by, dcWords)
         saveDc(2)
-        for (let qi = 0; qi < jpegXlLargeQuantizers.length; qi++) {
+        largeZeroFlags?.fill(0)
+        for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
+          const qi = largeZeroFlags ? jpegXlLargeQuantizers.length - 1 - position : position
           const q = jpegXlLargeQuantizers[qi]!,
             at = 36 + qi
           let rate = 0
@@ -760,13 +812,25 @@ export function* prepareJpegXlLargeMenus(
             const coeff = coefficients[c]!,
               matrix = defaultJpegXlDct32Dequantization[c]!,
               scale = 65536 / globalScale / q
+            if (largeValues)
+              input.quantizeLargeAc?.(
+                squareTransformed[c]!,
+                matrix,
+                scale,
+                c,
+                1024,
+                largeValues,
+                zeroMasks?.[c],
+              )
             coeff.fill(0)
             integers?.fill(0)
             let nonzero = 0
             for (let p = 0; p < 1024; p++)
               if (!(p >>> 5 < 4 && (p & 31) < 4)) {
                 const step = scale * (matrix[p] ?? 0),
-                  value = input.quantizeAc((squareTransformed[c]?.[p] ?? 0) / step, c)
+                  value = largeValues
+                    ? (largeValues[p] ?? 0)
+                    : input.quantizeAc((squareTransformed[c]?.[p] ?? 0) / step, c)
                 if (value === 0) {
                   coeff[p] = 0 * step
                   continue

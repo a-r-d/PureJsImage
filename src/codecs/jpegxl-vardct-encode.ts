@@ -1238,6 +1238,76 @@ function* prepare8(
   }
   const quantizeAc: (normalized: number, channel: number) => number =
     coarse || originalDarkAc ? rateAwareAc : Math.round
+  // A plane call hoists its fixed bias/weight and avoids a callback per AC value.
+  // Keep the scalar cost arithmetic and ties unchanged for compression preservation.
+  const quantizeLargeAc = (
+    transformed: Float32Array,
+    matrix: Float64Array,
+    scale: number,
+    channel: number,
+    count: 512 | 1024,
+    output: Float64Array,
+    zeroMask?: Uint8Array,
+  ): void => {
+    const bias = defaultJpegXlQuantizationBiases[channel] ?? 1,
+      weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma,
+      lfRows = count === 512 ? 2 : 4,
+      unitThreshold = bias / 2 + (1.5 * weight) / bias
+    for (let p = 0; p < count; p++) {
+      if (p >>> 5 < lfRows && (p & 31) < 4) {
+        output[p] = 0
+        continue
+      }
+      // Descending Q makes these fixed positive steps larger. A zero under
+      // the fixed nonnegative rate penalty remains zero at every coarser Q.
+      if (zeroMask?.[p] === 1) {
+        output[p] = 0
+        continue
+      }
+      const normalized = (transformed[p] ?? 0) / (scale * (matrix[p] ?? 0)),
+        magnitude = Math.abs(normalized)
+      if (magnitude <= bias / 2) {
+        output[p] = normalized < 0 ? -0 : 0
+        if (zeroMask) zeroMask[p] = 1
+        continue
+      }
+      // Below one, the zero/unit costs cross at bias/2+1.5*weight/bias.
+      // Their costs are bounded here; retain original Float64 comparison near ties.
+      if (magnitude < 1 && Math.abs(magnitude - unitThreshold) > 64 * Number.EPSILON) {
+        const value = magnitude > unitThreshold ? 1 : 0
+        output[p] = normalized < 0 ? -value : value
+        if (zeroMask && value === 0) zeroMask[p] = 1
+        continue
+      }
+      const lower = Math.floor(magnitude),
+        upper = lower + 1,
+        lowValue =
+          lower === 0
+            ? 0
+            : lower === 1
+              ? bias
+              : lower === 2
+                ? acCentroidTwo
+                : lower - 0.145 / lower,
+        highValue = upper === 1 ? bias : upper === 2 ? acCentroidTwo : upper - 0.145 / upper
+      const lowCost =
+          (magnitude - lowValue) ** 2 +
+          weight *
+            (lower === 0
+              ? 0
+              : lower === 1
+                ? 3
+                : lower === 2
+                  ? acPenaltyTwo
+                  : 1 + 2 * Math.log2(1 + lower)),
+        highCost =
+          (magnitude - highValue) ** 2 +
+          weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : 1 + 2 * Math.log2(1 + upper)),
+        value = highCost < lowCost ? upper : lower
+      output[p] = normalized < 0 ? -value : value
+      if (zeroMask && value === 0) zeroMask[p] = 1
+    }
+  }
   // Progressive low-palette texture has no moderate photo filter model. Applying
   // its two EPF passes anyway loses fine colored detail in the public texture test.
   const progressiveOpaque = sdrOpaqueColor && progressive
@@ -1925,6 +1995,7 @@ function* prepare8(
         return planes
       },
       quantizeAc,
+      ...(coarse || originalDarkAc ? { quantizeLargeAc, monotonicLargeZeros: true } : {}),
       fillWeights: (blockX, blockY, output) => {
         for (let y = 0; y < 34; y++) {
           const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))

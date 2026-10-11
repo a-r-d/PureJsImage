@@ -44,6 +44,93 @@ const fixture = (wide = 4, high = 4): JpegXlLargeMenuInput => {
 }
 
 describe('bounded JPEG XL large-transform menus', () => {
+  it.each(['admitted', 'refused', 'zeros', 'zero-refused'] as const)(
+    'preserves every nonconstant menu with plane rounding scratch %s',
+    (budget) => {
+      const input = fixture()
+      const planes = [new Float32Array(64), new Float32Array(64), new Float32Array(64)] as const
+      for (const c of [0, 1, 2] as const)
+        for (let p = 0; p < 64; p++) planes[c][p] = 0.125 * (c + 1) + 0.025 * Math.cos(p * (c + 1))
+      const run = (memory: JpegXlEncoderMemory, usePlane: boolean, useZeros = false) => {
+        let calls = 0,
+          skipped = 0
+        const menus: { rates: number[]; errors: number[]; counts: number[] }[] = []
+        const quantizeLargeAc: NonNullable<JpegXlLargeMenuInput['quantizeLargeAc']> = (
+          transformed,
+          matrix,
+          scale,
+          _channel,
+          count,
+          output,
+          zeroMask,
+        ) => {
+          calls++
+          for (let p = 0; p < count; p++) {
+            if (zeroMask?.[p] === 1) {
+              output[p] = 0
+              skipped++
+              continue
+            }
+            const value = Math.round((transformed[p] ?? 0) / (scale * (matrix[p] ?? 0)))
+            output[p] = value
+            if (zeroMask && value === 0) zeroMask[p] = 1
+          }
+        }
+        for (const _ of prepareJpegXlLargeMenus({
+          ...input,
+          memory,
+          fill8: () => planes,
+          ...(usePlane ? { quantizeLargeAc } : {}),
+          monotonicLargeZeros: useZeros,
+          addWindow: (_index, menu) => {
+            menus.push({
+              rates: [...menu.coefficientRates],
+              errors: [...menu.errors],
+              counts: [...menu.nonzeroCounts],
+            })
+          },
+        })) {
+          /* consume cooperative yields */
+        }
+        expect(memory.liveBytes).toBe(0)
+        expect(memory.liveAllocations).toBe(0)
+        return { menus, calls, skipped, peak: memory.peakBytes }
+      }
+      const baseline = run(new JpegXlEncoderMemory(1_000_000), false)
+      const candidate = run(
+        new JpegXlEncoderMemory(
+          budget === 'refused'
+            ? baseline.peak
+            : budget === 'zero-refused'
+              ? baseline.peak + 8192
+              : 1_000_000,
+        ),
+        true,
+        budget === 'zeros' || budget === 'zero-refused',
+      )
+      expect(candidate.menus).toEqual(baseline.menus)
+      expect(candidate.calls).toBe(budget === 'refused' ? 0 : 135)
+      if (budget === 'zeros') expect(candidate.skipped).toBeGreaterThan(0)
+      else expect(candidate.skipped).toBe(0)
+      expect(Math.max(...(candidate.menus[0]?.counts ?? []))).toBeGreaterThan(0)
+    },
+  )
+  it('rejects nonfinite plane tokens and releases scratch after plane callback failure', () => {
+    for (const failure of ['nonfinite', 'callback'] as const) {
+      const input = fixture()
+      const error = new Error('plane callback failed')
+      const iterator = prepareJpegXlLargeMenus({
+        ...input,
+        quantizeLargeAc: (_transformed, _matrix, _scale, _channel, _count, output) => {
+          if (failure === 'callback') throw error
+          output.fill(NaN)
+        },
+      })
+      expect(() => iterator.next()).toThrow(failure === 'callback' ? error : 'AC range')
+      expect(input.memory.liveBytes).toBe(0)
+      expect(input.memory.liveAllocations).toBe(0)
+    }
+  })
   it.each([-4095, -1, -0.5, 0, 0.5, 1, 4095])(
     'preserves estimated AC rates for signed or fractional token %s',
     (token) => {
