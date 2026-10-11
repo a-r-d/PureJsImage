@@ -20,7 +20,10 @@ export { verifyJpegXlGroupedAlpha } from '../tests/helpers/jpegxl-grouped-alpha.
 export { verifyGroupedLosslessSearch } from '../tests/helpers/jpegxl-grouped-search.ts'
 export { verifyJpegXlLargeBlocks } from '../tests/helpers/jpegxl-large-blocks.ts'
 export { verifyLargeCoefficientOrders } from '../tests/helpers/jpegxl-large-orders.ts'
-export { verifyLargeSourceSelection } from '../tests/helpers/jpegxl-large-source.ts'
+export {
+  verifyLargeLfTransforms,
+  verifyLargeSourceSelection,
+} from '../tests/helpers/jpegxl-large-source.ts'
 export {
   verifyLearnedLosslessFixture,
   verifyReversibleLosslessColor,

@@ -7,6 +7,10 @@ import {
   type JpegXlLargeSelectionStats,
   type JpegXlLargeSelector,
 } from '../../src/codecs/jpegxl-vardct-large-select.ts'
+import {
+  forwardJpegXlDct32,
+  forwardJpegXlRectangle32,
+} from '../../src/codecs/jpegxl-vardct-large-transforms.ts'
 
 export interface LargeSourceSelectionSummary {
   readonly strategies: readonly number[]
@@ -20,6 +24,45 @@ export interface LargeSourceSelectionSummary {
   readonly peakOwnedBytes: number
   readonly finalOwnedBytes: number
   readonly finalOwnedAllocations: number
+}
+
+export function verifyLargeLfTransforms(): {
+  shapes: number
+  maximumLfError: number
+  changedMargins: number
+  changedInput: number
+} {
+  let maximumLfError = 0,
+    changedMargins = 0,
+    changedInput = 0
+  for (const shape of [
+    { size: 1024, square: true, horizontal: false },
+    { size: 512, square: false, horizontal: false },
+    { size: 512, square: false, horizontal: true },
+  ]) {
+    const samples = Float32Array.from(
+        { length: shape.size },
+        (_, i) => Math.sin(i / 17) + ((i * 7) % 19) / 32,
+      ),
+      before = samples.slice(),
+      full = new Float32Array(shape.size),
+      compact = new Float32Array(shape.size).fill(12345),
+      scratch = new Float32Array(shape.size)
+    if (shape.square) {
+      forwardJpegXlDct32(samples, scratch, full)
+      forwardJpegXlDct32(samples, scratch, compact, true)
+    } else {
+      forwardJpegXlRectangle32(samples, scratch, full, shape.horizontal)
+      forwardJpegXlRectangle32(samples, scratch, compact, shape.horizontal, true)
+    }
+    for (let i = 0; i < shape.size; i++) {
+      if (i >>> 5 < (shape.square ? 4 : 2) && (i & 31) < 4)
+        maximumLfError = Math.max(maximumLfError, Math.abs((compact[i] ?? 0) - (full[i] ?? 0)))
+      else changedMargins += compact[i] === 12345 ? 0 : 1
+      changedInput += samples[i] === before[i] ? 0 : 1
+    }
+  }
+  return { shapes: 3, maximumLfError, changedMargins, changedInput }
 }
 
 /** Portable joint source/menu/selection witness. The two nonconstant windows exercise

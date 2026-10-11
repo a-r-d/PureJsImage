@@ -36,19 +36,32 @@ export const forwardJpegXlDct32 = (
     throw invalidJpegXlInput('DCT32 requires three 1024-value buffers')
   const frequencies = lfOnly ? 4 : 32
   for (let y = 0; y < 32; y++) {
-    for (let horizontal = 0; horizontal < frequencies; horizontal++) {
-      let sum = 0
-      for (let x = 0; x < 32; x++)
-        sum += (samples[y * 32 + x] ?? 0) * (basis32[horizontal * 32 + x] ?? 0)
-      intermediate[y * 32 + horizontal] = sum
+    // Reflected samples share the even cosine terms and reverse the odd terms.
+    for (let horizontal = 0; horizontal < frequencies; horizontal += 2) {
+      let even = 0,
+        odd = 0
+      for (let x = 0; x < 16; x++) {
+        const left = samples[y * 32 + x] ?? 0,
+          right = samples[y * 32 + 31 - x] ?? 0
+        even += (left + right) * (basis32[horizontal * 32 + x] ?? 0)
+        odd += (left - right) * (basis32[(horizontal + 1) * 32 + x] ?? 0)
+      }
+      intermediate[y * 32 + horizontal] = even
+      intermediate[y * 32 + horizontal + 1] = odd
     }
   }
   for (let horizontal = 0; horizontal < frequencies; horizontal++) {
-    for (let vertical = 0; vertical < frequencies; vertical++) {
-      let sum = 0
-      for (let y = 0; y < 32; y++)
-        sum += (intermediate[y * 32 + horizontal] ?? 0) * (basis32[vertical * 32 + y] ?? 0)
-      coefficients[horizontal * 32 + vertical] = sum / 32
+    for (let vertical = 0; vertical < frequencies; vertical += 2) {
+      let even = 0,
+        odd = 0
+      for (let y = 0; y < 16; y++) {
+        const top = intermediate[y * 32 + horizontal] ?? 0,
+          bottom = intermediate[(31 - y) * 32 + horizontal] ?? 0
+        even += (top + bottom) * (basis32[vertical * 32 + y] ?? 0)
+        odd += (top - bottom) * (basis32[(vertical + 1) * 32 + y] ?? 0)
+      }
+      coefficients[horizontal * 32 + vertical] = even / 32
+      coefficients[horizontal * 32 + vertical + 1] = odd / 32
     }
   }
 }
@@ -143,20 +156,30 @@ export const forwardJpegXlRectangle32 = (
     longFrequencies = lfOnly ? 4 : 32,
     shortFrequencies = lfOnly ? 2 : 16
   for (let short = 0; short < 16; short++)
-    for (let frequency = 0; frequency < longFrequencies; frequency++) {
-      let sum = 0
-      for (let long = 0; long < 32; long++)
-        sum +=
-          (samples[short * rowStep + long * columnStep] ?? 0) *
-          (basis32[frequency * 32 + long] ?? 0)
-      intermediate[short * 32 + frequency] = sum
+    for (let frequency = 0; frequency < longFrequencies; frequency += 2) {
+      let even = 0,
+        odd = 0
+      for (let long = 0; long < 16; long++) {
+        const left = samples[short * rowStep + long * columnStep] ?? 0,
+          right = samples[short * rowStep + (31 - long) * columnStep] ?? 0
+        even += (left + right) * (basis32[frequency * 32 + long] ?? 0)
+        odd += (left - right) * (basis32[(frequency + 1) * 32 + long] ?? 0)
+      }
+      intermediate[short * 32 + frequency] = even
+      intermediate[short * 32 + frequency + 1] = odd
     }
-  for (let short = 0; short < shortFrequencies; short++)
+  for (let short = 0; short < shortFrequencies; short += 2)
     for (let long = 0; long < longFrequencies; long++) {
-      let sum = 0
-      for (let position = 0; position < 16; position++)
-        sum += (intermediate[position * 32 + long] ?? 0) * (basis16[short * 16 + position] ?? 0)
-      coefficients[short * 32 + long] = sum / Math.sqrt(512)
+      let even = 0,
+        odd = 0
+      for (let position = 0; position < 8; position++) {
+        const top = intermediate[position * 32 + long] ?? 0,
+          bottom = intermediate[(15 - position) * 32 + long] ?? 0
+        even += (top + bottom) * (basis16[short * 16 + position] ?? 0)
+        odd += (top - bottom) * (basis16[(short + 1) * 16 + position] ?? 0)
+      }
+      coefficients[short * 32 + long] = even / Math.sqrt(512)
+      coefficients[(short + 1) * 32 + long] = odd / Math.sqrt(512)
     }
 }
 

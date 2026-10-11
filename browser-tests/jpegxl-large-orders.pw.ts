@@ -2,6 +2,29 @@ import { expect, test } from '@playwright/test'
 import { verifyLargeCoefficientOrders } from '../tests/helpers/jpegxl-large-orders.ts'
 import { verifyLargeSourceSelection } from '../tests/helpers/jpegxl-large-source.ts'
 
+test('JPEG XL LF-only square and rectangle transforms preserve their footprints', async ({
+  page,
+}) => {
+  await page.goto('/compatibility.html')
+  const payload = await page.evaluate(async () => {
+    const path = '/jpegxl-pipeline.js'
+    const namespace: unknown = await import(path)
+    if (
+      namespace === null ||
+      typeof namespace !== 'object' ||
+      !('verifyLargeLfTransforms' in namespace) ||
+      typeof namespace.verifyLargeLfTransforms !== 'function'
+    )
+      throw new Error('Missing LF transform fixture')
+    const result: unknown = await namespace.verifyLargeLfTransforms()
+    const serialized = JSON.stringify(result)
+    if (typeof serialized !== 'string') throw new Error('Missing LF transform result')
+    return serialized
+  })
+  const actual: unknown = JSON.parse(payload)
+  expect(actual).toEqual({ shapes: 3, maximumLfError: 0, changedMargins: 0, changedInput: 0 })
+})
+
 test('JPEG XL mixed large orders preserve every pixel across runtimes', async ({ page }) => {
   const expected = await verifyLargeCoefficientOrders()
   await page.goto('/compatibility.html')

@@ -289,3 +289,87 @@ suite. Strict TypeScript, browser:check, documentation:check and direct formatti
 and lint checks pass again. No production source changes after the full check;
 the full suite is not repeated after snapshot-only updates. The three earlier
 mode/frame assertions remain unchanged and held.
+
+## Promotion speed repairs after the effort-9 checkpoint
+
+The reference for these repairs is `f384315a`. The effort-7 crop profile identifies
+large-menu preparation, repeated coefficient reconstruction and rate-aware
+rounding as the main remaining costs. Precomputing every integer centroid and
+penalty does not establish a timing gain in seven cold pairs, so that change is
+reverted. It has no effect on the retained production source.
+
+The retained trial pairs reflected samples to evaluate even and odd large-DCT
+frequencies together. Eighteen transform and menu tests pass with unchanged
+scalar, energy, inversion and allocation bounds, including three new LF-only
+footprint cases. All eighty screen files match the reference exactly. All seven
+cold im26-3012 pairs also match exactly; six favor the trial, with a paired median
+time delta of -6.08724%. The initial profiled run is slower, so that profile alone
+does not support the speed claim. Full development now completes all sixty-four
+photos and 576 points without failure; every file matches `f384315a` exactly.
+Managed peak remains 34,260,047 bytes. Peer BD-rates and both baseline comparisons
+are unchanged, including their existing promotion failures and 209 partial-range
+warnings. The three held layout assertions are unchanged.
+
+Fresh isolated speed covers all 192 engine jobs with no failures, omissions or
+reused timing. The sixty-four own distance-2 files also match the preceding speed
+run exactly. Own median falls 9.29201%, from 3,494.635 to 3,169.913ms, and mean
+falls 6.46332% to 4,417.496ms. Fresh peer medians are jSquash 489.049ms and vips
+342.095ms, giving ratios 6.48179x and 9.26618x. The 3x crop target still fails.
+Managed speed peak remains 34,223,399 bytes; worker RSS is 291,352,576 bytes.
+
+Both independent decoders verify eleven fresh effort-9 fixtures and three full
+photo grids against our public decoder. Every native/Rust color sample is within
+one code value and alpha is exact. Regenerated bundles measure 593,922 bytes for
+the codec and 666,746 bytes for the specialized APIs. Existing approved check
+ceilings remain 610,000 and 685,000 bytes. Bundle size remains report-only.
+
+All eleven real Chromium cases pass with the final source, including LF-only
+footprints, mixed large orders, source selection and the effort-9 progressive
+fixture. The first repository check stops at stale generated documentation after
+the bundle update. Regeneration and two import-order repairs precede the full
+check restart; production source remains unchanged.
+
+The restarted full check finishes with 3,875 passing tests, three failures and
+three skips across 302 files. Every preceding generated, documentation, type,
+package, browser graph, lint and format gate passes. The three failures remain
+the unchanged layout assertions: the sparse graphic is Modular rather than
+VarDCT, glyph reference/display frames are Modular rather than VarDCT, and the
+screenshot has one frame rather than two. All fifteen public effort-9 tests and
+all ten slow luma cases pass. The guard records exit 1 after 12m35.73s, peak
+2.6 GiB, zero swap. The test suite takes 713.85s. A separate final browser:check
+passes. The summary confirms the production source hash is unchanged since
+measurement. These results preserve a candidate checkpoint and do not qualify
+main promotion.
+
+Scoped cleanup removes 848 reproducible decoded PNGs, reclaiming 365,984,619
+bytes (349.03 MiB). Their 848 encoded streams and 272 complete result files are
+preserved. The plan records all PNG, encoded-stream and metadata hashes before
+deletion. Prepared inputs, peer caches, source snapshots and every score and log
+remain. The active tests do not read these benchmark directories.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Fresh effort-7 crop profile | `.tmp/jpegxl-lossy-lab/promotion-effort7-profile/profile-summary.json` |
+| Reverted rounding lookup profile | `.tmp/jpegxl-lossy-lab/promotion-rate-lut-profile/profile-summary.json` |
+| Seven rounding lookup cold pairs | `.tmp/jpegxl-lossy-lab/promotion-rate-lut-pairs/summary.json` |
+| Reflected-DCT profile | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-profile/profile-summary.json` |
+| Seven reflected-DCT cold pairs | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-pairs/summary.json` |
+| Sixteen-photo, eighty-point screen | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-screen/summary.json` |
+| Screen BD-rate against the reference | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-screen/versus-f384.json` |
+| All eighty complete file comparisons | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-screen/byte-comparison.json` |
+| Screen bounded execution receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-screen-20261010.json` |
+| Full development and direct comparisons | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-full/summary.json`, `versus-f384.json`, `versus-preserved.json`, `versus-baseline.json` |
+| All 576 full-lab file comparisons | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-full/byte-comparison.json` |
+| Full-lab bounded execution receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-full-20261010.json` |
+| Fresh isolated speed and comparison | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-speed/summary.json`, `versus-f384.json` |
+| All sixty-four speed file comparisons and fresh-job ledger | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-speed/byte-comparison.json`, `progress.json` |
+| Speed bounded execution receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-speed-20261010.json` |
+| Fresh effort-9 independent grids | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/effort9-oracles/result.json` |
+| Three native/Rust/public-decoder photo grids | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/photo-oracles/result.json` |
+| Regenerated bundle and website measurements | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/size.log` |
+| Eleven real Chromium cases and bounded receipt | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/chromium.log`, `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-chromium-20261010.json` |
+| Documentation regeneration | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/documentation-write.log` |
+| Final full-check log, source identity and summary | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/check-final.log`, `check-final-launch.json`, `final-summary.json` |
+| Complete full-check bounded receipt | `.tmp/jpegxl-m7/bounded-runs/promotion-reflected-dct-check-final-20261010.json` |
+| Final browser graph and type check | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/browser.log` |
+| Scoped decoded-PNG cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-reflected-dct-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |

@@ -131,6 +131,22 @@ for (const shape of shapes) {
       expect(forward(shape, new Float32Array(size).fill(0.25))[0]).toBeCloseTo(0.25, 7)
     })
 
+    it('computes only the compact LF footprint and matches the full transform', () => {
+      const size = shape.width * shape.height,
+        samples = Float32Array.from({ length: size }, (_, i) => (((i * 17) % 113) - 56) / 64),
+        before = samples.slice(),
+        expected = forward(shape, samples),
+        scratch = new Float32Array(size).fill(-999),
+        output = new Float32Array(size).fill(12345)
+      if (shape.square) forwardJpegXlDct32(samples, scratch, output, true)
+      else forwardJpegXlRectangle32(samples, scratch, output, shape.horizontal, true)
+      for (let i = 0; i < size; i++) {
+        const isLf = i >>> 5 < (shape.square ? 4 : 2) && (i & 31) < 4
+        expect(output[i]).toBe(isLf ? expected[i] : 12345)
+      }
+      expect(samples).toEqual(before)
+    })
+
     it('roundtrips asymmetric compact DC words and leaves AC and destination margins unchanged', () => {
       const width = shape.width / 8,
         height = shape.height / 8,
