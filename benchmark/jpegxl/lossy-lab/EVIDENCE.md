@@ -1012,3 +1012,65 @@ the post-promotion Butteraugli phase has not started.
 | --- | --- |
 | Complete repository check and measured source | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/check.log`, `final-summary.json`, `frozen-source.json` |
 | Bundle reports and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-menu-fused-validation/size.log`, `documentation-write.log` |
+
+## Exact histogram convergence, 2026-10-11
+
+Only the exact convergence repair is retained. AC clustering records its previous
+assignments in optional managed storage. If every active assignment is unchanged,
+later iterations rebuild identical centroids, costs and ties. Refused scratch
+preserves the original iteration path. Storage is released before remapping.
+All six original budget, cancellation and complete/partial-group coefficient
+properties pass. Fifteen isolated pairs preserve identical files; thirteen favor
+the repair, with a paired median of -1.99099%.
+
+The eighty-point screen, 576-point full development ladder and sixty-four timed
+files match `099add81` exactly. Every incremental mean and individual BD-rate
+delta is zero. All 64 development images contribute to 384 comparisons, with
+209 unchanged partial-range warnings. Current peer means and same-ladder
+baseline deltas remain in the lab log. Existing development entry fails, and
+holdout remains closed.
+
+All 192 isolated engine jobs are fresh. Own median is 2,208.502ms versus jSquash
+489.489ms and vips 334.841ms: 4.51185x and 6.59568x. Against `099add81`, own
+median improves 0.969%, mean improves 0.993% to 3,095.896ms, and worst improves
+1.242% to 14,928.485ms. Managed peaks stay 34,260,047 bytes for full development
+and 34,223,399 bytes for isolated speed. Worker RSS is 301,174,784 bytes, down
+0.090%. The full guard takes 7m52.94s at 1.3 GiB; speed takes 6m10.32s at
+410.5 MiB. Both have zero swap.
+
+Five speed changes were measured: one retained and four reverted. Cached rounding
+thresholds, occupied-symbol assignment and contiguous physical-DCT scratch did
+not establish repeatable gains. Histogram-model reuse was ruled out before a
+trial because the estimator and serializer use different models. No compression
+trial or effort-9 tuning occurred.
+
+Twenty-one fresh native/Rust grids, including eleven effort-9 fixtures, pass
+within one native color code with exact alpha. All 29 real Chromium cases pass.
+The complete repository check has 3,902 passes, three held mode/frame failures
+and three skips across 304 files. Every static gate passes, including
+`browser:check` and unchanged ceilings. Expectations are unchanged, and final
+qualification confirms the measured source was tested. The source hash is
+`b74bef76aa46eeae579bc30f101728e4e0ff5d988b2a02eb6ec22f84592e7290`.
+
+The suite takes 484.54s; its full guard takes 9m31.05s at 2.5 GiB. Chromium takes
+4m13.83s at 1.8 GiB; decoder qualification takes 1m1.83s at 420.5 MiB. All have
+zero swap. Cleanup removes 979 reproducible PNGs and reclaims 432,100,974 bytes,
+preserving their 979 encoded files and 403 complete results. Bundles are 597,249
+and 670,069 bytes, up 144 and 146. Approved ceilings remain 610,000 and 685,000;
+bundle size is report-only. Main is unchanged, and promotion remains open.
+
+| Qualification | Raw artifact |
+| --- | --- |
+| Retained convergence and focused properties | `.tmp/jpegxl-lossy-lab/promotion-cluster-convergence-validation/`, `promotion-cluster-convergence-confirmation/summary.json`, `statistics.json` |
+| Reverted trials and baseline profile | `.tmp/jpegxl-lossy-lab/promotion-threshold-validation/`, `promotion-threshold-inline-validation/`, `promotion-sparse-hist-validation/`, `promotion-physical-layout-validation/`, their paired results and `promotion-post-lookup-profile/profile-summary.json` |
+| Fixed repair screen | `.tmp/jpegxl-lossy-lab/promotion-cluster-convergence-screen/byte-comparison.json`, `versus-099add81.json` |
+| Full development and baseline comparisons | `.tmp/jpegxl-lossy-lab/promotion-converged-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-099add81.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-converged-speed/summary.json`, `reduction.json`, `versus-099add81.json`, `byte-comparison.json`, `progress.json` |
+| Native/Rust pixels | `.tmp/jpegxl-lossy-lab/promotion-converged-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Repository, Chromium and measured source | `.tmp/jpegxl-lossy-lab/promotion-converged-validation/check.log`, `browser.log`, `final-summary.json`, `frozen-source.json` |
+| Bundle reports, generated documentation and cleanup | `.tmp/jpegxl-lossy-lab/promotion-converged-validation/size.log`, `documentation-write.log`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipts use `promotion-converged-` under
+`.tmp/jpegxl-m7/bounded-runs/`. Trial receipt IDs use `promotion-threshold-`,
+`promotion-sparse-hist-`, `promotion-cluster-convergence-` and
+`promotion-physical-layout-`.

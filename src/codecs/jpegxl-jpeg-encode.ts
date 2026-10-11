@@ -1522,6 +1522,7 @@ const compactAcHistograms = (
     }
     let compact: Uint32Array[] = []
     let costs: Readonly<{ best: Float64Array; logs: Float64Array }> | undefined
+    let previousAssignments: Uint8Array | undefined
     for (let iteration = 0; iteration < iterations; iteration += 1) {
       for (const previous of compact) memory?.release(previous)
       compact = Array.from({ length: target }, () => allocateJpegXlArray(memory, Uint32Array, 512))
@@ -1548,7 +1549,13 @@ const compactAcHistograms = (
         } catch (error) {
           rethrowJpegXlNonLimitError(error)
         }
+        try {
+          previousAssignments = allocateJpegXlArray(memory, Uint8Array, frequencies.length)
+        } catch (error) {
+          rethrowJpegXlNonLimitError(error)
+        }
       }
+      previousAssignments?.set(assignments)
       if (costs) {
         assignCachedAcHistograms(
           frequencies,
@@ -1586,7 +1593,20 @@ const compactAcHistograms = (
           assignments[histogram] = bestCluster
         }
       }
+      if (previousAssignments) {
+        let changed = false
+        for (const histogram of active) {
+          if (assignments[histogram] !== previousAssignments[histogram]) {
+            changed = true
+            break
+          }
+        }
+        // Identical assignments rebuild identical centroids and retain the same
+        // ascending cost sums and ties. All remaining iterations are a fixed point.
+        if (!changed) break
+      }
     }
+    if (previousAssignments) memory?.release(previousAssignments)
     if (costs) {
       memory?.release(costs.best)
       memory?.release(costs.logs)
