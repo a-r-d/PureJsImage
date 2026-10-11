@@ -1479,3 +1479,70 @@ Prior full-development, twenty-one native/Rust grids and 29 real Chromium cases
 are reused on identical production. Bundles remain 600,019 / 672,835 bytes;
 ceilings stay 610,000 / 685,000. Qualified crop speed remains 3.41785x jSquash.
 No holdout opening, effort-9 comparison screen or compression trial occurred.
+
+## Histogram and AC crossing speed repairs, 2026-10-11
+
+Eight hypotheses retain two small production changes and reject six. Initial
+two/three-predictor histogram loops retain the same arrays and integer wrapping;
+their slow-crop confirmation wins 15/15 pairs, paired median -1.51922%.
+The table-free unit/two AC crossing wins 15/21 median-crop pairs, paired median
+-0.89021%. The original squared-error comparison handles Float64 tie neighbors.
+480,046 numerical decisions match, with zero mismatches. Neither change adds
+backing storage or changes encoder decisions in the measured corpus.
+
+Wide and adaptive radix widths, generic prefix extraction, menu magnitude reuse,
+LF row traversal and specialized prefix kernels are rejected. LF traversal loses
+its clear majority in confirmation. Specialized prefix scoring shows an
+unconfirmed 0.95089% slow-crop gain but adds roughly 150 lines and temporary
+objects; its complexity does not justify retention. Rejected variants remain
+available with their measurements.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| Fresh median and slow-input profiles | `.tmp/jpegxl-lossy-lab/promotion-median-profiles/`, with `profile-run.json`, `profile-summary.json` and `encode.cpuprofile` per input |
+| Wide and adaptive radix trials | `.tmp/jpegxl-lossy-lab/promotion-wide-radix-pairs/statistics.json`, `promotion-adaptive-radix-pairs/statistics.json`; respective validation roots retain rejected source |
+| Retained initial histograms | `.tmp/jpegxl-lossy-lab/promotion-tree-histogram-confirmation/statistics.json`; `promotion-tree-histogram-screen/byte-comparison.json`, `versus-5a89.json` |
+| Generic prefix and magnitude reuse | `.tmp/jpegxl-lossy-lab/promotion-tree-prefix-kernel-pairs/statistics.json`, `promotion-menu-magnitude-pairs/statistics.json`; rejected sources in `promotion-tree-prefix-kernel-validation/` and `promotion-menu-magnitude-validation-r1/` |
+| Retained AC crossing | `.tmp/jpegxl-lossy-lab/promotion-plane-pair-crossing-validation/crossing-check.json`; `promotion-plane-pair-crossing-confirmation/statistics.json`; `promotion-plane-pair-crossing-screen/byte-comparison.json`, `versus-histogram.json` |
+| LF traversal confirmation | `.tmp/jpegxl-lossy-lab/promotion-menu-baseline-rows-confirmation/statistics.json`; `promotion-menu-baseline-rows-validation/rejected-source.ts` |
+| Specialized prefix trial | `.tmp/jpegxl-lossy-lab/promotion-specialized-prefix-pairs/statistics.json`; `promotion-specialized-prefix-validation/rejected-source.ts` |
+| Fresh full development | `.tmp/jpegxl-lossy-lab/promotion-histogram-crossing-stack-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-5a89.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-histogram-crossing-stack-speed/summary.json`, `reduction.json`, `versus-5a89.json`, `byte-comparison.json`, `progress.json` |
+| Both independent decoders | `.tmp/jpegxl-lossy-lab/promotion-histogram-crossing-stack-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json`, `oracles.log` |
+| Real browser and full repository check | `.tmp/jpegxl-lossy-lab/promotion-histogram-crossing-stack-validation/browser.log`, `check.log`, `final-summary.json` |
+| Frozen source and scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-histogram-crossing-stack-validation/frozen-source.json`, `committed-source.json`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `cleanup.log` |
+
+All 576 development files match `5a89a125` exactly. All incremental mean and
+individual BD-rate deltas are zero. The 384 peer comparisons compute with the
+same 209 partial-range warnings. Same-ladder full-baseline deltas remain
+-2.26705% SSIMULACRA2, -2.40864% Butteraugli 3-norm and +3.28058% Butteraugli max.
+Migration/repair deltas against preserved E4 remain +1.32777% / +0.88250% /
++0.87829%. Development entry still fails; the holdout remains unopened.
+
+Fresh isolated speed completes all 192 jobs, one worker, with no failures,
+omissions or reused timings. All 64 own files match the preceding source.
+Own median is 1,653.793ms (-0.74168%), mean 2,646.489ms (-0.17793%) and worst
+15,104.740ms (-0.10283%). The ratio is 3.41767x jSquash and 4.79307x vips.
+The jSquash ratio is effectively unchanged and still fails 3x. These two narrow
+changes have confirmed local gains and non-regressing aggregate measurements;
+no material aggregate speed improvement is claimed. Managed peaks remain
+34,260,047 bytes full-lab and 34,223,399 bytes isolated. Worker RSS is
+299,687,936 bytes (+0.93115%).
+
+Twenty-three fresh native/Rust grids pass: three lossless, eleven effort-9 and
+nine development streams, including the profiled slow and median inputs. Color
+differs by at most one native sample code and alpha is exact. All 29 real
+Chromium cases pass. Fresh full check: 3,923 passes, three unchanged held layout
+failures and three skips across 306 files, 489.38s. Every static gate passes,
+including browser:check. The check guard runs 8m52.524s, peak 2.4 GiB, zero swap.
+Original expectations and property bounds are unchanged; assertions after the
+three held layout failures remain unexecuted in those cases.
+
+Cleanup removes 1,157 reproducible decoded PNGs / 513,574,567 bytes and preserves
+1,157 JXL files and 517 complete results. Inputs, scores, curves, raw timings,
+profiles, independent-decoder grids and rejected variants remain. Production
+source hash is `8e49806ef27e37328246284a2236c255ff4594fbd9240647befd417af81ea6c0`.
+Bundles are 600,497 / 673,295 bytes; ceilings remain 610,000 / 685,000. No main
+promotion, holdout opening, effort-9 comparison screen or compression trial
+occurred. Next work is the invariant crossing margin, exact menu work on the
+actual median input and estimated selection behind the migration regressions.

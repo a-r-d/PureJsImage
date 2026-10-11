@@ -14,21 +14,24 @@ commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
 Earlier active-index, source-block, transform and clustering speed gains remain
-retained. The latest eight speed hypotheses are reverted. Confirmed local
-geometry, paired-estimator and bulk-copy gains fail aggregate qualification;
-their fresh ratios are 3.32753x and 3.42028x jSquash. Production returns exactly
-to `e36ee9e6`; qualified compression and the saved 3.41785x speed ratio remain
-unchanged. Seven existing benchmark tests
+retained. The latest eight speed hypotheses retain two small repairs and reject
+six. Initial tree histograms win 15/15 confirmation pairs at -1.51922%; the
+table-free unit/two AC crossing wins 15/21 at -0.89021%. All 576 fresh development
+files match `5a89a125` exactly. Fresh isolated median falls 0.74168% and mean
+falls 0.17793%; the 3.41767x jSquash ratio still fails the 3x target. This is a
+small measured gain. Compression is unchanged. Seven existing benchmark tests
 protect fresh speed measurements from output-directory reuse. The fresh full
-check has 3,923 passes, three held layout failures and three skips in 519.92s;
-all static gates pass, including browser:check. Scoped cleanup removes 947 reproducible
-PNGs / 428,836,841 bytes and preserves 947 encoded files and 755 completed results.
+check has 3,923 passes, three held layout failures and three skips in 489.38s;
+all static gates pass, including browser:check. Scoped cleanup removes 1,157 reproducible
+PNGs / 513,574,567 bytes and preserves 1,157 encoded files and 517 completed results.
+Bundles measure 600,497 / 673,295 bytes, within unchanged 610,000 / 685,000
+check ceilings. Bundle size remains report-only.
 See LL-305 for
 an accidental reuse and the marked loss of older raw timing records; its
 historical aggregate reduction remains available.
 Three held mode/frame assertions and development entry remain open. Prior
-qualification of twenty-one native/Rust grids and all 29 real Chromium cases
-applies to the identical restored production source. Original expectations
+qualification is replaced by 23 fresh native/Rust grids and all 29 real Chromium
+cases on the retained stack. Original expectations
 and quality bounds stay unchanged. Effort 9 remains untuned; its comparison
 screen waits for promotion.
 Fresh isolated speed requires a new output directory, even if an existing

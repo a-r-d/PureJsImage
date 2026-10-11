@@ -264,14 +264,36 @@ const learnPlane = (
         const counts = allocateJpegXlArray(memory, Uint32Array, 256 * modes)
         const histogramLog = allocateJpegXlArray(memory, Float64Array, modes)
         const extraBits = allocateJpegXlArray(memory, Uint32Array, modes)
-        for (const sample of samples) {
-          for (let mode = 0; mode < modes; mode++) {
-            const token = tokens[sample * modes + mode] ?? 0
-            const index = mode * 256 + token
-            counts[index] = (counts[index] ?? 0) + 1
-            extraBits[mode] = (extraBits[mode] ?? 0) + (residualExtraBitCounts[token] ?? 0)
+        let extra0 = 0,
+          extra1 = 0,
+          extra2 = 0
+        if (modes === 2) {
+          for (const sample of samples) {
+            const offset = sample * 2,
+              token0 = tokens[offset] ?? 0,
+              token1 = tokens[offset + 1] ?? 0
+            counts[token0] = (counts[token0] ?? 0) + 1
+            counts[256 + token1] = (counts[256 + token1] ?? 0) + 1
+            extra0 = (extra0 + (residualExtraBitCounts[token0] ?? 0)) >>> 0
+            extra1 = (extra1 + (residualExtraBitCounts[token1] ?? 0)) >>> 0
+          }
+        } else {
+          for (const sample of samples) {
+            const offset = sample * 3,
+              token0 = tokens[offset] ?? 0,
+              token1 = tokens[offset + 1] ?? 0,
+              token2 = tokens[offset + 2] ?? 0
+            counts[token0] = (counts[token0] ?? 0) + 1
+            counts[256 + token1] = (counts[256 + token1] ?? 0) + 1
+            counts[512 + token2] = (counts[512 + token2] ?? 0) + 1
+            extra0 = (extra0 + (residualExtraBitCounts[token0] ?? 0)) >>> 0
+            extra1 = (extra1 + (residualExtraBitCounts[token1] ?? 0)) >>> 0
+            extra2 = (extra2 + (residualExtraBitCounts[token2] ?? 0)) >>> 0
           }
         }
+        extraBits[0] = extra0
+        extraBits[1] = extra1
+        if (modes === 3) extraBits[2] = extra2
         let bestMode = 0,
           unsplitBits = Number.POSITIVE_INFINITY,
           symbols = 0

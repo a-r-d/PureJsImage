@@ -1299,7 +1299,9 @@ function* prepare8(
       lfShift = count === 256 ? 4 : 5,
       lfMask = count === 256 ? 15 : 31,
       lfColumns = count === 256 ? 2 : 4,
-      unitThreshold = bias / 2 + (1.5 * weight) / bias
+      unitThreshold = bias / 2 + (1.5 * weight) / bias,
+      pairThreshold =
+        (bias + acCentroidTwo) / 2 + (weight * (acPenaltyTwo - 3)) / (2 * (acCentroidTwo - bias))
     // Every consumed AC token is assigned below. Readers exclude LF and, with
     // an active list, positions removed by this call; stale slots are not read.
     const available = active?.count ?? count
@@ -1321,6 +1323,19 @@ function* prepare8(
         const value = magnitude > unitThreshold ? 1 : 0
         output[p] = normalized < 0 ? -value : value
         if (active && value !== 0) active.indices[kept++] = p
+        continue
+      }
+      // The unit/two crossing is fixed within this plane. Keep the original
+      // squared-error comparison near Float64 ties; larger tokens use it directly.
+      if (
+        magnitude >= 1 &&
+        magnitude < 2 &&
+        Math.abs(magnitude - pairThreshold) >
+          64 * Number.EPSILON * Math.max(1, Math.abs(pairThreshold))
+      ) {
+        const value = magnitude > pairThreshold ? 2 : 1
+        output[p] = normalized < 0 ? -value : value
+        if (active) active.indices[kept++] = p
         continue
       }
       const lower = Math.floor(magnitude),
