@@ -133,6 +133,15 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     expect(result.decodedChecksum).toBe(2042671564)
     expect(result.alphaSamples).toBe(513 * 129)
     expect(result.alphaError).toBe(0)
+    const fixture = await encodeJpegXlCoefficientOrderFixture(8, false, false)
+    const memory = new JpegXlEncoderMemory(7_350_000)
+    const parts = encodeJpegXlVarDct8(fixture.pixels, 513, 129, 3, memory, 4, 7)
+    expect(parts.reduce((sum, part) => sum + part.byteLength, 0)).toBeLessThanOrEqual(result.bytes)
+    expect(memory.liveBytes).toBe(parts.reduce((sum, part) => sum + part.byteLength, 0))
+    expect(memory.peakBytes).toBeLessThanOrEqual(7_350_000)
+    memory.close()
+    expect(memory.liveBytes).toBe(0)
+    expect(memory.liveAllocations).toBe(0)
   })
 
   it('keeps synchronous and asynchronous adaptive orders identical and unwinds late cancellation', async () => {

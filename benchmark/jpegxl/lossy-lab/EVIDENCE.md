@@ -860,3 +860,82 @@ Bounded-run receipt IDs start with `promotion-ac-cache-` under
 remaining transform-selection work, a clean physical-dot unroll confirmation
 and invariant dequantization steps. Main is unchanged. The bounded
 post-promotion Butteraugli phase has not started.
+
+## Effort-7 single-stream selection, 2026-10-11
+
+Two speed repairs are retained against `1ce9c615`. Rate-aware rounding returns
+zero immediately below half the existing unit centroid, where the original
+squared-error and nonnegative rate costs already choose zero. Fifteen cold
+pairs preserve complete files, twelve wins, with a paired median improvement
+of 1.92017%. Its eighty-point screen is identical. Effort 7 then selects
+order/family geometry before writing sections; effort 9 retains the complete
+comparison. Twenty original order/family properties pass. The original
+7,350,000-byte order-budget test now also checks synchronous ownership and
+cleanup without changing its size, pixel or alpha expectations.
+
+Full development finishes all 64 photos and 576 points with zero encode
+failures. Thirty-seven files change. Incremental means are +0.10886% SSIM,
++0.10225% 3-norm and +0.09137% max; every individual change stays below 1.22%.
+These pass the incremental speed-only and repair guards. Full means versus
+jSquash are -1.63003%, +12.86651% and +15.85564%; current vips means are
++0.77349%, +9.54668% and +7.53200%. Same-ladder baseline deltas are
+-2.26705%, -2.40864% and +3.28058%. All 384 comparisons contribute; the 209
+earlier partial-range warnings remain. Existing development entry failures
+remain, and holdout stays closed. The guard takes 8m8.65s at 1.2 GiB with zero
+swap; managed peak stays 34,260,047 bytes.
+
+Fresh isolated speed finishes all 192 jobs without reuse or failures. Own
+median is 2,281.628ms versus jSquash 484.886ms and vips 338.857ms: 4.70549x
+and 6.73330x. Median improves 8.41497%, mean improves 4.68898% to 3,184.378ms,
+and worst improves 0.51546% to 15,317.447ms. Two of 64 files change. Managed
+peak stays 34,223,399 bytes; worker RSS falls 3.57877% to 295,866,368 bytes.
+The guard takes 6m17.34s at 445.9 MiB with zero swap. The 3x target still fails;
+originals remain unqualified. Twenty-one fresh native/Rust grids pass, including
+eleven effort-9 fixtures and four changed development streams. Color agreement
+stays within one native code, with exact alpha. Oracle guard: 1m2.60s at
+448.9 MiB, zero swap. Effort 9 remains untuned and its one comparison screen
+waits for promotion.
+
+The current profile identifies large-menu selection at 0.54796s self and
+1.02026s inclusive, with rate-aware rounding at 0.21603s self. Profile time is
+diagnostic, not a paired speed claim. Next hypotheses are combining menu
+quantization and physical-error passes, reusing original quantized coefficients
+in baseline menus and reusing the selected histogram model during serialization.
+No compression trial or main promotion occurs in this checkpoint.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Zero shortcut and timing confirmation | `.tmp/jpegxl-lossy-lab/promotion-quantizer-zero-validation/`, `.tmp/jpegxl-lossy-lab/promotion-quantizer-zero-confirmation/summary.json`, `statistics.json` |
+| Zero shortcut's unchanged screen | `.tmp/jpegxl-lossy-lab/promotion-quantizer-zero-screen/versus-1ce9.json`, `byte-comparison.json` |
+| Selected source, original properties and added ownership checks | `.tmp/jpegxl-lossy-lab/promotion-order-single-validation/frozen-source.json`, `final-source.ts`, `focused.log`, `order-ownership.log`, `types.log`, `lint.log` |
+| Single-stream repair screen | `.tmp/jpegxl-lossy-lab/promotion-order-single-screen/versus-retained.json`, `byte-comparison.json` |
+| Full development and same-ladder comparisons | `.tmp/jpegxl-lossy-lab/promotion-order-single-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-1ce9.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-order-single-speed/summary.json`, `versus-1ce9.json`, `byte-comparison.json`, `progress.json` |
+| Complete native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-order-single-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Current CPU profile | `.tmp/jpegxl-lossy-lab/promotion-order-single-profile/profile-run.json`, `profile-summary.json`, `im26-3012-d2.cpuprofile` |
+
+The final repository check has 3,902 passes, the same three held mode/frame
+failures and three skips across 304 files. Every static gate passes, including
+browser:check and unchanged ceilings. The suite takes 503.68s; the complete
+guard takes 9m49.61s at 2.9 GiB with zero swap. Final qualification verifies
+that production source matches the measured source. All 29 final-source
+Chromium cases pass in a 4m15.15s guard at 2.2 GiB, zero swap. The earlier
+held Node mode control remains retained under the preceding checkpoint.
+
+Bundles are 597,243 and 670,064 bytes, each up 201 bytes. Approved ceilings
+remain 610,000 and 685,000; bundle size remains report-only. Cleanup removes
+973 regenerated PNGs and reclaims 422,565,986 bytes (402.99 MiB), retaining
+their 973 JXL files and 333 complete results. Inputs, scores, source snapshots,
+CPU profiles and independent decoder grids remain. No existing expected value,
+bound, runtime dependency or release version changes. Two speed repairs are
+retained, none reverted or promoted. Main remains unchanged.
+
+| Final qualification | Raw artifact |
+| --- | --- |
+| Chromium and full repository check | `.tmp/jpegxl-lossy-lab/promotion-order-single-validation/browser.log`, `check.log`, `final-summary.json` |
+| Bundle and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-order-single-validation/size.log`, `documentation-write.log` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-order-single-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipt IDs start with `promotion-order-single-` under
+`.tmp/jpegxl-m7/bounded-runs/`. Zero-shortcut receipt IDs start with
+`promotion-quantizer-zero-`. The post-promotion Butteraugli phase has not started.

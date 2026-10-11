@@ -333,7 +333,20 @@ export const encodeJpegXlVarDct8 = (
         )
         let next = steps.next()
         while (!next.done) next = steps.next()
-        const geometry = next.value
+        let geometry = next.value
+        // Effort 7 selects its model before writing; effort 9 retains complete comparisons.
+        if (effort !== 9 && usesForwardCoefficientOrderSearch(geometry)) {
+          try {
+            geometry = withJpegXlMemory(owned, () => {
+              const choosing = chooseForwardOrderGeometry(geometry)
+              let selected = choosing.next()
+              while (!selected.done) selected = choosing.next()
+              return selected.value
+            })
+          } catch (error) {
+            rethrowJpegXlNonLimitError(error)
+          }
+        }
         const baseline = forwardFrameParts(
           width,
           height,
@@ -341,7 +354,7 @@ export const encodeJpegXlVarDct8 = (
           encodeVarDctCoefficientSections(geometry),
           {},
         )
-        if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
+        if (effort !== 9 || !usesForwardCoefficientOrderSearch(geometry)) return baseline
         try {
           return withJpegXlMemory(owned, () => {
             const choosing = chooseForwardOrderGeometry(geometry)
@@ -495,11 +508,30 @@ const encodeJpegXlVarDct8CandidateAsync = (
       await checkpoint()
       next = steps.next()
     }
-    const geometry = next.value
+    let geometry = next.value
+    if (effort !== 9 && usesForwardCoefficientOrderSearch(geometry)) {
+      try {
+        geometry = await withJpegXlMemoryAsync(memory, async () => {
+          const choosing = chooseForwardOrderGeometry(geometry)
+          let selected = choosing.next()
+          try {
+            while (!selected.done) {
+              await checkpoint()
+              selected = choosing.next()
+            }
+            return selected.value
+          } finally {
+            choosing.return(geometry)
+          }
+        })
+      } catch (error) {
+        rethrowJpegXlNonLimitError(error)
+      }
+    }
     const sections = await encodeVarDctCoefficientSectionsAsync(geometry, checkpoint)
     await checkpoint()
     const baseline = forwardFrameParts(width, height, geometry, sections, frame)
-    if (!usesForwardCoefficientOrderSearch(geometry)) return baseline
+    if (effort !== 9 || !usesForwardCoefficientOrderSearch(geometry)) return baseline
     try {
       return await withJpegXlMemoryAsync(memory, async () => {
         const choosing = chooseForwardOrderGeometry(geometry)
@@ -1178,9 +1210,12 @@ function* prepare8(
   const acCentroidTwo = 2 - 0.145 / 2
   const rateAwareAc = (normalized: number, channel: number): number => {
     const bias = defaultJpegXlQuantizationBiases[channel] ?? 1
+    const magnitude = Math.abs(normalized)
+    // Zero has no greater squared error below half the unit centroid;
+    // the nonnegative rate penalty cannot make the unit token cheaper.
+    if (magnitude <= bias / 2) return normalized < 0 ? -0 : 0
     const weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma
-    const magnitude = Math.abs(normalized),
-      lower = Math.floor(magnitude),
+    const lower = Math.floor(magnitude),
       upper = lower + 1
     const lowValue =
       lower === 0 ? 0 : lower === 1 ? bias : lower === 2 ? acCentroidTwo : lower - 0.145 / lower

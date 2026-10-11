@@ -176,7 +176,7 @@
   "package": {
     "name": "purejsimage",
     "version": "0.17.0",
-    "unpackedPackageBytes": 8800052,
+    "unpackedPackageBytes": 8801758,
     "productionPackageCount": 1
   },
   "schemaVersion": 3,
@@ -568,10 +568,10 @@
         "packageExports": ["purejsimage/jpegxl"],
         "sourceEntries": ["./src/jpegxl.ts"]
       },
-      "gzipBytes": 220655,
+      "gzipBytes": 220682,
       "id": "jpegxl-specialized",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 669863,
+      "minifiedJsBytes": 670064,
       "name": "JPEG XL specialized APIs",
       "recordedBaselineMinifiedBytes": 255489,
       "brotliBytes": 177588
@@ -1393,13 +1393,13 @@
         "packageExports": ["purejsimage/codecs/jpegxl"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/jpegxl.ts"]
       },
-      "gzipBytes": 197990,
+      "gzipBytes": 198016,
       "id": "codec-jpegxl",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 597042,
+      "minifiedJsBytes": 597243,
       "name": "Core + JPEG XL",
       "recordedBaselineMinifiedBytes": 233093,
-      "brotliBytes": 160763
+      "brotliBytes": 160659
     },
     {
       "category": "purejsimage-entry",
@@ -1500,13 +1500,13 @@
         "packageExports": ["purejsimage/codecs/all"],
         "sourceEntries": ["./src/index.ts", "./src/codec-entries/all.ts"]
       },
-      "gzipBytes": 479214,
+      "gzipBytes": 479239,
       "id": "codecs-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 1383250,
+      "minifiedJsBytes": 1383452,
       "name": "Core + all stable codecs",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 386855
+      "brotliBytes": 387247
     },
     {
       "category": "competitor",
@@ -1545,13 +1545,13 @@
       "entry": {
         "packageExports": ["purejsimage/codecs/all"]
       },
-      "gzipBytes": 479214,
+      "gzipBytes": 479239,
       "id": "purejsimage-all",
       "implementation": "pure-javascript",
-      "minifiedJsBytes": 1383250,
+      "minifiedJsBytes": 1383452,
       "name": "PureJsImage (all stable codecs)",
       "recordedBaselineMinifiedBytes": null,
-      "brotliBytes": 386855
+      "brotliBytes": 387247
     },
     {
       "category": "competitor",
