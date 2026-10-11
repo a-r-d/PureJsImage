@@ -11,6 +11,7 @@ import {
   validateBaselineSpeedResume,
 } from './fixture-selection.ts'
 import { bdRate, type QualityMetric, summarizeBdRates } from './metrics.ts'
+import { prepareLabOutputDirectory } from './output-directory.ts'
 import {
   type CurvePoint,
   type Engine,
@@ -95,7 +96,7 @@ const peerSettings = {
 }
 type Fixture = PreparedFixture
 const selected = selection.fixtures
-await mkdir(directory, { recursive: true })
+await prepareLabOutputDirectory(directory, mode, resumeSpeed)
 const started = Date.now()
 const results = new Map<string, Map<Engine, CurvePoint[]>>()
 const fixtureKey = (fixture: Fixture): string => `${fixture.id}:${fixture.kind}`

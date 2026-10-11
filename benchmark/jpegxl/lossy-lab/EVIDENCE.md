@@ -1401,3 +1401,44 @@ The current candidate's qualified isolated ratio remains 3.41785x jSquash.
 The 3.39629x ratio belongs to the rejected trial source. Development entry and
 three held contracts still block promotion; holdout and the effort-9 comparison
 screen remain reserved, and the bounded Butteraugli phase has not started.
+
+## AC summary and residual speed trials, 2026-10-11
+
+All three hypotheses are reverted. AC summaries pass seventeen focused cases
+and reproduce every screen and isolated own file. Their small paired local
+gain does not survive aggregate timing: median +3.77144%, mean +3.59264% and
+fresh jSquash ratio 3.43331x. Both peers also slow, so the run does not prove
+a causal regression. Specialized residual loops win only eight of fifteen
+confirmation pairs; empty-menu error reuse is neutral. Production returns
+exactly to `6ee9191a`, preserving prior qualified source and comparisons.
+
+LL-303 accidentally reused the LL-136 output directory. The old raw summary,
+progress ledger and 192 worker records were overwritten and cannot be recovered.
+The old aggregate reduction, comparison and byte report survive unchanged.
+The new records now live in `promotion-ac-count-cache-speed`; their relocation
+receipt preserves original paths and hashes. The historical directory contains
+`RAW-DATA-LOSS.json`. Do not use its missing raw records as current evidence.
+The fresh-speed runner now reserves a new directory atomically before starting
+workers. Seven regression cases and a three-job public smoke run pass.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| AC local trial and confirmation | `.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-pairs/statistics.json`, `promotion-ac-count-cache-confirmation/statistics.json` |
+| AC focused recovery and rejected source | `.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-validation/recovery.log`, `trial-source.ts`, `trial-test-helper.ts`, `trial-test.ts` |
+| AC screen | `.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-screen/byte-comparison.json`, `versus-6ee.json` |
+| Rejected fresh speed | `.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-speed/summary.json`, `versus-6ee.json`, `bytes-versus-6ee.json`, `relocation.json` |
+| Historical evidence loss | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-speed/RAW-DATA-LOSS.json`; surviving `reduction.json`, `versus-91d.json`, `byte-comparison.json` |
+| Residual trial and confirmation | `.tmp/jpegxl-lossy-lab/promotion-residual-kernels-pairs/statistics.json`, `promotion-residual-kernels-confirmation/statistics.json`; `promotion-residual-kernels-validation/trial-source.ts` |
+| Empty-menu trial | `.tmp/jpegxl-lossy-lab/promotion-empty-menu-pairs/statistics.json`; `promotion-empty-menu-validation/trial-source.ts` |
+| Restored-source profile | `.tmp/jpegxl-lossy-lab/promotion-ac-restored-current-profile/profile-run.json`, `profile-summary.json` |
+| Directory safety verification | `.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-validation/output-guard-focused-final.log`, `output-guard-smoke.log`; `promotion-output-directory-smoke/summary.json` |
+
+Full check: 3,923 passes, three unchanged held layout failures and three skips
+across 306 files, 510.21s. All static gates pass, including browser:check.
+Prior 576-point, 21-grid native/Rust and 29-case Chromium qualification is reused
+on identical production. Cleanup removes 390 PNGs / 171,756,311 bytes while
+preserving 390 encoded files and 326 complete results. Final receipts:
+`.tmp/jpegxl-lossy-lab/promotion-ac-count-cache-validation/final-summary.json`, `check.log`, `decoded-cleanup-plan.json`,
+`decoded-cleanup-complete.json` and `cleanup.log`. Bundles stay
+600,019 / 672,835 bytes; ceilings stay 610,000 / 685,000. Holdout and the effort-9
+screen remain reserved; no main promotion or new compression trial occurred.

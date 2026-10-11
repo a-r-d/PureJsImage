@@ -13,29 +13,26 @@ on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every complet
 commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
-The latest repairs split physical LF and AC error loops by row and remove
-redundant plane-token clearing. Earlier active-index, source-block, transform
-and clustering repairs remain retained. Every screen and full-development file
-matches `b84b2d47`; compression scores are unchanged.
-The two repairs have confirmed local gains, but the fresh 64-crop median improves
-only 0.142%, a neutral aggregate result. The absolute crop ratio is still
-3.41785x jSquash. Sixteen later speed hypotheses across two sessions are
-reverted. The latest DCT16 trial passes the screen but exceeds the 3% individual-image guard in the
-full lab. Restoring original DCT16 repairs that regression. The remaining DCT32
-stack reproduces all 576 files, but its isolated aggregate median rises 0.251%
-and mean rises 1.455%; its trial ratio is 3.39629x jSquash. Both math repairs
-are reverted. Production source returns exactly to `3bdeda66`, preserving prior
-gains. Five new transform regression cases remain. The latest full check has
-3,916 passes, three held layout failures and three skips; all static gates pass. Scoped cleanup removes 1,990 decoded PNGs while
-preserving all encoded files and results. Both are recorded in the lab log
-and evidence index.
+Earlier active-index, source-block, transform and clustering speed gains remain
+retained. The latest three hypotheses are reverted: AC summary caching,
+specialized residual loops and empty-menu error reuse. The cache passes the
+80-point screen but has no aggregate speed gain; its fresh ratio is 3.43331x
+jSquash. Production returns exactly to `6ee9191a`; qualified compression and
+the saved 3.41785x speed ratio remain unchanged. Seven new benchmark tests
+protect fresh speed measurements from output-directory reuse. The full check
+has 3,923 passes, three held layout failures and three skips; all static gates
+pass. Scoped cleanup removes 390 reproducible PNGs and preserves encoded files
+and completed results. See LL-305 for
+an accidental reuse and the marked loss of older raw timing records; its
+historical aggregate reduction remains available.
 Three held mode/frame assertions and development entry remain open. Prior
 qualification of twenty-one native/Rust grids and all 29 real Chromium cases
-still applies to the identical restored production source. No original
-expectation changes.
-The earlier selector case encounters the held Node mode expectation before
-reaching Chromium. Effort 9 remains untuned, and its comparison screen still
-waits for promotion.
+applies to the identical restored production source. Original expectations
+and quality bounds stay unchanged. Effort 9 remains untuned; its comparison
+screen waits for promotion.
+Fresh isolated speed requires a new output directory, even if an existing
+directory is empty. The explicit validated baseline continuation and cached
+non-speed peer curves retain their existing behavior.
 All 14 E3 screens are measured in
 [TOOL-COSTS.md](TOOL-COSTS.md). Full promotion is still required before main or
 the bounded Butteraugli phase.
