@@ -1,0 +1,45 @@
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_f260c3cf671280 29,31-32
+  s_2b0ba550ad1491::t_e4c8569916d39a 22-27
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_b0ec6e4dd4c90b 674-675
+  s_2b0ba550ad1491::t_aacf650c645699 680-681
+  s_2b0ba550ad1491::t_75681f94986d5c 682-683
+  s_2b0ba550ad1491::t_2375e1a813132d 692-693
+  s_2b0ba550ad1491::t_7e46f8403d1bfb 678-679
+  s_2b0ba550ad1491::t_49671704741ac0 676-677
+  s_2b0ba550ad1491::t_7a91deeadca123 694-695
+  s_2b0ba550ad1491::t_0b6913f79680bd 16,30
+  s_2b0ba550ad1491::t_27cbf1dac67de6 686-687
+  s_2b0ba550ad1491::t_f4af4adc5bea22 688-689
+  s_2b0ba550ad1491::t_06d628ed1c341f 15,23,696-697
+  s_2b0ba550ad1491::t_f9cf9e53cde418 672-673
+  s_2b0ba550ad1491::t_da9b8ae2eaa6b8 690-691
+  s_2b0ba550ad1491::t_59a8535089f3cf 668-669
+  s_2b0ba550ad1491::t_204ad5583765d6 670-671
+  s_2b0ba550ad1491::t_d13de0c90fb7cb 684-685
+tests/helpers/jpegxl-ac-entropy-floor.ts
+  s_2b0ba550ad1491::t_c8ad66c21beddb 64,72-74,90
+  s_2b0ba550ad1491::t_24e879c04f8aa5 70-71
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_ce91b2c59966b2 1334-1342,1353
+  s_2b0ba550ad1491::t_25ee5848435ff5 1310-1333,1343-1352
+tests/jpegxl-ac-entropy-floor.test.ts
+  s_2b0ba550ad1491::t_aaecb58239d926 5-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "97eb5fb95e1fed149a3e493641cb271be332f18c",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
