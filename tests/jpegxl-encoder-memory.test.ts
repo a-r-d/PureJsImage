@@ -97,6 +97,87 @@ const prepare = async (
 const expectClosed = (encoder: ImageEncoder) =>
   expect(counters(encoder)).toMatchObject({ live: 0, allocations: 0 })
 
+describe('JPEG XL optional encoder scratch', () => {
+  it('reclaims inactive copies before admitting required storage and preserves the active bytes', () => {
+    const memory = new JpegXlEncoderMemory(24)
+    const active = memory.allocate(Uint8Array, 8)
+    const optional = memory.allocate(Uint8Array, 16)
+    optional.set([1, 2, 3, 4, 5, 6, 7, 8])
+    active.set(optional.subarray(0, 8))
+    let reclaimed = 0
+    memory.registerReclaimer(() => {
+      memory.release(optional)
+      reclaimed++
+    })
+    const required = memory.allocate(Uint8Array, 16)
+    expect([...active]).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+    expect(required.length).toBe(16)
+    expect(reclaimed).toBe(1)
+    expect(memory.liveBytes).toBe(24)
+    expect(memory.peakBytes).toBe(24)
+    memory.release(required)
+    expect(() => memory.allocate(Uint8Array, 17)).toThrow()
+    expect(reclaimed).toBe(1)
+    memory.close()
+    expect(memory.liveAllocations).toBe(0)
+  })
+
+  it('still refuses storage beyond the original limit after reclaiming scratch', () => {
+    const memory = new JpegXlEncoderMemory(24)
+    const required = memory.allocate(Uint8Array, 16)
+    const optional = memory.allocate(Uint8Array, 8)
+    const unregister = memory.registerReclaimer(() => {
+      memory.release(optional)
+      unregister()
+    })
+    expect(() => memory.allocate(Uint8Array, 9)).toThrow()
+    expect(memory.liveBytes).toBe(16)
+    expect(required.length).toBe(16)
+    expect(memory.allocate(Uint8Array, 8).length).toBe(8)
+    expect(memory.peakBytes).toBe(24)
+    memory.close()
+  })
+
+  it.each([false, true])(
+    'forgets reclaimers when a nested async=%s scope finishes',
+    async (async) => {
+      const memory = new JpegXlEncoderMemory(24)
+      let reclaimed = 0
+      const action = () => {
+        const optional = memory.allocate(Uint8Array, 16)
+        memory.registerReclaimer(() => {
+          reclaimed++
+          memory.release(optional)
+        })
+      }
+      if (async) await memory.runAsync(async () => action())
+      else memory.run(action)
+      expect(memory.liveBytes).toBe(0)
+      memory.allocate(Uint8Array, 24)
+      expect(() => memory.allocate(Uint8Array, 1)).toThrow()
+      expect(reclaimed).toBe(0)
+      memory.close()
+    },
+  )
+
+  it('unregisters idempotently without silently discarding required storage', () => {
+    const memory = new JpegXlEncoderMemory(24)
+    const optional = memory.allocate(Uint8Array, 24)
+    const unregister = memory.registerReclaimer(() => memory.release(optional))
+    unregister()
+    unregister()
+    expect(() => memory.allocate(Uint8Array, 1)).toThrow()
+    expect(memory.liveBytes).toBe(24)
+    memory.close()
+  })
+
+  it('rejects registration after the allocation scope closes', () => {
+    const memory = new JpegXlEncoderMemory(24)
+    memory.close()
+    expect(() => memory.registerReclaimer(() => {})).toThrow('closed')
+  })
+})
+
 describe('JPEG XL actual encoder allocations', () => {
   it.each([1, 7] as const)(
     'cancels grouped lossless search at effort %i without output or retained storage',

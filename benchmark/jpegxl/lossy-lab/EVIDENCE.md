@@ -701,3 +701,79 @@ Bounded-run receipt IDs start with `promotion-weighted-`,
 reconstruction reuse, a clean physical-dot unroll confirmation and invariant
 dequantization steps. The bounded post-promotion Butteraugli phase has not
 started.
+
+## Bounded AC reconstruction cache, 2026-10-11
+
+The candidate retains up to four compact AC groups after strategy and
+quantization selection. Consumers use the existing primary coefficient storage.
+Inactive cached copies are released before an allocation would exceed the
+original working-memory limit. At most 1,589,248 additional bytes are retained,
+independent of source dimensions. No compression tool or effort-9 search changes.
+The measured production source hash is
+`cd91503f0e0cb99caf56e6efe39d076fe106538fd8e6aa8dc433dd2bbce95b38`.
+
+All 27 public encoder comparisons match `91d320eb` byte for byte across depth,
+progressive mode, alpha and working budgets. A six-group fixture exercises cache
+eviction. All eighteen focused tests pass, including six new lifecycle cases
+and twelve original quality, size, storage and cancellation properties. The
+prototype and safe implementation each win all seven ordinary-crop cold pairs.
+The safe implementation's paired median is -13.46462%, with 1.05826 percentage
+points MAD. The slower neighbor has six wins in seven pairs, paired median
+-1.38866%, with no separate small-gain claim.
+
+All eighty screen files, 576 full-development files and 64 isolated-speed files
+match the preceding checkpoint exactly. All mean and individual BD-rate deltas
+are zero. Full development finishes in 8m45.83s at 1.3 GiB with zero swap.
+All 384 comparisons compute; 209 partial-range warnings remain and strict
+required-range completeness stays false. The same-ladder baseline deltas and
+both peer columns remain in the lab log. Compression entry still fails and
+holdout remains unopened.
+
+All 192 isolated engine jobs are fresh, with one worker and no failures or
+omissions. Own median falls 14.84960% to 2,677.834ms, mean falls 11.05342% to
+3,469.876ms and worst falls 2.68856% to 15,119.135ms against `91d320eb`.
+Fresh jSquash median 487.368ms and vips 339.625ms give ratios 5.49448x and
+7.88468x. The 3x target still fails. Managed peaks remain 34,260,047 bytes
+in full development and 34,223,399 bytes in isolated speed. Worker RSS rises
+0.28075% to 298,463,232 bytes. The timing guard takes 6m35.90s, peaks at
+408.5 MiB and uses no swap.
+
+Seventeen fresh native/Rust grids pass within one native color code with exact
+alpha, including eleven effort-9 fixtures. All 29 Chromium cases pass, covering
+multigroup coefficient orders, family contexts, constrained-memory fallbacks,
+learned palettes and lossless encoding. Decoder guard: 1m0.89s, 451.3 MiB;
+browser guard: 4m33.22s, 1.8 GiB; zero swap. Effort 9 remains untuned and its
+comparison screen waits for promotion. Bundles are 596,853 / 669,674 bytes;
+ceilings remain 610,000 / 685,000 and size is report-only.
+
+Cleanup removes 890 regenerated PNGs and reclaims 385,997,395 bytes
+(368.12 MiB). Their 890 JXL files and 314 complete result files remain. The
+deletion records retain PNG, JXL and metadata hashes. Inputs, encoded streams,
+scores, peer curves, source snapshots, profiles and independent grids remain.
+All static gates, including browser:check and unchanged ceilings, pass. The
+complete repository check has 3,894 passes, the same three held frame/layout
+failures and three skips across 304 files. The suite takes 615.93s; the guard
+takes 11m41.85s at 2.7 GiB with zero swap. The final summary verifies unchanged
+production source through measurement and qualification. No property bound or
+existing expected value changes. No temporary file is staged and no main
+promotion is claimed.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Prototype source and initial timing | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/prototype.ts`, `.tmp/jpegxl-lossy-lab/promotion-ac-cache-pairs/summary.json`, `statistics.json` |
+| Safe source, memory comparisons and focused tests | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/frozen-source.json`, `source.ts`, `memory.ts`, `budgets.json`, `focused.log`, `reclaimers-r2.log`, `biome-r1.log` |
+| Safe ordinary-crop and neighbor timing | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-pairs-r1/summary.json`, `statistics.json`, `.tmp/jpegxl-lossy-lab/promotion-ac-cache-neighbor/summary.json`, `statistics.json` |
+| Fixed screen and exact output | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-screen/summary.json`, `versus-91d.json`, `byte-comparison.json` |
+| Full development and exact output | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-full/summary.json`, `reduction.json`, `byte-comparison.json` |
+| Full same-ladder comparisons | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-full/versus-91d.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Fresh isolated timing and exact files | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-speed/summary.json`, `versus-91d.json`, `byte-comparison.json`, `progress.json` |
+| Complete native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Chromium, bundle and documentation checks | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/browser.log`, `size.log`, `documentation-write.log` |
+| Full check | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/check.log`, `final-summary.json` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-ac-cache-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipt IDs start with `promotion-ac-cache-` under
+`.tmp/jpegxl-m7/bounded-runs/`. The next speed hypotheses are profiling the
+remaining transform-selection work, a clean physical-dot unroll confirmation
+and invariant dequantization steps. Main is unchanged. The bounded
+post-promotion Butteraugli phase has not started.

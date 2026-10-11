@@ -2168,12 +2168,97 @@ function* prepare8(
   const passStorage = progressive
     ? acStorage.map(() => allocateJpegXlArray(memory, Int16Array, 32 * 32 * 64))
     : undefined
+  const acCacheScope = memory.currentScope
+  const retainedAcGroups: { group: number; planes: readonly VarDctCoefficientPlane[] }[] = []
+  let retainAcGroups = false,
+    nextAcCacheSlot = 0
+  let unregisterAcCache: (() => void) | undefined
+  const clearAcCache = (): void => {
+    retainAcGroups = false
+    for (const entry of retainedAcGroups) {
+      for (const plane of entry.planes) memory.release(plane.coefficients)
+      const offsets = entry.planes[0]?.coefficientOffsets
+      if (offsets) memory.release(offsets)
+    }
+    retainedAcGroups.length = 0
+    unregisterAcCache?.()
+    unregisterAcCache = undefined
+  }
+  const reconstructAcGroup = (group: number): readonly VarDctCoefficientPlane[] => {
+    if (!retainAcGroups) return fillAcGroup(group)
+    for (const entry of retainedAcGroups) {
+      if (entry.group !== group) continue
+      // Consumers borrow the primary scratch, so inactive cached copies can be reclaimed safely.
+      return entry.planes.map((plane, channel) => {
+        const coefficients = acStorage[channel]
+        if (!coefficients) throw invalidJpegXlInput('AC cache channel')
+        const count = plane.blocksPerLineForMcu * plane.blocksPerColumnForMcu
+        coefficients.set(plane.coefficients.subarray(0, count * 64))
+        if (plane.coefficientOffsets) {
+          if (!groupCoefficientOffsets) throw invalidJpegXlInput('AC cache offsets')
+          groupCoefficientOffsets.set(plane.coefficientOffsets.subarray(0, count))
+        }
+        return {
+          ...plane,
+          coefficients,
+          ...(groupCoefficientOffsets
+            ? { coefficientOffsets: groupCoefficientOffsets.subarray(0, count) }
+            : {}),
+        }
+      })
+    }
+    const source = fillAcGroup(group)
+    const entry = retainedAcGroups[nextAcCacheSlot]
+    const admitted: ArrayBufferView[] = []
+    try {
+      let offsets = entry?.planes[0]?.coefficientOffsets
+      if (groupCoefficientOffsets) {
+        if (!offsets) {
+          offsets = memory.allocate(Int32Array, 32 * 32, acCacheScope)
+          admitted.push(offsets)
+        }
+        offsets.set(groupCoefficientOffsets)
+      }
+      const stored = source.map((plane, channel) => {
+        const previous = entry?.planes[channel]
+        let coefficients = previous?.coefficients
+        if (!coefficients) {
+          coefficients = memory.allocate(Int16Array, 32 * 32 * 64, acCacheScope)
+          admitted.push(coefficients)
+        }
+        if (!(coefficients instanceof Int16Array)) throw invalidJpegXlInput('AC cache type')
+        const count = plane.blocksPerLineForMcu * plane.blocksPerColumnForMcu
+        coefficients.set(plane.coefficients.subarray(0, count * 64))
+        return {
+          blocksPerLineForMcu: plane.blocksPerLineForMcu,
+          blocksPerColumnForMcu: plane.blocksPerColumnForMcu,
+          coefficients,
+          ...(offsets ? { coefficientOffsets: offsets } : {}),
+        }
+      })
+      if (!retainAcGroups) {
+        for (const view of admitted) memory.release(view)
+        return source
+      }
+      const saved = { group, planes: stored }
+      if (entry) retainedAcGroups[nextAcCacheSlot] = saved
+      else retainedAcGroups.push(saved)
+      nextAcCacheSlot = (nextAcCacheSlot + 1) & 3
+      unregisterAcCache ??= memory.registerReclaimer(clearAcCache, acCacheScope)
+      return source
+    } catch (error) {
+      for (const view of admitted) memory.release(view)
+      rethrowJpegXlNonLimitError(error)
+      clearAcCache()
+      return source
+    }
+  }
   let cachedGroup = -1
   let cachedPlanes: readonly VarDctCoefficientPlane[] = []
   const loadAc = passStorage
     ? (group: number, pass: number): readonly VarDctCoefficientPlane[] => {
         if (cachedGroup !== group) {
-          cachedPlanes = fillAcGroup(group)
+          cachedPlanes = reconstructAcGroup(group)
           cachedGroup = group
         }
         return cachedPlanes.map((plane, channel) => {
@@ -2195,7 +2280,7 @@ function* prepare8(
       }
     : (group: number): readonly VarDctCoefficientPlane[] => {
         if (cachedGroup !== group) {
-          cachedPlanes = fillAcGroup(group)
+          cachedPlanes = reconstructAcGroup(group)
           cachedGroup = group
         }
         return cachedPlanes
@@ -2429,6 +2514,8 @@ function* prepare8(
       for (const view of retained) memory.release(view)
     }
   }
+  // Start retaining groups only after strategy/Q selection has finished.
+  retainAcGroups = effort >= 7 && groupsAcross * Math.ceil(blocksHigh / 32) > 1
   return resultGeometry
 }
 

@@ -24,6 +24,7 @@ interface ArrayConstructor<T extends OwnedArray> {
 interface AllocationScope {
   readonly buffers: Set<ArrayBuffer>
   readonly parent?: AllocationScope
+  reclaimers?: Set<() => void>
   closed: boolean
 }
 
@@ -31,6 +32,7 @@ interface AllocationScope {
 export class JpegXlEncoderMemory {
   readonly #limit: number
   readonly #owners = new Map<ArrayBuffer, AllocationScope>()
+  readonly #reclaimers = new Set<() => void>()
   #scope: AllocationScope = { buffers: new Set(), closed: false }
   #live = 0
   #peak = 0
@@ -76,6 +78,25 @@ export class JpegXlEncoderMemory {
     this.#releaseBuffer(view.buffer)
   }
 
+  /** Run a one-shot cleanup of inactive optional storage before refusing an allocation. */
+  registerReclaimer(reclaim: () => void, scope = this.#scope): () => void {
+    if (scope.closed) throw invalidJpegXlInput('allocation scope is closed')
+    scope.reclaimers ??= new Set()
+    const scoped = scope.reclaimers
+    scoped.add(reclaim)
+    this.#reclaimers.add(reclaim)
+    return () => {
+      scoped.delete(reclaim)
+      this.#reclaimers.delete(reclaim)
+    }
+  }
+
+  #forgetReclaimers(scope: AllocationScope): void {
+    if (!scope.reclaimers) return
+    for (const reclaim of scope.reclaimers) this.#reclaimers.delete(reclaim)
+    scope.reclaimers.clear()
+  }
+
   /** Escapes returned backing buffers, then releases all other scoped allocations. */
   run<T>(action: () => T): T {
     const parent = this.#scope
@@ -87,6 +108,7 @@ export class JpegXlEncoderMemory {
       this.#promote(result, scope, parent)
       return result
     } finally {
+      this.#forgetReclaimers(scope)
       for (const buffer of scope.buffers) this.#releaseBuffer(buffer)
       scope.closed = true
       this.#scope = parent
@@ -104,6 +126,7 @@ export class JpegXlEncoderMemory {
       this.#promote(result, scope, parent)
       return result
     } finally {
+      this.#forgetReclaimers(scope)
       for (const buffer of scope.buffers) this.#releaseBuffer(buffer)
       scope.closed = true
       this.#scope = parent
@@ -134,6 +157,7 @@ export class JpegXlEncoderMemory {
   close(): void {
     if (this.#scope.closed) return
     if (this.#scope.parent) throw invalidInput('Cannot close JPEG XL memory inside an active scope')
+    this.#forgetReclaimers(this.#scope)
     for (const buffer of this.#scope.buffers) this.#releaseBuffer(buffer)
     this.#scope.closed = true
     if (this.#live !== 0 || this.#owners.size !== 0)
@@ -144,6 +168,12 @@ export class JpegXlEncoderMemory {
     if (scope.closed) throw invalidJpegXlInput('allocation scope is closed')
     if (!Number.isSafeInteger(bytes) || bytes < 0)
       throw invalidJpegXlInput('allocation size must be a nonnegative safe integer')
+    if (bytes > this.#limit - this.#live)
+      for (const reclaim of this.#reclaimers) {
+        this.#reclaimers.delete(reclaim)
+        reclaim()
+        if (bytes <= this.#limit - this.#live) break
+      }
     if (bytes > this.#limit - this.#live)
       throw limitExceeded(
         `JPEG XL encoder requires ${this.#live + bytes} live backing bytes; maxWorkingBytes is ${this.#limit}`,
