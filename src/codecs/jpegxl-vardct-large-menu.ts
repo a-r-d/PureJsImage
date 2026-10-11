@@ -75,8 +75,14 @@ const decoded = (value: number, channel: number): number =>
     : Math.abs(value) === 1
       ? Math.sign(value) * (defaultJpegXlQuantizationBiases[channel] ?? 1)
       : value - 0.145 / value
-const rateToken = (value: number): number =>
-  value === 0 ? 0 : 1 + 2 * Math.log2(1 + Math.abs(value))
+const integerTokenRates = new Float64Array(4096)
+for (let value = 1; value < integerTokenRates.length; value++)
+  integerTokenRates[value] = 1 + 2 * Math.log2(1 + value)
+const rateToken = (value: number): number => {
+  if (value === 0) return 0
+  const magnitude = Math.abs(value)
+  return integerTokenRates[magnitude] ?? 1 + 2 * Math.log2(1 + magnitude)
+}
 const isLf = (position: number, strategy: number): boolean =>
   strategy === 4 ? position >>> 4 < 2 && (position & 15) < 2 : position === 0
 const table = (strategy: number): readonly Float64Array[] =>
@@ -518,13 +524,17 @@ export function* prepareJpegXlLargeMenus(
                 if (!isLf(p, strategy)) {
                   const step = scale * (matrix[p] ?? 0),
                     value = input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
+                  if (value === 0) {
+                    coeff[p] = 0 * step
+                    continue
+                  }
                   requireValue(Math.abs(value) <= 4095, 'Original large-menu AC range')
                   baselineCoefficientRate += rateToken(value)
                   if (integers) {
                     baselineMagnitudeRate += rateToken(value)
                     integers[p] = value
                   }
-                  if (value !== 0) nonzero++
+                  nonzero++
                   coeff[p] = decoded(value, c) * step
                 }
               if (coherent) baselineConditionalRate += price(strategy, c)
@@ -636,10 +646,14 @@ export function* prepareJpegXlLargeMenus(
                   if (!(p >>> 5 < 2 && (p & 31) < 4)) {
                     const step = scale * (matrix[p] ?? 0),
                       value = input.quantizeAc((transformed[c]?.[p] ?? 0) / step, c)
+                    if (value === 0) {
+                      coeff[p] = 0 * step
+                      continue
+                    }
                     requireValue(Math.abs(value) <= 4095, 'Rectangle large-menu AC range')
                     if (integers) integers[p] = value
                     else rate += rateToken(value)
-                    if (value !== 0) nonzero++
+                    nonzero++
                     coeff[p] = decoded(value, c) * step
                   }
                 if (coherent) rate += price(horizontal ? 11 : 10, c)
@@ -696,10 +710,14 @@ export function* prepareJpegXlLargeMenus(
               if (!(p >>> 5 < 4 && (p & 31) < 4)) {
                 const step = scale * (matrix[p] ?? 0),
                   value = input.quantizeAc((squareTransformed[c]?.[p] ?? 0) / step, c)
+                if (value === 0) {
+                  coeff[p] = 0 * step
+                  continue
+                }
                 requireValue(Math.abs(value) <= 4095, 'Square large-menu AC range')
                 if (integers) integers[p] = value
                 else rate += rateToken(value)
-                if (value !== 0) nonzero++
+                nonzero++
                 coeff[p] = decoded(value, c) * step
               }
             if (coherent) rate += price(5, c)

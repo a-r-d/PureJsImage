@@ -13,6 +13,12 @@ on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every complet
 commit `468a5bec`. The later owner-directed search migration changes effort-7
 files; its deltas are reported separately. Current
 qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
+The latest menu-loop repairs preserve all 576 development files and improve
+fresh isolated median speed by 6.967% against `07e02607`. The absolute crop
+ratio is still 5.13069x jSquash. Three held mode/frame assertions and development
+entry remain open; an added browser case encounters the same Node mode
+expectation before reaching Chromium. Effort 9 remains untuned, and its
+comparison screen still waits for promotion.
 All 14 E3 screens are measured in
 [TOOL-COSTS.md](TOOL-COSTS.md). Full promotion is still required before main or
 the bounded Butteraugli phase.

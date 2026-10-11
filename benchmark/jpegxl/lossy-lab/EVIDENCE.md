@@ -482,6 +482,89 @@ wins at -1.21630%, but lacks longer confirmation. Its source is saved and revert
 while the larger sorting hotspot is addressed. These are speed repairs; the
 post-promotion Butteraugli phase has not started.
 
+## Exact menu work after the bounded AC cache
+
+The two retained changes replace repeated integer-token logarithms with the
+original Float64 formula in a fixed 32,768-byte table, and avoid redundant
+rate/count work for zero AC tokens. Fractional tokens and DC residuals outside
+the table retain the original formula. Zero reconstruction keeps its original
+multiplication. No existing expected value or quality bound changes. Eight new
+signed, fractional and large-DC rate properties join the eleven menu/model
+properties; all nineteen pass.
+
+Five speed ideas were tested. Token lookup and zero-token work are retained.
+Physical-dot unrolling, fixed cosine-factor lookup and LF reconstruction reuse
+are reverted as neutral. One cosine confirmation overlapped a type check and
+is explicitly inconclusive; its clean repeat did not establish a gain. All raw
+pairs remain in each report. A fresh retained-stack profile still identifies
+large-menu work as the leading own hotspot.
+
+All eighty screen and 576 full-development files match the committed source at
+`07e02607` exactly. Every mean and individual own BD-rate delta is zero. All 64
+development photos and 384 comparisons contribute; the preceding 209
+partial-range warnings remain. Full means versus jSquash are -1.73288% SSIM,
++12.75170% 3-norm and +15.74935% max. Current vips means are +0.66928%,
++9.42715% and +7.43563%. Same-ladder baseline deltas remain -2.37865%,
+-2.51067% and +3.17892%. Earlier effort-migration and individual-image entry
+failures remain; holdout stays unopened. The full guard takes 8m35.95s at
+1.4 GiB with zero swap, and managed peak stays 34,260,047 bytes.
+
+Fresh isolated speed measures all 192 engine jobs without reuse or failures.
+Own median is 2,491.268ms against jSquash 485.562ms and vips 338.595ms:
+5.13069x and 7.35766x. Median falls 6.96705% and mean falls 3.71302% to
+3,341.039ms versus the preceding candidate. Worst rises 1.83659% to
+15,396.812ms. All 64 own files match exactly. Managed peak stays 34,223,399
+bytes; worker RSS rises 2.80923% to 306,847,744 bytes. The guard takes 6m27.41s
+at 410.9 MiB with zero swap. This is a retained speed gain; the 3x target and
+original qualification still fail.
+
+Seventeen fresh native/Rust grids agree within one native color code with exact
+alpha, including eleven effort-9 cases. Effort 9 remains untuned; its
+comparison screen waits for promotion. All 29 earlier Chromium cases pass.
+An added thirtieth case fails its Node VarDCT assertion before reaching the
+browser. A source control at the preceding committed hash reproduces its
+5,265-byte Modular result against 32,896 conservative bytes. This is the same
+held palette/mode contract, not a new compression change. Its assertion is
+unchanged. The current source is restored and verified after that separate
+control. Oracle guard: 1m1.11s, 430.2 MiB. Browser guard: 4m38.01s, 2.1 GiB.
+Control guard: 4.08s, 243.8 MiB. Every run has zero swap.
+
+Bundles are 597,042 and 669,863 bytes, each up 189 bytes. Approved check ceilings
+stay 610,000 and 685,000. Bundle size remains a report, not a promotion gate.
+Scoped cleanup removes 1,056 reproducible decoded PNGs, reclaiming 470,963,259
+bytes (449.15 MiB), with their 1,056 JXL files and 480 complete results retained.
+Deletion receipts contain PNG, encoded and metadata hashes. Source snapshots,
+profiles, inputs, scores and independent grids remain. The full repository
+check has 3,902 passes, the same three held layout failures and three skips
+across 304 files. Every static gate passes, including browser:check and
+unchanged ceilings. The suite takes 500.34s; the complete guard takes 9m46.20s
+at 2.6 GiB with zero swap. Final qualification verifies that the source matches
+the measured source after the separate committed-source control. No temporary
+file is staged, and main promotion remains open.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Post-cache and retained-token CPU profiles | `.tmp/jpegxl-lossy-lab/promotion-post-cache-profile/profile-summary.json`, `.tmp/jpegxl-lossy-lab/promotion-menu-rate-profile/profile-summary.json` |
+| Neutral physical-loop repeat | `.tmp/jpegxl-lossy-lab/promotion-physical-unroll-r1-pairs/summary.json`, `statistics.json`, `.tmp/jpegxl-lossy-lab/promotion-physical-unroll-r1-validation/source.ts` |
+| Token lookup and confirmation | `.tmp/jpegxl-lossy-lab/promotion-menu-rate-pairs/summary.json`, `.tmp/jpegxl-lossy-lab/promotion-menu-rate-confirmation/summary.json`, `statistics.json` |
+| Cosine trial and clean confirmation | `.tmp/jpegxl-lossy-lab/promotion-lf-factors-pairs/summary.json`, `.tmp/jpegxl-lossy-lab/promotion-lf-factors-confirmation/summary.json`, `.tmp/jpegxl-lossy-lab/promotion-lf-factors-clean/summary.json`, `statistics.json` |
+| Neutral LF reuse | `.tmp/jpegxl-lossy-lab/promotion-lf-reuse-pairs/summary.json`, `statistics.json`, `.tmp/jpegxl-lossy-lab/promotion-lf-reuse-validation/source.ts` |
+| Zero-token work and confirmation | `.tmp/jpegxl-lossy-lab/promotion-menu-zero-pairs/summary.json`, `.tmp/jpegxl-lossy-lab/promotion-menu-zero-confirmation/summary.json`, `statistics.json` |
+| Frozen current source and tests | `.tmp/jpegxl-lossy-lab/promotion-menu-work-validation/frozen-source.json`, `source.ts`, `test.ts`, `restored-source.json` |
+| Fixed screen and full development | `.tmp/jpegxl-lossy-lab/promotion-menu-work-screen/versus-07e.json`, `byte-comparison.json`, `.tmp/jpegxl-lossy-lab/promotion-menu-work-full/summary.json`, `byte-comparison.json`, `versus-07e.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-menu-work-speed/summary.json`, `versus-07e.json`, `byte-comparison.json`, `progress.json` |
+| Full native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-menu-work-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Chromium and committed-source mode control | `.tmp/jpegxl-lossy-lab/promotion-menu-work-validation/browser.log`, `baseline-mode-control.json`, `baseline-mode-control.log` |
+| Bundle, generated documentation and repository check | `.tmp/jpegxl-lossy-lab/promotion-menu-work-validation/size.log`, `documentation-write.log`, `check.log`, `final-summary.json` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-menu-work-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded receipt IDs begin with `promotion-menu-`, `promotion-lf-` and
+`promotion-physical-unroll-r1-` under `.tmp/jpegxl-m7/bounded-runs/`.
+The next hypotheses are a provably-zero shortcut before rate-aware rounding,
+estimated effort-7 AC model choice before complete serialization, and reuse of
+original quantized coefficients in baseline menus. No source is copied from
+another codec implementation. Main remains unchanged.
+
 Seventeen fresh complete grids pass both native libjxl and jxl-rs within one code
 value with exact alpha. They cover three affected lossless cases, eleven effort-9
 cases and three photos. All eleven learned-palette/lossless Chromium cases pass.

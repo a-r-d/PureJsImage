@@ -44,6 +44,58 @@ const fixture = (wide = 4, high = 4): JpegXlLargeMenuInput => {
 }
 
 describe('bounded JPEG XL large-transform menus', () => {
+  it.each([-4095, -1, -0.5, 0, 0.5, 1, 4095])(
+    'preserves estimated AC rates for signed or fractional token %s',
+    (token) => {
+      const input = fixture()
+      const rate = token === 0 ? 0 : 1 + 2 * Math.log2(1 + Math.abs(token))
+      let windows = 0
+      for (const _ of prepareJpegXlLargeMenus({
+        ...input,
+        quantizeAc: () => token,
+        addWindow: (_index, menu) => {
+          windows++
+          for (let index = 0; index < menu.coefficientRates.length; index++) {
+            const count = index < 36 ? 3 * (512 - 8) : 3 * (1024 - 16)
+            let expected = 0
+            for (let p = 0; p < count; p++) expected += rate
+            expect(menu.coefficientRates[index]).toBe(expected)
+          }
+        },
+      })) {
+        /* consume cooperative yields */
+      }
+      expect(windows).toBe(1)
+      expect(input.memory.liveAllocations).toBe(0)
+    },
+  )
+
+  it('preserves estimated DC rates beyond the AC range and across signed-word extremes', () => {
+    const input = fixture()
+    for (let y = 0; y < 4; y++) {
+      input.dc[0][y * 4] = -2147483648
+      for (let x = 1; x < 4; x++) input.dc[0][y * 4 + x] = 2147483647
+    }
+    input.dc[1].fill(-4096)
+    input.dc[2].fill(4096)
+    let expected = 0,
+      windows = 0
+    for (const magnitude of [2147483648, 4294967295, 4096, 4096])
+      expected += 1 + 2 * Math.log2(1 + magnitude)
+    for (const _ of prepareJpegXlLargeMenus({
+      ...input,
+      quantizeAc: () => 0,
+      addWindow: (_index, menu) => {
+        windows++
+        expect(menu.baselineCoefficientRate).toBe(expected)
+      },
+    })) {
+      /* consume cooperative yields */
+    }
+    expect(windows).toBe(1)
+    expect(input.memory.liveAllocations).toBe(0)
+  })
+
   it('selects complete large transforms from nonconstant source without changing its baseline', () => {
     const result = verifyLargeSourceSelection()
     expect(result.menuCount).toBe(2)
