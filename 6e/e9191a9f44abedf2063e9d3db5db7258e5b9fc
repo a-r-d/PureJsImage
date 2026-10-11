@@ -1,0 +1,55 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_3e5fc41bc374a9 728
+  s_2b0ba550ad1491::t_bd1e095da2e864 704
+  s_2b0ba550ad1491::t_709e863205c69d 716
+  s_2b0ba550ad1491::t_7897caad686108 720
+  s_2b0ba550ad1491::t_44626711f6aded 718
+  s_2b0ba550ad1491::t_949a9e3596fb12 724
+  s_2b0ba550ad1491::t_9bafc25b6f4364 15-16,23,28-29,699,701,703,705,707,709,711,713,715,717,719,721,723,725,727,729,731,733,735,737,739,741,743,745-747
+  s_2b0ba550ad1491::t_1535f78d94eae3 726
+  s_2b0ba550ad1491::t_277002395f4ad5 730
+  s_2b0ba550ad1491::t_764e2f04a5475e 714
+  s_2b0ba550ad1491::t_35398d4258488d 702
+  s_2b0ba550ad1491::t_7a00541fc3b323 722
+  s_2b0ba550ad1491::t_fbde920a4098c7 706
+  s_2b0ba550ad1491::t_b5cecab00d0d5c 734
+  s_2b0ba550ad1491::t_f992dbe0391ee0 11
+  s_2b0ba550ad1491::t_fce53c821e9288 698
+  s_2b0ba550ad1491::t_b14e07d309792c 738
+  s_2b0ba550ad1491::t_70b5e0d55676d3 740,742,744
+  s_2b0ba550ad1491::t_8fa95e5b93acb1 710
+  s_2b0ba550ad1491::t_5a4fb4b8b5a60d 732
+  s_2b0ba550ad1491::t_cd866cec219ff0 736
+  s_2b0ba550ad1491::t_886bebf82209dd 712
+  s_2b0ba550ad1491::t_8de4e80ec99561 700
+  s_2b0ba550ad1491::t_a70451e783be97 708
+tests/jpegxl-vardct-large-transforms.test.ts
+  s_2b0ba550ad1491::t_769b38de6e3eb1 2,85-100
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_9bafc25b6f4364 1387-1390,1392-1403
+  s_2b0ba550ad1491::t_70b5e0d55676d3 1354-1386,1391
+benchmark/jpegxl/lossy-lab/README.md
+  s_2b0ba550ad1491::t_f992dbe0391ee0 22-23,28-29
+  s_2b0ba550ad1491::t_70b5e0d55676d3 24-27,32-35
+  s_2b0ba550ad1491::t_9bafc25b6f4364 30-31
+tests/jpegxl-vardct-dct16.test.ts
+  s_2b0ba550ad1491::t_365251257174e3 37,39-46
+  s_2b0ba550ad1491::t_6b0e67248ec960 63-65
+  s_2b0ba550ad1491::t_0cab2fab768371 1-36,38,47-62,66-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6ee9191a9f44abedf2063e9d3db5db7258e5b9fc",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
