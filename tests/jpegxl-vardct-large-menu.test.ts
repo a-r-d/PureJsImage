@@ -67,7 +67,7 @@ describe('bounded JPEG XL large-transform menus', () => {
           calls++
           output.fill(0, 0, count)
           const available = active?.count ?? count
-          if (active) skipped += count - available
+          if (active) skipped += (count === 512 ? 504 : 1008) - available
           let kept = 0
           for (let position = 0; position < available; position++) {
             const p = active ? (active.indices[position] ?? 0) : position

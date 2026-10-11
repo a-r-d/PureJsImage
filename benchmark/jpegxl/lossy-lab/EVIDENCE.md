@@ -1266,3 +1266,44 @@ Bounded receipts use the matching `promotion-active-`, `promotion-aligned-rgba-`
 `promotion-block-cache-`, `promotion-tile-source-cache-`, `promotion-zero-error-cache-`,
 `promotion-lf-once-` and `promotion-plane16-` prefixes under
 `.tmp/jpegxl-m7/bounded-runs/`. LL-212 through LL-234 record the trials and checks.
+
+## Physical-error rows and token clearing (2026-10-11)
+
+Eight speed hypotheses produced two retained local gains and six reverted trials.
+Physical-error accumulation now splits each row's LF prefix from AC, preserving
+the sum order. Plane quantization omits a clear because every consumed AC slot
+is overwritten. The zero-skipping test excludes LF from its counter without
+changing its expectation. Both local gains have 21-pair confirmation. A
+distance-three neighbor check preserves files and shows no regression.
+
+All eighty screen files, 576 full-development files and sixty-four timed files
+match `b84b2d47` exactly. BD-rate against both peers and the full development
+baseline is unchanged. Fresh median speed is 1,666.151ms, a neutral 0.142%
+improvement over that checkpoint and 3.41785x jSquash. Managed peaks are unchanged;
+worker RSS is 2.499% lower. The formal speed gate still fails.
+
+The final repository check has 3,910 passes, the same three held mode/frame
+failures and three skips. Every static gate passes, including browser:check.
+All 21 fresh native/Rust grids and 29 real Chromium cases pass. Bundles are
+600,019 / 672,835 bytes, up 134 each; ceilings stay 610,000 / 685,000 and remain
+outside the promotion gates. Cleanup removes 1,266 PNGs / 543.87 MiB, retaining
+1,266 encoded files and 626 complete results. Tested source matches measured
+source. Development entry and the three held assertions remain open; holdout
+and the post-promotion Butteraugli phase remain reserved.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| Trials and confirmations | `.tmp/jpegxl-lossy-lab/promotion-split-quantizer-pairs/`, `promotion-error-rows-pairs/`, `promotion-channel-quantizer-pairs/`, `promotion-dct16-unroll-pairs/`, `promotion-channel-order-pairs/`, `promotion-context-shifts-pairs/`, `promotion-plane-no-clear-pairs/`, `promotion-small-tokens-pairs/` and their confirmation directories |
+| Repair screens | `.tmp/jpegxl-lossy-lab/promotion-error-rows-screen/`, `promotion-plane-no-clear-screen/` |
+| Full development and comparisons | `.tmp/jpegxl-lossy-lab/promotion-row-stack-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-b84.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-row-stack-speed/summary.json`, `reduction.json`, `versus-b84.json`, `byte-comparison.json`, `progress.json` |
+| Neighbor and profiles | `.tmp/jpegxl-lossy-lab/promotion-row-stack-distance3-pairs/summary.json`, `statistics.json`, `promotion-error-rows-profile/profile-summary.json`, `promotion-row-stack-profile/profile-summary.json` |
+| Native/Rust and Chromium | `.tmp/jpegxl-lossy-lab/promotion-row-stack-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json`, `browser.log` |
+| Frozen source and cleanup | `.tmp/jpegxl-lossy-lab/promotion-row-stack-validation/frozen-source.json`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+| Bundles, docs and repository checks | `.tmp/jpegxl-lossy-lab/promotion-row-stack-validation/size.log`, `documentation-write.log`, `check.log` |
+| Final qualification and identity | `.tmp/jpegxl-lossy-lab/promotion-row-stack-validation/final-summary.json`, `post-doc-source.json`, `committed-source.json` |
+
+Bounded receipts use the matching `split-quantizer-`, `error-rows-`,
+`channel-quantizer-`, `dct16-unroll-`, `channel-order-`, `context-shifts-`,
+`plane-no-clear-`, `small-tokens-` and `promotion-row-stack-` prefixes under
+`.tmp/jpegxl-m7/bounded-runs/`. LL-235 onward records this session's evidence.

@@ -583,7 +583,7 @@ export function* prepareJpegXlLargeMenus(
           }
     }
     const physicalError = (
-      count: number,
+      count: 512 | 1024,
       weight: number,
       lfRows: 2 | 4,
       ratioX: number,
@@ -597,20 +597,27 @@ export function* prepareJpegXlLargeMenus(
         b = coefficients[2],
         blueLuma = 1 + ratioB
       let sum = 0
-      for (let p = 0; p < count; p++) {
-        const sy = y[p] ?? 0
-        let sx = x[p] ?? 0,
-          sb = b[p] ?? 0
-        // Compact LF is already physical. Restore AC while measuring its error,
-        // avoiding a separate pass and writes to coefficient scratch.
-        if (p >>> 5 >= lfRows || (p & 31) >= 4) {
-          sx += ratioX * sy
-          sb += blueLuma * sy
+      // Compact LF is already physical. Split each row's LF prefix from AC to
+      // resolve the geometry once per row, preserving ascending accumulation.
+      for (let row = 0; row < count; row += 32) {
+        const lfEnd = row < lfRows * 32 ? row + 4 : row
+        let p = row
+        for (; p < lfEnd; p++) {
+          const sy = y[p] ?? 0,
+            ex = (sourceX[p] ?? 0) - (x[p] ?? 0),
+            ey = (sourceY[p] ?? 0) - sy,
+            eb = (sourceB[p] ?? 0) - (b[p] ?? 0)
+          sum += (ey + ex) ** 2 + (ey - ex) ** 2 + eb ** 2
         }
-        const ex = (sourceX[p] ?? 0) - sx,
-          ey = (sourceY[p] ?? 0) - sy,
-          eb = (sourceB[p] ?? 0) - sb
-        sum += (ey + ex) ** 2 + (ey - ex) ** 2 + eb ** 2
+        for (; p < row + 32; p++) {
+          const sy = y[p] ?? 0,
+            sx = (x[p] ?? 0) + ratioX * sy,
+            sb = (b[p] ?? 0) + blueLuma * sy,
+            ex = (sourceX[p] ?? 0) - sx,
+            ey = (sourceY[p] ?? 0) - sy,
+            eb = (sourceB[p] ?? 0) - sb
+          sum += (ey + ex) ** 2 + (ey - ex) ** 2 + eb ** 2
+        }
       }
       return sum * count * weight
     }

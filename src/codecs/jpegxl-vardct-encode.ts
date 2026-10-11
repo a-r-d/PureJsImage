@@ -1300,7 +1300,8 @@ function* prepare8(
       lfMask = count === 256 ? 15 : 31,
       lfColumns = count === 256 ? 2 : 4,
       unitThreshold = bias / 2 + (1.5 * weight) / bias
-    output.fill(0, 0, count)
+    // Every consumed AC token is assigned below. Readers exclude LF and, with
+    // an active list, positions removed by this call; stale slots are not read.
     const available = active?.count ?? count
     let kept = 0
     // Descending Q makes these fixed positive steps larger. Compact the indices
