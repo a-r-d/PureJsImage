@@ -26,6 +26,10 @@ import {
 
 type Planes = readonly [Float64Array, Float64Array, Float64Array]
 type SourcePlanes = readonly [Float32Array, Float32Array, Float32Array]
+export interface JpegXlLargeAcIndices {
+  readonly indices: Uint16Array
+  count: number
+}
 export interface JpegXlLargeMenuInput {
   readonly memory: JpegXlEncoderMemory
   readonly coherent?: {
@@ -54,7 +58,7 @@ export interface JpegXlLargeMenuInput {
     channel: number,
     count: 512 | 1024,
     output: Float64Array,
-    zeroMask?: Uint8Array,
+    active?: JpegXlLargeAcIndices,
   ) => void
   /** Fixed positive steps and a monotonic zero interval permit descending-Q reuse. */
   readonly monotonicLargeZeros?: boolean
@@ -270,7 +274,12 @@ function forwardPhysical(
     }
   }
 }
-function insertLf(dc: Float64Array, output: Float64Array, strategy: 4 | 5 | 10 | 11): void {
+function insertLf(
+  dc: Float64Array,
+  output: Float64Array,
+  strategy: 4 | 5 | 10 | 11,
+  start = 0,
+): void {
   const width = strategy === 10 || strategy === 4 ? 2 : 4,
     height = strategy === 11 || strategy === 4 ? 2 : 4
   for (let h = 0; h < (strategy === 10 || strategy === 11 ? 2 : width); h++)
@@ -292,7 +301,7 @@ function insertLf(dc: Float64Array, output: Float64Array, strategy: 4 | 5 | 10 |
           }
         }
       const at = strategy === 4 ? h * 16 + v : h * 32 + v
-      output[at] =
+      output[start + at] =
         (sum / Math.sqrt(width * height)) *
         resample(h, strategy === 5 ? 4 : 2) *
         resample(v, strategy === 4 ? 2 : 4)
@@ -411,21 +420,31 @@ export function* prepareJpegXlLargeMenus(
         rethrowJpegXlNonLimitError(error)
       }
     }
-    let largeZeroFlags: Uint8Array | undefined
+    let largeIndices: Uint16Array | undefined
     if (largeValues && input.monotonicLargeZeros) {
       try {
-        largeZeroFlags = own(memory.allocate(Uint8Array, 3 * 1024))
+        largeIndices = u16(3 * 1024)
       } catch (error) {
         rethrowJpegXlNonLimitError(error)
       }
     }
-    const zeroMasks = largeZeroFlags
+    const activePlanes = largeIndices
       ? [
-          largeZeroFlags.subarray(0, 1024),
-          largeZeroFlags.subarray(1024, 2048),
-          largeZeroFlags.subarray(2048, 3072),
+          { indices: largeIndices.subarray(0, 1024), count: 0 },
+          { indices: largeIndices.subarray(1024, 2048), count: 0 },
+          { indices: largeIndices.subarray(2048, 3072), count: 0 },
         ]
       : undefined
+    const resetActive = (count: 512 | 1024): void => {
+      if (!activePlanes) return
+      const lfRows = count === 512 ? 2 : 4
+      for (const active of activePlanes) {
+        let kept = 0
+        for (let p = 0; p < count; p++)
+          if (!(p >>> 5 < lfRows && (p & 31) < 4)) active.indices[kept++] = p
+        active.count = kept
+      }
+    }
     const transformOriginal = (x: number, y: number, strategy: number): SourcePlanes => {
       requireValue(
         strategy === 0 || strategy === 1 || strategy === 4 || strategy === 12 || strategy === 13,
@@ -538,6 +557,30 @@ export function* prepareJpegXlLargeMenus(
         for (let p = 0; p < 16; p++)
           compactDc[family * 48 + (c === 0 ? 1 : c === 1 ? 0 : 2) * 16 + p] =
             dcWords[c * 16 + p] ?? 0
+    }
+    const cacheLf = (
+      strategy: 5 | 10 | 11,
+      ox: number,
+      oy: number,
+      bw: number,
+      bh: number,
+    ): void => {
+      // Physical forward transforms have finished. Their scratch now holds the
+      // same LF values for all nine quantizers, with room for three 128-word rows.
+      for (let c = 0; c < 3; c++) {
+        for (let y = 0; y < bh; y++)
+          for (let x = 0; x < bw; x++)
+            compactPhysical[y * bw + x] = halo[c]?.[(oy + y + 1) * 6 + ox + x + 1] ?? 0
+        insertLf(compactPhysical, doubleScratch, strategy, c * 128)
+      }
+    }
+    const restoreLf = (rows: 2 | 4): void => {
+      for (let c = 0; c < 3; c++)
+        for (let row = 0; row < rows; row++)
+          for (let column = 0; column < 4; column++) {
+            const p = row * 32 + column
+            coefficients[c]![p] = doubleScratch[c * 128 + p] ?? 0
+          }
     }
     const physicalError = (
       count: number,
@@ -723,9 +766,10 @@ export function* prepareJpegXlLargeMenus(
                 smallBlock,
               )
             }
-            largeZeroFlags?.fill(0)
+            cacheLf(horizontal ? 11 : 10, ox, oy, bw, bh)
+            resetActive(512)
             for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
-              const qi = largeZeroFlags ? jpegXlLargeQuantizers.length - 1 - position : position
+              const qi = activePlanes ? jpegXlLargeQuantizers.length - 1 - position : position
               const q = jpegXlLargeQuantizers[qi]!,
                 at = orientation * 18 + half * 9 + qi
               let rate = 0
@@ -741,13 +785,16 @@ export function* prepareJpegXlLargeMenus(
                     c,
                     512,
                     largeValues,
-                    zeroMasks?.[c],
+                    activePlanes?.[c],
                   )
                 coeff.fill(0)
                 integers?.fill(0)
+                const active = activePlanes?.[c],
+                  available = active?.count ?? 512
                 let nonzero = 0
-                for (let p = 0; p < 512; p++)
-                  if (!(p >>> 5 < 2 && (p & 31) < 4)) {
+                for (let position = 0; position < available; position++) {
+                  const p = active ? (active.indices[position] ?? 0) : position
+                  if (active || !(p >>> 5 < 2 && (p & 31) < 4)) {
                     const step = scale * (matrix[p] ?? 0),
                       value = largeValues
                         ? (largeValues[p] ?? 0)
@@ -762,15 +809,11 @@ export function* prepareJpegXlLargeMenus(
                     nonzero++
                     coeff[p] = decoded(value, c) * step
                   }
+                }
                 if (coherent) rate += price(horizontal ? 11 : 10, c)
                 nonzeroCounts[at * 3 + c] = nonzero
               }
-              for (let c = 0; c < 3; c++) {
-                for (let y = 0; y < bh; y++)
-                  for (let x = 0; x < bw; x++)
-                    compactPhysical[y * bw + x] = halo[c]?.[(oy + y + 1) * 6 + ox + x + 1] ?? 0
-                insertLf(compactPhysical, coefficients[c]!, horizontal ? 11 : 10)
-              }
+              restoreLf(2)
               coefficientRates[at] = rate
               errors[at] = physicalError(512, weight, 2, rx, rb)
             }
@@ -802,9 +845,10 @@ export function* prepareJpegXlLargeMenus(
         fillHalo(bx, by, dcWords)
         dcRates[2] = dcRate(bx, by, dcWords)
         saveDc(2)
-        largeZeroFlags?.fill(0)
+        cacheLf(5, 0, 0, 4, 4)
+        resetActive(1024)
         for (let position = 0; position < jpegXlLargeQuantizers.length; position++) {
-          const qi = largeZeroFlags ? jpegXlLargeQuantizers.length - 1 - position : position
+          const qi = activePlanes ? jpegXlLargeQuantizers.length - 1 - position : position
           const q = jpegXlLargeQuantizers[qi]!,
             at = 36 + qi
           let rate = 0
@@ -820,13 +864,16 @@ export function* prepareJpegXlLargeMenus(
                 c,
                 1024,
                 largeValues,
-                zeroMasks?.[c],
+                activePlanes?.[c],
               )
             coeff.fill(0)
             integers?.fill(0)
+            const active = activePlanes?.[c],
+              available = active?.count ?? 1024
             let nonzero = 0
-            for (let p = 0; p < 1024; p++)
-              if (!(p >>> 5 < 4 && (p & 31) < 4)) {
+            for (let position = 0; position < available; position++) {
+              const p = active ? (active.indices[position] ?? 0) : position
+              if (active || !(p >>> 5 < 4 && (p & 31) < 4)) {
                 const step = scale * (matrix[p] ?? 0),
                   value = largeValues
                     ? (largeValues[p] ?? 0)
@@ -841,15 +888,11 @@ export function* prepareJpegXlLargeMenus(
                 nonzero++
                 coeff[p] = decoded(value, c) * step
               }
+            }
             if (coherent) rate += price(5, c)
             nonzeroCounts[at * 3 + c] = nonzero
           }
-          for (let c = 0; c < 3; c++) {
-            for (let y = 0; y < 4; y++)
-              for (let x = 0; x < 4; x++)
-                compactPhysical[y * 4 + x] = halo[c]?.[(y + 1) * 6 + x + 1] ?? 0
-            insertLf(compactPhysical, coefficients[c]!, 5)
-          }
+          restoreLf(4)
           coefficientRates[at] = rate
           errors[at] = physicalError(1024, weight, 4, rx, rb)
         }

@@ -1203,3 +1203,66 @@ Bounded-run receipts use `promotion-plane-rounding-`, `promotion-plane-unit-`,
 `promotion-plane-zero-` and `promotion-plane-stack-` under
 `.tmp/jpegxl-m7/bounded-runs/`. The five reverted trials and refreshed baseline
 profile are logged in LL-194 through LL-200.
+
+## 2026-10-11 active AC visits and bounded source reuse
+
+Eight speed hypotheses were measured against `a74763e7`. Five are retained:
+active AC-index visits, nonzero reconstruction, a sixteen-block source cache,
+LF reconstruction once per geometry and DCT16 plane rounding in existing error
+storage. Aligned RGBA clipping, one-block source caching and zero-channel error
+caching were reverted. Confirmations use fifteen or 21 counterbalanced pairs.
+Two added effort-7 cases cover aligned and partial-edge RGB/RGBA color equality.
+No original property bound or expected value changes.
+
+All eighty final screen files, 576 development files and sixty-four isolated
+speed files match `a74763e7` exactly. Incremental mean and individual BD-rate
+deltas are zero. Full-lab means on the unchanged ladder are:
+
+| Metric | jSquash 1.3.0 reference | wasm-vips 0.0.19 target | Full-baseline delta |
+| --- | ---: | ---: | ---: |
+| SSIMULACRA2 | -1.63003% | +0.77349% | -2.26705% |
+| Butteraugli 3-norm | +12.86651% | +9.54668% | -2.40864% |
+| Butteraugli max | +15.85564% | +7.53200% | +3.28058% |
+
+All 64 photos and 576 points complete without encode failures. The same 209
+partial-range warnings remain. Full-baseline worst regressions and the
+owner-directed effort migration deltas remain unchanged. Development entry
+fails; holdout stays unopened. The bounded Butteraugli phase has not started.
+
+Fresh one-worker speed measures all 192 jobs without reuse: own median
+1,668.513ms, jSquash 489.152ms and vips 337.400ms. Ratios are 3.41103x and
+4.94521x. Own median falls 11.52096%, mean falls 6.80987% to 2,645.333ms and
+worst rises 0.49252% to 15,162.516ms against `a74763e7`. Worker RSS rises
+3.01070% to 304,533,504 bytes. Full-lab managed peak stays 34,260,047 bytes;
+isolated managed peak stays 34,223,399 bytes. The formal 3x crop target still
+fails, and originals remain unqualified against 5x and 131.14 MiB.
+
+Twenty-one fresh native/Rust grids pass, including eleven effort-9 fixtures,
+with color within one code value and exact alpha. Effort 9 remains untuned;
+its comparison screen waits for promotion. All 29 real Chromium cases pass.
+Cleanup removes 1,522 reproducible PNGs and reclaims 680,128,757 bytes, keeping
+their encoded files and 690 complete results. Bundles are 599,885 / 672,701 bytes,
+up 1,049 / 1,051 against `a74763e7`; approved ceilings stay 610,000 / 685,000.
+Full repository check: 3,910 passed, the same three held mode/frame failures
+and three skips across 304 files. Every static gate passes, including
+browser:check and unchanged ceilings. Final qualification confirms the tested
+source matches the measured source, with no original expectation changes.
+Frozen production source:
+`630c620eafa27046bc8a35b5b45aaf41e79b592f124a9a689e8dd6d5c6fc59cd`.
+
+| Evidence | Location |
+| --- | --- |
+| Trial and confirmation statistics | `.tmp/jpegxl-lossy-lab/promotion-active-indices-pairs/`, `promotion-active-reconstruct-pairs/`, `promotion-aligned-rgba-pairs/`, `promotion-block-cache-pairs/`, `promotion-tile-source-cache-pairs/`, `promotion-zero-error-cache-pairs/`, `promotion-lf-once-pairs/`, `promotion-plane16-pairs/` and their confirmation directories |
+| Individual screens | `.tmp/jpegxl-lossy-lab/promotion-active-indices-screen/`, `promotion-active-reconstruct-screen/`, `promotion-tile-source-cache-screen/`, `promotion-lf-once-screen/`, `promotion-active-stack-screen/` |
+| Full development and baseline comparisons | `.tmp/jpegxl-lossy-lab/promotion-active-stack-full/summary.json`, `reduction.json`, `byte-comparison.json`, `versus-a74763e7.json`, `versus-baseline.json`, `versus-preserved.json` |
+| Fresh isolated speed | `.tmp/jpegxl-lossy-lab/promotion-active-stack-speed/summary.json`, `reduction.json`, `versus-a74763e7.json`, `byte-comparison.json`, `progress.json` |
+| Source profiles | `.tmp/jpegxl-lossy-lab/promotion-active-cache-profile/profile-summary.json`, `promotion-active-stack-profile/profile-summary.json` |
+| Native/Rust and real Chromium | `.tmp/jpegxl-lossy-lab/promotion-active-stack-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json`, `browser.log` |
+| Frozen source and cleanup | `.tmp/jpegxl-lossy-lab/promotion-active-stack-validation/frozen-source.json`, `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+| Bundles, documentation and repository checks | `.tmp/jpegxl-lossy-lab/promotion-active-stack-validation/size.log`, `documentation-write.log`, `check.log` |
+| Final qualification and source identity | `.tmp/jpegxl-lossy-lab/promotion-active-stack-validation/final-summary.json`, `post-doc-source.json`, `committed-source.json` |
+
+Bounded receipts use the matching `promotion-active-`, `promotion-aligned-rgba-`,
+`promotion-block-cache-`, `promotion-tile-source-cache-`, `promotion-zero-error-cache-`,
+`promotion-lf-once-` and `promotion-plane16-` prefixes under
+`.tmp/jpegxl-m7/bounded-runs/`. LL-212 through LL-234 record the trials and checks.

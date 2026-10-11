@@ -35,7 +35,11 @@ import {
   createCoherentCoefficientModel,
   createNaturalLargeOrder,
 } from './jpegxl-vardct-coefficient-model.ts'
-import { type JpegXlLargeMenuInput, prepareJpegXlLargeMenus } from './jpegxl-vardct-large-menu.ts'
+import {
+  type JpegXlLargeAcIndices,
+  type JpegXlLargeMenuInput,
+  prepareJpegXlLargeMenus,
+} from './jpegxl-vardct-large-menu.ts'
 import {
   createJpegXlLargeSelector,
   fillJpegXlLargeSourceWeights,
@@ -1017,7 +1021,7 @@ function* prepare8(
     channels === 4 && effort > 1 && !sdrOpaqueColor
       ? allocateJpegXlArray(memory, Uint8Array, 64)
       : undefined
-  const fill = alphaMask
+  let fill = alphaMask
     ? (blockX: number, blockY: number) => {
         fillColor(blockX, blockY)
         let visible = 0,
@@ -1157,6 +1161,46 @@ function* prepare8(
   memory.release(covarianceY)
   memory.release(covarianceX)
   memory.release(covarianceB)
+  if (effort >= 5) {
+    let cache: Float32Array | undefined, keys: Float64Array | undefined
+    try {
+      cache = allocateJpegXlArray(memory, Float32Array, 3 * 1024)
+      keys = allocateJpegXlArray(memory, Float64Array, 16)
+    } catch (error) {
+      if (cache) memory.release(cache)
+      cache = undefined
+      rethrowJpegXlNonLimitError(error)
+    }
+    if (cache && keys) {
+      const rawFill = fill
+      keys.fill(-1)
+      // Sixteen slots cover a 4x4 context. Store the original Float32 samples,
+      // not the borrowed planes after CfL has modified them.
+      fill = (blockX, blockY) => {
+        const index = blockY * blocksWide + blockX,
+          slot = ((blockY & 3) << 2) | (blockX & 3),
+          offset = slot * 192
+        if (keys[slot] === index) {
+          for (let p = 0; p < 64; p++) {
+            xPlane[p] = cache[offset + p] ?? 0
+            yPlane[p] = cache[offset + 64 + p] ?? 0
+            bPlane[p] = cache[offset + 128 + p] ?? 0
+          }
+        } else {
+          rawFill(blockX, blockY)
+          cache.set(xPlane, offset)
+          cache.set(yPlane, offset + 64)
+          cache.set(bPlane, offset + 128)
+          keys[slot] = index
+        }
+      }
+      memory.registerReclaimer(() => {
+        fill = rawFill
+        memory.release(cache)
+        memory.release(keys)
+      })
+    }
+  }
   let acRateWeightY = originalDarkAc || originalPhotoAc ? 0.1 : 0.05
   let fineAcRateWeightY = 0.05
   let currentAcRateWeightY = acRateWeightY
@@ -1245,30 +1289,29 @@ function* prepare8(
     matrix: Float64Array,
     scale: number,
     channel: number,
-    count: 512 | 1024,
+    count: 256 | 512 | 1024,
     output: Float64Array,
-    zeroMask?: Uint8Array,
+    active?: JpegXlLargeAcIndices,
   ): void => {
     const bias = defaultJpegXlQuantizationBiases[channel] ?? 1,
       weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma,
-      lfRows = count === 512 ? 2 : 4,
+      lfRows = count === 1024 ? 4 : 2,
+      lfShift = count === 256 ? 4 : 5,
+      lfMask = count === 256 ? 15 : 31,
+      lfColumns = count === 256 ? 2 : 4,
       unitThreshold = bias / 2 + (1.5 * weight) / bias
-    for (let p = 0; p < count; p++) {
-      if (p >>> 5 < lfRows && (p & 31) < 4) {
-        output[p] = 0
-        continue
-      }
-      // Descending Q makes these fixed positive steps larger. A zero under
-      // the fixed nonnegative rate penalty remains zero at every coarser Q.
-      if (zeroMask?.[p] === 1) {
-        output[p] = 0
-        continue
-      }
+    output.fill(0, 0, count)
+    const available = active?.count ?? count
+    let kept = 0
+    // Descending Q makes these fixed positive steps larger. Compact the indices
+    // in place: a zero under the fixed penalty remains zero at every coarser Q.
+    for (let position = 0; position < available; position++) {
+      const p = active ? (active.indices[position] ?? 0) : position
+      if (!active && p >>> lfShift < lfRows && (p & lfMask) < lfColumns) continue
       const normalized = (transformed[p] ?? 0) / (scale * (matrix[p] ?? 0)),
         magnitude = Math.abs(normalized)
       if (magnitude <= bias / 2) {
         output[p] = normalized < 0 ? -0 : 0
-        if (zeroMask) zeroMask[p] = 1
         continue
       }
       // Below one, the zero/unit costs cross at bias/2+1.5*weight/bias.
@@ -1276,7 +1319,7 @@ function* prepare8(
       if (magnitude < 1 && Math.abs(magnitude - unitThreshold) > 64 * Number.EPSILON) {
         const value = magnitude > unitThreshold ? 1 : 0
         output[p] = normalized < 0 ? -value : value
-        if (zeroMask && value === 0) zeroMask[p] = 1
+        if (active && value !== 0) active.indices[kept++] = p
         continue
       }
       const lower = Math.floor(magnitude),
@@ -1305,8 +1348,9 @@ function* prepare8(
           weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : 1 + 2 * Math.log2(1 + upper)),
         value = highCost < lowCost ? upper : lower
       output[p] = normalized < 0 ? -value : value
-      if (zeroMask && value === 0) zeroMask[p] = 1
+      if (active && value !== 0) active.indices[kept++] = p
     }
+    if (active) active.count = kept
   }
   // Progressive low-palette texture has no moderate photo filter model. Applying
   // its two EPF passes anyway loses fine colored detail in the public texture test.
@@ -1654,6 +1698,12 @@ function* prepare8(
       quantized16 = allocateJpegXlArray(memory, Int16Array, 3 * 256)
     const error8 = allocateJpegXlArray(memory, Float64Array, 3 * 64),
       error16 = allocateJpegXlArray(memory, Float64Array, 3 * 256)
+    // Each channel's tokens are consumed in place before this view holds its errors.
+    const plane16Values = [
+      error16.subarray(0, 256),
+      error16.subarray(256, 512),
+      error16.subarray(512, 768),
+    ] as const
     const baselineError = allocateJpegXlArray(memory, Float64Array, 3),
       candidateError = allocateJpegXlArray(memory, Float64Array, 3)
     const coneStrategy = coneSearch
@@ -1877,10 +1927,14 @@ function* prepare8(
                 table = defaultJpegXlDct16Dequantization[channel],
                 acScale = channel === 0 ? scale * xAc : channel === 2 ? scale * bAc : scale
               if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
+              const values = coarse || originalDarkAc ? plane16Values[channel] : undefined
+              if (values) quantizeLargeAc(coefficients, table, acScale, channel, 256, values)
               for (let p = 0; p < 256; p++) {
                 if (p >>> 4 < 2 && (p & 15) < 2) continue
                 const step = acScale * (table[p] ?? 0),
-                  value = quantizeAc((coefficients[p] ?? 0) / step, channel)
+                  value = values
+                    ? (values[p] ?? 0)
+                    : quantizeAc((coefficients[p] ?? 0) / step, channel)
                 if (Math.abs(value) > 4095) {
                   inRange = false
                   break

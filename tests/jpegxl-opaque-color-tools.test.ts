@@ -377,8 +377,8 @@ describe('Opaque JPEG XL public replacement tools', () => {
   }, 60_000)
 })
 
-describe('Opaque JPEG XL lower-effort color equivalence', () => {
-  for (const effort of [3, 5] as const)
+describe('Opaque JPEG XL color equivalence across search efforts', () => {
+  for (const effort of [3, 5, 7] as const)
     for (const [width, height] of [
       [64, 48],
       [129, 65],

@@ -62,19 +62,20 @@ describe('bounded JPEG XL large-transform menus', () => {
           _channel,
           count,
           output,
-          zeroMask,
+          active,
         ) => {
           calls++
-          for (let p = 0; p < count; p++) {
-            if (zeroMask?.[p] === 1) {
-              output[p] = 0
-              skipped++
-              continue
-            }
+          output.fill(0, 0, count)
+          const available = active?.count ?? count
+          if (active) skipped += count - available
+          let kept = 0
+          for (let position = 0; position < available; position++) {
+            const p = active ? (active.indices[position] ?? 0) : position
             const value = Math.round((transformed[p] ?? 0) / (scale * (matrix[p] ?? 0)))
             output[p] = value
-            if (zeroMask && value === 0) zeroMask[p] = 1
+            if (active && value !== 0) active.indices[kept++] = p
           }
+          if (active) active.count = kept
         }
         for (const _ of prepareJpegXlLargeMenus({
           ...input,
