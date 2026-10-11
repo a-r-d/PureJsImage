@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { forwardJpegXlDct16 } from '../src/codecs/jpegxl-vardct-forward-transforms.ts'
 import {
   forwardJpegXlDct32,
   forwardJpegXlRectangle32,
@@ -81,6 +82,22 @@ const reference = (shape: Shape, input: Float32Array, inverse: boolean): Float64
 
 for (const shape of shapes) {
   describe(`JPEG XL ${shape.name} forward transform`, () => {
+    it('preserves caller results across differently sized and oriented transforms', () => {
+      const samples = Float32Array.from(
+          { length: shape.width * shape.height },
+          (_, i) => (((i * 23) % 109) - 54) / 64,
+        ),
+        before = forward(shape, samples)
+      forwardJpegXlDct16(
+        new Float32Array(256).fill(0.25),
+        new Float32Array(256),
+        new Float32Array(256),
+      )
+      for (const other of shapes)
+        forward(other, new Float32Array(other.width * other.height).fill(-0.125))
+      expect(forward(shape, samples)).toEqual(before)
+    })
+
     it('preserves mean normalization, orientation and all samples on inversion', () => {
       const size = shape.width * shape.height
       let seed = 0x31415926

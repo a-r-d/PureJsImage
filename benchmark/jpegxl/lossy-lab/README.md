@@ -19,17 +19,20 @@ and clustering repairs remain retained. Every screen and full-development file
 matches `b84b2d47`; compression scores are unchanged.
 The two repairs have confirmed local gains, but the fresh 64-crop median improves
 only 0.142%, a neutral aggregate result. The absolute crop ratio is still
-3.41785x jSquash. Eight later speed hypotheses are all reverted. The provisional
-hybrid lookup's aggregate median gain is only 0.069%, despite a tentative local
-gain. Production source returns exactly to `3bdeda66`, preserving prior gains.
-A new signed-AC boundary regression passes on restored source, and cleanup
-removes 470 decoded PNGs while preserving every encoded file and result.
-Three held mode/frame assertions and development entry remain
-open. Twenty-one fresh native/Rust grids and all 29 real Chromium cases pass.
-The latest repository check has 3,911 passes, the same three held mode/frame
-failures and three skips. Every static gate passes, including browser:check.
-Prior independent decoding and Chromium qualification still applies to the
-identical restored production source. No original expectation changes.
+3.41785x jSquash. Sixteen later speed hypotheses across two sessions are
+reverted. The latest DCT16 trial passes the screen but exceeds the 3% individual-image guard in the
+full lab. Restoring original DCT16 repairs that regression. The remaining DCT32
+stack reproduces all 576 files, but its isolated aggregate median rises 0.251%
+and mean rises 1.455%; its trial ratio is 3.39629x jSquash. Both math repairs
+are reverted. Production source returns exactly to `3bdeda66`, preserving prior
+gains. Five new transform regression cases remain. The latest full check has
+3,916 passes, three held layout failures and three skips; all static gates pass. Scoped cleanup removes 1,990 decoded PNGs while
+preserving all encoded files and results. Both are recorded in the lab log
+and evidence index.
+Three held mode/frame assertions and development entry remain open. Prior
+qualification of twenty-one native/Rust grids and all 29 real Chromium cases
+still applies to the identical restored production source. No original
+expectation changes.
 The earlier selector case encounters the held Node mode expectation before
 reaching Chromium. Effort 9 remains untuned, and its comparison screen still
 waits for promotion.

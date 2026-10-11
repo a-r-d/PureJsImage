@@ -1351,3 +1351,53 @@ promotion; holdout and the effort-9 comparison screen remain reserved.
 | Restored regression coverage | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/restored-boundaries.log` |
 | Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `cleanup.log` |
 | Full repository qualification | `.tmp/jpegxl-lossy-lab/promotion-hybrid-stack-validation/check.log`, `final-summary.json`, `post-doc-source.json`, `committed-source.json` |
+
+## DCT speed trials and full-lab numerical regression, 2026-10-11
+
+Eight speed hypotheses are rejected. DCT16's scalar-leaf transform initially
+passes the fixed screen and local timing, but the full 64-photo ladder exposes
+a +4.12439% Butteraugli-max regression on im26-3002. Recomputing compact DC alone
+does not repair it. Restoring the original DCT16 reproduces the failing point
+exactly; no property limit or original expectation changes.
+
+The remaining DCT32 stack reproduces every one of 576 development files and
+64 isolated own files. All BD-rate deltas vs the saved candidate are zero.
+Fresh isolated own median rises 0.25066%, mean rises 1.45525% and worst rises
+2.89151%. Its absolute trial ratio is 3.39629x jSquash, still outside 3x. The
+aggregate result is neutral, so DCT32 and its scalar base are also reverted.
+Production returns exactly to `97eb5fb9` and `3bdeda66`, preserving prior gains.
+Five new transform regression cases remain on the original kernels.
+
+The first profile accidentally selects the preserved worker; its receipt exposes
+that source, and it is excluded. The second profile explicitly selects current
+source. No peer-source analysis, compression trial, effort-9 tuning, holdout or
+main promotion occurs.
+
+| Evidence | Local artifact relative to the repository |
+| --- | --- |
+| Initial trials | `.tmp/jpegxl-lossy-lab/promotion-dct8-refine-cache-pairs/`, `promotion-factored-dct16-pairs/`, `promotion-factored-dct16-leaf-pairs/`, `promotion-factored-dct32-pairs/`, `promotion-factored-rectangle-pairs/`, `promotion-ac-threshold-pairs/`, `promotion-factored-physical-pairs/`, `promotion-factored-eight-pairs/` |
+| Confirmations | `.tmp/jpegxl-lossy-lab/promotion-factored-dct16-leaf-confirmation/`, `promotion-factored-dct32-confirmation/`, `promotion-factored-rectangle-confirmation/`, `promotion-ac-threshold-confirmation/`, `promotion-factored-eight-confirmation/` |
+| Source-aware profiles | `.tmp/jpegxl-lossy-lab/promotion-factored-stack-profile/`, `promotion-factored-stack-current-profile/profile-summary.json` |
+| Rejected full stack | `.tmp/jpegxl-lossy-lab/promotion-factored-stack-full/reduction.json`, `versus-97eb.json`, `versus-baseline.json`, `byte-comparison.json`; `promotion-factored-stack-validation/rejected-source/` |
+| Numerical controls | `.tmp/jpegxl-lossy-lab/promotion-factored-dct32-only-guard/`, `promotion-factored-dct16-lf-guard/`; `promotion-factored-stack-validation/dct16-lf-trial-source.ts` |
+| Corrected full stack | `.tmp/jpegxl-lossy-lab/promotion-dct32-stack-full/reduction.json`, `versus-97eb.json`, `versus-baseline.json`, `byte-comparison.json`; `promotion-dct32-stack-validation/frozen-source.json`, `rejected-source/` |
+| Fresh isolated trial speed | `.tmp/jpegxl-lossy-lab/promotion-dct32-stack-speed/summary.json`, `reduction.json`, `versus-97eb.json`, `byte-comparison.json` |
+| Restored production | `.tmp/jpegxl-lossy-lab/promotion-dct-restored-validation/frozen-source.json` |
+
+The final restored-source check has 3,916 passes, the same three held layout
+failures and three skips across 305 files. Every static gate passes, including
+browser:check. Five new transform cases pass. Cleanup removes 1,990 PNGs /
+882,081,160 bytes, retaining 1,990 encoded files and 710 complete results. Prior 21 native/Rust grids and 29 real Chromium cases apply
+to the identical production hash; those checks are reused, not rerun.
+
+
+| Final checkpoint evidence | Local artifact relative to the repository |
+| --- | --- |
+| Full repository check and restoration | `.tmp/jpegxl-lossy-lab/promotion-dct-restored-validation/check.log`, `final-summary.json`, `frozen-source.json`, `post-doc-source.json`, `committed-source.json` |
+| Scoped cleanup | `.tmp/jpegxl-lossy-lab/promotion-dct-restored-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `cleanup.log` |
+
+Bundles remain 600,019 / 672,835 bytes and ceilings remain 610,000 / 685,000.
+The current candidate's qualified isolated ratio remains 3.41785x jSquash.
+The 3.39629x ratio belongs to the rejected trial source. Development entry and
+three held contracts still block promotion; holdout and the effort-9 comparison
+screen remain reserved, and the bounded Butteraugli phase has not started.
