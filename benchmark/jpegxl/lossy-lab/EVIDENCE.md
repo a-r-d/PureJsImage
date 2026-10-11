@@ -10,7 +10,7 @@ failures and three skips; all 576 development files are byte-identical to the
 preserved candidate there. The owner's effort-9 amendment and the final AC model
 repair now change effort-7 files. Their current full-development, fresh isolated
 speed and independent-decoder evidence is indexed below, followed by the
-large-DCT and tree-sorting speed repairs. Those repairs preserve the amended
+large-DCT, tree-sorting and prefix speed repairs. Those repairs preserve the amended
 effort-7 files exactly.
 The three mode/frame assertions remain unchanged pending an owner decision.
 Compression and speed still fail promotion entry; holdout remains unopened.
@@ -520,3 +520,80 @@ All bounded-run receipts for this checkpoint have IDs beginning
 `promotion-tree-radix-` under `.tmp/jpegxl-m7/bounded-runs/`. The next speed
 hypotheses are constant-feature prefix scans, invariant menu dequantization and
 bounded reconstruction reuse. Main remains unchanged; no promotion is claimed.
+
+## Prefix checkpoint, 2026-10-10
+
+The post-sort profile attributes 5.491s self time to the tree evaluator and
+2.003s to radix sorting on im26-1468 at distance 2. Local histogram accumulators
+retain Float64 operation order and Uint32 extra-bit sums, while removing three
+small per-node arrays. Reusing the next boundary value avoids decoding that
+feature value again. The constant-feature shortcut is reverted after seven
+pairs show only a -0.22280% median change with mixed results.
+
+All twenty-seven original lossless/palette tests pass for each prefix trial,
+including both pinned streams at the original working limits. Accumulators win
+all seven counterbalanced cold pairs at -7.50174%. Boundary reuse wins six of
+seven initial pairs at -1.17283%, then all fifteen confirmation pairs at
+-2.40882% against the frozen accumulator source. Median/MAD and dispersion
+statistics are preserved separately. These are crop trials; the fresh aggregate
+measurement below determines the promotion speed result.
+
+Both eighty-point screens match their preceding sources exactly. All 576
+full-development files match `5f841916` exactly; mean and individual BD-rate
+deltas are zero. All 384 comparisons compute, with the same 209 partial-range
+warnings, so strict required-range completeness stays false. Peer means and
+same-ladder baseline deltas are unchanged. The full run takes 10m0.87s with
+1.3 GiB cgroup peak and zero swap. Managed peak falls sixty bytes to 34,475,948.
+Compression entry still fails, and holdout remains unopened. Source hash is
+`235f1995388049659a3999d8f5cfb5c7ac20a09e7fad8df47f27c06e1b7cc66f`.
+
+All 192 isolated jobs are measured fresh with one worker. Own mean time falls
+1.13815% to 4,043.249ms and worst time falls 4.77606% to 16,852.773ms against
+`5f841916`. Median rises 0.58628% to 3,177.208ms; no meaningful median gain is
+claimed. Fresh jSquash and vips medians are 492.950ms and 350.410ms, giving
+6.44530x and 9.06712x ratios. All sixty-four own files match the preceding
+checkpoint. The 3x target still fails. Isolated worker RSS falls 2.65712% to
+296,960,000 bytes, while managed peak falls sixty bytes to 34,439,300 bytes.
+Originals remain unqualified against 5x and 131.14 MiB.
+
+Seventeen fresh complete grids pass both native libjxl and jxl-rs within one
+native color code, with exact alpha. They cover three affected lossless cases,
+eleven effort-9 fixtures and three development photos. All eleven learned
+palette and lossless Chromium cases pass. All static gates, including
+browser:check and unchanged bundle ceilings, pass. The complete repository
+check has 3,883 passing tests, the same three held layout failures and three
+skips across 303 files. The suite takes 876.27s; the guard takes 15m41.17s at
+2.6 GiB with zero swap. No property threshold or expected value changes.
+
+Bundles are 594,996 and 667,818 bytes; ceilings remain 610,000 and 685,000
+bytes. Effort 9 remains untuned; its comparison screen waits for promotion.
+Cleanup removes 1,000 reproducible PNGs and reclaims 430,099,589 bytes
+(410.17 MiB), preserving all 1,000 corresponding JXL files and 360 result
+files. The deletion records retain PNG, JXL and metadata hashes. Inputs,
+scores, peer curves, source snapshots, profiles and independent decoder grids
+remain. No temporary file is checked in.
+
+| Evidence | Raw artifact |
+| --- | --- |
+| Post-sort profile and source | `.tmp/jpegxl-lossy-lab/promotion-post-sort-profile/profile-run.json`, `profile-summary.json`, `im26-1468-d2.cpuprofile` |
+| Reverted constant-feature trial | `.tmp/jpegxl-lossy-lab/promotion-constant-feature-validation/focused.log`, `rejected-source.ts`, `.tmp/jpegxl-lossy-lab/promotion-constant-feature-pairs/summary.json`, `statistics.json` |
+| Accumulator tests, source and pairs | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/focused.log`, `source.ts`, `.tmp/jpegxl-lossy-lab/promotion-local-prefix-pairs/summary.json`, `statistics.json` |
+| Cursor tests, source and initial pairs | `.tmp/jpegxl-lossy-lab/promotion-feature-cursor-validation/focused.log`, `source.ts`, `.tmp/jpegxl-lossy-lab/promotion-feature-cursor-pairs/summary.json`, `statistics.json` |
+| Fifteen cursor confirmation pairs | `.tmp/jpegxl-lossy-lab/promotion-feature-cursor-confirmation/summary.json`, `statistics.json` |
+| Accumulator screen and complete byte comparison | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-screen/versus-5f84.json`, `byte-comparison.json` |
+| Cursor screen and complete byte comparison | `.tmp/jpegxl-lossy-lab/promotion-feature-cursor-screen/versus-LL113.json`, `byte-comparison.json` |
+| Full development and byte comparison | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-full/summary.json`, `reduction.json`, `byte-comparison.json` |
+| Full same-ladder comparisons | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-full/versus-5f84.json`, `versus-preserved.json`, `versus-baseline.json` |
+| Frozen production source | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/frozen-source.json` |
+| Fresh isolated timing and exact files | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-speed/summary.json`, `versus-5f84.json`, `byte-comparison.json`, `progress.json` |
+| Complete native/Rust grids | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/lossless-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Real Chromium and full check | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/browser.log`, `check.log`, `final-summary.json` |
+| Bundles and generated documentation | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/size.log`, `documentation-write.log` |
+| Scoped cleanup plan and completion | `.tmp/jpegxl-lossy-lab/promotion-local-prefix-validation/decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` |
+
+Bounded-run receipts use the IDs `promotion-post-sort-profile-20261010`,
+`promotion-constant-feature-*`, `promotion-local-prefix-*` and
+`promotion-feature-cursor-*` under `.tmp/jpegxl-m7/bounded-runs/`.
+The next speed hypotheses are exact integer bit lengths in weighted prediction,
+invariant menu dequantization and bounded reconstruction reuse. Main remains
+unchanged; no promotion is claimed.

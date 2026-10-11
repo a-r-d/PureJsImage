@@ -293,9 +293,6 @@ const learnPlane = (
         const sorted = allocateJpegXlArray(memory, Float64Array, samples.length)
         const leftCounts = allocateJpegXlArray(memory, Uint32Array, 256 * modes)
         const rightCounts = allocateJpegXlArray(memory, Uint32Array, 256 * modes)
-        const leftLog = allocateJpegXlArray(memory, Float64Array, modes)
-        const rightLog = allocateJpegXlArray(memory, Float64Array, modes)
-        const leftExtras = allocateJpegXlArray(memory, Uint32Array, modes)
         let sortScratch: Float64Array | undefined
         if (samples.length >= 1024) {
           try {
@@ -318,49 +315,68 @@ const learnPlane = (
           else sorted.sort()
           leftCounts.fill(0)
           rightCounts.set(counts)
-          leftLog.fill(0)
-          rightLog.set(histogramLog)
-          leftExtras.fill(0)
+          // There are always two or three predictor modes. Keep their prefix sums
+          // local, preserving Float64 operation order and Uint32 extra-bit sums.
+          let leftLog0 = 0,
+            leftLog1 = 0,
+            leftLog2 = 0,
+            rightLog0 = histogramLog[0] ?? 0,
+            rightLog1 = histogramLog[1] ?? 0,
+            rightLog2 = histogramLog[2] ?? 0,
+            leftExtra0 = 0,
+            leftExtra1 = 0,
+            leftExtra2 = 0,
+            nextValue = Math.floor((sorted[0] ?? 0) / count)
           for (let i = 0; i + 1 < samples.length; i++) {
             const key = sorted[i] ?? 0
-            const value = Math.floor(key / count),
-              sample = key - value * count
-            for (let mode = 0; mode < modes; mode++) {
-              const token = tokens[sample * modes + mode] ?? 0
-              const index = mode * 256 + token
-              const left = leftCounts[index] ?? 0,
-                right = rightCounts[index] ?? 0
-              leftLog[mode] =
-                (leftLog[mode] ?? 0) + (countLog[left + 1] ?? 0) - (countLog[left] ?? 0)
-              rightLog[mode] =
-                (rightLog[mode] ?? 0) + (countLog[right - 1] ?? 0) - (countLog[right] ?? 0)
-              leftCounts[index] = left + 1
-              rightCounts[index] = right - 1
-              leftExtras[mode] = (leftExtras[mode] ?? 0) + (extras[sample * modes + mode] ?? 0)
+            const value = nextValue,
+              sample = key - value * count,
+              offset = sample * modes,
+              index0 = tokens[offset] ?? 0,
+              index1 = 256 + (tokens[offset + 1] ?? 0),
+              left0 = leftCounts[index0] ?? 0,
+              right0 = rightCounts[index0] ?? 0,
+              left1 = leftCounts[index1] ?? 0,
+              right1 = rightCounts[index1] ?? 0
+            leftLog0 = leftLog0 + (countLog[left0 + 1] ?? 0) - (countLog[left0] ?? 0)
+            rightLog0 = rightLog0 + (countLog[right0 - 1] ?? 0) - (countLog[right0] ?? 0)
+            leftLog1 = leftLog1 + (countLog[left1 + 1] ?? 0) - (countLog[left1] ?? 0)
+            rightLog1 = rightLog1 + (countLog[right1 - 1] ?? 0) - (countLog[right1] ?? 0)
+            leftCounts[index0] = left0 + 1
+            rightCounts[index0] = right0 - 1
+            leftCounts[index1] = left1 + 1
+            rightCounts[index1] = right1 - 1
+            leftExtra0 = (leftExtra0 + (extras[offset] ?? 0)) >>> 0
+            leftExtra1 = (leftExtra1 + (extras[offset + 1] ?? 0)) >>> 0
+            if (modes === 3) {
+              const index2 = 512 + (tokens[offset + 2] ?? 0),
+                left2 = leftCounts[index2] ?? 0,
+                right2 = rightCounts[index2] ?? 0
+              leftLog2 = leftLog2 + (countLog[left2 + 1] ?? 0) - (countLog[left2] ?? 0)
+              rightLog2 = rightLog2 + (countLog[right2 - 1] ?? 0) - (countLog[right2] ?? 0)
+              leftCounts[index2] = left2 + 1
+              rightCounts[index2] = right2 - 1
+              leftExtra2 = (leftExtra2 + (extras[offset + 2] ?? 0)) >>> 0
             }
+            // Reuse this boundary value to decode the next key, including skipped splits.
+            nextValue = Math.floor((sorted[i + 1] ?? 0) / count)
             const leftCount = i + 1,
               rightCount = samples.length - leftCount
-            if (
-              leftCount < 32 ||
-              rightCount < 32 ||
-              value === Math.floor((sorted[i + 1] ?? 0) / count)
-            )
-              continue
-            let leftBits = Number.POSITIVE_INFINITY,
-              rightBits = Number.POSITIVE_INFINITY
-            for (let mode = 0; mode < modes; mode++) {
+            if (leftCount < 32 || rightCount < 32 || value === nextValue) continue
+            const leftCountLog = countLog[leftCount] ?? 0,
+              rightCountLog = countLog[rightCount] ?? 0,
               leftBits = Math.min(
-                leftBits,
-                (countLog[leftCount] ?? 0) - (leftLog[mode] ?? 0) + (leftExtras[mode] ?? 0),
-              )
+                leftCountLog - leftLog0 + leftExtra0,
+                leftCountLog - leftLog1 + leftExtra1,
+                modes === 3 ? leftCountLog - leftLog2 + leftExtra2 : Infinity,
+              ),
               rightBits = Math.min(
-                rightBits,
-                (countLog[rightCount] ?? 0) -
-                  (rightLog[mode] ?? 0) +
-                  (extraBits[mode] ?? 0) -
-                  (leftExtras[mode] ?? 0),
+                rightCountLog - rightLog0 + (extraBits[0] ?? 0) - leftExtra0,
+                rightCountLog - rightLog1 + (extraBits[1] ?? 0) - leftExtra1,
+                modes === 3
+                  ? rightCountLog - rightLog2 + (extraBits[2] ?? 0) - leftExtra2
+                  : Infinity,
               )
-            }
             const gain = unsplitBits - leftBits - rightBits
             if (gain > bestGain) {
               bestGain = gain
