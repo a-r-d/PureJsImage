@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
+import { limitExceeded } from '../src/errors.ts'
 import { verifyDenseLosslessTraining } from './helpers/jpegxl-dense-training.ts'
 import {
   encodeLearnedLosslessFixture,
@@ -11,14 +13,17 @@ import {
 } from './helpers/jpegxl-learned-lossless.ts'
 import { verifySampledZeroLearning } from './helpers/jpegxl-learner-shortcuts.ts'
 
+type Owned = ReturnType<JpegXlEncoderMemory['allocate']>
+
 describe('JPEG XL learned lossless prediction', () => {
   it.each([undefined, 15_989_965])(
-    'preserves smooth gradients and the previous working-budget stream at limit %s',
+    'preserves smooth gradients and the exact stream at limit %s',
     async (maxWorkingBytes) => {
       const result = await verifyDenseLosslessTraining(maxWorkingBytes)
       expect(result).toMatchObject({
-        bytes: maxWorkingBytes === undefined ? 17_033 : 17_116,
-        encodedChecksum: maxWorkingBytes === undefined ? 1_356_082_369 : 1_452_409_174,
+        // Releasing losing contexts admits the same best model at the unchanged budget.
+        bytes: 17_033,
+        encodedChecksum: 1_356_082_369,
         samples: 513 * 257 * 3,
         ownedLive: 0,
         ownedAllocations: 0,
@@ -43,11 +48,50 @@ describe('JPEG XL learned lossless prediction', () => {
   it('retains an exact stream when optional color search exceeds the working limit', async () => {
     const fixture = reversibleColorFixture(8, 1)
     const limit = 14_000_000
-    const bounded = await encodeLearnedLosslessFixture(fixture, 7, limit)
+    const original = JpegXlEncoderMemory.prototype.allocate
+    let refused = 0
+    let bounded: Awaited<ReturnType<typeof encodeLearnedLosslessFixture>>
+    try {
+      JpegXlEncoderMemory.prototype.allocate = function <T extends Owned>(
+        this: JpegXlEncoderMemory,
+        type: { new (length: number): T; readonly BYTES_PER_ELEMENT: number },
+        length: number,
+        scope = this.currentScope,
+      ): T {
+        // Palette preparation uses this length too. Refuse only the optional
+        // RCT sampling allocation, which now fits the unchanged budget naturally.
+        if (
+          Object.is(type, Int32Array) &&
+          length === 4096 &&
+          new Error().stack?.includes('chooseJpegXlModularRct')
+        ) {
+          refused++
+          throw limitExceeded('Refused optional color-search samples')
+        }
+        return (original<T>).call(this, type, length, scope)
+      }
+      bounded = await encodeLearnedLosslessFixture(fixture, 7, limit)
+    } finally {
+      JpegXlEncoderMemory.prototype.allocate = original
+    }
+    expect(refused).toBeGreaterThan(0)
     const unrestricted = await encodeLearnedLosslessFixture(fixture)
     expect(bounded.encoded.length).toBeGreaterThan(unrestricted.encoded.length)
     expect(bounded.ownedPeak).toBeLessThanOrEqual(limit)
     expect(bounded.ownedLive).toBe(0)
+    await verifyLearnedLosslessSamples(fixture, bounded.encoded)
+  }, 30_000)
+
+  it('admits the unrestricted color winner within the existing working budget', async () => {
+    const fixture = reversibleColorFixture(8, 1),
+      before = fixture.pixels.slice(),
+      limit = 14_000_000
+    const bounded = await encodeLearnedLosslessFixture(fixture, 7, limit)
+    const unrestricted = await encodeLearnedLosslessFixture(fixture)
+    expect(bounded.encoded).toEqual(unrestricted.encoded)
+    expect(bounded.ownedPeak).toBeLessThanOrEqual(limit)
+    expect(bounded.ownedLive).toBe(0)
+    expect(fixture.pixels).toEqual(before)
     await verifyLearnedLosslessSamples(fixture, bounded.encoded)
   }, 30_000)
 
