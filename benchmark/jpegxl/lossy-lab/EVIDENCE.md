@@ -2195,4 +2195,91 @@ encoded files and 1463 result records. Cleanup guard 6.890s,
 Candidate source remains `03b58ca7`. Bundles are 604,300 / 677,092 bytes,
 ceilings unchanged at 610,000 / 685,000. Crop speed remains 3.18078x jSquash,
 so originals and holdout are still reserved. The 3-norm full-band clarification
-also remains pending. Next speed hypothesis is reuse of clustering buffers.
+also remains pending. Commit `ac74f6b0` pushes that qualified checkpoint.
+
+LL-419/420 test reusable centroid buffers. All 21 files remain exact, but
+only ten pairs improve, median +0.13152%, MAD 1.84611 points. Reverted as
+neutral. Roots: `promotion-entry-centroid-reuse-validation/`,
+`promotion-entry-centroid-reuse-pairs/` and `promotion-entry-centroid-reuse-confirmation/`.
+
+LL-421 tests separate dense and sparse quantization loops. Strict TypeScript
+and 61 focused cases pass. Seven files remain exact; three pairs improve,
+median +0.39179%, MAD 1.90861 points. Reverted as neutral. Roots:
+`promotion-entry-quantization-dispatch-validation/` and
+`promotion-entry-quantization-dispatch-pairs/`.
+
+LL-422 shares physical rows between square and horizontal transforms.
+Strict TypeScript and 46 focused cases pass. Seven files remain exact;
+two pairs improve, median +0.26138%, MAD 0.79720 points. Reverted as neutral.
+Roots: `promotion-entry-physical-row-reuse-validation/` and
+`promotion-entry-physical-row-reuse-pairs/`.
+
+LL-423 shares the Float32 coding rows and reuses existing input storage.
+Both full and LF-only rectangle results exactly match separate transforms
+on 32 patterns, and all 47 focused cases pass. Twenty-one exact cold pairs
+give sixteen wins, median -2.08740%, MAD 1.80161 points. Its all-64
+counterbalanced check completes in LL-424; no formal peer ratio is claimed.
+Roots: `promotion-entry-coding-row-reuse-validation/`,
+`promotion-entry-coding-row-reuse-pairs/`, `promotion-entry-coding-row-reuse-confirmation/`
+and `promotion-entry-coding-row-reuse-balanced-speed/`, plus terminal logs.
+
+LL-424 confirms exact bytes, grids and managed memory on all 64 images.
+Corpus median improves 2.90473%, but only 25 pairs improve, paired median
+regresses 0.95542% and mean time regresses 1.08596%. Reverted after mixed
+broader evidence. Rejected source and Node/browser fixtures remain in the
+validation root. Production source returns to `03b58ca7`.
+
+LL-425 diagnoses ascending occupied symbols in a private retained-source
+copy. Across five im26-2026 models, 24.62713% to 32.79083% of slots are
+occupied. Individual cache estimates are 17,106 to 32,524 bytes. The stream
+and scores remain exact. Root: `promotion-entry-sparse-assignment-diagnostic/`.
+
+LL-426 tests the optional sparse cache, preserving the original dense
+fallback and releasing storage before remapping. All seven initial pairs
+improve, median -4.64945%; 21 confirmation pairs give twelve wins, median
+-2.07466%, MAD 4.32699 points. Strict types and 31 focused cases pass,
+including exact model fallback, partial cleanup and propagation of unexpected
+errors. Another 23 opaque-tool cases pass. Initial test selectors incorrectly
+refuse mandatory prefix/ANS storage; corrected selectors refuse the first
+sparse request only. The failed logs remain. Roots:
+`promotion-entry-sparse-ac-assignment-validation/`,
+`promotion-entry-sparse-ac-assignment-pairs/` and
+`promotion-entry-sparse-ac-assignment-confirmation/`.
+
+LL-427 adds exact partial-cost rejection using nonnegative remaining terms
+and the original earlier-cluster tie rule. All 31 focused cases and seven
+byte comparisons pass. Short timing is mixed: four wins, median -1.43788%,
+MAD 1.81594 points. Cache-only source remains preserved; the combination's
+fresh 192-job isolated gate is running. Roots:
+`promotion-entry-sparse-ac-bound-validation/`,
+`promotion-entry-sparse-ac-bound-pairs/` and
+`promotion-entry-sparse-ac-bound-speed/`, plus terminal logs.
+
+LL-428 completes the 192-job isolated gate with no reuse, failures or
+omissions. All 64 own streams and scores stay exact, but the ratio is
+3.25058x jSquash and 4.45635x vips. The strict verifier
+rejects 30 individual memory increases, worst 32524 bytes.
+A separate rejected-run audit preserves all byte/score assertions and records
+these failures. Overall managed peak stays 34,223,172 bytes. Guard
+5min 50.522s, 443.9 MiB, zero swap. Reverted both cache and bound plus their
+fault tests. Full source restores exactly to `03b58ca7`; the qualified five
+changes remain. Root: `promotion-entry-sparse-ac-bound-speed/`.
+
+LL-429 profiles the other median neighbor at restored source `03b58ca7`.
+Its public im26-3004 stream and scores stay exact. Preparation is 157.936ms
+self, large menus 132.907ms, plane quantization 107.690ms, coefficient
+visiting 65.375ms and XYB conversion 59.629ms. Cached assignment is only
+41.566ms here. This profile guides the next experiment; its 1,676.132ms
+encode is not an aggregate speed claim. Guard 2.575s, 276.5 MiB, zero swap.
+Root: `promotion-entry-other-median-profile-3004/` and terminal log.
+
+LL-430 completes the full repository check at restored source `03b58ca7`:
+3,960 passed, zero failures and three skips; 531.90s. All static gates pass,
+including browser:check. Guard 9min 36.580s, 2.5 GiB, zero swap. Scoped
+cleanup removes 532 decoded PNGs / 228507341 bytes, preserving all 532
+encoded files and 532 results after input/hash verification. Cleanup guard
+2.208s, 311.1 MiB, zero swap. Its initial script fails syntax before deletion;
+the failed log is retained and the corrected run completes. Bundles stay
+604,300 / 677,092 bytes and ceilings 610,000 / 685,000. Only lab log and
+evidence change; all production files and tests remain identical to `ac74f6b0`.
+Root: `promotion-entry-neutral-speed-checkpoint/`.
