@@ -10,7 +10,10 @@ const checksum = (bytes: Uint8Array): number => {
 }
 
 /** Nonconstant complete large windows, including gradients, edges and texture. */
-export async function verifyJpegXlLargePlaneReconstruction() {
+export async function verifyJpegXlLargePlaneReconstruction(
+  distances: readonly number[] = [2, 7],
+  effort: 7 | 9 = 7,
+) {
   const width = 96,
     height = 64,
     pixels = new Uint8Array(width * height * 3)
@@ -24,14 +27,14 @@ export async function verifyJpegXlLargePlaneReconstruction() {
   const inputChecksum = checksum(pixels),
     cases: { distance: number; bytes: number; encodedChecksum: number; decodedChecksum: number }[] =
       []
-  for (const distance of [2, 7]) {
+  for (const distance of distances) {
     const sink = new Uint8ArraySink(),
       encoder = await jpegxlCodec.createEncoder?.(sink, {
         width,
         height,
         pixelFormat: 'rgb8',
         limits: defaultImageLimits,
-        options: { mode: 'lossy', effort: 7, distance },
+        options: { mode: 'lossy', effort, distance },
         colorSemantics: {
           family: 'rgb',
           primaries: 'srgb',

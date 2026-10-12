@@ -1484,6 +1484,77 @@ function* prepare8(
     if (active) active.count = nonzero
     return { nonzero, rate }
   }
+  // DCT16 consumes each rounded token immediately; reconstruct its error in
+  // the same pass instead of staging tokens in the error plane first.
+  const quantizeAndReconstructDct16Ac = (
+    transformed: Float32Array,
+    matrix: Float64Array,
+    scale: number,
+    channel: number,
+    integers: Int16Array,
+    errors: Float64Array,
+  ): boolean => {
+    const bias = defaultJpegXlQuantizationBiases[channel] ?? 1,
+      weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma,
+      unitThreshold = bias / 2 + (1.5 * weight) / bias,
+      pairThreshold =
+        (bias + acCentroidTwo) / 2 + (weight * (acPenaltyTwo - 3)) / (2 * (acCentroidTwo - bias)),
+      offset = channel * 256
+    for (let p = 0; p < 256; p++) {
+      if (p >>> 4 < 2 && (p & 15) < 2) continue
+      const step = scale * (matrix[p] ?? 0),
+        coefficient = transformed[p] ?? 0,
+        normalized = coefficient / step,
+        magnitude = Math.abs(normalized)
+      let value: number
+      if (magnitude <= bias / 2) value = normalized < 0 ? -0 : 0
+      else if (magnitude < 1 && Math.abs(magnitude - unitThreshold) > 64 * Number.EPSILON) {
+        const rounded = magnitude > unitThreshold ? 1 : 0
+        value = normalized < 0 ? -rounded : rounded
+      } else if (
+        magnitude >= 1 &&
+        magnitude < 2 &&
+        Math.abs(magnitude - pairThreshold) >
+          64 * Number.EPSILON * Math.max(1, Math.abs(pairThreshold))
+      ) {
+        const rounded = magnitude > pairThreshold ? 2 : 1
+        value = normalized < 0 ? -rounded : rounded
+      } else {
+        const lower = Math.floor(magnitude),
+          upper = lower + 1,
+          lowValue =
+            lower === 0
+              ? 0
+              : lower === 1
+                ? bias
+                : lower === 2
+                  ? acCentroidTwo
+                  : lower - 0.145 / lower,
+          highValue = upper === 1 ? bias : upper === 2 ? acCentroidTwo : upper - 0.145 / upper,
+          lowCost =
+            (magnitude - lowValue) ** 2 +
+            weight *
+              (lower === 0
+                ? 0
+                : lower === 1
+                  ? 3
+                  : lower === 2
+                    ? acPenaltyTwo
+                    : jpegXlAcTokenRate(lower)),
+          highCost =
+            (magnitude - highValue) ** 2 +
+            weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : jpegXlAcTokenRate(upper)),
+          rounded = highCost < lowCost ? upper : lower
+        value = normalized < 0 ? -rounded : rounded
+      }
+      if (Math.abs(value) > 4095) return false
+      integers[offset + p] = value
+      const reconstructed =
+        value === 0 ? 0 : Math.abs(value) === 1 ? Math.sign(value) * bias : value - 0.145 / value
+      errors[offset + p] = coefficient - reconstructed * step
+    }
+    return true
+  }
   // Progressive low-palette texture has no moderate photo filter model. Applying
   // its two EPF passes anyway loses fine colored detail in the public texture test.
   const progressiveOpaque = sdrOpaqueColor && progressive
@@ -1844,12 +1915,6 @@ function* prepare8(
       quantized16 = allocateJpegXlArray(memory, Int16Array, 3 * 256)
     const error8 = allocateJpegXlArray(memory, Float64Array, 3 * 64),
       error16 = allocateJpegXlArray(memory, Float64Array, 3 * 256)
-    // Each channel's tokens are consumed in place before this view holds its errors.
-    const plane16Values = [
-      error16.subarray(0, 256),
-      error16.subarray(256, 512),
-      error16.subarray(512, 768),
-    ] as const
     const baselineError = allocateJpegXlArray(memory, Float64Array, 3),
       candidateError = allocateJpegXlArray(memory, Float64Array, 3)
     const coneStrategy = coneSearch
@@ -2082,20 +2147,28 @@ function* prepare8(
                 table = defaultJpegXlDct16Dequantization[channel],
                 acScale = channel === 0 ? scale * xAc : channel === 2 ? scale * bAc : scale
               if (!coefficients || !table) throw invalidInput('Missing DCT16 matrix')
-              const values = coarse || originalDarkAc ? plane16Values[channel] : undefined
-              if (values) quantizeLargeAc(coefficients, table, acScale, channel, 256, values)
-              for (let p = 0; p < 256; p++) {
-                if (p >>> 4 < 2 && (p & 15) < 2) continue
-                const step = acScale * (table[p] ?? 0),
-                  value = values
-                    ? (values[p] ?? 0)
-                    : quantizeAc((coefficients[p] ?? 0) / step, channel)
-                if (Math.abs(value) > 4095) {
-                  inRange = false
-                  break
+              if (coarse || originalDarkAc) {
+                inRange = quantizeAndReconstructDct16Ac(
+                  coefficients,
+                  table,
+                  acScale,
+                  channel,
+                  quantized16,
+                  error16,
+                )
+              } else {
+                for (let p = 0; p < 256; p++) {
+                  if (p >>> 4 < 2 && (p & 15) < 2) continue
+                  const step = acScale * (table[p] ?? 0),
+                    value = quantizeAc((coefficients[p] ?? 0) / step, channel)
+                  if (Math.abs(value) > 4095) {
+                    inRange = false
+                    break
+                  }
+                  quantized16[channel * 256 + p] = value
+                  error16[channel * 256 + p] =
+                    (coefficients[p] ?? 0) - decoded(value, channel) * step
                 }
-                quantized16[channel * 256 + p] = value
-                error16[channel * 256 + p] = (coefficients[p] ?? 0) - decoded(value, channel) * step
               }
               if (!inRange) break
               // In the coding-channel selector, luminance error is independent

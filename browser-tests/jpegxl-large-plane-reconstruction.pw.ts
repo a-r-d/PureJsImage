@@ -5,7 +5,10 @@ import { verifyJpegXlLargePlaneReconstruction } from '../tests/helpers/jpegxl-la
 test('JPEG XL complete large windows preserve bytes, pixels and scratch cleanup across runtimes', async ({
   page,
 }) => {
-  const expected = await verifyJpegXlLargePlaneReconstruction(),
+  const expected = [
+      await verifyJpegXlLargePlaneReconstruction(),
+      await verifyJpegXlLargePlaneReconstruction([0.65, 2, 7], 9),
+    ],
     bundle = await build({
       entryPoints: ['tests/helpers/jpegxl-large-plane-reconstruction.ts'],
       bundle: true,
@@ -28,7 +31,10 @@ test('JPEG XL complete large windows preserve bytes, pixels and scratch cleanup 
       typeof namespace.verifyJpegXlLargePlaneReconstruction !== 'function'
     )
       throw new Error('Large-plane browser fixture unavailable')
-    return JSON.stringify(await namespace.verifyJpegXlLargePlaneReconstruction())
+    return JSON.stringify([
+      await namespace.verifyJpegXlLargePlaneReconstruction(),
+      await namespace.verifyJpegXlLargePlaneReconstruction([0.65, 2, 7], 9),
+    ])
   })
   expect(actual).toBe(JSON.stringify(expected))
 })
