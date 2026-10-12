@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { forwardJpegXlDct16 } from '../src/codecs/jpegxl-vardct-forward-transforms.ts'
+import {
+  forwardJpegXlDct16,
+  forwardJpegXlDct16Lf,
+} from '../src/codecs/jpegxl-vardct-forward-transforms.ts'
 
 const basis = (frequency: number, position: number): number =>
   Math.sqrt(2 / 16) *
@@ -70,12 +73,35 @@ describe('JPEG XL DCT16 forward transform', () => {
     expect(output[0]).toBeCloseTo(0.25, 7)
   })
 
-  it('rejects incorrect extents before writing', () => {
+  it('computes exact compact DC while preserving samples and the unused footprint', () => {
+    let seed = 0x27182818
+    const footprint = new Set([0, 1, 16, 17])
+    for (let trial = 0; trial < 32; trial++) {
+      const samples = new Float32Array(256)
+      for (let p = 0; p < samples.length; p++) {
+        seed = (Math.imul(seed, 1_664_525) + 1_013_904_223) >>> 0
+        samples[p] = trial === 0 ? 0 : trial === 1 ? 0.25 : seed / 2 ** 31 - 1
+      }
+      const before = samples.slice(),
+        expected = reference(samples),
+        intermediate = new Float32Array(256).fill(456),
+        output = new Float32Array(256).fill(789)
+      forwardJpegXlDct16Lf(samples, intermediate, output)
+      expect(samples).toEqual(before)
+      for (let p = 0; p < output.length; p++) {
+        expect(output[p]).toBe(footprint.has(p) ? expected[p] : 789)
+        if ((p & 15) >= 2) expect(intermediate[p]).toBe(456)
+      }
+    }
+  })
+
+  it.each(['full', 'lf'] as const)('rejects incorrect %s extents before writing', (kind) => {
+    const transform = kind === 'full' ? forwardJpegXlDct16 : forwardJpegXlDct16Lf
     for (const missing of [0, 1, 2]) {
       const samples = new Float32Array(missing === 0 ? 255 : 256).fill(123),
         intermediate = new Float32Array(missing === 1 ? 255 : 256).fill(456),
         output = new Float32Array(missing === 2 ? 255 : 256).fill(789)
-      expect(() => forwardJpegXlDct16(samples, intermediate, output)).toThrow()
+      expect(() => transform(samples, intermediate, output)).toThrow()
       expect(intermediate).toEqual(new Float32Array(intermediate.length).fill(456))
       expect(output).toEqual(new Float32Array(output.length).fill(789))
     }

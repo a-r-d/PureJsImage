@@ -1482,6 +1482,7 @@ const acHybridCandidates: readonly HybridUintEncoding[] = Object.freeze([
 ])
 let densePackedAcValues: Uint32Array | undefined
 let packedClusteredAcValues: Uint32Array | undefined
+let clusteredAcSymbolCount = 0
 const refinesAcModel = (geometry: Readonly<JpegDerivedGeometry>): boolean =>
   geometry.acModelRefinement === true || geometry.acIterationSearch === true
 const getPackedClusteredAcValues = (dense = false): Uint32Array => {
@@ -1495,8 +1496,11 @@ const getPackedClusteredAcValues = (dense = false): Uint32Array => {
   }
   if (packedClusteredAcValues) return packedClusteredAcValues
   const values = new Uint32Array(8192)
-  for (let value = 0; value < values.length; value++)
-    values[value] = encodeHybridUintPacked(value, acHybridConfig)
+  for (let value = 0; value < values.length; value++) {
+    const packed = encodeHybridUintPacked(value, acHybridConfig)
+    values[value] = packed
+    clusteredAcSymbolCount = Math.max(clusteredAcSymbolCount, (packed & 255) + 1)
+  }
   packedClusteredAcValues = values
   return values
 }
@@ -1840,49 +1844,73 @@ const visitAcGroup = (
 
 // Rank forward order/family candidates without serializing their DC or AC payloads.
 // Reuse the ordinary clustered model for all candidates; this is not exact ANS size.
-export function* estimateJpegXlForwardAcModel(
+function* collectForwardAcFrequencies(
   geometry: Readonly<VarDctCoefficientGeometry>,
-): Generator<void, Readonly<JpegXlForwardAcModelEstimate>, void> {
+  coefficientOrders: readonly Uint32Array[],
+  frequencies: Uint32Array[],
+  compactRaw = false,
+): Generator<void, number, void> {
   const contextCount = acBlockContextCount(geometry) * (37 + 458)
-  const frequencies: Uint32Array[] = []
-  const coefficientOrders = geometry.coefficientOrders ?? [
-    naturalJpegXlOrder,
-    naturalJpegXlOrder,
-    naturalJpegXlOrder,
-  ]
   const packedValues = getPackedClusteredAcValues(false)
+  const histogramSize = compactRaw ? clusteredAcSymbolCount : 512
   const groupCount = geometry.groupsAcross * geometry.groupsDown
   const passCount = geometry.progressive ? 2 : 1
   let extraBits = 0
-  try {
-    for (let context = 0; context < contextCount; context++)
-      frequencies.push(allocateJpegXlArray(geometry.memory, Uint32Array, 512))
-    for (let group = 0; group < groupCount; group++) {
-      for (let pass = 0; pass < passCount; pass++)
-        visitAcGroup(
-          geometry,
-          coefficientOrders,
-          group,
-          (value, context) => {
-            const counts = frequencies[context],
-              packed = packedValues[value]
-            if (!counts || packed === undefined)
-              throw invalidJpegXlInput('Forward order estimate token is missing')
-            const token = packed & 255
-            counts[token] = (counts[token] ?? 0) + 1
-            extraBits += (packed >>> 8) & 31
-          },
-          pass,
-        )
-      yield
-    }
-    return withJpegXlMemory(geometry.memory, () => {
-      const clustered = compactAcHistograms(frequencies, 96, geometry.memory, 6)
-      const writer = new JpegXlBitWriter(geometry.memory)
-      writeComponentBlockContexts(writer, geometry)
-      const componentBits = writer.bitPosition
-      const encoding = writeHfPass(
-        writer,
+  for (let context = 0; context < contextCount; context++)
+    frequencies.push(allocateJpegXlArray(geometry.memory, Uint32Array, histogramSize))
+  for (let group = 0; group < groupCount; group++) {
+    for (let pass = 0; pass < passCount; pass++)
+      visitAcGroup(
+        geometry,
+        coefficientOrders,
+        group,
+        (value, context) => {
+          const counts = frequencies[context],
+            packed = packedValues[value]
+          if (!counts || packed === undefined)
+            throw invalidJpegXlInput('Forward order estimate token is missing')
+          const token = packed & 255
+          counts[token] = (counts[token] ?? 0) + 1
+          extraBits += (packed >>> 8) & 31
+        },
+        pass,
+      )
+    yield
+  }
+
+  return extraBits
+}
+
+const forwardAcModelEstimate = (
+  geometry: Readonly<VarDctCoefficientGeometry>,
+  coefficientOrders: readonly Uint32Array[],
+  frequencies: readonly Uint32Array[],
+  extraBits: number,
+): Readonly<JpegXlForwardAcModelEstimate> => {
+  const groupCount = geometry.groupsAcross * geometry.groupsDown
+  const passCount = geometry.progressive ? 2 : 1
+  return withJpegXlMemory(geometry.memory, () => {
+    const clustered = compactAcHistograms(frequencies, 96, geometry.memory, 6)
+    const writer = new JpegXlBitWriter(geometry.memory)
+    writeComponentBlockContexts(writer, geometry)
+    const componentBits = writer.bitPosition
+    const encoding = writeHfPass(
+      writer,
+      coefficientOrders,
+      true,
+      clustered.contextMap,
+      clustered.frequencies,
+      acBlockContextCount(geometry),
+      acHybridConfig,
+    )
+    if (encoding.kind !== 'ans')
+      throw invalidJpegXlInput('Forward order estimate requires ANS frequencies')
+    // Each AC group/pass starts a separate ANS state. Padding/TOC remain estimated.
+    let bits = writer.bitPosition + extraBits + 32 * groupCount * passCount
+    if (passCount === 2) {
+      const repeated = new JpegXlBitWriter(geometry.memory)
+      writeHfPass(
+        repeated,
         coefficientOrders,
         true,
         clustered.contextMap,
@@ -1890,45 +1918,114 @@ export function* estimateJpegXlForwardAcModel(
         acBlockContextCount(geometry),
         acHybridConfig,
       )
-      if (encoding.kind !== 'ans')
-        throw invalidJpegXlInput('Forward order estimate requires ANS frequencies')
-      // Each AC group/pass starts a separate ANS state. Padding/TOC remain estimated.
-      let bits = writer.bitPosition + extraBits + 32 * groupCount * passCount
-      if (passCount === 2) {
-        const repeated = new JpegXlBitWriter(geometry.memory)
-        writeHfPass(
-          repeated,
-          coefficientOrders,
-          true,
-          clustered.contextMap,
-          clustered.frequencies,
-          acBlockContextCount(geometry),
-          acHybridConfig,
-        )
-        bits += repeated.bitPosition
+      bits += repeated.bitPosition
+    }
+    for (let context = 0; context < frequencies.length; context++) {
+      const counts = frequencies[context]
+      const histogram = encoding.encoding.histograms[clustered.contextMap[context] ?? 0]
+      if (!counts || !histogram)
+        throw invalidJpegXlInput('Forward order estimate histogram is missing')
+      for (let token = 0; token < counts.length; token++) {
+        const count = counts[token] ?? 0
+        if (count === 0) continue
+        const frequency = histogram.frequencies[token] ?? 0
+        if (frequency <= 0) throw invalidJpegXlInput('Forward order estimate frequency is missing')
+        bits += count * Math.log2(4096 / frequency)
       }
-      for (let context = 0; context < frequencies.length; context++) {
-        const counts = frequencies[context]
-        const histogram = encoding.encoding.histograms[clustered.contextMap[context] ?? 0]
-        if (!counts || !histogram)
-          throw invalidJpegXlInput('Forward order estimate histogram is missing')
-        for (let token = 0; token < counts.length; token++) {
-          const count = counts[token] ?? 0
-          if (count === 0) continue
-          const frequency = histogram.frequencies[token] ?? 0
-          if (frequency <= 0)
-            throw invalidJpegXlInput('Forward order estimate frequency is missing')
-          bits += count * Math.log2(4096 / frequency)
-        }
-      }
-      return {
-        bits,
-        acBits: bits - componentBits - 32 * groupCount * passCount,
-        ...clustered,
-      }
-    })
+    }
+    return {
+      bits,
+      acBits: bits - componentBits - 32 * groupCount * passCount,
+      ...clustered,
+    }
+  })
+}
+
+export function* estimateJpegXlForwardAcModel(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): Generator<void, Readonly<JpegXlForwardAcModelEstimate>, void> {
+  const frequencies: Uint32Array[] = []
+  const coefficientOrders = geometry.coefficientOrders ?? [
+    naturalJpegXlOrder,
+    naturalJpegXlOrder,
+    naturalJpegXlOrder,
+  ]
+  try {
+    const extraBits = yield* collectForwardAcFrequencies(geometry, coefficientOrders, frequencies)
+    return forwardAcModelEstimate(geometry, coefficientOrders, frequencies, extraBits)
   } finally {
     for (const counts of frequencies) geometry.memory?.release(counts)
+  }
+}
+
+// Family contexts split the same symbols. Score them, then fold integer counts
+// into ordinary contexts in place. Keep both owned models for the original
+// candidate ranking and serializer reuse; source coefficients are visited once.
+export function* estimateJpegXlForwardAcModelPair(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): Generator<
+  void,
+  readonly [Readonly<JpegXlForwardAcModelEstimate>, Readonly<JpegXlForwardAcModelEstimate>],
+  void
+> {
+  const ordinary = { ...geometry, familyContexts: false }
+  const family = { ...geometry, familyContexts: true }
+  const frequencies: Uint32Array[] = []
+  const coefficientOrders = geometry.coefficientOrders ?? [
+    naturalJpegXlOrder,
+    naturalJpegXlOrder,
+    naturalJpegXlOrder,
+  ]
+  const ordinaryContexts = acBlockContextCount(ordinary)
+  const familyContexts = acBlockContextCount(family)
+  const ordinaryCount = ordinaryContexts * (37 + 458)
+  let familyModel: Readonly<JpegXlForwardAcModelEstimate> | undefined
+  let complete = false
+  try {
+    // Derive raw capacity from every packed codeword in the bounded value table.
+    // Compacted models keep their original 512 slots; only zero padding is removed.
+    const extraBits = yield* collectForwardAcFrequencies(
+      family,
+      coefficientOrders,
+      frequencies,
+      true,
+    )
+    familyModel = forwardAcModelEstimate(family, coefficientOrders, frequencies, extraBits)
+    for (let context = 0; context < frequencies.length; context++) {
+      const destinationContext =
+        context < familyContexts * 37
+          ? Math.floor(context / familyContexts) * ordinaryContexts + (context % ordinaryContexts)
+          : ordinaryContexts * 37 +
+            (Math.floor((context - familyContexts * 37) / 458) % ordinaryContexts) * 458 +
+            ((context - familyContexts * 37) % 458)
+      if (destinationContext === context) continue
+      const input = frequencies[context],
+        output = frequencies[destinationContext]
+      if (!input || !output || destinationContext > context)
+        throw invalidJpegXlInput('Forward context fold is invalid')
+      for (let token = 0; token < input.length; token++)
+        output[token] = (output[token] ?? 0) + (input[token] ?? 0)
+      input.fill(0)
+    }
+    for (let context = ordinaryCount; context < frequencies.length; context++) {
+      const counts = frequencies[context]
+      if (counts) geometry.memory?.release(counts)
+    }
+    frequencies.length = ordinaryCount
+    const ordinaryModel = forwardAcModelEstimate(
+      ordinary,
+      coefficientOrders,
+      frequencies,
+      extraBits,
+    )
+    complete = true
+    return [ordinaryModel, familyModel]
+  } finally {
+    for (const counts of frequencies) geometry.memory?.release(counts)
+    if (!complete && familyModel) {
+      geometry.memory?.release(familyModel.contextMap)
+      for (const counts of familyModel.frequencies) geometry.memory?.release(counts)
+    }
   }
 }
 

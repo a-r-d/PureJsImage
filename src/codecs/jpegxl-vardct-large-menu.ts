@@ -1,27 +1,27 @@
-import type { CoherentCoefficientModel } from './jpegxl-vardct-coefficient-model.ts'
-import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.ts'
 import type { JpegXlEncoderMemory } from './jpegxl-encoder-memory.ts'
+import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.ts'
+import type { CoherentCoefficientModel } from './jpegxl-vardct-coefficient-model.ts'
 import {
   forwardJpegXlDct8,
   forwardJpegXlDct16,
   forwardJpegXlDctHalves,
   forwardJpegXlHornuss,
 } from './jpegxl-vardct-forward-transforms.ts'
+import { type JpegXlLargeWindowMenu, jpegXlLargeQuantizers } from './jpegxl-vardct-large-select.ts'
 import {
   forwardJpegXlDct32,
   forwardJpegXlRectangle32,
   quantizeJpegXlDct32Dc,
   quantizeJpegXlRectangle32Dc,
 } from './jpegxl-vardct-large-transforms.ts'
-import { jpegXlLargeQuantizers, type JpegXlLargeWindowMenu } from './jpegxl-vardct-large-select.ts'
 import {
+  defaultJpegXlDct4x8Dequantization,
   defaultJpegXlDct8Dequantization,
   defaultJpegXlDct16Dequantization,
   defaultJpegXlDct32Dequantization,
-  defaultJpegXlRectangle32Dequantization,
   defaultJpegXlHornussDequantization,
-  defaultJpegXlDct4x8Dequantization,
   defaultJpegXlQuantizationBiases,
+  defaultJpegXlRectangle32Dequantization,
 } from './jpegxl-vardct-quantization.ts'
 
 type Planes = readonly [Float64Array, Float64Array, Float64Array]
@@ -94,11 +94,12 @@ const decoded = (value: number, channel: number): number =>
 const integerTokenRates = new Float64Array(4096)
 for (let value = 1; value < integerTokenRates.length; value++)
   integerTokenRates[value] = 1 + 2 * Math.log2(1 + value)
-const rateToken = (value: number): number => {
+export const jpegXlAcTokenRate = (value: number): number => {
   if (value === 0) return 0
   const magnitude = Math.abs(value)
   return integerTokenRates[magnitude] ?? 1 + 2 * Math.log2(1 + magnitude)
 }
+const rateToken = jpegXlAcTokenRate
 const isLf = (position: number, strategy: number): boolean =>
   strategy === 4 ? position >>> 4 < 2 && (position & 15) < 2 : position === 0
 const table = (strategy: number): readonly Float64Array[] =>

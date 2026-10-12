@@ -1,7 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { describe, expect, it } from 'vitest'
-import { missingSettings, parsePoint } from '../benchmark/jpegxl/lossy-lab/model.ts'
+import {
+  missingSettings,
+  parseEncodePoint,
+  parsePoint,
+} from '../benchmark/jpegxl/lossy-lab/model.ts'
 
 describe('lossy lab worker', () => {
   it('runs under the same Node TypeScript strip mode used by the lab', () => {
@@ -10,6 +14,27 @@ describe('lossy lab worker', () => {
   })
   it('rejects incomplete measured points from a failed worker', () => {
     expect(() => parsePoint({ setting: 1, bytes: 123 })).toThrow()
+  })
+  it('retains encode timing after scoring fails without admitting an incomplete curve point', () => {
+    const receipt = {
+      status: 'encoded',
+      setting: 2,
+      bytes: 123,
+      encodeMs: 5,
+      managedPeakBytes: 1024,
+      processPeakRssBytes: 2048,
+      error: 'Butteraugli scoring timed out',
+    }
+    expect(parseEncodePoint(receipt)).toEqual({
+      setting: 2,
+      bytes: 123,
+      encodeMs: 5,
+      managedPeakBytes: 1024,
+      processPeakRssBytes: 2048,
+    })
+    expect(() => parsePoint(receipt)).toThrow()
+    for (const encodeMs of [undefined, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(() => parseEncodePoint({ ...receipt, encodeMs })).toThrow()
   })
   it('extends cached peer curves without re-encoding their existing points', () => {
     const point = parsePoint({

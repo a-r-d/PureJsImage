@@ -9,7 +9,7 @@ import { initialize } from '../comparison/adapters.ts'
 import { hash, metrics, oracle, work } from '../comparison/io.ts'
 import { number, object } from '../comparison/model.ts'
 import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
-import { type CurvePoint, curveMatches, parsePoint } from './model.ts'
+import { type CurvePoint, curveMatches, type EncodePoint, parsePoint } from './model.ts'
 
 const [engine, reference, directory, settingsArgument] = process.argv.slice(2)
 if (
@@ -145,6 +145,19 @@ try {
       const artifact = join(directory, `${setting}.jxl`)
       const decoded = join(directory, `${setting}.png`)
       await writeFile(artifact, bytes)
+      const encoded: EncodePoint = {
+        setting,
+        bytes: bytes.length,
+        encodeMs,
+        managedPeakBytes,
+        processPeakRssBytes: process.resourceUsage().maxRSS * 1024,
+      }
+      // Keep formal encoding evidence even if native decoding or scoring times
+      // out. This receipt establishes encoding only; a curve still needs scores.
+      await writeFile(
+        join(directory, `${setting}.encode.json`),
+        `${JSON.stringify({ status: 'encoded', engine, reference, width: image.width, height: image.height, channels: inputChannels, effort, inputPixelSha256: inputHash, encodedSha256: hash(bytes), ...encoded }, null, 2)}\n`,
+      )
       run(`${oracle}/djxl`, [artifact, decoded, '--num_threads=1', '--bits_per_sample=8'])
       const decodedImage = PNG.sync.read(await readFile(decoded))
       if (decodedImage.width !== image.width || decodedImage.height !== image.height)
@@ -153,10 +166,8 @@ try {
         if (decodedImage.data[offset] !== 255) throw new Error('Decoded alpha changed')
       const ba = parseButteraugliOutput(run(`${metrics}/butteraugli_main`, [reference, decoded]))
       const point: CurvePoint = {
-        setting,
-        bytes: bytes.length,
-        encodeMs,
-        managedPeakBytes,
+        ...encoded,
+        // Retain the existing whole-worker RSS scope after decoded PNG loading.
         processPeakRssBytes: process.resourceUsage().maxRSS * 1024,
         ssimulacra2: parseSsimulacra2Output(run(`${metrics}/ssimulacra2`, [reference, decoded])),
         butteraugliMax: ba.max,

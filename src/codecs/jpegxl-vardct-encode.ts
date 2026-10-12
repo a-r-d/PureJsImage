@@ -18,6 +18,7 @@ import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
   estimateJpegXlForwardAcModel,
+  estimateJpegXlForwardAcModelPair,
   estimateJpegXlForwardOrderBits,
   type JpegXlForwardAcModelEstimate,
   jpegXlCoefficientColorBits,
@@ -40,6 +41,7 @@ import {
 import {
   type JpegXlLargeAcIndices,
   type JpegXlLargeMenuInput,
+  jpegXlAcTokenRate,
   prepareJpegXlLargeMenus,
 } from './jpegxl-vardct-large-menu.ts'
 import {
@@ -122,6 +124,7 @@ const lookupCubeRoot = (linear: number, table: Float32Array): number => {
 import {
   forwardJpegXlDct8,
   forwardJpegXlDct16,
+  forwardJpegXlDct16Lf,
   forwardJpegXlDctHalves,
   forwardJpegXlHornuss,
 } from './jpegxl-vardct-forward-transforms.ts'
@@ -430,6 +433,7 @@ function* chooseForwardOrderGeometry(
   const alternateGeometry = { ...geometry, coefficientOrders }
   let selected = geometry,
     bestEstimate = Infinity
+  let bestPriority = Infinity
   let bestModel: Readonly<JpegXlForwardAcModelEstimate> | undefined
   let complete = false
   const retainModel =
@@ -440,20 +444,41 @@ function* chooseForwardOrderGeometry(
     for (const counts of model.frequencies) geometry.memory?.release(counts)
   }
   try {
-    for (const candidate of [
-      geometry,
-      alternateGeometry,
-      { ...geometry, familyContexts: true },
-      { ...alternateGeometry, familyContexts: true },
-    ]) {
-      const model = retainModel ? yield* estimateJpegXlForwardAcModel(candidate) : undefined
-      const estimated = model?.bits ?? (yield* estimateJpegXlForwardOrderBits(candidate))
-      if (estimated < bestEstimate) {
-        releaseModel(bestModel)
-        bestModel = model
-        bestEstimate = estimated
-        selected = candidate
-      } else releaseModel(model)
+    if (retainModel && !geometry.familyContexts) {
+      for (const [orderPriority, candidate] of [geometry, alternateGeometry].entries()) {
+        const models = yield* estimateJpegXlForwardAcModelPair(candidate)
+        for (const [familyIndex, model] of models.entries()) {
+          const priority = orderPriority + familyIndex * 2
+          // Collection visits family first, but ties retain the original order:
+          // natural ordinary, learned ordinary, natural family, learned family.
+          if (
+            model.bits < bestEstimate ||
+            (model.bits === bestEstimate && priority < bestPriority)
+          ) {
+            releaseModel(bestModel)
+            bestModel = model
+            bestEstimate = model.bits
+            bestPriority = priority
+            selected = familyIndex === 0 ? candidate : { ...candidate, familyContexts: true }
+          } else releaseModel(model)
+        }
+      }
+    } else {
+      for (const candidate of [
+        geometry,
+        alternateGeometry,
+        { ...geometry, familyContexts: true },
+        { ...alternateGeometry, familyContexts: true },
+      ]) {
+        const model = retainModel ? yield* estimateJpegXlForwardAcModel(candidate) : undefined
+        const estimated = model?.bits ?? (yield* estimateJpegXlForwardOrderBits(candidate))
+        if (estimated < bestEstimate) {
+          releaseModel(bestModel)
+          bestModel = model
+          bestEstimate = estimated
+          selected = candidate
+        } else releaseModel(model)
+      }
     }
     complete = true
     return bestModel ? { ...selected, baselineAcModel: bestModel } : selected
@@ -1285,16 +1310,10 @@ function* prepare8(
     const lowCost =
       (magnitude - lowValue) ** 2 +
       weight *
-        (lower === 0
-          ? 0
-          : lower === 1
-            ? 3
-            : lower === 2
-              ? acPenaltyTwo
-              : 1 + 2 * Math.log2(1 + lower))
+        (lower === 0 ? 0 : lower === 1 ? 3 : lower === 2 ? acPenaltyTwo : jpegXlAcTokenRate(lower))
     const highCost =
       (magnitude - highValue) ** 2 +
-      weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : 1 + 2 * Math.log2(1 + upper))
+      weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : jpegXlAcTokenRate(upper))
     const value = highCost < lowCost ? upper : lower
     return normalized < 0 ? -value : value
   }
@@ -1376,10 +1395,10 @@ function* prepare8(
                 ? 3
                 : lower === 2
                   ? acPenaltyTwo
-                  : 1 + 2 * Math.log2(1 + lower)),
+                  : jpegXlAcTokenRate(lower)),
         highCost =
           (magnitude - highValue) ** 2 +
-          weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : 1 + 2 * Math.log2(1 + upper)),
+          weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : jpegXlAcTokenRate(upper)),
         value = highCost < lowCost ? upper : lower
       output[p] = normalized < 0 ? -value : value
       if (active && value !== 0) active.indices[kept++] = p
@@ -1412,7 +1431,11 @@ function* prepare8(
     // Compare estimated token cost only when every coding channel's reconstructed
     // error is no worse than DCT8. Hornuss is not orthogonal, so its error is
     // reconstructed algebraically; rectangular halves have half-block weights.
-    const measureStrategy = (strategy: number, localScale: number): number => {
+    const measureStrategy = (
+      strategy: number,
+      localScale: number,
+      maximumBits = Infinity,
+    ): number => {
       let bits = 0
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel],
@@ -1439,7 +1462,7 @@ function* prepare8(
           squared +=
             error * error * ((strategy === 12 || strategy === 13) && position !== 8 ? 0.5 : 1)
           if (value !== 0) {
-            bits += 1 + 2 * Math.log2(1 + Math.abs(value))
+            bits += jpegXlAcTokenRate(value)
             if (alternatePolicy) {
               nonzero++
               lastNonzero = Math.max(lastNonzero, naturalAcScanRank[position] ?? 0)
@@ -1473,6 +1496,16 @@ function* prepare8(
             }
         }
         errors[channel] = squared
+        // The ordinary selector requires every channel to fit the DCT8 error
+        // and the complete token rate to beat its incumbent. Later channels
+        // cannot repair a failed channel or lower a nonnegative partial rate.
+        if (
+          !alternatePolicy &&
+          strategy !== 0 &&
+          ((errors[channel] ?? Infinity) > (baselineErrors[channel] ?? 0) + 1e-12 ||
+            bits + 2 >= maximumBits)
+        )
+          return Infinity
       }
       return bits
     }
@@ -1542,7 +1575,7 @@ function* prepare8(
           let bestBits = baselineBits
           for (let candidate = 0; candidate < strategyCandidates.length; candidate++) {
             const strategy = strategyCandidates[candidate] ?? 0
-            const bits = measureStrategy(strategy, localScale)
+            const bits = measureStrategy(strategy, localScale, bestBits)
             if (
               bits + 2 < bestBits &&
               (errors[0] ?? Infinity) <= (baselineErrors[0] ?? 0) + 1e-12 &&
@@ -1612,7 +1645,7 @@ function* prepare8(
                 const magnitude = Math.abs(
                   quantizeAc((transformed[p] ?? 0) / (scale * (table[p] ?? 0)), channel),
                 )
-                if (magnitude) cost += 1 + 2 * Math.log2(1 + magnitude)
+                if (magnitude) cost += jpegXlAcTokenRate(magnitude)
               }
               rates[slot] = cost
             }
@@ -1902,7 +1935,7 @@ function* prepare8(
             const plane = dct16Planes[channel],
               coefficients = dct16Transformed[channel]
             if (!plane || !coefficients) throw invalidInput('Missing candidate DC')
-            forwardJpegXlDct16(plane, dct16Intermediate, coefficients)
+            forwardJpegXlDct16Lf(plane, dct16Intermediate, coefficients)
             const c00 = coefficients[0] ?? 0,
               c10 = (coefficients[16] ?? 0) / resampleScale,
               c01 = (coefficients[1] ?? 0) / resampleScale,
@@ -1940,6 +1973,14 @@ function* prepare8(
                 dcErrors,
               )
           }
+          // AC adds nonnegative squared error. No quantizer can repair DC
+          // that already exceeds this candidate's original channel bounds.
+          if (
+            (dcErrors[0] ?? Infinity) > (baselineError[0] ?? 0) + 1e-15 ||
+            (dcErrors[1] ?? Infinity) > (baselineError[1] ?? 0) + 1e-15 ||
+            (dcErrors[2] ?? Infinity) > (baselineError[2] ?? 0) + 1e-15
+          )
+            continue
           fillDct16(x, y, true)
           for (let channel = 0; channel < 3; channel++) {
             const plane = dct16Planes[channel],
@@ -1956,7 +1997,8 @@ function* prepare8(
             quantized16.fill(0)
             error16.fill(0)
             candidateError.set(dcErrors)
-            for (let channel = 0; channel < 3; channel++) {
+            for (let channelPosition = 0; channelPosition < 3; channelPosition++) {
+              const channel = channelPosition === 0 ? 1 : channelPosition === 1 ? 0 : 2
               const coefficients = dct16Transformed[channel],
                 table = defaultJpegXlDct16Dequantization[channel],
                 acScale = channel === 0 ? scale * xAc : channel === 2 ? scale * bAc : scale
@@ -1975,6 +2017,21 @@ function* prepare8(
                 }
                 quantized16[channel * 256 + p] = value
                 error16[channel * 256 + p] = (coefficients[p] ?? 0) - decoded(value, channel) * step
+              }
+              if (!inRange) break
+              // In the coding-channel selector, luminance error is independent
+              // of chroma. Preserve its exact final accumulation before rejecting
+              // a quantizer, avoiding both remaining channel quantizations.
+              if (pass === 0 && channel === 1) {
+                let luminanceError = dcErrors[1] ?? 0
+                for (let p = 0; p < 256; p++) {
+                  const error = error16[256 + p] ?? 0
+                  luminanceError += error * error
+                }
+                if (luminanceError > (baselineError[1] ?? 0) + 1e-15) {
+                  inRange = false
+                  break
+                }
               }
             }
             if (!inRange) continue

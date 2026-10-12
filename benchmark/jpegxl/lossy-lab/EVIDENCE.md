@@ -1959,9 +1959,240 @@ independent float grids and `verify.log`. Guard: 40.918s, 423.9 MiB, zero swap.
 
 Same-ladder aggregate main-baseline changes are -3.46048% SSIM, -3.39081%
 3-norm and +2.15426% max, passing all three mean limits. The coverage-filtered
-per-image guard has 8 3-norm failures and no SSIM failures.
-These are existing complete comparisons, not failures hidden by partial
-coverage. The three worst max changes are im26-3304 +63.11168%, im26-3312 +46.07737%, im26-1020 +34.68075%; visual inspection is complete. These are near-flat dark, cream and blue textures. The blue candidate has visibly larger square color boundaries. Images are selected nearest max distance 3 in each curve, with unequal bytes and qualities; two candidate curves do not reach that distance. No matched-quality claim is made. Observation hashes, chosen settings and artifact paths are recorded in `promotion-entry-layout/visual-inspection.json`.
+per-image guard has no full-band SSIM failures. Eight measured-overlap
+3-norm changes exceed +8.05%; their admission to the new full-band guard is
+pending the owner's coverage rule, because 3-norm has no required band.
+The three worst max changes are im26-3304 +63.11168%, im26-3312 +46.07737%, im26-1020 +34.68075%; visual inspection is complete. These are near-flat dark, cream and blue textures. The blue candidate has visibly larger square color boundaries. Images are selected nearest max distance 3 in each curve, with unequal bytes and qualities; two candidate curves do not reach that distance. No matched-quality claim is made. Observation hashes, chosen settings and artifact paths are recorded in `promotion-entry-layout/visual-inspection.json`.
 
 Final report-only bundles are jpegxl-specialized 675,358 bytes, codec-jpegxl 602,566 bytes.
 Ceilings stay 610,000 and 685,000. Final generated documentation check passes.
+
+## Crop-speed entry work (2026-10-12)
+
+Checkpoint `1a78297a` is pushed to `jxl-lossy-candidate`; a fresh remote read
+confirms main stays at `dca2f211`. Source SHA-256 is `ea633730`, the worktree
+is clean at push, and all 21 committed paths exclude temporary artifacts.
+Receipt: color-model validation `pushed-checkpoint.json` and `pushed-refs.txt`.
+
+Fresh median im26-1410 and slow-tail im26-1468 CPU profiles produce the same
+files as that checkpoint. Median preparation is 1.03576s inclusive, including
+large menus at 0.50162s and plane quantization at 0.16802s self. Strategy
+measurement is 0.12903s inclusive. The tail spends 9.20217s in Modular tree
+learning, with split scan 4.16543s self and radix sorting 2.18548s self.
+Profiles include startup, preparation and scorer waits; their encode times
+1,893.751 and 16,650.999ms are diagnostic, not isolated aggregate speed.
+Artifacts: `promotion-entry-median-profile/`, `promotion-entry-tail-profile/`,
+both logs and terminal bounded receipts. All use zero swap.
+
+The first speed-only trial reuses the existing exact token-rate table in
+rounding and small-strategy estimates. It allocates no new table, changes no
+threshold, and preserves the original fallback for values outside the table.
+All 48 original focused properties and strict TypeScript pass. Seven fresh
+counterbalanced median-crop pairs are pending. The saved first-party baseline
+is `promotion-entry-speed-base`, archived from the pushed checkpoint.
+The initial seven pairs finish with exact files, 7/7 wins and -4.64144%
+paired median time. Fifteen confirmation pairs preserve every byte, with
+12/15 wins, -4.79613% paired median and 1.91103-point MAD. The fixed screen
+has 80 exact streams and unchanged scores, so all screen BD-rate changes
+are zero. Receipts: `promotion-entry-token-rate-pairs-1410/`,
+`promotion-entry-token-rate-confirmation-1410/` and
+`promotion-entry-token-rate-screen/versus-checkpoint-streams.json`.
+
+All 64 cold counterbalanced crop pairs are complete. Corpus median falls
+1,844.559 to 1,800.905ms (-2.36665%); mean falls 2.23508%. Paired median
+improves 1.90885%, with 48/64 wins and 2.63669-point MAD. Every encoded
+stream and decoded PNG grid is exact; managed peak stays 34,223,172 bytes.
+Guard: 7min 31.235s, 358.6 MiB, zero swap. Retain the change, without
+claiming a fresh peer-relative speed ratio. Raw: token-rate balanced-speed
+`rows.json`, `summary.json` and terminal log, source `e02cad01`.
+
+Coverage clarification: the historical 3-norm comparisons integrate measured
+overlap and have no fixed required band. Their `coversRequiredRange` flag is
+therefore always true. The eight measured-overlap regressions above +8.05%
+are real measured changes, but admission to the new full-band per-image
+guard needs the owner's coverage rule. Clarification is pending; holdout
+stays unopened and no metric contract has changed.
+
+The following speed-only trial rejects an ordinary small transform when a
+completed channel's stored Float32 error or nonnegative partial rate already
+cannot satisfy the original selector. Baseline and alternate selection stay
+complete. All 48 focused properties and strict TypeScript pass. Seven initial
+pairs have exact bytes, 6/7 wins and -1.89788% paired median time. Twenty-one
+confirmation pairs remain exact, with 14/21 wins, -3.25491% paired median and
+4.64208-point MAD; timing is noisy. The complete fixed screen preserves all
+80 encoded streams and scores, so every screen BD-rate delta is zero.
+All-64 paired timing is pending. Raw: `promotion-entry-strategy-prune-validation/`,
+`promotion-entry-strategy-prune-pairs/`, `promotion-entry-strategy-prune-confirmation/`
+and `promotion-entry-strategy-prune-screen/versus-checkpoint-streams.json`.
+
+The all-64 transform-rejection pairs now complete with exact streams and
+decoded PNG grids. Corpus median improves 2.39858% (1,818.199 to 1,774.588ms),
+mean 1.73563%, paired median 1.31087%, with 43/64 wins and 2.94521-point MAD.
+Managed peak stays 34,223,172 bytes. Guard: 7min 29.785s, 376.5 MiB, zero
+swap. Retain the improvement. Source `5fb093eb`; raw balanced-speed
+`rows.json`, `summary.json` and validation `balanced-speed.log`. The two
+sequential percentage improvements are not a new jSquash-relative ratio.
+
+Sparse DCT16 DC computes only the four consumed coefficients with the original
+summation order and Float32 row boundary. Fifty-two focused cases pass, with
+new exact direct-cosine, footprint and invalid-extent coverage. Seven pairs
+are noisy (4/7 wins, -1.94338% paired median). Twenty-one confirmation pairs
+are exact, with 14/21 wins, -2.46217% paired median and 3.51836-point MAD.
+The fixed screen preserves all 80 files and scores. Raw:
+`promotion-entry-dct16-lf-validation/`, `promotion-entry-dct16-lf-pairs/`,
+`promotion-entry-dct16-lf-confirmation/` and
+`promotion-entry-dct16-lf-screen/versus-checkpoint-streams.json`.
+
+The following trial rejects a DCT16 candidate if its fixed DC error, or its
+independent luminance error, already exceeds the original final bounds.
+Fifty-three focused cases pass, including the large effort-9 cone stream's
+original bytes, pixels and ownership bounds. The thin-geometry filename in
+the command is absent; only five actual test files are counted. Seven cold
+pairs remain exact, with 6/7 wins and -2.93378% paired median. Twenty-one
+confirmation pairs remain exact, with 15/21 wins, -3.49199% paired median
+and 5.64145-point MAD. The fixed screen again preserves all 80 files and
+scores. Raw: `promotion-entry-dct16-bound-validation/`, corresponding
+pair/confirmation roots, and bound-screen `versus-checkpoint-streams.json`.
+Both DCT16 changes are provisional pending combined corpus timing.
+
+The worker now saves `${setting}.encode.json` before oracle decoding and
+scoring. A timeout retains formal encode time, output hash/bytes, input pixel
+hash, managed peak and encoder-phase RSS. Scored points retain the original
+whole-worker RSS scope and all three required quality scores. Five focused
+worker cases pass. Fourteen actual cold receipts match the pinned input,
+encoded files and scored point timing/ownership, with encode RSS no greater
+than final worker RSS. Raw: bound validation `receipt-focused.log`,
+`types-with-receipt.log`; initial pair `encode-receipt-verification.json`.
+Timer boundaries and scorer limits stay unchanged; an encoding-only receipt
+does not qualify a quality curve. Both paired sources use the revised worker.
+
+Four fixed screens have exact output. The frozen combined stack at source
+`16712cbb` completes 192 fresh one-worker crop jobs, with no failures, reuse or
+omissions. Own median is 1,756.410ms, mean 2,837.025ms, worst 16,138.099ms.
+jSquash median 506.859ms gives 3.46529x; vips median 378.658ms gives 4.63851x.
+All 64 own streams, scores and managed peaks match the pushed checkpoint;
+all encoding receipts are verified. The guard takes 6min 11.163s, peaks at
+423.8 MiB and uses no swap. This unpaired run does not prove a cumulative causal
+gain and still fails the 3x entry gate. Root: `promotion-entry-speed-stack-speed/`,
+variant `entry-speed-stack`, terminal log `promotion-entry-speed-stack-speed.log`.
+Originals remain unqualified, holdout is unopened and main is unchanged.
+
+Both crops defining the new median, im26-2026 and im26-2014, have fresh CPU
+profiles with exact public output. Large-transform menus take 466.762ms and
+496.563ms inclusive; model estimation and cached histogram assignment also
+remain substantial. Roots: `promotion-entry-speed-stack-profile-2026/` and
+`promotion-entry-speed-stack-profile-2014/`, including complete
+`profile-summary.json` files. LL-395 selects one raw-frequency backing buffer
+as the next allocation experiment, preserving all four model candidates.
+
+The raw-frequency allocation experiment passes strict TypeScript and 23 focused
+cases. Its seven exact cold pairs give five wins and median -0.78427%, but the
+21-pair confirmation gives only eleven wins and median -0.53518%, with MAD
+3.27789 points. LL-397 reverts it as neutral. Roots:
+`promotion-entry-frequency-pool-validation/`, `promotion-entry-frequency-pool-pairs/`
+and `promotion-entry-frequency-pool-confirmation/`, plus terminal logs.
+
+LL-398 adapts the earlier shared ordinary/family collection to the current
+retained-model path. All four candidates and their original tie priority stay;
+both model buffers are owned independently. Strict TypeScript and 51 focused
+cases pass, including eight exact model comparisons; nineteen further cases
+pass after restricting the fold to its eight-bit token domain. All seven initial
+cold pairs improve, median -5.38795%. Nineteen of 21 confirmation pairs improve,
+median -4.31485%, MAD 2.65646 points. Every file is exact. The fifth fixed screen
+also preserves all 80 streams and scores. The first counterbalanced run stops
+after three complete pairs on im26-1026's 2 KiB managed increase; no aggregate
+timing is claimed. Roots:
+`promotion-entry-paired-model-validation/`, `promotion-entry-paired-model-pairs/`,
+`promotion-entry-paired-model-confirmation/`, `promotion-entry-paired-model-screen/`
+and `promotion-entry-paired-model-balanced-speed/`, plus terminal logs.
+
+LL-402/403 remove raw histogram padding. Capacity derives from every legal
+packed codeword, giving 28 reachable symbols; compacted centroid buffers stay
+512 slots. The original standalone estimator, LIMIT tests and counterbalanced
+memory assertion remain unchanged. Strict TypeScript and 32 focused cases pass,
+including maximum positive/negative coefficient tokens and paired models within
+2,000,000 bytes. All seven fresh median-crop pairs improve, median -5.55279%,
+MAD 1.88505 points, with exact files. The repaired sixth fixed screen also keeps
+all 80 streams and scores exact. All 64 counterbalanced pairs finish against source `16712cbb`.
+Source `03b58ca7` preserves every file and decoded grid with no managed-memory
+increase. Fifty-four pairs improve, paired median -3.54238%, MAD 2.90163 points;
+corpus median improves 5.22940% and mean 2.22828%. The managed maximum stays
+34,223,172 bytes. Guard 7min 3.942s, 383.6 MiB, zero swap. LL-405 retains it.
+Roots: `promotion-entry-paired-model-validation/packed-*`,
+`promotion-entry-paired-model-packed-pairs/`, `promotion-entry-paired-model-packed-screen/`
+and `promotion-entry-paired-model-packed-balanced-speed/`, plus terminal logs.
+
+LL-406 profiles the slow crop im26-1468 at source `03b58ca7`. Its public file
+stays exact, encoder time 15,744.119ms and managed peak 34,223,172 bytes.
+Modular training scoring and key sorting dominate the profile. Guard 16.644s,
+298.6 MiB, zero swap. Root: `promotion-entry-paired-model-profile-1468/`.
+
+LL-407 completes 192 fresh isolated jobs at the same source, with no reuse,
+failures or omissions. All 64 own files and quality scores match the pushed
+checkpoint; all 64 encode receipts verify. Own median/mean/worst are
+1,593.495/2,647.187/15,548.246ms. jSquash median 500.977ms gives 3.18078x;
+vips 355.931ms gives 4.47698x. The crop entry gate still fails, with its 0.05
+tolerance. Managed maximum stays 34,223,172 bytes. Guard 5min 50.312s,
+410 MiB, zero swap. Root: `promotion-entry-paired-model-packed-speed/`.
+
+LL-408/409 test sharing borrowed groups between order learning and natural-order
+collection. Strict TypeScript and 44 focused cases pass, including eight exact
+model/order comparisons and four direct allocation-failure cleanup cases.
+Seven cold pairs show five wins and median -2.13498%; the 21-pair confirmation
+shows twelve wins, median -1.29657% and MAD 2.56759 points. Every file stays
+exact. The confirmation is inconclusive and the source and trial-only tests
+are reverted. Both rejected sources are preserved. Roots:
+`promotion-entry-order-fusion-validation/`, `promotion-entry-order-fusion-pairs/`
+and `promotion-entry-order-fusion-confirmation/`, plus terminal logs.
+
+LL-410/411 test nonnegative partial error/rate bounds at coefficient-row
+boundaries. Strict TypeScript and 105 focused cases pass. All 21 confirmation
+files stay exact, but only nine pairs improve, median +1.25188%, MAD 3.69145
+points. Reverted as neutral. Roots: `promotion-entry-partial-bound-validation/`,
+`promotion-entry-partial-bound-pairs/` and `promotion-entry-partial-bound-confirmation/`.
+
+LL-412/413 refresh the retained median-crop profile and inspect duplicate rows
+in a private source copy. Menu work is 530.036ms inclusive, plane quantization
+116.462ms self, cached assignment 97.226ms and physical forward 92.274ms.
+Few raw rows and no occupied centroids are duplicated, so no duplicate cache
+is implemented. The diagnostic public file remains exact. Roots:
+`promotion-entry-packed-median-profile-2026/` and `promotion-entry-histogram-diagnostic/`.
+
+LL-414/415 enlarge the optional source-block cache to cover the 6x6 DC halo.
+Strict TypeScript and 71 focused cases pass. All 21 confirmation files stay
+exact, but only eight pairs improve, median +0.48715%, MAD 2.11844 points.
+Reverted as neutral, including all 37,248 bytes of additional storage.
+Roots: `promotion-entry-halo-cache-validation/`, `promotion-entry-halo-cache-pairs/`
+and `promotion-entry-halo-cache-confirmation/`, plus terminal logs.
+
+LL-416 qualifies retained source `03b58ca7` on the complete development ladder.
+All 576 encodes and score triples are exactly identical to the pushed candidate,
+with all encoding receipts verified. Managed peak stays 34,259,887 bytes.
+Guard 8min 8.726s, 1.3 GiB, zero swap. Same-ladder main deltas are unchanged:
+-3.46048% SSIMULACRA2, -3.39081% 3-norm and +2.15426% max.
+Roots: `promotion-entry-exact-speed-full-r1/` and terminal log. The initial
+invalid `full` mode launch fails before producing curve data; its separate
+guard receipt/log remain. The successful run uses `lab`, as the harness requires.
+
+LL-417 completes 46 fresh native/Rust fixture checks at retained source
+`03b58ca7`: 3 lossless, 11 effort 7, 11 effort 9, 13 full-ladder photos
+and 8 DC snapshots. Every complete first-party grid is checked. All 42 real
+browser cases pass, 14 each in Chromium, Firefox and WebKit. Effort 9 remains
+focused correctness; the comparison screen is still reserved until promotion.
+Oracle/browser guards are 2min 28.419s / 1min 58.312s, peaks 1.2 / 3 GiB,
+zero swap. Bundle/documentation reports refresh to 604,300 / 677,092 bytes,
+ceilings unchanged at 610,000 / 685,000. Root:
+`promotion-entry-exact-speed-validation/`; guard receipts use the corresponding
+`promotion-entry-exact-speed-{oracles,browser,size}` IDs.
+
+LL-418 completes the full repository check: 3,960 passes, zero failures and
+three skips across 310 files (309 passed, one skipped), 539.16s. All static
+gates pass. Guard 9min 43.783s, 2.5 GiB, zero swap. Detached launch and final
+guard receipt both survive, with captured code 0. Cleanup removes 2359
+reproducible decoded PNGs / 1024226508 bytes, preserving 2359
+encoded files and 1463 result records. Cleanup guard 6.890s,
+818.2 MiB, zero swap. Root: `promotion-entry-exact-speed-validation/`.
+Candidate source remains `03b58ca7`. Bundles are 604,300 / 677,092 bytes,
+ceilings unchanged at 610,000 / 685,000. Crop speed remains 3.18078x jSquash,
+so originals and holdout are still reserved. The 3-norm full-band clarification
+also remains pending. Next speed hypothesis is reuse of clustering buffers.
