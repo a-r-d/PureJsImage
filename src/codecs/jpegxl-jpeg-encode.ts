@@ -1506,7 +1506,7 @@ const getPackedClusteredAcValues = (dense = false): Uint32Array => {
 }
 
 // Resolve optional scratch before entering this numeric clustering kernel.
-const assignCachedAcHistograms = (
+export const assignCachedAcHistograms = (
   frequencies: readonly Uint32Array[],
   active: readonly number[],
   compact: readonly Uint32Array[],
@@ -1528,12 +1528,28 @@ const assignCachedAcHistograms = (
     for (const histogram of active) {
       const values = frequencies[histogram]
       if (!values) throw invalidJpegXlInput('AC frequency histogram is missing')
-      let cost = 0
-      for (let symbol = 0; symbol < symbolCount; symbol++) {
-        const count = values[symbol] ?? 0
-        if (count !== 0) cost -= count * (logarithms[symbol] ?? 0)
+      const incumbent = bestCosts[histogram] ?? Number.POSITIVE_INFINITY
+      let cost = 0,
+        symbol = 0
+      // Keep ascending Float64 additions, but check the nonnegative bound
+      // after four symbols to amortize loop and rejection overhead.
+      for (; symbol + 4 <= symbolCount; symbol += 4) {
+        const a = values[symbol] ?? 0,
+          b = values[symbol + 1] ?? 0,
+          c = values[symbol + 2] ?? 0,
+          d = values[symbol + 3] ?? 0
+        if (a !== 0) cost -= a * (logarithms[symbol] ?? 0)
+        if (b !== 0) cost -= b * (logarithms[symbol + 1] ?? 0)
+        if (c !== 0) cost -= c * (logarithms[symbol + 2] ?? 0)
+        if (d !== 0) cost -= d * (logarithms[symbol + 3] ?? 0)
+        if (cost >= incumbent) break
       }
-      if (cost < (bestCosts[histogram] ?? Number.POSITIVE_INFINITY)) {
+      if (cost < incumbent)
+        for (; symbol < symbolCount; symbol++) {
+          const count = values[symbol] ?? 0
+          if (count !== 0) cost -= count * (logarithms[symbol] ?? 0)
+        }
+      if (cost < incumbent) {
         bestCosts[histogram] = cost
         assignments[histogram] = cluster
       }

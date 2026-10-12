@@ -168,8 +168,25 @@ describe('per-image shape-preserving cubic BD-rate', () => {
     ]
     expect(bdRate(ba, ba, 'butteraugliMax').coversRequiredRange).toBe(false)
     const norm = bdRate(ba, ba, 'butteraugliNorm3')
-    expect(norm.requiredRange).toBeNull()
-    expect(norm.coversRequiredRange).toBe(true)
+    expect(norm.requiredRange).toEqual({ minimum: 0.5, maximum: 3 })
+    expect(norm.coversRequiredRange).toBe(false)
+  })
+
+  it('requires both ends of the 3-norm promotion band without changing the integral', () => {
+    const complete = [
+      { quality: 3, bytes: 100 },
+      { quality: 1, bytes: 300 },
+      { quality: 0.5, bytes: 1000 },
+    ]
+    const result = bdRate(scale(complete, 0.8), complete, 'butteraugliNorm3')
+    expect(result.coversRequiredRange).toBe(true)
+    expect(result.percent).toBeCloseTo(-20, 10)
+    for (const shorter of [complete.slice(0, 2), complete.slice(1)]) {
+      const partial = bdRate(scale(shorter, 0.8), shorter, 'butteraugliNorm3')
+      expect(partial.coversRequiredRange).toBe(false)
+      expect(partial.percent).toBeCloseTo(-20, 10)
+      expect(partial.overlap).toEqual(partial.measuredOverlap)
+    }
   })
 
   it('clips the integral to the requested interval while preserving default behavior', () => {

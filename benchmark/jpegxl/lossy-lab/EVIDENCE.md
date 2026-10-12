@@ -2349,3 +2349,117 @@ new retained gain out of four hypotheses; formal crop ratio 3.10864x still
 fails entry. Main, originals and holdout remain reserved. Bundles are
 608,530 / 681,347 bytes; ceilings stay 610,000 / 685,000.
 Root: `promotion-entry-scalar-transform-checkpoint/`.
+
+## Ordered histogram bounds (2026-10-12, LL-446 onward)
+
+All roots below are under `.tmp/jpegxl-lossy-lab/`. Production arithmetic
+stays first-party TypeScript. The fixed public encode boundaries, fixture
+bytes, distance, effort and memory accounting stay unchanged.
+
+LL-446 to LL-449 reject compact plane upper crossings, scalar crossings
+and cached scalar crossings. Actual kernels preserve 489,888 / 721,032
+sample decisions, including boundary values and signed zero. Compact
+crossings lose their initial gain in 21 pairs; scalar variants are slower.
+Initial generator and module-cycle failures are retained. Roots:
+`promotion-entry-upper-crossings-*`, `promotion-entry-scalar-crossings-*`
+and `promotion-entry-cached-crossings-*`.
+
+LL-450 refreshes the restored median profile after three misses. LL-451
+rejects an exact division-free zero bound as slower. LL-452 / LL-453
+reject known-empty clear and pricing shortcuts. The initial zero-bound
+signed-zero mismatch is repaired without changing the check. LL-454
+profiles restored source again and confirms coherent pricing is inactive
+at formal distance 2; no further trial extends that idea. Roots:
+`promotion-entry-crossings-restored-profile-1400/`,
+`promotion-entry-zero-bound-*`, `promotion-entry-empty-clears-*`,
+`promotion-entry-empty-pricing-*` and
+`promotion-entry-menu-restored-profile-2026/`.
+
+LL-455 rejects the decoded-centroid table as slower. Its initialization
+is explicitly outside the encode timer; no cold-start gain is claimed.
+LL-456 to LL-458 reject a dense incumbent bound after its locally positive
+21-pair result fails across all 64 crops: corpus median -0.13468%, mean
++0.09134%, only 31 paired wins. Every file, grid and managed peak matches.
+The separate kernel proof has 128 seeded sets / 131,072 cluster decisions.
+Roots: `promotion-entry-decoded-centroids-*` and
+`promotion-entry-dense-assignment-bound-*`. Rejected source remains saved.
+
+LL-459 to LL-461 retain four-term ascending cost batches at source
+`01c5ac98`. All 128 seeded sets / 131,072 cluster decisions match costs,
+assignments and tails. Sixteen of 21 confirmation pairs improve; paired
+median -1.93040%, MAD 2.67084 points. All 64 corpus files and grids stay
+exact, forty paired wins, corpus median -1.47355%, mean -1.04325%, paired
+median -1.10346%, MAD 1.93433 points. Managed peaks stay equal at
+34,223,172 bytes, with no new storage or outside-timer work. The one-symbol
+tie fixture's missing nonempty-cluster premise is corrected; its expected
+tie remains unchanged. Roots: `promotion-entry-batched-assignment-bound-*`.
+
+LL-462 completes 192 fresh isolated peer jobs, with zero reuse, failures
+or omissions. Every own JXL, score triple and encode receipt verifies
+against source `db5bea99`. Own median 1,547.101ms versus jSquash 501.940ms
+and vips 357.708ms gives 3.08224x / 4.32504x. The 3.05x crop gate still
+fails. Managed peak stays 34,223,172 bytes. Originals and holdout remain
+reserved. This refresh qualifies absolute speed; the counterbalanced run
+supports the causal gain. Root:
+`promotion-entry-batched-assignment-bound-speed/qualified-speed.json`.
+
+LL-463 qualifies the full ladder: all 64 images / 576 JXL files, score
+triples and encode receipts match source `db5bea99`. Managed peak stays
+34,259,887 bytes, with no per-image increase. Peer BD-rate, main means
+and the 209 coverage warnings stay unchanged. Guard 8min 6.677s, 1.3 GiB,
+zero swap. Four-worker ladder timings do not replace isolated speed.
+Root: `promotion-entry-batched-assignment-bound-full/exactness.json`.
+
+LL-464 passes all 46 native/Rust cases and 45 real-browser cases, fifteen
+per browser. The shared assignment fixtures cover batches, tails and ties
+at 2/4/7/8/17 symbols and uint32-max counts. Guards: 2min 25.028s / 1.1 GiB
+for decoders, 1min 54.802s / 2.4 GiB for browsers, zero swap. Root:
+`promotion-entry-batched-assignment-bound-validation-final/`.
+
+LL-465 profiles the actual isolated median neighbors im26-3004/im26-1408
+and the slowest im26-1468. Median plane quantization is 118.279/168.973ms
+self; cached assignment is 35.606/24.023ms. Slow-tail evaluator and radix
+sorting remain dominant. All streams/scores match; twelve batch/tail cases
+pass. Guard 22.679s, 355.8 MiB, zero swap. Profile timing is diagnostic.
+Roots: `promotion-entry-batched-assignment-profile-3004/`, `*-1408/`,
+`*-1468/` and validation-final current profile logs.
+
+LL-466 records the stale-metrics check failure separately from qualification.
+The render-only command kept old measurements. A fresh measurement of the
+completed build and both renderers corrects them: 608,720/681,537 bytes,
++190 per entry. Original ceilings 610,000/685,000 remain unchanged.
+Failed check: 24.247s / 1.1 GiB; corrected metrics: 22.289s / 1.1 GiB,
+zero swap. Roots: `promotion-entry-batched-assignment-bound-checkpoint/`
+check-r1 and validation-final metrics-r2. Fresh check-r2 is authoritative.
+
+LL-467 applies Aaron's clarification: 3-norm must cover distance 0.5 to 3
+for per-image admission. The integral and all 192 main / 384 peer rate
+values stay exact. Required-range metadata changes. Main full-band counts
+are 4 SSIM, zero 3-norm and 11 max comparisons out of 64 each; no admitted
+SSIM/3-norm failure exceeds +8.05%. All eight earlier 3-norm regressions
+are partial-band. This does not establish full-band 3-norm quality coverage.
+Peer coverage warnings are now 337; the historical 209 remains in the
+original summary. Initial analysis of cached supersets is corrected by
+filtering the same pinned ladder as the runner, keeping every rate-value
+assertion. Roots: full `full-band-main-guard.json`,
+`updated-peer-coverage.json` and validation-final `coverage-focused.log`.
+
+LL-468 passes check-r2 before the later coverage correction: 3,973 tests,
+zero failures, three skips, 530.42s; all static gates pass. Guard 9min
+35.827s, 2.6 GiB, zero swap. Cleanup removes 1,153 decoded PNGs / 500596244
+bytes while preserving 1,153 JXLs and 641 complete results, pinned inputs,
+profiles, logs, source variants and oracle evidence. Cleanup guard 3.965s,
+578.4 MiB, zero swap. The later coverage correction requires check-r3 for
+the final changed tree. Root:
+`promotion-entry-batched-assignment-bound-checkpoint/`.
+
+LL-469 passes the final changed-tree check-r3 after the owner's coverage
+correction: 3,974 tests, zero failures, three skips; 535.71s. Every
+static gate passes, including browser:check. Guard 9min 40.429s, zero swap.
+All 576 files/scores, 46 decoder cases and 45 browser cases remain qualified.
+All 446 prior experiment rows and the previous checkpoint state
+stay verbatim in the history audit. One of nine speed hypotheses is retained;
+eight are reverted. The fresh crop ratio 3.08224x still fails entry. Main,
+originals and holdout remain reserved. Bundles 608,720/681,537 bytes; ceilings
+610,000/685,000 are unchanged. Root:
+`promotion-entry-batched-assignment-bound-checkpoint/`.

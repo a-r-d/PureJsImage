@@ -224,12 +224,9 @@ export function bdRate(
     'Mean log rate difference',
   )
   const overlap = direction === 1 ? { minimum, maximum } : { minimum: -maximum, maximum: -minimum }
+  // Owner promotion guidance requires 0.5 to 3 coverage for both Butteraugli metrics.
   const requiredRange =
-    metric === 'ssimulacra2'
-      ? { minimum: 60, maximum: 90 }
-      : metric === 'butteraugliMax'
-        ? { minimum: 0.5, maximum: 3 }
-        : null
+    metric === 'ssimulacra2' ? { minimum: 60, maximum: 90 } : { minimum: 0.5, maximum: 3 }
   return {
     percent: finite(100 * Math.expm1(meanLogRateDifference), 'BD-rate'),
     meanLogRateDifference,
