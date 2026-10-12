@@ -96,6 +96,23 @@ describe('lossy lab baseline report', () => {
     expect(report).toContain('jSquash / SSIMULACRA2: 1 missing image comparisons')
   })
 
+  it('reports the required 3-norm band without discarding partial-band measurements', () => {
+    const value = summary()
+    const row = value.comparisons.find(
+      (row) => row.id === 'image-b:lab' && row.peer === 'vips' && row.metric === 'butteraugliNorm3',
+    )
+    if (!row) throw new Error('Missing test comparison')
+    row.coversRequiredRange = false
+    const report = renderBaselineReport(value)
+    expect(report).toContain('Butteraugli max and 3-norm 0.5–3')
+    expect(report).toContain('Butteraugli 3-norm integrates over the common measured interval')
+    expect(report).toContain('Status: **incomplete**')
+    expect(report).toContain(
+      '| Butteraugli 3-norm | wasm-vips | +20.00% | +20.00% | +28.00% | +30.00% | 2/2 | 1/2 |',
+    )
+    expect(report).toContain('Partial overlap: image-b:lab / wasm-vips / Butteraugli 3-norm')
+  })
+
   it('shows empty rows as unavailable and retains diagnostic text safely', () => {
     const report = renderBaselineReport({
       ...summary(),

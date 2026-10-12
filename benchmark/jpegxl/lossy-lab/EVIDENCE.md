@@ -2670,3 +2670,42 @@ bytes; ceilings remain 615,000 / 685,000. Test duration 547.49s; guard
 before promotion; no new compression trial or speed hypothesis occurs.
 Roots: promotion-final-ladder-check/check.log;
 bounded-runs/promotion-final-ladder-check-r1-20261012.json.
+
+## Watch continuation and report corrections (2026-10-12)
+
+LL-504 fixes the report's stale 3-norm coverage wording. Required coverage is
+distance 0.5 to 3, as confirmed by Aaron; its BD-rate integral still uses the
+common measured interval. Partial-band measurements remain in aggregates and
+mark coverage incomplete. All 73 focused report, metric and ladder tests pass.
+Source dd98eb91 and measured BD-rate values remain unchanged.
+Root: promotion-band-report-focused.log.
+
+LL-505 corrects the main sparse-layout byte count in LL-377 and the earlier
+promotion-entry paragraph. The saved public-encode result is **13,935 to
+5,265 bytes**. The 32,896-byte value belongs to the separate conservative-path
+control indexed earlier. The other saved main/candidate pairs remain
+904 to 577, 1,410 to 499 and 502 to 502 bytes. Complete first-party, native
+and Rust candidate grids equal source pixels exactly. All approved layout
+snapshots remain no larger than main. Historical text and both receipts are
+preserved; this paragraph is the correction.
+Root: promotion-entry-layout/result.json.
+
+LL-506 continues the same ten-original watch run, started at 18:10 UTC,
+without restarting any own measurement. At 19:24 UTC four own curves
+complete and the fifth has two scored points: 38/90 own points, zero own
+failures. The maximum completed-curve managed peak is 136,508,774 bytes,
+below the unchanged 137,514,476-byte ceiling. Initial reference failures
+are preserved: jSquash at 21 MP and vips at 21 MP, im26-1026 and im26-1472.
+Fresh retry preparation derives all missing settings from the declared
+ladder, including settings absent after a fatal peer abort. It never invents
+original failure records or imputes scores.
+
+The sequential continuation waits for the exact original guard receipt.
+It then runs fresh public vips retries, own stream/receipt qualification,
+fresh isolated watch speed, its qualifier and the complete repository check.
+Strict TypeScript passes. Every heavy tree has its own bounded guard and
+runs sequentially; normal scoring deadlines remain unchanged. This queued
+path stops on a failed requirement and does not promote main. No completed
+watch or refreshed original-speed claim is made at this checkpoint.
+Roots: promotion-watch-continuation/progress.json;
+promotion-watch-continuation.log; watch-postpromotion-qualification-types-r6.log.

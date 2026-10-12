@@ -49,7 +49,11 @@ The full-band main guard admits eight SSIM pairs and zero 3-norm pairs,
 with no admitted failures. Scale qualification passes all 20 own points
 on two 2080-square crops and the 13 MP / 21 MP originals. The largest
 managed peak is 136,508,774 bytes, below the unchanged original ceiling.
-All ten full watch curves remain pending.
+The full ten-original watch run continues on the same source. At the
+19:24 UTC checkpoint, four own curves and 38/90 own scored points complete
+with zero own failures. Fresh public reference retries, watch qualification,
+isolated original speed and the repository recheck are queued sequentially.
+Main stays unchanged until those requirements pass.
 Peer targets are report-only under the promotion-entry decision.
 
 Fresh 13 MP and 21 MP encodes complete in 59.332s and 80.775s. The 13 MP

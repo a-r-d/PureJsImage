@@ -230,7 +230,7 @@ export function renderBaselineReport(value: unknown, speedSummary?: unknown): st
   }
   lines.push(
     '',
-    'Required overlap: SSIMULACRA2 60–90; Butteraugli max 0.5–3. Butteraugli 3-norm requires positive common width.',
+    'Required coverage: SSIMULACRA2 60–90; Butteraugli max and 3-norm 0.5–3. Butteraugli 3-norm integrates over the common measured interval.',
     '',
     '## Failures and overlap omissions',
     '',
