@@ -2507,3 +2507,87 @@ source, receipts and all 470 previous committed experiment rows remain.
 Bundles stay 608,720/681,537 bytes; ceilings 610,000/685,000 are unchanged.
 The qualified crop ratio stays 3.08224x jSquash; main, originals and holdout
 remain reserved. Root: `promotion-entry-rejected-speed-checkpoint/`.
+
+## Inline large-plane reconstruction (2026-10-12)
+
+LL-484 rejects a shared rounding helper after only one of seven cold pairs
+improves. LL-485 isolates inline reconstruction with the original DCT16
+kernel intact. The 21-pair LL-486 confirmation has 17 wins and a -3.30661%
+paired median. LL-487 checks all 64 development crops: the corpus median
+falls 2.40464%, mean 1.94713%, with 45 wins. Every encoded file and decoded
+grid matches the pushed c154f365 baseline, and no per-image managed peak
+increases. Source is dd98eb91. No compression policy changes.
+
+Raw evidence under `.tmp/jpegxl-lossy-lab/`:
+- `promotion-entry-fused-plane-validation/` and `*-pairs/`: rejected
+  shared-helper source, strict types, focused tests and seven paired workers.
+- `promotion-entry-inline-fused-plane-validation/`: retained source and
+  1,022,112 direct decisions/reconstructions, including all three geometries,
+  tie neighbors, signed zero, compaction, coherent rates and range failures.
+- `promotion-entry-inline-fused-plane-pairs/` and `*-confirmation/`:
+  all initial and 21-pair cold samples, including timing excursions.
+- `promotion-entry-inline-fused-plane-balanced-speed/`: 128 fresh cold
+  workers, exact output/decoded grids and per-image memory comparisons.
+- `promotion-entry-inline-fused-plane-checkpoint/`: fresh types and 37
+  focused cases. Isolated peer speed and the remaining qualification are
+  pending; the last qualified crop ratio is still 3.08224x jSquash.
+
+All previously committed rows and checkpoint states remain. Main and
+holdout remain reserved. No effort-9 screen or final-distance tuning.
+
+LL-488 closes the crop entry gate at 3.04611201x jSquash, inside the
+owner's 3.05x tolerance. All 192 fresh isolated jobs complete with zero
+reuse, failure or omission. Own files/scores and 64 pre-scoring receipts
+match the preceding candidate; per-image managed peaks do not increase.
+Medians: own 1495.803ms, jSquash 491.053ms, vips 345.497ms.
+Raw: `promotion-entry-inline-fused-plane-speed/qualified-speed.json`.
+The two originals, full ladder and promotion qualification remain pending.
+
+LL-489 completes fresh original encode entry. Own 13 MP / 21 MP encode
+times are 59.332s / 80.775s; managed peaks 82,507,265 / 135,364,894 bytes
+fit the preserved 137,514,476-byte original ceiling. The 13 MP ratio is
+2.32767x jSquash. Five formal encode receipts survive; all three 13 MP
+score triples finish. The 21 MP jSquash abort and own/vips 120-second
+Butteraugli timeouts remain explicit. No 21 MP quality curve is claimed.
+Root: `promotion-entry-inline-fused-plane-originals/qualified-originals.json`.
+
+LL-490 completes the full fixed ladder: all 576 files/scores/receipts
+match the pushed candidate. Maximum managed peak stays 34,259,887 bytes,
+with no per-image increase. All 192 main and 384 peer BD values match.
+Main means: -3.46048% SSIM, -3.39081% 3-norm, +2.15426% max. The full-band
+guard admits four SSIM and zero 3-norm pairs, with no admitted failures;
+zero 3-norm admissions are not proof of coverage. Peer warnings stay 337.
+Root: `promotion-entry-inline-fused-plane-full/`. Crop and original encode
+entry pass; remaining promotion qualification still gates main.
+
+LL-491 recovers the two missing 21 MP score triples from saved files under
+a bounded 8 GiB process cap. Butteraugli takes 18.673s / 18.322s, below
+the normal 120s deadline; the longer private diagnostic deadline did not
+affect those completed runs. Guard peak 5.9 GiB, zero swap. Inputs and
+scorer hashes are pinned. Encoder memory limits and formal encode timings
+are unchanged. Initial 6 GiB failures remain; jSquash still has no 21 MP
+encode. Raw: `promotion-entry-original-21-score-8g/summary.json`.
+
+LL-492 passes all 46 native/Rust cases and 48 real-browser cases, sixteen
+each in Chromium, Firefox and WebKit. The new public large-window fixture
+matches c154f365 bytes and pixels at distances 2 and 7; its frozen Node
+expectations and browser comparisons retain geometry, alpha and cleanup
+properties. Root: `promotion-entry-inline-fused-plane-validation-final/`;
+browser log: `promotion-entry-inline-fused-plane-browser-guard.log`.
+Repository check, holdout aggregate and scale/watch qualification remain.
+
+LL-493 refreshes actual bundles from the completed build: 610,206 /
+683023 bytes. The owner-approved JPEG XL ceiling rises from 610,000
+to 615,000; the specialized ceiling stays 685,000. Initial failed
+measurement and the passing correction remain separate. Generated
+package/website metrics and documentation are refreshed before check.
+Root: `promotion-entry-inline-fused-plane-checkpoint/`.
+
+LL-494 completes repository qualification: 3,981 tests pass, three skip, no
+failures; all static gates, browser:check and bundle checks pass. Guard runtime
+9min 13.585s, peak 2.6 GiB, zero swap. Scoped cleanup removes 966 verified
+decoded PNGs / 424,429,663 bytes, preserving 966 streams and 454 metadata
+records, pinned inputs, receipts, rejected source and all original/scoring
+evidence. Current source dd98eb91 is retained and will be preserved on the
+candidate branch before holdout aggregate, scale and all ten watch originals.
+Main stays unchanged. Root: promotion-entry-inline-fused-plane-checkpoint/.

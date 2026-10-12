@@ -60,6 +60,18 @@ export interface JpegXlLargeMenuInput {
     output: Float64Array,
     active?: JpegXlLargeAcIndices,
   ) => void
+  /** Reuse the admitted plane scratch policy while reconstructing AC in one pass. */
+  readonly quantizeAndReconstructLargeAc?: (
+    transformed: Float32Array,
+    matrix: Float64Array,
+    scale: number,
+    channel: number,
+    count: 512 | 1024,
+    output: Float64Array,
+    integers: Int16Array | undefined,
+    rate: number,
+    active?: JpegXlLargeAcIndices,
+  ) => { readonly nonzero: number; readonly rate: number }
   /** Fixed positive steps and a monotonic zero interval permit descending-Q reuse. */
   readonly monotonicLargeZeros?: boolean
   readonly fillWeights: (x: number, y: number, output: Float32Array) => void
@@ -785,6 +797,22 @@ export function* prepareJpegXlLargeMenus(
                 const coeff = coefficients[c]!,
                   matrix = defaultJpegXlRectangle32Dequantization[c]!,
                   scale = 65536 / globalScale / q
+                if (largeValues && input.quantizeAndReconstructLargeAc) {
+                  const result = input.quantizeAndReconstructLargeAc(
+                    transformed[c]!,
+                    matrix,
+                    scale,
+                    c,
+                    512,
+                    coeff,
+                    integers,
+                    rate,
+                    activePlanes?.[c],
+                  )
+                  rate = coherent ? rate + price(horizontal ? 11 : 10, c) : result.rate
+                  nonzeroCounts[at * 3 + c] = result.nonzero
+                  continue
+                }
                 if (largeValues)
                   input.quantizeLargeAc?.(
                     transformed[c]!,
@@ -864,6 +892,22 @@ export function* prepareJpegXlLargeMenus(
             const coeff = coefficients[c]!,
               matrix = defaultJpegXlDct32Dequantization[c]!,
               scale = 65536 / globalScale / q
+            if (largeValues && input.quantizeAndReconstructLargeAc) {
+              const result = input.quantizeAndReconstructLargeAc(
+                squareTransformed[c]!,
+                matrix,
+                scale,
+                c,
+                1024,
+                coeff,
+                integers,
+                rate,
+                activePlanes?.[c],
+              )
+              rate = coherent ? rate + price(5, c) : result.rate
+              nonzeroCounts[at * 3 + c] = result.nonzero
+              continue
+            }
             if (largeValues)
               input.quantizeLargeAc?.(
                 squareTransformed[c]!,

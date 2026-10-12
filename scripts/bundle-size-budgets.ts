@@ -14,7 +14,7 @@ export const bundleSizeBudgets: Readonly<Record<string, BundleSizeBudget>> = {
   'core-execution': { maxMinifiedBytes: 73 * 1024 },
   hdr: { baselineMinifiedBytes: 580_322, maxMinifiedBytes: 680_000 },
   // Owner approved campaign ceiling increases on 2026-10-10. Report sizes; they are not promotion gates.
-  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 610_000 },
+  'codec-jpegxl': { baselineMinifiedBytes: 233_093, maxMinifiedBytes: 615_000 },
   // The specialized entry includes the same effort-9 searches.
   'jpegxl-specialized': { baselineMinifiedBytes: 255_489, maxMinifiedBytes: 685_000 },
   scientific: { baselineMinifiedBytes: 143_546, maxMinifiedBytes: 204_000 },

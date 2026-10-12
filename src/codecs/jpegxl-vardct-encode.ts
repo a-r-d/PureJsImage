@@ -1405,6 +1405,85 @@ function* prepare8(
     }
     if (active) active.count = kept
   }
+  const quantizeAndReconstructLargeAc: NonNullable<
+    JpegXlLargeMenuInput['quantizeAndReconstructLargeAc']
+  > = (transformed, matrix, scale, channel, count, output, integers, rate, active) => {
+    const bias = defaultJpegXlQuantizationBiases[channel] ?? 1,
+      weight = channel === 1 ? currentAcRateWeightY : acRateWeightChroma,
+      unitThreshold = bias / 2 + (1.5 * weight) / bias,
+      pairThreshold =
+        (bias + acCentroidTwo) / 2 + (weight * (acPenaltyTwo - 3)) / (2 * (acCentroidTwo - bias)),
+      available = active?.count ?? count,
+      lfRows = count === 1024 ? 4 : 2
+    let nonzero = 0
+    output.fill(0)
+    integers?.fill(0)
+    for (let position = 0; position < available; position++) {
+      const p = active ? (active.indices[position] ?? 0) : position
+      if (!active && p >>> 5 < lfRows && (p & 31) < 4) continue
+      const step = scale * (matrix[p] ?? 0),
+        normalized = (transformed[p] ?? 0) / step,
+        magnitude = Math.abs(normalized)
+      let value: number
+      if (magnitude <= bias / 2) value = normalized < 0 ? -0 : 0
+      else if (magnitude < 1 && Math.abs(magnitude - unitThreshold) > 64 * Number.EPSILON) {
+        const rounded = magnitude > unitThreshold ? 1 : 0
+        value = normalized < 0 ? -rounded : rounded
+      } else if (
+        magnitude >= 1 &&
+        magnitude < 2 &&
+        Math.abs(magnitude - pairThreshold) >
+          64 * Number.EPSILON * Math.max(1, Math.abs(pairThreshold))
+      ) {
+        const rounded = magnitude > pairThreshold ? 2 : 1
+        value = normalized < 0 ? -rounded : rounded
+      } else {
+        const lower = Math.floor(magnitude),
+          upper = lower + 1,
+          lowValue =
+            lower === 0
+              ? 0
+              : lower === 1
+                ? bias
+                : lower === 2
+                  ? acCentroidTwo
+                  : lower - 0.145 / lower,
+          highValue = upper === 1 ? bias : upper === 2 ? acCentroidTwo : upper - 0.145 / upper,
+          lowCost =
+            (magnitude - lowValue) ** 2 +
+            weight *
+              (lower === 0
+                ? 0
+                : lower === 1
+                  ? 3
+                  : lower === 2
+                    ? acPenaltyTwo
+                    : jpegXlAcTokenRate(lower)),
+          highCost =
+            (magnitude - highValue) ** 2 +
+            weight * (upper === 1 ? 3 : upper === 2 ? acPenaltyTwo : jpegXlAcTokenRate(upper)),
+          rounded = highCost < lowCost ? upper : lower
+        value = normalized < 0 ? -rounded : rounded
+      }
+      if (value === 0) {
+        // Reconstruction originally discarded the sign of a rounded zero.
+        if (!active) output[p] = 0 * step
+        continue
+      }
+      if (!(Math.abs(value) <= 4095))
+        throw invalidJpegXlInput(
+          count === 512 ? 'Rectangle large-menu AC range' : 'Square large-menu AC range',
+        )
+      if (integers) integers[p] = value
+      else rate += jpegXlAcTokenRate(value)
+      if (active) active.indices[nonzero] = p
+      nonzero++
+      const decoded = Math.abs(value) === 1 ? Math.sign(value) * bias : value - 0.145 / value
+      output[p] = decoded * step
+    }
+    if (active) active.count = nonzero
+    return { nonzero, rate }
+  }
   // Progressive low-palette texture has no moderate photo filter model. Applying
   // its two EPF passes anyway loses fine colored detail in the public texture test.
   const progressiveOpaque = sdrOpaqueColor && progressive
@@ -2140,7 +2219,9 @@ function* prepare8(
         return planes
       },
       quantizeAc,
-      ...(coarse || originalDarkAc ? { quantizeLargeAc, monotonicLargeZeros: true } : {}),
+      ...(coarse || originalDarkAc
+        ? { quantizeLargeAc, quantizeAndReconstructLargeAc, monotonicLargeZeros: true }
+        : {}),
       fillWeights: (blockX, blockY, output) => {
         for (let y = 0; y < 34; y++) {
           const sourceY = Math.max(0, Math.min(height - 1, blockY * 8 + y - 1))

@@ -1,57 +1,53 @@
 # JPEG XL lossy lab
 
-Follow [the steering plan](../LOSSY_STEERING.md),
-[checkpoint feedback](../LOSSY_FEEDBACK.md) and the owner's
-[promotion guidance](../LOSSY_PROMOTION_GUIDANCE.md), plus the
-[effort-9 amendment](../LOSSY_EFFORT9_AMENDMENT.md). The campaign resumed on 2026-10-09.
-The corrected baseline uses the unchanged encoder at `dca2f211`; its full
-development and isolated speed results are published in [BASELINE.md](BASELINE.md).
-The current table and experiment rows live in
-[lossy-lab-log.md](../lossy-lab-log.md). E4 with palette precheck is preserved
-on `jxl-lossy-candidate` at `e0241edb`. Promotion repairs preserve every completed
-80-point screen and all 576 full-development files byte for byte through repair
-commit `468a5bec`. The later owner-directed search migration changes effort-7
-files; its deltas are reported separately. Current
-qualifications and remaining gates are indexed in [EVIDENCE.md](EVIDENCE.md).
-Earlier active-index, source-block, transform and clustering speed gains remain
-retained. The latest eight speed hypotheses retain two small repairs and reject
-six. Initial tree histograms win 15/15 confirmation pairs at -1.51922%; the
-table-free unit/two AC crossing wins 15/21 at -0.89021%. All 576 fresh development
-files match `5a89a125` exactly. Fresh isolated median falls 0.74168% and mean
-falls 0.17793%; the 3.41767x jSquash ratio still fails the 3x target. This is a
-small measured gain. Compression is unchanged. Seven existing benchmark tests
-protect fresh speed measurements from output-directory reuse. The fresh full
-check has 3,923 passes, three held layout failures and three skips in 487.87s;
-all static gates pass, including browser:check. Earlier cleanup removed 1,157 reproducible
-PNGs / 513,574,567 bytes and preserved 1,157 encoded files and 517 completed results.
-Bundles measure 600,497 / 673,295 bytes, within unchanged 610,000 / 685,000
-check ceilings. Bundle size remains report-only.
-See LL-305 for
-an accidental reuse and the marked loss of older raw timing records; its
-historical aggregate reduction remains available.
-Three held mode/frame assertions and development entry remain open. Prior
-qualification is replaced by 23 fresh native/Rust grids and all 29 real Chromium
-cases on the retained stack. Original expectations
-and quality bounds stay unchanged. Effort 9 remains untuned; its comparison
-screen waits for promotion.
-The latest six hypotheses add no retained source changes. Five estimator and
-model-selection screens, plus isolated timing, reject five changes; the tiny
-hybrid-only variant remains shelved and unqualified. Our own section-size
-diagnostic finds that the simpler AC model saves 69 bytes on im26-3000 at
-distance 7. Estimated selection recovers only 0.06755% Butteraugli 3-norm on the
-screen. Its first implementation slows the pinned crop 1.74327%; model reuse
-still slows it 0.79124% in 21 confirmation pairs. Both are reverted under the
-speed trade rule. The preserved source remains `285ff996`, with all earlier
-gains and effort-9 searches intact. LL-345 through LL-353 record the trials and
-their raw evidence. The restored-source check repeats the same three held
-failures. This session's cleanup removes 485 derived PNGs / 216,757,555 bytes
-and preserves 485 encoded files, 165 complete results and every source variant.
-Fresh isolated speed requires a new output directory, even if an existing
-directory is empty. The explicit validated baseline continuation and cached
-non-speed peer curves retain their existing behavior.
-All 14 E3 screens are measured in
-[TOOL-COSTS.md](TOOL-COSTS.md). Full promotion is still required before main or
-the bounded Butteraugli phase.
+Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),
+[the steering plan](../LOSSY_STEERING.md),
+[checkpoint feedback](../LOSSY_FEEDBACK.md),
+[promotion guidance](../LOSSY_PROMOTION_GUIDANCE.md) and the
+[effort-9 amendment](../LOSSY_EFFORT9_AMENDMENT.md).
+The promotion-entry decision supersedes conflicting earlier rules.
+The unchanged main baseline is `dca2f211`; its development and isolated
+speed results are in [BASELINE.md](BASELINE.md). The current candidate is
+preserved on `jxl-lossy-candidate`. Main requires all promotion checks.
+Current measurements and remaining checks are in
+[lossy-lab-log.md](../lossy-lab-log.md) and [EVIDENCE.md](EVIDENCE.md).
+
+Source `dd98eb91` adds inline large-plane quantization and reconstruction
+to seven earlier exact speed gains. All 576 development files, score
+triples and encode receipts match the preceding candidate. The new
+64-crop paired median improves 2.40464%, with 45 of 64 pairs faster and
+no per-image managed-memory increase. Fresh isolated speed is 3.04611x
+jSquash, within the owner's 3.05x tolerance, and 4.32943x wasm-vips.
+
+| Full development mean BD-rate | jSquash 1.3.0 reference | wasm-vips 0.0.19 target | Same-ladder main delta |
+| --- | ---: | ---: | ---: |
+| SSIMULACRA2 | -2.99808% | -0.64662% | -3.46048% |
+| Butteraugli 3-norm | +11.59510% | +8.25703% | -3.39081% |
+| Butteraugli max | +14.49454% | +6.22865% | +2.15426% |
+
+All three main aggregate gates pass. The per-image guard admits four
+full-band SSIM comparisons and zero full-band 3-norm comparisons, with
+no admitted failures. Zero 3-norm admissions do not establish full-band
+coverage. There are 337 partial-band peer warnings on the current ladder.
+
+Fresh 13 MP and 21 MP encodes complete in 59.332s and 80.775s. The 13 MP
+ratio is 2.32767x jSquash. Managed peaks are 82,507,265 and 135,364,894
+bytes, below the preserved 137,514,476-byte original ceiling. jSquash
+aborts on the 21 MP image, so its ratio there is unmeasured. Both missing
+21 MP score triples complete from saved files with an 8 GiB process cap;
+the initial 6 GiB scoring timeouts and encode receipts remain recorded.
+The original memory gate and formal encode times are unchanged.
+
+Both independent decoders pass all 46 cases. Chromium, Firefox and WebKit
+pass all 48 focused cases. `npm run check` passes 3,981 tests, with three
+skips and no failures, including `browser:check`. Remaining promotion
+checks are holdout aggregate, scale and full watch results. Bundles measure
+610,206 and 683,023 bytes; ceilings are 615,000 and 685,000 bytes.
+Effort 9 stays untuned and receives
+one screen after promotion. Distances 10 and 14 are for the final report.
+The post-promotion Butteraugli phase is cancelled. Further compression
+work requires Aaron to reopen it. Bundle size is reported; ceiling
+increases are permitted by the owner amendment.
 
 The [stopping checkpoint](PAUSED-CHECKPOINT.md) and earlier
 [screen report](BASELINE-SCREEN.md) retain the previous campaign history.
@@ -83,7 +79,8 @@ The screen uses five own distances: 0.5, 1, 2, 4 and 7. The full ladder uses
 vips uses the full distance ladder. Per-image BD-rate integrates
 shape-preserving cubic log-byte curves over
 SSIMULACRA2 60–90 and Butteraugli max 0.5–3, clipped to measured overlap.
-Butteraugli 3-norm uses the common measured interval. Required-range coverage and
+Butteraugli 3-norm uses the common measured interval. Its required coverage
+band is 0.5 to 3 for the per-image guard. Required-range coverage and
 all failures remain explicit.
 Local rate reversals remain in the measured curve. Exact quality ties use mean
 log bytes. No Pareto filtering or isotonic fitting discards measurements.
