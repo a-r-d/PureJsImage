@@ -1,0 +1,60 @@
+docs-astro/src/data/package-metrics.json
+  s_2b0ba550ad1491::t_cb447843e43330 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+benchmark/generated/package-metrics.json
+  s_2b0ba550ad1491::t_cb447843e43330 179,571,574,577,1396,1399,1402,1503,1506,1509,1548,1551,1554
+README.md
+  s_2b0ba550ad1491::t_cb447843e43330 482
+  s_2b0ba550ad1491::t_6b9f8a97d53857 463
+browser-tests/jpegxl-pipeline.pw.ts
+  s_2b0ba550ad1491::t_6aa17c6738cd3b 95-97,99,255-257,259
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_c3838c4df5233f 13,31
+  s_2b0ba550ad1491::t_7f5f7511aebf80 29-30,875,879-887
+  s_2b0ba550ad1491::t_a30910df842ef5 25-26
+  s_2b0ba550ad1491::t_bf9bd876c95036 865
+  s_2b0ba550ad1491::t_a00de44698f8cd 867
+  s_2b0ba550ad1491::t_c99cb952bd9673 12,15,28,871,873
+  s_2b0ba550ad1491::t_6549e35e1b8984 7-11,869
+  s_2b0ba550ad1491::t_ae060556eab58b 3,14,17,24,877-878
+  s_2b0ba550ad1491::t_a3118cf629ae2c 866,868,870,872,874,876
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_144aa7877f0531 20,22,433-456,458-461
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_c42d4b11679593 1661-1663
+  s_2b0ba550ad1491::t_408abd05b14889 1636-1637,1664-1680
+  s_2b0ba550ad1491::t_121ab0be7fac1c 1607-1632,1638-1642
+  s_2b0ba550ad1491::t_ae060556eab58b 1681-1698
+  s_2b0ba550ad1491::t_c3838c4df5233f 1633-1635,1643-1660
+tests/jpegxl-ac-model-reuse.test.ts
+  s_2b0ba550ad1491::t_8978be3a33bf09 1-7,10-57,59-75,77-90,92-108,111-117,130
+  s_2b0ba550ad1491::t_d1e98230a2b5c7 123-129
+  s_2b0ba550ad1491::t_446702492de6d3 8-9,118-122
+  s_2b0ba550ad1491::t_10f4a69337438b 58
+  s_2b0ba550ad1491::t_f65a8eda127d43 76,91,109-110
+docs-astro/src/data/documentation-data.json
+  s_2b0ba550ad1491::t_6b9f8a97d53857 109-111,129
+src/codecs/jpegxl-jpeg-encode.ts
+  s_2b0ba550ad1491::t_a6a582167003bd 62-68,119-120,1805,1807,1845,1886-1890,1897-1908,2110,2357,2431,2461,2491,2499,2510-2546,2586,2642
+tests/jpegxl-dc-model.test.ts
+  s_2b0ba550ad1491::t_00a0d2cba93a16 83-85,101-103
+browser-tests/jpegxl-ac-model-reuse.pw.ts
+  s_2b0ba550ad1491::t_446702492de6d3 1-34
+tests/helpers/jpegxl-ac-model-reuse.ts
+  s_2b0ba550ad1491::t_446702492de6d3 1-70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2573ad2f4c126d4e57f0a8752e14df84ae6e1cdc",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
