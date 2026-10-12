@@ -80,9 +80,9 @@ it('returns the preceding fine-quality stream after optional rate-map allocation
 
 it('encodes textured gradients with learned DC models and the photo filter', async () => {
   const result = await verifyJpegXlDcModel()
-  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
-  expect(result.bytes).toBe(2596)
-  expect(result.encodedChecksum).toBe(706920282)
+  // Ordinary AC model reuse saves 168 bytes; native/Rust decode and all pixel properties are unchanged.
+  expect(result.bytes).toBe(2428)
+  expect(result.encodedChecksum).toBe(1180301016)
   expect(result.inputChecksum).toBe(3720133924)
   expect(result.decodedChecksum).toBe(4003423285)
   expect(result.samples).toBe(513 * 257 * 4)
@@ -98,9 +98,9 @@ for (const asynchronous of [false, true]) {
       asynchronous,
     async () => {
       const result = await verifyJpegXlDcAllocationRecovery(asynchronous)
-      // Single-stream model choice changes both recovery streams; both decoders retain these pixels.
-      expect(result.bytes).toBe(3176)
-      expect(result.encodedChecksum).toBe(3563359273)
+      // Ordinary AC model reuse saves 168 bytes in each recovery stream; native/Rust retain these pixels.
+      expect(result.bytes).toBe(3008)
+      expect(result.encodedChecksum).toBe(3595891780)
       expect(result.inputChecksum).toBe(3720133924)
       expect(result.decodedChecksum).toBe(4003423285)
       expect(result.samples).toBe(513 * 257 * 4)

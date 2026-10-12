@@ -92,10 +92,11 @@ test('JPEG XL weighted DC compression preserves textured gradients across runtim
   page,
 }) => {
   const expected = await verifyJpegXlDcModel()
-  expect(expected.bytes).toBe(4191)
-  expect(expected.encodedChecksum).toBe(1900552218)
+  // Match the qualified Node pixel digest; ordinary AC reuse saves 168 bytes without changing samples.
+  expect(expected.bytes).toBe(2428)
+  expect(expected.encodedChecksum).toBe(1180301016)
   expect(expected.inputChecksum).toBe(3720133924)
-  expect(expected.decodedChecksum).toBe(142860718)
+  expect(expected.decodedChecksum).toBe(4003423285)
   expect(expected.samples).toBe(513 * 257 * 4)
   expect(expected.alphaError).toBe(0)
   expect(expected.ownedLive).toBe(0)
@@ -251,10 +252,11 @@ for (const asynchronous of [false, true]) {
     'JPEG XL optional DC allocation recovery agrees across runtimes, async=' + asynchronous,
     async ({ page }) => {
       const expected = await verifyJpegXlDcAllocationRecovery(asynchronous)
-      expect(expected.bytes).toBe(4829)
-      expect(expected.encodedChecksum).toBe(728017318)
+      // Match the qualified Node recovery pixel digest; ordinary AC reuse saves 168 bytes in either mode.
+      expect(expected.bytes).toBe(3008)
+      expect(expected.encodedChecksum).toBe(3595891780)
       expect(expected.inputChecksum).toBe(3720133924)
-      expect(expected.decodedChecksum).toBe(142860718)
+      expect(expected.decodedChecksum).toBe(4003423285)
       expect(expected.alphaError).toBe(0)
       expect(expected.rejectedAllocations).toBeGreaterThan(0)
       expect(expected.ownedPeak).toBeLessThanOrEqual(16_777_216)

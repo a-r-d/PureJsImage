@@ -17,7 +17,9 @@ import {
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
+  estimateJpegXlForwardAcModel,
   estimateJpegXlForwardOrderBits,
+  type JpegXlForwardAcModelEstimate,
   jpegXlCoefficientColorBits,
   learnJpegXlForwardCoefficientOrders,
   type VarDctCoefficientGeometry,
@@ -428,20 +430,36 @@ function* chooseForwardOrderGeometry(
   const alternateGeometry = { ...geometry, coefficientOrders }
   let selected = geometry,
     bestEstimate = Infinity
-  for (const candidate of [
-    geometry,
-    alternateGeometry,
-    { ...geometry, familyContexts: true },
-    { ...alternateGeometry, familyContexts: true },
-  ]) {
-    // The estimator releases its histograms before the next candidate is visited.
-    const estimated = yield* estimateJpegXlForwardOrderBits(candidate)
-    if (estimated < bestEstimate) {
-      bestEstimate = estimated
-      selected = candidate
-    }
+  let bestModel: Readonly<JpegXlForwardAcModelEstimate> | undefined
+  let complete = false
+  const retainModel =
+    geometry.effort === 7 && geometry.acModelRefinement === true && !geometry.groupContexts
+  const releaseModel = (model: Readonly<JpegXlForwardAcModelEstimate> | undefined): void => {
+    if (!model) return
+    geometry.memory?.release(model.contextMap)
+    for (const counts of model.frequencies) geometry.memory?.release(counts)
   }
-  return selected
+  try {
+    for (const candidate of [
+      geometry,
+      alternateGeometry,
+      { ...geometry, familyContexts: true },
+      { ...alternateGeometry, familyContexts: true },
+    ]) {
+      const model = retainModel ? yield* estimateJpegXlForwardAcModel(candidate) : undefined
+      const estimated = model?.bits ?? (yield* estimateJpegXlForwardOrderBits(candidate))
+      if (estimated < bestEstimate) {
+        releaseModel(bestModel)
+        bestModel = model
+        bestEstimate = estimated
+        selected = candidate
+      } else releaseModel(model)
+    }
+    complete = true
+    return bestModel ? { ...selected, baselineAcModel: bestModel } : selected
+  } finally {
+    if (!complete) releaseModel(bestModel)
+  }
 }
 
 const colorFrameBits = new WeakMap<readonly Uint8Array[], number>()

@@ -1604,3 +1604,95 @@ Final receipts are in
 `.tmp/jpegxl-lossy-lab/promotion-selection-diagnosis-checkpoint/`: `final-summary.json`,
 `frozen-source.json`, `check.log`, `decoded-cleanup-plan.json`,
 `decoded-cleanup-complete.json` and `cleanup.log`. No main promotion occurs.
+
+## Reopened matching AC model repair, 2026-10-11
+
+The worst migration regressions include two development photos absent from the
+quick screen. Our own section serialization identifies a missing ordinary-model
+choice: im26-1466 at distance 3 saves 540 bytes, while im26-1050 saves 159 bytes.
+This reopens the exact LL-352 prototype for full development. It does not erase
+the earlier screen-only rejection or open another compression campaign.
+
+All 64 photos and 576 points complete without encode failures. Direct deltas
+against `285ff996` are -0.21582% SSIMULACRA2, -0.17157% Butteraugli 3-norm and
+-0.20088% Butteraugli max. Worst incremental changes are +0.03203%, +0.34728%
+and +0.12490%, below the 3% guard. Forty-seven files shrink, none grow, and all
+576 measured score triples match. Native floating-point decode grids for every
+changed stream exactly match the preserved streams. Both native libjxl and
+jxl-rs independently validate 37 fixtures within one color sample, exact alpha.
+
+| Work | Preserved raw evidence |
+| --- | --- |
+| Development ranking and corrected score-only comparison | `.tmp/jpegxl-lossy-lab/promotion-development-selection-diagnosis/rank-and-curves.json`, `point-score-deltas.json` |
+| Own section-cost diagnosis on the omitted images | `.tmp/jpegxl-lossy-lab/promotion-worst-ac-rank-diagnostic/run.log`, `diagnostic-source.ts`, per-image `result.json` |
+| Reopened ownership tests and source identity | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/focused.log`, `types.log`, `frozen-source.json` |
+| Full development and direct comparisons | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-full/summary.json`, `reduction.json`, `versus-285.json`, `versus-baseline.json`, `versus-preserved.json`, `point-changes.json` |
+| Fresh isolated speed and earlier-run comparison | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-speed/summary.json`, `versus-285.json` |
+| Independent lossless, effort-7, effort-9 and photo grids | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/lossless-oracles/result.json`, `effort7-oracles/result.json`, `effort9-oracles/result.json`, `photo-oracles/result.json` |
+| Exact native grids for all 47 changed streams | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/pixel-parity/result.json` |
+| Counterbalanced cold timing, all 64 development crops | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-balanced-speed/summary.json`, `rows.json` |
+| Expanded TypeScript, Node and real Chromium checks | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/types-expanded-stdout.log`, `focused-expanded-stdout.log`, `browser-expanded-stdout.log`, `expanded-run.log` |
+| Refreshed bundle measurements | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/size.log` |
+| Baseline clone source and all 64 encoded streams | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-balanced-speed/baseline-source.json` |
+| Three affected DC snapshots, native/Rust grids and properties | `.tmp/jpegxl-lossy-lab/promotion-ac-model-reuse-reopened-validation/snapshot-oracles/result.json`, `snapshot-oracles.log`, `dc-browser.log` |
+
+Source hash is `131aff36fd865b13171237fb65edac904d7ae0e4def3df658ae7d137ad84000a`.
+Managed peaks remain 34,260,047 bytes full-lab and 34,223,399 isolated. Fresh
+isolated speed measures 3.45128x jSquash, failing 3x. Its unpaired own median
+rises 2.84602% and mean 0.88474% against the earlier preserved run; the prior
+21-pair local slowdown was 0.79124%. The all-64 counterbalanced run resolves
+that disagreement: median time rises 1.49377%, mean 0.38813%. Its paired median
+is +0.36607%, MAD 1.13866 points, with 26 of 64 pairs faster. This is a measured
+compression trade, with no speed gain claimed. The 0.17157% 3-norm benefit
+exceeds the 0.14938% required by contemporaneous median cost. Every paired
+decoded PNG matches; managed peak is unchanged. Guard runtime is 6m56.263s,
+peak 382.1 MiB, zero swap.
+
+All 23 focused Node tests and 31 real Chromium tests pass, including the new
+four-way family/progressive fixture and effort-9 coverage. Strict TypeScript
+passes. The expanded-check guard finishes in 4m45.816s, peak 2.2 GiB, zero swap.
+The first expanded launch reused an existing receipt ID and was refused before
+starting a job. Its original receipt remains intact; `expanded-run.log` records
+the successful fresh ID. No raw result or timing directory is overwritten.
+
+Bundle measurements are 601,403 bytes for core plus JPEG XL and 674,193 for the
+specialized entry. The 610,000 / 685,000 ceilings remain unchanged. Generated
+package metrics and the README's package-size table are refreshed. Size guard:
+43.191s, peak 1.1 GiB, zero swap. Final repository-check and raster-cleanup
+receipts are described below. No holdout, effort-9 comparison screen or main
+promotion occurs. Complete effort-9 searches stay untuned and preserved.
+
+The executed baseline clone has the preserved `8e49806e` source hash across 51
+files. All 64 baseline timing streams match the earlier `285ff996` streams.
+Use `baseline-source.json` for its code identity: worker repository identity is
+resolved from the process working directory and does not identify a copied
+baseline module tree. The runner's worker paths and this receipt identify it.
+
+The first complete full check has 3,929 passes, six failures and three skips,
+487.25s. Three failures are the changed DC byte snapshots; the other three
+are the existing held layout assertions. Every static gate passes. The gradient
+and both recovery streams each save 168 bytes; their original input and decoded
+digests remain unchanged, alpha is exact, and ownership unwinds to zero.
+Three additional native/Rust fixtures pass within one color code, exact alpha.
+Their three Chromium cases also pass after aligning older pre-E4 browser
+snapshots with the already-qualified Node baseline. No quality or memory bound
+changes. The lab log gives one justification for each Node and browser case.
+Current totals are 40 independent fixtures and 34 real Chromium cases.
+The final full recheck completes with 3,932 passes, three unchanged held layout
+failures and three skips across 307 files, 509.66s. Every static gate passes,
+including browser:check. The final guard runs 9m12.193s, peak 2.5 GiB, zero swap.
+All eight DC-model tests and nine new model-reuse tests pass. The failed earlier
+logs remain preserved.
+
+Cleanup removes 896 reproducible PNGs / 388,756,753 bytes. It preserves all 896
+encoded files and 384 complete results, plus inputs, scores, timings, profiles,
+independent decoder grids and source snapshots. Each removed raster's encoded
+file and metadata are checked against the saved plan before removal. Receipts
+are in the validation root: `final-summary.json`, `check-snapshots.log`,
+`decoded-cleanup-plan.json`, `decoded-cleanup-complete.json` and `cleanup.log`.
+The final summary verifies the same production source and unchanged property
+bounds. Its read-only child Git check needs execution outside the sandbox and
+then succeeds without changing Git state. No temporary artifact enters Git.
+One reopened repair is retained, with zero new compression trials or promotions.
+Holdout, watch qualification, effort-9 comparison and the post-promotion phase
+remain pending. Main stays unchanged.

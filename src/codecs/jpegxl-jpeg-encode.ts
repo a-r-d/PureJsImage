@@ -59,6 +59,13 @@ export interface VarDctCoefficientPlane {
   readonly coefficientOffsets?: Int32Array
 }
 
+export interface JpegXlForwardAcModelEstimate {
+  readonly bits: number
+  readonly acBits: number
+  readonly contextMap: Uint8Array
+  readonly frequencies: readonly Uint32Array[]
+}
+
 export interface VarDctCoefficientGeometry {
   readonly colorTransform: 'none' | 'ycbcr' | 'xyb'
   readonly grayscale?: boolean
@@ -109,6 +116,8 @@ export interface VarDctCoefficientGeometry {
   readonly acModelRefinement?: boolean
   /** Compare opaque color coding without alpha payload or image/container headers. */
   readonly opaqueColorCost?: boolean
+  /** Ordinary estimator model for this exact order/context geometry, with owned buffers. */
+  readonly baselineAcModel?: Readonly<JpegXlForwardAcModelEstimate>
   /** Forward effort 1 fills compact DC planes while visiting every AC group, before LF output. */
   readonly deferredDc?: boolean
   readonly memory?: JpegXlEncoderMemory
@@ -1793,9 +1802,9 @@ const visitAcGroup = (
 
 // Rank forward order/family candidates without serializing their DC or AC payloads.
 // Reuse the ordinary clustered model for all candidates; this is not exact ANS size.
-export function* estimateJpegXlForwardOrderBits(
+export function* estimateJpegXlForwardAcModel(
   geometry: Readonly<VarDctCoefficientGeometry>,
-): Generator<void, number, void> {
+): Generator<void, Readonly<JpegXlForwardAcModelEstimate>, void> {
   const contextCount = acBlockContextCount(geometry) * (37 + 458)
   const frequencies: Uint32Array[] = []
   const coefficientOrders = geometry.coefficientOrders ?? [
@@ -1833,6 +1842,7 @@ export function* estimateJpegXlForwardOrderBits(
       const clustered = compactAcHistograms(frequencies, 96, geometry.memory, 6)
       const writer = new JpegXlBitWriter(geometry.memory)
       writeComponentBlockContexts(writer, geometry)
+      const componentBits = writer.bitPosition
       const encoding = writeHfPass(
         writer,
         coefficientOrders,
@@ -1873,10 +1883,26 @@ export function* estimateJpegXlForwardOrderBits(
           bits += count * Math.log2(4096 / frequency)
         }
       }
-      return bits
+      return {
+        bits,
+        acBits: bits - componentBits - 32 * groupCount * passCount,
+        ...clustered,
+      }
     })
   } finally {
     for (const counts of frequencies) geometry.memory?.release(counts)
+  }
+}
+
+export function* estimateJpegXlForwardOrderBits(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): Generator<void, number, void> {
+  const model = yield* estimateJpegXlForwardAcModel(geometry)
+  try {
+    return model.bits
+  } finally {
+    geometry.memory?.release(model.contextMap)
+    for (const frequencies of model.frequencies) geometry.memory?.release(frequencies)
   }
 }
 
@@ -2081,7 +2107,7 @@ const writeAcGroup = (
       )
       return
     }
-    const packedAcValues = getPackedClusteredAcValues(refinesAcModel(geometry))
+    const packedAcValues = getPackedClusteredAcValues(encoding.encoding.config.splitExponent === 4)
     const maximumValues = 3 * 64 * 32 * 32
     const values = allocateJpegXlArray(writer.memory, Uint32Array, maximumValues)
     const contexts = allocateJpegXlArray(writer.memory, Uint16Array, maximumValues)
@@ -2328,6 +2354,7 @@ function* coefficientSectionSteps(
   )
   started = performance.now()
   const packedAcValues = getPackedClusteredAcValues(refinesAcModel(geometry))
+  let selectedAcHybridConfig = refinesAcModel(geometry) ? denseAcHybridConfig : acHybridConfig
   let histogramCount = 1
   let groupHistograms: Uint8Array | undefined
   if (geometry.groupContexts && useClusteredAns && !geometry.progressive && groupCount > 1) {
@@ -2401,6 +2428,7 @@ function* coefficientSectionSteps(
         contextMap: allocateJpegXlArray(geometry.memory, Uint8Array, 1),
         frequencies: acFrequencies,
       })
+  let refinedPayloadBits = 0
   if (useClusteredAns && refinesAcModel(geometry)) {
     const rawFrequencies = Array.from({ length: compactAc.frequencies.length }, () =>
       allocateJpegXlArray(geometry.memory, Uint32Array, 8192),
@@ -2430,6 +2458,7 @@ function* coefficientSectionSteps(
     for (const raw of rawFrequencies) {
       const best = allocateJpegXlArray(geometry.memory, Uint32Array, 512)
       let bestCost = Infinity,
+        bestPayloadBits = 0,
         bestConfig: HybridUintEncoding = denseAcHybridConfig
       // Skip the same empty tail for every hybrid configuration without changing symbol order.
       let rawLength = raw.length
@@ -2459,6 +2488,7 @@ function* coefficientSectionSteps(
           }
           if (cost < bestCost) {
             bestCost = cost
+            bestPayloadBits = cost - writer.bitPosition
             bestConfig = config
             best.set(frequencies)
           }
@@ -2466,6 +2496,7 @@ function* coefficientSectionSteps(
       }
       selectedFrequencies.push(best)
       selectedConfigs.push(bestConfig)
+      refinedPayloadBits += bestPayloadBits
       geometry.memory?.release(raw)
       yield
     }
@@ -2474,6 +2505,43 @@ function* coefficientSectionSteps(
       contextMap: compactAc.contextMap,
       frequencies: selectedFrequencies,
       histogramConfigs: selectedConfigs,
+    }
+  }
+  if (
+    useClusteredAns &&
+    geometry.effort === 7 &&
+    refinesAcModel(geometry) &&
+    !geometry.groupContexts &&
+    geometry.baselineAcModel
+  ) {
+    // LL-350: refined AC wastes 69 bytes on im26-3000 at distance 7. Reuse the
+    // ordinary model already trained on these exact orders, contexts and passes.
+    // Estimate the choice, allowing an ANS word/alignment margin per group/pass;
+    // write one payload at effort 7. Effort 9 retains its complete alternatives.
+    try {
+      const passes = geometry.progressive ? 2 : 1
+      const refinedBits = withJpegXlMemory(geometry.memory, () => {
+        const writer = new JpegXlBitWriter(geometry.memory)
+        writeHfPass(
+          writer,
+          coefficientOrders,
+          true,
+          compactAc.contextMap,
+          compactAc.frequencies,
+          acBlockContextCount(geometry),
+          denseAcHybridConfig,
+          compactAc.histogramConfigs,
+        )
+        return writer.bitPosition * passes + refinedPayloadBits
+      })
+      if (geometry.baselineAcModel.acBits + 32 * groupCount * passes < refinedBits) {
+        geometry.memory?.release(compactAc.contextMap)
+        for (const counts of compactAc.frequencies) geometry.memory?.release(counts)
+        compactAc = geometry.baselineAcModel
+        selectedAcHybridConfig = acHybridConfig
+      }
+    } catch (error) {
+      rethrowJpegXlNonLimitError(error)
     }
   }
   if (useClusteredAns) {
@@ -2515,7 +2583,7 @@ function* coefficientSectionSteps(
         compactAc.contextMap,
         compactAc.frequencies,
         histogramCount,
-        refinesAcModel(geometry) ? denseAcHybridConfig : acHybridConfig,
+        selectedAcHybridConfig,
         compactAc.histogramConfigs,
       )
       writeAcGroup(writer, geometry, coefficientOrders, 0, acEncoding)
@@ -2571,7 +2639,7 @@ function* coefficientSectionSteps(
       compactAc.contextMap,
       compactAc.frequencies,
       histogramCount,
-      refinesAcModel(geometry) ? denseAcHybridConfig : acHybridConfig,
+      selectedAcHybridConfig,
       compactAc.histogramConfigs,
     )
     colorBits += writer.bitPosition
