@@ -2709,3 +2709,11 @@ path stops on a failed requirement and does not promote main. No completed
 watch or refreshed original-speed claim is made at this checkpoint.
 Roots: promotion-watch-continuation/progress.json;
 promotion-watch-continuation.log; watch-postpromotion-qualification-types-r6.log.
+
+## Watch memory gate and capability copy (2026-10-12)
+
+The existing frozen-source watch run reaches five complete own curves and 45 scored points with zero own execution failures. im26-2012 is a pinned 4000x3000, 12 MP input. Its nine successful encodes all exceed the unchanged 137,514,476-byte managed ceiling; the maximum is 174,544,064 bytes. Peak minus emitted output is exactly 173,528,641 bytes at every setting. Promotion remains unqualified. No threshold, fixture, ladder or expected value changes. The sequential continuation will stop when the memory qualifier rejects these peaks.
+
+The diagnostic preserves actual stream hashes, original pre-scoring receipts and pinned input bytes/dimensions in promotion-watch-memory-profile/memory-gate.json. The first-party archive instrumentation, pinned source identity and strict type check are in prepared.json, source/profile.ts and typecheck.log. Allocation tracing has not run and its eventual timing will be diagnostic only. The original watch and queued recovery trees finish first.
+
+Published capability copy now follows the frozen implementation: shared opaque RGB8/RGBA8 policy, visible color count, 4x4 block context, measured fine-distance fallback and continuous contrast; no obsolete current photo area window. Large optional transform selection starts at distance 2 and continues above 4. All changed public surfaces are generated from capabilities/manifest.json. Eight capability-manifest tests, capabilities:check and browser:check pass. Existing 50 independent-decoder and 48 real-browser cases retain their frozen-source identity; a fresh full check remains pending. No new parity claim is added.

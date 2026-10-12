@@ -339,7 +339,14 @@
         "tests/jpegxl-vardct-large-transforms.test.ts",
         "browser-tests/jpegxl-large-orders.pw.ts",
         "tests/jpegxl-effort9.test.ts",
-        "browser-tests/jpegxl-effort9.pw.ts"
+        "browser-tests/jpegxl-effort9.pw.ts",
+        "tests/jpegxl-opaque-color-tools.test.ts",
+        "tests/jpegxl-fine-fallback.test.ts",
+        "tests/jpegxl-artwork-large-alpha.test.ts",
+        "tests/jpegxl-large-plane-reconstruction.test.ts",
+        "browser-tests/jpegxl-rgb-rgba-equivalence.pw.ts",
+        "browser-tests/jpegxl-thin-geometry.pw.ts",
+        "browser-tests/jpegxl-large-plane-reconstruction.pw.ts"
       ],
       "lossyPixelValidation": {
         "status": "independent-oracle",

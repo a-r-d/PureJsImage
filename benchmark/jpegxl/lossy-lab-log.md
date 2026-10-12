@@ -1,5 +1,23 @@
 # JPEG XL lossy lab
 
+Source `dd98eb91` remains frozen on `jxl-lossy-candidate`; main stays `dca2f211`. Watch qualification exposes a real memory failure. Promotion is pending a byte-preserving memory repair and refreshed evidence.
+
+| Mean BD-rate against unchanged main | Development | Holdout aggregate |
+| --- | ---: | ---: |
+| SSIMULACRA2 | -3.46048% | -3.37961% |
+| Butteraugli 3-norm | -3.39081% | -5.43628% |
+| Butteraugli max | +2.15426% | -0.79824% |
+
+All 576 development and 567 holdout own points qualify on the frozen source. Full-band admission is SSIM 4/8 and 3-norm 0/0, with no admitted failures. Required bands are 60 to 90 and 0.5 to 3; zero 3-norm admissions do not establish full-band coverage. Holdout inspection remains aggregate only.
+Peer means, SSIM / 3-norm / max: development jSquash -2.99808% / +11.59510% / +14.49454%, vips -0.64662% / +8.25703% / +6.22865%; holdout jSquash -1.37257% / +10.39642% / +13.45813%, vips +0.38983% / +7.46534% / +7.55369%. Peer targets remain report-only; partial warnings remain 337 / 329.
+Crop ratio remains 3.04611201x jSquash and passes 3.05x. Formal 13 MP / 21 MP encodes remain 59.332s / 80.775s; 13 MP is 2.32767x jSquash. jSquash aborts on 21 MP. Formal managed peaks 82,507,265 / 135,364,894 bytes fit the unchanged 137,514,476-byte ceiling.
+Five of ten own watch curves finish, 45/90 own points and zero own execution failures. On pinned 12 MP im26-2012 all nine settings exceed the ceiling, peaking at 174,544,064 bytes. Peak minus output is exactly 173,528,641 bytes at every setting. The same watch tree continues; the queued qualifier will reject this memory failure.
+Allocation tracing is prepared in an isolated archive of our own source and passes strict TypeScript. No trace or source repair has run yet. Current codec documentation is regenerated from the manifest to remove obsolete photo area/channel windows; eight manifest tests and browser:check pass.
+Frozen-source correctness remains 50 independent-decoder and 48 real-browser cases. Prior full check passes 3,994 tests, three skips and zero failures; 73 focused report tests pass. A fresh full check remains required. Bundles remain 610,206 / 683,023 bytes; authorized ceilings 615,000 / 685,000, report-only.
+Zero new compression trials or encoder changes. Next: finish the same watch and fresh reference recovery, trace the memory peak, then repair its allocation mechanism without changing output. All promotion gates must pass before main. Effort 9 remains one untuned post-promotion screen; distances 10/14 remain final-report-only. Further Butteraugli tuning is cancelled.
+
+## Previous checkpoint (cb400170)
+
 Source `dd98eb91` remains unchanged on `jxl-lossy-candidate`; main stays `dca2f211`. Development, aggregate holdout, scale, crop speed and both formal largest-original encodes qualify. Full watch curves and their fresh isolated speed still gate promotion.
 
 | Mean BD-rate against unchanged main | Development | Holdout aggregate |
@@ -1316,6 +1334,10 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | LL-505, 2026-10-12 | Correct the historical layout summary against its saved public-encode receipt. | LL-377 and its evidence paragraph incorrectly label the separate 32,896-byte conservative-path control as main's sparse output. Actual unchanged main in promotion-entry-layout/result.json is 13,935 bytes; candidate is 5,265. Other pairs remain 904 to 577, 1,410 to 499 and 502 to 502. All candidate pixels are exact in the saved complete first-party/native/Rust grids. The smaller-or-equal snapshot decision remains valid. Historical text and both controls are preserved; this row is their correction. | Read-only receipt audit | Corrected report with historical evidence preserved | Pending |
 
 | LL-506, 2026-10-12 | Continue one sequential qualification workload and preserve large-reference failures. | The original watch run is not restarted. At 19:24 UTC four of ten own curves and 38/90 own points complete with zero own failures; managed peaks stay below 137,514,476 bytes. Initial failures are jSquash at 21 MP and vips at 21 MP, im26-1026 and im26-1472. Retry preparation derives missing settings from the fixed ladder, including points not recorded before a fatal peer abort. The strict-typed continuation waits for the exact original guard, then runs fresh public reference recovery, own stream qualification, isolated watch speed, its qualifier and npm run check sequentially. It does not promote main. Raw: promotion-watch-continuation/progress.json; promotion-watch-continuation.log; watch-postpromotion-qualification-types-r6.log. | Existing watch retains one 8 GiB worker tree and the normal scorer deadline | Qualification continues; full watch and fresh speed are not yet qualified | Pending |
+
+| LL-507, 2026-10-12 | Preserve the actual memory-gate failure before attempting promotion repair. | The fifth completed own watch curve, pinned 4000x3000 im26-2012, has nine successful scored settings but all nine exceed the unchanged 137,514,476-byte managed ceiling: 173,885,743 to 174,544,064 bytes. Every actual stream hash, pinned PNG hash/dimension and pre-scoring receipt agrees. Peak minus encoded bytes is exactly 173,528,641 at all settings. The same existing watch run continues; no input, ladder, expectation or threshold changes. An isolated first-party source archive adds allocation observation only and passes strict TypeScript; tracing is prepared, not yet run. | Diagnostic only; no new isolated speed evidence. | Promotion pending memory repair; no source change or compression trial. | pending |
+
+| LL-508, 2026-10-12 | Align published photo-policy text with the qualified campaign implementation. | Update only capabilities/manifest.json and regenerate all affected surfaces. Opaque standard-sRGB RGB8/RGBA8 photo tools at effort 7/9 use visible color count and 4x4 block context, without pixel-count windows. Correct large transform range to distance 2 or above, preserve progressive/partial-alpha/HDR boundaries, and label prior area-window studies as historical. Add seven existing focused Node/browser evidence paths. capabilities:generate/check, eight manifest tests and browser:check pass; no new parity or speed claim. Full repository check is pending after the watch tree. | Production source unchanged. | Documentation alignment retained; no codec behavior change. | pending |
 
 | Case | One-line justification |
 | --- | --- |

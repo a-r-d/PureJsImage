@@ -49,10 +49,14 @@ The full-band main guard admits eight SSIM pairs and zero 3-norm pairs,
 with no admitted failures. Scale qualification passes all 20 own points
 on two 2080-square crops and the 13 MP / 21 MP originals. The largest
 managed peak is 136,508,774 bytes, below the unchanged original ceiling.
-The full ten-original watch run continues on the same source. At the
-19:24 UTC checkpoint, four own curves and 38/90 own scored points complete
-with zero own failures. Fresh public reference retries, watch qualification,
-isolated original speed and the repository recheck are queued sequentially.
+The full ten-original watch run continues on the same source. Five own
+curves and 45/90 own scored points complete with zero own execution failures.
+All nine settings on the pinned 12 MP im26-2012 image exceed the unchanged
+137,514,476-byte managed ceiling, peaking at 174,544,064 bytes. The queued
+watch qualifier will reject this memory failure. Allocation tracing is
+prepared in an isolated first-party source archive and waits for the existing
+watch and reference recovery trees to finish. Promotion needs a memory repair
+that preserves output, refreshed qualification and the full repository check.
 Main stays unchanged until those requirements pass.
 Peer targets are report-only under the promotion-entry decision.
 
@@ -68,7 +72,8 @@ Both independent decoders pass all 50 cases, including complete grids on
 both scale crops and both largest originals. Chromium, Firefox and WebKit
 pass all 48 focused cases. `npm run check` passes 3,994 tests, with three
 skips and no failures, including `browser:check`. Remaining promotion
-checks are full watch curves and isolated original speed. Bundles measure
+checks include watch memory repair, full watch curves, isolated original
+speed and a fresh repository check. Bundles measure
 610,206 and 683,023 bytes; ceilings are 615,000 and 685,000 bytes.
 Effort 9 stays untuned and receives
 one screen after promotion. Distances 10 and 14 are for the final report.
