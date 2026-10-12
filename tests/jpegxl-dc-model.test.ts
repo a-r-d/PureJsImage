@@ -18,9 +18,9 @@ it('keeps the shared opaque path usable when every optional sharpness-map alloca
 
 it('recovers large opaque images after optional filter-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery()
-  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
-  expect(result.bytes).toBe(66880)
-  expect(result.encodedChecksum).toBe(3798656743)
+  // Estimated metadata saves 6,384 bytes; native/Rust preserve the pixel digest and recovery bounds.
+  expect(result.bytes).toBe(60496)
+  expect(result.encodedChecksum).toBe(2775419173)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(164368939)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -34,9 +34,9 @@ it('recovers large opaque images after optional filter-map allocation failure', 
 
 it('preserves opaque gradient precision above four megapixels within its working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
-  expect(result.bytes).toBe(48634)
-  expect(result.encodedChecksum).toBe(2417484758)
+  // Estimated metadata saves 1,263 bytes; native/Rust preserve the pixel digest and memory bound.
+  expect(result.bytes).toBe(47371)
+  expect(result.encodedChecksum).toBe(2380374393)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(1202901999)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -49,9 +49,9 @@ it('preserves opaque gradient precision above four megapixels within its working
 
 it('preserves fine-quality opaque gradients within the original working budget', async () => {
   const result = await verifyJpegXlDcModel(67_108_864, 2049, 2048, 0.54)
-  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
-  expect(result.bytes).toBe(1501856)
-  expect(result.encodedChecksum).toBe(3301767643)
+  // Estimated metadata saves 88 bytes at fine distance; native/Rust preserve the pixel digest and bounds.
+  expect(result.bytes).toBe(1501768)
+  expect(result.encodedChecksum).toBe(3661817228)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(216671879)
   expect(result.samples).toBe(2049 * 2048 * 4)
@@ -64,9 +64,9 @@ it('preserves fine-quality opaque gradients within the original working budget',
 
 it('returns the preceding fine-quality stream after optional rate-map allocation failure', async () => {
   const result = await verifyLargeJpegXlDcAllocationRecovery(0.54)
-  // Complete AC and DC alternatives moved to effort 9; both decoders retain these pixels and bounds.
-  expect(result.bytes).toBe(1501816)
-  expect(result.encodedChecksum).toBe(72296575)
+  // Estimated metadata saves 88 recovery bytes; native/Rust preserve the pixel digest and fallback bounds.
+  expect(result.bytes).toBe(1501728)
+  expect(result.encodedChecksum).toBe(2862955768)
   expect(result.inputChecksum).toBe(2068954295)
   expect(result.decodedChecksum).toBe(216671879)
   expect(result.samples).toBe(2049 * 2048 * 4)

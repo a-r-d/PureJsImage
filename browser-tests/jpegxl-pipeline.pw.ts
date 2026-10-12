@@ -116,8 +116,10 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
   // Both complete compression-first searches need headroom on shared CI CPUs.
   test.setTimeout(1_200_000)
   const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  expect(expected.bytes).toBe(52_429)
-  expect(expected.decodedChecksum).toBe(3167701458)
+  // Align the older snapshot with qualified Node pixels; estimated metadata saves another 1,263 bytes.
+  expect(expected.bytes).toBe(47_371)
+  expect(expected.encodedChecksum).toBe(2380374393)
+  expect(expected.decodedChecksum).toBe(1202901999)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)
   expect(expected.alphaError).toBe(0)
@@ -138,9 +140,10 @@ test('JPEG XL large opaque allocation recovery matches Node in a real browser', 
 }) => {
   test.setTimeout(240_000)
   const expected = await verifyLargeJpegXlDcAllocationRecovery()
-  expect(expected.bytes).toBe(66_242)
-  expect(expected.encodedChecksum).toBe(3714271240)
-  expect(expected.decodedChecksum).toBe(3313955893)
+  // Align with qualified Node recovery pixels; estimated metadata saves another 6,384 bytes.
+  expect(expected.bytes).toBe(60_496)
+  expect(expected.encodedChecksum).toBe(2775419173)
+  expect(expected.decodedChecksum).toBe(164368939)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)
   expect(expected.alphaError).toBe(0)
@@ -162,36 +165,36 @@ for (const recovery of [false, true])
     page,
   }) => {
     test.setTimeout(recovery ? 240_000 : 600_000)
-    // Both cases reuse complete independently qualified Node records.
+    // Each older snapshot is aligned with native/Rust-qualified Node pixels; metadata saves 88 bytes each.
     const expected = recovery
       ? {
-          bytes: 1490466,
-          encodedChecksum: 3813454611,
-          decodedChecksum: 2867919960,
+          bytes: 1501728,
+          encodedChecksum: 2862955768,
+          decodedChecksum: 216671879,
           samples: 16785408,
           alphaError: 0,
-          meanColorError: 1.5614567923123068,
+          meanColorError: 1.5778136184317553,
           inputChecksum: 2068954295,
           rejectedAllocations: 1,
-          ownedPeak: 17010944,
+          ownedPeak: 10275143,
           ownedLive: 0,
           ownedAllocations: 0,
         }
       : {
-          bytes: 1409128,
-          encodedChecksum: 1699746178,
-          decodedChecksum: 2231790086,
+          bytes: 1501768,
+          encodedChecksum: 3661817228,
+          decodedChecksum: 216671879,
           samples: 16785408,
           alphaError: 0,
-          meanColorError: 1.580321908171669,
+          meanColorError: 1.5778136184317553,
           inputChecksum: 2068954295,
-          ownedPeak: 67108056,
+          ownedPeak: 27126351,
           ownedLive: 0,
           ownedAllocations: 0,
         }
-    expect(expected.bytes).toBe(recovery ? 1_490_466 : 1_409_128)
-    expect(expected.encodedChecksum).toBe(recovery ? 3813454611 : 1699746178)
-    expect(expected.decodedChecksum).toBe(recovery ? 2867919960 : 2231790086)
+    expect(expected.bytes).toBe(recovery ? 1_501_728 : 1_501_768)
+    expect(expected.encodedChecksum).toBe(recovery ? 2862955768 : 3661817228)
+    expect(expected.decodedChecksum).toBe(216671879)
     expect(expected.inputChecksum).toBe(2068954295)
     expect(expected.samples).toBe(2049 * 2048 * 4)
     expect(expected.alphaError).toBe(0)

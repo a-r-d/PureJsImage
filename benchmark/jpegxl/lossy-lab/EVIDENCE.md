@@ -1696,3 +1696,86 @@ then succeeds without changing Git state. No temporary artifact enters Git.
 One reopened repair is retained, with zero new compression trials or promotions.
 Holdout, watch qualification, effort-9 comparison and the post-promotion phase
 remain pending. Main stays unchanged.
+
+## Estimated metadata repair, 2026-10-11
+
+Frozen source: `8f08ce609f351a4776aec0b81ed0d7e7958c1203d30f1a4f128a7d1f5ee4793a`,
+measured against preserved candidate `2573ad2f4c126d4e57f0a8752e14df84ae6e1cdc`.
+Validation root: `.tmp/jpegxl-lossy-lab/promotion-dc-metadata-model-validation/`.
+The two source copies and `frozen-source.json` precede measurement. The baseline
+Git archive contains 51 verified source files with hash `131aff36`; all 64
+executed baseline streams match the preserved speed streams.
+
+The first-party diagnostic at `promotion-dc-gap-diagnostic/` preserves all four
+measured streams and exposes missing metadata savings. Every winning alternative
+uses a learned histogram without LZ. A 4,096-sample tree captures most of the
+metadata benefit. The repair estimates ANS payload cost after serializing the
+small tree and histogram headers, then writes one optional payload only when
+useful. Actual size keeps the existing candidate if the estimate misses.
+Allocation refusal preserves completed ordinary metadata. Eligibility uses the
+existing effort search policy, with no added area, channel or distance window.
+Effort 9 retains its exhaustive searches and remains untuned.
+
+The fixed screen completes 80 points: incremental SSIM/3-norm/max deltas
+-0.49868% / -0.35669% / -0.36271%, with no image regression. Full development at
+`promotion-dc-metadata-model-full/` completes 576 points and 384 comparisons,
+zero encode failures and 209 existing partial-range warnings. Incremental deltas
+are -0.48459% / -0.34865% / -0.35273%; worst changes are +1.66854% / +1.05224% /
++0.73989%. Current means against jSquash are -2.32489% / +12.25324% / +15.18275%,
+and against vips +0.05477% / +8.92381% / +6.88680%. Direct baseline deltas on the
+same full ladder are -2.85440% / -2.85931% / +2.74615%; cumulative E4 deltas remain
++0.60979% / +0.35222% / +0.31206%. Development entry still fails. See the full
+`reduction.json`, three `versus-*.json` files and `encoded-changes.json`.
+
+Hash comparison covers every full-lab stream: 387 shrink, 189 are byte-identical,
+none grow and no same-size stream changes. Total saving is 30,096 bytes. Every
+score triple matches the preserved candidate. Native float grids match exactly
+for all 387 changed streams, recorded in `pixel-parity/result.json` with the
+pinned decoder hash. Independent native/Rust qualification covers 48 fixtures:
+three lossless, eleven effort 7, eleven effort 9, thirteen photos, eight DC
+snapshots and two additional fine-photo cases. Both decoders stay within one
+color sample and preserve exact alpha. The two fine cases also retain their
+complete before/after native and Rust grids, exact first-party pixels and the
+original allocation-refusal behavior. See each oracle directory's `result.json`
+and `fine-snapshot-oracles/result.json`.
+
+Counterbalanced cold timing at `promotion-dc-metadata-model-balanced-speed/`
+executes all 128 workers. Base/candidate medians are 1,667.037/1,693.838ms:
++1.60766%. Means rise 1.01457%; paired median +1.28534%, MAD 1.26531 points and
+17 wins. All paired decoded PNGs match. The 0.34865% 3-norm gain exceeds the
+0.16077% required for this measured slowdown. No speed win is claimed.
+Fresh peer timing at `promotion-dc-metadata-model-speed/` has 192 new jobs,
+zero failures and no reuse. Own median is 1,696.106ms against 488.859ms jSquash
+and 337.929ms vips: 3.46952x / 5.01912x. The 3x crop target still fails.
+Managed peaks stay 34,260,047 bytes full-lab and 34,223,399 isolated; fresh
+worker peak RSS is 297,070,592 bytes. Raw timing, source and stream receipts
+are in `balanced-speed.log`, `speed.log`, `baseline-source.json` and
+`balanced-baseline-parity.json`.
+
+Twenty-one real Chromium tests pass: thirteen model/order/effort/thin/group
+cases, seven DC precision and recovery cases, and the fine-photo fixture.
+Qualified exact byte/digest records cover six Node cases and five older
+Chromium records. Pixel, quality, quantizer, row, alpha, rejection and ownership
+bounds are preserved. The lab log provides one justification for every case.
+Bundles measure 602,162 / 674,954 bytes; report-only ceilings remain
+610,000 / 685,000. Package metrics and documentation metrics are regenerated.
+The initial full check has 3,934 passes, five failures and three skips: two
+qualified byte snapshots are subsequently fixed, and the three held layout
+assertions remain untouched. The final check and cleanup receipts are recorded
+below after completion. Holdout, watch qualification, effort-9 comparison and
+main promotion remain pending.
+
+The terminal final check records 3,936 passes, three held layout failures and
+three skips across 308 files in 514.47 seconds. Every static gate passes,
+including browser:check. The bounded run exits 1 solely for those three
+unchanged held assertions, with 2.4 GiB peak and zero swap. Later assertions
+in those cases remain unexecuted.
+
+Cleanup checks result completion, regular-file extents and all PNG/JXL/result
+hashes before deleting 980 reproducible decoded PNGs, reclaiming 423,785,415
+bytes. All 980 encoded streams and 403 result records remain. The plan and
+completion receipts live in validation `decoded-cleanup-plan.json` and
+`decoded-cleanup-complete.json`; the guard completes in 2.915 seconds with
+509.8 MiB peak and zero swap. The finalizer verifies the source, terminal
+check, timing trade, independent fixtures and cleanup into `final-summary.json`.
+The candidate is retained for preservation only; main and holdout stay unchanged.

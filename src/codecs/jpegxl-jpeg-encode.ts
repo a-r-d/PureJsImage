@@ -14,6 +14,7 @@ import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
   encodeForwardModularLzGroup,
+  encodeForwardModularMetadataGroup,
   encodeHybridUintPacked,
   encodeRepeatedJpegXlAlphaGroup,
   type HybridUintEncoding,
@@ -734,6 +735,25 @@ const writeDcMetadata = (
           }
         } catch (error) {
           // New optional search must preserve any already-completed left candidate.
+          rethrowJpegXlNonLimitError(error)
+        }
+        try {
+          const learned = encodeForwardModularMetadataGroup(
+            {
+              values: planes.map((plane) => plane.values),
+              widths: planes.map((plane) => plane.width),
+              heights: planes.map((plane) => plane.height),
+            },
+            selected?.bitLength ?? originalBits,
+            writer.memory,
+            writer.outputLimit,
+          )
+          if (learned) {
+            if (selected) writer.memory?.release(selected.bytes)
+            selected = learned
+          }
+        } catch (error) {
+          // Optional model allocation must preserve the completed ordinary candidate.
           rethrowJpegXlNonLimitError(error)
         }
         return selected

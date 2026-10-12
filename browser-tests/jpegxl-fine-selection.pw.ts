@@ -21,10 +21,11 @@ test('JPEG XL fine-photo policy preserves complete browser rows and opaque alpha
     return serialized
   })
   const result: unknown = JSON.parse(payload)
+  // Align the older snapshot with qualified Node pixels and the 2,445-byte metadata saving.
   expect(result).toMatchObject({
-    bytes: 191161,
-    encodedChecksum: 2834716027,
-    decodedChecksum: 2715510112,
+    bytes: 377757,
+    encodedChecksum: 968874413,
+    decodedChecksum: 3722419263,
     callerChecksum: 2647578060,
     samples: 2049 * 2048 * 4,
     coveredRows: 2048,

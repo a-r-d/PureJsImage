@@ -3535,15 +3535,33 @@ export const prepareJpegXlAlphaGroup = (
     }
   })
 
-const encodeHistogramHybridGroup = (
+function encodeHistogramHybridGroup(
   plan: Readonly<ModularResidualPlan>,
   outputLimit: number,
   memory: JpegXlEncoderMemory | undefined,
   transforms: Readonly<ModularTransforms>,
   singleGroup: boolean,
   bitLength?: { value: number },
-): Uint8Array =>
-  withJpegXlMemory(memory, () => {
+): Uint8Array
+function encodeHistogramHybridGroup(
+  plan: Readonly<ModularResidualPlan>,
+  outputLimit: number,
+  memory: JpegXlEncoderMemory | undefined,
+  transforms: Readonly<ModularTransforms>,
+  singleGroup: boolean,
+  bitLength: { value: number },
+  maximumBits: number,
+): Uint8Array | undefined
+function encodeHistogramHybridGroup(
+  plan: Readonly<ModularResidualPlan>,
+  outputLimit: number,
+  memory: JpegXlEncoderMemory | undefined,
+  transforms: Readonly<ModularTransforms>,
+  singleGroup: boolean,
+  bitLength?: { value: number },
+  maximumBits = Number.POSITIVE_INFINITY,
+): Uint8Array | undefined {
+  return withJpegXlMemory(memory, () => {
     if (!plan.treeNodes || plan.clustered)
       throw invalidJpegXlInput('histogram hybrid search requires a learned tree')
     const configurations: readonly HybridUintEncoding[] = [
@@ -3629,9 +3647,60 @@ const encodeHistogramHybridGroup = (
       false,
       histogramConfigs,
     )
+    if (Number.isFinite(maximumBits)) {
+      // The serialized tree and histograms are exact; only the ANS payload is estimated.
+      // Keep one renormalization word of margin before writing this optional payload.
+      let estimatedBits = writer.bitPosition + 32 + 16
+      for (let histogram = 0; histogram < frequencies.length; histogram++) {
+        const counts = frequencies[histogram]
+        const serialized = encoding.histograms[histogram]?.frequencies
+        if (!counts || !serialized) throw invalidJpegXlInput('estimated histogram is missing')
+        for (let token = 0; token < counts.length; token++) {
+          const count = counts[token] ?? 0
+          if (count) estimatedBits += count * (12 - Math.log2(serialized[token] ?? 0))
+        }
+      }
+      for (let position = 0; position < packedValues.length; position++)
+        estimatedBits += ((packedValues[position] ?? 0) >>> 8) & 31
+      if (estimatedBits >= maximumBits) return undefined
+    }
     writeAnsPackedValues(writer, packedValues, plan.residualContexts, packedValues.length, encoding)
     if (bitLength) bitLength.value = writer.bitPosition
     return writer.finish()
+  })
+}
+
+/** Estimate one small learned DC metadata model, then write its payload only if useful. */
+export const encodeForwardModularMetadataGroup = (
+  planes: Readonly<ModularPlanes>,
+  originalBits: number,
+  memory: JpegXlEncoderMemory | undefined,
+  outputLimit: number,
+): Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined =>
+  withJpegXlMemory(memory, () => {
+    const base = buildResidualPlan(planes, 7, memory)
+    const tree = learnJpegXlModularTree(
+      planes.values,
+      planes.widths,
+      base.predictors,
+      base.residuals,
+      memory,
+      4096,
+    )
+    if (!tree) return undefined
+    const bitLength = { value: 0 }
+    const bytes = encodeHistogramHybridGroup(
+      learnedResidualPlan(base, tree),
+      outputLimit,
+      memory,
+      { useRct: false },
+      false,
+      bitLength,
+      originalBits,
+    )
+    return bytes && bitLength.value < originalBits
+      ? { bytes, bitLength: bitLength.value }
+      : undefined
   })
 
 const writeLearnedTreePrefix = (
