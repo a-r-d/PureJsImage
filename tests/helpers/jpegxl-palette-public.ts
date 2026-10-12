@@ -195,9 +195,11 @@ export const verifyJpegXlPalettePublic = async () => {
     length: number,
     scope = this.currentScope,
   ): T {
-    if (Object.is(type, Uint8Array) && length === small.width * small.height * 3) {
+    // The canonical probe now reads RGBA directly. Refuse its first color plane
+    // to exercise the same optional-probe fallback without a staging bitmap.
+    if (refused === 0 && Object.is(type, Int32Array) && length === small.width * small.height) {
       refused++
-      throw limitExceeded('Refused optional canonical RGB copy')
+      throw limitExceeded('Refused optional canonical RGB plane')
     }
     return (original<T>).call(this, type, length, scope)
   }
@@ -226,7 +228,7 @@ export const verifyJpegXlPalettePublic = async () => {
     scope = this.currentScope,
   ): T {
     const result = (original<T>).call(this, type, length, scope)
-    if (Object.is(type, Uint8Array) && length === small.width * small.height * 3) {
+    if (allocated === 0 && Object.is(type, Int32Array) && length === small.width * small.height) {
       allocated++
       controller.abort()
     }
@@ -239,7 +241,7 @@ export const verifyJpegXlPalettePublic = async () => {
       if (!(error instanceof Error) || error.name !== 'AbortError') throw error
       cancelled = true
     }
-    require(allocated > 0 && cancelled, 'Real-copy cancellation was not observed')
+    require(allocated > 0 && cancelled, 'Canonical-probe cancellation was not observed')
   } finally {
     JpegXlEncoderMemory.prototype.allocate = original
   }

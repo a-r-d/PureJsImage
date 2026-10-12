@@ -121,10 +121,11 @@ export const chooseJpegXlModularRct = (
   originY = 0,
   rowStride = width,
   maxSamples = 4096,
+  sourceChannels?: 4,
 ): number =>
   withJpegXlMemory(memory, () => {
     const sampleBytes = format.endsWith('16') ? 2 : 1,
-      pixelBytes = (format.startsWith('rgba') ? 4 : 3) * sampleBytes,
+      pixelBytes = (sourceChannels ?? (format.startsWith('rgba') ? 4 : 3)) * sampleBytes,
       count = width * height,
       limit = Math.min(maxSamples, count)
     if (width < 2 || height < 2) return current

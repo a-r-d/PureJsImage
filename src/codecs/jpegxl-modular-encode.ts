@@ -1337,12 +1337,13 @@ const createModularPlanes = (
   format: ModularPixelFormat,
   useRct: boolean,
   memory?: JpegXlEncoderMemory,
+  sourceChannels?: 4,
 ): ModularPlanes => {
   return withJpegXlMemory(memory, () => {
     const highDepth = format.endsWith('16')
     const channels = format.startsWith('gray') ? 1 : format.startsWith('rgba') ? 4 : 3
     const bytesPerSample = highDepth ? 2 : 1
-    const bytesPerPixel = channels * bytesPerSample
+    const bytesPerPixel = (sourceChannels ?? channels) * bytesPerSample
     const values = Array.from({ length: channels }, () =>
       allocateJpegXlArray(memory, Int32Array, width * height),
     )
@@ -1706,10 +1707,22 @@ const prepareSingleGroupPlanes = (
   effort: JpegXlLosslessEffort,
   memory?: JpegXlEncoderMemory,
   maximumPaletteColors = 1024,
+  sourceChannels?: 4,
 ): PreparedModularPlanes => {
   return withJpegXlMemory(memory, () => {
     const channelCount = format.startsWith('rgba') ? 4 : format.startsWith('rgb') ? 3 : 1
-    const raw = createModularPlanes(pixels, width, 0, 0, width, height, format, false, memory)
+    const raw = createModularPlanes(
+      pixels,
+      width,
+      0,
+      0,
+      width,
+      height,
+      format,
+      false,
+      memory,
+      sourceChannels,
+    )
     if (effort >= 5 && (channelCount === 3 || channelCount === 4)) {
       const palette = palettePlanes(raw, channelCount, memory, maximumPaletteColors)
       if (palette) return palette
@@ -1749,7 +1762,18 @@ const prepareSingleGroupPlanes = (
     if (effort === 1 && useRct) applyModularRct(raw.values)
     const transformed =
       useRct && effort !== 1
-        ? createModularPlanes(pixels, width, 0, 0, width, height, format, true, memory)
+        ? createModularPlanes(
+            pixels,
+            width,
+            0,
+            0,
+            width,
+            height,
+            format,
+            true,
+            memory,
+            sourceChannels,
+          )
         : raw
     return Object.freeze({
       planes: transformed,
@@ -3050,6 +3074,7 @@ const encodeSingleGroupSection = (
   memory?: JpegXlEncoderMemory,
   checkpoint?: () => Promise<void>,
   maximumPaletteColors = 1024,
+  sourceChannels?: 4,
 ): Promise<Uint8Array> => {
   return withJpegXlMemoryAsync(memory, async () => {
     const candidateLimit = resolveJpegXlLimits().maxCodestreamBytes
@@ -3107,6 +3132,7 @@ const encodeSingleGroupSection = (
       effort,
       memory,
       maximumPaletteColors,
+      sourceChannels,
     )
     if (effort !== 1) await checkpoint?.()
     const candidates: Uint8Array[] = []
@@ -3212,7 +3238,19 @@ const encodeSingleGroupSection = (
     ) {
       const current = prepared.transforms.useRct ? 6 : 0
       try {
-        const type = chooseJpegXlModularRct(pixels, width, height, format, current, memory)
+        const type = chooseJpegXlModularRct(
+          pixels,
+          width,
+          height,
+          format,
+          current,
+          memory,
+          0,
+          0,
+          width,
+          4096,
+          sourceChannels,
+        )
         if (type !== current) {
           await checkpoint?.()
           const alternative = await withJpegXlMemoryAsync(memory, async () => {
@@ -3227,6 +3265,7 @@ const encodeSingleGroupSection = (
               format,
               false,
               memory,
+              sourceChannels,
             )
             if (type !== 0) applyModularRct(planes.values, 0, type)
             if (effort === 1) return encodeSpatial(planes, transforms, 5)
@@ -3250,7 +3289,18 @@ const encodeSingleGroupSection = (
     if (prepared.transforms.squeeze) {
       const channelCount = format.startsWith('rgba') ? 4 : format.startsWith('rgb') ? 3 : 1
       const rawBase = Object.freeze({
-        planes: createModularPlanes(pixels, width, 0, 0, width, height, format, false, memory),
+        planes: createModularPlanes(
+          pixels,
+          width,
+          0,
+          0,
+          width,
+          height,
+          format,
+          false,
+          memory,
+          sourceChannels,
+        ),
         transforms: Object.freeze({ useRct: false }),
       })
       await checkpoint?.()
@@ -3259,7 +3309,18 @@ const encodeSingleGroupSection = (
       candidates.push(encodePrepared(rawBase, true))
       if (channelCount >= 3) {
         const rctBase = Object.freeze({
-          planes: createModularPlanes(pixels, width, 0, 0, width, height, format, true, memory),
+          planes: createModularPlanes(
+            pixels,
+            width,
+            0,
+            0,
+            width,
+            height,
+            format,
+            true,
+            memory,
+            sourceChannels,
+          ),
           transforms: Object.freeze({ useRct: true }),
         })
         await checkpoint?.()
@@ -3325,6 +3386,7 @@ const encodeSingleGroupSection = (
           memory,
           checkpoint,
           256,
+          sourceChannels,
         ),
       )
     }
@@ -3334,12 +3396,16 @@ const encodeSingleGroupSection = (
   })
 }
 
-const chooseMultiGroupRct = (pixels: Uint8Array, format: ModularPixelFormat): boolean => {
+const chooseMultiGroupRct = (
+  pixels: Uint8Array,
+  format: ModularPixelFormat,
+  sourceChannels?: 4,
+): boolean => {
   if (format.startsWith('gray')) return false
   const channels = format.startsWith('rgba') ? 4 : 3
   const high = format.endsWith('16')
   const sampleBytes = high ? 2 : 1
-  const stride = channels * sampleBytes
+  const stride = (sourceChannels ?? channels) * sampleBytes
   const count = pixels.length / stride
   const step = Math.max(1, Math.floor(count / 4_096))
   let difference = 0
@@ -3994,7 +4060,7 @@ const encodeGroupCandidate = (
         maxTrainingSamples === 16384 ? 32768 : 262_144,
       )
     const predictors = chooseGroupPredictors(planes, effort, memory)
-    const residualPlan = buildResidualPlan(planes, effort, memory, predictors)
+    let selectedPlan = buildResidualPlan(planes, effort, memory, predictors)
     const encodePair = async (
       plan: Readonly<ModularResidualPlan>,
       contextModel: 'channel' | 'gradient' | 'learned',
@@ -4019,8 +4085,7 @@ const encodeGroupCandidate = (
         ...(lz77 ? { lz77Bytes: lz77.length } : {}),
       })
     }
-    let selectedPlan = residualPlan
-    let selected: EncodedModularCandidate = await encodePair(residualPlan, 'channel')
+    let selected: EncodedModularCandidate = await encodePair(selectedPlan, 'channel')
     if (
       effort >= 5 &&
       (planes.values.length <= 4 || transforms.scalarPalettes !== undefined) &&
@@ -4028,12 +4093,19 @@ const encodeGroupCandidate = (
     ) {
       await checkpoint?.()
       const contextual = await withJpegXlMemoryAsync(memory, async () => {
-        const plan = gradientResidualPlan(residualPlan, planes, memory)
-        return encodePair(plan, 'gradient')
+        const plan = gradientResidualPlan(selectedPlan, planes, memory)
+        const candidate = await encodePair(plan, 'gradient')
+        // Losing contexts and output close here instead of escaping to the group.
+        return candidate.bytes.length < selected.bytes.length ? candidate : undefined
       })
-      if (contextual.bytes.length < selected.bytes.length) {
+      if (contextual) {
+        const previousPlan = selectedPlan
+        const previousBytes = selected.bytes
         selected = contextual
         selectedPlan = contextual.plan
+        memory?.release(previousBytes)
+        memory?.release(previousPlan.residualContexts)
+        memory?.release(previousPlan.leafToChannel)
       }
     }
     if (effort >= 7) {
@@ -4041,9 +4113,9 @@ const encodeGroupCandidate = (
         planes.values.length <= 4 &&
         // A near-zero raw stream, or a smaller palette below half a bit per residual,
         // already handles repeats without an expensive learned raw model.
-        selected.bytes.length * 256 >= residualPlan.residuals.length &&
+        selected.bytes.length * 256 >= selectedPlan.residuals.length &&
         (learnedFloorBytes >= selected.bytes.length ||
-          learnedFloorBytes * 16 >= residualPlan.residuals.length) &&
+          learnedFloorBytes * 16 >= selectedPlan.residuals.length) &&
         (!transforms.palette || paletteSearch === 'learned') &&
         !transforms.scalarPalettes &&
         !transforms.squeeze
@@ -4054,18 +4126,25 @@ const encodeGroupCandidate = (
             planes.values,
             planes.widths,
             predictors,
-            residualPlan.residuals,
+            selectedPlan.residuals,
             memory,
             maxTrainingSamples,
             splitOverhead,
           )
           if (!tree) return undefined
-          const plan = learnedResidualPlan(residualPlan, tree)
-          return encodePair(plan, 'learned')
+          const plan = learnedResidualPlan(selectedPlan, tree)
+          const candidate = await encodePair(plan, 'learned')
+          return candidate.bytes.length < selected.bytes.length ? candidate : undefined
         })
-        if (learned && learned.bytes.length < selected.bytes.length) {
+        if (learned) {
+          const previousPlan = selectedPlan
+          const previousBytes = selected.bytes
           selected = learned
           selectedPlan = learned.plan
+          memory?.release(previousBytes)
+          memory?.release(previousPlan.residuals)
+          memory?.release(previousPlan.residualContexts)
+          memory?.release(previousPlan.leafToChannel)
         }
       }
       for (let index = 1; index < modularHybridConfigurations.length; index++) {
@@ -4189,9 +4268,10 @@ const encodeAdaptiveFrameSections = (
   localColor = false,
   rctSamples = 4096,
   splitOverhead = 1,
+  sourceChannels?: 4,
 ): Promise<readonly Uint8Array[]> =>
   withJpegXlMemoryAsync(memory, async () => {
-    const useRct = !localColor && chooseMultiGroupRct(pixels, format)
+    const useRct = !localColor && chooseMultiGroupRct(pixels, format, sourceChannels)
     const scalarSearch = format === 'rgb16' && effort >= 7 && hasSparse16BitChannels(pixels, memory)
     const globalWriter = new JpegXlBitWriter(memory)
     const frequencies = allocateJpegXlArray(memory, Uint32Array, 512)
@@ -4220,6 +4300,7 @@ const encodeAdaptiveFrameSections = (
             format,
             useRct,
             memory,
+            sourceChannels,
           )
           const rctType =
             localColor && isRgb8(format)
@@ -4234,6 +4315,7 @@ const encodeAdaptiveFrameSections = (
                   y,
                   width,
                   rctSamples,
+                  sourceChannels,
                 )
               : 6
           if (localColor && rctType !== 0) applyModularRct(planes.values, 0, rctType)
@@ -4312,6 +4394,7 @@ const encodeAdaptiveFrameSections = (
                   format,
                   false,
                   memory,
+                  sourceChannels,
                 )
                 return scalarPalettePlanes(original, memory)
               })
@@ -4470,6 +4553,7 @@ const encodeFrameSections = (
   memory?: JpegXlEncoderMemory,
   checkpoint?: () => Promise<void>,
   evidence?: ModularGroupSearchEvidence[],
+  sourceChannels?: 4,
 ): Promise<readonly Uint8Array[]> => {
   return withJpegXlMemoryAsync(memory, async () => {
     const groupDimension = 1_024
@@ -4506,7 +4590,17 @@ const encodeFrameSections = (
     }
     if (groupCount === 1) {
       return Object.freeze([
-        await encodeSingleGroupSection(pixels, width, height, format, effort, memory, checkpoint),
+        await encodeSingleGroupSection(
+          pixels,
+          width,
+          height,
+          format,
+          effort,
+          memory,
+          checkpoint,
+          1024,
+          sourceChannels,
+        ),
       ])
     }
     return encodeAdaptiveFrameSections(
@@ -4518,6 +4612,12 @@ const encodeFrameSections = (
       memory,
       checkpoint,
       evidence,
+      1024,
+      65536,
+      false,
+      4096,
+      1,
+      sourceChannels,
     )
   })
 }
@@ -5424,12 +5524,17 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   allowSmallGroups = false,
   localColorSamples = 0,
   opaqueColor = false,
+  sourceChannels?: 4,
 ): Promise<EncodedJpegXlCodestream | undefined> => {
+  if (sourceChannels !== undefined && format !== 'rgb8')
+    throw invalidJpegXlInput('RGB document projection requires RGB8 output')
   const channels = format === 'rgba8' ? 4 : 3
+  const sourceStride = sourceChannels ?? channels
+  const compareAlpha = format === 'rgba8' && !opaqueColor
   const groups =
     finder === 'flat'
-      ? findFlatScreenshotPatches(pixels, width, height, memory, channels, !opaqueColor)
-      : findDocumentPatches(pixels, width, height, memory, channels, !opaqueColor)
+      ? findFlatScreenshotPatches(pixels, width, height, memory, sourceStride, compareAlpha)
+      : findDocumentPatches(pixels, width, height, memory, sourceStride, compareAlpha)
   const { placements, covered, atlasPixels } = countPatchAtlas(groups)
   if (
     groups.length === 0 ||
@@ -5442,14 +5547,36 @@ export const encodeJpegXlDocumentPatchCandidate = async (
   const { atlasWidth, atlasHeight } = layoutPatchAtlas(groups, atlasPixels)
   if (atlasHeight > 1_024) return undefined
   const atlas = allocateJpegXlArray(memory, Uint8Array, atlasWidth * atlasHeight * channels)
-  const display = copyJpegXlArray(memory, Uint8Array, pixels)
+  const display =
+    sourceChannels === undefined
+      ? copyJpegXlArray(memory, Uint8Array, pixels)
+      : allocateJpegXlArray(memory, Uint8Array, width * height * channels)
+  if (sourceChannels !== undefined)
+    for (
+      let source = 0, target = 0;
+      source < pixels.length;
+      source += sourceStride, target += channels
+    ) {
+      display[target] = pixels[source] ?? 0
+      display[target + 1] = pixels[source + 1] ?? 0
+      display[target + 2] = pixels[source + 2] ?? 0
+    }
   atlas.fill(255)
   for (const group of groups) {
     const source = group.source
     for (let y = 0; y < source.height; y++) {
-      const from = ((source.y + y) * width + source.x) * channels
+      const from = ((source.y + y) * width + source.x) * sourceStride
       const to = ((group.atlasY + y) * atlasWidth + group.atlasX) * channels
-      atlas.set(pixels.subarray(from, from + source.width * channels), to)
+      if (sourceChannels === undefined)
+        atlas.set(pixels.subarray(from, from + source.width * channels), to)
+      else
+        for (let x = 0; x < source.width; x++) {
+          const input = from + x * sourceStride
+          const output = to + x * channels
+          atlas[output] = pixels[input] ?? 0
+          atlas[output + 1] = pixels[input + 1] ?? 0
+          atlas[output + 2] = pixels[input + 2] ?? 0
+        }
     }
     for (const patch of group.placements) {
       if (finder === 'document')
@@ -5458,7 +5585,8 @@ export const encodeJpegXlDocumentPatchCandidate = async (
           display.fill(255, start, start + patch.width * channels)
         }
       else {
-        const background = (Math.max(0, patch.y - 1) * width + Math.max(0, patch.x - 1)) * channels
+        const background =
+          (Math.max(0, patch.y - 1) * width + Math.max(0, patch.x - 1)) * sourceStride
         for (let y = 0; y < patch.height; y++)
           for (let x = 0; x < patch.width; x++) {
             const at = ((patch.y + y) * width + patch.x + x) * channels
@@ -5755,23 +5883,22 @@ const encodeLossyCodestream = (
             for (let offset = 0; offset < normalized.length; offset += 4)
               if (normalized[offset + 3] === 0) normalized.fill(0, offset, offset + 3)
           if (opaqueSdrColor && format === 'rgba8') {
-            // Both opaque layouts compare the same actual RGB lossless stream. The scalar
-            // return releases the probe copy and its encoded storage before RGBA encoding.
+            // Both opaque layouts compare the same actual RGB lossless stream. Read its
+            // color planes through the RGBA stride instead of staging a full RGB bitmap.
+            // Only the scalar cost escapes the probe before any RGBA encoding.
             const colorBits = await withJpegXlMemoryAsync(memory, async () => {
-              const rgb = allocateJpegXlArray(memory, Uint8Array, (pixels.length / 4) * 3)
-              for (let source = 0, target = 0; source < pixels.length; source += 4, target += 3) {
-                rgb[target] = pixels[source] ?? 0
-                rgb[target + 1] = pixels[source + 1] ?? 0
-                rgb[target + 2] = pixels[source + 2] ?? 0
-              }
               const canonical = await encodeCodestream(
-                rgb,
+                pixels,
                 width,
                 height,
                 'rgb8',
                 { ...options, mode: 'lossless' },
                 memory,
                 checkpoint,
+                undefined,
+                false,
+                false,
+                4,
               )
               return canonical.byteLength * 8
             })
@@ -5955,8 +6082,11 @@ const encodeCodestream = (
   evidence?: ModularGroupSearchEvidence[],
   localColor = false,
   smallFast = false,
+  sourceChannels?: 4,
 ): Promise<EncodedJpegXlCodestream> => {
   return withJpegXlMemoryAsync(memory, async () => {
+    if (sourceChannels !== undefined && (format !== 'rgb8' || options.effort < 7))
+      throw invalidJpegXlInput('RGB projection requires an effort-7/9 RGB8 probe')
     const sections = smallFast
       ? await encodeChannelPrefixFrameSections(
           pixels,
@@ -5980,6 +6110,9 @@ const encodeCodestream = (
             512,
             65536,
             true,
+            4096,
+            1,
+            sourceChannels,
           )
         : await encodeFrameSections(
             pixels,
@@ -5990,6 +6123,7 @@ const encodeCodestream = (
             memory,
             checkpoint,
             evidence,
+            sourceChannels,
           )
     const sectionBytes = jpegXlPartsByteLength(sections)
     const remainingOutputBytes = (memory?.outputLimit ?? 134_217_728) - sectionBytes
@@ -6043,9 +6177,10 @@ const encodeCodestream = (
           localEvidence,
           !fast,
           fast,
+          sourceChannels,
         ),
       )
-    const channels = format === 'rgba8' ? 4 : 3
+    const channels = sourceChannels ?? (format === 'rgba8' ? 4 : 3)
     let white = 0,
       sampled = 0
     for (let offset = 0; offset < pixels.length; offset += channels * 64) {
@@ -6090,6 +6225,8 @@ const encodeCodestream = (
               // Cheap ordinary frames already compress below half a bit per pixel.
               selected.byteLength * 16 >= width * height,
               localColorSamples,
+              false,
+              sourceChannels,
             ),
           )
           if (patched && patched.byteLength < best.byteLength) best = patched
