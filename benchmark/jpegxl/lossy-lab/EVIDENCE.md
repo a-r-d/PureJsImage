@@ -2283,3 +2283,69 @@ the failed log is retained and the corrected run completes. Bundles stay
 604,300 / 677,092 bytes and ceilings 610,000 / 685,000. Only lab log and
 evidence change; all production files and tests remain identical to `ac74f6b0`.
 Root: `promotion-entry-neutral-speed-checkpoint/`.
+
+LL-431 rejects cube-root approximation after exhaustive RGB comparison.
+One/two Newton refinements change 51,847 / 16,799 Float32 channels. No
+production conversion changes. Root: `promotion-entry-cube-root-diagnostic/`.
+
+LL-432 to LL-434 retain Float64 reflected-pair reuse at source `db5bea99`.
+The corrected generator passes strict types, 31 focused cases and 768 direct
+comparisons. Eighteen of 21 confirmation pairs improve; all 64 corpus files
+and grids remain exact, 48 wins, median time -1.47117%, mean -1.60886%,
+paired median -2.01029%. Managed peak is unchanged. Roots:
+`promotion-entry-scalar-transform-validation-r1/`, `*-pairs/`,
+`*-confirmation/` and `*-balanced-speed/`. Initial declaration failure
+is preserved in `promotion-entry-scalar-transform-validation/`.
+
+LL-435 to LL-437 revert rectangle short-axis reuse after its all-crop
+median rises 0.50344%, despite 40 paired wins / -0.65816% paired median.
+All files/grids and managed peaks stay exact. Source before and after the
+trial is preserved. Roots: `promotion-entry-scalar-rectangle-*`.
+
+LL-438 to LL-439 revert full physical dot-product unrolling. All 65
+focused cases and every paired file pass, but only ten of 21 final pairs
+improve; paired median +0.10846%, MAD 2.74177 points. No storage growth.
+Roots: `promotion-entry-physical-dot16-*`; rejected source remains.
+
+LL-440 formal timing is 192 fresh jobs: own 1,548.344ms median versus
+jSquash 498.078ms / vips 354.609ms, ratios 3.10864x / 4.36634x.
+All 64 own JXLs, score triples and encoding receipts verify. Crop gate
+fails; originals, holdout and main remain reserved. Root:
+`promotion-entry-scalar-transform-speed/`.
+
+LL-441 verifies all 576 full-ladder files, score triples and receipts
+against the previous qualified candidate. BD-rate is unchanged, including
+the same-ladder main means (-3.46048 / -3.39081 / +2.15426%). Managed
+peak stays 34,259,887 bytes. Guard 7min 55.606s, 1.3 GiB, zero swap.
+Root: `promotion-entry-scalar-transform-full/`; the prior comparison
+against main remains in `promotion-entry-exact-speed-full-r1/versus-baseline.json`.
+
+LL-442 / LL-443 pass all 46 native/Rust fixture cases and 42 real-browser
+cases. The LF witness now checks 32 signed patterns per shape with zero
+error, input changes or changed margins. Bundle sizes are 608,530 /
+681,347 bytes; ceilings stay 610,000 / 685,000. Proposed increases are
+reverted because both entries already fit. The first repository check is
+intentionally terminated, not accepted; its guard says TERM despite a
+success label. Fresh check-r1 logs/receipt are the qualification source.
+Roots: `promotion-entry-scalar-transform-validation-final/` and
+`promotion-entry-scalar-transform-checkpoint/`.
+
+LL-444 profiles the current median neighbors at qualified source `db5bea99`.
+Both complete streams/scores remain exact; plane quantization is 115.079 /
+130.068ms self. Guard 4.904s, 277.5 MiB, zero swap. The first profile keeps
+its negative three-microsecond delta. Roots:
+`promotion-entry-scalar-transform-median-profile-2026/` and `*-1400/`.
+
+LL-445 completes the clean repository check with the original ceilings:
+3,961 passed, zero failures, three skips; 533.94s. All static gates pass,
+including browser:check. Guard 9min 38.623s, 2.9 GiB, zero swap. Cleanup
+removes 1,066 reproducible own decoded PNGs / 463664573 bytes, preserving
+all 1,066 JXLs, 554 results, pinned inputs, raw oracle evidence, profiles,
+source snapshots and logs. Cleanup guard 3.846s, 589.9 MiB, zero swap.
+Diff review catches an overbroad current-state rewrite before commit; all
+431 historical experiment rows and the prior checkpoint summary are restored
+verbatim and checked in `history-preservation.json`. Current source has one
+new retained gain out of four hypotheses; formal crop ratio 3.10864x still
+fails entry. Main, originals and holdout remain reserved. Bundles are
+608,530 / 681,347 bytes; ceilings stay 610,000 / 685,000.
+Root: `promotion-entry-scalar-transform-checkpoint/`.

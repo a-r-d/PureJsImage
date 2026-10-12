@@ -4,7 +4,10 @@ import {
   type JpegXlLargeMenuInput,
   prepareJpegXlLargeMenus,
 } from '../src/codecs/jpegxl-vardct-large-menu.ts'
-import { verifyLargeSourceSelection } from './helpers/jpegxl-large-source.ts'
+import {
+  verifyLargeLfTransforms,
+  verifyLargeSourceSelection,
+} from './helpers/jpegxl-large-source.ts'
 
 const fixture = (wide = 4, high = 4): JpegXlLargeMenuInput => {
   const cells = wide * high
@@ -44,6 +47,14 @@ const fixture = (wide = 4, high = 4): JpegXlLargeMenuInput => {
 }
 
 describe('bounded JPEG XL large-transform menus', () => {
+  it('keeps LF coefficients, output margins and input exact on signed square and rectangle patterns', () => {
+    expect(verifyLargeLfTransforms()).toEqual({
+      shapes: 3,
+      maximumLfError: 0,
+      changedMargins: 0,
+      changedInput: 0,
+    })
+  })
   it.each(['admitted', 'refused', 'zeros', 'zero-refused'] as const)(
     'preserves every nonconstant menu with plane rounding scratch %s',
     (budget) => {

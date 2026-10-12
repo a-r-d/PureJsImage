@@ -40,26 +40,37 @@ export function verifyLargeLfTransforms(): {
     { size: 512, square: false, horizontal: false },
     { size: 512, square: false, horizontal: true },
   ]) {
-    const samples = Float32Array.from(
-        { length: shape.size },
-        (_, i) => Math.sin(i / 17) + ((i * 7) % 19) / 32,
-      ),
-      before = samples.slice(),
-      full = new Float32Array(shape.size),
-      compact = new Float32Array(shape.size).fill(12345),
-      scratch = new Float32Array(shape.size)
-    if (shape.square) {
-      forwardJpegXlDct32(samples, scratch, full)
-      forwardJpegXlDct32(samples, scratch, compact, true)
-    } else {
-      forwardJpegXlRectangle32(samples, scratch, full, shape.horizontal)
-      forwardJpegXlRectangle32(samples, scratch, compact, shape.horizontal, true)
-    }
-    for (let i = 0; i < shape.size; i++) {
-      if (i >>> 5 < (shape.square ? 4 : 2) && (i & 31) < 4)
-        maximumLfError = Math.max(maximumLfError, Math.abs((compact[i] ?? 0) - (full[i] ?? 0)))
-      else changedMargins += compact[i] === 12345 ? 0 : 1
-      changedInput += samples[i] === before[i] ? 0 : 1
+    for (let pattern = 0; pattern < 32; pattern++) {
+      const samples = Float32Array.from({ length: shape.size }, (_, i) =>
+          pattern === 0
+            ? Math.sin(i / 17) + ((i * 7) % 19) / 32
+            : pattern === 1
+              ? 0.125
+              : pattern === 2
+                ? i === 257
+                  ? 1
+                  : 0
+                : pattern === 3
+                  ? (i & 1) - 0.5
+                  : Math.sin((i + 1) * (pattern + 1)) * 2 ** ((pattern % 24) - 12),
+        ),
+        before = samples.slice(),
+        full = new Float32Array(shape.size),
+        compact = new Float32Array(shape.size).fill(12345),
+        scratch = new Float32Array(shape.size)
+      if (shape.square) {
+        forwardJpegXlDct32(samples, scratch, full)
+        forwardJpegXlDct32(samples, scratch, compact, true)
+      } else {
+        forwardJpegXlRectangle32(samples, scratch, full, shape.horizontal)
+        forwardJpegXlRectangle32(samples, scratch, compact, shape.horizontal, true)
+      }
+      for (let i = 0; i < shape.size; i++) {
+        if (i >>> 5 < (shape.square ? 4 : 2) && (i & 31) < 4)
+          maximumLfError = Math.max(maximumLfError, Math.abs((compact[i] ?? 0) - (full[i] ?? 0)))
+        else changedMargins += compact[i] === 12345 ? 0 : 1
+        changedInput += samples[i] === before[i] ? 0 : 1
+      }
     }
   }
   return { shapes: 3, maximumLfError, changedMargins, changedInput }
