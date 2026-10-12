@@ -58,6 +58,23 @@ describe('JPEG XL entropy decoding', () => {
       }
   })
 
+  it('appends entropy sections through capacity growth without changing their bits', () => {
+    const bytes = Uint8Array.from({ length: 513 }, (_, index) => (index * 29 + 253) & 255)
+    for (let offset = 0; offset < 8; offset++)
+      for (const count of [2040, 2041, 2048, 2049, 4095, 4096, 4097, 4104]) {
+        const writer = new JpegXlBitWriter()
+        writer.writeBits(2 ** offset - 1, offset)
+        writer.writeEncodedBits(bytes, count)
+        expect(writer.bitPosition).toBe(offset + count)
+        writer.writeBits(173, 8)
+        const reader = new JpegXlBitReader(writer.finish())
+        expect(reader.readBits(offset)).toBe(2 ** offset - 1)
+        for (let bit = 0; bit < count; bit++)
+          expect(reader.readBits(1)).toBe(((bytes[bit >>> 3] ?? 0) >>> (bit & 7)) & 1)
+        expect(reader.readBits(8)).toBe(173)
+      }
+  })
+
   it('rejects invalid or oversized entropy extents before mutating the section', () => {
     const writer = new JpegXlBitWriter(undefined, 2)
     writer.writeBits(93, 7)
@@ -84,6 +101,20 @@ describe('JPEG XL entropy decoding', () => {
     memory.close()
     expect(memory.liveBytes).toBe(0)
     expect(memory.liveAllocations).toBe(0)
+  })
+
+  it('rejects invalid bit fields before changing the output', () => {
+    const writer = new JpegXlBitWriter()
+    writer.writeBits(93, 7)
+    for (let count = 0; count <= 32; count++)
+      expect(() => writer.writeBits(2 ** count, count)).toThrow(/bit field/)
+    for (const value of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER])
+      expect(() => writer.writeBits(value, 32)).toThrow(/bit field/)
+    for (const count of [-1, 0.5, 33, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(() => writer.writeBits(0, count)).toThrow(/bit field/)
+    expect(writer.bitPosition).toBe(7)
+    writer.writeBits(1, 1)
+    expect(writer.finish()).toEqual(Uint8Array.of(221))
   })
 
   it('preserves every bit alignment for 0-32-bit fields and full unsigned values', () => {

@@ -81,6 +81,7 @@ const metrics: QualityMetric[] = ['ssimulacra2', 'butteraugliMax', 'butteraugliN
 const qualityIntervals = {
   ssimulacra2: { minimum: 60, maximum: 90 },
   butteraugliMax: { minimum: 0.5, maximum: 3 },
+  // Keep the measured-overlap integral; bdRate separately checks 0.5 to 3 coverage.
   butteraugliNorm3: undefined,
 }
 const engines: Engine[] = ['purejsimage', 'jsquash', 'vips']

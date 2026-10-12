@@ -2463,3 +2463,47 @@ eight are reverted. The fresh crop ratio 3.08224x still fails entry. Main,
 originals and holdout remain reserved. Bundles 608,720/681,537 bytes; ceilings
 610,000/685,000 are unchanged. Root:
 `promotion-entry-batched-assignment-bound-checkpoint/`.
+
+## Rejected speed follow-up (2026-10-12)
+
+LL-470 to LL-482 test eight speed hypotheses against candidate commit
+`81590f66`: eight-term histogram batches, uint32 bit-field bounds, bulk
+entropy copying, partial DCT16 luminance rejection, conditional zero
+histogram terms, interior weighting-tile loading, plane polarity factors
+and a bit-field limit table. All eight are reverted. Twenty-one-pair
+confirmations reject the two initially inconclusive changes. Every
+measured stream is exact; no compression trial or aggregate speed gain
+is claimed. Raw pairs, complete worker receipts, rejected source and
+focused validation stay in the matching `promotion-entry-*` roots.
+
+Two refreshed profiling rounds retain exact streams on the current median
+neighbors im26-3004/im26-1408 and slowest crop im26-1468. Plane quantization
+and menu preparation remain the median hotspots; tree scoring and sorting
+dominate the slow tail. Roots: `promotion-entry-restored-profile-3004/`,
+`*-1468/` and `promotion-entry-second-restored-profile-1408/`.
+
+The two retained bitstream properties cover invalid field values/counts
+without output mutation and exact entropy-section bits through capacity
+growth at every alignment. The encoder hash restores to `01c5ac98`.
+The last qualified absolute crop ratio stays 3.08224x jSquash, above the
+3.05x gate. Original and holdout qualification remain reserved.
+
+The promotion-entry document now states Aaron's 0.5 to 3 3-norm coverage
+band. The runner comment distinguishes coverage from its unchanged
+measured-overlap integral. Existing BD-rates, zero admitted 3-norm
+full-band pairs and all prior historical rows stay intact.
+
+Checkpoint preparation preserves the previous current-state block and
+every prior experiment row. The final full check and scoped decoded-output
+cleanup are pending. Root: `promotion-entry-rejected-speed-checkpoint/`.
+
+LL-483 passes the full handoff check: 3,976 tests, zero failures and three
+skips; 607.25s. Every static gate passes, including browser:check.
+Guard 10min 51.254s, zero swap. Production source is exactly the pushed
+checkpoint. No new encoder or compression gain is claimed. Cleanup removes
+199 verified decoded PNGs / 90324759 bytes, retaining 199
+JXL files and 199 complete result records. Inputs, profiles, logs, rejected
+source, receipts and all 470 previous committed experiment rows remain.
+Bundles stay 608,720/681,537 bytes; ceilings 610,000/685,000 are unchanged.
+The qualified crop ratio stays 3.08224x jSquash; main, originals and holdout
+remain reserved. Root: `promotion-entry-rejected-speed-checkpoint/`.

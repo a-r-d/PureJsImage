@@ -24,6 +24,8 @@ and LOSSY_FEEDBACK.md wherever they conflict.
 4. Per-image guard:
    - No image worse than +8% on SSIMULACRA2 or 3-norm. Count only comparisons
      with full band coverage.
+   - Required bands: SSIMULACRA2 60 to 90 and Butteraugli 3-norm distance
+     0.5 to 3. Aaron confirmed the 3-norm band on 2026-10-12.
    - Butteraugli max is not gated per image. List the three worst max
      regressions and inspect them visually.
 5. Thresholds are decision aids, not cliffs: a result within 0.05 points of a
