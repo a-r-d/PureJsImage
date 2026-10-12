@@ -273,7 +273,7 @@ describe('Opaque JPEG XL public replacement tools', () => {
     expect(b.alpha.every((value) => value === 255)).toBe(true)
   }, 60_000)
 
-  it('retains opaque alpha in the shared public screenshot reference/display path', async () => {
+  it('preserves exact opaque page colors and alpha in one shared public frame', async () => {
     const width = 512,
       height = 512,
       pair = page(width, height, 16)
@@ -288,13 +288,18 @@ describe('Opaque JPEG XL public replacement tools', () => {
     expect(memory.liveBytes).toBe(0)
     const a = await encodeDecode(pair.rgb, width, height, 'rgb8', 3)
     const b = await encodeDecode(pair.rgba, width, height, 'rgba8', 3)
+    // Qualified against main: RGB 1,410 -> 499 bytes, RGBA stays 502; both decode exactly.
+    expect(a.bytes.byteLength).toBeLessThanOrEqual(1_410)
+    expect(b.bytes.byteLength).toBeLessThanOrEqual(502)
     expect(
       (await readJpegXlSourceFrameStructures(new MemorySource(a.bytes), defaultImageLimits)).length,
-    ).toBe(2)
+    ).toBe(1)
     expect(
       (await readJpegXlSourceFrameStructures(new MemorySource(b.bytes), defaultImageLimits)).length,
-    ).toBe(2)
+    ).toBe(1)
     expectSameColor(a.color, b.color)
+    expectSameColor(a.color, pair.rgb)
+    expectSameColor(b.color, pair.rgb)
     expect(b.alpha.every((value) => value === 255)).toBe(true)
   }, 60_000)
 

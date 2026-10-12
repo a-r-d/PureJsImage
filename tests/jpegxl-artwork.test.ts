@@ -18,9 +18,9 @@ describe('JPEG XL exact artwork candidate', () => {
 
   it('keeps the complete prior stream when optional exact search exceeds working storage', async () => {
     const result = await verifyJpegXlArtwork({ maxWorkingBytes: 8_388_608 })
-    // Single-stream model choice changes this bounded fallback; both decoders retain its pixels.
-    expect(result.bytes).toBe(4634)
-    expect(result.encodedChecksum).toBe(475657513)
+    // Expanded color DC saves 2,331 fallback bytes; both decoder grids and all bounds match.
+    expect(result.bytes).toBe(2303)
+    expect(result.encodedChecksum).toBe(1931934426)
     expect(result.decodedChecksum).toBe(2423965623)
     expect(result.alphaError).toBe(0)
     expect(result.ownedPeak).toBeLessThanOrEqual(8_388_608)
@@ -29,7 +29,7 @@ describe('JPEG XL exact artwork candidate', () => {
   }, 30_000)
 
   for (const alpha of ['varying', 'hidden'] as const)
-    it(`retains exact visible color and alpha after alpha-search changes for ${alpha}-alpha artwork`, async () => {
+    it(`keeps exact visible color when lossy DC becomes smaller for ${alpha}-alpha artwork`, async () => {
       const result = await verifyJpegXlArtwork({ alpha })
       // A smaller lossy alpha stream must preserve the established exact-color selection.
       expect(result.bytes).toBe(13807)
@@ -42,10 +42,10 @@ describe('JPEG XL exact artwork candidate', () => {
     }, 60_000)
 
   for (const [options, encodedChecksum, decodedChecksum] of [
-    // Training both progressive passes changes serialization; both decoders retain these pixels.
-    [{ progressive: true }, 3216902223, 2319986359],
-    // Single-stream histogram selection changes 16-bit serialization; both decoders retain these pixels.
-    [{ depth: 16 }, 1035208047, 1237593230],
+    // Expanded color DC saves 2,182 progressive bytes; both decoder grids retain these pixels.
+    [{ progressive: true }, 3114600390, 2319986359],
+    // Expanded color DC saves 2,331 high-depth bytes; both decoder grids retain these pixels.
+    [{ depth: 16 }, 3273339445, 1237593230],
     // Visible-color admission now preserves every sample above the former area ceiling.
     [{ width: 1025, height: 1025 }, 2194658254, 4058247199],
     [{ width: 512, height: 512 }, 2502169417, 3681525189],

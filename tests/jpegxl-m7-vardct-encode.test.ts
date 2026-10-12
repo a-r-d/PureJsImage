@@ -378,7 +378,7 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     }
   }
 
-  it('selects a smaller public stream for sparse diagonal graphics without losing edge quality', async () => {
+  it('selects a smaller exact Modular stream for sparse diagonal graphics', async () => {
     const width = 512
     const height = 512
     const pixels = new Uint8Array(width * height * 3)
@@ -430,7 +430,9 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
       new MemorySource(publicBytes),
       defaultImageLimits,
     )
-    expect(frames.encoding).toBe('vardct')
+    // Qualified against main: 32,896 -> 5,265 bytes, exact in both independent decoders.
+    expect(frames.encoding).toBe('modular')
+    expect(publicBytes.byteLength).toBeLessThanOrEqual(32_896)
     const squaredError = async (bytes: Uint8Array): Promise<number> => {
       const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(bytes), defaultImageLimits)
       if (!decoder) throw new Error('Missing JPEG XL decoder')
@@ -449,7 +451,9 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
       expect(samples).toBe(pixels.length)
       return error / samples
     }
-    expect(await squaredError(publicBytes)).toBeLessThan(await squaredError(strict.toUint8Array()))
+    const publicError = await squaredError(publicBytes)
+    expect(publicError).toBeLessThan(await squaredError(strict.toUint8Array()))
+    expect(publicError).toBe(0)
     // Two effort-7 encodes and both reconstructions can exceed Vitest's default
     // five seconds on shared CI runners. Size and quality checks stay unchanged.
   }, 30_000)

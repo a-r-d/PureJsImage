@@ -321,7 +321,7 @@ const repeatedScreenshot = (): Uint8Array => {
 }
 
 describe('JPEG XL lossy screenshot patches', () => {
-  it('selects a VarDCT reference and restores repeated glyphs through the public encoder', async () => {
+  it('selects a Modular reference and restores repeated glyphs exactly through the public encoder', async () => {
     const pixels = repeatedScreenshot()
     const original = Uint8Array.from(pixels)
     const sink = new Uint8ArraySink()
@@ -351,9 +351,11 @@ describe('JPEG XL lossy screenshot patches', () => {
       new MemorySource(encoded),
       defaultImageLimits,
     )
+    // Qualified against main: 904 -> 577 bytes, exact in both independent decoders.
+    expect(encoded.byteLength).toBeLessThanOrEqual(904)
     expect(frames.map((frame) => [frame.frameType, frame.encoding, frame.frameFlags])).toEqual([
-      ['reference', 'vardct', 128],
-      ['regular', 'vardct', 130],
+      ['reference', 'modular', 0],
+      ['regular', 'modular', 2],
     ])
     const decoder = await jpegxlCodec.createDecoder?.(new MemorySource(encoded), defaultImageLimits)
     expect(decoder).toBeDefined()
@@ -373,6 +375,7 @@ describe('JPEG XL lossy screenshot patches', () => {
     }
     expect(samples).toBe(pixels.length)
     expect(Math.sqrt(sumSquared / samples)).toBeLessThan(3)
+    expect(sumSquared).toBe(0)
   }, 15_000)
 
   it('does not classify a nonflat gradient as a screenshot', () => {

@@ -34,8 +34,8 @@ import {
 import { learnJpegXlModularTree } from './jpegxl-modular-tree.ts'
 import {
   encodeJpegXlVarDct8Async,
-  jpegXlVarDctColorBits,
   type JpegXlForwardFrameOptions,
+  jpegXlVarDctColorBits,
 } from './jpegxl-vardct-encode.ts'
 
 export class JpegXlBitWriter {
@@ -3703,6 +3703,40 @@ export const encodeForwardModularMetadataGroup = (
       : undefined
   })
 
+/** Estimate the expanded color DC tree before writing one optional payload. */
+export const encodeForwardModularColorGroup = (
+  planes: Readonly<ModularPlanes>,
+  originalBits: number,
+  memory: JpegXlEncoderMemory | undefined,
+  outputLimit: number,
+): Readonly<{ bytes: Uint8Array; bitLength: number }> | undefined =>
+  withJpegXlMemory(memory, () => {
+    const base = buildResidualPlan(planes, 7, memory)
+    const tree = learnJpegXlModularTree(
+      planes.values,
+      planes.widths,
+      base.predictors,
+      base.residuals,
+      memory,
+      65536,
+      0.25,
+    )
+    if (!tree) return undefined
+    const bitLength = { value: 0 }
+    const bytes = encodeHistogramHybridGroup(
+      learnedResidualPlan(base, tree),
+      outputLimit,
+      memory,
+      { useRct: false },
+      false,
+      bitLength,
+      originalBits,
+    )
+    return bytes && bitLength.value < originalBits
+      ? { bytes, bitLength: bitLength.value }
+      : undefined
+  })
+
 const writeLearnedTreePrefix = (
   writer: JpegXlBitWriter,
   nodes: readonly JpegXlModularNode[],
@@ -5765,13 +5799,17 @@ const encodeLossyCodestream = (
           const measured = opaqueSdrColor
             ? { ...candidate, colorBits: candidate.byteLength * 8 }
             : candidate
-          return cost(measured) * 20 <= cost(selected) * 19 ? measured : undefined
+          // Translucent visible palettes must retain exact colors: a smaller DC
+          // payload can lower the lossy stream below the palette without removing
+          // its color error. Allocation refusal still keeps the completed fallback.
+          return !opaqueSdrColor || cost(measured) * 20 <= cost(selected) * 19
+            ? measured
+            : undefined
         })
         // Both layouts retain their original alpha samples.
         if (modular) {
-          // An accepted exact opaque palette ends lossy competition in both layouts.
-          if (opaqueSdrColor) return modular
-          selected = modular
+          // Accepted exact palettes end lossy competition at every image size.
+          return modular
         }
       } catch (error) {
         rethrowJpegXlNonLimitError(error)

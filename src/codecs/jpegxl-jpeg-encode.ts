@@ -13,6 +13,7 @@ import { invalidJpegXlInput, rethrowJpegXlNonLimitError } from './jpegxl-errors.
 import type { JpegXlLimits } from './jpegxl-limits.ts'
 import {
   type AnsEncoding,
+  encodeForwardModularColorGroup,
   encodeForwardModularLzGroup,
   encodeForwardModularMetadataGroup,
   encodeHybridUintPacked,
@@ -841,11 +842,28 @@ const writeForwardDcColorPlanes = (
           const bitLength = alternative.bitPosition
           return bitLength < originalBits ? { bytes: alternative.finish(), bitLength } : undefined
         })
-        if (learned) {
-          writer.memory?.release(originalBytes)
-          return learned
+        if (learned) writer.memory?.release(originalBytes)
+        let selected = learned ?? { bytes: originalBytes, bitLength: originalBits }
+        try {
+          const expanded = encodeForwardModularColorGroup(
+            {
+              values: planes.map((plane) => plane.values),
+              widths: planes.map((plane) => plane.width),
+              heights: planes.map((plane) => plane.height),
+            },
+            selected.bitLength,
+            writer.memory,
+            writer.outputLimit,
+          )
+          if (expanded) {
+            writer.memory?.release(selected.bytes)
+            selected = expanded
+          }
+        } catch (error) {
+          // Preserve the completed color candidate when optional model storage is refused.
+          rethrowJpegXlNonLimitError(error)
         }
-        return { bytes: originalBytes, bitLength: originalBits }
+        return selected
       })
     } catch (error) {
       rethrowJpegXlNonLimitError(error)

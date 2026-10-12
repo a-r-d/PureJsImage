@@ -67,9 +67,9 @@ it('retains original JPEG XL bytes when optional fine quantizer scratch is unava
     expect(rejectedMenus).toBe(1)
     expect(digest(pixels)).toBe(inputHash)
     const encoded = sink.toUint8Array()
-    // Estimated metadata saves 757 bytes; native/Rust grids match after the same scratch refusal.
-    expect(encoded.length).toBe(414360)
-    expect(digest(encoded)).toBe('429b1caae8c4da7d51a68486f3584cc571c13f40d30bc713490f70777c7188fd')
+    // Expanded color DC saves 36,305 bytes; both grids match after the same scratch refusal.
+    expect(encoded.length).toBe(378055)
+    expect(digest(encoded)).toBe('597243d461eb35f541c04d6988ef744e785ad8d8196299e8d892c0549a98182f')
     if (
       !('managedLiveBytes' in encoder) ||
       !('managedLiveAllocations' in encoder) ||

@@ -12,8 +12,12 @@ repair now change effort-7 files. Their current full-development, fresh isolated
 speed and independent-decoder evidence is indexed below, followed by the
 large-DCT, tree-sorting and prefix speed repairs. Those repairs preserve the amended
 effort-7 files exactly.
-The three mode/frame assertions remain unchanged pending an owner decision.
-Compression and speed still fail promotion entry; holdout remains unopened.
+The 2026-10-12 owner decision in LOSSY_PROMOTION_ENTRY.md supersedes older
+entry rules below. The three mode/frame assertions now qualify as snapshots
+after fresh main/candidate measurements and complete exact independent grids.
+Aggregate baseline compression gates pass; per-image 3-norm, speed and original
+qualification remain open. Holdout remains unopened. Older entries retain the
+rules and results that applied when measured.
 
 The following measured artifacts remain in the ignored local lab directory.
 Large encoded files and temporary executables are not checked in. The lab log,
@@ -1779,3 +1783,185 @@ completion receipts live in validation `decoded-cleanup-plan.json` and
 509.8 MiB peak and zero swap. The finalizer verifies the source, terminal
 check, timing trade, independent fixtures and cleanup into `final-summary.json`.
 The candidate is retained for preservation only; main and holdout stay unchanged.
+
+## Estimated expanded color DC checkpoint (2026-10-11)
+
+This promotion repair uses an existing first-party learned color tree with
+estimated tree and histogram costs before one optional payload is written.
+It retains the completed color stream when scratch or output allocation is
+refused, and replaces it only after the actual encoded size is smaller.
+The original and gradient-learned choices remain available. The effort-9
+complete search remains unchanged and untuned.
+
+Preserved reference is `15f5d8166bfbf08d964abb2753bcff3304bdaca4`.
+Frozen production source SHA-256 is
+`c347cc5c0aae1c87af598c98b685cdb42c857b9953eff63a4f253db030ef6908`.
+Fresh artifacts use `.tmp/jpegxl-lossy-lab/promotion-dc-color-model-`
+roots `screen`, `full`, `pairs`, `balanced-speed`, `speed` and
+`validation`. The reference checkout is `promotion-15f5-base`; both changed
+modules match the saved reference and Git revision. Validation records source
+identity, oracle pins, qualified pixels and terminal bounded-run receipts.
+
+The 16-image quick screen completes 80 points with no failures and 56 existing
+range warnings. Mean incremental SSIM / 3-norm / max BD-rate is
+-0.70745% / -0.57381% / -0.59772%; all images improve. Sixty-eight files shrink
+and twelve are unchanged, saving 9,351 bytes with exact score triples.
+The guard takes 1m15.169s, peaks at 1,017.4 MiB and uses zero swap.
+
+Full development completes all 64 photos and 576 points, with 384 comparisons,
+zero encode failures and 209 existing partial-range warnings. Mean BD-rate:
+
+| Metric | jSquash 1.3.0 reference | wasm-vips 0.0.19 target | Same-ladder original baseline delta |
+| --- | ---: | ---: | ---: |
+| SSIMULACRA2 | -2.99808% | -0.64662% | -3.46048% |
+| Butteraugli 3-norm | +11.59510% | +8.25703% | -3.39081% |
+| Butteraugli max | +14.49454% | +6.22865% | +2.15426% |
+
+Incremental means vs `15f5d816` improve by
+0.70640% / 0.56867% / 0.57108%, with every image improved and unchanged scores.
+Five hundred fifty streams shrink, twenty-six stay byte-identical and none grow,
+saving 67,414 bytes. All 550 changed native float grids equal the reference.
+Cumulative migration/repair means vs E4 are
+-0.10232% / -0.21864% / -0.26041%, now clearing the 0.3% allowance; worst
+E4 changes are +2.69791% / +0.77385% / +1.86405%, within the 3% guard.
+Original-baseline worst changes remain +7.85604% / +27.57440% / +63.11168%.
+Development entry remains held, including current vips 3-norm and crop speed.
+Full guard takes 7m50.072s, peaks at 1.3 GiB and uses zero swap. Full managed
+peak is 34,259,887 bytes. Reduction remains explicitly incomplete for required
+range coverage; those warnings are not removed or treated as new failures.
+
+Seven cold pairs first show median cost +5.36091%, paired median +3.94707%,
+with all decoded PNGs exact. The complete counterbalanced all-64 run measures
+median 1,716.746ms reference vs 1,788.717ms candidate: +4.19228%.
+Mean increases 2.24751%, paired median 3.00430%, with eight wins and exact
+decoded PNGs for every pair. The 0.56867% 3-norm gain exceeds the required
+0.41923% for this time cost. Retain the compression repair; no speed win is
+claimed. Managed peaks are 34,223,399 vs 34,223,172 bytes. Guard runtime is
+7m6.652s, peak 378.8 MiB, zero swap.
+
+Fresh isolated peer speed uses 192 cold jobs, with no reuse or failure.
+Own median is 1,793.639ms vs 483.607ms jSquash and 342.977ms vips:
+3.70888x / 5.22961x. The crop target still fails. Own mean is 2,758.034ms,
+worst 15,007.378ms, managed peak 34,223,172 bytes and worker RSS 296,828,928
+bytes. Guard runtime is 5m50.659s, peak 409 MiB, zero swap. The contemporaneous
+counterbalanced measurement governs the trade rather than this unpaired
+comparison with earlier session speed.
+
+Forty-eight independent fixtures pass within one color sample, exact alpha:
+three lossless, eleven effort 7, eleven effort 9, thirteen development streams,
+eight DC cases and two fine-photo cases. Native and Rust before/after grids
+are exact for every DC and fine-photo case, with complete first-party pixel
+parity. Seven Node byte/digest snapshots and six browser records are qualified
+and updated, with one justification each in the lab log. Fine photo saves
+36,724 bytes; forced menu fallback saves 36,305 bytes. Input/pixel digests,
+Q selection, row release, alpha, rejection counts and hard quality/ownership
+bounds are unchanged. Fine gradient/recovery measured ownership peaks increase
+249,998 bytes to 27,376,349 / 10,525,141, below the same 64 MiB caps.
+Exact browser telemetry reflects that scratch cost. Originals remain
+unqualified against their 131.14 MiB ceiling and 5x speed target.
+
+Fifty distinct real-browser cases pass: 22 Chromium, fourteen Firefox and
+fourteen WebKit. The first browser run passes Chromium/WebKit but Firefox
+cannot start esbuild threads at TasksMax=256. Its fourteen failed attempts
+and traces remain. A Firefox-only retry at TasksMax=512 passes all fourteen,
+with unchanged 6 GiB memory, zero swap and CPU caps. The retry takes 37.995s
+and peaks at 2.1 GiB. Eight updated DC/fine Chromium cases then pass in
+2m40.044s, peak 1.9 GiB, zero swap. Bundle measurement takes 43.188s, peak
+1.2 GiB, zero swap: core plus JPEG XL 602,574 bytes and specialized APIs
+675,366 bytes. Report-only ceilings remain 610,000 / 685,000. Package metrics,
+documentation metrics and README size records are regenerated.
+
+Final repaired-source check: 3,943 passes, zero failures, three skips across 309 files, 628.65s. All static gates pass, including browser:check. Guard 11min 13.976s (journal), peak 2.5G (journal), zero swap. The former held cases pass including later assertions under the owner snapshot rule; hard bounds remain and exactness/main-size checks are strengthened. The observing tool session exits 143 while the service continues. Its original guard remains at starting. We recover the continuing run's complete totals and journal service-end/resource record. Final process exit code was not captured; a fresh fully observed check remains required before promotion. We save this evidence into `check-final-recovered.json`; tests are never restarted. Both observer and terminal evidence are preserved.
+
+Cleanup verifies completion, extents and PNG/JXL/result hashes before removing 1,838 reproducible PNGs / 796,419,612 bytes. All 1,838 encoded streams and 686 completed results remain, as do inputs, source copies, raw pixels, independent grids and logs. Receipts: validation `decoded-cleanup-plan.json`, `decoded-cleanup-complete.json`, `final-summary.json`. The finalizer checks source, terminal gates, comparisons, timing trade, independent decoders, browsers, bundles and cleanup. Main stays at `dca2f211`. Entry speed, individual 3-norm and original qualification remain unresolved.
+Three reopened promotion repairs are retained, with zero new compression
+trials or promotions. The three held mode/frame assertions stay unchanged.
+Holdout, watch qualification, effort-9 comparison and main promotion remain
+pending. The post-promotion Butteraugli phase has not begun.
+
+The first full color-DC check exposes an exact translucent-palette selection regression.
+At 13,594 bytes a lossy stream becomes smaller than the 13,807-byte exact
+palette, changing visible colors by eleven samples. The original color
+expectations are preserved. The encoder now accepts an available exact
+translucent palette by visible color count and stops later lossy competition;
+allocation refusal retains the completed fallback. The original varying and
+hidden-alpha artwork streams, digests and exact visible colors are restored.
+
+Final frozen source is `ea6337308ca6a4175360bb38753f196a3b3918914f8821e149e878cd74038093`.
+The earlier `c347cc5c` source, initial check and failed artwork capture remain
+indexed. `palette-frozen-source.json` records the repaired source. New roots
+`promotion-dc-color-model-palette-screen` and `-palette-full` keep all eighty
+screen sizes/scores and all 576 full-development encoded streams identical
+to the preceding color candidate. All BD-rate deltas are zero, and managed
+full peak remains 34,259,887 bytes. The full guard takes 8m0.611s, peak
+1.3 GiB, zero swap. Fresh native/Rust evidence for all five artwork cases is
+validation `artwork-final-oracles/result.json`: complete first-party and both
+independent grids match the preserved encoder. The bounded fallback saves
+2,331 bytes, progressive artwork 2,182 and 16-bit artwork 2,331. Only these
+three Node byte/digest records and one older browser fallback record update.
+The two original exact-palette records and all hard properties stay unchanged.
+
+Final repaired-source isolated speed uses another 192 fresh jobs. Own median
+is 1,768.580ms vs 488.498ms jSquash and 341.719ms vips: 3.62044x / 5.17553x.
+The 3x crop target still fails. Own mean is 2,751.811ms, worst 14,859.134ms.
+Managed peak stays 34,223,172 bytes; worker RSS is 299,859,968 bytes.
+Guard runtime is 5m50.662s, peak 422.8 MiB, zero swap. Raw final-source speed
+is `promotion-dc-color-model-palette-speed/summary.json`, `reduction.json`
+and validation `palette-speed.log`, `final-speed-metrics.json`. The color-DC
+counterbalanced trade belongs to the earlier frozen color source; the palette
+correction is a correctness repair with all photo outputs identical. No speed
+win is inferred from the small difference between isolated sessions.
+
+Final-source independent qualification covers 53 fixtures. The fresh 46-case
+base set and all 550 changed native development grids finish in the bounded
+qualification batch; fresh fine-photo and forced fallback captures and both
+decoders then pass. The final private parity reducer has a wrong relative
+import after relocation, so the parent exits 1. That failure and its log stay.
+Only the reducer import is repaired and its same completed inputs are reduced
+once; none of the completed encodes or decoders are rerun. All eight DC, two
+fine-photo and five artwork before/after own pixels and native/Rust grids
+are exact. The five artwork cases come from the separately completed final
+source qualification. Fresh receipts are in validation `palette-final/`,
+`palette-qualification.log`, individual `palette-*.log` files and
+`artwork-final-oracles/result.json`. The batch guard takes 3m44.495s, peak
+2.4 GiB, zero swap; `palette-snapshot-parity-fixed.log` records the recovered
+reducer. The failed import is a private harness path error, not a codec failure.
+
+Final-source real-browser coverage passes 55 distinct cases: 27 Chromium,
+fourteen Firefox and fourteen WebKit. Fresh cross-engine run is 42/42 in
+1m56.739s, peak 2.7 GiB. DC/fine/artwork Chromium is 13/13 in 4m26.381s,
+peak 2.4 GiB. Both use the private 512-task cap with GOMAXPROCS=2 passed
+explicitly to the child, unchanged 6 GiB memory and CPU limits and zero swap.
+Earlier admission failures and retries remain as historical evidence. Raw:
+validation `browser-final.log`, `browser-dc-artwork-final.log` and bounded
+receipts. Four promotion repairs are retained, with zero new compression
+trials and zero promotions. Final bundle measurement and repository check
+follow without further production-source edits.
+
+## Promotion-entry owner decision and layout qualification (2026-10-12)
+
+The owner file is `benchmark/jpegxl/LOSSY_PROMOTION_ENTRY.md`. It retires the
+E4 allowance, compares with unchanged main, makes peer compression targets
+report-only, changes the 13 MP hard speed gate to 10x while retaining the 5x
+target, and cancels the post-promotion Butteraugli phase. No new cost-model
+repairs are planned unless needed for the crop speed gate.
+
+Fresh public encodes use a first-party main source archive at `dca2f211` and
+the repaired candidate source `ea633730`. Sparse output falls from 32,896 to
+5,265 bytes; repeated glyphs from 904 to 577; opaque RGB from 1,410 to 499;
+opaque RGBA stays 502. All complete candidate grids equal source pixels in
+our decoder, native libjxl and jxl-rs, including exact alpha. All three held
+mode/frame assertions are reclassified as snapshots under the owner's rule.
+Each changed test has one line of justification, a main-size bound and stronger
+exactness checks; original size/quality thresholds remain. Artifacts:
+`.tmp/jpegxl-lossy-lab/promotion-entry-layout/result.json`, raw encoded files,
+independent float grids and `verify.log`. Guard: 40.918s, 423.9 MiB, zero swap.
+
+Same-ladder aggregate main-baseline changes are -3.46048% SSIM, -3.39081%
+3-norm and +2.15426% max, passing all three mean limits. The coverage-filtered
+per-image guard has 8 3-norm failures and no SSIM failures.
+These are existing complete comparisons, not failures hidden by partial
+coverage. The three worst max changes are im26-3304 +63.11168%, im26-3312 +46.07737%, im26-1020 +34.68075%; visual inspection is complete. These are near-flat dark, cream and blue textures. The blue candidate has visibly larger square color boundaries. Images are selected nearest max distance 3 in each curve, with unequal bytes and qualities; two candidate curves do not reach that distance. No matched-quality claim is made. Observation hashes, chosen settings and artifact paths are recorded in `promotion-entry-layout/visual-inspection.json`.
+
+Final report-only bundles are jpegxl-specialized 675,358 bytes, codec-jpegxl 602,566 bytes.
+Ceilings stay 610,000 and 685,000. Final generated documentation check passes.

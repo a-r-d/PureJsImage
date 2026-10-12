@@ -26,10 +26,10 @@ it('exercises fine JPEG XL channel and spatial quantization on a large photo', a
   )
     throw new Error('JPEG XL fine fixture export is missing')
   const result: unknown = await namespace.verifyFinePhoto()
-  // Estimated metadata saves 2,445 bytes; native/Rust grids and all original fine-photo properties match.
+  // Expanded color DC saves 36,724 bytes; both grids and all fine-photo bounds remain unchanged.
   expect(result).toMatchObject({
-    bytes: 377757,
-    encodedChecksum: 968874413,
+    bytes: 341033,
+    encodedChecksum: 2880520180,
     decodedChecksum: 3722419263,
     callerChecksum: 2647578060,
     samples: 2049 * 2048 * 4,

@@ -14,7 +14,6 @@ import {
   verifyJpegXlCoefficientOrders,
   verifyJpegXlDcAllocationRecovery,
   verifyJpegXlDcModel,
-  verifyLargeJpegXlDcAllocationRecovery,
   verifyJpegXlFamilyContexts,
   verifyJpegXlLargeDocumentSelection,
   verifyJpegXlLocalContrast,
@@ -22,6 +21,7 @@ import {
   verifyJpegXlRateDistortionSelection,
   verifyJpegXlScreenshotPatch,
   verifyJpegXlTreeEntropy,
+  verifyLargeJpegXlDcAllocationRecovery,
   verifyLazyJpegXl,
   verifyLearnedLosslessFixture,
   verifyLearnedPalette,
@@ -92,9 +92,9 @@ test('JPEG XL weighted DC compression preserves textured gradients across runtim
   page,
 }) => {
   const expected = await verifyJpegXlDcModel()
-  // Match the qualified Node pixel digest; ordinary AC reuse saves 168 bytes without changing samples.
-  expect(expected.bytes).toBe(2428)
-  expect(expected.encodedChecksum).toBe(1180301016)
+  // Expanded color DC saves 35 bytes; complete Node pixels and both independent grids are exact.
+  expect(expected.bytes).toBe(2393)
+  expect(expected.encodedChecksum).toBe(1569612896)
   expect(expected.inputChecksum).toBe(3720133924)
   expect(expected.decodedChecksum).toBe(4003423285)
   expect(expected.samples).toBe(513 * 257 * 4)
@@ -116,9 +116,9 @@ test('JPEG XL opaque DC precision above four megapixels matches Node in a real b
   // Both complete compression-first searches need headroom on shared CI CPUs.
   test.setTimeout(1_200_000)
   const expected = await verifyJpegXlDcModel(67_108_864, 2049, 2048)
-  // Align the older snapshot with qualified Node pixels; estimated metadata saves another 1,263 bytes.
-  expect(expected.bytes).toBe(47_371)
-  expect(expected.encodedChecksum).toBe(2380374393)
+  // Expanded color DC saves 3,635 bytes; complete pixels and both decoder grids remain exact.
+  expect(expected.bytes).toBe(43_736)
+  expect(expected.encodedChecksum).toBe(1447552200)
   expect(expected.decodedChecksum).toBe(1202901999)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)
@@ -140,9 +140,9 @@ test('JPEG XL large opaque allocation recovery matches Node in a real browser', 
 }) => {
   test.setTimeout(240_000)
   const expected = await verifyLargeJpegXlDcAllocationRecovery()
-  // Align with qualified Node recovery pixels; estimated metadata saves another 6,384 bytes.
-  expect(expected.bytes).toBe(60_496)
-  expect(expected.encodedChecksum).toBe(2775419173)
+  // Expanded color DC saves 3,534 recovery bytes; both grids and all recovery bounds remain exact.
+  expect(expected.bytes).toBe(56_962)
+  expect(expected.encodedChecksum).toBe(2841516987)
   expect(expected.decodedChecksum).toBe(164368939)
   expect(expected.inputChecksum).toBe(2068954295)
   expect(expected.samples).toBe(2049 * 2048 * 4)
@@ -165,35 +165,35 @@ for (const recovery of [false, true])
     page,
   }) => {
     test.setTimeout(recovery ? 240_000 : 600_000)
-    // Each older snapshot is aligned with native/Rust-qualified Node pixels; metadata saves 88 bytes each.
+    // Expanded color DC saves 4,644 bytes each; exact pixels and the 1.6/64 MiB bounds remain.
     const expected = recovery
       ? {
-          bytes: 1501728,
-          encodedChecksum: 2862955768,
+          bytes: 1497084,
+          encodedChecksum: 2725775188,
           decodedChecksum: 216671879,
           samples: 16785408,
           alphaError: 0,
           meanColorError: 1.5778136184317553,
           inputChecksum: 2068954295,
           rejectedAllocations: 1,
-          ownedPeak: 10275143,
+          ownedPeak: 10525141,
           ownedLive: 0,
           ownedAllocations: 0,
         }
       : {
-          bytes: 1501768,
-          encodedChecksum: 3661817228,
+          bytes: 1497124,
+          encodedChecksum: 2751884134,
           decodedChecksum: 216671879,
           samples: 16785408,
           alphaError: 0,
           meanColorError: 1.5778136184317553,
           inputChecksum: 2068954295,
-          ownedPeak: 27126351,
+          ownedPeak: 27376349,
           ownedLive: 0,
           ownedAllocations: 0,
         }
-    expect(expected.bytes).toBe(recovery ? 1_501_728 : 1_501_768)
-    expect(expected.encodedChecksum).toBe(recovery ? 2862955768 : 3661817228)
+    expect(expected.bytes).toBe(recovery ? 1_497_084 : 1_497_124)
+    expect(expected.encodedChecksum).toBe(recovery ? 2725775188 : 2751884134)
     expect(expected.decodedChecksum).toBe(216671879)
     expect(expected.inputChecksum).toBe(2068954295)
     expect(expected.samples).toBe(2049 * 2048 * 4)
@@ -452,8 +452,9 @@ for (const maxWorkingBytes of [8_388_608, 16_777_216])
       expect(expected.bytes).toBeLessThan(1_000)
       expect(expected.visibleError).toBe(0)
     } else {
-      expect(expected.bytes).toBe(3159)
-      expect(expected.encodedChecksum).toBe(2065653775)
+      // Match the qualified Node fallback: both decoder grids and the 8 MiB bound are unchanged.
+      expect(expected.bytes).toBe(2303)
+      expect(expected.encodedChecksum).toBe(1931934426)
     }
     await page.goto('/compatibility.html')
     const actual: unknown = await page.evaluate(async (maxWorkingBytes) => {
