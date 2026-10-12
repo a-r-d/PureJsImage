@@ -2609,3 +2609,64 @@ are restored; exact selection equality verifies all development crops, all
 63 holdout crops and all ten watch fixtures, with main source unchanged.
 Initial failure and corrected r2 guard remain distinct.
 Root: promotion-main-dca2f211-reference/corpus-repair-verification.json.
+
+LL-498 adds guarded final-report controls with 13 ladder cases and 75
+focused benchmark tests passing. Normal settings and the encoder stay
+unchanged. Distances 10 and 14 extend both own and vips curves only for
+lab mode with promotion, effort 7 and main. No extended measurements have
+run. Summaries now record actual own/peer settings, including isolated
+speed distance 2 and jSquash quality 80. Full repository qualification
+remains before promotion. The frozen reference uses its original copy.
+
+LL-499 completes unchanged-main holdout qualification: all 63 images,
+567 scored points, streams and pre-scoring receipts verify against the
+same pinned input pixels, geometry, channels and effort. Source hashes
+remain dd98eb91 (candidate) and 170c6e66 (main dca2f211). Aggregate main
+deltas: SSIM -3.37961%, 3-norm -5.43628%, max -0.79824%. Full-band
+admission is 8 / 0 / 10, with zero admitted SSIM/3-norm guard failures.
+No 3-norm full-band coverage is claimed. Only aggregates are inspected.
+Main guard 49min 56.408s, peak 2.8 GiB, zero swap.
+Root: promotion-entry-holdout-candidate/qualified-aggregate.json.
+
+LL-500 finishes all 20 own scale/original points, with zero own failures.
+Managed peaks: 30,344,693 / 30,025,241 / 83,520,281 / 136,508,774
+bytes; the original ceiling remains 137,514,476. Initial peer failures:
+known jSquash 21 MP abort, plus four coarse vips WebAssembly exceptions
+on each original after five successful points. Initial failed results
+remain preserved; fresh individual public-worker retries are next.
+Scale guard: 40min 52.211s, peak 7.5 GiB, zero swap. Strict TypeScript
+passes for the added qualification and recovery harnesses. No encoder,
+input, distance, effort, memory ceiling or scoring deadline changes.
+Root: promotion-entry-scale-originals/progress.json.
+
+LL-501 qualifies all 20 own scale streams and receipts against actual
+pinned pixels. Fresh public-worker retries recover the four 13 MP vips
+points; the four 21 MP coarse points still fail. jSquash also aborts at
+21 MP. Neither incomplete reference curve enters complete-curve BD-rate.
+Three-pair means, SSIM / 3-norm / max: JS -5.37174% / +1.45141% /
++5.10547%; vips -6.95490% / -2.82089% / -0.27144%. Initial failures
+and fresh attempts remain pinned. Eighteen historical peer receipts are
+absent and listed explicitly; every own pre-scoring receipt is required.
+Verifier r1/r2 fail on old-cache assumptions; corrected ladder filtering
+and explicit receipt scope pass strict TypeScript and qualification.
+Recovery guard: 2min 8.306s, 5.4 GiB, zero swap. Source stays dd98eb91.
+Roots: promotion-entry-scale-originals/qualified-large-curves.json;
+promotion-large-vips-recovery/complete.json.
+
+LL-502 adds four complete large-image native/Rust decoder cases, bringing
+the total to 50. All RGB grids agree within one 8-bit code value and
+alpha is exact. Source, encoded hashes and both binary pins verify.
+Eight reproducible NPYs are validated, hashed and removed after receipts
+are saved, reclaiming 1,377,948,392 bytes. Encoded evidence remains.
+Corrected combined guard: 46.453s, peak 1.9 GiB, zero swap.
+Root: promotion-large-image-oracles/complete.json.
+
+LL-503 passes the complete repository check: 3,994 tests, three skips,
+zero failures; 312 passing files and one skipped file. All static,
+generated, packaging, type, lint, format, bundle, docs and browser:check
+gates pass. Source stays dd98eb91. Bundle values remain 610,206 / 683,023
+bytes; ceilings remain 615,000 / 685,000. Test duration 547.49s; guard
+9min 54.024s, peak 2.8 GiB, zero swap. All ten watch originals remain
+before promotion; no new compression trial or speed hypothesis occurs.
+Roots: promotion-final-ladder-check/check.log;
+bounded-runs/promotion-final-ladder-check-r1-20261012.json.

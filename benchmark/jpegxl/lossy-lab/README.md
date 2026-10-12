@@ -42,7 +42,14 @@ Only aggregate results are inspected; no tuning follows.
 
 The holdout ladder has 329 partial-band peer warnings and no full-band
 3-norm comparisons. These aggregates do not establish full-band parity.
-The same-ladder comparison with unchanged main is still running.
+The complete same-ladder holdout comparison with unchanged main improves
+mean BD-rate by 3.37961% on SSIM, 5.43628% on 3-norm and 0.79824% on max.
+All 567 baseline points and both sides' streams and encode receipts verify.
+The full-band main guard admits eight SSIM pairs and zero 3-norm pairs,
+with no admitted failures. Scale qualification passes all 20 own points
+on two 2080-square crops and the 13 MP / 21 MP originals. The largest
+managed peak is 136,508,774 bytes, below the unchanged original ceiling.
+All ten full watch curves remain pending.
 Peer targets are report-only under the promotion-entry decision.
 
 Fresh 13 MP and 21 MP encodes complete in 59.332s and 80.775s. The 13 MP
@@ -53,16 +60,32 @@ aborts on the 21 MP image, so its ratio there is unmeasured. Both missing
 the initial 6 GiB scoring timeouts and encode receipts remain recorded.
 The original memory gate and formal encode times are unchanged.
 
-Both independent decoders pass all 46 cases. Chromium, Firefox and WebKit
-pass all 48 focused cases. `npm run check` passes 3,981 tests, with three
+Both independent decoders pass all 50 cases, including complete grids on
+both scale crops and both largest originals. Chromium, Firefox and WebKit
+pass all 48 focused cases. `npm run check` passes 3,994 tests, with three
 skips and no failures, including `browser:check`. Remaining promotion
-checks are holdout aggregate, scale and full watch results. Bundles measure
+checks are full watch curves and isolated original speed. Bundles measure
 610,206 and 683,023 bytes; ceilings are 615,000 and 685,000 bytes.
 Effort 9 stays untuned and receives
 one screen after promotion. Distances 10 and 14 are for the final report.
+After promotion, use `--mode lab --promotion --final-report` on main to
+extend both our ladder and the vips ladder with those two distances.
+The flag rejects candidate branches, effort 9 and other measurement modes.
+Normal campaign settings stay unchanged; the summary records both ladders.
 The post-promotion Butteraugli phase is cancelled. Further compression
 work requires Aaron to reopen it. Bundle size is reported; ceiling
 increases are permitted by the owner amendment.
+
+The scale reference run records the known jSquash 21 MP abort. Four
+coarse vips settings on 13 MP recover in fresh public-encoder processes;
+those same settings on 21 MP still fail. Initial failures and fresh
+attempts are preserved. Both peers therefore lack a complete 21 MP curve,
+which is excluded from the complete-curve aggregate. On the three complete
+scale pairs, BD-rate is -5.37174% / +1.45141% / +5.10547% against jSquash
+and -6.95490% / -2.82089% / -0.27144% against vips, in SSIM, 3-norm and
+max order. These sweep timings are not isolated speed measurements.
+Historical peer cache receipt gaps are listed explicitly; all own streams
+and pre-scoring receipts verify against the actual pinned pixels.
 
 The [stopping checkpoint](PAUSED-CHECKPOINT.md) and earlier
 [screen report](BASELINE-SCREEN.md) retain the previous campaign history.

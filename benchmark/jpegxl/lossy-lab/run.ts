@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { object } from '../comparison/model.ts'
@@ -12,6 +12,7 @@ import {
 } from './fixture-selection.ts'
 import { bdRate, type QualityMetric, summarizeBdRates } from './metrics.ts'
 import { prepareLabOutputDirectory } from './output-directory.ts'
+import { lossyLabDistances } from './quality-ladder.ts'
 import {
   type CurvePoint,
   type Engine,
@@ -87,13 +88,23 @@ const qualityIntervals = {
 const engines: Engine[] = ['purejsimage', 'jsquash', 'vips']
 const comparisonPeers: readonly Engine[] =
   effort === 9 ? ['jsquash', 'vips', 'purejsimage'] : ['jsquash', 'vips']
-const distances =
-  mode === 'screen' || mode === 'scale'
-    ? [0.5, 1, 2, 4, 7]
-    : [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5]
+const finalReport = args.includes('--final-report')
+const distances = lossyLabDistances({
+  mode,
+  promotion: args.includes('--promotion'),
+  finalReport,
+  effort,
+  ...(finalReport
+    ? {
+        branch: execFileSync('git', ['symbolic-ref', '--short', 'HEAD'], {
+          encoding: 'utf8',
+        }).trim(),
+      }
+    : {}),
+})
 const peerSettings = {
   jsquash: [1, 10, 20, 40, 50, 60, 65, 70, 75, 80, 85, 88, 92, 95, 97, 99, 100],
-  vips: [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5],
+  vips: finalReport ? distances : [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5],
 }
 type Fixture = PreparedFixture
 const selected = selection.fixtures
@@ -400,7 +411,7 @@ const processPeakRssBytes = Math.max(
 )
 await writeFile(
   join(directory, 'summary.json'),
-  `${JSON.stringify({ mode, variant, effort, effortSevenReference, effortSevenSpeed, effortNineSpeedRatios, workers, manifestPath, measurementRun: resumeSpeed ? 'partial resumed baseline speed run' : 'fresh measurement run', resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * (effort === 9 ? 9 : 6)) }, null, 2)}\n`,
+  `${JSON.stringify({ mode, variant, effort, finalReport, distances, peerSettings: mode === 'speed' ? { jsquash: [80], vips: [2] } : peerSettings, effortSevenReference, effortSevenSpeed, effortNineSpeedRatios, workers, manifestPath, measurementRun: resumeSpeed ? 'partial resumed baseline speed run' : 'fresh measurement run', resumedSpeed: resumeSpeed, reusedSpeedJobs, measuredSpeedJobs, intervalPolicy: 'required-ranges', selectedImages: selected.length + selection.missingRequestedIds.length, elapsedSeconds: (Date.now() - started) / 1000, table, speed, managedPeakBytes, processPeakRssBytes, comparisons, failures, omissions, drops: [...(Array.isArray(rawManifest.drops) ? rawManifest.drops : []), ...selection.drops], complete: selection.complete && failures.length === 0 && omissions.length === 0 && (mode === 'speed' || comparisons.length === selected.length * (effort === 9 ? 9 : 6)) }, null, 2)}\n`,
 )
 console.log(
   JSON.stringify({
