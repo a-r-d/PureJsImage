@@ -2591,3 +2591,21 @@ records, pinned inputs, receipts, rejected source and all original/scoring
 evidence. Current source dd98eb91 is retained and will be preserved on the
 candidate branch before holdout aggregate, scale and all ten watch originals.
 Main stays unchanged. Root: promotion-entry-inline-fused-plane-checkpoint/.
+
+LL-495 preserves checked source dd98eb91 as pushed candidate d3143e42. Main
+remains dca2f211. All 63 frozen holdout crops prepare without failures.
+LL-496 qualifies all 567 own holdout streams and pre-scoring receipts; all
+189 engine jobs finish with zero failures. Against jSquash/vips the mean
+SSIM deltas are -1.37257% / +0.38983%, 3-norm +10.39642% / +7.46534%,
+max +13.45813% / +7.55369%. There are 329 partial-band peer warnings.
+Zero full-band 3-norm comparisons are reported as missing coverage.
+Guard runtime 16min 3.075s, peak 5.7 GiB, zero swap. Managed peak
+32,096,860 bytes. Only aggregates are inspected; no tuning follows.
+Root: promotion-entry-holdout-candidate/qualified-candidate-aggregate.json.
+
+The first frozen-main runner stops before encoding because the private copy
+omits m6-native-sources.json and m7-corpus-selection.json. Both pinned inputs
+are restored; exact selection equality verifies all development crops, all
+63 holdout crops and all ten watch fixtures, with main source unchanged.
+Initial failure and corrected r2 guard remain distinct.
+Root: promotion-main-dca2f211-reference/corpus-repair-verification.json.

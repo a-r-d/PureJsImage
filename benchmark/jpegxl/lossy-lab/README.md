@@ -25,10 +25,25 @@ jSquash, within the owner's 3.05x tolerance, and 4.32943x wasm-vips.
 | Butteraugli 3-norm | +11.59510% | +8.25703% | -3.39081% |
 | Butteraugli max | +14.49454% | +6.22865% | +2.15426% |
 
-All three main aggregate gates pass. The per-image guard admits four
+All three development main aggregate gates pass. The per-image guard admits four
 full-band SSIM comparisons and zero full-band 3-norm comparisons, with
 no admitted failures. Zero 3-norm admissions do not establish full-band
 coverage. There are 337 partial-band peer warnings on the current ladder.
+
+The first holdout measurement completes all 63 photos with zero failures.
+All 567 own score triples and pre-scoring encode receipts are verified.
+Only aggregate results are inspected; no tuning follows.
+
+| Holdout mean BD-rate | jSquash 1.3.0 reference | wasm-vips 0.0.19 target |
+| --- | ---: | ---: |
+| SSIMULACRA2 | -1.37257% | +0.38983% |
+| Butteraugli 3-norm | +10.39642% | +7.46534% |
+| Butteraugli max | +13.45813% | +7.55369% |
+
+The holdout ladder has 329 partial-band peer warnings and no full-band
+3-norm comparisons. These aggregates do not establish full-band parity.
+The same-ladder comparison with unchanged main is still running.
+Peer targets are report-only under the promotion-entry decision.
 
 Fresh 13 MP and 21 MP encodes complete in 59.332s and 80.775s. The 13 MP
 ratio is 2.32767x jSquash. Managed peaks are 82,507,265 and 135,364,894
