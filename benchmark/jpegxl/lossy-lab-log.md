@@ -1,6 +1,6 @@
 # JPEG XL lossy lab
 
-Main 6c252932/source 9c77134f is preserved. Correctness repair 1224c8a8 is unpromoted on jxl-lossy-candidate. Tables retain the qualified nine-distance source; final eleven-distance reports remain pending.
+Main 6c252932/source 9c77134f is preserved until promotion. Correctness repair 1224c8a8 now passes every promotion gate on jxl-lossy-candidate, including all 1,253 identical normal streams. Tables retain the qualified nine-distance producer; final eleven-distance reports remain pending.
 
 | Mean BD-rate | Development JS | Development vips | Development prior main | Holdout JS | Holdout vips | Holdout prior main |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -12,7 +12,7 @@ Fresh formal speed: crops 2.91565x jSquash / 4.16665x vips; matched originals 2.
 All 90 watch and 20 scale points qualify, peak 136,508,774 under unchanged 137,514,476 managed ceiling. Repaired 12 MP peak 131,737,889; saving 42,806,175 bytes. Current bundles 611,664 / 684,484; ceilings 615,000 / 685,000 unchanged.
 Prior promotion passed 4,000 tests, 54 browser checks and twelve native/Rust cases; the correctness repair now passes 4,000 Node tests and the complete 1,775-case browser compatibility gate (15 skips). Full CI exposed stale snapshots and a real bounded-fallback error: 2.609 exceeded unchanged 2.5. The repair reaches 2.275 at the same 797,198-byte peak; 34 Node, three browser and both decoder checks pass.
 All 80 untuned effort-9 points finish; report-only recovery repairs the reference-folder path without rerunning encoders or replacing timings. Mean deltas vs effort 7: SSIM -0.34972%, 3-norm -0.27760%, max -0.50588%; sweep median 13.70348x. Full-band 3-norm admissions remain explicit, not proof of parity.
-Next three steps: prove normal-stream continuity and qualify the correctness repair; promote and finish separate final ladders; publish, clean verified rasters, run final gates, push and stop. Further compression tuning is cancelled.
+Next three steps: promote the qualified repair and finish separate final ladders; publish and clean verified rasters; run final gates, push and stop. Further compression tuning is cancelled.
 
 ## Previous checkpoint (ad7c275a)
 
@@ -1517,3 +1517,5 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | Node 16-bit artwork | A new digest records 4,656 to 2,325 bytes, saving 2,331; complete pixels, both grids and every original property match. |
 | Chromium bounded artwork fallback | The older 3,159-byte record aligns to the qualified 2,303-byte Node stream and new digest, preserving pixels, alpha and the 8 MiB limit. |
 | Varying and hidden alpha artwork | Their original 13,807-byte records and every pixel/alpha expectation remain unchanged; the encoder restores exact selection instead of refreshing these properties. |
+
+| LL-579, 2026-10-13 | Qualify the fallback correctness repair against current main without a new compression trial. | All 1,253 fresh normal streams match the qualified prior main byte for byte: development 576, scale 20, watch 90 and aggregate-only holdout 567. No managed peak increases; maximum 136,508,774 remains below 137,514,476. Each of the ten fresh formal distance-2 originals also matches its actual native/Rust-verified stream. Both decoder binaries are rehashed. The single preserved effort-9 screen passes both decoders on all 80 streams and focused tests; it is not encoded or timed again. | Fresh speed remains 2.91564998x jSquash on crops and 2.54397503x on matched originals. All 4,000 Node tests, 1,775 browser compatibility cases and six isolated photo cases pass. The strengthened promotion audit passes. Bundles 611,664/684,484 and ceilings 615,000/685,000 unchanged. | All repair promotion gates pass. Same-ladder repair BD-rate is exactly zero against current main 6c252932; original DCA comparison keeps producer 9c77134f and its coverage limits. Holdout individual quality remains uninspected. Final eleven-distance reports and publication follow on main. | qualified |

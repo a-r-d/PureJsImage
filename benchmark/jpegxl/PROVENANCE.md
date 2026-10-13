@@ -19,8 +19,11 @@ Candidate source `1224c8a8`, preserved in `54c07fba`, restores the existing
 standalone Q7/DC precision after coarse optional-storage refusal. It adds no
 new quantization values or perceptual model. Its original 797,262-byte budget
 and 2.5 mean-error limit remain unchanged. The complete native and Rust grids
-pass, and its current full repository check passes 4,000 tests. All fresh speed gates now pass. Default-stream qualification and remaining
-decoder checks are pending before main.
+pass, and its current full repository check passes 4,000 tests. All fresh speed and browser gates pass. All 1,253 normal promotion streams
+match the qualified prior main with no managed increase. The repair has zero
+compression delta on those identical ladders. Both independent decoders qualify
+all 80 preserved effort-9 screen streams, and the strengthened promotion audit
+passes. Historical compression measurements keep their original producer identity.
 
 This repair and its qualification use peer tools as encoders, decoders and
 scorers only. The uncertain numeric origins in the older inventory below remain
