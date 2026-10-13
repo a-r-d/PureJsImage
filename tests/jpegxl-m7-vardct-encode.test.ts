@@ -127,6 +127,7 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
           depth === 8 && !progressive && opaque ? 60_000 : 30_000,
         )
 
+  // Three encodes plus decoding need the same suite timeout as the neighboring fixtures.
   it('preserves pixels when the optional order search exceeds its budget', async () => {
     const result = await verifyJpegXlCoefficientOrders(8, false, false, 7_350_000)
     expect(result.bytes).toBeLessThanOrEqual(12_865)
@@ -142,7 +143,7 @@ describe('JPEG XL pixel-to-VarDCT conformance path', () => {
     memory.close()
     expect(memory.liveBytes).toBe(0)
     expect(memory.liveAllocations).toBe(0)
-  })
+  }, 30_000)
 
   it('keeps synchronous and asynchronous adaptive orders identical and unwinds late cancellation', async () => {
     const fixture = await encodeJpegXlCoefficientOrderFixture(8, false, false)

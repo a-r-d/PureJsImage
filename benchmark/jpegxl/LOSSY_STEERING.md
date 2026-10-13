@@ -11,9 +11,11 @@ Also read [LOSSY_PROMOTION_GUIDANCE.md](LOSSY_PROMOTION_GUIDANCE.md). The owner'
 preservation, promotion and the bounded final Butteraugli phase.
 The [effort-9 amendment](LOSSY_EFFORT9_AMENDMENT.md) removes the bundle promotion
 gate and approves the slow effort-9 search tier.
+The [2026-10-13 reopening](LOSSY_LIBJXL_REOPENING.md) permits source-informed
+ports, replaces section 2, and requires a decision-transplant report before ports.
 
-1. The lossy encoder is a fully independent first-party encoder. It does not try to
-   reproduce libjxl's heuristics or constants.
+1. The lossy encoder is first-party TypeScript. Source-informed libjxl decision
+   logic is allowed under the 2026-10-13 licensing procedure.
 2. The goal is close parity, not exact parity. The targets are in section 1. When
    they are met, the campaign stops.
 3. Evaluation moves from 1-4 images to the existing frozen corpus.
@@ -25,7 +27,8 @@ Measure on the holdout photo split (section 4), at effort 7. Butteraugli targets
 use wasm-vips 0.0.19 (libjxl 0.12.0); retain @jsquash/jxl 1.3.0 at effort 7
 as a reference. Use the mean per-image BD-rate. Negative means our files are smaller.
 
-- SSIMULACRA2: at most 0% against both peers. Protect that.
+- SSIMULACRA2: at most 0% against wasm-vips under the 2026-10-13 reopening.
+  Report jSquash as a reference.
 - Butteraugli 3-norm: at most +5%.
 - Butteraugli max: at most +8%.
 - No single holdout photo may be worse than +20% on any of the three metrics.
@@ -44,7 +47,7 @@ Package: report bundle size at every session end. Bundle size is not a campaign
 constraint or promotion gate. Raise check ceilings as needed and record their new
 values in the commit message, as approved on 2026-10-10.
 
-## 2. Independence rules
+## 2. Source and licensing rules (owner decision, 2026-10-13)
 
 Allowed:
 - The JPEG XL specification (ISO/IEC 18181) and its normative contents: transforms,
@@ -53,27 +56,29 @@ Allowed:
 - General techniques, whoever else uses them: adaptive quantization,
   rate-distortion optimization, block-size selection, closed-loop refinement against
   an error estimate, and rate-distortion-aware quantization.
-- Peer encoders and tools as black boxes only:
+- Peer encoders and tools:
   - encode to produce comparison curves;
   - decode to check conformance;
   - butteraugli_main and ssimulacra2 as development-only scorers.
 - Fitting our own models and constants to metric outputs (scores and distance maps)
   on the development split.
+- Read libjxl-tiny first, then libjxl v0.12.0, the wasm-vips 0.0.19 target.
+- Port libjxl heuristics, constants, weights, masks, thresholds and tables into
+  clearly named TypeScript modules. Port decision logic, not SIMD, threading or
+  memory infrastructure. No runtime dependencies.
+- Extract and replay decisions signaled in peer bitstreams. Native internal
+  probes are allowed but discouraged; prefer source and bitstream reading.
+- General techniques from other open-source codecs are allowed where they fit.
+  libjxl components come first.
 
 Not allowed:
-- Reading peer encoder source for heuristics, constants, weights, masks, thresholds
-  or tables.
-- Capturing, replaying or fitting to peer internal state. This ends the native
-  probe work:
-  - no InitialQuantField or AC-strategy captures;
-  - no thin native callers of internal functions;
-  - no quant-field replay;
-  - no new harnesses of this kind.
 - Fitting anything to the holdout split.
 
-Provenance: if you know of current production constants that came from peer encoder
-source, list them in benchmark/jpegxl/PROVENANCE.md with file and line. Do not
-rewrite them unless Aaron asks.
+For every port, start the module with its source file, tag or commit,
+"Copyright (c) the JPEG XL Project Authors. BSD-3-Clause", and a note of changes.
+Include libjxl's full LICENSE in THIRD_PARTY_NOTICES in the npm package and docs
+site. Record our file, source file, commit and material taken in PROVENANCE.md.
+Historical provenance records stay preserved.
 
 ## 3. Two levels of rigor
 

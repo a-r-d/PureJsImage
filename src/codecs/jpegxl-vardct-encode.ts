@@ -411,6 +411,7 @@ export const encodeJpegXlVarDct8 = (
 }
 
 export interface JpegXlForwardFrameOptions {
+  readonly developmentDecisions?: import('./jpegxl-development-decisions.ts').JpegXlDevelopmentDecisions
   readonly reference?: boolean
   readonly patchGlobalSection?: (section: Uint8Array) => Uint8Array
   readonly strategyPolicy?: 'rate-distortion'
@@ -548,6 +549,7 @@ const encodeJpegXlVarDct8CandidateAsync = (
       frame.strategyPolicy ?? 'conservative',
       frame.compressionSearch !== false,
       frame.coneSearch === true,
+      frame.developmentDecisions,
     )
     await checkpoint()
     let next = steps.next()
@@ -681,6 +683,7 @@ function* prepare8(
   strategyPolicy: 'conservative' | 'rate-distortion' = 'conservative',
   compressionSearch = true,
   coneSearch = false,
+  decisions?: import('./jpegxl-development-decisions.ts').JpegXlDevelopmentDecisions,
 ): Generator<void, VarDctCoefficientGeometry, undefined> {
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1)
     throw invalidJpegXlInput('dimensions must be positive safe integers')
@@ -695,8 +698,11 @@ function* prepare8(
   if (!Number.isFinite(distance) || distance < 0.25 || distance > 25)
     throw invalidJpegXlInput('forward conformance distance must be between 0.25 and 25')
   const quantAc = 4
-  const globalScale = Math.round(65536 / (distance * quantAc))
-  const effectiveDistance = 65536 / globalScale / quantAc
+  const ownGlobalScale = Math.round(65536 / (distance * quantAc))
+  const globalScale = decisions?.globalScale ?? ownGlobalScale
+  const effectiveDistance = 65536 / ownGlobalScale / quantAc
+  if (!Number.isInteger(globalScale) || globalScale < 1 || globalScale > 73728)
+    throw invalidJpegXlInput('development global scale is invalid')
   const sdrInput =
     (channels === 3 || channels === 4) &&
     sampleDepth === 8 &&
@@ -775,13 +781,26 @@ function* prepare8(
     (progressive || !sdrOpaqueColor || !photoContext || (!compressionSearch && distance > 1))
   const photoColorQuantization = originalDarkAc || originalPhotoAc
   const smoothColorDc = baselineColorPrecision || photoColorQuantization
-  const dcQuantization = moderateSdrDc
+  const ownDcQuantization = moderateSdrDc
     ? originalPhotoAc
       ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
       : [1 / 16384, 1 / 4096, 1 / 2048]
     : baselineColorPrecision
       ? [1 / 8192, 1 / 1024, 1 / 512]
       : [1 / 16384, 1 / 16384, 1 / 16384]
+  const forcedDc = decisions?.dc
+  const dcQuantization = forcedDc
+    ? forcedDc.quantization.map(
+        (q) => ((65536 / forcedDc.globalScale / forcedDc.quantDc) * q) / effectiveDistance,
+      )
+    : ownDcQuantization
+  const dcCorrelation = decisions?.correlation?.parameters
+  const dcRatioX = dcCorrelation
+    ? dcCorrelation.baseCorrelationX + dcCorrelation.yToXDc / dcCorrelation.colorFactor
+    : 0
+  const dcRatioB = dcCorrelation
+    ? dcCorrelation.baseCorrelationB - 1 + dcCorrelation.yToBDc / dcCorrelation.colorFactor
+    : 0
   const deferredDc =
     effort === 1 &&
     channels !== 4 &&
@@ -797,6 +816,16 @@ function* prepare8(
   const correlationB = allocateJpegXlArray(memory, Int32Array, colorTilesAcross * colorTilesDown)
   const quantizationMap = allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
   quantizationMap.fill(quantAc)
+  if (decisions?.quantizationMap && decisions.quantizationMap.length !== quantizationMap.length)
+    throw invalidJpegXlInput('development quant field extent differs')
+  if (
+    decisions?.correlation &&
+    (decisions.correlation.x.length !== correlationX.length ||
+      decisions.correlation.b.length !== correlationB.length)
+  )
+    throw invalidJpegXlInput('development correlation extent differs')
+  if (decisions?.filters && decisions.filters.sharpness.length !== quantizationMap.length)
+    throw invalidJpegXlInput('development sharpness extent differs')
   let optionalBlockMapRefused = false
   const optionalBlockMap = (): Uint8Array | undefined => {
     try {
@@ -1121,6 +1150,11 @@ function* prepare8(
     for (let blockX = 0; blockX < blocksWide; blockX++) {
       fill(blockX, blockY)
       const offset = blockY * blocksWide + blockX
+      let dcMeanY = 0
+      if (dcCorrelation) {
+        for (let position = 0; position < 64; position++) dcMeanY += yPlane[position] ?? 0
+        dcMeanY /= 64
+      }
       for (let channel = 0; channel < 3; channel++) {
         const plane = planes[channel]
         const component = components[channel]
@@ -1129,7 +1163,8 @@ function* prepare8(
         for (let position = 0; position < 64; position++) sum += plane[position] ?? 0
         means[channel] = sum / 64
         component.coefficients[offset] = Math.round(
-          sum / (64 * effectiveDistance * (dcQuantization[channel] ?? 0)),
+          (sum / 64 - (channel === 0 ? dcRatioX : channel === 2 ? dcRatioB : 0) * dcMeanY) /
+            (effectiveDistance * (dcQuantization[channel] ?? 0)),
         )
       }
       if (effort > 1) {
@@ -1208,6 +1243,10 @@ function* prepare8(
   memory.release(covarianceY)
   memory.release(covarianceX)
   memory.release(covarianceB)
+  if (decisions?.correlation) {
+    correlationX.set(decisions.correlation.x)
+    correlationB.set(decisions.correlation.b)
+  }
   if (effort >= 5) {
     let cache: Float32Array | undefined, keys: Float64Array | undefined
     try {
@@ -1275,8 +1314,12 @@ function* prepare8(
         : acRateWeightY
     }
     const tile = Math.floor(blockY / 8) * colorTilesAcross + Math.floor(blockX / 8)
-    const ratioX = (correlationX[tile] ?? 0) / 84
-    const ratioB = (correlationB[tile] ?? 0) / 84
+    const ratioX =
+      (dcCorrelation?.baseCorrelationX ?? 0) +
+      (correlationX[tile] ?? 0) / (dcCorrelation?.colorFactor ?? 84)
+    const ratioB =
+      (dcCorrelation ? dcCorrelation.baseCorrelationB - 1 : 0) +
+      (correlationB[tile] ?? 0) / (dcCorrelation?.colorFactor ?? 84)
     for (let position = 0; position < 64; position++) {
       xPlane[position] = (xPlane[position] ?? 0) - ratioX * (yPlane[position] ?? 0)
       bPlane[position] = (bPlane[position] ?? 0) - ratioB * (yPlane[position] ?? 0)
@@ -1667,6 +1710,8 @@ function* prepare8(
       for (let x = 0; x < blocksWide; x++) {
         fillCorrelated(x, y)
         const index = y * blocksWide + x
+        if (decisions?.quantizationMap)
+          quantizationMap[index] = decisions.quantizationMap[index] ?? 0
         let localScale = 65536 / globalScale / (quantizationMap[index] ?? quantAc)
         errors.fill(Infinity)
         let baselineBits = measureStrategy(0, localScale)
@@ -1674,7 +1719,13 @@ function* prepare8(
         // DCT energy equals pixel variance. The floors avoid spending bits on
         // tiny residuals, including decorrelated X chroma.
         // One bounded refinement retains the existing quantizer as the fallback.
-        if (effort >= 7 && (channels === 3 || sdrOpaqueColor) && distance > 1 && distance < 5) {
+        if (
+          !decisions?.quantizationMap &&
+          effort >= 7 &&
+          (channels === 3 || sdrOpaqueColor) &&
+          distance > 1 &&
+          distance < 5
+        ) {
           let relativeError = 0
           // Progressive passes retain chroma precision; refine their luminance
           // contrast without promoting small decorrelated chroma residuals to Q8.
@@ -1700,7 +1751,7 @@ function* prepare8(
           const strength = Math.min(1, distance - 1, 5 - distance)
           const refined = current + Math.round(Math.max(0, target - current) * strength)
           if (refined > current) {
-            quantizationMap[index] = refined
+            if (!decisions?.quantizationMap) quantizationMap[index] = refined
             localScale = 65536 / globalScale / refined
             baselineBits = measureStrategy(0, localScale)
           }
@@ -1771,7 +1822,12 @@ function* prepare8(
 
   // Preserve original selected transforms and DC. The allocation budget belongs
   // to output X0/half-Y; the source scores came from the unchanged original pass.
-  if (sourceScores && strategyMap && hasFineAllocationVariation(sourceScores)) {
+  if (
+    !decisions?.quantizationMap &&
+    sourceScores &&
+    strategyMap &&
+    hasFineAllocationVariation(sourceScores)
+  ) {
     let rates: Float64Array | undefined
     try {
       const blocks = blocksWide * blocksHigh
@@ -1847,7 +1903,7 @@ function* prepare8(
                 )
               : oldQ
           cost += rates?.[i * 9 + q - 4] ?? 0
-          if (apply) quantizationMap[i] = q
+          if (apply && !decisions?.quantizationMap) quantizationMap[i] = q
         }
         return cost
       }
@@ -1905,9 +1961,17 @@ function* prepare8(
           const source = planes[channel],
             destination = dct16Planes[channel]
           if (!source || !destination) throw invalidInput('Missing DCT16 color')
-          for (let y = 0; y < 8; y++)
-            for (let x = 0; x < 8; x++)
-              destination[(dy * 8 + y) * 16 + dx * 8 + x] = source[y * 8 + x] ?? 0
+          const ratio = correlated ? 0 : channel === 0 ? dcRatioX : channel === 2 ? dcRatioB : 0
+          if (ratio === 0) {
+            for (let y = 0; y < 8; y++)
+              for (let x = 0; x < 8; x++)
+                destination[(dy * 8 + y) * 16 + dx * 8 + x] = source[y * 8 + x] ?? 0
+          } else {
+            for (let y = 0; y < 8; y++)
+              for (let x = 0; x < 8; x++)
+                destination[(dy * 8 + y) * 16 + dx * 8 + x] =
+                  (source[y * 8 + x] ?? 0) - ratio * (yPlane[y * 8 + x] ?? 0)
+          }
         }
       }
   }
@@ -2026,6 +2090,16 @@ function* prepare8(
     for (let y = 0; y + 1 < blocksHigh; y += 2) {
       for (let x = 0; x + 1 < blocksWide; x += 2) {
         const at = y * blocksWide + x
+        const forcedQuantizer = decisions?.quantizationMap?.[at]
+        // One transform signals one quantizer. Keep a forced field exact by
+        // refusing merges across cells with different imported values.
+        if (
+          forcedQuantizer !== undefined &&
+          (decisions?.quantizationMap?.[at + 1] !== forcedQuantizer ||
+            decisions?.quantizationMap?.[at + blocksWide] !== forcedQuantizer ||
+            decisions?.quantizationMap?.[at + blocksWide + 1] !== forcedQuantizer)
+        )
+          continue
         if (
           strategyMap[at] !== 0 ||
           strategyMap[at + 1] !== 0 ||
@@ -2140,6 +2214,7 @@ function* prepare8(
             bestQuantizer = 0
           for (let quantizerIndex = 0; quantizerIndex < dct16Quantizers.length; quantizerIndex++) {
             const quantizer = dct16Quantizers[quantizerIndex] ?? 4
+            if (forcedQuantizer !== undefined && quantizer !== forcedQuantizer) continue
             const scale = 65536 / globalScale / quantizer
             let inRange = true
             quantized16.fill(0)
@@ -2248,6 +2323,12 @@ function* prepare8(
   if (originalPhotoAc && distance < 2) {
     bScale = 1
     bAc = 1.25
+  }
+  if (decisions?.quantizationMap) quantizationMap.set(decisions.quantizationMap)
+  if (decisions?.filters) {
+    if (sharpnessMap) memory.release(sharpnessMap)
+    sharpnessMap = allocateJpegXlArray(memory, Uint8Array, decisions.filters.sharpness.length)
+    sharpnessMap.set(decisions.filters.sharpness)
   }
   const hasDct16 = strategyMap?.includes(4) ?? false
   let groupCoefficientOffsets = hasDct16
@@ -2365,6 +2446,7 @@ function* prepare8(
     return [largePlanes, largeTransformed, largeIntermediate] as const
   }
   const largeColorGeometry =
+    !decisions?.quantizationMap &&
     originalPhotoAc &&
     // Preserve preceding geometry after a LIMIT instead of searching four larger optional maps.
     !optionalBlockMapRefused &&
@@ -2751,7 +2833,10 @@ function* prepare8(
     acComponents: components,
     dcComponents: [second, first, third],
     quantization,
-    dcQuantization,
+    dcQuantization:
+      decisions?.globalScale !== undefined || decisions?.dc
+        ? dcQuantization.map((q) => (q * effectiveDistance * globalScale * quantAc) / 65536)
+        : dcQuantization,
     ...(smoothColorDc ? { smoothDc: true } : {}),
     defaultMatrices: true,
     globalScale,
@@ -2763,6 +2848,8 @@ function* prepare8(
     effort,
     progressive,
     baseB: 1,
+    ...(dcCorrelation ? { developmentCorrelation: dcCorrelation } : {}),
+    ...(decisions?.filters ? { developmentFilters: decisions.filters } : {}),
     loadAc,
     deferredDc,
     memory,
@@ -2925,6 +3012,16 @@ function* prepare8(
   }
   // Start retaining groups only after strategy/Q selection has finished.
   retainAcGroups = effort >= 7 && groupsAcross * Math.ceil(blocksHigh / 32) > 1
+  if (decisions?.rewriteGeometry) {
+    return decisions.rewriteGeometry(resultGeometry, {
+      readBlock: (x, y, correlated) => {
+        if (correlated) fillCorrelated(x, y)
+        else fill(x, y)
+        return planes
+      },
+      quantize: quantizeAc,
+    })
+  }
   return resultGeometry
 }
 

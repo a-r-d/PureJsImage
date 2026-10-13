@@ -68,7 +68,19 @@ export interface JpegXlForwardAcModelEstimate {
   readonly frequencies: readonly Uint32Array[]
 }
 
+export interface JpegXlDevelopmentOrderFamily {
+  readonly wire: number
+  readonly natural: Uint32Array
+  readonly skip: number
+}
 export interface VarDctCoefficientGeometry {
+  readonly developmentOrderFamilies?: readonly JpegXlDevelopmentOrderFamily[]
+  readonly developmentFirstBlocks?: Uint8Array
+  readonly developmentCorrelation?: import('./jpegxl-vardct-jpeg.ts').JpegXlJpegColorCorrelation
+  readonly developmentFilters?: Readonly<{
+    gaborish: boolean
+    epfIterations: number
+  }>
   readonly colorTransform: 'none' | 'ycbcr' | 'xyb'
   readonly grayscale?: boolean
   readonly chromaSubsampling: readonly [number, number, number]
@@ -84,8 +96,8 @@ export interface VarDctCoefficientGeometry {
   readonly quantization: readonly Int32Array[]
   readonly dcQuantization?: readonly number[]
   readonly smoothDc?: boolean
-  readonly xScale?: 0 | 1 | 2 | 3
-  readonly bScale?: 1 | 2
+  readonly xScale?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  readonly bScale?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
   readonly acScale?: number
   readonly baseB?: number
   readonly defaultMatrices?: boolean
@@ -131,14 +143,65 @@ const colorSectionBits = new WeakMap<readonly Uint8Array[], number>()
 export const jpegXlCoefficientColorBits = (sections: readonly Uint8Array[]): number =>
   colorSectionBits.get(sections) ?? jpegXlPartsByteLength(sections) * 8
 
-const forwardStrategyWidths = Uint8Array.of(1, 1, 0, 0, 2, 4, 0, 0, 0, 0, 2, 4, 1, 1)
-const forwardStrategyHeights = Uint8Array.of(1, 1, 0, 0, 2, 4, 0, 0, 0, 0, 4, 2, 1, 1)
+const forwardStrategyWidths = Uint8Array.of(
+  1,
+  1,
+  1,
+  1,
+  2,
+  4,
+  1,
+  2,
+  1,
+  4,
+  2,
+  4,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  8,
+  4,
+  8,
+)
+const forwardStrategyHeights = Uint8Array.of(
+  1,
+  1,
+  1,
+  1,
+  2,
+  4,
+  2,
+  1,
+  4,
+  1,
+  4,
+  2,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  8,
+  8,
+  4,
+)
 const hasLargeForwardTransforms = (strategies: Int32Array | undefined): boolean =>
   strategies !== undefined &&
   (strategies.includes(4) ||
     strategies.includes(5) ||
     strategies.includes(10) ||
-    strategies.includes(11))
+    strategies.includes(11) ||
+    strategies.includes(6) ||
+    strategies.includes(7) ||
+    strategies.includes(8) ||
+    strategies.includes(9) ||
+    strategies.includes(18) ||
+    strategies.includes(19) ||
+    strategies.includes(20))
 
 const tokenFor = (value: number): number => {
   if (!Number.isSafeInteger(value) || value < 0 || value > 2_147_483_647) {
@@ -843,7 +906,10 @@ const writeForwardDcColorPlanes = (
           return bitLength < originalBits ? { bytes: alternative.finish(), bitLength } : undefined
         })
         if (learned) writer.memory?.release(originalBytes)
-        let selected = learned ?? { bytes: originalBytes, bitLength: originalBits }
+        let selected = learned ?? {
+          bytes: originalBytes,
+          bitLength: originalBits,
+        }
         try {
           const expanded = encodeForwardModularColorGroup(
             {
@@ -904,7 +970,7 @@ const writeDcGroup = (
   writeDcMetadata(writer, planes.slice(3), encoding, localTree, searchMetadata, advancedSearch)
 }
 
-const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
+export const writeJpegXlDevelopmentF16 = (writer: JpegXlBitWriter, value: number): void => {
   if (!Number.isFinite(value) || value < 0)
     throw invalidJpegXlInput('half-precision value is invalid')
   if (value === 0) {
@@ -924,6 +990,8 @@ const writeF16 = (writer: JpegXlBitWriter, value: number): void => {
   writer.writeBits((encodedExponent << 10) | mantissa, 16)
 }
 
+const writeF16 = writeJpegXlDevelopmentF16
+
 const writeComponentBlockContexts = (
   writer: JpegXlBitWriter,
   geometry: Readonly<JpegDerivedGeometry>,
@@ -936,7 +1004,8 @@ const writeComponentBlockContexts = (
     (geometry.strategyMap?.includes(10) ?? false) || (geometry.strategyMap?.includes(11) ?? false)
   const usesFamilyContext = (order: number): boolean =>
     familyContexts &&
-    (order === 1 ||
+    ((geometry.developmentOrderFamilies !== undefined && order !== 0) ||
+      order === 1 ||
       (hasDct16 && order === 2) ||
       (hasDct32 && order === 3) ||
       (hasRectangle32 && order === 6))
@@ -988,7 +1057,11 @@ interface SharedAlphaCode {
     transforms: SharedAlphaGroup['transforms']
   }>[]
 }
-const sharedAlphaHybridConfig = { splitExponent: 2, msbInToken: 0, lsbInToken: 0 }
+const sharedAlphaHybridConfig = {
+  splitExponent: 2,
+  msbInToken: 0,
+  lsbInToken: 0,
+}
 
 const prepareSharedAlphaCode = (
   geometry: Readonly<JpegDerivedGeometry>,
@@ -1054,9 +1127,19 @@ const prepareSharedAlphaCode = (
     const shifted = (node: JpegXlModularNode): JpegXlModularNode =>
       node.kind === 'leaf'
         ? { ...node, context: node.context + 1 }
-        : { ...node, greater: node.greater + 2, lessOrEqual: node.lessOrEqual + 2 }
+        : {
+            ...node,
+            greater: node.greater + 2,
+            lessOrEqual: node.lessOrEqual + 2,
+          }
     const nodes: JpegXlModularNode[] = [
-      { kind: 'branch', property: 1, split: firstGroupId - 1, greater: 1, lessOrEqual: 2 },
+      {
+        kind: 'branch',
+        property: 1,
+        split: firstGroupId - 1,
+        greater: 1,
+        lessOrEqual: 2,
+      },
       shifted(root),
       { kind: 'leaf', predictor: 5, offset: 0, multiplier: 1, context: 0 },
       ...commonNodes.slice(1).map(shifted),
@@ -1094,7 +1177,12 @@ const prepareSharedAlphaCode = (
       geometry.memory?.release(group.plan.residualContexts)
     }
     const compact = compactAcHistograms(frequencies, 96, geometry.memory)
-    return { nodes, contextMap: compact.contextMap, frequencies: compact.frequencies, groups }
+    return {
+      nodes,
+      contextMap: compact.contextMap,
+      frequencies: compact.frequencies,
+      groups,
+    }
   })
 
 const writeSharedAlphaPlane = (
@@ -1151,16 +1239,16 @@ const writeLfGlobal = (
   ])
   writeComponentBlockContexts(writer, geometry)
   writer.writeBits(0, 1)
-  writeU32(writer, 84, [
+  writeU32(writer, geometry.developmentCorrelation?.colorFactor ?? 84, [
     { value: 84 },
     { value: 256 },
     { bits: 8, offset: 2 },
     { bits: 16, offset: 258 },
   ])
-  writeF16(writer, 0)
-  writeF16(writer, geometry.baseB ?? 0)
-  writer.writeBits(128, 8)
-  writer.writeBits(128, 8)
+  writeF16(writer, geometry.developmentCorrelation?.baseCorrelationX ?? 0)
+  writeF16(writer, geometry.developmentCorrelation?.baseCorrelationB ?? geometry.baseB ?? 0)
+  writer.writeBits(128 + (geometry.developmentCorrelation?.yToXDc ?? 0), 8)
+  writer.writeBits(128 + (geometry.developmentCorrelation?.yToBDc ?? 0), 8)
   writer.writeBits(1, 1)
   if (shared) writeLearnedTree(writer, shared.nodes)
   else writeModularTree(writer, 5)
@@ -1174,7 +1262,10 @@ const writeLfGlobal = (
           shared ? sharedAlphaHybridConfig : acHybridConfig,
         ),
       })
-    : Object.freeze({ kind: 'prefix', encoding: writePrefixCode(writer, 1, frequencies) })
+    : Object.freeze({
+        kind: 'prefix',
+        encoding: writePrefixCode(writer, 1, frequencies),
+      })
   recordColorBits?.(writer.bitPosition)
   if (geometry.alpha) {
     if (geometry.groupsAcross * geometry.groupsDown === 1)
@@ -1291,7 +1382,15 @@ const forwardOrderFamily = (strategy: number): number =>
         ? 3
         : strategy === 10 || strategy === 11
           ? 4
-          : 1
+          : strategy === 6 || strategy === 7
+            ? 5
+            : strategy === 8 || strategy === 9
+              ? 6
+              : strategy === 18
+                ? 7
+                : strategy === 19 || strategy === 20
+                  ? 8
+                  : 1
 
 const optimizedCoefficientOrders = (
   geometry: Readonly<JpegDerivedGeometry>,
@@ -1323,6 +1422,7 @@ const optimizedCoefficientOrders = (
 export function* learnJpegXlForwardCoefficientOrders(
   geometry: Readonly<VarDctCoefficientGeometry>,
 ): Generator<void, readonly Uint32Array[], void> {
+  const families = geometry.developmentOrderFamilies ?? forwardOrderFamilies
   let familyCount = 2
   if (geometry.strategyMap) {
     for (let index = 0; index < geometry.strategyMap.length; index++) {
@@ -1335,7 +1435,7 @@ export function* learnJpegXlForwardCoefficientOrders(
   let complete = false
   try {
     for (let family = 2; family < familyCount; family++) {
-      const descriptor = forwardOrderFamilies[family]
+      const descriptor = families[family]
       if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
       largeCounts.push(
         allocateJpegXlArray(geometry.memory, Uint32Array, 3 * descriptor.natural.length),
@@ -1362,13 +1462,20 @@ export function* learnJpegXlForwardCoefficientOrders(
                 extentY = forwardStrategyHeights[strategy] ?? 0
               if (extentX === 0 || extentY === 0)
                 throw unsupportedOperation('JPEG XL forward order strategy is not supported')
-              if ((x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0) continue
+              if (
+                geometry.developmentFirstBlocks
+                  ? geometry.developmentFirstBlocks[
+                      (blockY + y) * geometry.blocksWide + blockX + x
+                    ] !== 1
+                  : (x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0
+              )
+                continue
               const block = y * component.blocksPerLineForMcu + x
               const base = component.coefficientOffsets?.[block] ?? block * 64
               if (base < 0) throw invalidJpegXlInput('forward order leader is missing')
               const family = forwardOrderFamily(strategy)
               if (family >= 2) {
-                const descriptor = forwardOrderFamilies[family],
+                const descriptor = families[family],
                   frequencies = largeCounts[family - 2]
                 if (!descriptor || !frequencies)
                   throw invalidJpegXlInput('large order counters are missing')
@@ -1395,7 +1502,7 @@ export function* learnJpegXlForwardCoefficientOrders(
     }
     for (let histogram = 0; histogram < familyCount * 3; histogram++) {
       const family = Math.floor(histogram / 3),
-        descriptor = forwardOrderFamilies[family]
+        descriptor = families[family]
       if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
       const natural = descriptor.natural,
         size = natural.length,
@@ -1457,11 +1564,19 @@ const acBlockContextCount = (geometry: Readonly<JpegDerivedGeometry>): 3 | 6 | 1
     : geometry.familyContexts
       ? 12
       : 6
-const acHybridConfig = Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 })
+const acHybridConfig = Object.freeze({
+  splitExponent: 3,
+  msbInToken: 1,
+  lsbInToken: 0,
+})
 
 // All visited AC values are nonzero counts or signed coefficients bounded to +/-4095.
 // Reuse one bounded module table; the existing group buffer can hold the packed words.
-const denseAcHybridConfig = Object.freeze({ splitExponent: 4, msbInToken: 1, lsbInToken: 0 })
+const denseAcHybridConfig = Object.freeze({
+  splitExponent: 4,
+  msbInToken: 1,
+  lsbInToken: 0,
+})
 const acHybridCandidates: readonly HybridUintEncoding[] = Object.freeze([
   denseAcHybridConfig,
   Object.freeze({ splitExponent: 3, msbInToken: 1, lsbInToken: 0 }),
@@ -1727,6 +1842,7 @@ const visitAcGroup = (
   contextsNeeded = true,
 ): void =>
   withJpegXlMemory(geometry.memory, () => {
+    const families = geometry.developmentOrderFamilies ?? forwardOrderFamilies
     const groupX = group % geometry.groupsAcross
     const groupY = Math.floor(group / geometry.groupsAcross)
     const blockX = groupX * 32
@@ -1755,7 +1871,12 @@ const visitAcGroup = (
           extentY = forwardStrategyHeights[strategy] ?? 0
         if (extentX === 0 || extentY === 0)
           throw unsupportedOperation('JPEG XL forward AC strategy is not supported')
-        if ((x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0) continue
+        if (
+          geometry.developmentFirstBlocks
+            ? geometry.developmentFirstBlocks[(blockY + y) * geometry.blocksWide + blockX + x] !== 1
+            : (x & (extentX - 1)) !== 0 || (y & (extentY - 1)) !== 0
+        )
+          continue
         const coveredBlocks = extentX * extentY,
           coefficientCount = coveredBlocks * 64
         for (const channel of [1, 0, 2]) {
@@ -1777,7 +1898,7 @@ const visitAcGroup = (
           const localY = y >> shift[1]
           const localWidth = blockWidth >> shift[0]
           const family = forwardOrderFamily(strategy),
-            descriptor = forwardOrderFamilies[family]
+            descriptor = families[family]
           const coefficientOrder =
             family >= 2
               ? (coefficientOrders[family * 3 + channel] ?? descriptor?.natural)
@@ -1918,6 +2039,8 @@ const forwardAcModelEstimate = (
       clustered.frequencies,
       acBlockContextCount(geometry),
       acHybridConfig,
+      undefined,
+      geometry.developmentOrderFamilies,
     )
     if (encoding.kind !== 'ans')
       throw invalidJpegXlInput('Forward order estimate requires ANS frequencies')
@@ -1933,6 +2056,8 @@ const forwardAcModelEstimate = (
         clustered.frequencies,
         acBlockContextCount(geometry),
         acHybridConfig,
+        undefined,
+        geometry.developmentOrderFamilies,
       )
       bits += repeated.bitPosition
     }
@@ -2089,6 +2214,7 @@ const writeHfGlobal = (
       acBlockContextCount(geometry),
       hybridConfig,
       histogramConfigs,
+      geometry.developmentOrderFamilies,
     )
   if (geometry.progressive) writePass()
   return writePass()
@@ -2153,16 +2279,17 @@ const writeHfPass = (
   blockContextCount: 3 | 6 | 12,
   hybridConfig: Readonly<HybridUintEncoding>,
   histogramConfigs?: readonly HybridUintEncoding[],
+  families: readonly JpegXlDevelopmentOrderFamily[] = forwardOrderFamilies,
 ): AcEncoding => {
   let usedOrders = useClusteredAns ? 1 : 0
   if (
     coefficientOrders.length >= 6 &&
-    coefficientOrders.length <= 15 &&
+    coefficientOrders.length <= families.length * 3 &&
     coefficientOrders.length % 3 === 0
   ) {
     usedOrders = 0
     for (let family = 0; family < coefficientOrders.length / 3; family++) {
-      const descriptor = forwardOrderFamilies[family]
+      const descriptor = families[family]
       if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
       for (let channel = 0; channel < 3; channel++) {
         const order = coefficientOrders[family * 3 + channel]
@@ -2185,10 +2312,12 @@ const writeHfPass = (
   ])
   if ((usedOrders & ~3) !== 0) {
     const orders: CoefficientOrderPermutation[] = []
-    for (let family = 0; family < forwardOrderFamilies.length; family++) {
-      const descriptor = forwardOrderFamilies[family]
+    for (let wire = 0; wire < 13; wire++) {
+      if ((usedOrders & (1 << wire)) === 0) continue
+      let family = 0
+      while (family < families.length && families[family]?.wire !== wire) family++
+      const descriptor = families[family]
       if (!descriptor) throw invalidJpegXlInput('forward order family is invalid')
-      if ((usedOrders & (1 << descriptor.wire)) === 0) continue
       for (let channel = 0; channel < 3; channel++) {
         const order = coefficientOrders[family * 3 + channel]
         if (!order) throw invalidJpegXlInput('signaled coefficient order is missing')
@@ -2206,7 +2335,11 @@ const writeHfPass = (
     )
     writeCoefficientOrderPermutations(
       writer,
-      signaledOrders.map((order) => ({ order, natural: naturalJpegXlOrder, skip: 1 })),
+      signaledOrders.map((order) => ({
+        order,
+        natural: naturalJpegXlOrder,
+        skip: 1,
+      })),
       false,
     )
   }
@@ -2682,6 +2815,7 @@ function* coefficientSectionSteps(
           acBlockContextCount(geometry),
           denseAcHybridConfig,
           compactAc.histogramConfigs,
+          geometry.developmentOrderFamilies,
         )
         return writer.bitPosition * passes + refinedPayloadBits
       })
@@ -3175,9 +3309,13 @@ export const varDctCodestreamParts = (
   }
   writeU32(writer, 0, jpegXlNameLengthDistribution)
   writer.writeBits(0, 1)
-  writer.writeBits(0, 1)
-  writer.writeBits(geometry.sharpnessMap ? 2 : 0, 2)
-  if (geometry.sharpnessMap) writer.writeBits(0, 3)
+  const gaborish = geometry.developmentFilters?.gaborish ?? false
+  const epfIterations =
+    geometry.developmentFilters?.epfIterations ?? (geometry.sharpnessMap ? 2 : 0)
+  writer.writeBits(gaborish ? 1 : 0, 1)
+  if (gaborish) writer.writeBits(0, 1)
+  writer.writeBits(epfIterations, 2)
+  if (epfIterations > 0) writer.writeBits(0, 3)
   writeU64(writer, 0)
   writeU64(writer, 0)
   writer.writeBits(0, 1)

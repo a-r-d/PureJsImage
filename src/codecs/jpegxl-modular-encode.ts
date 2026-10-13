@@ -2893,7 +2893,11 @@ const encodeChannelPrefixGroup = (
   planes: Readonly<ModularPlanes>,
   useRct: boolean,
   memory?: JpegXlEncoderMemory,
-): { bytes: Uint8Array; predictors: readonly number[]; offsets: Int32Array } => {
+): {
+  bytes: Uint8Array
+  predictors: readonly number[]
+  offsets: Int32Array
+} => {
   return withJpegXlMemory(memory, () => {
     const predictors = [...chooseGroupPredictors(planes, 3, memory)]
     const offsets = allocateJpegXlArray(memory, Int32Array, planes.values.length)
@@ -3093,7 +3097,9 @@ const encodeSingleGroupSection = (
       return withJpegXlMemory(memory, () => {
         let search = predictorSearches.get(prepared)
         if (!search) {
-          search = { predictors: choosePredictors(prepared.planes, effort, memory) }
+          search = {
+            predictors: choosePredictors(prepared.planes, effort, memory),
+          }
           predictorSearches.set(prepared, search)
         }
         const plan = effortOneResiduals
@@ -3166,7 +3172,11 @@ const encodeSingleGroupSection = (
           bytes = repeated
         }
         if (repeated && repeated.length < bytes.length) bytes = repeated
-        return { bytes, residuals: effortOneResiduals, repeated: repeated !== undefined }
+        return {
+          bytes,
+          residuals: effortOneResiduals,
+          repeated: repeated !== undefined,
+        }
       })
       candidates.push(initial.bytes)
       effortOneRepeated = initial.repeated
@@ -4180,6 +4190,22 @@ const encodeGroupCandidate = (
     return Object.freeze({ ...selected, plan: undefined })
   })
 
+/** Internal decision-transplant writer: exact native planes, with our entropy search. */
+export const encodeJpegXlDevelopmentModularGroup = async (
+  planes: Readonly<ModularPlanes>,
+  memory: JpegXlEncoderMemory,
+): Promise<Uint8Array> =>
+  (
+    await encodeGroupCandidate(
+      { planes, transforms: { useRct: false } },
+      7,
+      memory.outputLimit,
+      memory,
+      undefined,
+      false,
+    )
+  ).bytes
+
 const hasSparse16BitChannels = (pixels: Uint8Array, memory?: JpegXlEncoderMemory): boolean =>
   withJpegXlMemory(memory, () => {
     const seen = allocateJpegXlArray(memory, Uint8Array, 65_536)
@@ -4417,7 +4443,10 @@ const encodeAdaptiveFrameSections = (
               return result
             })
             if (candidate) {
-              candidates.push({ tool: 'scalar-palette', bytes: candidate.bytes.length })
+              candidates.push({
+                tool: 'scalar-palette',
+                bytes: candidate.bytes.length,
+              })
               if (candidate.bytes.length < selected.bytes.length) {
                 memory?.release(selected.bytes)
                 selected = candidate
@@ -4880,7 +4909,10 @@ export const encodeJpegXlAnimationImageHeader = (
     options.mode === 'lossy',
     animation,
   )
-  return Object.freeze({ header: writer.finish(), codestreamLevel: options.codestreamLevel })
+  return Object.freeze({
+    header: writer.finish(),
+    codestreamLevel: options.codestreamLevel,
+  })
 }
 
 export const jpegXlStreamingContainerPrefix = (level: 10): Uint8Array =>
@@ -5224,7 +5256,12 @@ const findDocumentPatches = (
         continue
       const key = `${patchWidth}:${patchHeight}`
       const patches = byShape.get(key) ?? []
-      patches.push({ x: minX, y: minY, width: patchWidth, height: patchHeight })
+      patches.push({
+        x: minX,
+        y: minY,
+        width: patchWidth,
+        height: patchHeight,
+      })
       byShape.set(key, patches)
     }
   }
@@ -5278,7 +5315,12 @@ const findDocumentPatches = (
       }
       for (const placements of distinct) {
         if (placements.length < 2) continue
-        groups.push({ source: placements[0]!, placements, atlasX: 0, atlasY: 0 })
+        groups.push({
+          source: placements[0]!,
+          placements,
+          atlasX: 0,
+          atlasY: 0,
+        })
       }
     }
   }
@@ -5846,7 +5888,10 @@ const encodeLossyCodestream = (
       sections: parts.slice(1),
       byteLength: jpegXlPartsByteLength(parts),
     }
-    let selected: EncodedJpegXlCodestream = { ...primary, colorBits: jpegXlVarDctColorBits(parts) }
+    let selected: EncodedJpegXlCodestream = {
+      ...primary,
+      colorBits: jpegXlVarDctColorBits(parts),
+    }
     const cost = (candidate: EncodedJpegXlCodestream): number => {
       if (!opaqueSdrColor) return candidate.byteLength * 8
       if (candidate.colorBits === undefined)
@@ -5982,7 +6027,9 @@ const encodeLossyCodestream = (
     if (options.effort === 9) {
       try {
         await checkpoint()
-        const alternateParts = await encodeForward({ strategyPolicy: 'rate-distortion' })
+        const alternateParts = await encodeForward({
+          strategyPolicy: 'rate-distortion',
+        })
         const alternateHeader = alternateParts[0]
         if (!alternateHeader) throw invalidJpegXlInput('alternate header is missing')
         const alternate: EncodedJpegXlCodestream = {

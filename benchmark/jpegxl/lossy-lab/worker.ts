@@ -10,6 +10,13 @@ import { hash, metrics, oracle, work } from '../comparison/io.ts'
 import { number, object } from '../comparison/model.ts'
 import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
 import { type CurvePoint, curveMatches, type EncodePoint, parsePoint } from './model.ts'
+import { extractDecisions } from './decisions.ts'
+import {
+  assertTransplantDecisions,
+  encodeTransplant,
+  parseTransplantComponent,
+  transplantOverrides,
+} from './transplant.ts'
 
 const [engine, reference, directory, settingsArgument] = process.argv.slice(2)
 if (
@@ -23,6 +30,34 @@ const effortAt = process.argv.indexOf('--effort')
 const effortArgument = effortAt === -1 ? '7' : process.argv[effortAt + 1]
 if (effortArgument !== '7' && effortArgument !== '9') throw new Error('Invalid worker effort')
 const effort = effortArgument === '9' ? 9 : 7
+const transplantAt = process.argv.indexOf('--transplant')
+const transplant =
+  transplantAt < 0 ? null : parseTransplantComponent(process.argv[transplantAt + 1] ?? '')
+const transplantRootAt = process.argv.indexOf('--transplant-root')
+const transplantRoot = process.argv[transplantRootAt + 1]
+const fixtureAt = process.argv.indexOf('--fixture-id')
+const fixtureId = process.argv[fixtureAt + 1]
+const transplantSourceSha256 = transplant
+  ? hash(
+      (
+        await Promise.all(
+          [
+            'decisions',
+            'transplant',
+            'transform-kernels',
+            'strategy-transplant',
+            'source-transplant',
+            'feature-transplant',
+          ].map(
+            async (name) =>
+              `${name}\n${await readFile(`benchmark/jpegxl/lossy-lab/${name}.ts`, 'utf8')}`,
+          ),
+        )
+      ).join('\n'),
+    )
+  : null
+if (transplant && (engine !== 'purejsimage' || effort !== 7 || !transplantRoot || !fixtureId))
+  throw new Error('Transplant needs effort 7, fixture ID and peer root')
 const settings = settingsArgument.split(',').map(Number)
 if (!settings.length || settings.some((setting) => !Number.isFinite(setting) || setting <= 0))
   throw new Error('Invalid settings ladder')
@@ -90,10 +125,29 @@ if (process.argv.includes('--append')) {
 try {
   for (const setting of settings) {
     try {
+      const overrides = transplant
+        ? transplantOverrides(
+            transplant,
+            await extractDecisions(
+              await readFile(join(transplantRoot ?? '', 'vips', fixtureId ?? '', `${setting}.jxl`)),
+              transplant === 'features' || transplant === 'all',
+            ),
+          )
+        : null
       const started = performance.now()
       let bytes: Uint8Array
       let managedPeakBytes: number | null = null
-      if (engine === 'purejsimage') {
+      if (overrides) {
+        const encoded = await encodeTransplant(
+          inputPixels,
+          image.width,
+          image.height,
+          setting,
+          overrides,
+        )
+        bytes = encoded.bytes
+        managedPeakBytes = encoded.managedPeakBytes
+      } else if (engine === 'purejsimage') {
         const sink = new Uint8ArraySink()
         const encoder = await jpegxlCodec.createEncoder?.(sink, {
           width: pixels.width,
@@ -135,11 +189,16 @@ try {
           throw new Error('Encoder scratch retained')
       } else {
         if (!adapter?.encode) throw new Error('Public peer encoder missing')
-        const encoded = await adapter.encode(pixels, { effort, lossless: false, value: setting })
+        const encoded = await adapter.encode(pixels, {
+          effort,
+          lossless: false,
+          value: setting,
+        })
         if (encoded.kind !== 'jxl') throw new Error('Encoder did not return JPEG XL')
         bytes = encoded.bytes
       }
       const encodeMs = performance.now() - started
+      if (overrides) assertTransplantDecisions(overrides, await extractDecisions(bytes))
       if (hash(pixels.data) !== originalHash) throw new Error('Encoder changed input pixels')
       if (hash(inputPixels) !== inputHash) throw new Error('Encoder changed color input')
       const artifact = join(directory, `${setting}.jxl`)
@@ -156,7 +215,7 @@ try {
       // out. This receipt establishes encoding only; a curve still needs scores.
       await writeFile(
         join(directory, `${setting}.encode.json`),
-        `${JSON.stringify({ status: 'encoded', engine, reference, width: image.width, height: image.height, channels: inputChannels, effort, inputPixelSha256: inputHash, encodedSha256: hash(bytes), ...encoded }, null, 2)}\n`,
+        `${JSON.stringify({ status: 'encoded', engine, reference, width: image.width, height: image.height, channels: inputChannels, effort, transplantSourceSha256, inputPixelSha256: inputHash, encodedSha256: hash(bytes), ...encoded }, null, 2)}\n`,
       )
       run(`${oracle}/djxl`, [artifact, decoded, '--num_threads=1', '--bits_per_sample=8'])
       const decodedImage = PNG.sync.read(await readFile(decoded))
@@ -176,11 +235,14 @@ try {
       points.push(point)
       console.log(JSON.stringify({ engine, ...point }))
     } catch (error) {
-      failures.push({ setting, error: error instanceof Error ? error.message : String(error) })
+      failures.push({
+        setting,
+        error: error instanceof Error ? error.message : String(error),
+      })
     }
     await writeFile(
       join(directory, 'result.json'),
-      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort, points, failures }, null, 2)}\n`,
+      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort, transplantSourceSha256, points, failures }, null, 2)}\n`,
     )
   }
 } finally {

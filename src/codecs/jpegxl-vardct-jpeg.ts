@@ -789,7 +789,9 @@ export const decodeJpegXlJpegAcGroup = (
   })
 }
 
-const naturalCoefficientOrder = (strategy: number): Uint32Array<ArrayBufferLike> => {
+export const naturalJpegXlDevelopmentCoefficientOrder = (
+  strategy: number,
+): Uint32Array<ArrayBufferLike> => {
   let columns = strategyBlockWidths[strategy]
   let rows = strategyBlockHeights[strategy]
   if (columns === undefined || rows === undefined) {
@@ -832,6 +834,7 @@ const naturalCoefficientOrder = (strategy: number): Uint32Array<ArrayBufferLike>
   }
   return order
 }
+const naturalCoefficientOrder = naturalJpegXlDevelopmentCoefficientOrder
 
 const coefficientOrderContext = (value: number): number =>
   Math.min(value === 0 ? 0 : Math.floor(Math.log2(value)) + 1, 7)

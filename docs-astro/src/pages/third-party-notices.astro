@@ -1,0 +1,15 @@
+---
+import notices from '../../../THIRD_PARTY_NOTICES?raw'
+import SiteLayout from '../layouts/SiteLayout.astro'
+---
+
+<SiteLayout title="Third-party notices" description="License notices for source-informed work in PureJsImage.">
+  <main class="container">
+    <h1>Third-party notices</h1>
+    <section aria-labelledby="quick-answer">
+      <h2 id="quick-answer">Quick Answer</h2>
+      <p>Source-informed JPEG XL work follows the JPEG XL Project's BSD-3-Clause license. The full notice is included in the npm package and reproduced below.</p>
+    </section>
+    <pre style="white-space: pre-wrap">{notices}</pre>
+  </main>
+</SiteLayout>
