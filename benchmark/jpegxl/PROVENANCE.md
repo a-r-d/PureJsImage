@@ -4,10 +4,28 @@ This inventory follows [LOSSY_STEERING.md](LOSSY_STEERING.md). It describes the
 current tracked first-party encoder as of 2026-10-09. It changes no runtime
 constant. Aaron must request any rewrite of an existing peer-derived heuristic.
 
+The line references below describe the 2026-10-09 checkpoint. Later source moves
+and the current candidate's verification are recorded in
+[the lab log](lossy-lab-log.md) and [evidence index](lossy-lab/EVIDENCE.md).
+
 The audit used repository source and the specific historical log entries listed
 below. It did not read peer encoder source or native internal-state outputs.
 Historical log statements establish what the earlier campaign did. They do not
 make that workflow permissible under the new steering rules.
+
+## Current correctness repair
+
+Candidate source `1224c8a8`, preserved in `54c07fba`, restores the existing
+standalone Q7/DC precision after coarse optional-storage refusal. It adds no
+new quantization values or perceptual model. Its original 797,262-byte budget
+and 2.5 mean-error limit remain unchanged. The complete native and Rust grids
+pass, and its current full repository check passes 4,000 tests. Default-stream
+and speed qualification remain pending before main.
+
+This repair and its qualification use peer tools as encoders, decoders and
+scorers only. The uncertain numeric origins in the older inventory below remain
+open. The preserved oracle metadata correction records the helper's actual
+distance 9 without replacing its original stream or measurements.
 
 ## Format and color definitions
 
