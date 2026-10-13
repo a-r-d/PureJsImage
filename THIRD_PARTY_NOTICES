@@ -2,6 +2,7 @@ Third-party notices
 
 JPEG XL Project
 libjxl v0.12.0, commit a7a9c787341cf703dede03c2009fa460cae5e5df
+libjxl-tiny, commit 8eae18172059d54f5c734ca814f23b96eebff859
 License: BSD-3-Clause
 
 Copyright (c) the JPEG XL Project Authors.

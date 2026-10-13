@@ -16,7 +16,10 @@ import type { TransplantDecisions } from './decisions.ts'
 export function rewriteStrategyGeometry(
   base: VarDctCoefficientGeometry,
   context: JpegXlDevelopmentTransformContext,
-  decisions: TransplantDecisions,
+  decisions: Pick<
+    TransplantDecisions,
+    'blocksWide' | 'blocksHigh' | 'strategies' | 'strategyFirstBlocks'
+  >,
   exactQuant: boolean,
 ): VarDctCoefficientGeometry {
   const memory = base.memory

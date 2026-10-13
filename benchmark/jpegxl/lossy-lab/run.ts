@@ -32,6 +32,15 @@ const directory = argument('--out', '.tmp/jpegxl-lossy-lab/baseline')
 const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
 const transplant = argument('--transplant', '')
+const strategyPort = argument('--strategy-port', '')
+if (
+  strategyPort &&
+  (transplant ||
+    !['screen', 'lab', 'speed'].includes(mode) ||
+    args.includes('--rgb') ||
+    argument('--effort', '7') !== '7')
+)
+  throw new Error('Strategy ports require a separate effort-7 development run')
 const transplantRoot = argument('--transplant-root', '.tmp/jpegxl-lossy-lab/transplant-20261013')
 if (transplant && mode !== 'lab' && mode !== 'screen' && mode !== 'speed')
   throw new Error('Transplants are development screen/lab/speed only')
@@ -218,6 +227,7 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
           String(engineEffort),
           ...(sameFixture ? ['--append'] : []),
           ...(engine === 'purejsimage' && rgb ? ['--rgb'] : []),
+          ...(engine === 'purejsimage' && strategyPort ? ['--strategy-port', strategyPort] : []),
           ...(engine === 'purejsimage' && transplant
             ? [
                 '--transplant',

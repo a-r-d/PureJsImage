@@ -1,4 +1,5 @@
 import { extractDecisions } from '../../benchmark/jpegxl/lossy-lab/decisions.ts'
+import { libjxlPortOverrides } from '../../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
 import {
   assertTransplantDecisions,
   encodeTransplant,
@@ -125,5 +126,18 @@ export async function verifyDecisionTransplantBrowser() {
   )
     throw new Error('Browser reference samples differ')
   rows.push(await decodedReceipt(encoded.bytes, 'all-with-reference'))
+  for (const port of [
+    'tiny',
+    'spatial-masked',
+    'spatial-guarded',
+    'spatial-actual-guarded',
+    'gaborish',
+    'gaborish-strategy',
+    'dc',
+    'dc-smooth',
+  ] as const) {
+    const output = await encodeTransplant(pixels, 32, 32, 2, libjxlPortOverrides(port, 2, 32, 32))
+    rows.push(await decodedReceipt(output.bytes, `port-${port}`))
+  }
   return rows
 }

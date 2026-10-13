@@ -3,8 +3,16 @@
 ## Reopening on 2026-10-13
 
 [The owner decision](LOSSY_LIBJXL_REOPENING.md) allows source-informed ports and
-bitstream decision transplants. Step 1 comes before any port. No new libjxl
-decision logic has been ported in this change.
+bitstream decision transplants. Step 1 came before all ports and was committed
+as `b2666b83`. Aaron then authorized Step 2. The current ports below are
+development experiments; they are not selected by the public encoder.
+
+| Our module | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-strategy-port.ts` | libjxl-tiny `encoder/enc_ac_strategy.cc`, `8eae18172059d54f5c734ca814f23b96eebff859`; libjxl `lib/jxl/enc_ac_strategy.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Tiny coefficient entropy/loss constants and rectangular split costs; v0.12 entropy estimate, spatial eighth-norm loss, channel/ringing weights, distance modulation, small-transform biases and hierarchical square/rectangle costs. Scalar TypeScript uses our transforms, quantizer and writer. Maximum-footprint quantization replaces the sixteenth norm. Tiny masking is constant one. Floating merge passes are omitted. The optional error guard is our own. |
+| `lossy-lab/libjxl-strategy-mask.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Cubic-root/gamma derivative ratio, pixel Laplacian mask and five-by-five mask-blur weights. Scalar loops consume our XYB samples with padded extents and clamped borders. Managed full-plane scratch is development-only and requires a bounded replacement before production promotion. |
+| `lossy-lab/libjxl-gaborish-port.ts` | libjxl `lib/jxl/enc_gaborish.cc` and `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Five inverse-Gaborish weights, normalization and unit channel strength. Our scalar convolution uses a bounded 12x12 block halo and clamped borders. No SIMD, threading or source memory infrastructure is copied. |
+| `lossy-lab/libjxl-dc-port.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc` and `lib/jxl/quant_weights.h`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | InitialQuantDC distance curve and DC matrix constants. Return physical DC precision to our writer while preserving its AC scale; test DC smoothing separately. |
 
 Source reading order: libjxl-tiny commit
 `8eae18172059d54f5c734ca814f23b96eebff859`, then libjxl v0.12.0 commit
@@ -19,13 +27,18 @@ forward transforms, including AFV and DCT64. It re-encodes decoded native Modula
 reference samples with our entropy writer, and inverts our decoder's signaled
 Gaborish kernel mathematically. These development modules contain no libjxl
 decision-logic port. Source reads of `enc_heuristics.cc` and `enc_gaborish.cc`
-establish the order of patch subtraction and preconditioning; libjxl's optimized
-5x5 preconditioner is not yet copied. Signaled-map replay therefore still leaves
+established the order of patch subtraction and preconditioning in Step 1, before
+the optimized 5x5 preconditioner was ported in Step 2. Signaled-map replay leaves
 unsignaled pixel preconditioning in the residual, along with quantizer rounding
 and entropy coding.
 
-Future ports must add our file, source file, exact commit and material taken to
-this inventory, and the required source header to each module.
+The strategy experiment also tests our actual rate-aware rounding and normative
+reconstruction biases in place of the source model's nearest-integer estimate.
+This is an explicitly measured adaptation, not an exact reproduction of libjxl.
+The joint Gaborish/strategy experiment computes masking before preconditioning
+and transform costs after it, preserving the source ordering.
+All further ports must add our file, source file, exact commit and material taken
+to this inventory, and the required source header to each module.
 
 This inventory follows [LOSSY_STEERING.md](LOSSY_STEERING.md). It describes the
 current tracked first-party encoder as of 2026-10-09. It changes no runtime

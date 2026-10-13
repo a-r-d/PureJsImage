@@ -10,11 +10,18 @@ Step 1 is complete. All nine development rows pass emitted-map checks and native
 decoding on all 80 screen and 576 lab points. The all-maps row measures +3.39%
 SSIMULACRA2, +1.64% Butteraugli 3-norm and -0.20% Butteraugli max against vips.
 It takes 1,027ms at distance 2, or 2.10x jSquash. Transform and filter prototypes
-exceed the 3x crop target. No source decision logic is ported yet. The complete
+exceed the 3x crop target. The complete
 table, texture comparisons, timing scope and first-port ranking are in the report.
 The remaining gap includes unsignaled preconditioning as well as rounding and
 entropy coding. Holdout and original qualification remain closed until a port
 clears the normal development gates.
+
+Step 2 is now stopped under the owner's three-component rule. Ten source-port
+variants and one writer control complete 880 screen encodes with no execution
+failures. Transform selection, inverse Gaborish and DC precision yield no
+promotable gain. Their quality tradeoffs, diagnostic encode times and source
+adaptations are in [PORT-REPORT.md](PORT-REPORT.md). The licensed TypeScript
+experiments stay on `jxl-libjxl-ports`; no new heuristic enters the public encoder.
 
 Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),
 [the steering plan](../LOSSY_STEERING.md),
