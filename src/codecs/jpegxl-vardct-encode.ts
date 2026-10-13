@@ -767,8 +767,12 @@ function* prepare8(
     photoContext &&
     !progressive &&
     distance > 1
-  // Progressive passes keep standalone Q7/DC smoothing rather than the unsplit photo policy.
-  const baselineColorPrecision = sdrColor && (progressive || !sdrOpaqueColor || !photoContext)
+  // Progressive output and coarse optional-storage recovery retain standalone Q7/DC precision.
+  // Coarse recovery disables photo tools; dropping both policies exceeds the existing 2.5
+  // mean-error bound in the 129x65 original-budget fixture. Fine recovery keeps its policy.
+  const baselineColorPrecision =
+    sdrColor &&
+    (progressive || !sdrOpaqueColor || !photoContext || (!compressionSearch && distance > 1))
   const photoColorQuantization = originalDarkAc || originalPhotoAc
   const smoothColorDc = baselineColorPrecision || photoColorQuantization
   const dcQuantization = moderateSdrDc

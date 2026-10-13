@@ -36,12 +36,13 @@ describe('JPEG XL larger photo transforms', () => {
     const limited = await encodeJpegXlLargeBlocks(129, 65, 797_262)
     const preceding = await encodeJpegXlLargeBlocks(129, 65, 797_262, false, false)
     expect(limited.encoded).toEqual(preceding.encoded)
-    // Shared fallback precision changes output; removing dead scratch lowers its exact peak.
-    expect(limited.encoded.length).toBe(606)
+    // Coarse recovery restores standalone precision at the unchanged working budget.
+    expect(limited.encoded.length).toBe(690)
     expect(limited.ownedPeak).toBe(797198)
     const decoded = await verifyJpegXlLargeBlocks(129, 65, 797_262)
-    expect(decoded.decodedChecksum).toBe(3711444055)
+    expect(decoded.decodedChecksum).toBe(2602123369)
     expect(decoded.alphaError).toBe(0)
+    expect(decoded.meanColorError).toBeLessThan(2.5)
   })
 
   it('rejects the insufficient budget with closed ownership', async () => {

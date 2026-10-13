@@ -21,9 +21,10 @@ test('JPEG XL original-photo selection preserves independently verified samples'
     return serialized
   })
   const result: unknown = JSON.parse(payload)
+  // Estimated order selection changes serialization while both decoders retain these pixels.
   expect(result).toMatchObject({
-    bytes: 127590,
-    encodedChecksum: 3528318311,
+    bytes: 127948,
+    encodedChecksum: 527620913,
     decodedChecksum: 1449741427,
     callerChecksum: 3043653419,
     selectedDct16Blocks: 65532,
@@ -31,7 +32,8 @@ test('JPEG XL original-photo selection preserves independently verified samples'
     bScale: 1,
     samples: 2057 * 2040 * 4,
     alphaError: 0,
-    ownedPeak: 56010579,
+    // The verified RGB/context lifetime repair lowers tracked storage.
+    ownedPeak: 48159330,
     ownedLive: 0,
     ownedAllocations: 0,
   })

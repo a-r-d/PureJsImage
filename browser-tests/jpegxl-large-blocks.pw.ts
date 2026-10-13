@@ -1,37 +1,41 @@
 import { expect, test } from '@playwright/test'
 
 for (const fixture of [
+  // Shared photo quantization has independently verified pixels at the original error bound.
   {
     width: 129,
     height: 65,
     budget: 16_777_216,
     progressive: false,
-    bytes: 549,
-    checksum: 3367695530,
+    bytes: 483,
+    checksum: 812191697,
   },
   {
     width: 257,
     height: 129,
     budget: 16_777_216,
     progressive: false,
-    bytes: 1402,
-    checksum: 4248577614,
+    // The same qualified quantization covers the partial group.
+    bytes: 1082,
+    checksum: 717277342,
   },
   {
     width: 2065,
     height: 17,
     budget: 16_777_216,
     progressive: false,
-    bytes: 2222,
-    checksum: 1145807969,
+    // Geometry admission restores the qualified horizontal-strip precision.
+    bytes: 2274,
+    checksum: 826275486,
   },
   {
     width: 17,
     height: 2065,
     budget: 16_777_216,
     progressive: false,
-    bytes: 2483,
-    checksum: 723715316,
+    // The transposed strip uses the same independently verified geometry rule.
+    bytes: 2525,
+    checksum: 3492195716,
   },
   {
     width: 257,
@@ -41,7 +45,8 @@ for (const fixture of [
     bytes: 1939,
     checksum: 1254500280,
   },
-  { width: 129, height: 65, budget: 797_262, progressive: false, bytes: 681, checksum: 775643947 },
+  // Coarse recovery restores the original error bound at the unchanged working budget.
+  { width: 129, height: 65, budget: 797_262, progressive: false, bytes: 690, checksum: 2602123369 },
 ])
   test(`JPEG XL photo transforms preserve independent pixels at ${fixture.width}x${fixture.height}, progressive=${fixture.progressive}, budget=${fixture.budget}`, async ({
     page,

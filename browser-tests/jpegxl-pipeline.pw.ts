@@ -71,8 +71,9 @@ for (const maxWorkingBytes of [undefined, 15_989_965]) {
   }) => {
     const expected = await verifyDenseLosslessTraining(maxWorkingBytes)
     expect(expected).toMatchObject({
-      bytes: maxWorkingBytes === undefined ? 17_033 : 17_116,
-      encodedChecksum: maxWorkingBytes === undefined ? 1_356_082_369 : 1_452_409_174,
+      // Releasing losing contexts admits the same exact winner at the original budget.
+      bytes: 17_033,
+      encodedChecksum: 1_356_082_369,
       samples: 513 * 257 * 3,
       ownedLive: 0,
       ownedAllocations: 0,
@@ -280,7 +281,8 @@ for (const maxWorkingBytes of [268435456, 1500000] as const)
     page,
   }) => {
     const expected = await verifyFlatPaletteGraphic(maxWorkingBytes)
-    expect(expected.bytes).toBe(maxWorkingBytes === 1500000 ? 10986 : 771)
+    // Exact palette selection and the qualified bounded fallback match the Node snapshots.
+    expect(expected.bytes).toBe(maxWorkingBytes === 1500000 ? 11393 : 904)
     expect(expected.maximumAlphaError).toBe(0)
     expect(expected.ownedLive).toBe(0)
     expect(expected.ownedAllocations).toBe(0)
@@ -302,8 +304,9 @@ for (const maxWorkingBytes of [268435456, 1500000] as const)
       // Native original-color error is ten; portable reconstruction may differ by one level.
       expect(actual.maximumColorError).toBeLessThanOrEqual(11)
     } else {
-      expect(actual.decodedChecksum).toBe(2495421557)
-      expect(actual.maximumColorError).toBe(8)
+      // The complete palette winner preserves every original sample.
+      expect(actual.decodedChecksum).toBe(997369701)
+      expect(actual.maximumColorError).toBe(0)
       expect(actual.preservedColorOccurrences).toBeGreaterThan(16)
       expect(actual.changedPreservedColors).toBe(0)
     }
@@ -819,7 +822,8 @@ for (const progressive of [false, true]) {
 test('JPEG XL rate-distortion selection agrees in Node and browser', async ({ page }) => {
   const expected = await verifyJpegXlRateDistortionSelection()
   expect(expected.selectedBytes).toBeLessThan(expected.conservativeBytes * 0.75)
-  expect(expected.frames).toEqual([['regular', 'vardct']])
+  // Qualified against prior main: 13,935 to 5,265 bytes with exact native/Rust pixels.
+  expect(expected.frames).toEqual([['regular', 'modular']])
   await page.goto('/compatibility.html')
   const actual = await page.evaluate(async () => {
     const path = '/jpegxl-pipeline.js'
@@ -830,9 +834,10 @@ test('JPEG XL rate-distortion selection agrees in Node and browser', async ({ pa
 
 test('repeated screenshot JPEG XL patches agree in Node and Chromium', async ({ page }) => {
   const expected = await verifyJpegXlScreenshotPatch()
+  // Qualified against prior main: 904 to 577 bytes with exact native/Rust pixels.
   expect(expected.frames).toEqual([
-    ['reference', 'vardct', 128],
-    ['regular', 'vardct', 130],
+    ['reference', 'modular', 0],
+    ['regular', 'modular', 2],
   ])
   expect(expected.samples).toBe(512 * 512 * 3)
   expect(expected.rmse).toBeLessThan(3)
