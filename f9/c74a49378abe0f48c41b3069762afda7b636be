@@ -1,0 +1,48 @@
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_8232ad1ea54caa 5-9,13-14
+  s_2b0ba550ad1491::t_ae8d89fc7ee926 1522-1525
+  s_2b0ba550ad1491::t_ab03f9f22f415e 3,15
+  s_2b0ba550ad1491::t_28df6cf4806e2a 1526-1527
+benchmark/jpegxl/lossy-lab/EFFORT9.md
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-198
+benchmark/jpegxl/lossy-lab/FINAL-PHOTOS.md
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-527
+benchmark/jpegxl/lossy-lab/FINAL-SECONDARY.md
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-477
+benchmark/jpegxl/PROVENANCE.md
+  s_2b0ba550ad1491::t_ab03f9f22f415e 18-19,28-29
+benchmark/jpegxl/lossy-lab/FINAL-REPORT.md
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-157
+benchmark/jpegxl/lossy-lab/FINAL-SUMMARY.md
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-27
+scripts/jpegxl-showcase-assets.ts
+  s_2b0ba550ad1491::t_1c853140ceebac 87-94
+  s_2b0ba550ad1491::t_b2db7ea40d70a6 95
+browser-tests/jpegxl-campaign-report.pw.ts
+  s_2b0ba550ad1491::t_1c853140ceebac 1-65
+benchmark/jpegxl/lossy-lab/FINAL-CAMPAIGN.json
+  s_2b0ba550ad1491::t_a8ae649c94624f 1-105,107,110-4125,4127,4130-7396,7398-8360,8362-8845,8847-8857,8859-8864,8866-8871,8873-8878,8880-9495,9497,9500-11514
+  s_2b0ba550ad1491::t_1c853140ceebac 106,108-109,4126,4128-4129,7397,8361,8846,8858,8865,8872,8879,9496,9498-9499
+docs-astro/src/pages/jpeg-xl/comparison.astro
+  s_2b0ba550ad1491::t_b2db7ea40d70a6 2,462,708,710-734
+  s_2b0ba550ad1491::t_76b28eb6313fd7 444-461,463-470
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_28df6cf4806e2a 2902-2903
+  s_2b0ba550ad1491::t_ae8d89fc7ee926 2896-2901
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f9c74a49378abe0f48c41b3069762afda7b636be",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
