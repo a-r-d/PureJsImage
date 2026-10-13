@@ -1,4 +1,5 @@
 ---
+import campaign from '../../../../benchmark/jpegxl/lossy-lab/FINAL-CAMPAIGN.json'
 import alphaCompression from '../../../../benchmark/jpegxl/comparison/results/alpha-palette-production-controls.json'
 import alphaDirect from '../../../../benchmark/jpegxl/comparison/results/alpha-point-production-controls.json'
 import historicalPhotoCompression from '../../../../benchmark/jpegxl/comparison/results/filter-ac-production-controls.json'
@@ -440,6 +441,33 @@ const names = [
     return `${p.name} ${p.manifest.version}`
   }),
 ]
+const campaignMetricNames: Record<string, string> = {
+  ssimulacra2: 'SSIMULACRA2',
+  butteraugliNorm3: 'Butteraugli 3-norm',
+  butteraugliMax: 'Butteraugli max',
+}
+const campaignPercent = (value: unknown): string =>
+  typeof value === 'number' && Number.isFinite(value)
+    ? `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+    : 'N/A'
+const campaignPhotoRows: (Record<string, unknown> & { fullBand: number })[] = rows(
+  campaign.finalPhotos.table,
+).map((row) => ({
+  ...row,
+  fullBand: rows(campaign.finalPhotos.comparisons).filter(
+    (pair) =>
+      pair.peer === row.peer && pair.metric === row.metric && pair.coversRequiredRange === true,
+  ).length,
+}))
+const campaignHoldoutRows = rows(campaign.targets.holdout)
+if (
+  campaign.finalPhotos.selectedImages !== 64 ||
+  campaign.finalSecondary.selectedImages !== 56 ||
+  campaign.watch.points !== 90 ||
+  campaign.scale.points !== 20 ||
+  campaign.effortNine.independentDecoderPoints !== 80
+)
+  throw new Error('Incomplete final JPEG XL campaign evidence')
 const footprints = rows(raw.footprints),
   summaries = rows(raw.summaries).filter((r) => r.runtime === 'chromium'),
   supplements = rows(supplementalQuality.comparisons).filter(
@@ -677,8 +705,33 @@ if (
   throw new Error('Incomplete lossless group search comparison')
 ---
 <Layout title="JPEG XL JavaScript library comparison" description="Dated public-API measurements across PureJsImage, jSquash, jxl-oxide-wasm and wasm-vips. Compare practical workflows and their limits." path="comparison/">
-<section class="jxl-card quick">
+<section class="jxl-card quick" id="jxl-final-campaign">
 <h2>Quick answer</h2>
+<p><a href="/jpeg-xl/evidence/FINAL-SUMMARY.md" download>One-page campaign summary</a></p>
+<p>The October 2026 lossy campaign is complete on the first-party JavaScript encoder. It improves compression against the previous main and meets the approved speed entry limits. Overall compression parity remains open: the final photo ladder and reserved holdout both miss the wasm-vips SSIMULACRA2 and Butteraugli 3-norm mean targets. Full-band coverage limits the conclusions. Further compression tuning is paused by the owner.</p>
+<p>Source fingerprint <code>{campaign.source.implementationSourceSha256}</code>. These effort-7 measurements use pinned eight-bit RGB/RGBA photo inputs. They do not establish HDR, float or CMYK compression parity. <a href="/jpeg-xl/evidence/FINAL-REPORT.md" download>Final report</a> and <a href="/jpeg-xl/evidence/FINAL-CAMPAIGN.json" download>Complete campaign data</a>.</p>
+<p>The bounded-fallback correctness repair freshly reproduces all 1,253 normal promotion streams without increasing managed memory. The nine-distance compression scores retain their earlier producer and are bridged by identical encoded bytes. Formal speed and final eleven-distance reports are fresh on the repaired source. The single effort-9 screen retains its original producer and timings.</p>
+<h3>Photographic development, final eleven-distance ladder</h3>
+<p>64 frozen photographs, deterministic native-pixel crops, distances 0.45 through 14. Negative BD-rate means fewer bytes at equal measured quality. Mean values include measured overlaps; the full-band column is reported separately. SSIMULACRA2 uses 60–90. Butteraugli max uses 0.5–3. The 3-norm integral uses measured overlap, and its full-band flag requires 0.5–3.</p>
+<div style="overflow:auto"><table id="jxl-final-development"><caption>Final photo BD-rate against pinned peers</caption><thead><tr><th>Peer</th><th>Metric</th><th>Mean BD-rate</th><th>Measured images</th><th>Full band</th></tr></thead><tbody>{campaignPhotoRows.map(row => <tr><td>{text(row.peer)}</td><td>{campaignMetricNames[text(row.metric)]}</td><td>{campaignPercent(row.mean)}</td><td>{n(row.count)}</td><td>{row.fullBand}</td></tr>)}</tbody></table></div>
+<p>The final eleven-distance report adds 10 and 14 after promotion. It stays separate from the nine-distance promotion and holdout ladder. <a href="/jpeg-xl/evidence/FINAL-PHOTOS.md" download>Photo report, coverage and reproduction</a>.</p>
+<h3>Reserved holdout, aggregate only</h3>
+<p>63 photographs and 567 fresh own points. Only aggregate quality results were inspected, and no further tuning followed. The SSIMULACRA2 target is at most 0% against both peers. Butteraugli targets use wasm-vips 0.0.19, libjxl 0.12.0: at most +5% for 3-norm and +8% for max. jSquash 1.3.0 remains a reference column.</p>
+<div style="overflow:auto"><table id="jxl-final-holdout"><caption>Aggregate holdout on the nine-distance promotion ladder</caption><thead><tr><th>Peer</th><th>Metric</th><th>Mean BD-rate</th><th>Full band / measured</th><th>Images above +20% on measured overlap</th></tr></thead><tbody>{campaignHoldoutRows.map(row => <tr><td>{text(row.peer)}</td><td>{campaignMetricNames[text(row.metric)]}</td><td>{campaignPercent(row.mean)}</td><td>{n(row.fullBandImages)} / {n(row.measuredImages)}</td><td>{n(row.overTwentyPercent)}</td></tr>)}</tbody></table></div>
+<p>Partial-range means and zero full-band admissions do not prove parity across the required band. Against unchanged main, the holdout means improve by 3.38% on SSIMULACRA2, 5.44% on 3-norm and 0.80% on max. Peer targets are final report targets; promotion used the separately approved main-baseline limits.</p>
+<h3>Fresh isolated speed and memory</h3>
+<p>Formal effort-7 speed presets are our distance 2, jSquash quality 80 and wasm-vips distance 2 on identical prepared inputs. Encode times exclude perceptual scoring. Preset timing comparisons do not establish equal quality; quality-matched compression is assessed separately through BD-rate.</p>
+<p>Crop median: {campaign.speed.crops.ownJsquashRatio.toFixed(3)}× jSquash and {campaign.speed.crops.ownVipsRatio.toFixed(3)}× wasm-vips, with all 192 jobs freshly measured. Original matched-set median: {campaign.speed.originals.ownJsquashRatio.toFixed(3)}× jSquash on nine common inputs. All-ten original median: {campaign.speed.originals.allOwnVipsRatio.toFixed(3)}× wasm-vips. The 21 MP jSquash encode aborts and has no timing in either matched median.</p>
+<p>The 13 MP original is {campaign.speed.originals.thirteenMpRatio.toFixed(3)}× jSquash, within the 5× target and 10× entry bound. All ten own original encodes complete. Curve-sweep times are excluded from these formal ratios.</p>
+<p>All {campaign.watch.points} own watch settings and {campaign.scale.points} scale settings fit the unchanged 137,514,476-byte encoder-managed ceiling. Watch maximum: {campaign.watch.managedPeakBytes.toLocaleString("en-US")} bytes. Managed storage, encoder RSS and scorer-tree memory are separate quantities. The repaired 12 MP fine-distance case preserves its stream while saving 42,806,175 managed bytes.</p>
+<p>Minified JPEG XL bundles: {campaign.bundles.coreMinifiedBytes.toLocaleString("en-US")} core bytes and {campaign.bundles.specializedMinifiedBytes.toLocaleString("en-US")} specialized bytes. Bundle size is report-only for this campaign.</p>
+<h3>Slow effort 9 and secondary images</h3>
+<p>Effort 9 retains the complete-alternative searches and is documented as slow. One untuned 16-photo screen passes both independent decoders on all 80 own streams. At the declared presets, distance 2 for us and quality 80 for jSquash, its fresh median time is {campaign.effortNine.presetSpeed.versusOwnSeven.toFixed(3)}× our effort 7 and {campaign.effortNine.presetSpeed.versusJsquashNine.toFixed(3)}× jSquash effort 9. Quality-matched BD-rate stays separate from these preset timings. <a href="/jpeg-xl/evidence/EFFORT9.md" download>Effort-9 BD-rate, speed and coverage</a>.</p>
+<p>56 non-photo images use a separate final eleven-distance report. They are not mixed into photo means. Constant-quality curves and unavailable intervals remain N/A. <a href="/jpeg-xl/evidence/FINAL-SECONDARY.md" download>Secondary image report</a>. The final report preserves failed ideas, reference failures, memory limits and remaining compression gaps.</p>
+</section>
+<section class="jxl-card quick">
+<h2>Earlier matched-point checkpoints</h2>
+<p>These retained measurements describe earlier encoder sources and narrower studies. The final campaign report above is the current lossy baseline.</p>
 <p id="jxl-fine-production-status">Overall lossy compression parity remains open. At matched Butteraugli 0.5, the qualified portrait curve uses 0.09% fewer bytes than pinned jSquash and 15.25% fewer than wasm-vips. The independent 12 MP photo also retains its passing fine comparison. That checkpoint left {fineProduction.remainingConfirmedGaps.length} confirmed portrait size gaps and {fineProduction.unresolvedPortraitComparisonsPreserved.length} unresolved comparisons. Later measurements below confirm two additional Butteraugli-three gaps. <a href="/jpeg-xl/evidence/original-fine-production-controls.json" download>Fine-photo public results and source bridge</a>.</p>
 
 <p id="jxl-portrait-ba3-status">The latest public-package portrait curve uses an estimated {Math.round(portraitBa3.currentButteraugli3Bytes).toLocaleString('en-US')} bytes at Butteraugli three, {portraitBa3Gap('jsquash')}% more than jSquash and {portraitBa3Gap('vips')}% more than wasm-vips. Its bracket width is {portraitBa3.currentBracket.width.toFixed(6)}; all three brackets meet the unchanged 0.25-unit rule. Five confirmed portrait size gaps remain open. The current portrait SSIMULACRA2-70 comparison remains unresolved. Exact formatted source and package-byte bridges retain these results at source <code>{portraitBa3.sourceIdentity.implementationSourceSha256.slice(0, 8)}</code>. <a href="/jpeg-xl/evidence/coherent-coarse-public.json" download>Current coarse public comparison and validation</a>. The <a href="/jpeg-xl/evidence/original-portrait-ba3-public.json" download>preceding source-specific measurement</a> remains historical.</p>

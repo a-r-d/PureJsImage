@@ -15,7 +15,8 @@ make that workflow permissible under the new steering rules.
 
 ## Current correctness repair
 
-Candidate source `1224c8a8`, preserved in `54c07fba`, restores the existing
+Promoted source `1224c8a8`, initially preserved in `54c07fba` and qualified on
+main in `a49a70f9`, restores the existing
 standalone Q7/DC precision after coarse optional-storage refusal. It adds no
 new quantization values or perceptual model. Its original 797,262-byte budget
 and 2.5 mean-error limit remain unchanged. The complete native and Rust grids
@@ -24,6 +25,8 @@ match the qualified prior main with no managed increase. The repair has zero
 compression delta on those identical ladders. Both independent decoders qualify
 all 80 preserved effort-9 screen streams, and the strengthened promotion audit
 passes. Historical compression measurements keep their original producer identity.
+The final eleven-distance photo and separate non-photo reports are in
+[the campaign summary](lossy-lab/FINAL-SUMMARY.md). All five main CI jobs pass.
 
 This repair and its qualification use peer tools as encoders, decoders and
 scorers only. The uncertain numeric origins in the older inventory below remain

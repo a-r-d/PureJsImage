@@ -84,6 +84,15 @@ export async function writeJpegXlShowcaseAssets(directory: string): Promise<void
     'quality-tree-entropy-public.json',
   ])
     await copyFile(`benchmark/jpegxl/comparison/results/${name}`, join(evidence, name))
+  for (const name of [
+    'FINAL-SUMMARY.md',
+    'FINAL-CAMPAIGN.json',
+    'FINAL-REPORT.md',
+    'FINAL-PHOTOS.md',
+    'FINAL-SECONDARY.md',
+    'EFFORT9.md',
+  ])
+    await copyFile(`benchmark/jpegxl/lossy-lab/${name}`, join(evidence, name))
   for (const value of report.sourceReports) {
     if (
       typeof value !== 'object' ||

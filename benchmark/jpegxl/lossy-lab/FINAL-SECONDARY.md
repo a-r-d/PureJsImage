@@ -1,0 +1,477 @@
+# JPEG XL lossy baseline
+
+Variant: final-promoted. Mode: lab. Selected images: 56. Elapsed: 2026.5 s.
+
+Status: **incomplete**. Computed comparisons: 276/336; required-range coverage: 84/336; failures: 0; omissions: 252.
+
+Negative BD-rate means fewer bytes at equal quality. SSIMULACRA2 integrates over 60–90 and Butteraugli max over 0.5–3; Butteraugli 3-norm uses the common measured interval. Partial band coverage remains in the aggregates and is reported. Target conclusions remain pending until coverage is complete.
+
+| Metric | Peer | Mean | Median | p90 | Worst | Computed images | Required coverage |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| SSIMULACRA2 | jSquash | +7.24% | +5.36% | +20.44% | +41.83% | 46/56 | 22/56 |
+| Butteraugli max | jSquash | +8.30% | +11.16% | +29.66% | +44.08% | 46/56 | 27/56 |
+| Butteraugli 3-norm | jSquash | +9.79% | +11.63% | +23.65% | +83.39% | 46/56 | 1/56 |
+| SSIMULACRA2 | wasm-vips | +4.37% | +3.53% | +14.41% | +35.56% | 46/56 | 22/56 |
+| Butteraugli max | wasm-vips | +2.17% | +5.09% | +22.61% | +31.67% | 46/56 | 11/56 |
+| Butteraugli 3-norm | wasm-vips | +5.10% | +5.68% | +18.92% | +50.75% | 46/56 | 1/56 |
+
+Required coverage: SSIMULACRA2 60–90; Butteraugli max and 3-norm 0.5–3. Butteraugli 3-norm integrates over the common measured interval.
+
+## Failures and overlap omissions
+
+- Omission: im26-6610:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6610:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6610:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6822:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6822:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6822:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6822:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6622:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6622:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6622:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8398:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8398:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8398:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8398:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6634:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6634:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6634:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5310:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5310:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5310:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5310:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5310:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5310:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5038:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5038:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5038:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5038:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5038:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5038:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5312:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5312:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5312:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5312:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5312:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5312:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6050:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6050:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6050:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6050:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6050:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8256:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8256:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8256:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5210:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5210:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5210:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5210:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6626:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6626:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6626:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5308:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5308:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5308:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5308:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5052:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5052:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5052:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5052:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5052:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5052:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5320:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5320:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5320:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5320:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5032:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5032:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5032:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5032:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6104:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6104:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6104:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6104:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6104:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6104:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-8128:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8128:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8128:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6834:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6834:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6834:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5012:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5012:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5012:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5012:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5306:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5306:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5306:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5306:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5306:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5306:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6016:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-8188:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8188:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8188:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8188:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8444:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8444:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8444:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8444:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5204:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5204:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5204:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5204:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5208:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5208:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5208:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5208:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6812:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6812:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6812:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6812:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6020:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6020:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6020:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6020:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6020:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6020:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-8110:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-8110:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8110:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-8110:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6030:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6030:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6030:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6030:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6030:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6030:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6612:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6612:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6612:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6612:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6608:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6608:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6608:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5026:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5026:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5026:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5026:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5026:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5026:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6830:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6830:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6830:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6830:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6830:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5036:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5036:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5036:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5036:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6628:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6628:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6628:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5212:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5212:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5212:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5212:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6036:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6036:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6036:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6036:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6036:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6828:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6828:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6828:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6828:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6828:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6026:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6026:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6026:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-6026:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-6026:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-6026:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5340:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5206:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5206:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5206:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5206:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6800:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6800:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6800:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6800:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6800:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6094:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6094:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6094:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6094:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6094:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5216:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5216:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5216:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5216:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5216:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5216:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5338:lab / jSquash: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5338:lab / jSquash: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5338:lab / jSquash: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5338:lab / wasm-vips: ssimulacra2: Rate curve needs two distinct qualities
+- Omission: im26-5338:lab / wasm-vips: butteraugliMax: Rate curve needs two distinct qualities
+- Omission: im26-5338:lab / wasm-vips: butteraugliNorm3: Rate curve needs two distinct qualities
+- Omission: im26-5042:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5042:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5220:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5220:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5220:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5220:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5334:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5334:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5334:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5334:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8140:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-8140:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8140:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8140:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-8140:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8140:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5034:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5034:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5034:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5034:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6810:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6810:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6810:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6810:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-6810:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6810:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8150:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8150:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-8150:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-8150:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5222:lab / jSquash: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5222:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-5222:lab / wasm-vips: ssimulacra2: incomplete required-range overlap
+- Omission: im26-5222:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-5222:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6624:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6624:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6624:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6624:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6832:lab / jSquash: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6832:lab / jSquash: butteraugliNorm3: incomplete required-range overlap
+- Omission: im26-6832:lab / wasm-vips: butteraugliMax: incomplete required-range overlap
+- Omission: im26-6832:lab / wasm-vips: butteraugliNorm3: incomplete required-range overlap
+- Partial overlap: im26-6610:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6610:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6610:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6822:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6822:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6822:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6822:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6622:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6622:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6622:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8398:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-8398:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8398:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8398:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6634:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6634:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6634:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5038:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5038:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5038:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5038:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5038:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5038:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6050:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6050:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6050:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6050:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6050:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8256:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8256:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8256:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5210:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5210:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5210:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5210:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6626:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6626:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6626:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5308:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5308:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5308:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5308:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5320:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5320:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5320:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5320:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5032:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5032:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5032:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5032:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8128:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8128:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8128:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6834:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6834:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6834:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5012:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5012:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5012:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5012:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8188:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-8188:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8188:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8188:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8444:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-8444:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8444:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8444:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5204:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5204:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5204:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5204:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5208:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5208:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5208:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5208:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6812:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6812:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6812:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6812:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8110:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-8110:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8110:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-8110:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6030:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6030:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6030:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6030:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6030:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6030:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6612:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6612:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6612:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6612:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6608:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6608:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6608:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5026:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5026:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5026:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5026:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5026:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5026:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6830:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6830:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6830:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6830:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6830:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5036:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5036:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5036:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5036:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6628:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6628:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6628:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5212:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5212:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5212:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5212:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6036:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6036:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6036:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6036:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6036:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6828:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6828:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6828:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6828:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6828:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5206:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5206:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5206:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5206:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6800:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6800:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6800:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6800:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6800:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6094:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6094:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6094:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6094:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6094:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5216:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5216:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5216:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5216:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5216:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5216:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5042:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-5042:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5220:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5220:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5220:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5220:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5334:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5334:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5334:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5334:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8140:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-8140:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-8140:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8140:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-8140:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8140:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5034:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5034:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5034:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5034:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6810:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-6810:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6810:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6810:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-6810:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6810:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-8150:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-8150:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-8150:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-8150:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-5222:lab / jSquash / SSIMULACRA2.
+- Partial overlap: im26-5222:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-5222:lab / wasm-vips / SSIMULACRA2.
+- Partial overlap: im26-5222:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-5222:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6624:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6624:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6624:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6624:lab / wasm-vips / Butteraugli 3-norm.
+- Partial overlap: im26-6832:lab / jSquash / Butteraugli max.
+- Partial overlap: im26-6832:lab / jSquash / Butteraugli 3-norm.
+- Partial overlap: im26-6832:lab / wasm-vips / Butteraugli max.
+- Partial overlap: im26-6832:lab / wasm-vips / Butteraugli 3-norm.
+- jSquash / SSIMULACRA2: 10 missing image comparisons.
+- jSquash / Butteraugli max: 10 missing image comparisons.
+- jSquash / Butteraugli 3-norm: 10 missing image comparisons.
+- wasm-vips / SSIMULACRA2: 10 missing image comparisons.
+- wasm-vips / Butteraugli max: 10 missing image comparisons.
+- wasm-vips / Butteraugli 3-norm: 10 missing image comparisons.
+
+## Memory
+
+Curve run managed peak: 33.50 MiB; process peak RSS: 385.94 MiB.
+
+Isolated speed summary not supplied; curve-sweep timings are excluded from speed ratios.
