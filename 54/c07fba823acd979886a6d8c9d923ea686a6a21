@@ -1,0 +1,40 @@
+browser-tests/jpegxl-large-blocks.pw.ts
+  s_2b0ba550ad1491::t_516f43ed61b13b 48-49
+  s_2b0ba550ad1491::t_612cf2e405fbb6 4,10-11,18-20,27-29,36-38
+src/codecs/jpegxl-vardct-encode.ts
+  s_2b0ba550ad1491::t_979f9fc7bebcc6 773
+  s_2b0ba550ad1491::t_516f43ed61b13b 770-772,774-775
+tests/jpegxl-large-blocks.test.ts
+  s_2b0ba550ad1491::t_516f43ed61b13b 39-40,43,45
+browser-tests/jpegxl-pipeline.pw.ts
+  s_2b0ba550ad1491::t_612cf2e405fbb6 74-76,284-285,307-309,825-826,837,839-840
+benchmark/jpegxl/lossy-lab/EVIDENCE.md
+  s_2b0ba550ad1491::t_5f9a380967ec3b 2862-2863
+  s_2b0ba550ad1491::t_bcdf37250a8068 2864-2865
+  s_2b0ba550ad1491::t_3e7b35e56a3261 2866-2877
+browser-tests/jpegxl-cone-selection.pw.ts
+  s_2b0ba550ad1491::t_612cf2e405fbb6 24,26-27,35-36
+benchmark/jpegxl/lossy-lab-log.md
+  s_2b0ba550ad1491::t_3e7b35e56a3261 3,13,15,1487-1498
+  s_2b0ba550ad1491::t_5f9a380967ec3b 1484
+  s_2b0ba550ad1491::t_bcdf37250a8068 1486,1499
+  s_2b0ba550ad1491::t_d85aed1ae4afa5 5-12,14
+  s_2b0ba550ad1491::t_3abaf3853ad2a0 4
+  s_2b0ba550ad1491::t_d88fbdd241446c 1485
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "54c07fba823acd979886a6d8c9d923ea686a6a21",
+  "prompts": {},
+  "sessions": {
+    "s_2b0ba550ad1491": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0efbf-adaf-7473-86fe-2e518e685e4e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
