@@ -595,6 +595,13 @@ const makeStrategyDequantization = (): ReadonlyMap<number, readonly Float64Array
 
 const strategyDequantization = makeStrategyDequantization()
 
+/** Internal development tools reuse the reference decoder's normative matrices. */
+export const jpegXlDevelopmentDequantization = (strategy: number): readonly Float64Array[] => {
+  const tables = strategyDequantization.get(strategy)
+  if (!tables) throw invalidJpegXlInput('development transform matrix is missing')
+  return tables
+}
+
 const strategyQuantizationTable = Object.freeze([
   0, 1, 2, 3, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10, 10, 11, 12, 12, 13, 14, 14, 15, 16, 16,
 ])
@@ -951,6 +958,7 @@ const populateLowestFrequencies = (
     }
   }
 }
+export const populateJpegXlDevelopmentLowestFrequencies = populateLowestFrequencies
 
 const inverseDct2TopBlock = (
   coefficients: Float64Array,
@@ -1215,6 +1223,37 @@ const inverseAfv = (
     destinationX,
     destinationY + (afvY === 1 ? 0 : 4),
   )
+}
+
+/** Internal conformance kernel. Coefficients use the decoder's native layout. */
+export const inverseJpegXlDevelopmentTransform = (
+  strategy: number,
+  coefficients: Float64Array,
+  intermediate: Float64Array,
+  output: Float32Array,
+  active: Uint16Array,
+): void => {
+  const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+  const bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+  const width = bw * 8,
+    height = bh * 8
+  if (
+    width < 8 ||
+    height < 8 ||
+    coefficients.length !== width * height ||
+    output.length !== width * height
+  )
+    throw invalidJpegXlInput('development inverse transform extent differs')
+  if (strategy === 0) inverseDct8Native(coefficients, intermediate, output, width, 0, 0, active)
+  else if (strategy === 1) inverseHornuss(coefficients, intermediate, output, width, 0, 0)
+  else if (strategy === 2) inverseDct2TopBlock(coefficients, output, width, 0, 0)
+  else if (strategy === 3)
+    inverseDct4x4(coefficients, new Float64Array(64), intermediate, output, width, 0, 0)
+  else if (strategy === 12) inverseDct4x8(coefficients, intermediate, output, width, 0, 0)
+  else if (strategy === 13) inverseDct8x4(coefficients, intermediate, output, width, 0, 0)
+  else if (strategy >= 14 && strategy <= 17)
+    inverseAfv(coefficients, strategy - 14, intermediate, output, width, 0, 0)
+  else inverseDctRectangle(coefficients, width, height, intermediate, output, width, 0, 0, active)
 }
 
 const applyDefaultGaborish = (

@@ -1,5 +1,32 @@
 # JPEG XL encoder provenance inventory
 
+## Reopening on 2026-10-13
+
+[The owner decision](LOSSY_LIBJXL_REOPENING.md) allows source-informed ports and
+bitstream decision transplants. Step 1 comes before any port. No new libjxl
+decision logic has been ported in this change.
+
+Source reading order: libjxl-tiny commit
+`8eae18172059d54f5c734ca814f23b96eebff859`, then libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Initial reads cover frame setup,
+adaptive quantization, AC strategy and chroma-from-luma in tiny, then frame
+heuristics and quantizer representation in libjxl. The decision extractor uses
+our existing decoder. Forced maps are decoded from fresh wasm-vips streams.
+The full libjxl LICENSE is in the packaged THIRD_PARTY_NOTICES and docs site.
+
+The expanded transplant uses our existing normative inverse transforms to define
+forward transforms, including AFV and DCT64. It re-encodes decoded native Modular
+reference samples with our entropy writer, and inverts our decoder's signaled
+Gaborish kernel mathematically. These development modules contain no libjxl
+decision-logic port. Source reads of `enc_heuristics.cc` and `enc_gaborish.cc`
+establish the order of patch subtraction and preconditioning; libjxl's optimized
+5x5 preconditioner is not yet copied. Signaled-map replay therefore still leaves
+unsignaled pixel preconditioning in the residual, along with quantizer rounding
+and entropy coding.
+
+Future ports must add our file, source file, exact commit and material taken to
+this inventory, and the required source header to each module.
+
 This inventory follows [LOSSY_STEERING.md](LOSSY_STEERING.md). It describes the
 current tracked first-party encoder as of 2026-10-09. It changes no runtime
 constant. Aaron must request any rewrite of an existing peer-derived heuristic.
@@ -8,10 +35,12 @@ The line references below describe the 2026-10-09 checkpoint. Later source moves
 and the current candidate's verification are recorded in
 [the lab log](lossy-lab-log.md) and [evidence index](lossy-lab/EVIDENCE.md).
 
-The audit used repository source and the specific historical log entries listed
+The historical audit used repository source and the specific log entries listed
 below. It did not read peer encoder source or native internal-state outputs.
 Historical log statements establish what the earlier campaign did. They do not
-make that workflow permissible under the new steering rules.
+record a new approval. The 2026-10-13 reopening now authorizes source reading and
+decision transplants. Earlier restrictions below describe the 2026-10-09 policy
+and are superseded for future work.
 
 ## Current correctness repair
 

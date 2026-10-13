@@ -74,6 +74,7 @@
   "sideEffects": false,
   "files": [
     "dist",
+    "THIRD_PARTY_NOTICES",
     "ROADMAP.md"
   ],
   "main": "./dist/index.js",

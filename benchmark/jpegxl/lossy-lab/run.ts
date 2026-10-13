@@ -31,6 +31,11 @@ const manifestPath = argument('--manifest', '.tmp/jpegxl-lossy-lab/corpus/manife
 const directory = argument('--out', '.tmp/jpegxl-lossy-lab/baseline')
 const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
+const transplant = argument('--transplant', '')
+const transplantRoot = argument('--transplant-root', '.tmp/jpegxl-lossy-lab/transplant-20261013')
+if (transplant && mode !== 'lab' && mode !== 'screen' && mode !== 'speed')
+  throw new Error('Transplants are development screen/lab/speed only')
+if (transplant && args.includes('--rgb')) throw new Error('Transplant lab uses opaque RGBA8')
 const effort = parseCampaignEffort(argument('--effort', '7'), mode, args.includes('--promotion'))
 const effortSevenReference = argument('--effort7-reference', '')
 if (effort === 9 && !effortSevenReference) throw new Error('Effort 9 requires --effort7-reference')
@@ -213,6 +218,16 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
           String(engineEffort),
           ...(sameFixture ? ['--append'] : []),
           ...(engine === 'purejsimage' && rgb ? ['--rgb'] : []),
+          ...(engine === 'purejsimage' && transplant
+            ? [
+                '--transplant',
+                transplant,
+                '--transplant-root',
+                transplantRoot,
+                '--fixture-id',
+                fixture.id,
+              ]
+            : []),
         ],
         { stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, OMP_NUM_THREADS: '1' } },
       )

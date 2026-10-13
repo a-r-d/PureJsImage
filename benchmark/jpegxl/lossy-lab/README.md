@@ -1,5 +1,21 @@
 # JPEG XL lossy lab
 
+The [2026-10-13 owner decision](../LOSSY_LIBJXL_REOPENING.md) reopens source-informed
+lossy work. Read it before the older decisions below. Decision transplants precede
+source ports; the development option is rejected by the public codec. Current
+results are in [TRANSPLANT-REPORT.md](TRANSPLANT-REPORT.md). The earlier production
+campaign and its preserved reports remain unchanged.
+
+Step 1 is complete. All nine development rows pass emitted-map checks and native
+decoding on all 80 screen and 576 lab points. The all-maps row measures +3.39%
+SSIMULACRA2, +1.64% Butteraugli 3-norm and -0.20% Butteraugli max against vips.
+It takes 1,027ms at distance 2, or 2.10x jSquash. Transform and filter prototypes
+exceed the 3x crop target. No source decision logic is ported yet. The complete
+table, texture comparisons, timing scope and first-port ranking are in the report.
+The remaining gap includes unsignaled preconditioning as well as rounding and
+entropy coding. Holdout and original qualification remain closed until a port
+clears the normal development gates.
+
 Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),
 [the steering plan](../LOSSY_STEERING.md),
 [checkpoint feedback](../LOSSY_FEEDBACK.md),
