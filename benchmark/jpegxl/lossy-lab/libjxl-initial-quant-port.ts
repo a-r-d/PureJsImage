@@ -6,7 +6,8 @@
  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
  * Changes: scalar TypeScript, Math exp/log rather than SIMD approximations,
  * padded XYB blocks supplied by our encoder, managed luma and quarter-size
- * scratch. No threading, native code, peer maps or iterative metric search.
+ * scratch, optionally a three-block-row luma ring. HF strength can be reduced
+ * in a separate first-party diagnostic. No threading, native code, peer maps or iterative metric search.
  */
 import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
@@ -33,41 +34,54 @@ export function libjxlInitialQuantField(
   base: VarDctCoefficientGeometry,
   context: JpegXlDevelopmentTransformContext,
   distance: number,
+  hfScale = 1,
+  bounded = false,
+  darkHf = false,
 ): Float32Array {
   const memory = base.memory
   if (!memory || !base.globalScale || !(distance > 0 && distance <= 25))
     throw new Error('Missing initial quantization input')
   const width = base.blocksWide * 8,
     height = base.blocksHigh * 8
-  const luma = memory.allocate(Float32Array, width * height)
+  const rows = bounded ? Math.min(24, height) : height
+  const luma = memory.allocate(Float32Array, width * rows)
   const quarterWidth = width / 4,
     quarterHeight = height / 4
   const pre = memory.allocate(Float32Array, quarterWidth * quarterHeight)
   const field = memory.allocate(Float32Array, base.blocksWide * base.blocksHigh)
   const minima = memory.allocate(Float64Array, 4)
-  for (let by = 0; by < base.blocksHigh; by++)
+  const loadBlockRow = (by: number): void => {
     for (let bx = 0; bx < base.blocksWide; bx++) {
       const block = context.readBlock(bx, by, false)[1]
       if (!block) throw new Error('Missing initial quantization luminance')
       for (let y = 0; y < 8; y++)
-        for (let x = 0; x < 8; x++) luma[(by * 8 + y) * width + bx * 8 + x] = block[y * 8 + x] ?? 0
+        for (let x = 0; x < 8; x++)
+          luma[((by * 8 + y) % rows) * width + bx * 8 + x] = block[y * 8 + x] ?? 0
     }
+  }
+  if (bounded) loadBlockRow(0)
+  else for (let by = 0; by < base.blocksHigh; by++) loadBlockRow(by)
   const maskingMul = Math.sqrt(211.66567973503678 * 1e8)
-  for (let y = 0; y < height; y++)
+  for (let y = 0; y < height; y++) {
+    if (bounded && y % 8 === 0 && y / 8 + 1 < base.blocksHigh) loadBlockRow(y / 8 + 1)
+    const row = (y % rows) * width
+    const previous = (Math.max(0, y - 1) % rows) * width
+    const next = (Math.min(height - 1, y + 1) % rows) * width
     for (let x = 0; x < width; x++) {
-      const value = luma[y * width + x] ?? 0
+      const value = luma[row + x] ?? 0
       const average =
         0.25 *
-        ((luma[Math.max(0, y - 1) * width + x] ?? 0) +
-          (luma[Math.min(height - 1, y + 1) * width + x] ?? 0) +
-          (luma[y * width + Math.max(0, x - 1)] ?? 0) +
-          (luma[y * width + Math.min(width - 1, x + 1)] ?? 0))
+        ((luma[previous + x] ?? 0) +
+          (luma[next + x] ?? 0) +
+          (luma[row + Math.max(0, x - 1)] ?? 0) +
+          (luma[row + Math.min(width - 1, x + 1)] ?? 0))
       const diff = (value - average) / gammaRatio(value + 0.019)
       const at = Math.floor(y / 4) * quarterWidth + Math.floor(x / 4)
       pre[at] =
         (pre[at] ?? 0) +
         0.0625 * Math.sqrt(Math.min(0.2, diff * diff) * maskingMul + 27.505837037000106)
     }
+  }
   const erosionRamp = Math.max(0, (2 - distance) / 2)
   const w0 = 0.125,
     w1 = 0.1 * (1 - erosionRamp),
@@ -114,12 +128,14 @@ export function libjxlInitialQuantField(
       if (!xx || !yy || !bb) throw new Error('Missing initial quantization color')
       let gamma = 0,
         hf = 0,
-        blue = 0
+        blue = 0,
+        luminance = 0
       for (let y = 0; y < 8; y++)
         for (let x = 0; x < 8; x++) {
           const at = y * 8 + x,
             v = yy[at] ?? 0,
             chroma = xx[at] ?? 0
+          luminance += v
           gamma += gammaRatio(v + 0.16 - chroma) + gammaRatio(v + 0.16 + chroma)
           if (x < 7) hf += Math.min(0.0206, Math.abs(v - (yy[at + 1] ?? 0)))
           if (y < 7) hf += Math.min(0.0206, Math.abs(v - (yy[at + 8] ?? 0)))
@@ -141,8 +157,15 @@ export function libjxlInitialQuantField(
         9.4708735624378946 / (v * v + 0.25 * 3.7179635626140772) +
         17.35036561631863 / (v + 302.59587815579727) +
         6.7943250517376494 / (v * v + 3.7179635626140772)
+      // Preserve stronger masking for dark grain; blend continuously toward
+      // the half-strength texture policy by mean XYB luminance 0.4.
+      const strength = darkHf
+        ? 0.5 + 0.5 * Math.max(0, Math.min(1, (0.4 - luminance / 64) / 0.2))
+        : hfScale
       const exponent =
-        mask + 0.1005613337192697 * Math.log2(gamma / 128) + Math.min(0.42 - 0.38 * hf, blue)
+        mask +
+        0.1005613337192697 * Math.log2(gamma / 128) +
+        Math.min(0.42 - 0.38 * hf * strength, blue)
       field[at] = scale * (dampen * Math.exp(exponent) + (1 - dampen) * 0.48)
     }
   return field

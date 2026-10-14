@@ -36,7 +36,27 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-cache' ||
     value === 'standalone-fast' ||
     value === 'standalone-compact' ||
-    value === 'standalone-direct'
+    value === 'standalone-direct' ||
+    value === 'standalone-sharp5' ||
+    value === 'standalone-sharp6' ||
+    value === 'standalone-epf1' ||
+    value === 'standalone-hfhalf' ||
+    value === 'standalone-symmetric' ||
+    value === 'standalone-bounded' ||
+    value === 'standalone-sharp2' ||
+    value === 'standalone-epf0' ||
+    value === 'standalone-inverse' ||
+    value === 'standalone-16' ||
+    value === 'standalone-optimized' ||
+    value === 'standalone-refined' ||
+    value === 'standalone-refined-dcfine' ||
+    value === 'standalone-refined-nosmooth' ||
+    value === 'standalone-refined-round' ||
+    value === 'standalone-refined-dcfine-hfhalf' ||
+    value === 'standalone-refined-dcquarter' ||
+    value === 'standalone-refined-dark-hf' ||
+    value === 'standalone-refined-chroma75' ||
+    value === 'standalone-refined-chroma100'
   )
     return value
   return parseStrategyPort(value)
@@ -81,7 +101,27 @@ export function libjxlPortOverrides(
     mode === 'standalone-cache' ||
     mode === 'standalone-fast' ||
     mode === 'standalone-compact' ||
-    mode === 'standalone-direct'
+    mode === 'standalone-direct' ||
+    mode === 'standalone-sharp5' ||
+    mode === 'standalone-sharp6' ||
+    mode === 'standalone-epf1' ||
+    mode === 'standalone-hfhalf' ||
+    mode === 'standalone-symmetric' ||
+    mode === 'standalone-bounded' ||
+    mode === 'standalone-sharp2' ||
+    mode === 'standalone-epf0' ||
+    mode === 'standalone-inverse' ||
+    mode === 'standalone-16' ||
+    mode === 'standalone-optimized' ||
+    mode === 'standalone-refined' ||
+    mode === 'standalone-refined-dcfine' ||
+    mode === 'standalone-refined-nosmooth' ||
+    mode === 'standalone-refined-round' ||
+    mode === 'standalone-refined-dcfine-hfhalf' ||
+    mode === 'standalone-refined-dcquarter' ||
+    mode === 'standalone-refined-dark-hf' ||
+    mode === 'standalone-refined-chroma75' ||
+    mode === 'standalone-refined-chroma100'
   )
     return libjxlStandaloneOverrides(distance, width, height, mode)
   if (mode === 'dc' || mode === 'dc-smooth')

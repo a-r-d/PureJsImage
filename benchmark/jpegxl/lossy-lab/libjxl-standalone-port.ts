@@ -5,7 +5,9 @@
  * Changes: coherent development orchestration of the separately attributed
  * scalar ports. Retains our CfL, chroma matrix scales and writer. The direct
  * variant uses separately attributed filter defaults and bypasses the discarded
- * own transform search. Other variants retain our EPF decisions.
+ * own transform search. Other variants retain our EPF decisions. Refined
+ * experiments cap EPF iterations and independently vary physical DC precision,
+ * smoothing, high-frequency masking or coefficient rounding.
  * All decisions derive from pixels and distance. No decoder or peer maps.
  */
 import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
@@ -23,6 +25,26 @@ export type StandalonePort =
   | 'standalone-fast'
   | 'standalone-compact'
   | 'standalone-direct'
+  | 'standalone-sharp5'
+  | 'standalone-sharp6'
+  | 'standalone-epf1'
+  | 'standalone-hfhalf'
+  | 'standalone-symmetric'
+  | 'standalone-bounded'
+  | 'standalone-sharp2'
+  | 'standalone-epf0'
+  | 'standalone-inverse'
+  | 'standalone-16'
+  | 'standalone-optimized'
+  | 'standalone-refined'
+  | 'standalone-refined-dcfine'
+  | 'standalone-refined-nosmooth'
+  | 'standalone-refined-round'
+  | 'standalone-refined-dcfine-hfhalf'
+  | 'standalone-refined-dcquarter'
+  | 'standalone-refined-dark-hf'
+  | 'standalone-refined-chroma75'
+  | 'standalone-refined-chroma100'
 
 export function libjxlStandaloneOverrides(
   distance: number,
@@ -32,20 +54,85 @@ export function libjxlStandaloneOverrides(
 ): JpegXlDevelopmentDecisions {
   const cache = mode !== 'standalone-reference'
   const prune = mode !== 'standalone-reference' && mode !== 'standalone-cache'
-  const fastTransforms =
-    mode === 'standalone-fast' || mode === 'standalone-compact' || mode === 'standalone-direct'
-  const compact = mode === 'standalone-compact' || mode === 'standalone-direct'
-  const direct = mode === 'standalone-direct'
+  const direct = ![
+    'standalone',
+    'standalone-reference',
+    'standalone-cache',
+    'standalone-fast',
+    'standalone-compact',
+  ].includes(mode)
+  const fastTransforms = mode === 'standalone-fast' || mode === 'standalone-compact' || direct
+  const compact = mode === 'standalone-compact' || direct
+  const refined =
+    mode === 'standalone-refined' ||
+    mode === 'standalone-refined-dcfine' ||
+    mode === 'standalone-refined-nosmooth' ||
+    mode === 'standalone-refined-round' ||
+    mode === 'standalone-refined-dcfine-hfhalf' ||
+    mode === 'standalone-refined-dcquarter' ||
+    mode === 'standalone-refined-dark-hf' ||
+    mode === 'standalone-refined-chroma75' ||
+    mode === 'standalone-refined-chroma100'
+  const optimized = mode === 'standalone-optimized' || refined
   const dc = libjxlDcOverrides(distance, true).dc
   if (!dc) throw new Error('Missing initial DC quantizer')
   const quantDc = 1 / (512 * dc.quantization[1])
+  const dcScale =
+    mode === 'standalone-refined-dcquarter'
+      ? 0.25
+      : mode === 'standalone-refined-dcfine' ||
+          mode === 'standalone-refined-dcfine-hfhalf' ||
+          mode === 'standalone-refined-dark-hf' ||
+          mode === 'standalone-refined-chroma75' ||
+          mode === 'standalone-refined-chroma100'
+        ? 0.5
+        : 1
+  const dcChromaScale =
+    mode === 'standalone-refined-chroma75'
+      ? 0.75
+      : mode === 'standalone-refined-chroma100'
+        ? 1
+        : dcScale
+  const chosenDc: NonNullable<JpegXlDevelopmentDecisions['dc']> =
+    dcScale !== 1
+      ? {
+          ...dc,
+          quantization: [
+            dc.quantization[0] * dcChromaScale,
+            dc.quantization[1] * dcScale,
+            dc.quantization[2] * dcChromaScale,
+          ],
+        }
+      : dc
   return {
     skipStrategySearch: direct,
-    dc,
+    dc: chosenDc,
     globalScale: libjxlInitialGlobalScale(distance, quantDc),
-    rewriteGeometry: (base, context) => {
+    rewriteGeometry: (base, sourceContext) => {
+      const context =
+        mode === 'standalone-refined-round'
+          ? { readBlock: sourceContext.readBlock, quantize: Math.round }
+          : sourceContext
       const defaults = direct ? libjxlFilterDefaults(distance) : undefined
-      const field = libjxlInitialQuantField(base, context, defaults?.quantDistance ?? distance)
+      if (defaults && mode === 'standalone-sharp2') defaults.sharpness = 2
+      if (defaults && mode === 'standalone-epf0') defaults.epfIterations = 0
+      if (defaults && mode === 'standalone-sharp5') defaults.sharpness = 5
+      if (defaults && mode === 'standalone-sharp6') defaults.sharpness = 6
+      if (defaults && (mode === 'standalone-epf1' || refined))
+        defaults.epfIterations = Math.min(1, defaults.epfIterations)
+      const field = libjxlInitialQuantField(
+        base,
+        context,
+        defaults?.quantDistance ?? distance,
+        mode === 'standalone-hfhalf' ||
+          mode === 'standalone-refined-dcfine-hfhalf' ||
+          mode === 'standalone-refined-chroma75' ||
+          mode === 'standalone-refined-chroma100'
+          ? 0.5
+          : 1,
+        mode === 'standalone-bounded' || optimized,
+        mode === 'standalone-refined-dark-hf',
+      )
       const filtered =
         defaults?.gaborish === false
           ? undefined
@@ -56,20 +143,21 @@ export function libjxlStandaloneOverrides(
         : base.sharpnessMap
       if (defaults) sharpness?.fill(defaults.sharpness)
       try {
-        const select = strategyPortOverrides(
-          distance,
-          'spatial-source',
-          context,
-          field,
+        const select = strategyPortOverrides(distance, 'spatial-source', context, {
+          initialField: field,
           prune,
           fastTransforms,
           compact,
-        ).rewriteGeometry
+          symmetric: optimized || mode === 'standalone-symmetric' || mode === 'standalone-inverse',
+          boundedMask: mode === 'standalone-bounded' || optimized,
+          symmetricInverse: optimized || mode === 'standalone-inverse',
+          limit16: mode === 'standalone-16',
+        }).rewriteGeometry
         if (!select) throw new Error('Missing standalone selector')
         return select(
           {
             ...base,
-            smoothDc: true,
+            smoothDc: mode !== 'standalone-refined-nosmooth',
             ...(sharpness ? { sharpnessMap: sharpness } : {}),
             developmentFilters: defaults ?? {
               gaborish: true,

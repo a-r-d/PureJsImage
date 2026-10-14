@@ -167,3 +167,27 @@ partial-cost pruning, Y-first scoring with the original accumulation order,
 and tile-local traversal. `selector-transforms.ts` derives direct forward
 formulas from our normative inverse transforms. The compact search menu is an
 explicit research approximation, evaluated separately from the full selector.
+
+Step C continuation, 2026-10-14, uses the same v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`:
+
+| Our module | Source file | Material taken and adaptation |
+| --- | --- | --- |
+| `lossy-lab/selector-tile-mask.ts` | `lib/jxl/enc_adaptive_quantization.cc` | Existing Laplacian and Blur1x1Masking port evaluated per 64x64 tile with a three-pixel halo. Preserves the full-plane formula, Float32 storage and accumulation order while bounding scratch. |
+
+The optional three-block-row luma ring in `libjxl-initial-quant-port.ts` preserves
+the initial-field formula and removes the full luma plane. The quarter-resolution
+mask and block field remain proportional to image area. The optional half-strength
+HF modulation, EPF sharpness and iteration experiments are first-party adaptations
+of the already attributed ports. `selector-transforms.ts` and `selector-inverse.ts`
+use mathematical DCT symmetry to share dot products at mirrored samples; these
+are first-party formulas, without additional source-code ports.
+The continuation also measures physical InitialQuantDC step multipliers of 0.5
+and 0.25, DC smoothing off, and our ordinary AC rounding as independent diagnostic
+variants. The AC global scale retains the original source policy during DC-step
+experiments. These are first-party parameter adaptations, not new source ports.
+
+Further development-only allocation diagnostics retain half-size luma DC steps
+and vary chroma DC steps to 0.75 or 1 times InitialQuantDC. The rejected dark-HF
+variant blends HF strength from the source value to half strength using mean
+XYB luminance. These are first-party adaptations of the attributed formulas.

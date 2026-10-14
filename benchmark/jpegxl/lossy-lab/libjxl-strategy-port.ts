@@ -16,6 +16,8 @@
  * Tiny's split-cost literal is written as its representable JavaScript double.
  * This is a development experiment, never imported by the public encoder.
  */
+import { selectorTileMask } from './selector-tile-mask.ts'
+import { inverseSelectorTransform } from './selector-inverse.ts'
 import type {
   JpegXlDevelopmentDecisions,
   JpegXlDevelopmentTransformContext,
@@ -30,7 +32,10 @@ import {
   jpegXlVarDctStrategyBlockHeights,
 } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 import { forwardDevelopmentTransform } from './transform-kernels.ts'
-import { forwardSelectorTransform } from './selector-transforms.ts'
+import {
+  forwardSelectorTransform,
+  forwardSymmetricSelectorTransform,
+} from './selector-transforms.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
 import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
@@ -65,29 +70,27 @@ const smallWeights = [
   0.81779489591359944, 0.81779489591359944, 0.81779489591359944, 0.81779489591359944,
 ] as const
 
+export interface StrategyOptions {
+  initialField?: Float32Array
+  prune?: boolean
+  fastTransforms?: boolean
+  compact?: boolean
+  symmetric?: boolean
+  boundedMask?: boolean
+  symmetricInverse?: boolean
+  limit16?: boolean
+}
+
 export function strategyPortOverrides(
   distance: number,
   mode: StrategyPort,
   maskContext?: JpegXlDevelopmentTransformContext,
-  initialField?: Float32Array,
-  prune = false,
-  fastTransforms = false,
-  compact = false,
+  options: StrategyOptions = {},
 ): JpegXlDevelopmentDecisions {
   if (!(distance >= 0.25 && distance <= 25)) throw new Error('Invalid strategy-port distance')
   return {
     rewriteGeometry: (base, context) =>
-      selectGeometry(
-        base,
-        context,
-        distance,
-        mode,
-        maskContext ?? context,
-        initialField,
-        prune,
-        fastTransforms,
-        compact,
-      ),
+      selectGeometry(base, context, distance, mode, maskContext ?? context, options),
   }
 }
 
@@ -97,11 +100,18 @@ function selectGeometry(
   distance: number,
   mode: StrategyPort,
   maskContext: JpegXlDevelopmentTransformContext,
-  initialField?: Float32Array,
-  prune = false,
-  fastTransforms = false,
-  compact = false,
+  options: StrategyOptions,
 ): VarDctCoefficientGeometry {
+  const {
+    initialField,
+    prune = false,
+    fastTransforms = false,
+    compact = false,
+    symmetric = false,
+    boundedMask = false,
+    symmetricInverse = false,
+    limit16 = false,
+  } = options
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
     throw new Error('Missing strategy input')
@@ -109,7 +119,12 @@ function selectGeometry(
   if (initialField && (mode !== 'spatial-source' || initialField.length !== blockCount))
     throw new Error('Invalid floating selector field')
   const selectionField = initialField ?? base.quantizationMap
-  const transform = fastTransforms ? forwardSelectorTransform : forwardDevelopmentTransform
+  const transform = symmetric
+    ? forwardSymmetricSelectorTransform
+    : fastTransforms
+      ? forwardSelectorTransform
+      : forwardDevelopmentTransform
+  const inverse = symmetricInverse ? inverseSelectorTransform : inverseJpegXlDevelopmentTransform
   const strategies = memory.allocate(Int32Array, blockCount)
   const first = memory.allocate(Uint8Array, blockCount)
   first.fill(1)
@@ -138,9 +153,13 @@ function selectGeometry(
   const actualRounding = mode === 'spatial-actual' || mode === 'spatial-actual-guarded'
   const guarded = mode === 'spatial-guarded' || mode === 'spatial-actual-guarded'
   const maskField =
-    mode === 'spatial-masked' || mode === 'spatial-source' || guarded || actualRounding
+    !boundedMask &&
+    (mode === 'spatial-masked' || mode === 'spatial-source' || guarded || actualRounding)
       ? libjxlStrategyMask(base, maskContext)
       : undefined
+  const tileMask = boundedMask ? selectorTileMask(base, maskContext) : undefined
+  let maskOriginX = 0,
+    maskOriginY = 0
   let lastLoss = 0
 
   // All scratch belongs to one candidate, independent of image area.
@@ -276,21 +295,21 @@ function selectGeometry(
         return Infinity
       }
       if (!tiny) {
-        inverseJpegXlDevelopmentTransform(
-          strategy,
-          residual.subarray(0, size),
-          scratch,
-          spatial.subarray(0, size),
-          active,
-        )
+        inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
         let channelLoss = 0
         for (let p = 0; p < size; p++) {
-          const mask =
-            maskField?.[
-              (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
-            ] ?? 1
+          const mask = tileMask
+            ? (tileMask.data[
+                (y * 8 - maskOriginY + Math.floor(p / width)) * 64 +
+                  x * 8 -
+                  maskOriginX +
+                  (p % width)
+              ] ?? 1)
+            : (maskField?.[
+                (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
+              ] ?? 1)
           let error = (spatial[p] ?? 0) * (mask + maskOffset) * channelWeight
           error *= error
           error *= error
@@ -347,9 +366,12 @@ function selectGeometry(
     : 1 - 0.4 / (distance + 1.4)
   // Every supported merge fits its aligned color tile. Finish a tile while
   // its filtered pixels are cached, preserving each tile's decision order.
-  const tileSize = prune ? 8 : Math.max(base.blocksWide, base.blocksHigh)
+  const tileSize = prune || boundedMask ? 8 : Math.max(base.blocksWide, base.blocksHigh)
   for (let ty = 0; ty < base.blocksHigh; ty += tileSize)
     for (let tx = 0; tx < base.blocksWide; tx += tileSize) {
+      tileMask?.fill(tx, ty)
+      maskOriginX = tx * 8
+      maskOriginY = ty * 8
       const endX = Math.min(base.blocksWide, tx + tileSize)
       const endY = Math.min(base.blocksHigh, ty + tileSize)
       for (let y = ty; y < endY; y++)
@@ -377,7 +399,7 @@ function selectGeometry(
         }
       // Compare square and both complete two-rectangle partitions with their incumbent.
       // Alignment makes every candidate cover whole previous transforms.
-      for (const blocks of tiny ? [2] : compact ? [2, 4] : [2, 4, 8]) {
+      for (const blocks of tiny || limit16 ? [2] : compact ? [2, 4] : [2, 4, 8]) {
         const square = blocks === 2 ? 4 : blocks === 4 ? 5 : 18
         const vertical = blocks === 2 ? 6 : blocks === 4 ? 10 : 19
         const horizontal = blocks === 2 ? 7 : blocks === 4 ? 11 : 20
@@ -475,6 +497,7 @@ function selectGeometry(
   ])
     memory.release(buffer)
   if (maskField) memory.release(maskField)
+  tileMask?.release()
   const adjusted = mode === 'spatial-source' ? memory.allocate(Int32Array, blockCount) : undefined
   if (adjusted) {
     for (let at = 0; at < blockCount; at++) {

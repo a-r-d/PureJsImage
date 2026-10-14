@@ -4,15 +4,24 @@ import { PNG } from 'pngjs'
 import { encodeTransplant } from './transplant.ts'
 import { libjxlPortOverrides, parseLibjxlPort } from './libjxl-ports.ts'
 
-const [pngPath, outputPath, firstMode = 'standalone-reference', secondMode = 'standalone'] =
-  process.argv.slice(2)
+const [
+  pngPath,
+  outputPath,
+  firstMode = 'standalone-reference',
+  secondMode = 'standalone',
+  trialText = '7',
+] = process.argv.slice(2)
 if (!pngPath || !outputPath)
-  throw new Error('Usage: selector-speed.ts input.png output.json [base-mode candidate-mode]')
+  throw new Error(
+    'Usage: selector-speed.ts input.png output.json [base-mode candidate-mode trials]',
+  )
+const trials = Number(trialText)
+if (!Number.isInteger(trials) || trials < 7 || trials > 31) throw new Error('Use 7 to 31 trials')
 const input = PNG.sync.read(await readFile(pngPath))
 const modes = [parseLibjxlPort(firstMode), parseLibjxlPort(secondMode)]
 const pixels = Uint8Array.from(input.data)
 const rows = []
-for (let trial = -1; trial < 7; trial++) {
+for (let trial = -1; trial < trials; trial++) {
   for (const index of trial % 2 === 0 ? [0, 1] : [1, 0]) {
     const mode = modes[index]
     if (!mode) throw new Error('Missing mode')

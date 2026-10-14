@@ -1,5 +1,9 @@
+import { inverseSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-inverse.ts'
 import { describe, expect, it } from 'vitest'
-import { forwardSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
+import {
+  forwardSelectorTransform,
+  forwardSymmetricSelectorTransform,
+} from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
 import {
   forwardDevelopmentTransform,
   developmentDcGrid,
@@ -38,6 +42,8 @@ describe('development normative transform kernels', () => {
       const fast = new Float64Array(size)
       forwardSelectorTransform(strategy, input, scratch, fast)
       for (let i = 0; i < size; i++) expect(fast[i]).toBeCloseTo(coefficients[i] ?? 0, 6)
+      forwardSymmetricSelectorTransform(strategy, input, scratch, fast)
+      for (let i = 0; i < size; i++) expect(fast[i]).toBeCloseTo(coefficients[i] ?? 0, 6)
       coefficients.set(fast)
       const dc = new Float64Array(bw * bh),
         frequencies = new Float64Array(bw * bh)
@@ -50,6 +56,9 @@ describe('development normative transform kernels', () => {
         pixels,
         new Uint16Array(height),
       )
+      const reference = pixels.slice()
+      inverseSelectorTransform(strategy, coefficients, scratch, pixels, new Uint16Array(height))
+      for (let i = 0; i < size; i++) expect(pixels[i]).toBeCloseTo(reference[i] ?? 0, 6)
       let maximum = 0
       for (let i = 0; i < size; i++)
         maximum = Math.max(maximum, Math.abs((pixels[i] ?? 0) - (input[i] ?? 0)))

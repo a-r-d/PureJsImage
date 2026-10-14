@@ -1,3 +1,7 @@
+import {
+  jpegXlVarDctStrategyBlockWidths,
+  jpegXlVarDctStrategyBlockHeights,
+} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 import { dctBasis, forwardDevelopmentTransform } from './transform-kernels.ts'
 
 // First-party forward formulas derived from our normative inverse transforms.
@@ -98,4 +102,44 @@ export function forwardSelectorTransform(
     coefficients[0] = (a + b) / 2
     coefficients[8] = (a - b) / 2
   }
+}
+
+/** Even/odd DCT symmetry halves the dot products for the large selector candidates. */
+export function forwardSymmetricSelectorTransform(
+  strategy: number,
+  pixels: Float32Array,
+  scratch: Float64Array,
+  coefficients: Float64Array,
+): void {
+  const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
+  const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
+  if (width === 8 && height === 8) {
+    forwardSelectorTransform(strategy, pixels, scratch, coefficients)
+    return
+  }
+  if (width < 8 || height < 8 || width > 64 || height > 64)
+    throw new Error('Invalid symmetric transform extent')
+  const horizontal = dctBasis(width),
+    vertical = dctBasis(height)
+  const scale = 1 / Math.sqrt(width * height)
+  for (let y = 0; y < height; y++)
+    for (let h = 0; h < width; h++) {
+      let sum = 0
+      const sign = h % 2 === 0 ? 1 : -1
+      for (let x = 0; x < width / 2; x++)
+        sum +=
+          ((pixels[y * width + x] ?? 0) + sign * (pixels[y * width + width - 1 - x] ?? 0)) *
+          (horizontal[h * width + x] ?? 0)
+      scratch[y * width + h] = sum
+    }
+  for (let h = 0; h < width; h++)
+    for (let v = 0; v < height; v++) {
+      let sum = 0
+      const sign = v % 2 === 0 ? 1 : -1
+      for (let y = 0; y < height / 2; y++)
+        sum +=
+          ((scratch[y * width + h] ?? 0) + sign * (scratch[(height - 1 - y) * width + h] ?? 0)) *
+          (vertical[v * height + y] ?? 0)
+      coefficients[height >= width ? h * height + v : v * width + h] = sum * scale
+    }
 }
