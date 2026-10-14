@@ -1,6 +1,7 @@
 {
   "sourceBase": "f6f473fa968d413da379d4c437fa1f563148cb68",
-  "main": "b2666b834cfd3483a629b50e62a7bedea9852b66",
+  "localMainBaseline": "b2666b834cfd3483a629b50e62a7bedea9852b66",
+  "publishedMain": "f9c74a49378abe0f48c41b3069762afda7b636be",
   "branch": "jxl-libjxl-ports",
   "variant": "standalone-guard-bounded",
   "root": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014",

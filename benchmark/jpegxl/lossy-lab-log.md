@@ -1,7 +1,8 @@
 # JPEG XL lossy lab
 
 Current owner decision (2026-10-14): Step C approved, including selector speed work.
-Research base f6f473fa on `jxl-libjxl-ports`; main remains b2666b83.
+Research base f6f473fa on `jxl-libjxl-ports`; local main is b2666b83.
+Published origin/main remains f9c74a49, one commit before the local transplant checkpoint.
 Retained mode `standalone-guard-bounded`, 64 photos x nine distances, no peer maps.
 Full-lab SSIM/3-norm/max: vips -8.090/-4.730/-5.575% (mean -6.132%); jSquash -8.553/+0.770/+2.537%.
 Production control -7.254/-9.856/-9.629%; native replay -10.350/-5.612/-5.321%.

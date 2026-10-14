@@ -1,7 +1,8 @@
 # Coherent standalone guard and storage repair
 
-Research branch `jxl-libjxl-ports`, starting at `f6f473fa`. Main remains
-`b2666b83`. These development modes consume no peer decisions and add no runtime
+Research branch `jxl-libjxl-ports`, starting at `f6f473fa`. Local main is the
+earlier transplant checkpoint `b2666b83`; published `origin/main` remains
+`f9c74a49`. Both are ancestors of this research branch. Neither is changed here. These development modes consume no peer decisions and add no runtime
 dependencies. No production source changes are included in this continuation. The holdout
 aggregate objective passes, but two full-band SSIM guards against production
 block promotion. The candidate stays on the research branch.
@@ -115,8 +116,9 @@ nine apparent test timeouts while sharing the host with the lab. It was stopped
 and rerun with the supported `VITEST_MAX_WORKERS=2` setting. Test expectations and
 timeouts are unchanged; the rerun passes and both logs are retained.
 
-This continuation changes no `src/` files. The branch already differs from main
-in two source modules containing development decision hooks from earlier steps.
+This continuation changes no `src/` files. The branch already differs from local main in two source modules containing
+development decision hooks from earlier steps. Published main predates the
+transplant checkpoint and does not contain those forcing hooks.
 Public-path integration remains pending. Inherited peer-forcing hooks must be
 removed or isolated before any merge to main. No main merge, release, version
 change or public default change is included.
