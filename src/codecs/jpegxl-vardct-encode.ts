@@ -864,7 +864,9 @@ function* prepare8(
     yy < 0.005 &&
     ((meanY > 0.5 && activity < 1.5) || (meanY < 0.5 && activity > 1.5))
   const strategyMap =
-    effort >= 5 ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh) : undefined
+    effort >= 5 && !(decisions?.skipStrategySearch && decisions.rewriteGeometry)
+      ? allocateJpegXlArray(memory, Int32Array, blocksWide * blocksHigh)
+      : undefined
   const components: VarDctCoefficientPlane[] = Array.from({ length: 3 }, () => ({
     blocksPerLineForMcu: blocksWide,
     blocksPerColumnForMcu: blocksHigh,

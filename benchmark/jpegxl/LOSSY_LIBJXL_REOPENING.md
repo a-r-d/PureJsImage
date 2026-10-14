@@ -89,3 +89,12 @@ metric before normal promotion, including speed checks.
 Before any merge to main, remove peer-decision forcing hooks from src or keep
 them outside the public bundle path. No such merge is part of an unsuccessful
 Step A checkpoint.
+
+## Step C approval, 2026-10-14
+
+Aaron approved the coherent standalone mode after reviewing Step A, and asked
+for selector speed work too. Implement InitialQuantField, AdjustQuantField,
+InitialQuantDC, the adapted selector and optimized Gaborish inverse together,
+with no peer maps. Keep all work on `jxl-libjxl-ports` until the gates above pass.
+This supersedes the earlier requirement to wait for Step C approval. It does
+not waive quality, speed, memory, holdout or public-bundle cleanup checks.

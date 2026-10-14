@@ -3,9 +3,10 @@
  * lib/jxl/enc_adaptive_quantization.cc (AdjustQuantField), v0.12.0,
  * a7a9c787341cf703dede03c2009fa460cae5e5df.
  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
- * Changes: scalar TypeScript over our raw integer quantization field. The
- * sixteenth norm is scale-normalized to avoid overflow; final adjusted values
- * are rounded to the existing wire integer precision. Development only.
+ * Changes: scalar TypeScript in raw-field units, including floating standalone
+ * fields. The sixteenth norm is scale-normalized to avoid overflow; standalone
+ * values retain fractions until the caller performs final wire rounding.
+ * Integer replay retains its previous rounding behavior. Development only.
  */
 export function libjxlTransformQuantization(
   field: ArrayLike<number>,
@@ -16,6 +17,7 @@ export function libjxlTransformQuantization(
   height: number,
   distance: number,
   selection: boolean,
+  round = true,
 ): number {
   let maximum = 0,
     sum = 0
@@ -30,7 +32,8 @@ export function libjxlTransformQuantization(
   if (count <= 2) return maximum
   if (!selection) {
     const mixer = Math.max(0, 1 - Math.max(0, distance - 1.54138) * 0.56391)
-    return Math.max(1, Math.round(mixer * maximum + ((1 - mixer) * sum) / count))
+    const adjusted = mixer * maximum + ((1 - mixer) * sum) / count
+    return round ? Math.max(1, Math.round(adjusted)) : adjusted
   }
   let norm = 0
   for (let dy = 0; dy < height; dy++)

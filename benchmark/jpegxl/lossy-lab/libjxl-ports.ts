@@ -12,6 +12,7 @@ import {
 import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
 import { libjxlDcOverrides } from './libjxl-dc-port.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
+import { libjxlStandaloneOverrides, type StandalonePort } from './libjxl-standalone-port.ts'
 
 export type LibjxlPort =
   | StrategyPort
@@ -21,6 +22,7 @@ export type LibjxlPort =
   | 'gaborish-strategy'
   | 'dc'
   | 'dc-smooth'
+  | StandalonePort
 export function parseLibjxlPort(value: string): LibjxlPort {
   if (
     value === 'own-rewrite' ||
@@ -28,7 +30,13 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'gaborish' ||
     value === 'gaborish-strategy' ||
     value === 'dc' ||
-    value === 'dc-smooth'
+    value === 'dc-smooth' ||
+    value === 'standalone' ||
+    value === 'standalone-reference' ||
+    value === 'standalone-cache' ||
+    value === 'standalone-fast' ||
+    value === 'standalone-compact' ||
+    value === 'standalone-direct'
   )
     return value
   return parseStrategyPort(value)
@@ -67,6 +75,15 @@ export function libjxlPortOverrides(
   width: number,
   height: number,
 ): JpegXlDevelopmentDecisions {
+  if (
+    mode === 'standalone' ||
+    mode === 'standalone-reference' ||
+    mode === 'standalone-cache' ||
+    mode === 'standalone-fast' ||
+    mode === 'standalone-compact' ||
+    mode === 'standalone-direct'
+  )
+    return libjxlStandaloneOverrides(distance, width, height, mode)
   if (mode === 'dc' || mode === 'dc-smooth')
     return libjxlDcOverrides(distance, mode === 'dc-smooth')
   if (

@@ -150,3 +150,20 @@ Allocation sweep, 2026-10-14: `lossy-lab/allocation.ts` reuses the already recor
 are owner-specified experiments implemented by first-party development hooks;
 no additional libjxl code or constants are introduced. The native-map Gaborish
 diagnostic reuses `libjxl-gaborish-port.ts` with all signaled maps fixed.
+
+Step C, 2026-10-14 (libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`):
+
+| Our module | Source file | Material taken and adaptation |
+| --- | --- | --- |
+| `lossy-lab/libjxl-initial-quant-port.ts` | `lib/jxl/enc_adaptive_quantization.cc`, `lib/jxl/quantizer.cc`, `lib/jxl/enc_heuristics.cc` | InitialQuantField local differences, fuzzy erosion, mask/gamma/HF/blue modulation, distance dampening, initial global-scale policy. Scalar TypeScript and Math functions; our B-Y plane is converted algebraically for blue modulation. Managed scratch and floating precision through selection. |
+| `lossy-lab/libjxl-quantization-port.ts` | `lib/jxl/enc_adaptive_quantization.cc`, `lib/jxl/enc_ac_strategy.cc` | Extend the existing AdjustQuantField port to preserve fractional values until final raw-field rounding. |
+| `lossy-lab/libjxl-standalone-port.ts` | `lib/jxl/enc_heuristics.cc` | Initial field before inverse Gaborish, transform selection before field rounding. Reuses attributed DC, selector and Gaborish ports; keeps our CfL, chroma scales, EPF and coefficient writer. No peer decisions. |
+| `lossy-lab/libjxl-filter-port.ts` | `lib/jxl/enc_frame.cc`, `lib/jxl/enc_heuristics.cc` | Effort-7 Gaborish admission, EPF iteration thresholds, sharpness 4 and no-Gaborish initial-field distance rescale. The direct research variant uses these defaults to avoid deriving EPF from the discarded own transform search. |
+
+Selector speed adaptations in `libjxl-strategy-port.ts` and
+`selector-block-cache.ts` are first-party: a bounded tile cache, nonnegative
+partial-cost pruning, Y-first scoring with the original accumulation order,
+and tile-local traversal. `selector-transforms.ts` derives direct forward
+formulas from our normative inverse transforms. The compact search menu is an
+explicit research approximation, evaluated separately from the full selector.

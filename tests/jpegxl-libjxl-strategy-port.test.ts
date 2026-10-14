@@ -23,6 +23,10 @@ it.each([
   'gaborish-strategy',
   'dc',
   'dc-smooth',
+  'standalone',
+  'standalone-fast',
+  'standalone-compact',
+  'standalone-direct',
 ] as const)(
   'encodes a thin odd-sized photo using %s decisions without peer maps',
   async (mode) => {
@@ -84,4 +88,27 @@ it.each([
 it('rejects invalid strategy-port modes and distance', () => {
   expect(() => parseStrategyPort('unknown')).toThrow('Unknown strategy port')
   expect(() => strategyPortOverrides(NaN, 'tiny')).toThrow('Invalid strategy-port distance')
+})
+
+it('preserves standalone bytes when bounded tile caching crosses tile and image edges', async () => {
+  const width = 137,
+    height = 75
+  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
+    i % 4 === 3 ? 255 : (i * 17 + Math.floor(i / width) * 31) % 256,
+  )
+  const cached = await encodeTransplant(
+    pixels,
+    width,
+    height,
+    2,
+    libjxlPortOverrides('standalone', 2, width, height),
+  )
+  const reference = await encodeTransplant(
+    pixels,
+    width,
+    height,
+    2,
+    libjxlPortOverrides('standalone-reference', 2, width, height),
+  )
+  expect(cached.bytes).toEqual(reference.bytes)
 })

@@ -11,6 +11,8 @@
  * That mode scores unscaled normative matrices as the native heuristic does;
  * the writer still applies the signaled chroma matrix scales.
  * Optional error guard is our own.
+ * Bounded caching, admissible cost pruning, Y-first evaluation, tile traversal
+ * and the compact candidate menu are first-party speed adaptations.
  * Tiny's split-cost literal is written as its representable JavaScript double.
  * This is a development experiment, never imported by the public encoder.
  */
@@ -28,6 +30,7 @@ import {
   jpegXlVarDctStrategyBlockHeights,
 } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 import { forwardDevelopmentTransform } from './transform-kernels.ts'
+import { forwardSelectorTransform } from './selector-transforms.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
 import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
@@ -66,11 +69,25 @@ export function strategyPortOverrides(
   distance: number,
   mode: StrategyPort,
   maskContext?: JpegXlDevelopmentTransformContext,
+  initialField?: Float32Array,
+  prune = false,
+  fastTransforms = false,
+  compact = false,
 ): JpegXlDevelopmentDecisions {
   if (!(distance >= 0.25 && distance <= 25)) throw new Error('Invalid strategy-port distance')
   return {
     rewriteGeometry: (base, context) =>
-      selectGeometry(base, context, distance, mode, maskContext ?? context),
+      selectGeometry(
+        base,
+        context,
+        distance,
+        mode,
+        maskContext ?? context,
+        initialField,
+        prune,
+        fastTransforms,
+        compact,
+      ),
   }
 }
 
@@ -80,11 +97,19 @@ function selectGeometry(
   distance: number,
   mode: StrategyPort,
   maskContext: JpegXlDevelopmentTransformContext,
+  initialField?: Float32Array,
+  prune = false,
+  fastTransforms = false,
+  compact = false,
 ): VarDctCoefficientGeometry {
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
     throw new Error('Missing strategy input')
   const blockCount = base.blocksWide * base.blocksHigh
+  if (initialField && (mode !== 'spatial-source' || initialField.length !== blockCount))
+    throw new Error('Invalid floating selector field')
+  const selectionField = initialField ?? base.quantizationMap
+  const transform = fastTransforms ? forwardSelectorTransform : forwardDevelopmentTransform
   const strategies = memory.allocate(Int32Array, blockCount)
   const first = memory.allocate(Uint8Array, blockCount)
   first.fill(1)
@@ -119,7 +144,13 @@ function selectGeometry(
   let lastLoss = 0
 
   // All scratch belongs to one candidate, independent of image area.
-  const score = (x: number, y: number, strategy: number, entropyMultiplier: number): number => {
+  const score = (
+    x: number,
+    y: number,
+    strategy: number,
+    entropyMultiplier: number,
+    cutoff = Infinity,
+  ): number => {
     const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
     const bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
     const width = bw * 8,
@@ -128,10 +159,7 @@ function selectGeometry(
     let quantizer = 0
     for (let dy = 0; dy < bh; dy++)
       for (let dx = 0; dx < bw; dx++) {
-        quantizer = Math.max(
-          quantizer,
-          base.quantizationMap?.[(y + dy) * base.blocksWide + x + dx] ?? 0,
-        )
+        quantizer = Math.max(quantizer, selectionField[(y + dy) * base.blocksWide + x + dx] ?? 0)
         const block = context.readBlock(x + dx, y + dy, false)
         for (let c = 0; c < 3; c++) {
           const source = block[c],
@@ -144,7 +172,7 @@ function selectGeometry(
       }
     if (mode === 'spatial-source')
       quantizer = libjxlTransformQuantization(
-        base.quantizationMap ?? [],
+        selectionField,
         base.blocksWide,
         x,
         y,
@@ -153,22 +181,31 @@ function selectGeometry(
         distance,
         true,
       )
-    for (let c = 0; c < 3; c++) {
+    for (let c = prune ? 1 : 0; c < (prune ? 2 : 3); c++) {
       const source = planes[c],
         output = transformed[c]
       if (!source || !output) throw new Error('Missing transform scratch')
-      forwardDevelopmentTransform(strategy, source, scratch, output)
+      transform(strategy, source, scratch, output)
     }
     const tile = Math.floor(y / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(x / 8)
     const scale = invGlobal / quantizer
     let entropy = 0,
       loss = 0,
+      lumaEntropy = 0,
+      lumaLoss = 0,
       absoluteError = 0,
       squaredError = 0
     if (actualRounding) context.readBlock(x, y, true)
     const tables = jpegXlDevelopmentDequantization(strategy)
     const naturalWidth = Math.max(width, height)
-    for (let c = 0; c < 3; c++) {
+    for (let channelIndex = 0; channelIndex < 3; channelIndex++) {
+      const c = prune && channelIndex < 2 ? channelIndex ^ 1 : channelIndex
+      if (prune && c !== 1) {
+        const source = planes[c],
+          output = transformed[c]
+        if (!source || !output) throw new Error('Missing deferred transform scratch')
+        transform(strategy, source, scratch, output)
+      }
       const coefficients = transformed[c],
         luma = transformed[1],
         matrix = tables[c]
@@ -228,6 +265,16 @@ function selectGeometry(
       channelEntropy += (tiny ? 7.565053364251793 : zeroWeight) * (ceilLog2(bits + 17) + bits)
       if (tiny) channelEntropy += nonzero * (1 + Math.min(1, distance / 3) * 8.8703248061477744)
       entropy += channelEntropy
+      // Nonnegative channel costs give an admissible lower bound. Preserve the
+      // complete winner calculation; only discard candidates that cannot win.
+      if (
+        prune &&
+        !tiny &&
+        entropyMultiplier * entropy + infoWeight * (loss / size) ** (1 / 8) * scale * size >= cutoff
+      ) {
+        lastLoss = Infinity
+        return Infinity
+      }
       if (!tiny) {
         inverseJpegXlDevelopmentTransform(
           strategy,
@@ -256,6 +303,25 @@ function selectGeometry(
           entropy *= penalty
           loss *= penalty
         }
+        if (prune && c === 0) {
+          // Restore X,Y,B summation order exactly after scoring Y first.
+          entropy += lumaEntropy
+          loss += lumaLoss
+        }
+        if (
+          prune &&
+          entropyMultiplier * entropy + infoWeight * (loss / size) ** (1 / 8) * scale * size >=
+            cutoff
+        ) {
+          lastLoss = Infinity
+          return Infinity
+        }
+        if (prune && c === 1) {
+          lumaEntropy = entropy
+          lumaLoss = loss
+          entropy = 0
+          loss = 0
+        }
       }
     }
     lastLoss = tiny ? squaredError * scale * scale : (loss / size) ** (1 / 8) * scale
@@ -279,115 +345,124 @@ function selectGeometry(
   const smallMultiplier = tiny
     ? 1.0735757687292622 * 0.75 - (0.55 * 0.75) / (distance + 1.4)
     : 1 - 0.4 / (distance + 1.4)
-  for (let y = 0; y < base.blocksHigh; y++)
-    for (let x = 0; x < base.blocksWide; x++) {
-      let best = 0,
-        bestCost = score(x, y, 0, 1),
-        bestLoss = lastLoss
-      if (!tiny)
-        for (let i = 1; i < smallMenu.length; i++) {
-          const strategy = smallMenu[i] ?? 0
-          let weight = (smallWeights[i] ?? 0.8) / 0.8
-          if ((strategy === 1 || strategy === 2) && distance < 5)
-            weight -= 0.4 * ((5 - distance) / 5) ** 2
-          if (strategy !== 0 && strategy !== 1 && strategy !== 2 && distance > 4)
-            weight += 0.5 * (distance < 12 ? 8 / (distance - 4) : 1)
-          const cost = score(x, y, strategy, weight)
-          if (cost < bestCost && (!guarded || lastLoss <= bestLoss)) {
-            best = strategy
-            bestCost = cost
+  // Every supported merge fits its aligned color tile. Finish a tile while
+  // its filtered pixels are cached, preserving each tile's decision order.
+  const tileSize = prune ? 8 : Math.max(base.blocksWide, base.blocksHigh)
+  for (let ty = 0; ty < base.blocksHigh; ty += tileSize)
+    for (let tx = 0; tx < base.blocksWide; tx += tileSize) {
+      const endX = Math.min(base.blocksWide, tx + tileSize)
+      const endY = Math.min(base.blocksHigh, ty + tileSize)
+      for (let y = ty; y < endY; y++)
+        for (let x = tx; x < endX; x++) {
+          let best = 0,
+            bestCost = score(x, y, 0, 1),
             bestLoss = lastLoss
-          }
-        }
-      write(x, y, best, (bestCost + (tiny ? 3 : 0)) * smallMultiplier, bestLoss)
-    }
-  // Compare square and both complete two-rectangle partitions with their incumbent.
-  // Alignment makes every candidate cover whole previous transforms.
-  for (const blocks of tiny ? [2] : [2, 4, 8]) {
-    const square = blocks === 2 ? 4 : blocks === 4 ? 5 : 18
-    const vertical = blocks === 2 ? 6 : blocks === 4 ? 10 : 19
-    const horizontal = blocks === 2 ? 7 : blocks === 4 ? 11 : 20
-    const rectangleMultiplier = tiny
-      ? 0.9019587899705066 - 0.55 / (distance + 1.6)
-      : blocks === 2
-        ? 1.21
-        : blocks === 4
-          ? 1.49
-          : 2.25
-    const squareMultiplier = blocks === 2 ? 1.34 : blocks === 4 ? 1.48 : 2.25
-    for (let y = 0; y + blocks <= base.blocksHigh; y += blocks)
-      for (let x = 0; x + blocks <= base.blocksWide; x += blocks) {
-        let oldCost = 0,
-          oldLoss = 0
-        for (let dy = 0; dy < blocks; dy++)
-          for (let dx = 0; dx < blocks; dx++) {
-            oldCost += costs[(y + dy) * base.blocksWide + x + dx] ?? 0
-            oldLoss = Math.max(oldLoss, losses[(y + dy) * base.blocksWide + x + dx] ?? 0)
-          }
-        let bestCost = oldCost,
-          bestKind = 0,
-          loss0 = 0,
-          loss1 = 0,
-          cost0 = 0,
-          cost1 = 0
-        if (!tiny) {
-          const cost = score(x, y, square, squareMultiplier)
-          if (cost < bestCost && (!guarded || lastLoss <= oldLoss)) {
-            bestCost = cost
-            bestKind = square
-            loss0 = lastLoss
-            cost0 = cost
-          }
-        }
-        for (const strategy of [vertical, horizontal]) {
-          const dx = strategy === vertical ? blocks / 2 : 0,
-            dy = strategy === vertical ? 0 : blocks / 2
-          let oldLeft = 0,
-            oldRight = 0,
-            leftLoss = 0,
-            rightLoss = 0
-          for (let iy = 0; iy < blocks; iy++)
-            for (let ix = 0; ix < blocks; ix++) {
-              const at = (y + iy) * base.blocksWide + x + ix
-              if ((strategy === vertical ? ix : iy) < blocks / 2) {
-                oldLeft += costs[at] ?? 0
-                leftLoss = Math.max(leftLoss, losses[at] ?? 0)
-              } else {
-                oldRight += costs[at] ?? 0
-                rightLoss = Math.max(rightLoss, losses[at] ?? 0)
+          if (!tiny)
+            for (let i = 1; i < smallMenu.length; i++) {
+              const strategy = smallMenu[i] ?? 0
+              if (compact && strategy > 3) continue
+              let weight = (smallWeights[i] ?? 0.8) / 0.8
+              if ((strategy === 1 || strategy === 2) && distance < 5)
+                weight -= 0.4 * ((5 - distance) / 5) ** 2
+              if (strategy !== 0 && strategy !== 1 && strategy !== 2 && distance > 4)
+                weight += 0.5 * (distance < 12 ? 8 / (distance - 4) : 1)
+              const cost = score(x, y, strategy, weight, bestCost)
+              if (cost < bestCost && (!guarded || lastLoss <= bestLoss)) {
+                best = strategy
+                bestCost = cost
+                bestLoss = lastLoss
               }
             }
-          let a = score(x, y, strategy, rectangleMultiplier)
-          const la = lastLoss
-          let b = score(x + dx, y + dy, strategy, rectangleMultiplier)
-          const lb = lastLoss
-          if (guarded) {
-            if (la > leftLoss) a = Infinity
-            if (lb > rightLoss) b = Infinity
-          }
-          const cost = Math.min(a, oldLeft) + Math.min(b, oldRight)
-          if (cost < bestCost) {
-            bestCost = cost
-            bestKind = strategy
-            cost0 = a < oldLeft ? a : -1
-            cost1 = b < oldRight ? b : -1
-            loss0 = la
-            loss1 = lb
-          }
+          write(x, y, best, (bestCost + (tiny ? 3 : 0)) * smallMultiplier, bestLoss)
         }
-        if (bestKind) {
-          if (cost0 >= 0) write(x, y, bestKind, cost0, loss0)
-          if (bestKind !== square && cost1 >= 0)
-            write(
-              x + (bestKind === vertical ? blocks / 2 : 0),
-              y + (bestKind === horizontal ? blocks / 2 : 0),
-              bestKind,
-              cost1,
-              loss1,
-            )
-        }
+      // Compare square and both complete two-rectangle partitions with their incumbent.
+      // Alignment makes every candidate cover whole previous transforms.
+      for (const blocks of tiny ? [2] : compact ? [2, 4] : [2, 4, 8]) {
+        const square = blocks === 2 ? 4 : blocks === 4 ? 5 : 18
+        const vertical = blocks === 2 ? 6 : blocks === 4 ? 10 : 19
+        const horizontal = blocks === 2 ? 7 : blocks === 4 ? 11 : 20
+        const rectangleMultiplier = tiny
+          ? 0.9019587899705066 - 0.55 / (distance + 1.6)
+          : blocks === 2
+            ? 1.21
+            : blocks === 4
+              ? 1.49
+              : 2.25
+        const squareMultiplier = blocks === 2 ? 1.34 : blocks === 4 ? 1.48 : 2.25
+        for (let y = ty; y + blocks <= endY; y += blocks)
+          for (let x = tx; x + blocks <= endX; x += blocks) {
+            let oldCost = 0,
+              oldLoss = 0
+            for (let dy = 0; dy < blocks; dy++)
+              for (let dx = 0; dx < blocks; dx++) {
+                oldCost += costs[(y + dy) * base.blocksWide + x + dx] ?? 0
+                oldLoss = Math.max(oldLoss, losses[(y + dy) * base.blocksWide + x + dx] ?? 0)
+              }
+            let bestCost = oldCost,
+              bestKind = 0,
+              loss0 = 0,
+              loss1 = 0,
+              cost0 = 0,
+              cost1 = 0
+            if (!tiny) {
+              const cost = score(x, y, square, squareMultiplier, bestCost)
+              if (cost < bestCost && (!guarded || lastLoss <= oldLoss)) {
+                bestCost = cost
+                bestKind = square
+                loss0 = lastLoss
+                cost0 = cost
+              }
+            }
+            for (const strategy of [vertical, horizontal]) {
+              const dx = strategy === vertical ? blocks / 2 : 0,
+                dy = strategy === vertical ? 0 : blocks / 2
+              let oldLeft = 0,
+                oldRight = 0,
+                leftLoss = 0,
+                rightLoss = 0
+              for (let iy = 0; iy < blocks; iy++)
+                for (let ix = 0; ix < blocks; ix++) {
+                  const at = (y + iy) * base.blocksWide + x + ix
+                  if ((strategy === vertical ? ix : iy) < blocks / 2) {
+                    oldLeft += costs[at] ?? 0
+                    leftLoss = Math.max(leftLoss, losses[at] ?? 0)
+                  } else {
+                    oldRight += costs[at] ?? 0
+                    rightLoss = Math.max(rightLoss, losses[at] ?? 0)
+                  }
+                }
+              let a = score(x, y, strategy, rectangleMultiplier, oldLeft)
+              const la = lastLoss
+              let b = score(x + dx, y + dy, strategy, rectangleMultiplier, oldRight)
+              const lb = lastLoss
+              if (guarded) {
+                if (la > leftLoss) a = Infinity
+                if (lb > rightLoss) b = Infinity
+              }
+              const cost = Math.min(a, oldLeft) + Math.min(b, oldRight)
+              if (cost < bestCost) {
+                bestCost = cost
+                bestKind = strategy
+                cost0 = a < oldLeft ? a : -1
+                cost1 = b < oldRight ? b : -1
+                loss0 = la
+                loss1 = lb
+              }
+            }
+            if (bestKind) {
+              if (cost0 >= 0) write(x, y, bestKind, cost0, loss0)
+              if (bestKind !== square && cost1 >= 0)
+                write(
+                  x + (bestKind === vertical ? blocks / 2 : 0),
+                  y + (bestKind === horizontal ? blocks / 2 : 0),
+                  bestKind,
+                  cost1,
+                  loss1,
+                )
+            }
+          }
       }
-  }
+    }
   for (const buffer of [
     ...planes,
     ...transformed,
@@ -410,7 +485,7 @@ function selectGeometry(
       const x = at % base.blocksWide,
         y = Math.floor(at / base.blocksWide)
       const q = libjxlTransformQuantization(
-        base.quantizationMap,
+        selectionField,
         base.blocksWide,
         x,
         y,
@@ -418,9 +493,13 @@ function selectGeometry(
         bh,
         distance,
         false,
+        !initialField,
       )
       for (let dy = 0; dy < bh; dy++)
-        for (let dx = 0; dx < bw; dx++) adjusted[at + dy * base.blocksWide + dx] = q
+        for (let dx = 0; dx < bw; dx++)
+          adjusted[at + dy * base.blocksWide + dx] = initialField
+            ? Math.max(1, Math.min(256, Math.floor(q + 0.5)))
+            : q
     }
   }
   try {

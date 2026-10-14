@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { forwardSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
 import {
   forwardDevelopmentTransform,
   developmentDcGrid,
@@ -34,6 +35,10 @@ describe('development normative transform kernels', () => {
         scratch = new Float64Array(Math.max(128, size)),
         pixels = new Float32Array(size)
       forwardDevelopmentTransform(strategy, input, scratch, coefficients)
+      const fast = new Float64Array(size)
+      forwardSelectorTransform(strategy, input, scratch, fast)
+      for (let i = 0; i < size; i++) expect(fast[i]).toBeCloseTo(coefficients[i] ?? 0, 6)
+      coefficients.set(fast)
       const dc = new Float64Array(bw * bh),
         frequencies = new Float64Array(bw * bh)
       developmentDcGrid(coefficients, bw, bh, dc)
