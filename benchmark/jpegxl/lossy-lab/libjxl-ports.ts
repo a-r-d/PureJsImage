@@ -16,6 +16,7 @@ import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 export type LibjxlPort =
   | StrategyPort
   | 'own-rewrite'
+  | 'own-roundtrip'
   | 'gaborish'
   | 'gaborish-strategy'
   | 'dc'
@@ -23,6 +24,7 @@ export type LibjxlPort =
 export function parseLibjxlPort(value: string): LibjxlPort {
   if (
     value === 'own-rewrite' ||
+    value === 'own-roundtrip' ||
     value === 'gaborish' ||
     value === 'gaborish-strategy' ||
     value === 'dc' ||
@@ -67,11 +69,17 @@ export function libjxlPortOverrides(
 ): JpegXlDevelopmentDecisions {
   if (mode === 'dc' || mode === 'dc-smooth')
     return libjxlDcOverrides(distance, mode === 'dc-smooth')
-  if (mode === 'own-rewrite' || mode === 'gaborish' || mode === 'gaborish-strategy')
+  if (
+    mode === 'own-rewrite' ||
+    mode === 'own-roundtrip' ||
+    mode === 'gaborish' ||
+    mode === 'gaborish-strategy'
+  )
     return {
       rewriteGeometry: (base, context) => {
         const decisions = ownDecisions(base)
-        if (mode === 'own-rewrite') return rewriteStrategyGeometry(base, context, decisions, false)
+        if (mode === 'own-rewrite' || mode === 'own-roundtrip')
+          return rewriteStrategyGeometry(base, context, decisions, false, mode === 'own-roundtrip')
         const filtered = libjxlGaborishContext(base, context, width, height)
         try {
           if (mode === 'gaborish-strategy') {

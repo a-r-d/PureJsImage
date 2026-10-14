@@ -126,8 +126,26 @@ export async function verifyDecisionTransplantBrowser() {
   )
     throw new Error('Browser reference samples differ')
   rows.push(await decodedReceipt(encoded.bytes, 'all-with-reference'))
+  for (const component of [
+    'strategy-quant',
+    'strategy-quant-matrices',
+    'strategy-quant-cfl',
+    'strategy-quant-filters',
+    'strategy-quant-dc',
+    'strategy-quant-roundtrip',
+    'quant-port',
+    'quant-port-filters',
+    'quant-port-source',
+    'quant-port-complete',
+  ] as const) {
+    const forced = transplantOverrides(component, decisions, 2)
+    const output = await encodeTransplant(pixels, 32, 32, 2, forced)
+    assertTransplantDecisions(forced, await extractDecisions(output.bytes))
+    rows.push(await decodedReceipt(output.bytes, component))
+  }
   for (const port of [
     'tiny',
+    'own-roundtrip',
     'spatial-masked',
     'spatial-guarded',
     'spatial-actual-guarded',

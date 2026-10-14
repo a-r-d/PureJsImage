@@ -4,6 +4,7 @@ import {
   encodeTransplant,
   parseTransplantComponent,
   transplantOverrides,
+  assertTransplantDecisions,
 } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
 import { encodeJpegXlVarDct8Async } from '../src/codecs/jpegxl-vardct-encode.ts'
 import { JpegXlEncoderMemory } from '../src/codecs/jpegxl-encoder-memory.ts'
@@ -158,4 +159,71 @@ describe('development decision transplant', () => {
       encodeTransplant(pixels, width, height, 2, { quantizationMap: new Int32Array(1) }),
     ).rejects.toThrow('extent')
   })
+})
+
+it.each([
+  'strategy-quant',
+  'strategy-quant-matrices',
+  'strategy-quant-cfl',
+  'strategy-quant-filters',
+] as const)('replays coupled %s while preserving own DC precision', async (component) => {
+  const baseline = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, {})).bytes,
+  )
+  const peer = {
+    ...baseline,
+    globalScale: 4000,
+    rawQuantization: Array.from({ length: 16 }, () => 7),
+    strategies: Array.from({ length: 16 }, () => 4),
+    strategyFirstBlocks: Array.from({ length: 16 }, (_, i) =>
+      i % 2 === 0 && Math.floor(i / 4) % 2 === 0 ? 1 : 0,
+    ),
+    xQuantizationScale: 0,
+    bQuantizationScale: 1,
+  }
+  const overrides = transplantOverrides(component, peer)
+  const actual = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, overrides)).bytes,
+  )
+  expect(actual.strategies).toEqual(peer.strategies)
+  expect(actual.rawQuantization).toEqual(peer.rawQuantization)
+  expect(actual.globalScale).toBe(peer.globalScale)
+  if (component !== 'strategy-quant') {
+    expect(actual.xQuantizationScale).toBe(0)
+    expect(actual.bQuantizationScale).toBe(1)
+  }
+  for (let c = 0; c < 3; c++)
+    expect((actual.dcQuantization[c] ?? 0) / actual.globalScale / actual.quantDc).toBeCloseTo(
+      (baseline.dcQuantization[c] ?? 0) / baseline.globalScale / baseline.quantDc,
+      10,
+    )
+})
+
+it.each(['quant-port', 'quant-port-filters', 'quant-port-source', 'quant-port-complete'] as const)(
+  'selects transforms against signaled quantization with %s',
+  async (component) => {
+    const d = await extractDecisions((await encodeTransplant(pixels, width, height, 2, {})).bytes)
+    const overrides = transplantOverrides(component, d, 2)
+    const actual = await extractDecisions(
+      (await encodeTransplant(pixels, width, height, 2, overrides)).bytes,
+    )
+    expect(() => assertTransplantDecisions(overrides, actual)).not.toThrow()
+    expect(() =>
+      assertTransplantDecisions(overrides, {
+        ...actual,
+        rawQuantization: actual.rawQuantization.map((q) => q + 1),
+      }),
+    ).toThrow('quantization')
+  },
+)
+
+it('replays matched maps while deriving chroma from reconstructed luma', async () => {
+  const decisions = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, {})).bytes,
+  )
+  const forced = transplantOverrides('strategy-quant-roundtrip', decisions, 2)
+  const actual = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, forced)).bytes,
+  )
+  expect(() => assertTransplantDecisions(forced, actual)).not.toThrow()
 })

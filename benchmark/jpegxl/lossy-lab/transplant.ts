@@ -13,8 +13,17 @@ import type { JpegXlPatch } from '../../../src/codecs/jpegxl-frame-features.ts'
 import { developmentSourceContext, ownTransformDecisions } from './source-transplant.ts'
 import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
+import { strategyPortOverrides } from './libjxl-strategy-port.ts'
+import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
+import {
+  jpegXlVarDctStrategyBlockWidths,
+  jpegXlVarDctStrategyBlockHeights,
+} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 
 export interface TransplantOverrides extends JpegXlDevelopmentDecisions {
+  readonly allowQuantizationMerge?: boolean
+  readonly quantizationAdjustmentDistance?: number
   readonly references?: readonly DevelopmentReference[]
   readonly patches?: readonly JpegXlPatch[]
   readonly matrixScales?: readonly [number, number]
@@ -45,6 +54,7 @@ function rewriteDevelopmentGeometry(
   exactQuant: boolean,
   features: boolean,
   filters: boolean,
+  roundtripChroma = false,
 ): VarDctCoefficientGeometry {
   const selected = forcedStrategies ? d : ownTransformDecisions(base, d)
   const geometry = exactQuant
@@ -58,10 +68,10 @@ function rewriteDevelopmentGeometry(
       }
     : base
   if (!features && (!filters || !d.gaborish))
-    return rewriteStrategyGeometry(geometry, context, selected, exactQuant)
+    return rewriteStrategyGeometry(geometry, context, selected, exactQuant, roundtripChroma)
   const source = developmentSourceContext(geometry, context, d, features, filters && d.gaborish)
   try {
-    return rewriteStrategyGeometry(geometry, source, selected, exactQuant)
+    return rewriteStrategyGeometry(geometry, source, selected, exactQuant, roundtripChroma)
   } finally {
     source.release()
   }
@@ -75,6 +85,16 @@ export type TransplantComponent =
   | 'filters'
   | 'available'
   | 'strategy'
+  | 'strategy-quant'
+  | 'strategy-quant-matrices'
+  | 'strategy-quant-cfl'
+  | 'strategy-quant-filters'
+  | 'strategy-quant-dc'
+  | 'strategy-quant-roundtrip'
+  | 'quant-port'
+  | 'quant-port-filters'
+  | 'quant-port-source'
+  | 'quant-port-complete'
   | 'features'
   | 'all'
 export function parseTransplantComponent(value: string): TransplantComponent {
@@ -86,6 +106,16 @@ export function parseTransplantComponent(value: string): TransplantComponent {
     value === 'filters' ||
     value === 'available' ||
     value === 'strategy' ||
+    value === 'strategy-quant' ||
+    value === 'strategy-quant-matrices' ||
+    value === 'strategy-quant-cfl' ||
+    value === 'strategy-quant-filters' ||
+    value === 'strategy-quant-dc' ||
+    value === 'strategy-quant-roundtrip' ||
+    value === 'quant-port' ||
+    value === 'quant-port-filters' ||
+    value === 'quant-port-source' ||
+    value === 'quant-port-complete' ||
     value === 'features' ||
     value === 'all'
   )
@@ -96,7 +126,112 @@ export function parseTransplantComponent(value: string): TransplantComponent {
 export function transplantOverrides(
   component: TransplantComponent,
   d: TransplantDecisions,
+  distance?: number,
 ): TransplantOverrides {
+  if (component === 'strategy-quant-dc' || component === 'strategy-quant-roundtrip')
+    return {
+      ...transplantOverrides('strategy-quant-filters', d),
+      ...transplantOverrides('dc', d),
+      smoothDc: d.smoothDc,
+      rawDc: { quantDc: d.quantDc, quantization: d.dcQuantization },
+      rewriteGeometry: (geometry, context) =>
+        rewriteDevelopmentGeometry(
+          geometry,
+          context,
+          d,
+          true,
+          true,
+          false,
+          true,
+          component === 'strategy-quant-roundtrip',
+        ),
+    }
+  if (
+    component === 'quant-port' ||
+    component === 'quant-port-filters' ||
+    component === 'quant-port-source' ||
+    component === 'quant-port-complete'
+  ) {
+    if (distance === undefined) throw new Error('Quantization/port comparison needs distance')
+    const filters = component !== 'quant-port'
+    const sourceQuant = component === 'quant-port-source' || component === 'quant-port-complete'
+    const complete = component === 'quant-port-complete'
+    return {
+      ...transplantOverrides('quant', d),
+      ...(filters ? transplantOverrides('filters', d) : {}),
+      ...(complete
+        ? {
+            ...transplantOverrides('dc', d),
+            ...transplantOverrides('cfl', d),
+            smoothDc: d.smoothDc,
+            rawDc: { quantDc: d.quantDc, quantization: d.dcQuantization },
+          }
+        : {}),
+      allowQuantizationMerge: true,
+      ...(sourceQuant ? { quantizationAdjustmentDistance: distance } : {}),
+      matrixScales: [d.xQuantizationScale, d.bQuantizationScale],
+      rewriteGeometry: (base, context) => {
+        const geometry = {
+          ...base,
+          xScale: quantizationScale(d.xQuantizationScale),
+          bScale: quantizationScale(d.bQuantizationScale),
+          ...(complete
+            ? { smoothDc: d.smoothDc, quantDc: d.quantDc, dcQuantization: d.dcQuantization }
+            : {}),
+        }
+        const filtered =
+          filters && d.gaborish
+            ? libjxlGaborishContext(geometry, context, d.width, d.height)
+            : undefined
+        try {
+          const select = strategyPortOverrides(
+            distance,
+            sourceQuant ? 'spatial-source' : 'spatial-actual',
+            context,
+          ).rewriteGeometry
+          if (!select) throw new Error('Missing transform selector')
+          return select(geometry, filtered ?? context)
+        } finally {
+          filtered?.release()
+        }
+      },
+    }
+  }
+  if (
+    component === 'strategy-quant' ||
+    component === 'strategy-quant-matrices' ||
+    component === 'strategy-quant-cfl' ||
+    component === 'strategy-quant-filters'
+  ) {
+    const matrices = component !== 'strategy-quant'
+    const cfl = component === 'strategy-quant-cfl' || component === 'strategy-quant-filters'
+    const filters = component === 'strategy-quant-filters'
+    return {
+      ...transplantOverrides('quant', d),
+      ...transplantOverrides('strategy', d),
+      ...(cfl ? transplantOverrides('cfl', d) : {}),
+      ...(filters ? transplantOverrides('filters', d) : {}),
+      ...(matrices ? { matrixScales: [d.xQuantizationScale, d.bQuantizationScale] as const } : {}),
+      rewriteGeometry: (base, context) => {
+        const geometry = matrices
+          ? {
+              ...base,
+              xScale: quantizationScale(d.xQuantizationScale),
+              bScale: quantizationScale(d.bQuantizationScale),
+            }
+          : base
+        const source =
+          filters && d.gaborish
+            ? developmentSourceContext(geometry, context, d, false, true)
+            : undefined
+        try {
+          return rewriteStrategyGeometry(geometry, source ?? context, d, true)
+        } finally {
+          source?.release()
+        }
+      },
+    }
+  }
   if (
     (component === 'strategy' || component === 'all') &&
     d.strategies.some((s) => s < 0 || s > 20)
@@ -229,9 +364,41 @@ export function assertTransplantDecisions(
   if (
     overrides.quantizationMap &&
     (overrides.globalScale !== actual.globalScale ||
-      !equal(overrides.quantizationMap, actual.rawQuantization))
+      (!overrides.allowQuantizationMerge &&
+        !equal(overrides.quantizationMap, actual.rawQuantization)))
   )
     throw new Error('Emitted quant field differs from the forced field')
+  if (overrides.allowQuantizationMerge && overrides.quantizationMap) {
+    for (let at = 0; at < actual.strategies.length; at++) {
+      if (!actual.strategyFirstBlocks[at]) continue
+      const strategy = actual.strategies[at] ?? -1
+      const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
+        bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+      if (!bw || !bh) throw new Error('Invalid merged quantizer footprint')
+      let expected = 0
+      for (let y = 0; y < bh; y++)
+        for (let x = 0; x < bw; x++)
+          expected = Math.max(
+            expected,
+            overrides.quantizationMap[at + y * actual.blocksWide + x] ?? 0,
+          )
+      if (overrides.quantizationAdjustmentDistance !== undefined)
+        expected = libjxlTransformQuantization(
+          overrides.quantizationMap,
+          actual.blocksWide,
+          at % actual.blocksWide,
+          Math.floor(at / actual.blocksWide),
+          bw,
+          bh,
+          overrides.quantizationAdjustmentDistance,
+          false,
+        )
+      for (let y = 0; y < bh; y++)
+        for (let x = 0; x < bw; x++)
+          if (actual.rawQuantization[at + y * actual.blocksWide + x] !== expected)
+            throw new Error('Merged quantization differs from specified footprint rule')
+    }
+  }
   if (overrides.correlation) {
     const expected = overrides.correlation
     for (const key of [

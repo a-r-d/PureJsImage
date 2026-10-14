@@ -6,7 +6,11 @@
  * Changes: scalar TypeScript cost models and hierarchical selection, using our
  * transforms, quantization fields, CfL and writer. Tiny's adaptive mask is held
  * at one; v0.12's pixel mask can be held at one or ported separately. Maximum-footprint Q is
- * used instead of v0.12's sixteenth norm. Optional error guard is our own.
+ * used instead of v0.12's sixteenth norm except in spatial-source mode, which
+ * uses the separately ported norm and post-selection field adjustment.
+ * That mode scores unscaled normative matrices as the native heuristic does;
+ * the writer still applies the signaled chroma matrix scales.
+ * Optional error guard is our own.
  * Tiny's split-cost literal is written as its representable JavaScript double.
  * This is a development experiment, never imported by the public encoder.
  */
@@ -26,6 +30,7 @@ import {
 import { forwardDevelopmentTransform } from './transform-kernels.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
+import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
 import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
 
 export type StrategyPort =
@@ -35,6 +40,7 @@ export type StrategyPort =
   | 'spatial-guarded'
   | 'spatial-actual'
   | 'spatial-actual-guarded'
+  | 'spatial-source'
 export function parseStrategyPort(value: string): StrategyPort {
   if (
     value === 'tiny' ||
@@ -42,7 +48,8 @@ export function parseStrategyPort(value: string): StrategyPort {
     value === 'spatial-masked' ||
     value === 'spatial-guarded' ||
     value === 'spatial-actual' ||
-    value === 'spatial-actual-guarded'
+    value === 'spatial-actual-guarded' ||
+    value === 'spatial-source'
   )
     return value
   throw new Error(`Unknown strategy port: ${value}`)
@@ -106,7 +113,7 @@ function selectGeometry(
   const actualRounding = mode === 'spatial-actual' || mode === 'spatial-actual-guarded'
   const guarded = mode === 'spatial-guarded' || mode === 'spatial-actual-guarded'
   const maskField =
-    mode === 'spatial-masked' || guarded || actualRounding
+    mode === 'spatial-masked' || mode === 'spatial-source' || guarded || actualRounding
       ? libjxlStrategyMask(base, maskContext)
       : undefined
   let lastLoss = 0
@@ -135,6 +142,17 @@ function selectGeometry(
               target[(dy * 8 + py) * width + dx * 8 + px] = source[py * 8 + px] ?? 0
         }
       }
+    if (mode === 'spatial-source')
+      quantizer = libjxlTransformQuantization(
+        base.quantizationMap ?? [],
+        base.blocksWide,
+        x,
+        y,
+        bw,
+        bh,
+        distance,
+        true,
+      )
     for (let c = 0; c < 3; c++) {
       const source = planes[c],
         output = transformed[c]
@@ -157,12 +175,20 @@ function selectGeometry(
       if (!coefficients || !luma || !matrix) throw new Error('Missing strategy coefficients')
       const correlation =
         c === 0
-          ? (base.correlationX?.[tile] ?? 0) / 84
+          ? (base.developmentCorrelation?.baseCorrelationX ?? 0) +
+            (base.correlationX?.[tile] ?? 0) / (base.developmentCorrelation?.colorFactor ?? 84)
           : c === 2
-            ? (base.correlationB?.[tile] ?? 0) / 84
+            ? (base.developmentCorrelation ? base.developmentCorrelation.baseCorrelationB - 1 : 0) +
+              (base.correlationB?.[tile] ?? 0) / (base.developmentCorrelation?.colorFactor ?? 84)
             : 0
       const channelScale =
-        c === 0 ? 0.8 ** ((base.xScale ?? 2) - 2) : c === 2 ? 0.8 ** ((base.bScale ?? 2) - 2) : 1
+        mode === 'spatial-source'
+          ? 1
+          : c === 0
+            ? 0.8 ** ((base.xScale ?? 2) - 2)
+            : c === 2
+              ? 0.8 ** ((base.bScale ?? 2) - 2)
+              : 1
       let nonzero = 0,
         channelEntropy = 0
       residual.fill(0, 0, size)
@@ -374,9 +400,32 @@ function selectGeometry(
   ])
     memory.release(buffer)
   if (maskField) memory.release(maskField)
+  const adjusted = mode === 'spatial-source' ? memory.allocate(Int32Array, blockCount) : undefined
+  if (adjusted) {
+    for (let at = 0; at < blockCount; at++) {
+      if (!first[at]) continue
+      const strategy = strategies[at] ?? 0
+      const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 1,
+        bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 1
+      const x = at % base.blocksWide,
+        y = Math.floor(at / base.blocksWide)
+      const q = libjxlTransformQuantization(
+        base.quantizationMap,
+        base.blocksWide,
+        x,
+        y,
+        bw,
+        bh,
+        distance,
+        false,
+      )
+      for (let dy = 0; dy < bh; dy++)
+        for (let dx = 0; dx < bw; dx++) adjusted[at + dy * base.blocksWide + dx] = q
+    }
+  }
   try {
     return rewriteStrategyGeometry(
-      base,
+      adjusted ? { ...base, quantizationMap: adjusted } : base,
       context,
       {
         blocksWide: base.blocksWide,
@@ -389,5 +438,6 @@ function selectGeometry(
   } finally {
     memory.release(strategies)
     memory.release(first)
+    if (adjusted) memory.release(adjusted)
   }
 }

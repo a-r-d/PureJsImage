@@ -18,6 +18,7 @@ it.each([
   'spatial-actual',
   'spatial-actual-guarded',
   'own-rewrite',
+  'own-roundtrip',
   'gaborish',
   'gaborish-strategy',
   'dc',

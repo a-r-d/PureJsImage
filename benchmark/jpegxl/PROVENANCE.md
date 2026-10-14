@@ -9,6 +9,8 @@ development experiments; they are not selected by the public encoder.
 
 | Our module | Source and exact revision | Material and changes |
 | --- | --- | --- |
+| `lossy-lab/libjxl-chroma-roundtrip-port.ts` | libjxl `lib/jxl/enc_group.cc`, QuantizeRoundtripYBlockAC and ComputeCoefficients, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Quantize and reconstruct Y before forming chroma residuals. Uses our existing rounding policy and normative bias values. Bridges our B-minus-original-Y working plane to prediction from reconstructed Y; no native thresholds, SIMD or infrastructure copied. |
+| `lossy-lab/libjxl-quantization-port.ts` | libjxl `lib/jxl/enc_ac_strategy.cc` and `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Transform selection's sixteenth-norm quantization estimate and AdjustQuantField's distance-dependent maximum/mean blend. Scalar TypeScript consumes our raw quantizers, normalizes the norm by its maximum, and rounds the final adjusted field to wire integer precision. This does not port InitialQuantField or its perceptual refinement loop. |
 | `lossy-lab/libjxl-strategy-port.ts` | libjxl-tiny `encoder/enc_ac_strategy.cc`, `8eae18172059d54f5c734ca814f23b96eebff859`; libjxl `lib/jxl/enc_ac_strategy.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Tiny coefficient entropy/loss constants and rectangular split costs; v0.12 entropy estimate, spatial eighth-norm loss, channel/ringing weights, distance modulation, small-transform biases and hierarchical square/rectangle costs. Scalar TypeScript uses our transforms, quantizer and writer. Maximum-footprint quantization replaces the sixteenth norm. Tiny masking is constant one. Floating merge passes are omitted. The optional error guard is our own. |
 | `lossy-lab/libjxl-strategy-mask.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Cubic-root/gamma derivative ratio, pixel Laplacian mask and five-by-five mask-blur weights. Scalar loops consume our XYB samples with padded extents and clamped borders. Managed full-plane scratch is development-only and requires a bounded replacement before production promotion. |
 | `lossy-lab/libjxl-gaborish-port.ts` | libjxl `lib/jxl/enc_gaborish.cc` and `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Five inverse-Gaborish weights, normalization and unit channel strength. Our scalar convolution uses a bounded 12x12 block halo and clamped borders. No SIMD, threading or source memory infrastructure is copied. |
@@ -37,6 +39,12 @@ reconstruction biases in place of the source model's nearest-integer estimate.
 This is an explicitly measured adaptation, not an exact reproduction of libjxl.
 The joint Gaborish/strategy experiment computes masking before preconditioning
 and transform costs after it, preserving the source ordering.
+The reopened coupled investigation adds `spatial-source`: it uses the source
+quantization norm and field adjustment instead of maximum-only aggregation.
+It also uses unscaled normative matrices inside the source cost estimate;
+signaled chroma scales remain applied by the writer.
+Trials starting from extracted peer fields use final signaled quantizers, not
+the unsignaled initial floating-point field used inside native selection.
 All further ports must add our file, source file, exact commit and material taken
 to this inventory, and the required source header to each module.
 

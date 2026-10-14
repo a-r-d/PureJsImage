@@ -16,12 +16,19 @@ The remaining gap includes unsignaled preconditioning as well as rounding and
 entropy coding. Holdout and original qualification remain closed until a port
 clears the normal development gates.
 
-Step 2 is now stopped under the owner's three-component rule. Ten source-port
+The first Step 2 screen stopped under the owner's three-component rule. Ten source-port
 variants and one writer control complete 880 screen encodes with no execution
 failures. Transform selection, inverse Gaborish and DC precision yield no
 promotable gain. Their quality tradeoffs, diagnostic encode times and source
 adaptations are in [PORT-REPORT.md](PORT-REPORT.md). The licensed TypeScript
 experiments stay on `jxl-libjxl-ports`; no new heuristic enters the public encoder.
+
+Aaron reopened the investigation after that report. The
+[coupled decision report](COUPLED-REPORT.md) tests AC quantization, transforms,
+chroma, filters and DC together. Matching DC removes a large rate mismatch:
+the 64-photo replay is +3.323% SSIM, +1.581% 3-norm and +0.475% max against vips.
+SSIM still fails the promotion gate. The earlier single-component results remain
+preserved and do not establish that the coupled pipeline is ineffective.
 
 Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),
 [the steering plan](../LOSSY_STEERING.md),

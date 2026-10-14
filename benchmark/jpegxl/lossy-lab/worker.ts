@@ -140,6 +140,7 @@ try {
               await readFile(join(transplantRoot ?? '', 'vips', fixtureId ?? '', `${setting}.jxl`)),
               transplant === 'features' || transplant === 'all',
             ),
+            setting,
           )
         : strategyPort
           ? libjxlPortOverrides(strategyPort, setting, image.width, image.height)

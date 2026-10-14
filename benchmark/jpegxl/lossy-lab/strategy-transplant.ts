@@ -12,6 +12,7 @@ import {
 } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 import { forwardDevelopmentTransform, developmentDcGrid } from './transform-kernels.ts'
 import type { TransplantDecisions } from './decisions.ts'
+import { libjxlRoundtripLuma, libjxlChromaResidual } from './libjxl-chroma-roundtrip-port.ts'
 
 export function rewriteStrategyGeometry(
   base: VarDctCoefficientGeometry,
@@ -21,6 +22,7 @@ export function rewriteStrategyGeometry(
     'blocksWide' | 'blocksHigh' | 'strategies' | 'strategyFirstBlocks'
   >,
   exactQuant: boolean,
+  roundtripChroma = false,
 ): VarDctCoefficientGeometry {
   const memory = base.memory
   if (
@@ -169,7 +171,25 @@ export function rewriteStrategyGeometry(
           const correlation = base.developmentCorrelation
           const yCoefficients = transformed[1]
           if (!yCoefficients) throw new Error('Missing luminance coefficients')
+          if (roundtripChroma) {
+            const target = coefficients[1],
+              matrix = jpegXlDevelopmentDequantization(strategy)[1]
+            if (!target || !matrix) throw new Error('Missing luma roundtrip target')
+            libjxlRoundtripLuma(
+              yCoefficients,
+              scratch,
+              target,
+              cursor,
+              size,
+              bw,
+              bh,
+              invGlobal / quant,
+              matrix,
+              context,
+            )
+          }
           for (let c = 0; c < 3; c++) {
+            if (roundtripChroma && c === 1) continue
             const result = transformed[c]
             const target = coefficients[c],
               table = jpegXlDevelopmentDequantization(strategy)[c]
@@ -197,7 +217,16 @@ export function rewriteStrategyGeometry(
               )
                 continue
               const value = context.quantize(
-                ((result[p] ?? 0) - ratio * (yCoefficients[p] ?? 0)) / (step * (table[p] ?? 0)),
+                (roundtripChroma
+                  ? libjxlChromaResidual(
+                      result[p] ?? 0,
+                      yCoefficients[p] ?? 0,
+                      scratch[p] ?? 0,
+                      ratio,
+                      c === 2,
+                    )
+                  : (result[p] ?? 0) - ratio * (yCoefficients[p] ?? 0)) /
+                  (step * (table[p] ?? 0)),
                 c,
               )
               if (Math.abs(value) > 4095)

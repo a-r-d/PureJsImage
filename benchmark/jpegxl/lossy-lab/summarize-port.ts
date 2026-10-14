@@ -4,9 +4,10 @@ import { object } from '../comparison/model.ts'
 import { parsePoint, curveMatches } from './model.ts'
 import { bdRate, summarizeBdRates, type BdRateResult, type QualityMetric } from './metrics.ts'
 
-const [directory, referenceDirectory] = process.argv.slice(2)
+const [directory, referenceDirectory, outputName = 'against-control.json'] = process.argv.slice(2)
 if (!directory || !referenceDirectory)
   throw new Error('Usage: summarize-port.ts run-directory reference-engine-directory')
+if (!/^[a-z0-9-]+\.json$/u.test(outputName)) throw new Error('Invalid comparison filename')
 const summary = object(JSON.parse(await readFile(join(directory, 'summary.json'), 'utf8')))
 if (typeof summary.variant !== 'string') throw new Error('Missing candidate variant')
 const results = join(directory, `${summary.variant}-purejsimage`)
@@ -58,7 +59,7 @@ const report = {
   comparisons,
   failures: summary.failures,
 }
-await writeFile(join(directory, 'against-control.json'), `${JSON.stringify(report, null, 2)}\n`)
+await writeFile(join(directory, outputName), `${JSON.stringify(report, null, 2)}\n`)
 console.log(
   JSON.stringify(
     { control, peers: summary.table, speedDiagnostic: summary.speed, failures: summary.failures },

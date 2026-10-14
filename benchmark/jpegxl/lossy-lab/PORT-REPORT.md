@@ -1,5 +1,9 @@
 # Source-port screen, 2026-10-13
 
+Aaron subsequently reopened this investigation. See the
+[coupled decision report](COUPLED-REPORT.md) for the new measurements and causal
+DC/AC allocation audit. The stopped checkpoint below remains historical evidence.
+
 Step 2 stops after three component directions produce no promotable gain:
 transform selection, inverse Gaborish, and DC precision. Ten port variants and
 one writer control complete 880 valid screen encodes. No source heuristic is

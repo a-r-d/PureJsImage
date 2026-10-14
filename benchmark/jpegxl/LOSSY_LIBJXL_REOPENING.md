@@ -52,3 +52,10 @@ most +5%, Butteraugli max at most +8%. Report jSquash as reference. Speed target
 remain within 3x jSquash on crops and 5x on originals. Keep the memory ceiling.
 Stop when targets pass. Also stop when three consecutive ports close less than
 1% combined and report the results.
+
+## Follow-up after the first port report
+
+Aaron explicitly reopened the stopped experiments: investigate why the ports
+regressed and test libjxl quantization and transform decisions together. This
+authorizes the coupled investigation after LL-618. Preserve the earlier results
+and apply the same development, licensing, speed, memory and promotion rules.
