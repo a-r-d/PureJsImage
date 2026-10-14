@@ -227,3 +227,18 @@ it('replays matched maps while deriving chroma from reconstructed luma', async (
   )
   expect(() => assertTransplantDecisions(forced, actual)).not.toThrow()
 })
+
+it('preserves every native map when replacing only inverse Gaborish', async () => {
+  const baseline = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, {})).bytes,
+  )
+  const decisions = { ...baseline, gaborish: true }
+  const forced = transplantOverrides('strategy-quant-gaborish', decisions, 2)
+  const actual = await extractDecisions(
+    (await encodeTransplant(pixels, width, height, 2, forced)).bytes,
+  )
+  expect(() => assertTransplantDecisions(forced, actual)).not.toThrow()
+  expect(actual.strategies).toEqual(decisions.strategies)
+  expect(actual.rawQuantization).toEqual(decisions.rawQuantization)
+  expect(actual.gaborish).toBe(true)
+})

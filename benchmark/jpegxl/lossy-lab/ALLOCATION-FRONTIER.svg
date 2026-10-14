@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="740" viewBox="0 0 1050 740" role="img" aria-labelledby="allocation-title">
+<title id="allocation-title">DC and AC allocation: SSIMULACRA2 versus Butteraugli 3-norm BD-rate frontier</title>
+<rect width="1050" height="740" fill="#ffffff"/><g font-family="sans-serif" fill="#182b3a">
+<text x="70" y="38" font-size="23">DC/AC allocation frontier • 16-photo screen</text>
+<text x="70" y="65" font-size="14">BD-rate against wasm-vips; lower is better. Partial quality-band overlap.</text>
+<path d="M 85 115 V 580 M 85 580 H 865" stroke="#dde4e9" fill="none"/>
+<text x="85" y="606" text-anchor="middle" font-size="13">-11.0%</text>
+<text x="72" y="584" text-anchor="end" font-size="13">-3.0%</text>
+<path d="M 215 115 V 580 M 85 502.5 H 865" stroke="#dde4e9" fill="none"/>
+<text x="215" y="606" text-anchor="middle" font-size="13">1.0%</text>
+<text x="72" y="506.5" text-anchor="end" font-size="13">1.7%</text>
+<path d="M 345 115 V 580 M 85 425 H 865" stroke="#dde4e9" fill="none"/>
+<text x="345" y="606" text-anchor="middle" font-size="13">13.0%</text>
+<text x="72" y="429" text-anchor="end" font-size="13">6.3%</text>
+<path d="M 475 115 V 580 M 85 347.5 H 865" stroke="#dde4e9" fill="none"/>
+<text x="475" y="606" text-anchor="middle" font-size="13">25.0%</text>
+<text x="72" y="351.5" text-anchor="end" font-size="13">11.0%</text>
+<path d="M 605 115 V 580 M 85 269.99999999999994 H 865" stroke="#dde4e9" fill="none"/>
+<text x="605" y="606" text-anchor="middle" font-size="13">37.0%</text>
+<text x="72" y="273.99999999999994" text-anchor="end" font-size="13">15.7%</text>
+<path d="M 735 115 V 580 M 85 192.50000000000006 H 865" stroke="#dde4e9" fill="none"/>
+<text x="735" y="606" text-anchor="middle" font-size="13">49.0%</text>
+<text x="72" y="196.50000000000006" text-anchor="end" font-size="13">20.3%</text>
+<path d="M 865 115 V 580 M 85 115 H 865" stroke="#dde4e9" fill="none"/>
+<text x="865" y="606" text-anchor="middle" font-size="13">61.0%</text>
+<text x="72" y="119" text-anchor="end" font-size="13">25.0%</text>
+<polyline points="140.38734936783135,447.65728020625164 151.05694279916997,498.33246535360956 182.28758498423105,519.0354062926051 196.39253826394975,533.6352766835073" fill="none" stroke="#132e48" stroke-width="2"/>
+<circle cx="143.97137239668209" cy="410.6260739339702" r="5.6" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s0p8-off: -5.556 / +7.199 / +8.973, mean +3.538</title></circle>
+<circle cx="142.9474159748795" cy="444.4969374328438" r="6" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1-off: -5.651 / +5.159 / +4.193, mean +1.234</title></circle>
+<circle cx="164.1719343493752" cy="471.7157987489811" r="6.5" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1p25-off: -3.692 / +3.520 / +5.307, mean +1.712</title></circle>
+<circle cx="200.27945605127132" cy="475.61477885118535" r="7.2" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1p6-off: -0.359 / +3.286 / +5.402, mean +2.776</title></circle>
+<circle cx="140.38734936783135" cy="447.65728020625164" r="5.6" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s0p8-off: -5.887 / +4.969 / +5.145, mean +1.409</title></circle>
+<circle cx="153.03803328141055" cy="485.0406481808094" r="6" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1-off: -4.720 / +2.718 / +1.611, mean -0.130</title></circle>
+<circle cx="188.0691108009883" cy="497.4786240827983" r="6.5" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1p25-off: -1.486 / +1.969 / +3.274, mean +1.252</title></circle>
+<circle cx="246.4162187331222" cy="486.84971884909646" r="7.2" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1p6-off: +3.900 / +2.609 / +2.634, mean +3.048</title></circle>
+<circle cx="151.05694279916997" cy="498.33246535360956" r="5.6" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s0p8-off: -4.902 / +1.918 / +2.046, mean -0.313</title></circle>
+<circle cx="159.0402061338396" cy="494.339560598775" r="5.6" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s0p8-on: -4.166 / +2.158 / +2.503, mean +0.165</title></circle>
+<circle cx="182.28758498423105" cy="519.0354062926051" r="6" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s1-off: -2.020 / +0.671 / -1.216, mean -0.855</title></circle>
+<text x="194.28758498423105" y="541.0354062926051" font-size="12">a0p5-s1-off</text>
+<circle cx="193.84715311153712" cy="513.2061973042739" r="6" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s1-on: -0.953 / +1.022 / -1.205, mean -0.379</title></circle>
+<text x="205.84715311153712" y="501.2061973042739" font-size="12">a0p5-s1-on</text>
+<circle cx="234.63816273802902" cy="516.5778559851326" r="6.5" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p25-off: +2.813 / +0.819 / +2.100, mean +1.911</title></circle>
+<circle cx="248.46880990635495" cy="506.8700215029926" r="6.5" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p25-on: +4.089 / +1.404 / +1.996, mean +2.496</title></circle>
+<circle cx="321.9216679307432" cy="486.36799781669527" r="7.2" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p6-off: +10.870 / +2.638 / +2.830, mean +5.446</title></circle>
+<circle cx="340.68196441765383" cy="471.3847282036717" r="7.2" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p6-on: +12.601 / +3.540 / +2.911, mean +6.351</title></circle>
+<circle cx="196.39253826394975" cy="533.6352766835073" r="5.6" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s0p8-off: -0.718 / -0.208 / +0.435, mean -0.164</title></circle>
+<circle cx="214.87936252381942" cy="522.7216567636953" r="5.6" fill="#d86632" stroke="#d86632" stroke-width="2"><title>a0p75-s0p8-on: +0.989 / +0.449 / -0.007, mean +0.477</title></circle>
+<circle cx="255.56949806901838" cy="529.0874189643499" r="6" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s1-off: +4.745 / +0.066 / -4.582, mean +0.076</title></circle>
+<circle cx="274.61991685644733" cy="518.4572269483293" r="6" fill="#d86632" stroke="#d86632" stroke-width="2"><title>a0p75-s1-on: +6.503 / +0.706 / -3.103, mean +1.369</title></circle>
+<circle cx="341.69483522469596" cy="498.9541899806105" r="6.5" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s1p25-off: +12.695 / +1.880 / -0.346, mean +4.743</title></circle>
+<circle cx="362.87708899125" cy="485.82222050739233" r="6.5" fill="#d86632" stroke="#d86632" stroke-width="2"><title>a0p75-s1p25-on: +14.650 / +2.671 / +0.974, mean +6.098</title></circle>
+<circle cx="469.17176927215996" cy="440.34471140338553" r="7.2" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s1p6-off: +24.462 / +5.409 / +1.881, mean +10.584</title></circle>
+<circle cx="500.0762491250428" cy="414.3678890206875" r="7.2" fill="#d86632" stroke="#d86632" stroke-width="2"><title>a0p75-s1p6-on: +27.315 / +6.974 / +6.159, mean +13.482</title></circle>
+<circle cx="326.1330510638038" cy="462.0484354075773" r="5.6" fill="#ffffff" stroke="#944aa7" stroke-width="2"><title>a1-s0p8-off: +11.258 / +4.102 / +0.015, mean +5.125</title></circle>
+<circle cx="334.6034549083399" cy="457.2170669953476" r="5.6" fill="#944aa7" stroke="#944aa7" stroke-width="2"><title>a1-s0p8-on: +12.040 / +4.393 / -0.190, mean +5.415</title></circle>
+<circle cx="434.7853350043153" cy="403.78620572150317" r="6" fill="#ffffff" stroke="#944aa7" stroke-width="2"><title>a1-s1-off: +21.288 / +7.611 / -1.387, mean +9.171</title></circle>
+<circle cx="439.9448493096422" cy="395.72908050971677" r="6" fill="#944aa7" stroke="#944aa7" stroke-width="2"><title>a1-s1-on: +21.764 / +8.096 / +0.891, mean +10.250</title></circle>
+<circle cx="582.1063726579642" cy="312.40558572352717" r="6.5" fill="#ffffff" stroke="#944aa7" stroke-width="2"><title>a1-s1p25-off: +34.887 / +13.113 / +3.701, mean +17.234</title></circle>
+<circle cx="573.2043887475838" cy="312.5449672431096" r="6.5" fill="#944aa7" stroke="#944aa7" stroke-width="2"><title>a1-s1p25-on: +34.065 / +13.105 / +4.802, mean +17.324</title></circle>
+<circle cx="809.5206878956835" cy="160.5489185493753" r="7.2" fill="#ffffff" stroke="#944aa7" stroke-width="2"><title>a1-s1p6-off: +55.879 / +22.257 / +10.464, mean +29.533</title></circle>
+<circle cx="778.4993233285912" cy="165.2511086346026" r="7.2" fill="#944aa7" stroke="#944aa7" stroke-width="2"><title>a1-s1p6-on: +53.015 / +21.974 / +13.282, mean +29.424</title></circle>
+<text x="465" y="646" text-anchor="middle" font-size="17">SSIMULACRA2 BD-rate (%)</text>
+<text x="23" y="350" transform="rotate(-90 23 350)" text-anchor="middle" font-size="17">Butteraugli 3-norm BD-rate (%)</text>
+<text x="85" y="685" font-size="14">Filled: smoothing on • Open: smoothing off • Larger circles: greater AC precision</text>
+<circle cx="905" cy="150" r="6" fill="#2463a0"/><text x="922" y="155" font-size="14">α = 0</text>
+<circle cx="905" cy="183" r="6" fill="#168c83"/><text x="922" y="188" font-size="14">α = 0.25</text>
+<circle cx="905" cy="216" r="6" fill="#b68b10"/><text x="922" y="221" font-size="14">α = 0.5</text>
+<circle cx="905" cy="249" r="6" fill="#d86632"/><text x="922" y="254" font-size="14">α = 0.75</text>
+<circle cx="905" cy="282" r="6" fill="#944aa7"/><text x="922" y="287" font-size="14">α = 1</text>
+</g></svg>

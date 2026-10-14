@@ -11,6 +11,7 @@ import { number, object } from '../comparison/model.ts'
 import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
 import { type CurvePoint, curveMatches, type EncodePoint, parsePoint } from './model.ts'
 import { extractDecisions } from './decisions.ts'
+import { parseAllocation, allocationOverrides } from './allocation.ts'
 import { parseLibjxlPort, libjxlPortOverrides } from './libjxl-ports.ts'
 import {
   assertTransplantDecisions,
@@ -38,6 +39,16 @@ if (
   (engine !== 'purejsimage' || effort !== 7 || process.argv.includes('--transplant'))
 )
   throw new Error('Strategy port requires an independent effort-7 run')
+const allocationAt = process.argv.indexOf('--allocation')
+const allocation = allocationAt < 0 ? null : parseAllocation(process.argv[allocationAt + 1] ?? '')
+if (
+  allocation &&
+  (engine !== 'purejsimage' ||
+    effort !== 7 ||
+    strategyPort ||
+    process.argv.includes('--transplant'))
+)
+  throw new Error('Allocation requires an independent effort-7 run')
 const transplantAt = process.argv.indexOf('--transplant')
 const transplant =
   transplantAt < 0 ? null : parseTransplantComponent(process.argv[transplantAt + 1] ?? '')
@@ -144,7 +155,9 @@ try {
           )
         : strategyPort
           ? libjxlPortOverrides(strategyPort, setting, image.width, image.height)
-          : null
+          : allocation
+            ? allocationOverrides(allocation, setting)
+            : null
       const started = performance.now()
       let bytes: Uint8Array
       let managedPeakBytes: number | null = null
@@ -226,7 +239,7 @@ try {
       // out. This receipt establishes encoding only; a curve still needs scores.
       await writeFile(
         join(directory, `${setting}.encode.json`),
-        `${JSON.stringify({ status: 'encoded', engine, reference, width: image.width, height: image.height, channels: inputChannels, effort, strategyPort, transplantSourceSha256, inputPixelSha256: inputHash, encodedSha256: hash(bytes), ...encoded }, null, 2)}\n`,
+        `${JSON.stringify({ status: 'encoded', engine, reference, width: image.width, height: image.height, channels: inputChannels, effort, strategyPort, allocation, transplantSourceSha256, inputPixelSha256: inputHash, encodedSha256: hash(bytes), ...encoded }, null, 2)}\n`,
       )
       run(`${oracle}/djxl`, [artifact, decoded, '--num_threads=1', '--bits_per_sample=8'])
       const decodedImage = PNG.sync.read(await readFile(decoded))
@@ -253,7 +266,7 @@ try {
     }
     await writeFile(
       join(directory, 'result.json'),
-      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort, strategyPort, transplantSourceSha256, points, failures }, null, 2)}\n`,
+      `${JSON.stringify({ engine, reference, fixtureSha256: hash(await readFile(reference)), width: image.width, height: image.height, channels: inputChannels, effort, strategyPort, allocation, transplantSourceSha256, points, failures }, null, 2)}\n`,
     )
   }
 } finally {

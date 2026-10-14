@@ -144,3 +144,9 @@ tracked large selector. The interrupted fine prototype is also not production.
 The provenance gaps above remain open. No runtime value has been rewritten, and
 no new independence, compression, speed or quality result is claimed by this
 inventory.
+
+Allocation sweep, 2026-10-14: `lossy-lab/allocation.ts` reuses the already recorded
+`libjxl-dc-port.ts` InitialQuantDC port. The geometric blend and global AC scale
+are owner-specified experiments implemented by first-party development hooks;
+no additional libjxl code or constants are introduced. The native-map Gaborish
+diagnostic reuses `libjxl-gaborish-port.ts` with all signaled maps fixed.

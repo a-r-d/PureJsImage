@@ -1,3 +1,4 @@
+import { allocationOverrides } from '../../benchmark/jpegxl/lossy-lab/allocation.ts'
 import { extractDecisions } from '../../benchmark/jpegxl/lossy-lab/decisions.ts'
 import { libjxlPortOverrides } from '../../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
 import {
@@ -50,6 +51,16 @@ export async function verifyDecisionTransplantBrowser() {
     sharpness: Array.from({ length: 16 }, (_, i) => i % 8),
   }
   const rows = []
+  for (const smoothing of ['off', 'on'] as const) {
+    const encoded = await encodeTransplant(
+      pixels,
+      32,
+      32,
+      2,
+      allocationOverrides({ alpha: 0.5, acScale: 1.25, smoothing }, 2),
+    )
+    rows.push(await decodedReceipt(encoded.bytes, `allocation-${smoothing}`))
+  }
   for (const component of ['control', 'quant', 'dc', 'cfl', 'filters', 'available'] as const) {
     const encoded = await encodeTransplant(
       pixels,
@@ -133,6 +144,7 @@ export async function verifyDecisionTransplantBrowser() {
     'strategy-quant-filters',
     'strategy-quant-dc',
     'strategy-quant-roundtrip',
+    'strategy-quant-gaborish',
     'quant-port',
     'quant-port-filters',
     'quant-port-source',

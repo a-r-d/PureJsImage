@@ -1,5 +1,13 @@
 # JPEG XL lossy lab
 
+The latest owner decision is the 2026-10-14 allocation sweep in
+[LOSSY_LIBJXL_REOPENING.md](../LOSSY_LIBJXL_REOPENING.md). It replaces the separate
+component strategy and metric targets: mean BD-rate against vips at most +2%,
+with every metric at most +5%. Existing speed, memory and remaining promotion
+checks continue. A large coherent port requires a separate approval. The [allocation report](ALLOCATION-REPORT.md) records 4,288 valid encodes.
+Its best full-lab mean is +2.704%, missing +2%; Step C awaits approval. The older
+checkpoints below retain their original gates and measurements.
+
 The [2026-10-13 owner decision](../LOSSY_LIBJXL_REOPENING.md) reopens source-informed
 lossy work. Read it before the older decisions below. Decision transplants precede
 source ports; the development option is rejected by the public codec. Current
@@ -27,7 +35,7 @@ Aaron reopened the investigation after that report. The
 [coupled decision report](COUPLED-REPORT.md) tests AC quantization, transforms,
 chroma, filters and DC together. Matching DC removes a large rate mismatch:
 the 64-photo replay is +3.323% SSIM, +1.581% 3-norm and +0.475% max against vips.
-SSIM still fails the promotion gate. The earlier single-component results remain
+SSIM failed the then-current promotion gate. The earlier single-component results remain
 preserved and do not establish that the coupled pipeline is ineffective.
 
 Follow [the promotion-entry decision](../LOSSY_PROMOTION_ENTRY.md),

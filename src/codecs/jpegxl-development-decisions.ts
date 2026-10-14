@@ -8,6 +8,12 @@ export interface JpegXlDevelopmentTransformContext {
 
 /** Internal lab input. Never accepted by the public codec options. */
 export interface JpegXlDevelopmentDecisions {
+  readonly allocation?: Readonly<{
+    acPrecisionScale: number
+    dcAlpha: number
+    dcSteps: readonly [number, number, number]
+    smoothDc?: boolean
+  }>
   readonly strategyMap?: Int32Array
   readonly strategyFirstBlocks?: Uint8Array
   readonly rewriteGeometry?: (

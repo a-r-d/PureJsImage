@@ -33,6 +33,16 @@ const mode = parseLabMode(argument('--mode', 'screen'))
 const variant = argument('--variant', 'baseline')
 const transplant = argument('--transplant', '')
 const strategyPort = argument('--strategy-port', '')
+const allocation = argument('--allocation', '')
+if (
+  allocation &&
+  (transplant ||
+    strategyPort ||
+    !['screen', 'lab', 'speed'].includes(mode) ||
+    args.includes('--rgb') ||
+    argument('--effort', '7') !== '7')
+)
+  throw new Error('Allocation requires a separate effort-7 development run')
 if (
   strategyPort &&
   (transplant ||
@@ -228,6 +238,7 @@ async function runJob(fixture: Fixture, engine: Engine): Promise<void> {
           ...(sameFixture ? ['--append'] : []),
           ...(engine === 'purejsimage' && rgb ? ['--rgb'] : []),
           ...(engine === 'purejsimage' && strategyPort ? ['--strategy-port', strategyPort] : []),
+          ...(engine === 'purejsimage' && allocation ? ['--allocation', allocation] : []),
           ...(engine === 'purejsimage' && transplant
             ? [
                 '--transplant',

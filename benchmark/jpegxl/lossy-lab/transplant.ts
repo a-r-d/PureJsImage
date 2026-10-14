@@ -55,6 +55,7 @@ function rewriteDevelopmentGeometry(
   features: boolean,
   filters: boolean,
   roundtripChroma = false,
+  optimizedGaborish = false,
 ): VarDctCoefficientGeometry {
   const selected = forcedStrategies ? d : ownTransformDecisions(base, d)
   const geometry = exactQuant
@@ -69,7 +70,10 @@ function rewriteDevelopmentGeometry(
     : base
   if (!features && (!filters || !d.gaborish))
     return rewriteStrategyGeometry(geometry, context, selected, exactQuant, roundtripChroma)
-  const source = developmentSourceContext(geometry, context, d, features, filters && d.gaborish)
+  const source =
+    optimizedGaborish && !features && filters && d.gaborish
+      ? libjxlGaborishContext(geometry, context, d.width, d.height)
+      : developmentSourceContext(geometry, context, d, features, filters && d.gaborish)
   try {
     return rewriteStrategyGeometry(geometry, source, selected, exactQuant, roundtripChroma)
   } finally {
@@ -91,6 +95,7 @@ export type TransplantComponent =
   | 'strategy-quant-filters'
   | 'strategy-quant-dc'
   | 'strategy-quant-roundtrip'
+  | 'strategy-quant-gaborish'
   | 'quant-port'
   | 'quant-port-filters'
   | 'quant-port-source'
@@ -112,6 +117,7 @@ export function parseTransplantComponent(value: string): TransplantComponent {
     value === 'strategy-quant-filters' ||
     value === 'strategy-quant-dc' ||
     value === 'strategy-quant-roundtrip' ||
+    value === 'strategy-quant-gaborish' ||
     value === 'quant-port' ||
     value === 'quant-port-filters' ||
     value === 'quant-port-source' ||
@@ -128,7 +134,11 @@ export function transplantOverrides(
   d: TransplantDecisions,
   distance?: number,
 ): TransplantOverrides {
-  if (component === 'strategy-quant-dc' || component === 'strategy-quant-roundtrip')
+  if (
+    component === 'strategy-quant-dc' ||
+    component === 'strategy-quant-roundtrip' ||
+    component === 'strategy-quant-gaborish'
+  )
     return {
       ...transplantOverrides('strategy-quant-filters', d),
       ...transplantOverrides('dc', d),
@@ -144,6 +154,7 @@ export function transplantOverrides(
           false,
           true,
           component === 'strategy-quant-roundtrip',
+          component === 'strategy-quant-gaborish',
         ),
     }
   if (

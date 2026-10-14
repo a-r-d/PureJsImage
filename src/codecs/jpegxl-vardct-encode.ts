@@ -699,7 +699,22 @@ function* prepare8(
     throw invalidJpegXlInput('forward conformance distance must be between 0.25 and 25')
   const quantAc = 4
   const ownGlobalScale = Math.round(65536 / (distance * quantAc))
-  const globalScale = decisions?.globalScale ?? ownGlobalScale
+  const allocation = decisions?.allocation
+  if (
+    allocation &&
+    (!Number.isFinite(allocation.acPrecisionScale) ||
+      allocation.acPrecisionScale <= 0 ||
+      !Number.isFinite(allocation.dcAlpha) ||
+      allocation.dcAlpha < 0 ||
+      allocation.dcAlpha > 1 ||
+      allocation.dcSteps.some((step) => !Number.isFinite(step) || step <= 0) ||
+      decisions?.globalScale !== undefined ||
+      decisions?.dc !== undefined)
+  )
+    throw invalidJpegXlInput('invalid development allocation')
+  const globalScale =
+    decisions?.globalScale ??
+    (allocation ? Math.round(ownGlobalScale * allocation.acPrecisionScale) : ownGlobalScale)
   const effectiveDistance = 65536 / ownGlobalScale / quantAc
   if (!Number.isInteger(globalScale) || globalScale < 1 || globalScale > 73728)
     throw invalidJpegXlInput('development global scale is invalid')
@@ -780,7 +795,7 @@ function* prepare8(
     sdrColor &&
     (progressive || !sdrOpaqueColor || !photoContext || (!compressionSearch && distance > 1))
   const photoColorQuantization = originalDarkAc || originalPhotoAc
-  const smoothColorDc = baselineColorPrecision || photoColorQuantization
+  const smoothColorDc = allocation?.smoothDc ?? (baselineColorPrecision || photoColorQuantization)
   const ownDcQuantization = moderateSdrDc
     ? originalPhotoAc
       ? [distance < 2 ? 1 / 8192 : 1 / 16384, 1 / 2048, 1 / 1024]
@@ -793,7 +808,14 @@ function* prepare8(
     ? forcedDc.quantization.map(
         (q) => ((65536 / forcedDc.globalScale / forcedDc.quantDc) * q) / effectiveDistance,
       )
-    : ownDcQuantization
+    : allocation && allocation.dcAlpha !== 0
+      ? ownDcQuantization.map(
+          (q, channel) =>
+            ((effectiveDistance * q) ** (1 - allocation.dcAlpha) *
+              (allocation.dcSteps[channel] ?? 0) ** allocation.dcAlpha) /
+            effectiveDistance,
+        )
+      : ownDcQuantization
   const dcCorrelation = decisions?.correlation?.parameters
   const dcRatioX = dcCorrelation
     ? dcCorrelation.baseCorrelationX + dcCorrelation.yToXDc / dcCorrelation.colorFactor
@@ -2834,7 +2856,7 @@ function* prepare8(
     dcComponents: [second, first, third],
     quantization,
     dcQuantization:
-      decisions?.globalScale !== undefined || decisions?.dc
+      decisions?.globalScale !== undefined || decisions?.dc || allocation
         ? dcQuantization.map((q) => (q * effectiveDistance * globalScale * quantAc) / 65536)
         : dcQuantization,
     ...(smoothColorDc ? { smoothDc: true } : {}),

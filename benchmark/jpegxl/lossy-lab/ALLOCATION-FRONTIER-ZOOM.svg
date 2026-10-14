@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="740" viewBox="0 0 1050 740" role="img" aria-labelledby="allocation-title">
+<title id="allocation-title">DC and AC allocation: SSIMULACRA2 versus Butteraugli 3-norm BD-rate frontier</title>
+<rect width="1050" height="740" fill="#ffffff"/><g font-family="sans-serif" fill="#182b3a">
+<text x="70" y="38" font-size="23">DC/AC allocation frontier • 16-photo screen</text>
+<text x="70" y="65" font-size="14">BD-rate against wasm-vips; lower is better. Partial quality-band overlap.</text>
+<path d="M 85 115 V 580 M 85 580 H 865" stroke="#dde4e9" fill="none"/>
+<text x="85" y="606" text-anchor="middle" font-size="13">-7.0%</text>
+<text x="72" y="584" text-anchor="end" font-size="13">-2.0%</text>
+<path d="M 214.99999999999997 115 V 580 M 85 502.5 H 865" stroke="#dde4e9" fill="none"/>
+<text x="214.99999999999997" y="606" text-anchor="middle" font-size="13">-4.8%</text>
+<text x="72" y="506.5" text-anchor="end" font-size="13">0.0%</text>
+<path d="M 345 115 V 580 M 85 425 H 865" stroke="#dde4e9" fill="none"/>
+<text x="345" y="606" text-anchor="middle" font-size="13">-2.7%</text>
+<text x="72" y="429" text-anchor="end" font-size="13">2.0%</text>
+<path d="M 475 115 V 580 M 85 347.5 H 865" stroke="#dde4e9" fill="none"/>
+<text x="475" y="606" text-anchor="middle" font-size="13">-0.5%</text>
+<text x="72" y="351.5" text-anchor="end" font-size="13">4.0%</text>
+<path d="M 605 115 V 580 M 85 270 H 865" stroke="#dde4e9" fill="none"/>
+<text x="605" y="606" text-anchor="middle" font-size="13">1.7%</text>
+<text x="72" y="274" text-anchor="end" font-size="13">6.0%</text>
+<path d="M 735 115 V 580 M 85 192.5 H 865" stroke="#dde4e9" fill="none"/>
+<text x="735" y="606" text-anchor="middle" font-size="13">3.8%</text>
+<text x="72" y="196.5" text-anchor="end" font-size="13">8.0%</text>
+<path d="M 865 115 V 580 M 85 115 H 865" stroke="#dde4e9" fill="none"/>
+<text x="865" y="606" text-anchor="middle" font-size="13">6.0%</text>
+<text x="72" y="119" text-anchor="end" font-size="13">10.0%</text>
+<polyline points="151.76070419106594,309.9503204812538 210.85383704155674,428.19241915842235 383.82354760497185,476.49928134941183 461.94328884649076,510.5656455948503" fill="none" stroke="#132e48" stroke-width="2"/>
+<circle cx="171.61067788931615" cy="223.54417251259713" r="5.6" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s0p8-off: -5.556 / +7.199 / +8.973, mean +3.538</title></circle>
+<circle cx="165.93953463010195" cy="302.57618734330225" r="6" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1-off: -5.651 / +5.159 / +4.193, mean +1.234</title></circle>
+<circle cx="283.4907133196165" cy="366.0868637476226" r="6.5" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1p25-off: -3.692 / +3.520 / +5.307, mean +1.712</title></circle>
+<circle cx="483.47083351473356" cy="375.18448398609917" r="7.2" fill="#ffffff" stroke="#2463a0" stroke-width="2"><title>a0-s1p6-off: -0.359 / +3.286 / +5.402, mean +2.776</title></circle>
+<circle cx="151.76070419106594" cy="309.9503204812538" r="5.6" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s0p8-off: -5.887 / +4.969 / +5.145, mean +1.409</title></circle>
+<circle cx="221.8260304816585" cy="397.1781790885552" r="6" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1-off: -4.720 / +2.718 / +1.611, mean -0.130</title></circle>
+<circle cx="415.8443059747045" cy="426.2001228598628" r="6.5" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1p25-off: -1.486 / +1.969 / +3.274, mean +1.252</title></circle>
+<circle cx="738.9975191372921" cy="401.3993439812252" r="7.2" fill="#ffffff" stroke="#168c83" stroke-width="2"><title>a0p25-s1p6-off: +3.900 / +2.609 / +2.634, mean +3.048</title></circle>
+<circle cx="210.85383704155674" cy="428.19241915842235" r="5.6" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s0p8-off: -4.902 / +1.918 / +2.046, mean -0.313</title></circle>
+<circle cx="255.06883397203464" cy="418.87564139714164" r="5.6" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s0p8-on: -4.166 / +2.158 / +2.503, mean +0.165</title></circle>
+<circle cx="383.82354760497185" cy="476.49928134941183" r="6" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s1-off: -2.020 / +0.671 / -1.216, mean -0.855</title></circle>
+<text x="395.82354760497185" y="498.49928134941183" font-size="12">a0p5-s1-off</text>
+<circle cx="447.8457710792825" cy="462.89779370997263" r="6" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s1-on: -0.953 / +1.022 / -1.205, mean -0.379</title></circle>
+<text x="459.8457710792825" y="450.89779370997263" font-size="12">a0p5-s1-on</text>
+<circle cx="673.7652090106222" cy="470.76499729864287" r="6.5" fill="#ffffff" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p25-off: +2.813 / +0.819 / +2.100, mean +1.911</title></circle>
+<circle cx="750.3657164044274" cy="448.1133835069827" r="6.5" fill="#b68b10" stroke="#b68b10" stroke-width="2"><title>a0p5-s1p25-on: +4.089 / +1.404 / +1.996, mean +2.496</title></circle>
+<circle cx="461.94328884649076" cy="510.5656455948503" r="5.6" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s0p8-off: -0.718 / -0.208 / +0.435, mean -0.164</title></circle>
+<circle cx="564.3318539780769" cy="485.1005324486223" r="5.6" fill="#d86632" stroke="#d86632" stroke-width="2"><title>a0p75-s0p8-on: +0.989 / +0.449 / -0.007, mean +0.477</title></circle>
+<circle cx="789.692604689948" cy="499.95397758348327" r="6" fill="#ffffff" stroke="#d86632" stroke-width="2"><title>a0p75-s1-off: +4.745 / +0.066 / -4.582, mean +0.076</title></circle>
+<text x="465" y="646" text-anchor="middle" font-size="17">SSIMULACRA2 BD-rate (%)</text>
+<text x="23" y="350" transform="rotate(-90 23 350)" text-anchor="middle" font-size="17">Butteraugli 3-norm BD-rate (%)</text>
+<text x="85" y="685" font-size="14">Filled: smoothing on • Open: smoothing off • Larger circles: greater AC precision</text>
+<circle cx="905" cy="150" r="6" fill="#2463a0"/><text x="922" y="155" font-size="14">α = 0</text>
+<circle cx="905" cy="183" r="6" fill="#168c83"/><text x="922" y="188" font-size="14">α = 0.25</text>
+<circle cx="905" cy="216" r="6" fill="#b68b10"/><text x="922" y="221" font-size="14">α = 0.5</text>
+<circle cx="905" cy="249" r="6" fill="#d86632"/><text x="922" y="254" font-size="14">α = 0.75</text>
+<circle cx="905" cy="282" r="6" fill="#944aa7"/><text x="922" y="287" font-size="14">α = 1</text>
+</g></svg>
