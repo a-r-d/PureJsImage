@@ -79,6 +79,7 @@ export interface StrategyOptions {
   boundedMask?: boolean
   symmetricInverse?: boolean
   limit16?: boolean
+  compactStorage?: boolean
 }
 
 export function strategyPortOverrides(
@@ -111,6 +112,7 @@ function selectGeometry(
     boundedMask = false,
     symmetricInverse = false,
     limit16 = false,
+    compactStorage = false,
   } = options
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
@@ -536,6 +538,8 @@ function selectGeometry(
         strategyFirstBlocks: Array.from(first),
       },
       false,
+      false,
+      compactStorage,
     )
   } finally {
     memory.release(strategies)

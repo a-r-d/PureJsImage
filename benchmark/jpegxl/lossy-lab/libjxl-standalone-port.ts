@@ -45,13 +45,36 @@ export type StandalonePort =
   | 'standalone-refined-dark-hf'
   | 'standalone-refined-chroma75'
   | 'standalone-refined-chroma100'
+  | 'standalone-refined-chroma75-nosmooth'
+  | 'standalone-guard-hf625'
+  | 'standalone-guard-hf375'
+  | 'standalone-guard-packed'
+  | 'standalone-guard-source-cache'
+  | 'standalone-guard-bounded'
 
 export function libjxlStandaloneOverrides(
   distance: number,
   width: number,
   height: number,
-  mode: StandalonePort,
+  requestedMode: StandalonePort,
 ): JpegXlDevelopmentDecisions {
+  const guardNoSmooth =
+    requestedMode === 'standalone-refined-chroma75-nosmooth' ||
+    requestedMode === 'standalone-guard-hf625' ||
+    requestedMode === 'standalone-guard-hf375' ||
+    requestedMode === 'standalone-guard-packed' ||
+    requestedMode === 'standalone-guard-source-cache' ||
+    requestedMode === 'standalone-guard-bounded'
+  const mode = guardNoSmooth ? 'standalone-refined-chroma75' : requestedMode
+  const guardHf =
+    requestedMode === 'standalone-guard-hf625' ||
+    requestedMode === 'standalone-guard-packed' ||
+    requestedMode === 'standalone-guard-source-cache' ||
+    requestedMode === 'standalone-guard-bounded'
+      ? 0.625
+      : requestedMode === 'standalone-guard-hf375'
+        ? 0.375
+        : undefined
   const cache = mode !== 'standalone-reference'
   const prune = mode !== 'standalone-reference' && mode !== 'standalone-cache'
   const direct = ![
@@ -124,19 +147,27 @@ export function libjxlStandaloneOverrides(
         base,
         context,
         defaults?.quantDistance ?? distance,
-        mode === 'standalone-hfhalf' ||
+        guardHf ??
+          (mode === 'standalone-hfhalf' ||
           mode === 'standalone-refined-dcfine-hfhalf' ||
           mode === 'standalone-refined-chroma75' ||
           mode === 'standalone-refined-chroma100'
-          ? 0.5
-          : 1,
+            ? 0.5
+            : 1),
         mode === 'standalone-bounded' || optimized,
         mode === 'standalone-refined-dark-hf',
       )
       const filtered =
         defaults?.gaborish === false
           ? undefined
-          : libjxlGaborishContext(base, context, width, height)
+          : libjxlGaborishContext(
+              base,
+              context,
+              width,
+              height,
+              requestedMode === 'standalone-guard-source-cache' ||
+                requestedMode === 'standalone-guard-bounded',
+            )
       const cached = cache ? selectorBlockCache(base, filtered ?? context) : undefined
       const sharpness = defaults
         ? base.memory?.allocate(Uint8Array, field.length)
@@ -145,6 +176,9 @@ export function libjxlStandaloneOverrides(
       try {
         const select = strategyPortOverrides(distance, 'spatial-source', context, {
           initialField: field,
+          compactStorage:
+            requestedMode === 'standalone-guard-packed' ||
+            requestedMode === 'standalone-guard-bounded',
           prune,
           fastTransforms,
           compact,
@@ -157,7 +191,7 @@ export function libjxlStandaloneOverrides(
         return select(
           {
             ...base,
-            smoothDc: mode !== 'standalone-refined-nosmooth',
+            smoothDc: mode !== 'standalone-refined-nosmooth' && !guardNoSmooth,
             ...(sharpness ? { sharpnessMap: sharpness } : {}),
             developmentFilters: defaults ?? {
               gaborish: true,

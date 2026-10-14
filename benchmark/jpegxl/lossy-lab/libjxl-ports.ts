@@ -56,7 +56,13 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-refined-dcquarter' ||
     value === 'standalone-refined-dark-hf' ||
     value === 'standalone-refined-chroma75' ||
-    value === 'standalone-refined-chroma100'
+    value === 'standalone-refined-chroma100' ||
+    value === 'standalone-refined-chroma75-nosmooth' ||
+    value === 'standalone-guard-hf625' ||
+    value === 'standalone-guard-hf375' ||
+    value === 'standalone-guard-packed' ||
+    value === 'standalone-guard-source-cache' ||
+    value === 'standalone-guard-bounded'
   )
     return value
   return parseStrategyPort(value)
@@ -121,7 +127,13 @@ export function libjxlPortOverrides(
     mode === 'standalone-refined-dcquarter' ||
     mode === 'standalone-refined-dark-hf' ||
     mode === 'standalone-refined-chroma75' ||
-    mode === 'standalone-refined-chroma100'
+    mode === 'standalone-refined-chroma100' ||
+    mode === 'standalone-refined-chroma75-nosmooth' ||
+    mode === 'standalone-guard-hf625' ||
+    mode === 'standalone-guard-hf375' ||
+    mode === 'standalone-guard-packed' ||
+    mode === 'standalone-guard-source-cache' ||
+    mode === 'standalone-guard-bounded'
   )
     return libjxlStandaloneOverrides(distance, width, height, mode)
   if (mode === 'dc' || mode === 'dc-smooth')

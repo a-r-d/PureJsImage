@@ -1,3 +1,8 @@
+import {
+  packCoefficients,
+  unpackCoefficients,
+  type PackedCoefficients,
+} from './packed-coefficients.ts'
 import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import type {
   VarDctCoefficientGeometry,
@@ -23,6 +28,7 @@ export function rewriteStrategyGeometry(
   >,
   exactQuant: boolean,
   roundtripChroma = false,
+  compactStorage = false,
 ): VarDctCoefficientGeometry {
   const memory = base.memory
   if (
@@ -86,6 +92,12 @@ export function rewriteStrategyGeometry(
   })
   const groupCount = base.groupsAcross * base.groupsDown
   const groups: (readonly VarDctCoefficientPlane[])[] = []
+  const packedGroups: {
+    planes: readonly PackedCoefficients[]
+    offsets: Int32Array
+    width: number
+    height: number
+  }[] = []
   const invGlobal = 65536 / (base.globalScale ?? 0)
   for (let group = 0; group < groupCount; group++) {
     const ox = (group % base.groupsAcross) * 32,
@@ -238,16 +250,58 @@ export function rewriteStrategyGeometry(
         cursor += size
       }
     memory.release(visited)
-    groups.push(
-      coefficients.map((coefficients) => ({
-        coefficients,
-        coefficientOffsets: offsets,
-        blocksPerLineForMcu: width,
-        blocksPerColumnForMcu: height,
-      })),
-    )
+    if (compactStorage) {
+      const planes = coefficients.map((plane) => {
+        const packed = packCoefficients(plane, memory)
+        if (packed.values !== plane) memory.release(plane)
+        return packed
+      })
+      packedGroups.push({ planes, offsets, width, height })
+    } else {
+      groups.push(
+        coefficients.map((coefficients) => ({
+          coefficients,
+          coefficientOffsets: offsets,
+          blocksPerLineForMcu: width,
+          blocksPerColumnForMcu: height,
+        })),
+      )
+    }
   }
   for (const buffer of [...source, scratch, ...transformed, dc]) memory.release(buffer)
+  const restored = compactStorage
+    ? [
+        memory.allocate(Int16Array, 65536),
+        memory.allocate(Int16Array, 65536),
+        memory.allocate(Int16Array, 65536),
+      ]
+    : undefined
+  let restoredGroup = -1
+  let restoredPlanes: readonly VarDctCoefficientPlane[] = []
+  const loadAc = restored
+    ? (group: number): readonly VarDctCoefficientPlane[] => {
+        if (restoredGroup === group) return restoredPlanes
+        const stored = packedGroups[group]
+        if (!stored) throw new Error('Missing packed AC group')
+        restoredPlanes = stored.planes.map((packed, channel) => {
+          const target = restored[channel]
+          if (!target) throw new Error('Missing packed AC channel')
+          unpackCoefficients(packed, target)
+          return {
+            coefficients: target.subarray(0, packed.values.length),
+            coefficientOffsets: stored.offsets,
+            blocksPerLineForMcu: stored.width,
+            blocksPerColumnForMcu: stored.height,
+          }
+        })
+        restoredGroup = group
+        return restoredPlanes
+      }
+    : (group: number): readonly VarDctCoefficientPlane[] => {
+        const planes = groups[group]
+        if (!planes) throw new Error('Missing forced AC group')
+        return planes
+      }
   return {
     ...base,
     strategyMap: strategies,
@@ -255,10 +309,6 @@ export function rewriteStrategyGeometry(
     quantizationMap: q,
     developmentOrderFamilies: orders,
     coefficientOrders: orders.flatMap((order) => [order.natural, order.natural, order.natural]),
-    loadAc: (group) => {
-      const planes = groups[group]
-      if (!planes) throw new Error('Missing forced AC group')
-      return planes
-    },
+    loadAc,
   }
 }

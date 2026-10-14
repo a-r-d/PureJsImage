@@ -5,8 +5,10 @@
  * Ported: five-by-five inverse Gaborish weights and normalization, with unit
  * channel strength used by enc_heuristics.cc at the same revision.
  * Changes: first-party scalar convolution of a bounded 12x12 block halo,
- * clamped borders, existing XYB input and memory ledger. No SIMD or threading.
+ * clamped borders, existing XYB input and memory ledger, plus optional bounded
+ * source-block caching. No SIMD or threading.
  */
+import { gaborishSourceCache } from './gaborish-source-cache.ts'
 import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
 
@@ -33,9 +35,12 @@ export function libjxlGaborishContext(
   context: JpegXlDevelopmentTransformContext,
   width: number,
   height: number,
+  cacheSource = false,
 ): JpegXlDevelopmentTransformContext & { release(): void } {
   const memory = base.memory
   if (!memory) throw new Error('Missing Gaborish memory ledger')
+  const cachedSource = cacheSource ? gaborishSourceCache(base, context) : undefined
+  const sourceContext = cachedSource ?? context
   const halo = [
     memory.allocate(Float32Array, 144),
     memory.allocate(Float32Array, 144),
@@ -52,15 +57,16 @@ export function libjxlGaborishContext(
     quantize: context.quantize,
     release: () => {
       for (const buffer of [...halo, ...output]) memory.release(buffer)
+      cachedSource?.release()
     },
     readBlock: (bx, by, correlated) => {
       if (bx === cachedX && by === cachedY) {
-        if (correlated) context.readBlock(bx, by, true)
+        if (correlated) sourceContext.readBlock(bx, by, true)
         return output
       }
       for (let sy = Math.max(0, by - 1); sy <= Math.min(base.blocksHigh - 1, by + 1); sy++)
         for (let sx = Math.max(0, bx - 1); sx <= Math.min(base.blocksWide - 1, bx + 1); sx++) {
-          const block = context.readBlock(sx, sy, false)
+          const block = sourceContext.readBlock(sx, sy, false)
           for (let y = 0; y < 12; y++) {
             const iy = Math.max(0, Math.min(height - 1, by * 8 + y - 2))
             if (Math.floor(iy / 8) !== sy) continue
@@ -92,7 +98,7 @@ export function libjxlGaborishContext(
           }
       }
       // Preserve the encoder's activity state for its rate-aware quantizer.
-      if (correlated) context.readBlock(bx, by, true)
+      if (correlated) sourceContext.readBlock(bx, by, true)
       cachedX = bx
       cachedY = by
       return output

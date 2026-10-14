@@ -1,0 +1,623 @@
+{
+  "sourceBase": "f6f473fa968d413da379d4c437fa1f563148cb68",
+  "main": "b2666b834cfd3483a629b50e62a7bedea9852b66",
+  "branch": "jxl-libjxl-ports",
+  "variant": "standalone-guard-bounded",
+  "root": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014",
+  "runtime": "v24.16.0",
+  "peers": {
+    "wasmVips": "0.0.19",
+    "jsquashJxl": "1.3.0"
+  },
+  "checks": {
+    "fullCommand": "VITEST_MAX_WORKERS=2 npm run check",
+    "exitCode": 0,
+    "passed": 4118,
+    "skipped": 3,
+    "testSeconds": 1211.97,
+    "focusedTests": 59,
+    "browsers": 3,
+    "initialCheck": "Interrupted after nine apparent timeouts during concurrent lab work; no assertions or timeouts changed."
+  },
+  "productionSourceChangedThisContinuation": false,
+  "peerMapsConsumed": false,
+  "inheritedDevelopmentHooksRequireCleanup": true,
+  "currentPublicControl": {
+    "source": {
+      "implementationRevision": "f6f473fa968d413da379d4c437fa1f563148cb68",
+      "implementationSourceSha256": "e65d9c14a6704d311f0e728b3dc5373525d249efa2257d3fdeb3006556b2bf86",
+      "implementationDirty": false
+    },
+    "complete": true,
+    "groups": [
+      {
+        "group": "holdout",
+        "images": 63,
+        "points": 567,
+        "managedPeakBytes": 30819889,
+        "allStreamsIdentical": true,
+        "noManagedIncrease": true,
+        "priorProducerSource": "9c77134ffca7d6cc880b1f33cf856b7044b1e7d9179856bae4cbc54398ba013e"
+      }
+    ],
+    "points": 567,
+    "managedCeilingBytes": 137514476,
+    "policy": "Fresh default effort-7 encodes of all 567 holdout points verify the current production control reference. Old streams and normalized input receipts are hash-verified. Identical bytes and no managed increase bridge prior decoded grids/quality only; historical timings stay historical. Holdout quality is inspected only as the existing aggregate. No compression tuning."
+  },
+  "development": {
+    "base": "f6f473fa",
+    "candidate": "standalone-guard-hf625",
+    "ownQualityPoints": 576,
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.552596028699911,
+        "median": -6.713021211243193,
+        "p90": -1.7155439532237646,
+        "worst": 7.834453340167678
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 2.5373713434520213,
+        "median": 2.169094853352454,
+        "p90": 13.163030868187043,
+        "worst": 23.552858145477295
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 0.7704844822118379,
+        "median": 1.9233108041246822,
+        "p90": 5.187032390107209,
+        "worst": 10.412880575928211
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.090390829838919,
+        "median": -5.035142227425355,
+        "p90": -1.1774514798078886,
+        "worst": 1.294348842975789
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.574543537762201,
+        "median": -4.246451563724968,
+        "p90": 2.840520337778247,
+        "worst": 6.809406024094327
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -4.730209588727027,
+        "median": -3.3737959362409455,
+        "p90": -0.5614913600762683,
+        "worst": 1.714694777822566
+      }
+    ],
+    "production": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -7.2540963929161535,
+        "median": -5.756601446566081,
+        "p90": 0.29746395338498977,
+        "worst": 8.13885126395029,
+        "fullBandCount": 8
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -9.856296875922087,
+        "median": -6.569112462557438,
+        "p90": -1.0276747398810457,
+        "worst": 12.250423176829827,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -9.62927875774688,
+        "median": -8.147990023526539,
+        "p90": 2.5171508837198555,
+        "worst": 27.55587555544123,
+        "fullBandCount": 0
+      }
+    ],
+    "native": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -10.349800043190248,
+        "median": -7.362011801013825,
+        "p90": -3.3956737080059276,
+        "worst": -1.2645736383316322,
+        "fullBandCount": 46
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -5.611621293134927,
+        "median": -3.3828907277315263,
+        "p90": -0.2131225713864744,
+        "worst": 2.753927349005459,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.320892984571542,
+        "median": -3.998793622135663,
+        "p90": 2.97575919826838,
+        "worst": 5.335440899300885,
+        "fullBandCount": 0
+      }
+    ],
+    "guardFailures": [],
+    "worstMax": [
+      {
+        "id": "im26-3000-lab",
+        "metric": "butteraugliMax",
+        "percent": 27.55587555544123,
+        "meanLogRateDifference": 0.24338432226195927,
+        "overlap": {
+          "minimum": 0.6035822034,
+          "maximum": 2.9034187794
+        },
+        "measuredOverlap": {
+          "minimum": 0.6035822034,
+          "maximum": 2.9034187794
+        },
+        "requiredRange": {
+          "minimum": 0.5,
+          "maximum": 3
+        },
+        "coversRequiredRange": false
+      },
+      {
+        "id": "im26-3004-lab",
+        "metric": "butteraugliMax",
+        "percent": 10.603935414905036,
+        "meanLogRateDifference": 0.10078548488035027,
+        "overlap": {
+          "minimum": 0.9673263431,
+          "maximum": 3
+        },
+        "measuredOverlap": {
+          "minimum": 0.9673263431,
+          "maximum": 3.7617406845
+        },
+        "requiredRange": {
+          "minimum": 0.5,
+          "maximum": 3
+        },
+        "coversRequiredRange": false
+      },
+      {
+        "id": "im26-1636-lab",
+        "metric": "butteraugliMax",
+        "percent": 9.560899784341128,
+        "meanLogRateDifference": 0.09131037108154248,
+        "overlap": {
+          "minimum": 0.8541913629,
+          "maximum": 2.9843096733
+        },
+        "measuredOverlap": {
+          "minimum": 0.8541913629,
+          "maximum": 2.9843096733
+        },
+        "requiredRange": {
+          "minimum": 0.5,
+          "maximum": 3
+        },
+        "coversRequiredRange": false
+      }
+    ],
+    "managedPeakBytes": 9624801,
+    "processPeakRssBytes": 259940352
+  },
+  "parity": {
+    "screen": 80,
+    "development": 576,
+    "originalDistanceTwo": 2,
+    "different": 0
+  },
+  "independentDecoding": {
+    "development": 576,
+    "holdout": 567,
+    "maximumCodeValueDifference": 1
+  },
+  "cropSpeed": {
+    "speed": [
+      {
+        "engine": "purejsimage",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 1478.3117091562497,
+          "median": 1479.167805,
+          "p90": 1592.7097676,
+          "worst": 1727.81403
+        },
+        "watch": null
+      },
+      {
+        "engine": "jsquash",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 495.1023879999998,
+          "median": 493.89592400000004,
+          "p90": 534.3137380000001,
+          "worst": 587.534709
+        },
+        "watch": null
+      },
+      {
+        "engine": "vips",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 352.86214523437513,
+          "median": 348.44161500000007,
+          "p90": 372.00205730000005,
+          "worst": 475.834833
+        },
+        "watch": null
+      }
+    ],
+    "measuredJobs": 192,
+    "reusedJobs": 0,
+    "failures": 0,
+    "managedPeakBytes": 8735786,
+    "ratio": 2.9948977772896135
+  },
+  "originals": [
+    {
+      "id": "im26-2004",
+      "exitCode": 0,
+      "engines": [
+        {
+          "engine": "purejsimage",
+          "receipt": {
+            "status": "encoded",
+            "engine": "purejsimage",
+            "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+            "width": 2945,
+            "height": 4417,
+            "channels": 4,
+            "effort": 7,
+            "strategyPort": "standalone-guard-bounded",
+            "allocation": null,
+            "transplantSourceSha256": null,
+            "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+            "encodedSha256": "bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee",
+            "setting": 2,
+            "bytes": 1835008,
+            "encodeMs": 49359.137142,
+            "managedPeakBytes": 59071615,
+            "processPeakRssBytes": 405594112
+          }
+        },
+        {
+          "engine": "jsquash",
+          "receipt": {
+            "status": "encoded",
+            "engine": "jsquash",
+            "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+            "width": 2945,
+            "height": 4417,
+            "channels": 4,
+            "effort": 7,
+            "strategyPort": null,
+            "allocation": null,
+            "transplantSourceSha256": null,
+            "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+            "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+            "setting": 80,
+            "bytes": 1928555,
+            "encodeMs": 25187.734950000002,
+            "managedPeakBytes": null,
+            "processPeakRssBytes": 1926651904
+          }
+        },
+        {
+          "engine": "vips",
+          "receipt": {
+            "status": "encoded",
+            "engine": "vips",
+            "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+            "width": 2945,
+            "height": 4417,
+            "channels": 4,
+            "effort": 7,
+            "strategyPort": null,
+            "allocation": null,
+            "transplantSourceSha256": null,
+            "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+            "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+            "setting": 2,
+            "bytes": 1493247,
+            "encodeMs": 9093.293424,
+            "managedPeakBytes": null,
+            "processPeakRssBytes": 1040011264
+          }
+        }
+      ],
+      "managedPass": true,
+      "ratio": 1.9596496961708736
+    },
+    {
+      "id": "im26-2400",
+      "exitCode": 1,
+      "engines": [
+        {
+          "engine": "purejsimage",
+          "receipt": {
+            "status": "encoded",
+            "engine": "purejsimage",
+            "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+            "width": 4000,
+            "height": 5350,
+            "channels": 4,
+            "effort": 7,
+            "strategyPort": "standalone-guard-bounded",
+            "allocation": null,
+            "transplantSourceSha256": null,
+            "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+            "encodedSha256": "7f2379bb0195d3f30b9251cafe85a8b629e0cafe84171215210581772e7e5ebc",
+            "setting": 2,
+            "bytes": 524561,
+            "encodeMs": 92402.47294499999,
+            "managedPeakBytes": 90903965,
+            "processPeakRssBytes": 505589760
+          }
+        },
+        {
+          "engine": "jsquash",
+          "receipt": null
+        },
+        {
+          "engine": "vips",
+          "receipt": {
+            "status": "encoded",
+            "engine": "vips",
+            "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+            "width": 4000,
+            "height": 5350,
+            "channels": 4,
+            "effort": 7,
+            "strategyPort": null,
+            "allocation": null,
+            "transplantSourceSha256": null,
+            "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+            "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+            "setting": 2,
+            "bytes": 594138,
+            "encodeMs": 13412.215723,
+            "managedPeakBytes": null,
+            "processPeakRssBytes": 1200701440
+          }
+        }
+      ],
+      "managedPass": true,
+      "ratio": null
+    }
+  ],
+  "holdout": {
+    "images": 63,
+    "points": 567,
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.510222559488377,
+        "median": -7.595549790190656,
+        "p90": 3.6533095796031065,
+        "worst": 10.767988472539558
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": 3.38773711651434,
+        "median": 4.08575900653854,
+        "p90": 10.792963434872592,
+        "worst": 21.39611717711443
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": 2.034979758722861,
+        "median": 2.1285968882227984,
+        "p90": 5.954071290696196,
+        "worst": 25.577877252451582
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.0641841779295875,
+        "median": -4.491650287693349,
+        "p90": 0.3834996235740466,
+        "worst": 2.7045522199187655
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -2.300823998787253,
+        "median": -1.3840922529392552,
+        "p90": 5.890395649660897,
+        "worst": 10.584533228581536
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -3.3798578634198155,
+        "median": -2.30804897547445,
+        "p90": 0.25230568722264024,
+        "worst": 4.909204868196493
+      }
+    ],
+    "production": [
+      {
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -5.450651285709155,
+        "median": -4.709978634729736,
+        "p90": 4.082274341462708,
+        "worst": 11.672069917232331,
+        "fullBandCount": 9
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -8.00673635690352,
+        "median": -6.450754997218143,
+        "p90": -0.4805714328028875,
+        "worst": 10.60209139691603,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -7.598655026928573,
+        "median": -6.649703254270649,
+        "p90": 2.394410149335128,
+        "worst": 21.521466116793597,
+        "fullBandCount": 0
+      }
+    ],
+    "vipsMean": -3.914955346712219,
+    "objectivePass": true,
+    "perImageGuardFailures": 2,
+    "failures": 0,
+    "warnings": 279,
+    "managedPeakBytes": 26220073,
+    "policy": "Aggregate quality only. No holdout image quality inspected or used for tuning."
+  },
+  "interrupted": [
+    {
+      "name": "bounded-watch",
+      "exitCode": 130,
+      "encoded": 22,
+      "scored": 21,
+      "failures": 0,
+      "peak": 92952647,
+      "reason": "Stopped after two aggregate-counted full-band holdout SSIM guards failed. No further promotion or holdout tuning."
+    },
+    {
+      "name": "bounded-scale",
+      "exitCode": 130,
+      "encoded": 8,
+      "scored": 8,
+      "failures": 0,
+      "peak": 26010835,
+      "reason": "Stopped after two aggregate-counted full-band holdout SSIM guards failed. No further promotion or holdout tuning."
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/development-gates.json",
+      "sha256": "4abd7f42289406d9dbc62b43b71d6a2de9f849cba69e6e1e28b0e805902687ca"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-full-parity.json",
+      "sha256": "ed61e5492f123e174618dfce8cded6dc3d46e3d68d17bc5c6878878b8d9dbfff"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-parity.json",
+      "sha256": "95dd919082b79f3fdd3d46c75b43f00e84106be8ff9406483bfcdd9f45146cad"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-originals.json",
+      "sha256": "041238c6aadc368ba232580334807126e9c306b5587fa70db4768033a6b32b09"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-speed/summary.json",
+      "sha256": "416e552d93b1416f3240f1938c55f914f6f2e8d61f24ea27dc8f50a0f26b85ae"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-lab/summary.json",
+      "sha256": "f6e03f9c018b344f197a366f71703b072eb72564ad6b1eb939d40cadb4c14ff3"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-holdout/summary.json",
+      "sha256": "564928763d0d8e74affbbaf31b49511eb3674ad0a9e07c9a8934198f0f7f05d1"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/bounded-holdout/against-production.json",
+      "sha256": "d4780b28ddcb1c44cea01c8fec0c34aa7e3a9c697877487913854a5c6ce6a0ad"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/independent-development/receipt.json",
+      "sha256": "54ef3a49a192acef368751e9d9a0248b1c365ec2ee1d83f379aaa119b9a05c58"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/independent-holdout/receipt.json",
+      "sha256": "db8121d1ca4ab5a56354d9938c9f9e58f1a8d1c052f5657658ffeffcb638632e"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/source-cache-speed-stats.json",
+      "sha256": "4ed98fdda5c2d8e92431bb6267e1646159efb64111d66a0b58474a65bb9b153a"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/packed-speed-stats.json",
+      "sha256": "adb9be126a7e528387e59c07d2ba901ac663ea5e65505fbe0cb0ea86d1a74ef0"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/current-control-continuity/complete.json",
+      "sha256": "4e94b406ca809d927efea986ac07c355d2170e06a20e199cb3dc903d2562e1d3"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/check-limited.log",
+      "sha256": "557ca79288e59c648cc5d3e9b9e2b490f7610fc64e1eab74ad0b40dd72084f56"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/browser.log",
+      "sha256": "9a08d7b369184d086afb0e3b88907a87eafe000c92944fd0e59408018453ceb7"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/final-focused.log",
+      "sha256": "6d2c4aa9248f4615aa88d0321b7d9c9b487a6181d5b2b003c72087992f9b1f4a"
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-guards-20261014/final-format.log",
+      "sha256": "48b557cf45bf9e4dd1a2f8bf7778dc60ea429e4a5d759faaefad006b7b98d5fe"
+    }
+  ],
+  "promotion": {
+    "passed": false,
+    "merged": false,
+    "blockers": [
+      "Two full-band holdout SSIM guards against production",
+      "Full watch and scale qualification intentionally stopped",
+      "Public path integration and inherited peer-forcing hook cleanup remain pending"
+    ]
+  }
+}

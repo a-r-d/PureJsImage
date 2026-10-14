@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { object } from '../comparison/model.ts'
 import {
+  allowsStrategyPortMode,
   baselineSpeedPoints,
   type PreparedFixture,
   parseLabMode,
@@ -46,7 +47,7 @@ if (
 if (
   strategyPort &&
   (transplant ||
-    !['screen', 'lab', 'speed'].includes(mode) ||
+    !allowsStrategyPortMode(mode, strategyPort, args.includes('--promotion')) ||
     args.includes('--rgb') ||
     argument('--effort', '7') !== '7')
 )

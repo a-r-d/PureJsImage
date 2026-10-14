@@ -170,6 +170,7 @@ export async function verifyDecisionTransplantBrowser() {
     'standalone-refined',
     'standalone-refined-dcfine-hfhalf',
     'standalone-refined-chroma75',
+    'standalone-guard-bounded',
   ] as const) {
     const output = await encodeTransplant(pixels, 32, 32, 2, libjxlPortOverrides(port, 2, 32, 32))
     rows.push(await decodedReceipt(output.bytes, `port-${port}`))

@@ -43,6 +43,12 @@ it.each([
   'standalone-refined-dark-hf',
   'standalone-refined-chroma75',
   'standalone-refined-chroma100',
+  'standalone-refined-chroma75-nosmooth',
+  'standalone-guard-hf625',
+  'standalone-guard-hf375',
+  'standalone-guard-packed',
+  'standalone-guard-source-cache',
+  'standalone-guard-bounded',
   'standalone-sharp2',
   'standalone-epf0',
   'standalone-16',
@@ -130,4 +136,35 @@ it('preserves standalone bytes when bounded tile caching crosses tile and image 
     libjxlPortOverrides('standalone-reference', 2, width, height),
   )
   expect(cached.bytes).toEqual(reference.bytes)
+})
+
+it('preserves coherent streams with bounded source caching and packed AC storage', async () => {
+  const width = 257,
+    height = 65
+  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
+    i % 4 === 3 ? 255 : 50 + ((Math.floor(i / 4) * 29 + (i % 4) * 41) % 150),
+  )
+  for (const distance of [0.45, 2, 7.5]) {
+    const control = await encodeTransplant(
+      pixels,
+      width,
+      height,
+      distance,
+      libjxlPortOverrides('standalone-guard-hf625', distance, width, height),
+    )
+    for (const mode of [
+      'standalone-guard-packed',
+      'standalone-guard-source-cache',
+      'standalone-guard-bounded',
+    ] as const) {
+      const result = await encodeTransplant(
+        pixels,
+        width,
+        height,
+        distance,
+        libjxlPortOverrides(mode, distance, width, height),
+      )
+      expect(result.bytes).toEqual(control.bytes)
+    }
+  }
 })

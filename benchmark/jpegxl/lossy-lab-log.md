@@ -1,16 +1,22 @@
 # JPEG XL lossy lab
 
 Current owner decision (2026-10-14): Step C approved, including selector speed work.
-Research base 98183404 on `jxl-libjxl-ports`; main remains b2666b83.
-Retained mode `standalone-refined-chroma75`, 64 photos x nine distances, no peer maps.
-Full-lab SSIM/3-norm/max: vips -8.119/-4.698/-5.081% (mean -5.966%); jSquash -9.147/+0.631/+3.051%.
-Production control -6.777/-9.577/-9.037%; native replay -10.894/-5.793/-4.946%.
-Aggregate development and native-replay gates pass; im26-2004 SSIM +8.397% fails the per-image guard.
-Isolated fresh crop timing: 1470.75/493.33ms, 2.981268x jSquash, passing 3x.
-Full-lab managed peak 9,632,981 bytes; original-image ceiling 137,514,476 remains unqualified.
-Sixteen screens and three full labs complete 3,008 own quality points; no holdout or promotion.
-Next hypotheses: coherent DC smoothing; channel-specific dark-texture error; remaining selector tail costs.
-See the [refinement report](lossy-lab/REFINEMENT-REPORT.md) and machine-readable evidence.
+Research base f6f473fa on `jxl-libjxl-ports`; main remains b2666b83.
+Retained mode `standalone-guard-bounded`, 64 photos x nine distances, no peer maps.
+Full-lab SSIM/3-norm/max: vips -8.090/-4.730/-5.575% (mean -6.132%); jSquash -8.553/+0.770/+2.537%.
+Production control -7.254/-9.856/-9.629%; native replay -10.350/-5.612/-5.321%.
+No full-band per-image failures: eight SSIM admissions, zero 3-norm admissions.
+Isolated fresh crop timing: 1479.17/493.90ms, 2.994898x jSquash, passing nominal 3x.
+Formal 13/21 MP times: 49.359/92.402s. 13 MP ratio 1.959650x; jSquash aborts on 21 MP.
+Original managed peaks 59,071,615/90,903,965 bytes, below the unchanged 137,514,476 ceiling.
+All 576 development streams, 80 screen streams and both originals preserve bytes after storage repair.
+All 576 development streams pass independent jxl-rs comparison within one code value; three browsers pass.
+Holdout vips -6.064/-3.380/-2.301%, mean -3.915%, passes the owner aggregate objective.
+Two of nine full-band holdout SSIM guards fail against production. No individual holdout quality is inspected.
+Watch/scale qualification stopped at the failed guard. Full check passes 4,118 tests, three skips.
+All 567 holdout candidate streams pass both decoders; all 567 fresh default control streams match the reference.
+Research checkpoint only: no holdout tuning, production integration or main merge.
+See the [guard and storage report](lossy-lab/GUARD-REPORT.md). Prior refinement evidence stays preserved.
 No new production source changes. Remove or isolate inherited peer-forcing hooks before a main merge.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
@@ -1811,3 +1817,36 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 
 | LL-711, 2026-10-14 | Confirm the retained coherent mode under the formal isolated crop speed contract. | Fresh 64 photos, 192 measured jobs, zero failures/omissions. | Own median 1470.75ms, jSquash 493.33ms, vips 345.02ms; 2.981268x jSquash passes 3x. Own p90 1568.64ms, worst 1723.76ms. | Crop speed passes. No simultaneous tests or CPU benchmark jobs. Raw: standalone-refine-20261014/refined-speed. | kept |
 | LL-712, 2026-10-14 | Finish research verification without changing production or opening the holdout. | Full npm run check passes 4099 tests, three skips, and all static/package/browser-build gates. Later focused batch passes 72 tests; final candidate passes three real browsers and 21 independent decodes. | Byte-identical 15-pair optimizations: -11.875% / -15.339%, 15/15 wins on both representative crops. | Keep on research branch. One per-image quality guard remains; originals and main-merge cleanup are pending. | verified |
+
+| LL-713, 2026-10-14 | Disable normative DC smoothing in the retained coherent allocation to test whether smoothing contributes to its grain regression. | Screen vips -10.655/-5.676/-3.258%; jSquash -11.562/+0.153/+4.078%; paired retained -0.637/-0.162/-0.300%. im26-2004 screen SSIM changes only -0.049%. Base f6f473fa. | Four-worker diagnostic, no speed claim. | Promising aggregate gain; insufficient grain improvement by itself. | measured |
+
+
+| LL-714, 2026-10-14 | Increase global HF modulation to 0.625 in the coherent no-smoothing mode. | Screen vips -10.735/-5.560/-3.219%; jSquash -11.650/0.302/4.120%; paired f6f473fa -0.706/-0.026/-0.244%. | Four-worker quality diagnostic; not isolated speed evidence. | Measured diagnostic; selection follows completed rows. Raw: standalone-guards-20261014/hf625-screen. | measured |
+
+| LL-715, 2026-10-14 | Reduce global HF modulation to 0.375 in the coherent no-smoothing mode. | Screen vips -10.505/-5.593/-3.228%; jSquash -11.408/0.232/4.116%; paired f6f473fa -0.485/-0.082/-0.265%. | Four-worker quality diagnostic; not isolated speed evidence. | Measured diagnostic; selection follows completed rows. Raw: standalone-guards-20261014/hf375-screen. | measured |
+
+| LL-716, 2026-10-14 | Take the 0.625-HF no-smoothing coherent candidate to the full frozen development lab. | Full 576 points: vips -8.090/-4.730/-5.575%; jSquash -8.553/+0.770/+2.537%; production -7.254/-9.856/-9.629%; native replay -10.350/-5.612/-5.321%. No full-band guard failures (eight SSIM admissions; zero 3-norm). | Four-worker quality diagnostics only. | Development quality and native-replay gates pass. Preserve partial coverage warnings. | kept |
+
+| LL-717, 2026-10-14 | Store forward-transform intermediate columns contiguously while preserving every arithmetic operation. | Fresh profile on im26-3012/d2: forward symmetric self 234.5ms, score 189.8ms, inverse 108.4ms. | 15 isolated alternating pairs: median 1189.17 to 1203.24ms, paired +1.879%, only 6/15 wins; all bytes equal. | Reject and remove the contiguous kernel. Original profile, patch and raw pairs preserved under standalone-guards-20261014. | reverted |
+
+| LL-718, 2026-10-14 | Qualify the 0.625-HF no-smoothing mode with fresh isolated crop timing. | All 64 photos and 192 measured jobs complete, zero failures or omissions. | Own median 1466.17ms, jSquash 486.07ms, ratio 3.016349x. | Inside the existing 3.05x promotion tolerance; nominal 3x is narrowly missed. Preserve the strict target in reporting. | measured |
+
+| LL-719, 2026-10-14 | Qualify the 13 MP and 21 MP originals after development quality and crop entry gates. | 13 MP: 50.807s, 97,857,343 managed bytes, 2.020565x jSquash. 21 MP: 94.587s, 154,734,749 managed bytes, exceeding 137,514,476. jSquash aborts at 21 MP; vips finishes in 13.345s. | One worker, no simultaneous CPU tests or benchmarks. | Both own streams decode and score. Memory fails on 21 MP; holdout remains closed. All pre-scoring receipts retained. | measured |
+
+| LL-720, 2026-10-14 | Cache repeated inverse-Gaborish source-block reads with bounded 3-row/10-column storage. | Profile attributes 125.1ms to source XYB conversion. Fifteen isolated pairs on im26-3012/d2 are byte-identical; median 1172.89 to 1152.57ms, paired -1.908%, 12/15 wins. | Storage adds 23,280 managed bytes independent of dimensions. | Promising small gain; correlated reads still update activity state. Fresh full-corpus timing follows. | retained conditionally |
+
+| LL-721, 2026-10-14 | Store retained AC coefficients as signed bytes with lossless Int16 exceptions and expand one writer group at a time. | The research writer retains 6 bytes per padded pixel in Int16 AC planes; 21 MP fails memory. All 80 screen streams remain byte-identical. A direct 21 MP probe preserves its SHA256 and lowers managed peak from 154,734,749 to 90,903,965 bytes. | Dense large-value planes retain their original Int16 storage. | Development-only storage repair. Fifteen paired crop timings are noisy (9/15 wins); no speed claim. Formal originals confirm identical bytes and lower managed storage and RSS (LL-722). | retained |
+
+| LL-722, 2026-10-14 | Confirm the storage repair on both originals through the identical isolated runner. | 13 MP: 49.359s, 59,071,615 managed bytes, 405,594,112 RSS, 1.959650x jSquash. 21 MP: 92.402s, 90,903,965 managed bytes, 505,589,760 RSS. Both SHA256 values equal LL-719. | Formal managed reduction 39.6% / 41.3%; RSS reduction 12.7% / 8.8%. No overlapping CPU jobs. | Both own originals validate and fit the ceiling. jSquash still aborts on 21 MP; no ratio is inferred. Direct-launch anomalous RSS stays separate. Raw: bounded-originals.json. | passed |
+| LL-723, 2026-10-14 | Qualify the repaired standalone mode with a fresh 64-image isolated crop run. | All 192 measured jobs complete, no failures or omissions. | Own median 1479.17ms, jSquash 493.90ms, vips 348.44ms; ratio 2.99489778x. Own p90 1592.71ms, worst 1727.81ms. | Nominal 3x target passes with little margin. Managed peak 8,735,786 bytes. Raw: bounded-speed. | passed |
+| LL-724, 2026-10-14 | Verify full development parity after the exact source cache and storage repair. | All 576 development streams match byte for byte, alongside the 80 screen streams and both originals. Final quality is exactly LL-716; managed lab peak is 9,232,573 bytes. | Quality run overlaps repository verification; its timing is excluded. | All development entry gates pass. Twenty-one independent jxl-rs decodes agree with native within one code value; all three browsers pass. | passed |
+
+| LL-725, 2026-10-14 | Open the frozen standalone finalist on holdout after quality, crop speed, original entry timing and memory pass. | All 63 photos/567 points finish. Aggregate-only vips -6.064/-3.380/-2.301%, mean -3.915%; jSquash -6.510/+2.035/+3.388%. Production -5.451/-8.007/-7.599%. Two of nine admitted full-band SSIM guards fail; zero 3-norm admissions. | Four workers, quality only. No tuning from holdout results. | Owner aggregate objective passes; normal promotion guard blocks. No holdout-driven tuning or main merge. | research only |
+
+| LL-726, 2026-10-14 | Run all ten watch originals on the frozen standalone finalist after entry gates. | Stopped at the holdout guard failure: 22 own encode receipts and 21 scored points, zero own failures; maximum managed 92,952,647 bytes. Peer allocation failures remain preserved. | Four-worker quality and managed-memory qualification, not isolated timing. | Exit 130 is intentional; partial watch is not qualified. Formal timing remains LL-722. | interrupted |
+
+| LL-727, 2026-10-14 | Verify the repaired mode and repository gates. | Fifty-nine focused tests, three real browsers and 21 independent decoder comparisons pass. The first full check passes static/package/browser gates but accumulates nine apparent timeout failures while sharing the host with the lab; interrupted with code 130. | The unchanged full check passes with supported VITEST_MAX_WORKERS=2: 4,118 tests, three existing skips, 1211.97s test time; all static, package and browser-build gates pass. No timeout or assertion is relaxed. | Both logs are preserved. Final repository verification passes. | verified |
+
+| LL-728, 2026-10-14 | Run the promotion scale ladder on two 2080 crops and the two watch originals. | Stopped after the holdout guard failure: eight valid own points, zero own failures, peak 26,010,835 bytes. | Two-worker quality and memory qualification, not timing evidence. | Exit 130 is intentional; partial scale is not qualified. Formal isolated speed remains LL-722/723. | interrupted |
+
+| LL-729, 2026-10-14 | Confirm independent decoding and the current public control used for the holdout guard. | All 576 development and 567 holdout candidate streams agree between jxl-rs and native libjxl within one code value. All 567 fresh public effort-7 control encodes are byte-identical to the qualified reference, with no managed increase; maximum 30,819,889 bytes. | Verification only; no new quality fit or timing claim. | Holdout inspection remains aggregate-only. Two guard failures are confirmed against the current default path. | verified |

@@ -3,6 +3,17 @@ import { selectDevelopmentCorpus } from './corpus.ts'
 import { type CurvePoint, type Engine, parsePoint } from './model.ts'
 
 export type LabMode = 'screen' | 'lab' | 'scale' | 'speed' | 'holdout' | 'watch'
+
+/** Only the frozen standalone finalist may enter promotion without peer maps. */
+export function allowsStrategyPortMode(mode: LabMode, port: string, promotion: boolean): boolean {
+  return (
+    mode === 'screen' ||
+    mode === 'lab' ||
+    mode === 'speed' ||
+    (promotion && port === 'standalone-guard-bounded')
+  )
+}
+
 export interface PreparedFixture {
   readonly id: string
   readonly png: string

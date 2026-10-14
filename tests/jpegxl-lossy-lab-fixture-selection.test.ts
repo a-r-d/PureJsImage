@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { selectDevelopmentCorpus } from '../benchmark/jpegxl/lossy-lab/corpus.ts'
 import {
+  allowsStrategyPortMode,
   baselineSpeedPoints,
   type PreparedFixture,
   parseLabMode,
@@ -8,6 +9,16 @@ import {
   selectPreparedFixtures,
   validateBaselineSpeedResume,
 } from '../benchmark/jpegxl/lossy-lab/fixture-selection.ts'
+
+it.each(['holdout', 'watch', 'scale'] as const)(
+  'admits only the standalone finalist with explicit promotion for %s',
+  (mode) => {
+    expect(allowsStrategyPortMode(mode, 'standalone-guard-bounded', true)).toBe(true)
+    expect(allowsStrategyPortMode(mode, 'standalone-guard-bounded', false)).toBe(false)
+    expect(allowsStrategyPortMode(mode, 'standalone-guard-hf625', true)).toBe(false)
+    expect(allowsStrategyPortMode(mode, 'spatial-source', true)).toBe(false)
+  },
+)
 
 const corpus = selectDevelopmentCorpus()
 const prepared = (

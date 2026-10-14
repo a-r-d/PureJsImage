@@ -191,3 +191,14 @@ Further development-only allocation diagnostics retain half-size luma DC steps
 and vary chroma DC steps to 0.75 or 1 times InitialQuantDC. The rejected dark-HF
 variant blends HF strength from the source value to half strength using mean
 XYB luminance. These are first-party adaptations of the attributed formulas.
+
+Guard investigation, 2026-10-14: the coherent mode also measures DC smoothing
+off and global HF strengths 0.375 and 0.625. These are first-party parameter
+adaptations of the previously attributed InitialQuantField formula. No additional
+source material or peer decisions are introduced. A first-party contiguous
+intermediate DCT experiment was measured and removed after a speed regression.
+
+The follow-up Gaborish source cache and signed-byte AC storage with Int16
+exceptions are first-party storage adaptations. The Gaborish weights and
+convolution accumulation order are unchanged. Coefficient compaction changes
+no quantized value; dense planes retain their original Int16 storage.
