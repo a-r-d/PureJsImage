@@ -59,6 +59,7 @@ it.each([
   'standalone-selector-mask',
   'standalone-selector-copy',
   'standalone-selector-mask-copy',
+  'standalone-guard-coarse',
   'standalone-selector-pairs',
   'standalone-sharp2',
   'standalone-epf0',
@@ -130,6 +131,7 @@ it.each([
   'standalone-selector-mask',
   'standalone-selector-copy',
   'standalone-selector-mask-copy',
+  'standalone-guard-coarse',
 ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
   for (const distance of [0.45, 2, 7.5]) {
     const control = libjxlPortOverrides('standalone-selector-inverse', distance, 73, 29)
@@ -162,6 +164,32 @@ it('preserves standalone bytes when bounded tile caching crosses tile and image 
   )
   expect(cached.bytes).toEqual(reference.bytes)
 })
+
+it.each([0.45, 1.3])(
+  'preserves fine-distance streams with coarse allocation at %s',
+  async (distance) => {
+    const width = 137,
+      height = 75
+    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
+      i % 4 === 3 ? 255 : 50 + ((i * 17 + Math.floor(i / width) * 31) % 150),
+    )
+    const control = await encodeTransplant(
+      pixels,
+      width,
+      height,
+      distance,
+      libjxlPortOverrides('standalone-selector-mask-copy', distance, width, height),
+    )
+    const candidate = await encodeTransplant(
+      pixels,
+      width,
+      height,
+      distance,
+      libjxlPortOverrides('standalone-guard-coarse', distance, width, height),
+    )
+    expect(candidate.bytes).toEqual(control.bytes)
+  },
+)
 
 it('preserves coherent streams with bounded source caching and packed AC storage', async () => {
   const width = 257,

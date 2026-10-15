@@ -175,6 +175,7 @@ export async function verifyDecisionTransplantBrowser() {
     'standalone-selector-mask',
     'standalone-selector-copy',
     'standalone-selector-mask-copy',
+    'standalone-guard-coarse',
     'standalone-selector-pairs',
     'standalone-writer-rounding',
     'standalone-loss75',

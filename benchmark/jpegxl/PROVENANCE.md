@@ -264,3 +264,12 @@ The combined mask/copy mode retains all 576 development streams exactly and
 adds no allocation. Separate component modes remain explicit development
 comparators; neither is selected individually. The source, measurements and
 control against unchanged Git source are recorded in `lossy-lab/AC-FOLLOWUP-REPORT.md`.
+
+The guard-focused follow-up freezes the coarse allocation envelope together
+with the exact mask/copy kernel as `standalone-guard-coarse`. This reconsiders
+the average-neutral envelope because it lowers the worst admitted development
+SSIM regression from 7.677% to 7.192%. The envelope is our own development fit,
+not an additional libjxl port. It multiplies the existing floating initial field
+before selection and wire rounding, retains physical DC/global scale and uses
+no peer decisions. Promotion eligibility remains explicit and restricted to the
+frozen standalone finalists.

@@ -113,3 +113,11 @@ The retained research candidate combines exact row-wise mask loss with bulk
 copies for contiguous candidate blocks. Development bytes stay unchanged.
 The two prior holdout guards remain unresolved; keep this work on the research
 branch and complete the normal gates before any public integration or merge.
+
+The guard-focused follow-up freezes the coarse-distance allocation with the
+exact selector. It lowers the worst admitted development SSIM regression from
+7.677% to 7.192% and passes crop and original entry checks. One aggregate-only
+holdout attempt gives vips -5.996/-3.605/-2.909%, mean -4.170%, but two admitted
+SSIM guards still fail, worst +11.617% against main. No parameter changes follow
+that result. Keep the candidate as an explicit research option; public defaults
+and main stay unchanged. Full watch/scale and public integration remain pending.

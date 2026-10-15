@@ -11,10 +11,13 @@ import {
 } from '../benchmark/jpegxl/lossy-lab/fixture-selection.ts'
 
 it.each(['holdout', 'watch', 'scale'] as const)(
-  'admits only the standalone finalist with explicit promotion for %s',
+  'admits only frozen standalone finalists with explicit promotion for %s',
   (mode) => {
     expect(allowsStrategyPortMode(mode, 'standalone-guard-bounded', true)).toBe(true)
     expect(allowsStrategyPortMode(mode, 'standalone-guard-bounded', false)).toBe(false)
+    expect(allowsStrategyPortMode(mode, 'standalone-guard-coarse', true)).toBe(true)
+    expect(allowsStrategyPortMode(mode, 'standalone-guard-coarse', false)).toBe(false)
+    expect(allowsStrategyPortMode(mode, 'standalone-selector-mask-copy', true)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'standalone-guard-hf625', true)).toBe(false)
     expect(allowsStrategyPortMode(mode, 'spatial-source', true)).toBe(false)
   },

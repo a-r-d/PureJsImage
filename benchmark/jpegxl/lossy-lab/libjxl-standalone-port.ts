@@ -7,7 +7,7 @@
  * variant uses separately attributed filter defaults and bypasses the discarded
  * own transform search. Other variants retain our EPF decisions. Refined
  * experiments cap EPF iterations and independently vary physical DC precision,
- * smoothing, high-frequency masking or coefficient rounding.
+ * smoothing, high-frequency masking, AC precision or coefficient rounding.
  * All decisions derive from pixels and distance. No decoder or peer maps.
  */
 import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
@@ -59,6 +59,7 @@ export type StandalonePort =
   | 'standalone-selector-mask'
   | 'standalone-selector-copy'
   | 'standalone-selector-mask-copy'
+  | 'standalone-guard-coarse'
   | 'standalone-selector-pairs'
   | 'standalone-loss75'
   | 'standalone-loss125'
@@ -81,11 +82,13 @@ export function libjxlStandaloneOverrides(
             : undefined
   const lossScale =
     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+  const coarseAllocation = requestedMode === 'standalone-guard-coarse'
   const inverseWeights =
     requestedMode === 'standalone-selector-inverse' ||
     requestedMode === 'standalone-selector-mask' ||
     requestedMode === 'standalone-selector-copy' ||
-    requestedMode === 'standalone-selector-mask-copy'
+    requestedMode === 'standalone-selector-mask-copy' ||
+    coarseAllocation
   const guardVariant =
     inverseWeights ||
     writerEstimate !== undefined ||
@@ -192,6 +195,13 @@ export function libjxlStandaloneOverrides(
         mode === 'standalone-bounded' || optimized,
         mode === 'standalone-refined-dark-hf',
       )
+      // First-party guard-balancing allocation, frozen from the development
+      // coarse-envelope trial. Fine-distance DC/AC balance stays unchanged.
+      if (coarseAllocation) {
+        const precision = 1 + 0.1 * Math.max(0, Math.min(1, (distance - 1.5) / 1.5))
+        if (precision !== 1)
+          for (let i = 0; i < field.length; i++) field[i] = (field[i] ?? 0) * precision
+      }
       const filtered =
         defaults?.gaborish === false
           ? undefined
@@ -216,10 +226,12 @@ export function libjxlStandaloneOverrides(
           inverseWeights,
           rowMask:
             requestedMode === 'standalone-selector-mask' ||
-            requestedMode === 'standalone-selector-mask-copy',
+            requestedMode === 'standalone-selector-mask-copy' ||
+            coarseAllocation,
           bulkBlockCopy:
             requestedMode === 'standalone-selector-copy' ||
-            requestedMode === 'standalone-selector-mask-copy',
+            requestedMode === 'standalone-selector-mask-copy' ||
+            coarseAllocation,
           lossScale,
           ...(writerEstimate ? { writerEstimate } : {}),
           compactStorage:

@@ -71,6 +71,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-selector-mask' ||
     value === 'standalone-selector-copy' ||
     value === 'standalone-selector-mask-copy' ||
+    value === 'standalone-guard-coarse' ||
     value === 'standalone-selector-pairs' ||
     value === 'standalone-writer-all' ||
     value === 'standalone-guard-bounded'
@@ -153,6 +154,7 @@ export function libjxlPortOverrides(
     mode === 'standalone-selector-mask' ||
     mode === 'standalone-selector-copy' ||
     mode === 'standalone-selector-mask-copy' ||
+    mode === 'standalone-guard-coarse' ||
     mode === 'standalone-selector-pairs' ||
     mode === 'standalone-writer-all' ||
     mode === 'standalone-guard-bounded'

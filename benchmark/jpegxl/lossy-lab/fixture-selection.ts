@@ -10,7 +10,7 @@ export function allowsStrategyPortMode(mode: LabMode, port: string, promotion: b
     mode === 'screen' ||
     mode === 'lab' ||
     mode === 'speed' ||
-    (promotion && port === 'standalone-guard-bounded')
+    (promotion && (port === 'standalone-guard-bounded' || port === 'standalone-guard-coarse'))
   )
 }
 
