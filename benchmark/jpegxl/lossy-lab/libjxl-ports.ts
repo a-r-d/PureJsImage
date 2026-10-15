@@ -67,6 +67,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-writer-matrices' ||
     value === 'standalone-loss75' ||
     value === 'standalone-loss125' ||
+    value === 'standalone-selector-inverse' ||
     value === 'standalone-selector-pairs' ||
     value === 'standalone-writer-all' ||
     value === 'standalone-guard-bounded'
@@ -145,6 +146,7 @@ export function libjxlPortOverrides(
     mode === 'standalone-writer-matrices' ||
     mode === 'standalone-loss75' ||
     mode === 'standalone-loss125' ||
+    mode === 'standalone-selector-inverse' ||
     mode === 'standalone-selector-pairs' ||
     mode === 'standalone-writer-all' ||
     mode === 'standalone-guard-bounded'

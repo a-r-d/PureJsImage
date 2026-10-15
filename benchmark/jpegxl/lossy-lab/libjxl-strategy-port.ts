@@ -20,6 +20,7 @@
  */
 import { selectorTileMask } from './selector-tile-mask.ts'
 import { inverseSelectorTransform } from './selector-inverse.ts'
+import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
 import type {
   JpegXlDevelopmentDecisions,
   JpegXlDevelopmentTransformContext,
@@ -85,6 +86,7 @@ export interface StrategyOptions {
   compactStorage?: boolean
   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
   pairedTransform?: boolean
+  inverseWeights?: boolean
   lossScale?: number
 }
 
@@ -121,6 +123,7 @@ function selectGeometry(
     compactStorage = false,
     writerEstimate,
     pairedTransform = false,
+    inverseWeights = false,
     lossScale = 1,
   } = options
   const memory = base.memory
@@ -139,7 +142,11 @@ function selectGeometry(
       : fastTransforms
         ? forwardSelectorTransform
         : forwardDevelopmentTransform
-  const inverse = symmetricInverse ? inverseSelectorTransform : inverseJpegXlDevelopmentTransform
+  const inverse = inverseWeights
+    ? inverseWeightedSelectorTransform
+    : symmetricInverse
+      ? inverseSelectorTransform
+      : inverseJpegXlDevelopmentTransform
   const strategies = memory.allocate(Int32Array, blockCount)
   const first = memory.allocate(Uint8Array, blockCount)
   first.fill(1)

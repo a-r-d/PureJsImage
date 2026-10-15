@@ -98,3 +98,11 @@ InitialQuantDC, the adapted selector and optimized Gaborish inverse together,
 with no peer maps. Keep all work on `jxl-libjxl-ports` until the gates above pass.
 This supersedes the earlier requirement to wait for Step C approval. It does
 not waive quality, speed, memory, holdout or public-bundle cleanup checks.
+
+## Research continuation, 2026-10-15
+
+After the channel-rounding report and plateau stop, Aaron asked to keep working.
+Reopen development research on the coherent standalone mode, starting with
+per-cell error constraints on large-transform merges. Keep the frozen corpus,
+ladders, quality guards, speed rule, memory ceiling and research-branch boundary.
+The holdout remains a promotion check and must not guide tuning.

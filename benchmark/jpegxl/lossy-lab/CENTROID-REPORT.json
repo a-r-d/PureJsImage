@@ -1944,10 +1944,7 @@
   "isolatedSpeed": [
     {
       "path": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/luma-speed.json",
-      "modes": [
-        "standalone-selector-pairs",
-        "standalone-round-luma"
-      ],
+      "modes": ["standalone-selector-pairs", "standalone-round-luma"],
       "samples": 15,
       "byteIdentical": false,
       "baseline": {
@@ -1973,10 +1970,7 @@
     },
     {
       "path": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/centroid-luma-speed.json",
-      "modes": [
-        "standalone-selector-pairs",
-        "standalone-round-centroid-luma"
-      ],
+      "modes": ["standalone-selector-pairs", "standalone-round-centroid-luma"],
       "samples": 15,
       "byteIdentical": false,
       "baseline": {
@@ -2193,15 +2187,8 @@
     "skips": 3,
     "testSeconds": 1192.28,
     "focusedTests": 78,
-    "browsers": [
-      "chromium",
-      "firefox",
-      "webkit"
-    ],
-    "bundleBytes": [
-      614941,
-      687773
-    ],
+    "browsers": ["chromium", "firefox", "webkit"],
+    "bundleBytes": [614941, 687773],
     "restoredFocusedTests": 72,
     "restoredCodeEqualsBase": true
   },

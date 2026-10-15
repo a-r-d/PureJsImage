@@ -171,6 +171,7 @@ export async function verifyDecisionTransplantBrowser() {
     'standalone-refined-dcfine-hfhalf',
     'standalone-refined-chroma75',
     'standalone-guard-bounded',
+    'standalone-selector-inverse',
     'standalone-selector-pairs',
     'standalone-writer-rounding',
     'standalone-loss75',

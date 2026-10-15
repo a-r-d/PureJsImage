@@ -1,4 +1,5 @@
 import { inverseSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-inverse.ts'
+import { inverseWeightedSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts'
 import { describe, expect, it } from 'vitest'
 import {
   forwardSelectorTransform,
@@ -63,6 +64,15 @@ describe('development normative transform kernels', () => {
       const reference = pixels.slice()
       inverseSelectorTransform(strategy, coefficients, scratch, pixels, new Uint16Array(height))
       for (let i = 0; i < size; i++) expect(pixels[i]).toBeCloseTo(reference[i] ?? 0, 6)
+      const exact = pixels.slice()
+      inverseWeightedSelectorTransform(
+        strategy,
+        coefficients,
+        scratch,
+        pixels,
+        new Uint16Array(height),
+      )
+      expect(pixels).toEqual(exact)
       let maximum = 0
       for (let i = 0; i < size; i++)
         maximum = Math.max(maximum, Math.abs((pixels[i] ?? 0) - (input[i] ?? 0)))

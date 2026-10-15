@@ -224,3 +224,24 @@ These six rejected variants are archived in `lossy-lab/CENTROID-EXPERIMENT.patch
 and removed from the active TypeScript modules after measurement. The patch
 preserves the modules' existing attribution and adds the focused tests needed
 to reproduce the experiments.
+
+The 2026-10-15 merge-guard continuation adds a first-party per-cell luma error
+constraint to the attributed standalone selector. `lossy-lab/selector-merge-guard.ts`
+contains bounded tile-footprint copying and budget checks, with no third-party
+source. The selector tests eighth-power and RMS residual budgets, optional luma
+writer rounding and relative tolerances. Existing libjxl file/revision attribution
+is unchanged; no additional source material or peer decisions are consumed.
+The same continuation tests a soft penalty for the worst per-cell luma norm
+increase and 0.9/1.1 multipliers on the coherent initial AC precision field.
+These are first-party cost/allocation experiments on the attributed ports.
+
+`lossy-lab/selector-inverse-weights.ts` is a first-party inverse-DCT optimization.
+It copies existing cosine weights into dot-product order, hoists coefficient
+orientation/strides, and preserves the arithmetic order of `selector-inverse.ts`.
+No libjxl source is copied for this optimization. It adds a bounded constant cache
+of at most 21,760 bytes across all supported DCT dimensions (5,376 bytes for the
+retained compact menu), with no source-sized scratch allocation.
+
+The rejected 2026-10-15 guard and AC-allocation code, its tests and the measured
+inverse variant are reproducible from `lossy-lab/MERGE-EXPERIMENT.patch` on base
+`a9275832`. Only the inverse-weight optimization remains active after cleanup.

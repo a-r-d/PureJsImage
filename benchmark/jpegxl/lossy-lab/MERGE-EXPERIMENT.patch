@@ -1,0 +1,689 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 762a5583..90527a62 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -67,6 +67,19 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-writer-matrices' ||
+     value === 'standalone-loss75' ||
+     value === 'standalone-loss125' ||
++    value === 'standalone-ac110-luma' ||
++    value === 'standalone-ac120' ||
++    value === 'standalone-ac90' ||
++    value === 'standalone-ac110' ||
++    value === 'standalone-merge-soft' ||
++    value === 'standalone-merge-soft4' ||
++    value === 'standalone-merge-native' ||
++    value === 'standalone-merge-luma' ||
++    value === 'standalone-merge-luma10' ||
++    value === 'standalone-merge-luma25' ||
++    value === 'standalone-merge-rms' ||
++    value === 'standalone-merge-rms10' ||
++    value === 'standalone-selector-inverse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+     value === 'standalone-guard-bounded'
+@@ -145,6 +158,19 @@ export function libjxlPortOverrides(
+     mode === 'standalone-writer-matrices' ||
+     mode === 'standalone-loss75' ||
+     mode === 'standalone-loss125' ||
++    mode === 'standalone-ac110-luma' ||
++    mode === 'standalone-ac120' ||
++    mode === 'standalone-ac90' ||
++    mode === 'standalone-ac110' ||
++    mode === 'standalone-merge-soft' ||
++    mode === 'standalone-merge-soft4' ||
++    mode === 'standalone-merge-native' ||
++    mode === 'standalone-merge-luma' ||
++    mode === 'standalone-merge-luma10' ||
++    mode === 'standalone-merge-luma25' ||
++    mode === 'standalone-merge-rms' ||
++    mode === 'standalone-merge-rms10' ||
++    mode === 'standalone-selector-inverse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+     mode === 'standalone-guard-bounded'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 76dc380e..2b7af7b7 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -14,7 +14,7 @@ import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-deve
+ import { libjxlDcOverrides } from './libjxl-dc-port.ts'
+ import { libjxlInitialGlobalScale, libjxlInitialQuantField } from './libjxl-initial-quant-port.ts'
+ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+-import { strategyPortOverrides } from './libjxl-strategy-port.ts'
++import { strategyPortOverrides, type StrategyOptions } from './libjxl-strategy-port.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
+ 
+@@ -55,6 +55,19 @@ export type StandalonePort =
+   | 'standalone-writer-rounding'
+   | 'standalone-writer-matrices'
+   | 'standalone-writer-all'
++  | 'standalone-ac110-luma'
++  | 'standalone-ac120'
++  | 'standalone-ac90'
++  | 'standalone-ac110'
++  | 'standalone-merge-soft'
++  | 'standalone-merge-soft4'
++  | 'standalone-merge-native'
++  | 'standalone-merge-luma'
++  | 'standalone-merge-luma10'
++  | 'standalone-merge-luma25'
++  | 'standalone-merge-rms'
++  | 'standalone-merge-rms10'
++  | 'standalone-selector-inverse'
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+@@ -65,6 +78,35 @@ export function libjxlStandaloneOverrides(
+   height: number,
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
++  const acScale =
++    requestedMode === 'standalone-ac90'
++      ? 0.9
++      : requestedMode === 'standalone-ac110' || requestedMode === 'standalone-ac110-luma'
++        ? 1.1
++        : requestedMode === 'standalone-ac120'
++          ? 1.2
++          : 1
++  const mergeVariant = requestedMode.startsWith('standalone-merge-')
++  const mergeGuard: StrategyOptions['mergeGuard'] = mergeVariant
++    ? {
++        tolerance:
++          requestedMode === 'standalone-merge-luma25'
++            ? 0.25
++            : requestedMode === 'standalone-merge-luma10' ||
++                requestedMode === 'standalone-merge-rms10'
++              ? 0.1
++              : 0,
++        ...(requestedMode === 'standalone-merge-soft'
++          ? { penalty: 1 }
++          : requestedMode === 'standalone-merge-soft4'
++            ? { penalty: 4 }
++            : {}),
++        power:
++          requestedMode === 'standalone-merge-rms' || requestedMode === 'standalone-merge-rms10'
++            ? 2
++            : 8,
++      }
++    : undefined
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -78,7 +120,12 @@ export function libjxlStandaloneOverrides(
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+   const guardVariant =
+-    writerEstimate !== undefined || requestedMode === 'standalone-selector-pairs' || lossScale !== 1
++    acScale !== 1 ||
++    requestedMode === 'standalone-selector-inverse' ||
++    mergeVariant ||
++    writerEstimate !== undefined ||
++    requestedMode === 'standalone-selector-pairs' ||
++    lossScale !== 1
+   const guardNoSmooth =
+     guardVariant ||
+     requestedMode === 'standalone-refined-chroma75-nosmooth' ||
+@@ -180,6 +227,8 @@ export function libjxlStandaloneOverrides(
+         mode === 'standalone-bounded' || optimized,
+         mode === 'standalone-refined-dark-hf',
+       )
++      if (acScale !== 1)
++        for (let at = 0; at < field.length; at++) field[at] = (field[at] ?? 0) * acScale
+       const filtered =
+         defaults?.gaborish === false
+           ? undefined
+@@ -200,7 +249,16 @@ export function libjxlStandaloneOverrides(
+       try {
+         const select = strategyPortOverrides(distance, 'spatial-source', context, {
+           initialField: field,
+-          pairedTransform: requestedMode === 'standalone-selector-pairs',
++          pairedTransform:
++            requestedMode === 'standalone-selector-pairs' ||
++            requestedMode === 'standalone-selector-inverse' ||
++            mergeVariant ||
++            acScale !== 1,
++          lumaRounding:
++            (mergeVariant && requestedMode !== 'standalone-merge-native') ||
++            requestedMode === 'standalone-ac110-luma',
++          ...(mergeGuard ? { mergeGuard } : {}),
++          inverseWeights: requestedMode === 'standalone-selector-inverse',
+           lossScale,
+           ...(writerEstimate ? { writerEstimate } : {}),
+           compactStorage:
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 019c9c58..1fb05837 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -15,11 +15,14 @@
+  * and the compact candidate menu are first-party speed adaptations.
+  * Writer-estimate experiments independently match the final quantization field,
+  * chroma matrix scales and rate-aware rounding used by our writer.
++ * Per-cell luma merge constraints are first-party experiments.
+  * Tiny's split-cost literal is written as its representable JavaScript double.
+  * This is a development experiment, never imported by the public encoder.
+  */
+ import { selectorTileMask } from './selector-tile-mask.ts'
++import { copyMergeGuardCells, mergeGuardAllows, mergeGuardExcess } from './selector-merge-guard.ts'
+ import { inverseSelectorTransform } from './selector-inverse.ts'
++import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
+ import type {
+   JpegXlDevelopmentDecisions,
+   JpegXlDevelopmentTransformContext,
+@@ -84,7 +87,10 @@ export interface StrategyOptions {
+   limit16?: boolean
+   compactStorage?: boolean
+   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
++  lumaRounding?: boolean
++  mergeGuard?: { tolerance: number; power: 2 | 8; penalty?: number }
+   pairedTransform?: boolean
++  inverseWeights?: boolean
+   lossScale?: number
+ }
+ 
+@@ -120,7 +126,10 @@ function selectGeometry(
+     limit16 = false,
+     compactStorage = false,
+     writerEstimate,
++    lumaRounding = false,
++    mergeGuard,
+     pairedTransform = false,
++    inverseWeights = false,
+     lossScale = 1,
+   } = options
+   const memory = base.memory
+@@ -139,7 +148,11 @@ function selectGeometry(
+       : fastTransforms
+         ? forwardSelectorTransform
+         : forwardDevelopmentTransform
+-  const inverse = symmetricInverse ? inverseSelectorTransform : inverseJpegXlDevelopmentTransform
++  const inverse = inverseWeights
++    ? inverseWeightedSelectorTransform
++    : symmetricInverse
++      ? inverseSelectorTransform
++      : inverseJpegXlDevelopmentTransform
+   const strategies = memory.allocate(Int32Array, blockCount)
+   const first = memory.allocate(Uint8Array, blockCount)
+   first.fill(1)
+@@ -157,6 +170,10 @@ function selectGeometry(
+   ]
+   const scratch = memory.allocate(Float64Array, 4096)
+   const residual = memory.allocate(Float64Array, 4096)
++  const guardCandidate = mergeGuard ? memory.allocate(Float64Array, 64) : undefined
++  const guardIncumbent = mergeGuard ? memory.allocate(Float64Array, 64) : undefined
++  const guardPending = mergeGuard ? memory.allocate(Float64Array, 64) : undefined
++  const guardAllowance = mergeGuard ? (1 + mergeGuard.tolerance) ** mergeGuard.power : 1
+   const spatial = memory.allocate(Float32Array, 4096)
+   const active = memory.allocate(Uint16Array, 64)
+   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
+@@ -197,6 +214,7 @@ function selectGeometry(
+       height = bh * 8,
+       size = width * height
+     let quantizer = 0
++    let mergePenalty = 0
+     for (let dy = 0; dy < bh; dy++)
+       for (let dx = 0; dx < bw; dx++) {
+         quantizer = Math.max(quantizer, selectionField[(y + dy) * base.blocksWide + x + dx] ?? 0)
+@@ -237,7 +255,7 @@ function selectGeometry(
+       lumaLoss = 0,
+       absoluteError = 0,
+       squaredError = 0
+-    if (actualRounding) context.readBlock(x, y, true)
++    if (actualRounding || lumaRounding) context.readBlock(x, y, true)
+     const tables = jpegXlDevelopmentDequantization(strategy)
+     const naturalWidth = Math.max(width, height)
+     for (let channelIndex = 0; channelIndex < 3; channelIndex++) {
+@@ -270,6 +288,7 @@ function selectGeometry(
+               : 1
+       let nonzero = 0,
+         channelEntropy = 0
++      const roundedByWriter = actualRounding || (lumaRounding && c === 1)
+       residual.fill(0, 0, size)
+       for (let p = 0; p < size; p++) {
+         if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
+@@ -279,7 +298,7 @@ function selectGeometry(
+         // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.
+         const lower = Math.floor(value),
+           fraction = value - lower
+-        const rounded = actualRounding
++        const rounded = roundedByWriter
+           ? context.quantize(value, c)
+           : fraction === 0.5
+             ? lower % 2 === 0
+@@ -290,7 +309,7 @@ function selectGeometry(
+         const magnitude = Math.abs(rounded),
+           error =
+             value -
+-            (actualRounding && rounded !== 0
++            (roundedByWriter && rounded !== 0
+               ? Math.abs(rounded) === 1
+                 ? Math.sign(rounded) * (defaultJpegXlQuantizationBiases[c] ?? 1)
+                 : rounded - 0.145 / rounded
+@@ -321,23 +340,49 @@ function selectGeometry(
+         inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
+         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
+         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
++        const guardCells = c === 1 ? guardCandidate : undefined
++        if (guardCells)
++          for (let dy = 0; dy < bh; dy++) {
++            const start = ((y & 7) + dy) * 8 + (x & 7)
++            guardCells.fill(0, start, start + bw)
++          }
+         let channelLoss = 0
+         for (let p = 0; p < size; p++) {
++          const py = Math.floor(p / width),
++            px = p % width
+           const mask = tileMask
+-            ? (tileMask.data[
+-                (y * 8 - maskOriginY + Math.floor(p / width)) * 64 +
+-                  x * 8 -
+-                  maskOriginX +
+-                  (p % width)
+-              ] ?? 1)
+-            : (maskField?.[
+-                (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
+-              ] ?? 1)
++            ? (tileMask.data[(y * 8 - maskOriginY + py) * 64 + x * 8 - maskOriginX + px] ?? 1)
++            : (maskField?.[(y * 8 + py) * base.blocksWide * 8 + x * 8 + px] ?? 1)
+           let error = (spatial[p] ?? 0) * (mask + maskOffset) * channelWeight
+           error *= error
++          const squared = error
+           error *= error
+           error *= error
+           channelLoss += error
++          if (guardCells) {
++            const at = ((y & 7) + (py >>> 3)) * 8 + (x & 7) + (px >>> 3)
++            guardCells[at] = (guardCells[at] ?? 0) + (mergeGuard?.power === 2 ? squared : error)
++          }
++        }
++        if (guardCells && guardIncumbent && mergeGuard) {
++          const physicalScale = scale ** mergeGuard.power
++          for (let dy = 0; dy < bh; dy++)
++            for (let dx = 0; dx < bw; dx++) {
++              const at = ((y & 7) + dy) * 8 + (x & 7) + dx
++              guardCells[at] = (guardCells[at] ?? 0) * physicalScale
++            }
++          if (
++            bw * bh > 1 &&
++            mergeGuard.penalty === undefined &&
++            !mergeGuardAllows(guardCells, guardIncumbent, x, y, bw, bh, guardAllowance)
++          ) {
++            lastLoss = Infinity
++            return Infinity
++          }
++          if (bw * bh > 1 && mergeGuard.penalty !== undefined)
++            mergePenalty =
++              mergeGuard.penalty *
++              mergeGuardExcess(guardCells, guardIncumbent, x, y, bw, bh, mergeGuard.power)
+         }
+         loss += channelLoss
+         if (c === 0 && bw * bh >= 2) {
+@@ -370,7 +415,7 @@ function selectGeometry(
+     return tiny
+       ? entropyMultiplier *
+           (entropy + 138 * absoluteError + 50.46839691767866 * Math.sqrt(bw * bh * squaredError))
+-      : entropyMultiplier * entropy + infoWeight * lastLoss * size
++      : entropyMultiplier * entropy + infoWeight * (lastLoss + mergePenalty) * size
+   }
+   const write = (x: number, y: number, strategy: number, cost: number, loss: number): void => {
+     const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+@@ -401,7 +446,8 @@ function selectGeometry(
+         for (let x = tx; x < endX; x++) {
+           let best = 0,
+             bestCost = score(x, y, 0, 1),
+-            bestLoss = lastLoss
++            bestLoss = lastLoss,
++            bestGuard = guardCandidate?.[(y & 7) * 8 + (x & 7)] ?? 0
+           if (!tiny)
+             for (let i = 1; i < smallMenu.length; i++) {
+               const strategy = smallMenu[i] ?? 0
+@@ -416,9 +462,11 @@ function selectGeometry(
+                 best = strategy
+                 bestCost = cost
+                 bestLoss = lastLoss
++                bestGuard = guardCandidate?.[(y & 7) * 8 + (x & 7)] ?? 0
+               }
+             }
+           write(x, y, best, (bestCost + (tiny ? 3 : 0)) * smallMultiplier, bestLoss)
++          if (guardIncumbent) guardIncumbent[(y & 7) * 8 + (x & 7)] = bestGuard
+         }
+       // Compare square and both complete two-rectangle partitions with their incumbent.
+       // Alignment makes every candidate cover whole previous transforms.
+@@ -456,6 +504,8 @@ function selectGeometry(
+                 bestKind = square
+                 loss0 = lastLoss
+                 cost0 = cost
++                if (guardCandidate && guardPending)
++                  copyMergeGuardCells(guardCandidate, guardPending, x, y, blocks, blocks)
+               }
+             }
+             for (const strategy of [vertical, horizontal]) {
+@@ -492,6 +542,14 @@ function selectGeometry(
+                 cost1 = b < oldRight ? b : -1
+                 loss0 = la
+                 loss1 = lb
++                if (guardIncumbent && guardPending && guardCandidate) {
++                  copyMergeGuardCells(guardIncumbent, guardPending, x, y, blocks, blocks)
++                  const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++                    bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
++                  if (a < oldLeft) copyMergeGuardCells(guardCandidate, guardPending, x, y, bw, bh)
++                  if (b < oldRight)
++                    copyMergeGuardCells(guardCandidate, guardPending, x + dx, y + dy, bw, bh)
++                }
+               }
+             }
+             if (bestKind) {
+@@ -504,6 +562,8 @@ function selectGeometry(
+                   cost1,
+                   loss1,
+                 )
++              if (guardPending && guardIncumbent)
++                copyMergeGuardCells(guardPending, guardIncumbent, x, y, blocks, blocks)
+             }
+           }
+       }
+@@ -521,6 +581,9 @@ function selectGeometry(
+     memory.release(buffer)
+   if (maskField) memory.release(maskField)
+   if (pairs) memory.release(pairs)
++  if (guardCandidate) memory.release(guardCandidate)
++  if (guardIncumbent) memory.release(guardIncumbent)
++  if (guardPending) memory.release(guardPending)
+   tileMask?.release()
+   const adjusted = mode === 'spatial-source' ? memory.allocate(Int32Array, blockCount) : undefined
+   if (adjusted) {
+diff --git a/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts b/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
+new file mode 100644
+index 00000000..12935fba
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
+@@ -0,0 +1,72 @@
++import { inverseJpegXlDevelopmentTransform } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { dctBasis } from './transform-kernels.ts'
++
++const inverseWeights = new Map<number, Float64Array>()
++function weights(size: number): Float64Array {
++  const previous = inverseWeights.get(size)
++  if (previous) return previous
++  const forward = dctBasis(size)
++  const result = new Float64Array((size * size) / 2)
++  for (let x = 0; x < size / 2; x++)
++    for (let k = 0; k < size; k++) result[x * size + k] = forward[k * size + x] ?? 0
++  inverseWeights.set(size, result)
++  return result
++}
++
++/** First-party inverse DCT with cached weights contiguous in dot-product order. */
++export function inverseWeightedSelectorTransform(
++  strategy: number,
++  coefficients: Float64Array,
++  scratch: Float64Array,
++  destination: Float32Array,
++  active: Uint16Array,
++): void {
++  const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
++  const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
++  if (width === 8 && height === 8) {
++    inverseJpegXlDevelopmentTransform(strategy, coefficients, scratch, destination, active)
++    return
++  }
++  if (width < 8 || height < 8 || width > 64 || height > 64)
++    throw new Error('Invalid selector inverse extent')
++  const horizontal = weights(width),
++    vertical = weights(height),
++    stride = height >= width ? height : 1,
++    pairStride = 2 * stride,
++    scale = Math.sqrt(width * height)
++  for (let v = 0; v < height; v++) {
++    const row = height >= width ? v : v * width
++    for (let x = 0; x < width / 2; x++) {
++      let even = 0,
++        odd = 0,
++        at = row
++      const offset = x * width
++      for (let h = 0; h < width; h += 2) {
++        even += (coefficients[at] ?? 0) * (horizontal[offset + h] ?? 0)
++        odd += (coefficients[at + stride] ?? 0) * (horizontal[offset + h + 1] ?? 0)
++        at += pairStride
++      }
++      scratch[v * width + x] = even + odd
++      scratch[v * width + width - 1 - x] = even - odd
++    }
++  }
++  for (let y = 0; y < height / 2; y++) {
++    const offset = y * height
++    for (let x = 0; x < width; x++) {
++      let even = 0,
++        odd = 0,
++        at = x
++      for (let v = 0; v < height; v += 2) {
++        even += (scratch[at] ?? 0) * (vertical[offset + v] ?? 0)
++        odd += (scratch[at + width] ?? 0) * (vertical[offset + v + 1] ?? 0)
++        at += 2 * width
++      }
++      destination[y * width + x] = (even + odd) * scale
++      destination[(height - 1 - y) * width + x] = (even - odd) * scale
++    }
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/selector-merge-guard.ts b/benchmark/jpegxl/lossy-lab/selector-merge-guard.ts
+new file mode 100644
+index 00000000..e0655b40
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-merge-guard.ts
+@@ -0,0 +1,56 @@
++/** First-party per-cell error constraints for the development transform selector. */
++export function copyMergeGuardCells(
++  source: Float64Array,
++  target: Float64Array,
++  x: number,
++  y: number,
++  width: number,
++  height: number,
++): void {
++  for (let dy = 0; dy < height; dy++) {
++    const start = ((y & 7) + dy) * 8 + (x & 7)
++    for (let dx = 0; dx < width; dx++) target[start + dx] = source[start + dx] ?? 0
++  }
++}
++
++export function mergeGuardAllows(
++  candidate: Float64Array,
++  incumbent: Float64Array,
++  x: number,
++  y: number,
++  width: number,
++  height: number,
++  allowance: number,
++): boolean {
++  for (let dy = 0; dy < height; dy++)
++    for (let dx = 0; dx < width; dx++) {
++      const at = ((y & 7) + dy) * 8 + (x & 7) + dx
++      const error = candidate[at] ?? Infinity
++      if (!Number.isFinite(error) || error > (incumbent[at] ?? 0) * allowance) return false
++    }
++  return true
++}
++
++/** Largest physical luma norm increase in a covered 8x8 cell. */
++export function mergeGuardExcess(
++  candidate: Float64Array,
++  incumbent: Float64Array,
++  x: number,
++  y: number,
++  width: number,
++  height: number,
++  power: 2 | 8,
++): number {
++  let excess = 0
++  for (let dy = 0; dy < height; dy++)
++    for (let dx = 0; dx < width; dx++) {
++      const at = ((y & 7) + dy) * 8 + (x & 7) + dx
++      const error = candidate[at] ?? Infinity
++      if (!Number.isFinite(error)) return Infinity
++      excess = Math.max(
++        excess,
++        (error / 64) ** (1 / power) - ((incumbent[at] ?? 0) / 64) ** (1 / power),
++      )
++    }
++  return excess
++}
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 0c3c047f..6024a985 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -171,6 +171,19 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-refined-dcfine-hfhalf',
+     'standalone-refined-chroma75',
+     'standalone-guard-bounded',
++    'standalone-ac110-luma',
++    'standalone-ac120',
++    'standalone-ac90',
++    'standalone-ac110',
++    'standalone-merge-soft',
++    'standalone-merge-soft4',
++    'standalone-merge-native',
++    'standalone-merge-luma',
++    'standalone-merge-luma10',
++    'standalone-merge-luma25',
++    'standalone-merge-rms',
++    'standalone-merge-rms10',
++    'standalone-selector-inverse',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+     'standalone-loss75',
+diff --git a/tests/jpegxl-development-transforms.test.ts b/tests/jpegxl-development-transforms.test.ts
+index 233e7ef1..8be6ba37 100644
+--- a/tests/jpegxl-development-transforms.test.ts
++++ b/tests/jpegxl-development-transforms.test.ts
+@@ -1,4 +1,5 @@
+ import { inverseSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-inverse.ts'
++import { inverseWeightedSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts'
+ import { describe, expect, it } from 'vitest'
+ import {
+   forwardSelectorTransform,
+@@ -63,6 +64,15 @@ describe('development normative transform kernels', () => {
+       const reference = pixels.slice()
+       inverseSelectorTransform(strategy, coefficients, scratch, pixels, new Uint16Array(height))
+       for (let i = 0; i < size; i++) expect(pixels[i]).toBeCloseTo(reference[i] ?? 0, 6)
++      const exact = pixels.slice()
++      inverseWeightedSelectorTransform(
++        strategy,
++        coefficients,
++        scratch,
++        pixels,
++        new Uint16Array(height),
++      )
++      expect(pixels).toEqual(exact)
+       let maximum = 0
+       for (let i = 0; i < size; i++)
+         maximum = Math.max(maximum, Math.abs((pixels[i] ?? 0) - (input[i] ?? 0)))
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index 5d292982..44aa0a56 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -55,6 +55,19 @@ it.each([
+   'standalone-writer-all',
+   'standalone-loss75',
+   'standalone-loss125',
++  'standalone-ac110-luma',
++  'standalone-ac120',
++  'standalone-ac90',
++  'standalone-ac110',
++  'standalone-merge-soft',
++  'standalone-merge-soft4',
++  'standalone-merge-native',
++  'standalone-merge-luma',
++  'standalone-merge-luma10',
++  'standalone-merge-luma25',
++  'standalone-merge-rms',
++  'standalone-merge-rms10',
++  'standalone-selector-inverse',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+   'standalone-epf0',
+@@ -176,3 +189,16 @@ it('preserves coherent streams with bounded source caching and packed AC storage
+     }
+   }
+ })
++
++it.each([
++  'standalone-ac90',
++  'standalone-ac110',
++  'standalone-ac110-luma',
++  'standalone-ac120',
++] as const)('keeps the coherent DC policy while changing AC precision with %s', (mode) => {
++  const baseline = libjxlPortOverrides('standalone-selector-pairs', 2, 73, 29)
++  const candidate = libjxlPortOverrides(mode, 2, 73, 29)
++  expect(candidate.dc).toEqual(baseline.dc)
++  expect(candidate.globalScale).toBe(baseline.globalScale)
++  expect(candidate.skipStrategySearch).toBe(true)
++})
+diff --git a/tests/jpegxl-selector-merge-guard.test.ts b/tests/jpegxl-selector-merge-guard.test.ts
+new file mode 100644
+index 00000000..f2a9c7cc
+--- /dev/null
++++ b/tests/jpegxl-selector-merge-guard.test.ts
+@@ -0,0 +1,57 @@
++import { expect, it } from 'vitest'
++import {
++  copyMergeGuardCells,
++  mergeGuardAllows,
++  mergeGuardExcess,
++} from '../benchmark/jpegxl/lossy-lab/selector-merge-guard.ts'
++
++it('prevents one cell from spending another cell’s error budget', () => {
++  const incumbent = new Float64Array(64).fill(100)
++  const candidate = incumbent.slice()
++  candidate[0] = 0
++  candidate[1] = 101
++  expect(mergeGuardAllows(candidate, incumbent, 0, 0, 2, 1, 1)).toBe(false)
++  candidate[1] = 100
++  expect(mergeGuardAllows(candidate, incumbent, 0, 0, 2, 1, 1)).toBe(true)
++})
++
++it.each([2, 8] as const)('applies the relative error allowance in power %d', (power) => {
++  const incumbent = new Float64Array(64).fill(1)
++  const candidate = new Float64Array(64).fill(1.1 ** power)
++  expect(mergeGuardAllows(candidate, incumbent, 8, 8, 4, 4, 1.1 ** power)).toBe(true)
++  candidate[27] = 1.10001 ** power
++  expect(mergeGuardAllows(candidate, incumbent, 8, 8, 4, 4, 1.1 ** power)).toBe(false)
++})
++
++it('preserves exact-zero error and rejects nonfinite candidate loss', () => {
++  const incumbent = new Float64Array(64)
++  const candidate = new Float64Array(64)
++  expect(mergeGuardAllows(candidate, incumbent, 0, 0, 1, 1, 1)).toBe(true)
++  for (const value of [1e-30, Infinity, NaN]) {
++    candidate[0] = value
++    expect(mergeGuardAllows(candidate, incumbent, 0, 0, 1, 1, 1)).toBe(false)
++  }
++})
++
++it('updates only the chosen rectangle in the bounded tile, including tile edges', () => {
++  const incumbent = new Float64Array(64).fill(2)
++  const candidate = new Float64Array(64).fill(3)
++  const pending = incumbent.slice()
++  copyMergeGuardCells(candidate, pending, 14, 13, 2, 3)
++  for (let y = 0; y < 8; y++)
++    for (let x = 0; x < 8; x++) expect(pending[y * 8 + x]).toBe(x >= 6 && y >= 5 ? 3 : 2)
++})
++
++it.each([2, 8] as const)(
++  'penalizes the worst local norm increase without rewarding other cells, power %d',
++  (power) => {
++    const incumbent = new Float64Array(64).fill(64)
++    const candidate = incumbent.slice()
++    candidate[0] = 0
++    expect(mergeGuardExcess(candidate, incumbent, 0, 0, 2, 1, power)).toBe(0)
++    candidate[1] = 64 * 1.25 ** power
++    expect(mergeGuardExcess(candidate, incumbent, 0, 0, 2, 1, power)).toBeCloseTo(0.25, 12)
++    candidate[1] = Infinity
++    expect(mergeGuardExcess(candidate, incumbent, 0, 0, 2, 1, power)).toBe(Infinity)
++  },
++)

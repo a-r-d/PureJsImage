@@ -55,6 +55,7 @@ it.each([
   'standalone-writer-all',
   'standalone-loss75',
   'standalone-loss125',
+  'standalone-selector-inverse',
   'standalone-selector-pairs',
   'standalone-sharp2',
   'standalone-epf0',
