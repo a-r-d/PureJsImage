@@ -1,0 +1,60 @@
+benchmark/jpegxl/lossy-lab/fixture-selection.ts
+  s_c2b6cc73f1c634::t_1e9e228274e976 13
+benchmark/jpegxl/lossy-lab/GUARD-ALLOCATION-REPORT.json
+  s_c2b6cc73f1c634::t_bc17110eec4c96 325,337,343,349,400,456,514,517,519-533
+  s_c2b6cc73f1c634::t_2b8af1243b5cd1 1-324,326-336,338-342,344-348,350-399,401-455,457-513,515-516,518,534-551
+tests/jpegxl-lossy-lab-execution-status.test.ts
+  s_c2b6cc73f1c634::t_51e12ff4dd19fd 1-36
+benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+  s_c2b6cc73f1c634::t_1e9e228274e976 74,157
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_c2b6cc73f1c634::t_100824568ec4d5 116-123
+tests/helpers/jpegxl-decision-transplant.ts
+  s_c2b6cc73f1c634::t_6be83d3814e985 178
+benchmark/jpegxl/lossy-lab/GUARD-ALLOCATION-REPORT.md
+  s_c2b6cc73f1c634::t_b424b58e16c061 118-146
+  s_c2b6cc73f1c634::t_aabe2816841fbe 72-117
+  s_c2b6cc73f1c634::t_9dbb8f40912372 40-71
+  s_c2b6cc73f1c634::t_48df62ae4ab2ef 1-39
+benchmark/jpegxl/lossy-lab/execution-status.ts
+  s_c2b6cc73f1c634::t_51e12ff4dd19fd 1-31
+benchmark/jpegxl/PROVENANCE.md
+  s_c2b6cc73f1c634::t_b631296ca404a1 267-275
+benchmark/jpegxl/lossy-lab-log.md
+  s_c2b6cc73f1c634::t_90af9123acc8b4 2018-2019
+  s_c2b6cc73f1c634::t_6368b9ad118be3 2024-2025
+  s_c2b6cc73f1c634::t_780caeb0a716b6 3-12,14-17
+  s_c2b6cc73f1c634::t_aabe2816841fbe 2028-2031
+  s_c2b6cc73f1c634::t_b424b58e16c061 13,2032-2035
+  s_c2b6cc73f1c634::t_06ef547333f4be 2020-2021
+  s_c2b6cc73f1c634::t_7796b8d81a883b 2026-2027
+  s_c2b6cc73f1c634::t_8b8855bdae2fd9 2022-2023
+  s_c2b6cc73f1c634::t_3280cb53a8dc9c 2010-2015
+  s_c2b6cc73f1c634::t_0e79488248da6c 2016-2017
+benchmark/jpegxl/lossy-lab/GUARD-ALLOCATION-EXPERIMENT.patch
+  s_c2b6cc73f1c634::t_90af9123acc8b4 1-182
+benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+  s_c2b6cc73f1c634::t_1e9e228274e976 10,62,85,90-91,198-204,229-230,233-234
+tests/jpegxl-libjxl-strategy-port.test.ts
+  s_c2b6cc73f1c634::t_6be83d3814e985 168-192
+  s_c2b6cc73f1c634::t_1e9e228274e976 62,134
+  s_c2b6cc73f1c634::t_0a07e7113ad035 193
+tests/jpegxl-lossy-lab-fixture-selection.test.ts
+  s_c2b6cc73f1c634::t_1e9e228274e976 14,18-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c706e64d0618cd6b2f60c9792be88b7bbaf60dfd",
+  "prompts": {},
+  "sessions": {
+    "s_c2b6cc73f1c634": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13fce-110d-7420-9829-228d7d625aae",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
