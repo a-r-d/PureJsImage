@@ -273,3 +273,32 @@ not an additional libjxl port. It multiplies the existing floating initial field
 before selection and wire rounding, retains physical DC/global scale and uses
 no peer decisions. Promotion eligibility remains explicit and restricted to the
 frozen standalone finalists.
+
+The next 2026-10-15 continuation tests first-party error estimates in
+`selector-dc-error.ts`, `selector-gaborish-error.ts` and
+`selector-correlation-error.ts`. DC reconstruction uses our existing forward
+DC grid and normative low-frequency reconstruction. Filtering uses our
+decoder's default Gaborish kernel with candidate-local clamped borders.
+Correlation propagates luma error through the decoder's AC and DC CfL ratios,
+including the existing B-minus-Y working-plane convention. These experiments
+consume no new third-party code, source constants or peer decisions. Combined
+trials reuse the already attributed quantizer, matrices and selector. Scratch
+view reuse and row coefficient traversal preserve the existing arithmetic.
+
+The same continuation reads the pipeline ordering in libjxl
+`lib/jxl/enc_heuristics.cc`, v0.12.0
+`a7a9c787341cf703dede03c2009fa460cae5e5df`: CfL maps are computed after inverse
+Gaborish. `selector-source-correlation.ts` adapts our existing block-centered
+covariance estimator to that filtered source, once per bounded selector tile.
+It ports no libjxl CfL estimator or constants. Channel-separated trials and
+initial-quantizer-squared weighting are first-party experiments.
+
+All fifteen continuation trials are rejected or unretained after the screens,
+two full labs and isolated cost comparisons. Their modules, selector options
+and tests are preserved in `lossy-lab/SELECTOR-ERROR-EXPERIMENT.patch` for
+`c706e64d`; they are removed from active code. The active encoder and tests
+return exactly to that revision. No additional third-party port is promoted.
+
+| Archived module | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/selector-source-correlation.ts`, in `SELECTOR-ERROR-EXPERIMENT.patch` | libjxl `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Post-Gaborish CfL ordering only. The covariance estimator, bounded tile execution and optional quantizer weighting are ours; no native CfL search code or constants are copied. The archived module carries the source, revision and BSD-3 header. |

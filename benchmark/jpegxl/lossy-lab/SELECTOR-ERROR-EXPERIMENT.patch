@@ -1,0 +1,910 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 4e9dfba4..e9e0e661 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -72,6 +72,24 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-selector-copy' ||
+     value === 'standalone-selector-mask-copy' ||
+     value === 'standalone-guard-coarse' ||
++    value === 'standalone-selector-dc' ||
++    value === 'standalone-selector-dcy' ||
++    value === 'standalone-selector-filter' ||
++    value === 'standalone-selector-filtery' ||
++    value === 'standalone-selector-dc-filter' ||
++    value === 'standalone-selector-dcy-filtery' ||
++    value === 'standalone-selector-cfl' ||
++    value === 'standalone-selector-dc-cfl' ||
++    value === 'standalone-selector-views' ||
++    value === 'standalone-selector-rows' ||
++    value === 'standalone-selector-rows-views' ||
++    value === 'standalone-selector-physical' ||
++    value === 'standalone-selector-ac-physical' ||
++    value === 'standalone-cfl-filtered' ||
++    value === 'standalone-cfl-filtered-x' ||
++    value === 'standalone-cfl-filtered-b' ||
++    value === 'standalone-cfl-filtered-loss' ||
++    value === 'standalone-cfl-filtered-weighted' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+     value === 'standalone-guard-bounded'
+@@ -155,6 +173,24 @@ export function libjxlPortOverrides(
+     mode === 'standalone-selector-copy' ||
+     mode === 'standalone-selector-mask-copy' ||
+     mode === 'standalone-guard-coarse' ||
++    mode === 'standalone-selector-dc' ||
++    mode === 'standalone-selector-dcy' ||
++    mode === 'standalone-selector-filter' ||
++    mode === 'standalone-selector-filtery' ||
++    mode === 'standalone-selector-dc-filter' ||
++    mode === 'standalone-selector-dcy-filtery' ||
++    mode === 'standalone-selector-cfl' ||
++    mode === 'standalone-selector-dc-cfl' ||
++    mode === 'standalone-selector-views' ||
++    mode === 'standalone-selector-rows' ||
++    mode === 'standalone-selector-rows-views' ||
++    mode === 'standalone-selector-physical' ||
++    mode === 'standalone-selector-ac-physical' ||
++    mode === 'standalone-cfl-filtered' ||
++    mode === 'standalone-cfl-filtered-x' ||
++    mode === 'standalone-cfl-filtered-b' ||
++    mode === 'standalone-cfl-filtered-loss' ||
++    mode === 'standalone-cfl-filtered-weighted' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+     mode === 'standalone-guard-bounded'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 24652a69..18551163 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -60,6 +60,24 @@ export type StandalonePort =
+   | 'standalone-selector-copy'
+   | 'standalone-selector-mask-copy'
+   | 'standalone-guard-coarse'
++  | 'standalone-selector-dc'
++  | 'standalone-selector-dcy'
++  | 'standalone-selector-filter'
++  | 'standalone-selector-filtery'
++  | 'standalone-selector-dc-filter'
++  | 'standalone-selector-dcy-filtery'
++  | 'standalone-selector-cfl'
++  | 'standalone-selector-dc-cfl'
++  | 'standalone-selector-views'
++  | 'standalone-selector-rows'
++  | 'standalone-selector-rows-views'
++  | 'standalone-selector-physical'
++  | 'standalone-selector-ac-physical'
++  | 'standalone-cfl-filtered'
++  | 'standalone-cfl-filtered-x'
++  | 'standalone-cfl-filtered-b'
++  | 'standalone-cfl-filtered-loss'
++  | 'standalone-cfl-filtered-weighted'
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+@@ -77,12 +95,56 @@ export function libjxlStandaloneOverrides(
+         ? 'rounding'
+         : requestedMode === 'standalone-writer-matrices'
+           ? 'matrices'
+-          : requestedMode === 'standalone-writer-all'
++          : requestedMode === 'standalone-writer-all' ||
++              requestedMode === 'standalone-selector-physical' ||
++              requestedMode === 'standalone-selector-ac-physical'
+             ? 'all'
+             : undefined
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+-  const coarseAllocation = requestedMode === 'standalone-guard-coarse'
++  const dcLoss =
++    requestedMode === 'standalone-selector-dc' ||
++    requestedMode === 'standalone-selector-dc-filter' ||
++    requestedMode === 'standalone-selector-dc-cfl' ||
++    requestedMode === 'standalone-selector-physical'
++      ? 'all'
++      : requestedMode === 'standalone-selector-dcy' ||
++          requestedMode === 'standalone-selector-dcy-filtery'
++        ? 'luma'
++        : undefined
++  const filterLoss =
++    requestedMode === 'standalone-selector-filter' ||
++    requestedMode === 'standalone-selector-dc-filter'
++      ? 'all'
++      : requestedMode === 'standalone-selector-filtery' ||
++          requestedMode === 'standalone-selector-dcy-filtery'
++        ? 'luma'
++        : undefined
++  const correlationLoss =
++    requestedMode === 'standalone-selector-cfl' ||
++    requestedMode === 'standalone-selector-dc-cfl' ||
++    requestedMode === 'standalone-selector-physical' ||
++    requestedMode === 'standalone-selector-ac-physical' ||
++    requestedMode === 'standalone-cfl-filtered-loss'
++  const sourceCorrelation =
++    requestedMode === 'standalone-cfl-filtered' || requestedMode === 'standalone-cfl-filtered-loss'
++      ? 'all'
++      : requestedMode === 'standalone-cfl-filtered-x'
++        ? 'x'
++        : requestedMode === 'standalone-cfl-filtered-b'
++          ? 'b'
++          : requestedMode === 'standalone-cfl-filtered-weighted'
++            ? 'weighted'
++            : undefined
++  const coarseAllocation =
++    requestedMode === 'standalone-guard-coarse' ||
++    requestedMode === 'standalone-selector-views' ||
++    requestedMode === 'standalone-selector-rows' ||
++    requestedMode === 'standalone-selector-rows-views' ||
++    dcLoss !== undefined ||
++    filterLoss !== undefined ||
++    correlationLoss ||
++    sourceCorrelation !== undefined
+   const inverseWeights =
+     requestedMode === 'standalone-selector-inverse' ||
+     requestedMode === 'standalone-selector-mask' ||
+@@ -233,6 +295,16 @@ export function libjxlStandaloneOverrides(
+             requestedMode === 'standalone-selector-mask-copy' ||
+             coarseAllocation,
+           lossScale,
++          ...(dcLoss ? { dcLoss } : {}),
++          ...(filterLoss ? { filterLoss } : {}),
++          correlationLoss,
++          ...(sourceCorrelation ? { sourceCorrelation } : {}),
++          reuseViews:
++            requestedMode === 'standalone-selector-views' ||
++            requestedMode === 'standalone-selector-rows-views',
++          rowCoefficients:
++            requestedMode === 'standalone-selector-rows' ||
++            requestedMode === 'standalone-selector-rows-views',
+           ...(writerEstimate ? { writerEstimate } : {}),
+           compactStorage:
+             requestedMode === 'standalone-guard-packed' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index f76f12e8..ec8f78e9 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -16,10 +16,16 @@
+  * Writer-estimate experiments independently match the final quantization field,
+  * chroma matrix scales and rate-aware rounding used by our writer.
+  * Tiny's split-cost literal is written as its representable JavaScript double.
++ * DC reconstruction, decoder-filter and CfL error propagation experiments,
++ * scratch-view reuse and row coefficient traversal are first-party additions.
+  * This is a development experiment, never imported by the public encoder.
+  */
+ import { selectorTileMask } from './selector-tile-mask.ts'
+ import { selectorMaskLoss } from './selector-mask-loss.ts'
++import { populateSelectorDcError } from './selector-dc-error.ts'
++import { filterSelectorError } from './selector-gaborish-error.ts'
++import { addSelectorCorrelationError } from './selector-correlation-error.ts'
++import { refreshSelectorTileCorrelation } from './selector-source-correlation.ts'
+ import { inverseSelectorTransform } from './selector-inverse.ts'
+ import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
+ import type {
+@@ -90,6 +96,12 @@ export interface StrategyOptions {
+   inverseWeights?: boolean
+   rowMask?: boolean
+   bulkBlockCopy?: boolean
++  dcLoss?: 'luma' | 'all'
++  filterLoss?: 'luma' | 'all'
++  correlationLoss?: boolean
++  reuseViews?: boolean
++  rowCoefficients?: boolean
++  sourceCorrelation?: 'all' | 'x' | 'b' | 'weighted'
+   lossScale?: number
+ }
+
+@@ -129,12 +141,22 @@ function selectGeometry(
+     inverseWeights = false,
+     rowMask = false,
+     bulkBlockCopy = false,
++    dcLoss,
++    filterLoss,
++    correlationLoss = false,
++    reuseViews = false,
++    rowCoefficients = false,
++    sourceCorrelation,
+     lossScale = 1,
+   } = options
+   const memory = base.memory
+   if (!memory || !base.quantizationMap || !base.globalScale)
+     throw new Error('Missing strategy input')
+   const blockCount = base.blocksWide * base.blocksHigh
++  if (sourceCorrelation && (!prune || base.developmentCorrelation))
++    throw new Error('Source correlation requires tiled own-map selection')
++  if (sourceCorrelation === 'weighted' && !initialField)
++    throw new Error('Weighted source correlation requires a floating quant field')
+   if (initialField && (mode !== 'spatial-source' || initialField.length !== blockCount))
+     throw new Error('Invalid floating selector field')
+   const selectionField = initialField ?? base.quantizationMap
+@@ -169,8 +191,26 @@ function selectGeometry(
+   ]
+   const scratch = memory.allocate(Float64Array, 4096)
+   const residual = memory.allocate(Float64Array, 4096)
++  const lumaResidual = correlationLoss ? memory.allocate(Float64Array, 4096) : undefined
++  if (correlationLoss && !prune) throw new Error('CfL selector requires luma-first scoring')
+   const spatial = memory.allocate(Float32Array, 4096)
++  const residualViews: Float64Array[] = []
++  const spatialViews: Float32Array[] = []
++  if (reuseViews)
++    for (let strategy = 0; strategy < 21; strategy++) {
++      const size =
++        (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) *
++        (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) *
++        64
++      residualViews.push(residual.subarray(0, size))
++      spatialViews.push(spatial.subarray(0, size))
++    }
++  const restored = filterLoss ? memory.allocate(Float32Array, 4096) : undefined
+   const active = memory.allocate(Uint16Array, 64)
++  const dc = dcLoss ? memory.allocate(Float64Array, 64) : undefined
++  const dcFrequencies = dcLoss ? memory.allocate(Float64Array, 64) : undefined
++  if (dcLoss && (base.smoothDc || base.developmentCorrelation))
++    throw new Error('DC selector requires unsmoothed independent DC channels')
+   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
+   const infoWeight = 1.2 * ratio ** 0.33677806662454718 * lossScale
+   const zeroWeight = 9.3089059022677905 * ratio ** 0.50990926717963703
+@@ -287,37 +327,47 @@ function selectGeometry(
+       let nonzero = 0,
+         channelEntropy = 0
+       residual.fill(0, 0, size)
+-      for (let p = 0; p < size; p++) {
+-        if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
+-          continue
+-        const step = scale * channelScale * (matrix[p] ?? 0)
+-        const value = ((coefficients[p] ?? 0) - correlation * (luma[p] ?? 0)) / step
+-        // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.
+-        const lower = Math.floor(value),
+-          fraction = value - lower
+-        const rounded = actualRounding
+-          ? context.quantize(value, c)
+-          : fraction === 0.5
+-            ? lower % 2 === 0
+-              ? lower
+-              : lower + 1
+-            : Math.round(value)
+-        if (!Number.isFinite(value) || Math.abs(rounded) > 4095) return Infinity
+-        const magnitude = Math.abs(rounded),
+-          error =
+-            value -
+-            (actualRounding && rounded !== 0
+-              ? Math.abs(rounded) === 1
+-                ? Math.sign(rounded) * (defaultJpegXlQuantizationBiases[c] ?? 1)
+-                : rounded - 0.145 / rounded
+-              : rounded)
+-        absoluteError += Math.abs(error)
+-        squaredError += error * error
+-        if (magnitude !== 0) nonzero++
+-        channelEntropy += tiny
+-          ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+-          : Math.sqrt(magnitude) * magnitudeWeight
+-        residual[p] = error * channelScale * (matrix[p] ?? 0)
++      const lowWidth = Math.max(bw, bh),
++        lowHeight = Math.min(bw, bh)
++      for (let row = 0; row < (rowCoefficients ? lowHeight * 8 : 1); row++) {
++        const begin = rowCoefficients ? row * naturalWidth + (row < lowHeight ? lowWidth : 0) : 0,
++          end = rowCoefficients ? (row + 1) * naturalWidth : size
++        for (let p = begin; p < end; p++) {
++          if (
++            !rowCoefficients &&
++            p % naturalWidth < lowWidth &&
++            Math.floor(p / naturalWidth) < lowHeight
++          )
++            continue
++          const step = scale * channelScale * (matrix[p] ?? 0)
++          const value = ((coefficients[p] ?? 0) - correlation * (luma[p] ?? 0)) / step
++          // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.
++          const lower = Math.floor(value),
++            fraction = value - lower
++          const rounded = actualRounding
++            ? context.quantize(value, c)
++            : fraction === 0.5
++              ? lower % 2 === 0
++                ? lower
++                : lower + 1
++              : Math.round(value)
++          if (!Number.isFinite(value) || Math.abs(rounded) > 4095) return Infinity
++          const magnitude = Math.abs(rounded),
++            error =
++              value -
++              (actualRounding && rounded !== 0
++                ? Math.abs(rounded) === 1
++                  ? Math.sign(rounded) * (defaultJpegXlQuantizationBiases[c] ?? 1)
++                  : rounded - 0.145 / rounded
++                : rounded)
++          absoluteError += Math.abs(error)
++          squaredError += error * error
++          if (magnitude !== 0) nonzero++
++          channelEntropy += tiny
++            ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
++            : Math.sqrt(magnitude) * magnitudeWeight
++          residual[p] = error * channelScale * (matrix[p] ?? 0)
++        }
+       }
+       const bits = ceilLog2(nonzero + 1) + 1
+       channelEntropy += (tiny ? 7.565053364251793 : zeroWeight) * (ceilLog2(bits + 17) + bits)
+@@ -334,13 +384,38 @@ function selectGeometry(
+         return Infinity
+       }
+       if (!tiny) {
+-        inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
++        if (dc && dcFrequencies && (dcLoss === 'all' || c === 1)) {
++          const step = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
++          if (!(step > 0)) throw new Error('Missing selector DC precision')
++          populateSelectorDcError(coefficients, residual, bw, bh, step, scale, dc, dcFrequencies)
++        }
++        if (lumaResidual) {
++          if (c === 1) lumaResidual.set(residual.subarray(0, size))
++          else
++            addSelectorCorrelationError(
++              residual,
++              lumaResidual,
++              bw,
++              bh,
++              correlation + (c === 2 ? 1 : 0),
++              c === 2 ? 1 : 0,
++            )
++        }
++        const inputView = reuseViews ? residualViews[strategy] : residual.subarray(0, size),
++          outputView = reuseViews ? spatialViews[strategy] : spatial.subarray(0, size)
++        if (!inputView || !outputView) throw new Error('Missing selector transform view')
++        inverse(strategy, inputView, scratch, outputView, active)
++        let measured = spatial
++        if (restored && (filterLoss === 'all' || c === 1)) {
++          filterSelectorError(spatial, restored, width, height)
++          measured = restored
++        }
+         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
+         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
+         let channelLoss = 0
+         if (rowMask && tileMask)
+           channelLoss = selectorMaskLoss(
+-            spatial,
++            measured,
+             tileMask.data,
+             width,
+             height,
+@@ -360,7 +435,7 @@ function selectGeometry(
+               : (maskField?.[
+                   (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
+                 ] ?? 1)
+-            let error = (spatial[p] ?? 0) * (mask + maskOffset) * channelWeight
++            let error = (measured[p] ?? 0) * (mask + maskOffset) * channelWeight
+             error *= error
+             error *= error
+             error *= error
+@@ -420,6 +495,15 @@ function selectGeometry(
+   for (let ty = 0; ty < base.blocksHigh; ty += tileSize)
+     for (let tx = 0; tx < base.blocksWide; tx += tileSize) {
+       tileMask?.fill(tx, ty)
++      if (sourceCorrelation)
++        refreshSelectorTileCorrelation(
++          base,
++          context,
++          tx,
++          ty,
++          sourceCorrelation === 'weighted' ? 'all' : sourceCorrelation,
++          sourceCorrelation === 'weighted' ? initialField : undefined,
++        )
+       maskOriginX = tx * 8
+       maskOriginY = ty * 8
+       const endX = Math.min(base.blocksWide, tx + tileSize)
+@@ -548,6 +632,10 @@ function selectGeometry(
+     memory.release(buffer)
+   if (maskField) memory.release(maskField)
+   if (pairs) memory.release(pairs)
++  if (dc) memory.release(dc)
++  if (dcFrequencies) memory.release(dcFrequencies)
++  if (restored) memory.release(restored)
++  if (lumaResidual) memory.release(lumaResidual)
+   tileMask?.release()
+   const adjusted = mode === 'spatial-source' ? memory.allocate(Int32Array, blockCount) : undefined
+   if (adjusted) {
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 407b254b..a15bcee5 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -176,6 +176,10 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-selector-copy',
+     'standalone-selector-mask-copy',
+     'standalone-guard-coarse',
++    'standalone-selector-cfl',
++    'standalone-cfl-filtered',
++    'standalone-selector-views',
++    'standalone-selector-rows',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+     'standalone-loss75',
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index 7b619282..d9180408 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -9,6 +9,7 @@ import { extractDecisions } from '../benchmark/jpegxl/lossy-lab/decisions.ts'
+ import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+ import { MemorySource } from '../src/source.ts'
+ import { defaultImageLimits } from '../src/limits.ts'
++import { refreshSelectorTileCorrelation } from '../benchmark/jpegxl/lossy-lab/selector-source-correlation.ts'
+
+ it.each([
+   'tiny',
+@@ -60,6 +61,24 @@ it.each([
+   'standalone-selector-copy',
+   'standalone-selector-mask-copy',
+   'standalone-guard-coarse',
++  'standalone-selector-dc',
++  'standalone-selector-dcy',
++  'standalone-selector-filter',
++  'standalone-selector-filtery',
++  'standalone-selector-dc-filter',
++  'standalone-selector-dcy-filtery',
++  'standalone-selector-cfl',
++  'standalone-selector-dc-cfl',
++  'standalone-selector-views',
++  'standalone-selector-rows',
++  'standalone-selector-rows-views',
++  'standalone-selector-physical',
++  'standalone-selector-ac-physical',
++  'standalone-cfl-filtered',
++  'standalone-cfl-filtered-x',
++  'standalone-cfl-filtered-b',
++  'standalone-cfl-filtered-loss',
++  'standalone-cfl-filtered-weighted',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+   'standalone-epf0',
+@@ -127,6 +146,29 @@ it('rejects invalid strategy-port modes and distance', () => {
+   expect(() => strategyPortOverrides(NaN, 'tiny')).toThrow('Invalid strategy-port distance')
+ })
+
++it('reproduces our own correlation maps when the source is unchanged', async () => {
++  const width = 137,
++    height = 75
++  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++    i % 4 === 3 ? 255 : 50 + ((i * 17 + Math.floor(i / width) * 31) % 150),
++  )
++  let checked = false
++  await encodeTransplant(pixels, width, height, 2, {
++    rewriteGeometry: (base, context) => {
++      const x = base.correlationX?.slice(),
++        b = base.correlationB?.slice()
++      for (let ty = 0; ty < base.blocksHigh; ty += 8)
++        for (let tx = 0; tx < base.blocksWide; tx += 8)
++          refreshSelectorTileCorrelation(base, context, tx, ty, 'all')
++      expect(base.correlationX).toEqual(x)
++      expect(base.correlationB).toEqual(b)
++      checked = true
++      return base
++    },
++  })
++  expect(checked).toBe(true)
++})
++
+ it.each([
+   'standalone-selector-mask',
+   'standalone-selector-copy',
+@@ -142,6 +184,25 @@ it.each([
+   }
+ })
+
++it.each([
++  'standalone-selector-dc',
++  'standalone-selector-dcy',
++  'standalone-selector-filter',
++  'standalone-selector-filtery',
++  'standalone-selector-dc-filter',
++  'standalone-selector-dcy-filtery',
++  'standalone-selector-cfl',
++  'standalone-selector-dc-cfl',
++] as const)('keeps frozen DC and global scale in error-model experiment %s', (mode) => {
++  for (const distance of [0.45, 2, 7.5]) {
++    const control = libjxlPortOverrides('standalone-guard-coarse', distance, 73, 29)
++    const candidate = libjxlPortOverrides(mode, distance, 73, 29)
++    expect(candidate.dc).toEqual(control.dc)
++    expect(candidate.globalScale).toBe(control.globalScale)
++    expect(candidate.skipStrategySearch).toBe(true)
++  }
++})
++
+ it('preserves standalone bytes when bounded tile caching crosses tile and image edges', async () => {
+   const width = 137,
+     height = 75
+@@ -165,6 +226,38 @@ it('preserves standalone bytes when bounded tile caching crosses tile and image
+   expect(cached.bytes).toEqual(reference.bytes)
+ })
+
++it('preserves frozen streams when selector scratch views are reused', async () => {
++  const width = 137,
++    height = 75
++  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++    i % 4 === 3 ? 255 : 50 + ((i * 17 + Math.floor(i / width) * 31) % 150),
++  )
++  for (const distance of [0.45, 2, 7.5]) {
++    const control = await encodeTransplant(
++      pixels,
++      width,
++      height,
++      distance,
++      libjxlPortOverrides('standalone-guard-coarse', distance, width, height),
++    )
++    for (const mode of [
++      'standalone-selector-views',
++      'standalone-selector-rows',
++      'standalone-selector-rows-views',
++    ] as const) {
++      const candidate = await encodeTransplant(
++        pixels,
++        width,
++        height,
++        distance,
++        libjxlPortOverrides(mode, distance, width, height),
++      )
++      expect(candidate.bytes).toEqual(control.bytes)
++      expect(candidate.managedPeakBytes).toBe(control.managedPeakBytes)
++    }
++  }
++})
++
+ it.each([0.45, 1.3])(
+   'preserves fine-distance streams with coarse allocation at %s',
+   async (distance) => {
+diff --git a/benchmark/jpegxl/lossy-lab/selector-dc-error.ts b/benchmark/jpegxl/lossy-lab/selector-dc-error.ts
+new file mode 100644
+index 00000000..079f9d89
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-dc-error.ts
+@@ -0,0 +1,23 @@
++import { populateJpegXlDevelopmentLowestFrequencies } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { developmentDcGrid } from './transform-kernels.ts'
++
++/** First-party estimate of the unsmoothed DC error written by strategy-transplant. */
++export function populateSelectorDcError(
++  coefficients: Float64Array,
++  residual: Float64Array,
++  blocksWide: number,
++  blocksHigh: number,
++  dcStep: number,
++  acScale: number,
++  dc: Float64Array,
++  frequencies: Float64Array,
++): void {
++  developmentDcGrid(coefficients, blocksWide, blocksHigh, dc)
++  for (let i = 0; i < blocksWide * blocksHigh; i++) {
++    const value = dc[i] ?? 0
++    dc[i] = (value - Math.round(value / dcStep) * dcStep) / acScale
++  }
++  // The selector stores error divided by AC scale. Restore the same low
++  // frequencies as the decoder, preserving the AC error already in residual.
++  populateJpegXlDevelopmentLowestFrequencies(residual, dc, blocksWide, blocksHigh, frequencies)
++}
+diff --git a/tests/jpegxl-selector-dc-error.test.ts b/tests/jpegxl-selector-dc-error.test.ts
+new file mode 100644
+index 00000000..43543503
+--- /dev/null
++++ b/tests/jpegxl-selector-dc-error.test.ts
+@@ -0,0 +1,50 @@
++import { expect, it } from 'vitest'
++import { populateSelectorDcError } from '../benchmark/jpegxl/lossy-lab/selector-dc-error.ts'
++import { forwardSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
++import { developmentDcGrid } from '../benchmark/jpegxl/lossy-lab/transform-kernels.ts'
++import {
++  inverseJpegXlDevelopmentTransform,
++  populateJpegXlDevelopmentLowestFrequencies,
++} from '../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../src/codecs/jpegxl-vardct-jpeg.ts'
++
++it.each([0, 1, 4, 5, 6, 8, 10, 18, 19])(
++  'predicts the unsmoothed DC reconstruction error for strategy %s',
++  (strategy) => {
++    const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++      bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0,
++      width = bw * 8,
++      size = bw * bh * 64
++    const input = Float32Array.from(
++      { length: size },
++      (_, i) => 0.41 + Math.sin((i % width) / 13) * 0.03 + Math.cos(i / width / 11) * 0.02,
++    )
++    const coefficients = new Float64Array(size),
++      scratch = new Float64Array(Math.max(128, size)),
++      dc = new Float64Array(64),
++      frequencies = new Float64Array(64),
++      residual = new Float64Array(size),
++      predicted = new Float32Array(size),
++      decoded = new Float32Array(size),
++      active = new Uint16Array(64)
++    forwardSelectorTransform(strategy, input, scratch, coefficients)
++    const dcStep = 1 / 256,
++      acScale = 0.031
++    // Existing AC error must survive filling the low frequencies.
++    const acIndex = size - 1
++    residual[acIndex] = 0.0007 / acScale
++    populateSelectorDcError(coefficients, residual, bw, bh, dcStep, acScale, dc, frequencies)
++    expect(residual[acIndex]).toBe(0.0007 / acScale)
++    inverseJpegXlDevelopmentTransform(strategy, residual, scratch, predicted, active)
++    developmentDcGrid(coefficients, bw, bh, dc)
++    for (let i = 0; i < bw * bh; i++) dc[i] = Math.round((dc[i] ?? 0) / dcStep) * dcStep
++    populateJpegXlDevelopmentLowestFrequencies(coefficients, dc, bw, bh, frequencies)
++    coefficients[acIndex] = (coefficients[acIndex] ?? 0) - 0.0007
++    inverseJpegXlDevelopmentTransform(strategy, coefficients, scratch, decoded, active)
++    for (let i = 0; i < size; i++)
++      expect((predicted[i] ?? 0) * acScale).toBeCloseTo((input[i] ?? 0) - (decoded[i] ?? 0), 6)
++  },
++)
+diff --git a/benchmark/jpegxl/lossy-lab/selector-gaborish-error.ts b/benchmark/jpegxl/lossy-lab/selector-gaborish-error.ts
+new file mode 100644
+index 00000000..e98a3a09
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-gaborish-error.ts
+@@ -0,0 +1,38 @@
++/**
++ * First-party linear error estimate using our decoder's default Gaborish
++ * kernel. Candidate borders are clamped because neighboring candidates have
++ * not been selected. EPF and the inverse filter's approximation are omitted.
++ */
++export function filterSelectorError(
++  source: Float32Array,
++  destination: Float32Array,
++  width: number,
++  height: number,
++): void {
++  const adjacent = 1.1 * 0.104699568,
++    diagonal = 1.1 * 0.055680538,
++    normalization = 1 / (1 + 4 * (adjacent + diagonal)),
++    adjacentWeight = adjacent * normalization,
++    diagonalWeight = diagonal * normalization
++  for (let y = 0; y < height; y++) {
++    const row = y * width,
++      top = Math.max(0, y - 1) * width,
++      bottom = Math.min(height - 1, y + 1) * width
++    for (let x = 0; x < width; x++) {
++      const left = Math.max(0, x - 1),
++        right = Math.min(width - 1, x + 1)
++      destination[row + x] =
++        (source[row + x] ?? 0) * normalization +
++        ((source[row + left] ?? 0) +
++          (source[row + right] ?? 0) +
++          (source[top + x] ?? 0) +
++          (source[bottom + x] ?? 0)) *
++          adjacentWeight +
++        ((source[top + left] ?? 0) +
++          (source[top + right] ?? 0) +
++          (source[bottom + left] ?? 0) +
++          (source[bottom + right] ?? 0)) *
++          diagonalWeight
++    }
++  }
++}
+diff --git a/tests/jpegxl-selector-gaborish-error.test.ts b/tests/jpegxl-selector-gaborish-error.test.ts
+new file mode 100644
+index 00000000..2b559923
+--- /dev/null
++++ b/tests/jpegxl-selector-gaborish-error.test.ts
+@@ -0,0 +1,29 @@
++import { expect, it } from 'vitest'
++import { filterSelectorError } from '../benchmark/jpegxl/lossy-lab/selector-gaborish-error.ts'
++
++it.each([
++  [8, 8],
++  [8, 32],
++  [32, 8],
++  [32, 32],
++])('preserves constant error including the %sx%s candidate borders', (width, height) => {
++  const source = new Float32Array(width * height).fill(0.0125),
++    destination = new Float32Array(source.length)
++  filterSelectorError(source, destination, width, height)
++  expect(destination).toEqual(source)
++})
++
++it('spreads an interior impulse symmetrically while preserving its sum', () => {
++  const source = new Float32Array(64),
++    destination = new Float32Array(64)
++  source[27] = 1
++  filterSelectorError(source, destination, 8, 8)
++  expect(destination[26]).toBe(destination[28])
++  expect(destination[19]).toBe(destination[35])
++  expect(destination[18]).toBe(destination[36])
++  expect(destination[20]).toBe(destination[34])
++  expect(destination[27]).toBeGreaterThan(destination[26] ?? 0)
++  expect(destination[26]).toBeGreaterThan(destination[18] ?? 0)
++  expect(destination.reduce((sum, value) => sum + value, 0)).toBeCloseTo(1, 6)
++  expect(destination[0]).toBe(0)
++})
+diff --git a/benchmark/jpegxl/lossy-lab/selector-correlation-error.ts b/benchmark/jpegxl/lossy-lab/selector-correlation-error.ts
+new file mode 100644
+index 00000000..65c25612
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-correlation-error.ts
+@@ -0,0 +1,19 @@
++/** First-party propagation of decoder CfL error into a chroma residual. */
++export function addSelectorCorrelationError(
++  residual: Float64Array,
++  luma: Float64Array,
++  blocksWide: number,
++  blocksHigh: number,
++  acRatio: number,
++  dcRatio: number,
++): void {
++  const width = Math.max(blocksWide, blocksHigh) * 8,
++    lowWidth = Math.max(blocksWide, blocksHigh),
++    lowHeight = Math.min(blocksWide, blocksHigh)
++  for (let y = 0; y < lowHeight * 8; y++)
++    for (let x = 0; x < width; x++) {
++      const p = y * width + x,
++        ratio = y < lowHeight && x < lowWidth ? dcRatio : acRatio
++      residual[p] = (residual[p] ?? 0) + ratio * (luma[p] ?? 0)
++    }
++}
+diff --git a/tests/jpegxl-selector-correlation-error.test.ts b/tests/jpegxl-selector-correlation-error.test.ts
+new file mode 100644
+index 00000000..aa4b8780
+--- /dev/null
++++ b/tests/jpegxl-selector-correlation-error.test.ts
+@@ -0,0 +1,27 @@
++import { expect, it } from 'vitest'
++import { addSelectorCorrelationError } from '../benchmark/jpegxl/lossy-lab/selector-correlation-error.ts'
++
++it.each([
++  [1, 1],
++  [1, 4],
++  [4, 1],
++  [4, 4],
++])('uses separate DC and AC prediction for a %sx%s footprint', (bw, bh) => {
++  const residual = new Float64Array(bw * bh * 64).fill(0.01),
++    yError = new Float64Array(residual.length).fill(-0.002),
++    width = Math.max(bw, bh) * 8
++  addSelectorCorrelationError(residual, yError, bw, bh, 1.25, 1)
++  expect(residual[0]).toBeCloseTo(0.008, 12)
++  expect(residual[(Math.min(bw, bh) - 1) * width + Math.max(bw, bh) - 1]).toBeCloseTo(0.008, 12)
++  expect(residual[Math.max(bw, bh)]).toBeCloseTo(0.0075, 12)
++  expect(residual[residual.length - 1]).toBeCloseTo(0.0075, 12)
++  expect(yError[0]).toBe(-0.002)
++})
++
++it('allows luma error to cancel an oppositely signed chroma residual', () => {
++  const residual = new Float64Array(64).fill(0.125),
++    luma = new Float64Array(64).fill(-0.5)
++  addSelectorCorrelationError(residual, luma, 1, 1, 0.25, 0)
++  expect(residual[0]).toBe(0.125)
++  expect(residual.subarray(1)).toEqual(new Float64Array(63))
++})
+diff --git a/benchmark/jpegxl/lossy-lab/selector-source-correlation.ts b/benchmark/jpegxl/lossy-lab/selector-source-correlation.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-source-correlation.ts
+@@ -0,0 +1,73 @@
++/**
++ * Source-informed ordering: libjxl lib/jxl/enc_heuristics.cc, v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: applies post-Gaborish CfL ordering to our own covariance estimator.
++ * No native CfL estimator, constants or tables are copied. Per-tile execution
++ * and optional initial-quantizer weighting are first-party adaptations.
++ */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++
++/**
++ * First-party tile adaptation of our encoder's block-centered covariance CfL
++ * estimator. Runs on the selector's filtered pixels and fills its existing
++ * maps. Optional Q-squared weighting estimates sensitivity to AC precision.
++ * No libjxl CfL search, constants or tables are ported here.
++ */
++export function refreshSelectorTileCorrelation(
++  base: Pick<
++    VarDctCoefficientGeometry,
++    'blocksWide' | 'blocksHigh' | 'correlationX' | 'correlationB'
++  >,
++  context: JpegXlDevelopmentTransformContext,
++  originX: number,
++  originY: number,
++  channels: 'all' | 'x' | 'b',
++  field?: Float32Array,
++): void {
++  const xMap = base.correlationX,
++    bMap = base.correlationB
++  if (!xMap || !bMap) throw new Error('Missing own correlation maps')
++  let yy = 0,
++    xy = 0,
++    by = 0
++  for (let y = originY; y < Math.min(base.blocksHigh, originY + 8); y++)
++    for (let x = originX; x < Math.min(base.blocksWide, originX + 8); x++) {
++      const block = context.readBlock(x, y, false),
++        xp = block[0],
++        yp = block[1],
++        bp = block[2]
++      if (!xp || !yp || !bp) throw new Error('Missing correlation source plane')
++      let mx = 0,
++        my = 0,
++        mb = 0
++      for (let p = 0; p < 64; p++) {
++        mx += xp[p] ?? 0
++        my += yp[p] ?? 0
++        mb += bp[p] ?? 0
++      }
++      mx = Math.fround(mx / 64)
++      my = Math.fround(my / 64)
++      mb = Math.fround(mb / 64)
++      let localY = 0,
++        localX = 0,
++        localB = 0
++      for (let p = 0; p < 64; p++) {
++        const dy = (yp[p] ?? 0) - my
++        localY += dy * dy
++        localX += ((xp[p] ?? 0) - mx) * dy
++        localB += ((bp[p] ?? 0) - mb) * dy
++      }
++      const q = field?.[y * base.blocksWide + x] ?? 1,
++        weight = q * q
++      yy = Math.fround(yy + localY * weight)
++      xy = Math.fround(xy + localX * weight)
++      by = Math.fround(by + localB * weight)
++    }
++  const tile = Math.floor(originY / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(originX / 8)
++  if (channels !== 'b')
++    xMap[tile] = yy < 1e-9 ? 0 : Math.max(-128, Math.min(127, Math.round((84 * xy) / yy)))
++  if (channels !== 'x')
++    bMap[tile] = yy < 1e-9 ? 0 : Math.max(-128, Math.min(127, Math.round((84 * by) / yy)))
++}
+diff --git a/tests/jpegxl-selector-source-correlation.test.ts b/tests/jpegxl-selector-source-correlation.test.ts
+new file mode 100644
+index 00000000..aab6b597
+--- /dev/null
++++ b/tests/jpegxl-selector-source-correlation.test.ts
+@@ -0,0 +1,58 @@
++import { expect, it } from 'vitest'
++import { refreshSelectorTileCorrelation } from '../benchmark/jpegxl/lossy-lab/selector-source-correlation.ts'
++
++it('recovers block-centered chroma slopes on an incomplete tile', () => {
++  const base = {
++    blocksWide: 10,
++    blocksHigh: 9,
++    correlationX: new Int32Array(4),
++    correlationB: new Int32Array(4),
++  }
++  let reads = 0
++  const context = {
++    quantize: Math.round,
++    readBlock: (x: number, y: number) => {
++      if (x >= 10 || y >= 9) throw new Error('Read outside image')
++      reads++
++      const luma = Float32Array.from({ length: 64 }, (_, p) => (p % 8) / 32 + x + y)
++      return [
++        Float32Array.from(luma, (v) => v / 4 + 3 * x),
++        luma,
++        Float32Array.from(luma, (v) => -v / 2 + y),
++      ]
++    },
++  }
++  refreshSelectorTileCorrelation(base, context, 8, 8, 'all')
++  expect(reads).toBe(2)
++  expect(base.correlationX).toEqual(Int32Array.of(0, 0, 0, 21))
++  expect(base.correlationB).toEqual(Int32Array.of(0, 0, 0, -42))
++  base.correlationB[3] = 19
++  refreshSelectorTileCorrelation(base, context, 8, 8, 'x')
++  expect(base.correlationB[3]).toBe(19)
++})
++
++it('weights sensitive blocks more strongly without changing a constant field', () => {
++  const base = {
++    blocksWide: 2,
++    blocksHigh: 1,
++    correlationX: new Int32Array(1),
++    correlationB: new Int32Array(1),
++  }
++  const context = {
++    quantize: Math.round,
++    readBlock: (x: number) => {
++      const luma = Float32Array.from({ length: 64 }, (_, p) => (p % 8) / 32)
++      return [
++        Float32Array.from(luma, (v) => v * (x === 0 ? 0.25 : 0.75)),
++        luma,
++        new Float32Array(64),
++      ]
++    },
++  }
++  refreshSelectorTileCorrelation(base, context, 0, 0, 'all')
++  const unweighted = base.correlationX[0]
++  refreshSelectorTileCorrelation(base, context, 0, 0, 'all', Float32Array.of(2, 2))
++  expect(base.correlationX[0]).toBe(unweighted)
++  refreshSelectorTileCorrelation(base, context, 0, 0, 'all', Float32Array.of(1, 4))
++  expect(base.correlationX[0]).toBeGreaterThan(unweighted ?? 0)
++})
