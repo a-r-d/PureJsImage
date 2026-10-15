@@ -54,7 +54,7 @@ index 76dc380e..2b7af7b7 100644
 +import { strategyPortOverrides, type StrategyOptions } from './libjxl-strategy-port.ts'
  import { selectorBlockCache } from './selector-block-cache.ts'
  import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
- 
+
 @@ -55,6 +55,19 @@ export type StandalonePort =
    | 'standalone-writer-rounding'
    | 'standalone-writer-matrices'
@@ -181,7 +181,7 @@ index 019c9c58..1fb05837 100644
 +  inverseWeights?: boolean
    lossScale?: number
  }
- 
+
 @@ -120,7 +126,10 @@ function selectGeometry(
      limit16 = false,
      compactStorage = false,
