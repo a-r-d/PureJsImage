@@ -106,3 +106,10 @@ Reopen development research on the coherent standalone mode, starting with
 per-cell error constraints on large-transform merges. Keep the frozen corpus,
 ladders, quality guards, speed rule, memory ceiling and research-branch boundary.
 The holdout remains a promotion check and must not guide tuning.
+
+The next continuation tests smaller and distance-dependent AC shifts. Five
+screens and three full allocation labs produce no retained quality policy.
+The retained research candidate combines exact row-wise mask loss with bulk
+copies for contiguous candidate blocks. Development bytes stay unchanged.
+The two prior holdout guards remain unresolved; keep this work on the research
+branch and complete the normal gates before any public integration or merge.

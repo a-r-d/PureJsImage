@@ -1,0 +1,3443 @@
+{
+  "base": "6f282d5132984b33187df9023804c1722fec0ab6",
+  "branch": "jxl-libjxl-ports",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015",
+  "metrics": ["ssimulacra2", "butteraugliNorm3", "butteraugliMax"],
+  "qualityTimingsExcluded": true,
+  "holdoutRerun": false,
+  "screens": [
+    {
+      "name": "ac1025-screen",
+      "progress": {
+        "startedAt": "2026-10-15T15:20:03.224Z",
+        "mode": "screen",
+        "variant": "standalone-ac1025",
+        "effort": 7,
+        "budgetSeconds": 600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 16,
+        "totalJobs": 48,
+        "completedJobs": 48,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.08925496747665253,
+          "median": 0.20111072195794116,
+          "p90": 1.169144883675377,
+          "worst": 2.544595912906185,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.440027731216681,
+          "median": -0.2802580102748037,
+          "p90": 0.27255995387146725,
+          "worst": 1.3043340492347189,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.6834185262634032,
+          "median": -1.8567314696609891,
+          "p90": 2.595574839129866,
+          "worst": 5.798148428333495,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.547382720697158,
+          "median": -8.5653082935202,
+          "p90": -1.1389348026595132,
+          "worst": 6.683151048747058
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.372555758854353,
+          "median": 1.3740142040483416,
+          "p90": 10.46082644909605,
+          "worst": 18.07558696827946
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.23358522672246318,
+          "median": 0.7653646103613936,
+          "p90": 5.276937747306018,
+          "worst": 7.46733619109
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.527400671257881,
+          "median": -6.8806528772214826,
+          "p90": -1.3650663721901428,
+          "worst": -0.4424368932072374
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.897173875037325,
+          "median": -4.3834962375165425,
+          "p90": 1.2802463097889842,
+          "worst": 3.678735308398916
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.89422258837993,
+          "median": -5.017594077552035,
+          "p90": -1.0360304211760458,
+          "worst": 0.3299300053435171
+        }
+      ],
+      "managedPeakBytes": 9199175
+    },
+    {
+      "name": "ac1050-screen",
+      "progress": {
+        "startedAt": "2026-10-15T15:20:47.262Z",
+        "mode": "screen",
+        "variant": "standalone-ac1050",
+        "effort": 7,
+        "budgetSeconds": 600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 16,
+        "totalJobs": 48,
+        "completedJobs": 48,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.11835466051081252,
+          "median": 0.09690721992297036,
+          "p90": 1.0483128172572231,
+          "worst": 1.9451500012060248,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.772324262271189,
+          "median": -0.6660755943118863,
+          "p90": -0.1683765495267843,
+          "worst": 0.823192627844401,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.7630521075356733,
+          "median": -0.1484199989754064,
+          "p90": 1.2909601596039924,
+          "worst": 2.920786158197893,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.615498973194304,
+          "median": -8.853243996692434,
+          "p90": -1.184478064019649,
+          "worst": 7.424909339600533
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.2916727724965804,
+          "median": 1.0474256047689336,
+          "p90": 8.19278559698666,
+          "worst": 12.260881939197025
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.4295992194469175,
+          "median": 0.6104761781839345,
+          "p90": 4.312417217416482,
+          "worst": 7.047418066907468
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.743589278416213,
+          "median": -6.931982667663192,
+          "p90": -1.1732797219314208,
+          "worst": 0.25113222490450215
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.851610913403391,
+          "median": -5.219984065558423,
+          "p90": 0.7435339265700023,
+          "worst": 2.6229449049495037
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.194367222967644,
+          "median": -4.653608098251904,
+          "p90": -1.1402951757009474,
+          "worst": -0.510285638959708
+        }
+      ],
+      "managedPeakBytes": 9205635
+    },
+    {
+      "name": "ac1075-screen",
+      "progress": {
+        "startedAt": "2026-10-15T15:21:42.252Z",
+        "mode": "screen",
+        "variant": "standalone-ac1075",
+        "effort": 7,
+        "budgetSeconds": 600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 16,
+        "totalJobs": 48,
+        "completedJobs": 48,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.13754751458120376,
+          "median": 0.24229039718662265,
+          "p90": 1.7657856358738493,
+          "worst": 2.3919171032005706,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.6032163968751976,
+          "median": -0.5610285838861975,
+          "p90": 0.4446040736793371,
+          "worst": 2.090442153777392,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.126295025979844,
+          "median": -0.46706698737881475,
+          "p90": 2.2924963000617344,
+          "worst": 2.833579371784617,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.397233593853757,
+          "median": -8.140047720567757,
+          "p90": -1.549416719338707,
+          "worst": 8.183060080947389
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.9738511950984783,
+          "median": 1.6841110702694093,
+          "p90": 9.471692680819148,
+          "worst": 11.475431926975544
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.28184853262283294,
+          "median": 1.207402190004475,
+          "p90": 4.226217945256613,
+          "worst": 6.645758161588625
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.522672842549813,
+          "median": -6.594345683915516,
+          "p90": -1.2343381889442004,
+          "worst": 0.9593064843212065
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.233549957906578,
+          "median": -3.5879280555435145,
+          "p90": -0.2364469807511576,
+          "worst": 2.1227248701469423
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.998945169522452,
+          "median": -4.609667906926136,
+          "p90": -1.0699862394678525,
+          "worst": -0.35370403898746583
+        }
+      ],
+      "managedPeakBytes": 9242539
+    },
+    {
+      "name": "ac-coarse-screen",
+      "progress": {
+        "startedAt": "2026-10-15T15:27:25.055Z",
+        "mode": "screen",
+        "variant": "standalone-ac-coarse",
+        "effort": 7,
+        "budgetSeconds": 600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 16,
+        "totalJobs": 48,
+        "completedJobs": 48,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.006112770129858253,
+          "median": 0.17396332606086828,
+          "p90": 1.3688537857885974,
+          "worst": 1.5943711940624512,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.4559438737705344,
+          "median": -0.6618151563985915,
+          "p90": 0.8424098272027085,
+          "worst": 1.4161392192422109,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.8588938680606257,
+          "median": -1.8615977801196983,
+          "p90": 1.6323357915103573,
+          "worst": 5.137913761802842,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.54616340908252,
+          "median": -8.749080885493075,
+          "p90": -1.3602479300447166,
+          "worst": 6.771716640163357
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.1154609263680157,
+          "median": 1.7491177513874359,
+          "p90": 7.398145782157466,
+          "worst": 17.42479493977054
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.2995007305121049,
+          "median": 0.666485148780086,
+          "p90": 4.4152777351818395,
+          "worst": 6.487618256740703
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.65362134650059,
+          "median": -6.761028638826149,
+          "p90": -1.3236570337876215,
+          "worst": -0.3619945542711303
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.164194269951685,
+          "median": -5.027459022784955,
+          "p90": -0.5345911098254562,
+          "worst": 3.87151151340994
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.8664989942794,
+          "median": -4.627453836423113,
+          "p90": -1.030552164410132,
+          "worst": -0.646333075919624
+        }
+      ],
+      "managedPeakBytes": 9238381
+    },
+    {
+      "name": "ac-fine-screen",
+      "progress": {
+        "startedAt": "2026-10-15T15:28:55.153Z",
+        "mode": "screen",
+        "variant": "standalone-ac-fine",
+        "effort": 7,
+        "budgetSeconds": 600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 16,
+        "totalJobs": 48,
+        "completedJobs": 48,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.3419888930270865,
+          "median": 0.14656841044689284,
+          "p90": 1.0338176267060364,
+          "worst": 2.1659865652573966,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.16888014826935596,
+          "median": -0.19630701655342045,
+          "p90": 0.16742202825780259,
+          "worst": 0.502597439017159,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.9652190957393867,
+          "median": -1.1651592191512834,
+          "p90": 2.4763661613495693,
+          "worst": 5.741346078324584,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.348992265245522,
+          "median": -8.586791208221703,
+          "p90": -0.9541062389913199,
+          "worst": 7.294188755583267
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.127129201122778,
+          "median": 2.048072478986162,
+          "p90": 8.230285700101579,
+          "worst": 17.475877623269472
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.1956906315181019,
+          "median": 1.0365710403632784,
+          "p90": 5.267755348018712,
+          "worst": 8.627948139048632
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.431837962576656,
+          "median": -6.888361573049611,
+          "p90": -1.3886543828631024,
+          "worst": 0.127775815662543
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.107860343323009,
+          "median": -4.02834523687393,
+          "p90": 1.6480255864030573,
+          "worst": 3.186467115945807
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.680538057101224,
+          "median": -4.429847007702664,
+          "p90": -0.7306958033377569,
+          "worst": -0.13392651816593326
+        }
+      ],
+      "managedPeakBytes": 9205635
+    }
+  ],
+  "labs": [
+    {
+      "name": "ac1025-lab",
+      "progress": {
+        "startedAt": "2026-10-15T15:21:10.776Z",
+        "mode": "lab",
+        "variant": "standalone-ac1025",
+        "effort": 7,
+        "budgetSeconds": 3600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 64,
+        "totalJobs": 192,
+        "completedJobs": 192,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.013251403133462427,
+          "median": -0.013023931455581715,
+          "p90": 0.5502004205502093,
+          "worst": 1.8939128139705534,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.20638710540605384,
+          "median": -0.16523215402947966,
+          "p90": 0.5058174640404187,
+          "worst": 1.8044268307515154,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.14592640523317224,
+          "median": 0.26403744930958384,
+          "p90": 3.143918460657161,
+          "worst": 7.687459627447748,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.535163137347778,
+          "median": -7.037523083934604,
+          "p90": -1.8871184540793613,
+          "worst": 8.044422879241088
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.783876245636857,
+          "median": 1.785155280900964,
+          "p90": 15.160568840137499,
+          "worst": 23.394064265526932
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.604649281197042,
+          "median": 1.4793019186449075,
+          "p90": 5.241125041361061,
+          "worst": 10.342488136056135
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.03756655056556,
+          "median": -5.162456437264569,
+          "p90": -1.4002618236617657,
+          "worst": 1.373327309995998
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.471228772222307,
+          "median": -3.4195010187979307,
+          "p90": 2.5685798237996016,
+          "worst": 5.276412416353366
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -4.886689632099943,
+          "median": -3.41596529906999,
+          "p90": -0.462941706866428,
+          "worst": 1.7083338737287905
+        }
+      ],
+      "production": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.231092268887009,
+          "median": -5.779281828763745,
+          "p90": 0.7168424612103503,
+          "worst": 8.6042484258487,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -10.013064146056093,
+          "median": -6.870433270688565,
+          "p90": -0.950783826071808,
+          "worst": 12.67178315944856,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -9.383288199177178,
+          "median": -7.385699570582612,
+          "p90": 3.559142966250362,
+          "worst": 35.85862543675973,
+          "fullBandCount": 0
+        }
+      ],
+      "replay": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -10.320869271597894,
+          "median": -7.488021956250983,
+          "p90": -3.402845802393924,
+          "worst": -1.2974064474165015,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.797492123686448,
+          "median": -3.541016236579164,
+          "p90": -0.46241880068705943,
+          "worst": 1.9275671014401796,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.200086973723231,
+          "median": -3.7765980140111495,
+          "p90": 2.8609931409619316,
+          "worst": 7.988112835196665,
+          "fullBandCount": 0
+        }
+      ],
+      "guards": [
+        {
+          "id": "im26-1468-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.21356825446724,
+          "meanLogRateDifference": -0.022384353280123528,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.65782564,
+            "maximum": 92.97074852
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2004-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.279663647343199,
+          "meanLogRateDifference": 0.07026891770210947,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.30174578,
+            "maximum": 91.4154605
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2008-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.8065454064159407,
+          "meanLogRateDifference": -0.03880887019896022,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 57.3705072,
+            "maximum": 91.4867873
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "ssimulacra2",
+          "percent": 0.3066620522245316,
+          "meanLogRateDifference": 0.0030619280324742705,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 58.70601905,
+            "maximum": 91.96632976
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3002-lab",
+          "metric": "ssimulacra2",
+          "percent": -5.824032197008965,
+          "meanLogRateDifference": -0.06000515581834141,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 59.97827243,
+            "maximum": 93.49776015
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3012-lab",
+          "metric": "ssimulacra2",
+          "percent": 3.3953964197814654,
+          "meanLogRateDifference": 0.03339025304269778,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 53.26136961,
+            "maximum": 93.23966198
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3302-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.324907601699393,
+          "meanLogRateDifference": 0.07069056720158831,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 39.29881957,
+            "maximum": 92.65344458
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3316-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.276607407270169,
+          "meanLogRateDifference": -0.033314903862373055,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 55.11315292,
+            "maximum": 92.16294913
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        }
+      ],
+      "failures": [],
+      "largestRegressions": [
+        {
+          "id": "im26-3304-lab",
+          "metric": "butteraugliMax",
+          "percent": 7.687459627447748,
+          "meanLogRateDifference": 0.07406295339526471,
+          "overlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "measuredOverlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.859624228334145,
+          "meanLogRateDifference": 0.06634586404961407,
+          "overlap": {
+            "minimum": 0.7946207523,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.7946207523,
+            "maximum": 4.5011329651
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-3000-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.545672655851696,
+          "meanLogRateDifference": 0.06340355845963674,
+          "overlap": {
+            "minimum": 0.6035822034,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6035822034,
+            "maximum": 4.9233150482
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1234-lab",
+          "metric": "butteraugliMax",
+          "percent": 5.183174953627921,
+          "meanLogRateDifference": 0.05053316762385271,
+          "overlap": {
+            "minimum": 0.6694647074,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6694647074,
+            "maximum": 4.8025608063
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1472-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.818557081988025,
+          "meanLogRateDifference": 0.04706064161657721,
+          "overlap": {
+            "minimum": 0.7625693083,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.7625693083,
+            "maximum": 5.7881355286
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1026-lab",
+          "metric": "butteraugliMax",
+          "percent": 3.467979157473856,
+          "meanLogRateDifference": 0.03409199872840403,
+          "overlap": {
+            "minimum": 0.5792574883,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.5792574883,
+            "maximum": 4.4066877365
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1210-lab",
+          "metric": "butteraugliMax",
+          "percent": 3.147715372602621,
+          "meanLogRateDifference": 0.030991904690600446,
+          "overlap": {
+            "minimum": 0.6889677048,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6889677048,
+            "maximum": 5.994079113
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2002-lab",
+          "metric": "butteraugliMax",
+          "percent": 3.135058999451088,
+          "meanLogRateDifference": 0.030869195722719425,
+          "overlap": {
+            "minimum": 0.6988223791,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6988223791,
+            "maximum": 4.5147233009
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        }
+      ],
+      "managedPeakBytes": 9344385
+    },
+    {
+      "name": "ac1050-lab",
+      "progress": {
+        "startedAt": "2026-10-15T15:22:14.881Z",
+        "mode": "lab",
+        "variant": "standalone-ac1050",
+        "effort": 7,
+        "budgetSeconds": 3600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 64,
+        "totalJobs": 192,
+        "completedJobs": 192,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.04996780611626714,
+          "median": -0.006447985005447899,
+          "p90": 0.8322930705545395,
+          "worst": 1.9994885465802616,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.36422489529040475,
+          "median": -0.38626703403072415,
+          "p90": 0.3182253051026941,
+          "worst": 1.8659138286833392,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.15568979000051342,
+          "median": 0.0017846322159443201,
+          "p90": 4.243777072212525,
+          "worst": 12.943778572536118,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.507055761497119,
+          "median": -6.8822294596304125,
+          "p90": -2.085987818630534,
+          "worst": 8.5093044370816
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.771097089474338,
+          "median": 1.9782417065825781,
+          "p90": 10.91506310479784,
+          "worst": 21.182363780566497
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.3789587091875005,
+          "median": 1.1369692733721313,
+          "p90": 4.697506343952293,
+          "worst": 10.065175725505544
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.04623553815242,
+          "median": -5.416880063739907,
+          "p90": -1.5357474029745026,
+          "worst": 1.2690541056513522
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.456571772462593,
+          "median": -3.8685468539377155,
+          "p90": 2.008075789557595,
+          "worst": 7.144372537226166
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.012067299258964,
+          "median": -3.711239086943369,
+          "p90": -0.8471762902796965,
+          "worst": 1.9472092794135496
+        }
+      ],
+      "production": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.182517650161342,
+          "median": -5.717734412135995,
+          "p90": 1.040473569105652,
+          "worst": 8.939798264070928,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -10.119633829088011,
+          "median": -7.1402474295242975,
+          "p90": -1.485703045552707,
+          "worst": 12.12969246234626,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -9.440915763299325,
+          "median": -7.91714879401529,
+          "p90": 2.2356360057122937,
+          "worst": 31.475874963168327,
+          "fullBandCount": 0
+        }
+      ],
+      "replay": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -10.334165020458466,
+          "median": -7.5491468194106925,
+          "p90": -3.551880895038111,
+          "worst": -1.2356991112805114,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.966087555965665,
+          "median": -4.080235919357056,
+          "p90": -0.7314835733493134,
+          "worst": 1.2482004485878047,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.273735728586253,
+          "median": -3.783183757256847,
+          "p90": 1.2777187343312353,
+          "worst": 6.9645954874517875,
+          "fullBandCount": 0
+        }
+      ],
+      "guards": [
+        {
+          "id": "im26-1468-lab",
+          "metric": "ssimulacra2",
+          "percent": -1.6995495686241158,
+          "meanLogRateDifference": -0.017141576634116973,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.65782564,
+            "maximum": 92.97074852
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2004-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.741254683992301,
+          "meanLogRateDifference": 0.07456237667627572,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.30174578,
+            "maximum": 91.50033797
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2008-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.96113940640676,
+          "meanLogRateDifference": -0.040417278578871674,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 57.3705072,
+            "maximum": 91.60263342
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "ssimulacra2",
+          "percent": 1.0881645094444832,
+          "meanLogRateDifference": 0.01082286601871753,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 58.70601905,
+            "maximum": 92.10058849
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3002-lab",
+          "metric": "ssimulacra2",
+          "percent": -5.753111815158515,
+          "meanLogRateDifference": -0.05925237681148777,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 59.97827243,
+            "maximum": 93.53768196
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3012-lab",
+          "metric": "ssimulacra2",
+          "percent": 3.1529705495796296,
+          "meanLogRateDifference": 0.031042851462344364,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 53.26136961,
+            "maximum": 93.36738852
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3302-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.187483281040835,
+          "meanLogRateDifference": 0.06940929539352775,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 39.29881957,
+            "maximum": 92.70854518
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3316-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.875040564675033,
+          "meanLogRateDifference": -0.029171794954678868,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 55.11315292,
+            "maximum": 92.28489569
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        }
+      ],
+      "failures": [],
+      "largestRegressions": [
+        {
+          "id": "im26-3304-lab",
+          "metric": "butteraugliMax",
+          "percent": 12.943778572536118,
+          "meanLogRateDifference": 0.12171997415644609,
+          "overlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "measuredOverlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1468-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.252974629478397,
+          "meanLogRateDifference": 0.06065261793727765,
+          "overlap": {
+            "minimum": 0.6860474348,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6860474348,
+            "maximum": 4.0541410446
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2400-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.020898031056119,
+          "meanLogRateDifference": 0.05846603992860321,
+          "overlap": {
+            "minimum": 0.7975955009,
+            "maximum": 2.8797698021
+          },
+          "measuredOverlap": {
+            "minimum": 0.7975955009,
+            "maximum": 2.8797698021
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1210-lab",
+          "metric": "butteraugliMax",
+          "percent": 5.995569830738123,
+          "meanLogRateDifference": 0.058227113200939803,
+          "overlap": {
+            "minimum": 0.6646953821,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6646953821,
+            "maximum": 6.0381770134
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-3012-lab",
+          "metric": "butteraugliMax",
+          "percent": 5.410645418507533,
+          "meanLogRateDifference": 0.05269344519458955,
+          "overlap": {
+            "minimum": 0.64282161,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.64282161,
+            "maximum": 5.4462242126
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-3312-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.451955316039174,
+          "meanLogRateDifference": 0.04355702195452681,
+          "overlap": {
+            "minimum": 0.7950966954,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.7950966954,
+            "maximum": 4.3023586273
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2002-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.246696469918872,
+          "meanLogRateDifference": 0.04158998565077866,
+          "overlap": {
+            "minimum": 0.6915606856,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6915606856,
+            "maximum": 4.5147233009
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1416-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.23696514423105,
+          "meanLogRateDifference": 0.041496632285632,
+          "overlap": {
+            "minimum": 0.6308742166,
+            "maximum": 2.7615833282
+          },
+          "measuredOverlap": {
+            "minimum": 0.6308742166,
+            "maximum": 2.7615833282
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        }
+      ],
+      "managedPeakBytes": 9272719
+    },
+    {
+      "name": "ac-coarse-lab",
+      "progress": {
+        "startedAt": "2026-10-15T15:30:03.855Z",
+        "mode": "lab",
+        "variant": "standalone-ac-coarse",
+        "effort": 7,
+        "budgetSeconds": 3600,
+        "workers": 4,
+        "resumedSpeed": false,
+        "reusedSpeedJobs": 0,
+        "measuredSpeedJobs": 0,
+        "selected": 64,
+        "totalJobs": 192,
+        "completedJobs": 192,
+        "failures": [],
+        "omissions": []
+      },
+      "retained": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.22303635464234378,
+          "median": 0.04074682152971772,
+          "p90": 1.248747412942743,
+          "worst": 6.901421503996074,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.3452196198203842,
+          "median": -0.4643721156770988,
+          "p90": 0.5487132634733445,
+          "worst": 5.485047973497672,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.1346489818936284,
+          "median": -0.0707148757897108,
+          "p90": 4.09581097239932,
+          "worst": 11.62644594844027,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.473552790586217,
+          "median": -7.246529244567628,
+          "p90": -1.6869437667693505,
+          "worst": 8.669275367466083
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.571358138428955,
+          "median": 2.1529256315398366,
+          "p90": 11.463638846942885,
+          "worst": 21.067135683782016
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.22683553216582517,
+          "median": 1.275355452624496,
+          "p90": 4.45545625877943,
+          "worst": 10.606027307211786
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.002801188008815,
+          "median": -5.22567966300249,
+          "p90": -1.5933553485361933,
+          "worst": 1.6584396665800498
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.58220790549534,
+          "median": -3.5806388350811194,
+          "p90": 2.2221392745142037,
+          "worst": 7.259020452016161
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.030259784318175,
+          "median": -3.604273773738584,
+          "p90": -0.8848027345229974,
+          "worst": 1.175589871431067
+        }
+      ],
+      "production": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.148970099530562,
+          "median": -5.723178514448877,
+          "p90": 1.080841038818526,
+          "worst": 8.765069158224392,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -10.07153510941139,
+          "median": -7.155300252754214,
+          "p90": -1.5147593002594095,
+          "worst": 12.501457827529459,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -9.609240293879846,
+          "median": -8.740640815722616,
+          "p90": 3.07302865676517,
+          "worst": 31.716103906924964,
+          "fullBandCount": 0
+        }
+      ],
+      "replay": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -10.208153154604949,
+          "median": -7.377376941116719,
+          "p90": -3.2804318450174286,
+          "worst": -1.5544169159750516,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.975981696616781,
+          "median": -3.9537599766546254,
+          "p90": -1.082680928379173,
+          "worst": 0.6402647848081364,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.243881567929352,
+          "median": -3.7436344881087362,
+          "p90": 1.5476808520891399,
+          "worst": 4.59000052549645,
+          "fullBandCount": 0
+        }
+      ],
+      "guards": [
+        {
+          "id": "im26-1468-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.2647665821795337,
+          "meanLogRateDifference": -0.02290806331337952,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.65782564,
+            "maximum": 92.8829867
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2004-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.03159980094219,
+          "meanLogRateDifference": 0.06795393011634966,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.30174578,
+            "maximum": 91.01622668
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2008-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.4844591615532923,
+          "meanLogRateDifference": -0.035466145651501316,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 57.3705072,
+            "maximum": 91.33482443
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "ssimulacra2",
+          "percent": 0.6789594127761059,
+          "meanLogRateDifference": 0.006766648635385763,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 58.70601905,
+            "maximum": 91.83483605
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3002-lab",
+          "metric": "ssimulacra2",
+          "percent": -5.734807685993867,
+          "meanLogRateDifference": -0.05905818098940851,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 59.97827243,
+            "maximum": 93.43832625
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3012-lab",
+          "metric": "ssimulacra2",
+          "percent": 3.084968731882539,
+          "meanLogRateDifference": 0.030383401310753774,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 53.26136961,
+            "maximum": 93.17210077
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3302-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.192477501604983,
+          "meanLogRateDifference": 0.06945588762674598,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 39.29881957,
+            "maximum": 92.60748874
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3316-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.590962005834792,
+          "meanLogRateDifference": -0.0262511870966667,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 55.11315292,
+            "maximum": 92.20297343
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        }
+      ],
+      "failures": [],
+      "largestRegressions": [
+        {
+          "id": "im26-3304-lab",
+          "metric": "butteraugliMax",
+          "percent": 11.62644594844027,
+          "meanLogRateDifference": 0.10998780675011902,
+          "overlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "measuredOverlap": {
+            "minimum": 0.5475454926,
+            "maximum": 1.5551279783
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1020-lab",
+          "metric": "ssimulacra2",
+          "percent": 6.901421503996074,
+          "meanLogRateDifference": 0.0667369294661535,
+          "overlap": {
+            "minimum": 76.94749135,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 76.94749135,
+            "maximum": 92.97476783
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.8564175656893696,
+          "meanLogRateDifference": 0.06631585542117328,
+          "overlap": {
+            "minimum": 0.7883039713,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.7883039713,
+            "maximum": 4.5393762589
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1020-lab",
+          "metric": "butteraugliMax",
+          "percent": 6.247726343239303,
+          "meanLogRateDifference": 0.06060322246501674,
+          "overlap": {
+            "minimum": 0.7940804362,
+            "maximum": 2.989066124
+          },
+          "measuredOverlap": {
+            "minimum": 0.7940804362,
+            "maximum": 2.989066124
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1020-lab",
+          "metric": "butteraugliNorm3",
+          "percent": 5.485047973497672,
+          "meanLogRateDifference": 0.05339903151435029,
+          "overlap": {
+            "minimum": 0.390727,
+            "maximum": 1.369169
+          },
+          "measuredOverlap": {
+            "minimum": 0.390727,
+            "maximum": 1.369169
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2012-lab",
+          "metric": "butteraugliMax",
+          "percent": 5.0272237572485015,
+          "meanLogRateDifference": 0.049049404442325695,
+          "overlap": {
+            "minimum": 0.5887943506,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.5887943506,
+            "maximum": 4.2936244011
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-2002-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.668649769803289,
+          "meanLogRateDifference": 0.04562945791781745,
+          "overlap": {
+            "minimum": 0.6915606856,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.6915606856,
+            "maximum": 4.5147233009
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        },
+        {
+          "id": "im26-1002-lab",
+          "metric": "butteraugliMax",
+          "percent": 4.554505902381016,
+          "meanLogRateDifference": 0.04453833701984606,
+          "overlap": {
+            "minimum": 0.8866914511,
+            "maximum": 3
+          },
+          "measuredOverlap": {
+            "minimum": 0.8866914511,
+            "maximum": 4.8315272331
+          },
+          "requiredRange": {
+            "minimum": 0.5,
+            "maximum": 3
+          },
+          "coversRequiredRange": false
+        }
+      ],
+      "managedPeakBytes": 9232573
+    }
+  ],
+  "independent": [
+    {
+      "name": "ac1025",
+      "points": 576,
+      "maximum": 1
+    },
+    {
+      "name": "ac1050",
+      "points": 576,
+      "maximum": 1
+    },
+    {
+      "name": "ac-coarse",
+      "points": 576,
+      "maximum": 1
+    }
+  ],
+  "exactDevelopmentParity": {
+    "points": 576,
+    "different": 0,
+    "artifact": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/mask-copy-parity.json"
+  },
+  "speedComparisons": [
+    {
+      "name": "selector-mask-speed",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/selector-mask-speed.json",
+      "modes": ["standalone-selector-inverse", "standalone-selector-mask"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1134.3350409999985,
+        "mad": 34.41209400000116,
+        "iqr": 85.70628700000088,
+        "cv": 0.04253263571703016
+      },
+      "candidate": {
+        "median": 1099.117624999999,
+        "mad": 53.2636480000001,
+        "iqr": 93.59147000000257,
+        "cv": 0.07874766841508578
+      },
+      "paired": {
+        "median": 3.4510848989601772,
+        "mad": 6.112861798751746,
+        "iqr": 13.806413757326553,
+        "cv": 14.872099203254113
+      },
+      "wins": 7,
+      "peakManagedBytes": 5680219
+    },
+    {
+      "name": "selector-copy-speed",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/selector-copy-speed.json",
+      "modes": ["standalone-selector-inverse", "standalone-selector-copy"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1135.5782819999986,
+        "mad": 36.22014699999818,
+        "iqr": 88.88396599999942,
+        "cv": 0.05247141795684269
+      },
+      "candidate": {
+        "median": 1151.858079000005,
+        "mad": 34.02129600000444,
+        "iqr": 82.4361370000006,
+        "cv": 0.051001971198445725
+      },
+      "paired": {
+        "median": 2.2444194549724017,
+        "mad": 2.7181309144058474,
+        "iqr": 6.486329113847722,
+        "cv": 2.450902870019321
+      },
+      "wins": 5,
+      "peakManagedBytes": 5680219
+    },
+    {
+      "name": "selector-mask-copy-speed",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/selector-mask-copy-speed.json",
+      "modes": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1145.9368970000032,
+        "mad": 69.85293000000456,
+        "iqr": 156.24981800000205,
+        "cv": 0.06456124424832259
+      },
+      "candidate": {
+        "median": 1142.1741710000006,
+        "mad": 41.287819999999556,
+        "iqr": 85.06645899999785,
+        "cv": 0.048772473857711
+      },
+      "paired": {
+        "median": -2.9620190238104027,
+        "mad": 3.856884022006946,
+        "iqr": 12.189025257674436,
+        "cv": 6.335959318338783
+      },
+      "wins": 10,
+      "peakManagedBytes": 5680219
+    },
+    {
+      "name": "ac1050-speed",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/ac1050-speed.json",
+      "modes": ["standalone-selector-inverse", "standalone-ac1050"],
+      "samples": 15,
+      "byteIdentical": false,
+      "baseline": {
+        "median": 1146.9794110000003,
+        "mad": 44.296392000000196,
+        "iqr": 91.87158800000543,
+        "cv": 0.06777997604800884
+      },
+      "candidate": {
+        "median": 1147.8280180000002,
+        "mad": 40.87428600000203,
+        "iqr": 76.39986800000042,
+        "cv": 0.047352936318734974
+      },
+      "paired": {
+        "median": -1.1009097344810148,
+        "mad": 6.428498804336636,
+        "iqr": 13.280057502671827,
+        "cv": 29.481007891064536
+      },
+      "wins": 8,
+      "peakManagedBytes": 5682267
+    },
+    {
+      "name": "ac1025-speed",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/ac1025-speed.json",
+      "modes": ["standalone-selector-inverse", "standalone-ac1025"],
+      "samples": 15,
+      "byteIdentical": false,
+      "baseline": {
+        "median": 1159.7882129999998,
+        "mad": 42.52001200000086,
+        "iqr": 62.10654799999793,
+        "cv": 0.20256775154645923
+      },
+      "candidate": {
+        "median": 1127.1851800000004,
+        "mad": 82.97648900000058,
+        "iqr": 172.01468099999875,
+        "cv": 0.2935180893783276
+      },
+      "paired": {
+        "median": 0.9512369388020359,
+        "mad": 7.193384593403995,
+        "iqr": 15.926802928533768,
+        "cv": 4.771992774378949
+      },
+      "wins": 7,
+      "peakManagedBytes": 5682267
+    },
+    {
+      "name": "mask-copy-confirm",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/mask-copy-confirm.json",
+      "modes": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+      "samples": 21,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1127.3136489999997,
+        "mad": 53.534184000000096,
+        "iqr": 141.03178700000353,
+        "cv": 0.13555445393247184
+      },
+      "candidate": {
+        "median": 1117.4238799999948,
+        "mad": 58.414169999994556,
+        "iqr": 138.54161300000123,
+        "cv": 0.12096207812966829
+      },
+      "paired": {
+        "median": -2.354673901176263,
+        "mad": 5.093833955957583,
+        "iqr": 11.883303794356557,
+        "cv": 1.8492369532259216
+      },
+      "wins": 14,
+      "peakManagedBytes": 5680219
+    },
+    {
+      "name": "mask-copy-neighbor",
+      "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/mask-copy-neighbor.json",
+      "modes": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1231.770994999999,
+        "mad": 25.910636999997223,
+        "iqr": 56.76151800000025,
+        "cv": 0.041786077214419785
+      },
+      "candidate": {
+        "median": 1170.7971470000011,
+        "mad": 37.97774099999879,
+        "iqr": 91.6321629999984,
+        "cv": 0.06965304274843234
+      },
+      "paired": {
+        "median": -4.660711714716326,
+        "mad": 6.248378965985169,
+        "iqr": 12.105573903299028,
+        "cv": 3.199313089069246
+      },
+      "wins": 10,
+      "peakManagedBytes": 5676123
+    }
+  ],
+  "cold": {
+    "contract": "Fresh v2 cohort, four fixed sequential chunks of 16; no timings reused from interrupted v1. One cold isolated existing-worker process per mode and image; same encode clock; all 64 frozen crops; alternate mode order globally by image; no warmup; native decode and all scores required outside encode time.",
+    "samples": 64,
+    "baseline": {
+      "median": 1445.4515075,
+      "mad": 70.12099350000005,
+      "iqr": 137.02551900000026,
+      "cv": 0.06395197300000352
+    },
+    "candidate": {
+      "median": 1389.0782159999999,
+      "mad": 57.31673150000006,
+      "iqr": 116.63685299999997,
+      "cv": 0.0842480562531768
+    },
+    "paired": {
+      "median": -3.1512388831529794,
+      "mad": 2.557598303335024,
+      "iqr": 5.104680812634421,
+      "cv": 2.076523456863913
+    },
+    "wins": 51,
+    "byteIdentical": true,
+    "managedUnchanged": true,
+    "rows": [
+      {
+        "id": "im26-3012",
+        "index": 0,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1454.10986,
+        "candidateMs": 1308.502782,
+        "deltaPercent": -10.013485363478658,
+        "baselineManaged": 5680219,
+        "candidateManaged": 5680219,
+        "baselineRss": 193466368,
+        "candidateRss": 191467520,
+        "sha256": "ffcdcf150a31816389434be8cc646c25bd0fc75281cee1d4aec8bffe622085ea"
+      },
+      {
+        "id": "im26-1052",
+        "index": 1,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1346.248164,
+        "candidateMs": 1333.1875089999999,
+        "deltaPercent": -0.970152112311462,
+        "baselineManaged": 5688411,
+        "candidateManaged": 5688411,
+        "baselineRss": 186601472,
+        "candidateRss": 190623744,
+        "sha256": "50926b809e515d99895c891d6a32908c510969b8fb519ffc9ae7ccf36896058a"
+      },
+      {
+        "id": "im26-1610",
+        "index": 2,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1452.2320399999999,
+        "candidateMs": 1314.500454,
+        "deltaPercent": -9.48413078670265,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 192069632,
+        "candidateRss": 193839104,
+        "sha256": "84751a35800218631f1f436e272184a3a907f7d41e0196010ee6a308ee207f8d"
+      },
+      {
+        "id": "im26-3312",
+        "index": 3,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1441.191469,
+        "candidateMs": 1367.4538160000002,
+        "deltaPercent": -5.116436961090553,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 186388480,
+        "candidateRss": 191213568,
+        "sha256": "b8c88c8f6f142ca3a804174708b5d0bbbf6113c1ea1cadc0b577404d1bd0939d"
+      },
+      {
+        "id": "im26-1002",
+        "index": 4,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1493.166841,
+        "candidateMs": 1374.7826850000001,
+        "deltaPercent": -7.9283943863042055,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 197124096,
+        "candidateRss": 197713920,
+        "sha256": "37edc666f031dbc1d456d04b3671f717d319c0ba439a3dfbc62cfe3c9cb144e1"
+      },
+      {
+        "id": "im26-3014",
+        "index": 5,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1357.411936,
+        "candidateMs": 1292.796551,
+        "deltaPercent": -4.760189835254258,
+        "baselineManaged": 5663835,
+        "candidateManaged": 5663835,
+        "baselineRss": 186191872,
+        "candidateRss": 187527168,
+        "sha256": "48d6b59eb5f75ac53a8f8ad3d2e45087aae989542a711d7095e6973cc43b60fe"
+      },
+      {
+        "id": "im26-1026",
+        "index": 6,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1310.1357939999998,
+        "candidateMs": 1245.263671,
+        "deltaPercent": -4.951557181865674,
+        "baselineManaged": 5700699,
+        "candidateManaged": 5700699,
+        "baselineRss": 195973120,
+        "candidateRss": 186380288,
+        "sha256": "562e5a7d2c392a6d622630b22958601514cc3c496ebd29142983264ae7f4f6b6"
+      },
+      {
+        "id": "im26-1626",
+        "index": 7,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1549.960697,
+        "candidateMs": 1470.1957690000002,
+        "deltaPercent": -5.1462548795196845,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 193392640,
+        "candidateRss": 191524864,
+        "sha256": "5eafc67b63248fefab302944ecee9270472b8efd02b7cb5451c437c1a73d7340"
+      },
+      {
+        "id": "im26-2002",
+        "index": 8,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1620.138088,
+        "candidateMs": 1661.2572819999998,
+        "deltaPercent": 2.538005513515218,
+        "baselineManaged": 5672027,
+        "candidateManaged": 5672027,
+        "baselineRss": 188833792,
+        "candidateRss": 193155072,
+        "sha256": "c1e63e9e6e8d39c4455bbf652ed51537c29585ac9a689e023c10d7a3f49544f7"
+      },
+      {
+        "id": "im26-2004",
+        "index": 9,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1541.704655,
+        "candidateMs": 1447.820972,
+        "deltaPercent": -6.089602356425394,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 197853184,
+        "candidateRss": 195112960,
+        "sha256": "6ee011512e90fc41bd96ef8541d97a0bd86e689a9d38c6eaa21a1a5b7c9f421d"
+      },
+      {
+        "id": "im26-1622",
+        "index": 10,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1584.7625,
+        "candidateMs": 1498.766788,
+        "deltaPercent": -5.426410077219779,
+        "baselineManaged": 5678171,
+        "candidateManaged": 5678171,
+        "baselineRss": 190414848,
+        "candidateRss": 196837376,
+        "sha256": "ff3871538340859cd837197533dc9cae38025df2ee298a0d4f8210e5b29bba98"
+      },
+      {
+        "id": "im26-1210",
+        "index": 11,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1546.062113,
+        "candidateMs": 1494.976282,
+        "deltaPercent": -3.3042547624993035,
+        "baselineManaged": 5690477,
+        "candidateManaged": 5690477,
+        "baselineRss": 192573440,
+        "candidateRss": 191881216,
+        "sha256": "a3ee72f7295d4737744dcb95a12aa1dc16d21d296fef9b9188795ed24c81137f"
+      },
+      {
+        "id": "im26-1634",
+        "index": 12,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1607.712629,
+        "candidateMs": 1800.259315,
+        "deltaPercent": 11.976436741668461,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 189296640,
+        "candidateRss": 185761792,
+        "sha256": "ff3e6ed661275f25a53f6a7abe3c151e20676ada27e540eb7cfea5f9d5416644"
+      },
+      {
+        "id": "im26-3000",
+        "index": 13,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1544.068974,
+        "candidateMs": 1482.2036150000001,
+        "deltaPercent": -4.006644783473245,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 187092992,
+        "candidateRss": 186077184,
+        "sha256": "7c0a9195831691f92809fe79ea71a5c19f9a22db529c64e27fc05c1ed50ad44d"
+      },
+      {
+        "id": "im26-3306",
+        "index": 14,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1401.6917600000002,
+        "candidateMs": 1291.5388799999998,
+        "deltaPercent": -7.858566565305369,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 193892352,
+        "candidateRss": 181428224,
+        "sha256": "15db985e21400736e788141b09459814e9b6db4fbe880e57576ce5010e58da3a"
+      },
+      {
+        "id": "im26-2012",
+        "index": 15,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1446.722688,
+        "candidateMs": 1388.497799,
+        "deltaPercent": -4.024606061890978,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 196231168,
+        "candidateRss": 187457536,
+        "sha256": "a6addf71a6583b3d26c7242b906621b4f8bc38385c254a89a6b731270fcce129"
+      },
+      {
+        "id": "im26-2026",
+        "index": 16,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1441.0003740000002,
+        "candidateMs": 1391.871191,
+        "deltaPercent": -3.40938030873823,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 193236992,
+        "candidateRss": 193064960,
+        "sha256": "55b8df117ca2cf0ab7a6c2400635246158ab03e487ad2c1ce26bdd5ac42e94ea"
+      },
+      {
+        "id": "im26-3300",
+        "index": 17,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1355.218773,
+        "candidateMs": 1430.86552,
+        "deltaPercent": 5.5818845272149975,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 193794048,
+        "candidateRss": 193306624,
+        "sha256": "b45823b90506b64c619ac893bf3d684a7bf719ffbd44d2345ca57fbb0571e2d9"
+      },
+      {
+        "id": "im26-3304",
+        "index": 18,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1331.381561,
+        "candidateMs": 1297.311353,
+        "deltaPercent": -2.559011555966706,
+        "baselineManaged": 5663835,
+        "candidateManaged": 5663835,
+        "baselineRss": 180654080,
+        "candidateRss": 185221120,
+        "sha256": "5e211d72c15370c1205b83a35019746fdfc5ac728f3c68f56ec2d91e3e5cfb45"
+      },
+      {
+        "id": "im26-3302",
+        "index": 19,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1315.430505,
+        "candidateMs": 1275.990965,
+        "deltaPercent": -2.998223003806655,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 196157440,
+        "candidateRss": 190824448,
+        "sha256": "6e207bdc32cfbcd8bd039687c06d5a06da3bdbec28e313b66462006079fd9295"
+      },
+      {
+        "id": "im26-1242",
+        "index": 20,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1383.014905,
+        "candidateMs": 1358.590508,
+        "deltaPercent": -1.766025580179842,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 197722112,
+        "candidateRss": 194187264,
+        "sha256": "b973541449e325d9aaca8bc4c0dc01a7287e327d3ec9c3e5c201941c7e5e3909"
+      },
+      {
+        "id": "im26-2400",
+        "index": 21,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1400.918372,
+        "candidateMs": 1336.025691,
+        "deltaPercent": -4.6321529003404365,
+        "baselineManaged": 5663835,
+        "candidateManaged": 5663835,
+        "baselineRss": 181768192,
+        "candidateRss": 183975936,
+        "sha256": "c3be7bcce0c8a2270a7362a76a28063095086079286d62dd0681aa8448ea1889"
+      },
+      {
+        "id": "im26-3008",
+        "index": 22,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1383.813839,
+        "candidateMs": 1376.6070280000001,
+        "deltaPercent": -0.5207933897530381,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 187174912,
+        "candidateRss": 190668800,
+        "sha256": "e15b13ba5ba95bcb499eb8e20f0aad9389b18d7c1a5f862e53f8acb2bb33d8d0"
+      },
+      {
+        "id": "im26-2000",
+        "index": 23,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1494.773425,
+        "candidateMs": 1393.377842,
+        "deltaPercent": -6.783341294684842,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 186257408,
+        "candidateRss": 190099456,
+        "sha256": "8ab03d8a28b11dea4b99c033c17fa8a8442277f95f37f00bc44f813defc7de87"
+      },
+      {
+        "id": "im26-1608",
+        "index": 24,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1426.1064099999999,
+        "candidateMs": 1403.1844959999999,
+        "deltaPercent": -1.6073074098306606,
+        "baselineManaged": 5678171,
+        "candidateManaged": 5678171,
+        "baselineRss": 195223552,
+        "candidateRss": 189853696,
+        "sha256": "2e38ea244060ebfa6c21083092f8b538b827a3798c9d8481411c205de5c0fc03"
+      },
+      {
+        "id": "im26-1212",
+        "index": 25,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1426.705885,
+        "candidateMs": 1329.1078479999999,
+        "deltaPercent": -6.840795851907499,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 193142784,
+        "candidateRss": 194355200,
+        "sha256": "fb69186673e51b909908c97a034298d48727b9a79f5e05ad0b2e31a9b19c3525"
+      },
+      {
+        "id": "im26-1612",
+        "index": 26,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1532.784013,
+        "candidateMs": 1390.870348,
+        "deltaPercent": -9.258555921538047,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 187928576,
+        "candidateRss": 194326528,
+        "sha256": "62376f4995cf79b7abd723f7c2632b824a67f43bc178943312487874d0a3b860"
+      },
+      {
+        "id": "im26-1466",
+        "index": 27,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1411.284257,
+        "candidateMs": 1388.561662,
+        "deltaPercent": -1.6100650798941074,
+        "baselineManaged": 5672027,
+        "candidateManaged": 5672027,
+        "baselineRss": 188952576,
+        "candidateRss": 188678144,
+        "sha256": "f55061ffb2006bd61b657e043b1c7950fb2dcfcab7d561b77a0207266d14a68d"
+      },
+      {
+        "id": "im26-1214",
+        "index": 28,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1312.17906,
+        "candidateMs": 1350.029599,
+        "deltaPercent": 2.88455593857746,
+        "baselineManaged": 5722591,
+        "candidateManaged": 5722591,
+        "baselineRss": 194211840,
+        "candidateRss": 195842048,
+        "sha256": "c190d7009434ed99e1d4b34d5157fb8d209920cfd88416c74f00d5bc766dc02e"
+      },
+      {
+        "id": "im26-1414",
+        "index": 29,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1526.7878930000002,
+        "candidateMs": 1491.475903,
+        "deltaPercent": -2.312828793174093,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 195149824,
+        "candidateRss": 192458752,
+        "sha256": "eec38c1f05ae37602b304cd9daa5fc2df5800fb924f00e6fe60d6b86e1c3572a"
+      },
+      {
+        "id": "im26-2016",
+        "index": 30,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1405.012203,
+        "candidateMs": 1343.810129,
+        "deltaPercent": -4.355981668295872,
+        "baselineManaged": 5663835,
+        "candidateManaged": 5663835,
+        "baselineRss": 191594496,
+        "candidateRss": 183943168,
+        "sha256": "880bedc88fd83914486812f3ccfedfcc5aa4cf58efe66617c33dc6879cf135b2"
+      },
+      {
+        "id": "im26-3006",
+        "index": 31,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1281.645942,
+        "candidateMs": 1227.786926,
+        "deltaPercent": -4.202331879267174,
+        "baselineManaged": 5786049,
+        "candidateManaged": 5786049,
+        "baselineRss": 189026304,
+        "candidateRss": 189935616,
+        "sha256": "f994674b5fa94e5cb5a4220490c7ffdc51301d1aa64385a7c97cf46651ccb77e"
+      },
+      {
+        "id": "im26-3002",
+        "index": 32,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1402.9251989999998,
+        "candidateMs": 1328.5214409999999,
+        "deltaPercent": -5.303472918800988,
+        "baselineManaged": 5700699,
+        "candidateManaged": 5700699,
+        "baselineRss": 186331136,
+        "candidateRss": 194396160,
+        "sha256": "b33fb0069da4e685f90c29eebc4b202a45193033f05cc385b95634bb6031a827"
+      },
+      {
+        "id": "im26-1638",
+        "index": 33,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1397.5939050000002,
+        "candidateMs": 1356.208514,
+        "deltaPercent": -2.961188572155393,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 188256256,
+        "candidateRss": 190554112,
+        "sha256": "4ed66a4e5438cd25cfe6298a4f469c44f739604899cd84200e135dff066e5a7f"
+      },
+      {
+        "id": "im26-1020",
+        "index": 34,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1437.575223,
+        "candidateMs": 1328.2525620000001,
+        "deltaPercent": -7.604656733848003,
+        "baselineManaged": 5680731,
+        "candidateManaged": 5680731,
+        "baselineRss": 186855424,
+        "candidateRss": 182345728,
+        "sha256": "c275bffe69ffd8f529b7ccf395720e2690dbb2e81091533d84e7179e8944ee03"
+      },
+      {
+        "id": "im26-1050",
+        "index": 35,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1402.936998,
+        "candidateMs": 1382.6466599999999,
+        "deltaPercent": -1.4462757792349623,
+        "baselineManaged": 5667931,
+        "candidateManaged": 5667931,
+        "baselineRss": 187531264,
+        "candidateRss": 187043840,
+        "sha256": "ba11806489087417f15d83644395e27a0009e688e0bd3c990f8df2db1983e4cd"
+      },
+      {
+        "id": "im26-1006",
+        "index": 36,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1286.459173,
+        "candidateMs": 1327.0840050000002,
+        "deltaPercent": 3.157879616596282,
+        "baselineManaged": 5718443,
+        "candidateManaged": 5718443,
+        "baselineRss": 197308416,
+        "candidateRss": 197525504,
+        "sha256": "11275ad3ff87c9ad7dc480985664830812359cf82b02332dc385b282fa3bf7be"
+      },
+      {
+        "id": "im26-1606",
+        "index": 37,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1389.762374,
+        "candidateMs": 1426.8527130000002,
+        "deltaPercent": 2.6688259585879726,
+        "baselineManaged": 5690459,
+        "candidateManaged": 5690459,
+        "baselineRss": 194097152,
+        "candidateRss": 189865984,
+        "sha256": "3454ce5cd0e425855446ca640b760f3e3da1ddfae6ea4b167ad8e4fb65b977b8"
+      },
+      {
+        "id": "im26-1238",
+        "index": 38,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1450.140325,
+        "candidateMs": 1362.174862,
+        "deltaPercent": -6.065996613120872,
+        "baselineManaged": 5700699,
+        "candidateManaged": 5700699,
+        "baselineRss": 191365120,
+        "candidateRss": 191488000,
+        "sha256": "938cbad0f655d3e90eea48e766e528679cf18f18641bd7396dda6994915895a9"
+      },
+      {
+        "id": "im26-1472",
+        "index": 39,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1483.598243,
+        "candidateMs": 1496.291823,
+        "deltaPercent": 0.8555941650572718,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 193777664,
+        "candidateRss": 193495040,
+        "sha256": "78f1939ee544ffe75e5b20c485b422c814af4a63fce9be4331def5acb31602e6"
+      },
+      {
+        "id": "im26-2408",
+        "index": 40,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1363.361858,
+        "candidateMs": 1378.948813,
+        "deltaPercent": 1.1432735123502402,
+        "baselineManaged": 5724551,
+        "candidateManaged": 5724551,
+        "baselineRss": 196481024,
+        "candidateRss": 192200704,
+        "sha256": "b6b2fdf44f1bd6203953b9653d5bc20e9e74250a0ba228a27ad1f6ed680fda2e"
+      },
+      {
+        "id": "im26-1234",
+        "index": 41,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1577.1363270000002,
+        "candidateMs": 1438.645713,
+        "deltaPercent": -8.781144129970976,
+        "baselineManaged": 5696607,
+        "candidateManaged": 5696607,
+        "baselineRss": 192614400,
+        "candidateRss": 190337024,
+        "sha256": "0e28cd7dd11b67ff14a17f9e570d5932e58157bfdefcb9fe825d0f1d6d4bf50b"
+      },
+      {
+        "id": "im26-1416",
+        "index": 42,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1522.494813,
+        "candidateMs": 1382.520612,
+        "deltaPercent": -9.193739105369293,
+        "baselineManaged": 5669979,
+        "candidateManaged": 5669979,
+        "baselineRss": 187031552,
+        "candidateRss": 193069056,
+        "sha256": "b9d6a9b1c8577915bd6c003693a4db741e89298bf9a0d0d63cc2dd212c15de5d"
+      },
+      {
+        "id": "im26-1410",
+        "index": 43,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1555.791229,
+        "candidateMs": 1361.3555139999999,
+        "deltaPercent": -12.497545388848575,
+        "baselineManaged": 5710939,
+        "candidateManaged": 5710939,
+        "baselineRss": 193286144,
+        "candidateRss": 193560576,
+        "sha256": "1e2eaad016618499ed98fc68884ad0709cdc75fa05e5b5a9ceb787d158d74255"
+      },
+      {
+        "id": "im26-3320",
+        "index": 44,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1444.180327,
+        "candidateMs": 1427.316271,
+        "deltaPercent": -1.1677250883919688,
+        "baselineManaged": 5743003,
+        "candidateManaged": 5743003,
+        "baselineRss": 194834432,
+        "candidateRss": 201420800,
+        "sha256": "51b9922944ba2dd9a076e769e19a30621d627d8479c052fa746128d5b9ed2204"
+      },
+      {
+        "id": "im26-3004",
+        "index": 45,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1469.8386349999998,
+        "candidateMs": 1427.337246,
+        "deltaPercent": -2.891568365938335,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 193519616,
+        "candidateRss": 193183744,
+        "sha256": "a220933e1ac219edba60eb22142fbed0fbfc67259852d2a690b979ae8c053db8"
+      },
+      {
+        "id": "im26-3010",
+        "index": 46,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1452.70607,
+        "candidateMs": 1427.238847,
+        "deltaPercent": -1.7530884964223947,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 193445888,
+        "candidateRss": 184168448,
+        "sha256": "7d46d7d75f241b6813f9321b4f49040260d6f9aad83093a4de4ce4f45b98e249"
+      },
+      {
+        "id": "im26-1636",
+        "index": 47,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1582.415965,
+        "candidateMs": 1834.843878,
+        "deltaPercent": 15.952058029192084,
+        "baselineManaged": 8735786,
+        "candidateManaged": 8735786,
+        "baselineRss": 193638400,
+        "candidateRss": 191279104,
+        "sha256": "afc8c6113c130f4e53b67dcac50bec6ceebbfb333adb7ed406ed6a5bafea0a4c"
+      },
+      {
+        "id": "im26-1408",
+        "index": 48,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1242.9193050000001,
+        "candidateMs": 1238.82642,
+        "deltaPercent": -0.32929611629131106,
+        "baselineManaged": 5690459,
+        "candidateManaged": 5690459,
+        "baselineRss": 193675264,
+        "candidateRss": 195428352,
+        "sha256": "26fadb825a714047ff62a2cc84768afe16a7e29a4e045195e318f9c1deb97b8f"
+      },
+      {
+        "id": "im26-1468",
+        "index": 49,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1527.962362,
+        "candidateMs": 1457.956598,
+        "deltaPercent": -4.581641913506762,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 194449408,
+        "candidateRss": 193888256,
+        "sha256": "ef73e3efdb20e598e8f273e6e5e1b8d94047966752a7ac18e7b19c33a142fa02"
+      },
+      {
+        "id": "im26-1030",
+        "index": 50,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1489.6770820000002,
+        "candidateMs": 1602.026887,
+        "deltaPercent": 7.54188987382165,
+        "baselineManaged": 5669979,
+        "candidateManaged": 5669979,
+        "baselineRss": 197066752,
+        "candidateRss": 189513728,
+        "sha256": "955b5882b77392b279765b803534a182c26dcba91c8672aa9d41eb3bc467cbc2"
+      },
+      {
+        "id": "im26-1400",
+        "index": 51,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1336.322749,
+        "candidateMs": 1371.534809,
+        "deltaPercent": 2.6349966747441833,
+        "baselineManaged": 5688411,
+        "candidateManaged": 5688411,
+        "baselineRss": 195551232,
+        "candidateRss": 194580480,
+        "sha256": "0a96efbbb5affadba99c90b5098b433720185002ae53ce8079f7ace9fa5d3953"
+      },
+      {
+        "id": "im26-1058",
+        "index": 52,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1562.43988,
+        "candidateMs": 1389.59477,
+        "deltaPercent": -11.062512690088278,
+        "baselineManaged": 5702749,
+        "candidateManaged": 5702749,
+        "baselineRss": 195903488,
+        "candidateRss": 192536576,
+        "sha256": "afdc2fb3cfc1a323dc67ea9b1a96a31de6682f15c73c1022796f450fb9afa847"
+      },
+      {
+        "id": "im26-3316",
+        "index": 53,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1692.994165,
+        "candidateMs": 1597.7552150000001,
+        "deltaPercent": -5.625474202387459,
+        "baselineManaged": 5702747,
+        "candidateManaged": 5702747,
+        "baselineRss": 193957888,
+        "candidateRss": 191893504,
+        "sha256": "a329d00421a10d7914dec9086f9b3f251a7ca36fafa585dca61b3d62d42e8750"
+      },
+      {
+        "id": "im26-3318",
+        "index": 54,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1535.429573,
+        "candidateMs": 1474.370293,
+        "deltaPercent": -3.976690372108649,
+        "baselineManaged": 8735786,
+        "candidateManaged": 8735786,
+        "baselineRss": 195198976,
+        "candidateRss": 194936832,
+        "sha256": "9e5e2794995a23dcdb8c44cd4c540cb85b20108b4c02ace7ef38d8617189d2ef"
+      },
+      {
+        "id": "im26-2018",
+        "index": 55,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1464.2548860000002,
+        "candidateMs": 1440.427257,
+        "deltaPercent": -1.6272869722218641,
+        "baselineManaged": 5669979,
+        "candidateManaged": 5669979,
+        "baselineRss": 186142720,
+        "candidateRss": 193585152,
+        "sha256": "7641cc6f1272aef0a8576dcd550b3f2e5790435934262d076c174f247177fb61"
+      },
+      {
+        "id": "im26-1220",
+        "index": 56,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1340.093667,
+        "candidateMs": 1320.730243,
+        "deltaPercent": -1.444930640061004,
+        "baselineManaged": 5686363,
+        "candidateManaged": 5686363,
+        "baselineRss": 193576960,
+        "candidateRss": 195923968,
+        "sha256": "fb1bf1ff61d3fdad58d5e4cc12e9652e4d831bd6ac966412fce1150a2f0325aa"
+      },
+      {
+        "id": "im26-1236",
+        "index": 57,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1508.650189,
+        "candidateMs": 1498.5952200000002,
+        "deltaPercent": -0.6664877698828731,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 182685696,
+        "candidateRss": 185356288,
+        "sha256": "87bf7e6fca399ee66c258a01ea439ead1675ff321562eceb32d83b915ff2b72e"
+      },
+      {
+        "id": "im26-2008",
+        "index": 58,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1523.039159,
+        "candidateMs": 1392.9518990000001,
+        "deltaPercent": -8.541294505218943,
+        "baselineManaged": 5680219,
+        "candidateManaged": 5680219,
+        "baselineRss": 186630144,
+        "candidateRss": 190525440,
+        "sha256": "e17e4e95b03f09594f33290f79c7001b1970474e77008295932e4c2c538fca8b"
+      },
+      {
+        "id": "im26-1550",
+        "index": 59,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1421.902087,
+        "candidateMs": 1419.909224,
+        "deltaPercent": -0.1401547278269022,
+        "baselineManaged": 5674075,
+        "candidateManaged": 5674075,
+        "baselineRss": 194916352,
+        "candidateRss": 186236928,
+        "sha256": "56ddfe05a5a824cac82c39b9084d282608dd187cffd85180815b203bb74e238e"
+      },
+      {
+        "id": "im26-2014",
+        "index": 60,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1506.6432499999999,
+        "candidateMs": 1712.052436,
+        "deltaPercent": 13.633564946446363,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 194019328,
+        "candidateRss": 189976576,
+        "sha256": "a284d2a1ad8d688291cf13a886093c051930e5e6c79a7c640e5334bc2de4973c"
+      },
+      {
+        "id": "im26-1204",
+        "index": 61,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1448.684238,
+        "candidateMs": 1437.988954,
+        "deltaPercent": -0.7382757207854751,
+        "baselineManaged": 5678171,
+        "candidateManaged": 5678171,
+        "baselineRss": 196935680,
+        "candidateRss": 186527744,
+        "sha256": "199e43cebd19b1d5c4bf943ebde5fc87a05fd9b449801f2b8d4c414911e9a33b"
+      },
+      {
+        "id": "im26-1032",
+        "index": 62,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1433.766831,
+        "candidateMs": 1452.662544,
+        "deltaPercent": 1.317906970049032,
+        "baselineManaged": 5678171,
+        "candidateManaged": 5678171,
+        "baselineRss": 188227584,
+        "candidateRss": 195321856,
+        "sha256": "aaa7328dcafd56128b2772470874b76d06c7db703e048299823490a2102e0c0f"
+      },
+      {
+        "id": "im26-2404",
+        "index": 63,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1332.507229,
+        "candidateMs": 1205.436784,
+        "deltaPercent": -9.536191792022175,
+        "baselineManaged": 5686363,
+        "candidateManaged": 5686363,
+        "baselineRss": 193851392,
+        "candidateRss": 194928640,
+        "sha256": "d28f4cbe366610dd3cf97dd49b3808525461df444511cadc74376aab447a1e2d"
+      }
+    ]
+  },
+  "gitBaseControl": {
+    "contract": "16 evenly spaced frozen crops: original indices 0,4,...60. Fresh isolated workers, alternating mode order by subset index. Baseline imports actual git archive of 6f282d51; candidate imports cleaned working tree. Native validation and all scores required, no warmup or reused timing.",
+    "baseCommit": "6f282d5132984b33187df9023804c1722fec0ab6",
+    "baselineWorker": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/git-base/benchmark/jpegxl/lossy-lab/worker.ts",
+    "samples": 16,
+    "baseline": {
+      "median": 1472.285666,
+      "mad": 62.855212999999935,
+      "iqr": 183.13375199999996,
+      "cv": 0.09105325291039847
+    },
+    "candidate": {
+      "median": 1457.512922,
+      "mad": 51.921709499999906,
+      "iqr": 127.15384000000017,
+      "cv": 0.1269590888460854
+    },
+    "paired": {
+      "median": -1.7153968888736326,
+      "mad": 3.096626872036207,
+      "iqr": 7.362744108013941,
+      "cv": 68.02493118334557
+    },
+    "wins": 10,
+    "byteIdentical": true,
+    "managedUnchanged": true,
+    "rows": [
+      {
+        "id": "im26-3012",
+        "index": 0,
+        "originalIndex": 0,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1375.2927060000002,
+        "candidateMs": 1421.4436719999999,
+        "deltaPercent": 3.355719535096524,
+        "baselineManaged": 5680219,
+        "candidateManaged": 5680219,
+        "baselineRss": 197083136,
+        "candidateRss": 183615488,
+        "sha256": "ffcdcf150a31816389434be8cc646c25bd0fc75281cee1d4aec8bffe622085ea"
+      },
+      {
+        "id": "im26-1002",
+        "index": 1,
+        "originalIndex": 4,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1593.892075,
+        "candidateMs": 1548.597512,
+        "deltaPercent": -2.841758467241262,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 194576384,
+        "candidateRss": 192552960,
+        "sha256": "37edc666f031dbc1d456d04b3671f717d319c0ba439a3dfbc62cfe3c9cb144e1"
+      },
+      {
+        "id": "im26-2002",
+        "index": 2,
+        "originalIndex": 8,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1810.487646,
+        "candidateMs": 1558.578093,
+        "deltaPercent": -13.913906209553883,
+        "baselineManaged": 5672027,
+        "candidateManaged": 5672027,
+        "baselineRss": 186728448,
+        "candidateRss": 192299008,
+        "sha256": "c1e63e9e6e8d39c4455bbf652ed51537c29585ac9a689e023c10d7a3f49544f7"
+      },
+      {
+        "id": "im26-1634",
+        "index": 3,
+        "originalIndex": 12,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1516.297165,
+        "candidateMs": 1455.5387649999998,
+        "deltaPercent": -4.007024572917417,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 185880576,
+        "candidateRss": 193294336,
+        "sha256": "ff3e6ed661275f25a53f6a7abe3c151e20676ada27e540eb7cfea5f9d5416644"
+      },
+      {
+        "id": "im26-2026",
+        "index": 4,
+        "originalIndex": 16,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1486.180302,
+        "candidateMs": 1459.487079,
+        "deltaPercent": -1.7960958683194805,
+        "baselineManaged": 5682267,
+        "candidateManaged": 5682267,
+        "baselineRss": 191676416,
+        "candidateRss": 185294848,
+        "sha256": "55b8df117ca2cf0ab7a6c2400635246158ab03e487ad2c1ce26bdd5ac42e94ea"
+      },
+      {
+        "id": "im26-1242",
+        "index": 5,
+        "originalIndex": 20,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1787.7838930000003,
+        "candidateMs": 2187.9135560000004,
+        "deltaPercent": 22.381321622075955,
+        "baselineManaged": 5684315,
+        "candidateManaged": 5684315,
+        "baselineRss": 193486848,
+        "candidateRss": 188162048,
+        "sha256": "b973541449e325d9aaca8bc4c0dc01a7287e327d3ec9c3e5c201941c7e5e3909"
+      },
+      {
+        "id": "im26-1608",
+        "index": 6,
+        "originalIndex": 24,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1672.45694,
+        "candidateMs": 1531.255292,
+        "deltaPercent": -8.442767321710532,
+        "baselineManaged": 5678171,
+        "candidateManaged": 5678171,
+        "baselineRss": 193540096,
+        "candidateRss": 192450560,
+        "sha256": "2e38ea244060ebfa6c21083092f8b538b827a3798c9d8481411c205de5c0fc03"
+      },
+      {
+        "id": "im26-1214",
+        "index": 7,
+        "originalIndex": 28,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1417.7552,
+        "candidateMs": 1592.3949029999999,
+        "deltaPercent": 12.318043552229607,
+        "baselineManaged": 5722591,
+        "candidateManaged": 5722591,
+        "baselineRss": 193069056,
+        "candidateRss": 189804544,
+        "sha256": "c190d7009434ed99e1d4b34d5157fb8d209920cfd88416c74f00d5bc766dc02e"
+      },
+      {
+        "id": "im26-3002",
+        "index": 8,
+        "originalIndex": 32,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1380.75876,
+        "candidateMs": 1474.68833,
+        "deltaPercent": 6.8027502501595505,
+        "baselineManaged": 5700699,
+        "candidateManaged": 5700699,
+        "baselineRss": 186597376,
+        "candidateRss": 190496768,
+        "sha256": "b33fb0069da4e685f90c29eebc4b202a45193033f05cc385b95634bb6031a827"
+      },
+      {
+        "id": "im26-1006",
+        "index": 9,
+        "originalIndex": 36,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1456.302101,
+        "candidateMs": 1432.495961,
+        "deltaPercent": -1.6346979094277847,
+        "baselineManaged": 5718443,
+        "candidateManaged": 5718443,
+        "baselineRss": 197632000,
+        "candidateRss": 201338880,
+        "sha256": "11275ad3ff87c9ad7dc480985664830812359cf82b02332dc385b282fa3bf7be"
+      },
+      {
+        "id": "im26-2408",
+        "index": 10,
+        "originalIndex": 40,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1458.39103,
+        "candidateMs": 1404.2784530000001,
+        "deltaPercent": -3.710429911242652,
+        "baselineManaged": 5724551,
+        "candidateManaged": 5724551,
+        "baselineRss": 190672896,
+        "candidateRss": 190230528,
+        "sha256": "b6b2fdf44f1bd6203953b9653d5bc20e9e74250a0ba228a27ad1f6ed680fda2e"
+      },
+      {
+        "id": "im26-3320",
+        "index": 11,
+        "originalIndex": 44,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1495.328603,
+        "candidateMs": 1508.121872,
+        "deltaPercent": 0.8555490060401238,
+        "baselineManaged": 5743003,
+        "candidateManaged": 5743003,
+        "baselineRss": 191291392,
+        "candidateRss": 192925696,
+        "sha256": "51b9922944ba2dd9a076e769e19a30621d627d8479c052fa746128d5b9ed2204"
+      },
+      {
+        "id": "im26-1408",
+        "index": 12,
+        "originalIndex": 48,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1408.102583,
+        "candidateMs": 1334.7862460000001,
+        "deltaPercent": -5.206746858158418,
+        "baselineManaged": 5690459,
+        "candidateManaged": 5690459,
+        "baselineRss": 193392640,
+        "candidateRss": 193228800,
+        "sha256": "26fadb825a714047ff62a2cc84768afe16a7e29a4e045195e318f9c1deb97b8f"
+      },
+      {
+        "id": "im26-1058",
+        "index": 13,
+        "originalIndex": 52,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1410.758323,
+        "candidateMs": 1424.6755509999998,
+        "deltaPercent": 0.9865068859139958,
+        "baselineManaged": 5702749,
+        "candidateManaged": 5702749,
+        "baselineRss": 188874752,
+        "candidateRss": 192753664,
+        "sha256": "afdc2fb3cfc1a323dc67ea9b1a96a31de6682f15c73c1022796f450fb9afa847"
+      },
+      {
+        "id": "im26-1220",
+        "index": 14,
+        "originalIndex": 56,
+        "order": ["standalone-selector-inverse", "standalone-selector-mask-copy"],
+        "baselineMs": 1335.006178,
+        "candidateMs": 1320.825454,
+        "deltaPercent": -1.0622216011947239,
+        "baselineManaged": 5686363,
+        "candidateManaged": 5686363,
+        "baselineRss": 188522496,
+        "candidateRss": 195235840,
+        "sha256": "fb1bf1ff61d3fdad58d5e4cc12e9652e4d831bd6ac966412fce1150a2f0325aa"
+      },
+      {
+        "id": "im26-2014",
+        "index": 15,
+        "originalIndex": 60,
+        "order": ["standalone-selector-mask-copy", "standalone-selector-inverse"],
+        "baselineMs": 1510.787581,
+        "candidateMs": 1419.8232090000001,
+        "deltaPercent": -6.020990187104269,
+        "baselineManaged": 5676123,
+        "candidateManaged": 5676123,
+        "baselineRss": 184987648,
+        "candidateRss": 190763008,
+        "sha256": "a284d2a1ad8d688291cf13a886093c051930e5e6c79a7c640e5334bc2de4973c"
+      }
+    ]
+  },
+  "excludedInterruptedCold": {
+    "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/cold-corpus-pairs",
+    "completedPairs": 32,
+    "exit": 143,
+    "usedInTiming": false
+  },
+  "selectedMode": "standalone-selector-mask-copy",
+  "formalCrop": {
+    "ownMs": 1437.3812644999998,
+    "jsquashMs": 513.573134,
+    "vipsMs": 377.94271000000003,
+    "ratio": 2.7987859359091782,
+    "progress": {
+      "startedAt": "2026-10-15T16:11:32.054Z",
+      "mode": "speed",
+      "variant": "standalone-selector-mask-copy",
+      "effort": 7,
+      "budgetSeconds": 3600,
+      "workers": 1,
+      "resumedSpeed": false,
+      "reusedSpeedJobs": 0,
+      "measuredSpeedJobs": 192,
+      "selected": 64,
+      "totalJobs": 192,
+      "completedJobs": 192,
+      "failures": [],
+      "omissions": []
+    },
+    "speed": [
+      {
+        "engine": "purejsimage",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 1453.1673040000003,
+          "median": 1437.3812644999998,
+          "p90": 1593.7993459000002,
+          "worst": 2080.7698870000004
+        },
+        "watch": null
+      },
+      {
+        "engine": "jsquash",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 524.4494117187501,
+          "median": 513.573134,
+          "p90": 588.9304901,
+          "worst": 681.2055939999999
+        },
+        "watch": null
+      },
+      {
+        "engine": "vips",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 392.72011659375,
+          "median": 377.94271000000003,
+          "p90": 434.06504070000005,
+          "worst": 636.2024479999999
+        },
+        "watch": null
+      }
+    ],
+    "managedPeakBytes": 8735786,
+    "workerRssBytes": 203079680
+  },
+  "formalOriginal": {
+    "ownMs": 47354.217103999996,
+    "jsquashMs": 26441.096645999998,
+    "vipsMs": 9352.015204000001,
+    "ratio": 1.7909324162303129,
+    "progress": {
+      "startedAt": "2026-10-15T16:19:32.903Z",
+      "mode": "speed",
+      "variant": "standalone-selector-mask-copy",
+      "effort": 7,
+      "budgetSeconds": 3600,
+      "workers": 1,
+      "resumedSpeed": false,
+      "reusedSpeedJobs": 0,
+      "measuredSpeedJobs": 3,
+      "selected": 1,
+      "totalJobs": 3,
+      "completedJobs": 3,
+      "failures": [],
+      "omissions": []
+    },
+    "parity": {
+      "byteIdentical": true,
+      "bytes": 1835008,
+      "sha256": "bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee",
+      "reference": ".tmp/jpegxl-lossy-lab/standalone-merge-20261015/inverse-original",
+      "managedPeakBytes": 59071615,
+      "encoderRssBytes": 414584832,
+      "wholeWorkerRssBytes": 562528256
+    }
+  },
+  "excludedPartialOriginal": {
+    "path": ".tmp/jpegxl-lossy-lab/standalone-ac-small-20261015/mask-copy-original",
+    "exit": 143,
+    "usedInTiming": false
+  },
+  "verification": {
+    "check": {
+      "passed": 4133,
+      "skipped": 3,
+      "filesPassed": 326,
+      "filesSkipped": 1,
+      "testDurationSeconds": 609.04
+    },
+    "browsers": ["Chromium", "Firefox", "WebKit"],
+    "bundles": [614941, 687773],
+    "runtimeDependencies": 0
+  }
+}

@@ -56,6 +56,9 @@ export type StandalonePort =
   | 'standalone-writer-matrices'
   | 'standalone-writer-all'
   | 'standalone-selector-inverse'
+  | 'standalone-selector-mask'
+  | 'standalone-selector-copy'
+  | 'standalone-selector-mask-copy'
   | 'standalone-selector-pairs'
   | 'standalone-loss75'
   | 'standalone-loss125'
@@ -78,8 +81,13 @@ export function libjxlStandaloneOverrides(
             : undefined
   const lossScale =
     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
-  const guardVariant =
+  const inverseWeights =
     requestedMode === 'standalone-selector-inverse' ||
+    requestedMode === 'standalone-selector-mask' ||
+    requestedMode === 'standalone-selector-copy' ||
+    requestedMode === 'standalone-selector-mask-copy'
+  const guardVariant =
+    inverseWeights ||
     writerEstimate !== undefined ||
     requestedMode === 'standalone-selector-pairs' ||
     lossScale !== 1
@@ -204,10 +212,14 @@ export function libjxlStandaloneOverrides(
       try {
         const select = strategyPortOverrides(distance, 'spatial-source', context, {
           initialField: field,
-          pairedTransform:
-            requestedMode === 'standalone-selector-pairs' ||
-            requestedMode === 'standalone-selector-inverse',
-          inverseWeights: requestedMode === 'standalone-selector-inverse',
+          pairedTransform: requestedMode === 'standalone-selector-pairs' || inverseWeights,
+          inverseWeights,
+          rowMask:
+            requestedMode === 'standalone-selector-mask' ||
+            requestedMode === 'standalone-selector-mask-copy',
+          bulkBlockCopy:
+            requestedMode === 'standalone-selector-copy' ||
+            requestedMode === 'standalone-selector-mask-copy',
           lossScale,
           ...(writerEstimate ? { writerEstimate } : {}),
           compactStorage:

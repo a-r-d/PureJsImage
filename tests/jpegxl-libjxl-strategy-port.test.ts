@@ -56,6 +56,9 @@ it.each([
   'standalone-loss75',
   'standalone-loss125',
   'standalone-selector-inverse',
+  'standalone-selector-mask',
+  'standalone-selector-copy',
+  'standalone-selector-mask-copy',
   'standalone-selector-pairs',
   'standalone-sharp2',
   'standalone-epf0',
@@ -123,6 +126,20 @@ it('rejects invalid strategy-port modes and distance', () => {
   expect(() => strategyPortOverrides(NaN, 'tiny')).toThrow('Invalid strategy-port distance')
 })
 
+it.each([
+  'standalone-selector-mask',
+  'standalone-selector-copy',
+  'standalone-selector-mask-copy',
+] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
+  for (const distance of [0.45, 2, 7.5]) {
+    const control = libjxlPortOverrides('standalone-selector-inverse', distance, 73, 29)
+    const candidate = libjxlPortOverrides(mode, distance, 73, 29)
+    expect(candidate.dc).toEqual(control.dc)
+    expect(candidate.globalScale).toBe(control.globalScale)
+    expect(candidate.skipStrategySearch).toBe(true)
+  }
+})
+
 it('preserves standalone bytes when bounded tile caching crosses tile and image edges', async () => {
   const width = 137,
     height = 75
@@ -165,6 +182,10 @@ it('preserves coherent streams with bounded source caching and packed AC storage
       'standalone-guard-source-cache',
       'standalone-guard-bounded',
       'standalone-selector-pairs',
+      'standalone-selector-inverse',
+      'standalone-selector-mask',
+      'standalone-selector-copy',
+      'standalone-selector-mask-copy',
     ] as const) {
       const result = await encodeTransplant(
         pixels,

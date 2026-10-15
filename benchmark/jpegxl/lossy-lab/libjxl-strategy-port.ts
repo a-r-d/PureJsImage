@@ -19,6 +19,7 @@
  * This is a development experiment, never imported by the public encoder.
  */
 import { selectorTileMask } from './selector-tile-mask.ts'
+import { selectorMaskLoss } from './selector-mask-loss.ts'
 import { inverseSelectorTransform } from './selector-inverse.ts'
 import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
 import type {
@@ -87,6 +88,8 @@ export interface StrategyOptions {
   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
   pairedTransform?: boolean
   inverseWeights?: boolean
+  rowMask?: boolean
+  bulkBlockCopy?: boolean
   lossScale?: number
 }
 
@@ -124,6 +127,8 @@ function selectGeometry(
     writerEstimate,
     pairedTransform = false,
     inverseWeights = false,
+    rowMask = false,
+    bulkBlockCopy = false,
     lossScale = 1,
   } = options
   const memory = base.memory
@@ -212,6 +217,10 @@ function selectGeometry(
           const source = block[c],
             target = planes[c]
           if (!source || !target) throw new Error('Missing strategy color plane')
+          if (bulkBlockCopy && width === 8 && source.length === 64) {
+            target.set(source, dy * 64)
+            continue
+          }
           for (let py = 0; py < 8; py++)
             for (let px = 0; px < 8; px++)
               target[(dy * 8 + py) * width + dx * 8 + px] = source[py * 8 + px] ?? 0
@@ -329,23 +338,34 @@ function selectGeometry(
         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
         let channelLoss = 0
-        for (let p = 0; p < size; p++) {
-          const mask = tileMask
-            ? (tileMask.data[
-                (y * 8 - maskOriginY + Math.floor(p / width)) * 64 +
-                  x * 8 -
-                  maskOriginX +
-                  (p % width)
-              ] ?? 1)
-            : (maskField?.[
-                (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
-              ] ?? 1)
-          let error = (spatial[p] ?? 0) * (mask + maskOffset) * channelWeight
-          error *= error
-          error *= error
-          error *= error
-          channelLoss += error
-        }
+        if (rowMask && tileMask)
+          channelLoss = selectorMaskLoss(
+            spatial,
+            tileMask.data,
+            width,
+            height,
+            (y * 8 - maskOriginY) * 64 + x * 8 - maskOriginX,
+            maskOffset,
+            channelWeight,
+          )
+        else
+          for (let p = 0; p < size; p++) {
+            const mask = tileMask
+              ? (tileMask.data[
+                  (y * 8 - maskOriginY + Math.floor(p / width)) * 64 +
+                    x * 8 -
+                    maskOriginX +
+                    (p % width)
+                ] ?? 1)
+              : (maskField?.[
+                  (y * 8 + Math.floor(p / width)) * base.blocksWide * 8 + x * 8 + (p % width)
+                ] ?? 1)
+            let error = (spatial[p] ?? 0) * (mask + maskOffset) * channelWeight
+            error *= error
+            error *= error
+            error *= error
+            channelLoss += error
+          }
         loss += channelLoss
         if (c === 0 && bw * bh >= 2) {
           const penalty = 1 + Math.min(3, (bw * bh) / 8)

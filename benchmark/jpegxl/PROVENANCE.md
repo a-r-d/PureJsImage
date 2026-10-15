@@ -245,3 +245,22 @@ retained compact menu), with no source-sized scratch allocation.
 The rejected 2026-10-15 guard and AC-allocation code, its tests and the measured
 inverse variant are reproducible from `lossy-lab/MERGE-EXPERIMENT.patch` on base
 `a9275832`. Only the inverse-weight optimization remains active after cleanup.
+
+The next 2026-10-15 continuation tests first-party initial-field multipliers
+1.025, 1.05 and 1.075 on the retained inverse selector. The existing DC,
+global-scale, filter and high-frequency policy is unchanged. These adjustments
+consume no new source material or peer decisions. The allocation variants are
+rejected and preserved in `lossy-lab/AC-FOLLOWUP-EXPERIMENT.patch` for base
+`6f282d51`; they are removed from active code.
+
+| Our file | Source file and revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/selector-mask-loss.ts` | libjxl `lib/jxl/enc_ac_strategy.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Eighth-power spatial loss, already ported in `libjxl-strategy-port.ts`. First-party row traversal preserves arithmetic order while removing per-pixel division and remainder. Uses the existing bounded mask with no additional allocation. |
+
+The same continuation tests a bulk TypedArray copy for contiguous 8-pixel-wide
+candidate planes and complementary fine/coarse distance envelopes for AC
+precision. These are first-party adaptations with no new third-party material.
+The combined mask/copy mode retains all 576 development streams exactly and
+adds no allocation. Separate component modes remain explicit development
+comparators; neither is selected individually. The source, measurements and
+control against unchanged Git source are recorded in `lossy-lab/AC-FOLLOWUP-REPORT.md`.
