@@ -1,26 +1,20 @@
 # JPEG XL lossy lab
 
-Current owner decision (2026-10-14): continue Step C research and selector speed work.
-Research base ef651e29 on `jxl-libjxl-ports`; local main is b2666b83.
-Published origin/main remains f9c74a49, one commit before the local transplant checkpoint.
-Retained mode `standalone-selector-pairs`, no peer maps. All 576 development files are
-byte-identical to `standalone-guard-bounded`; managed lab peak remains 9,232,573 bytes.
+Step C research remains on `jxl-libjxl-ports`; the 15-trial quality plateau stop is reached.
+Continuation base eade5bff; local main b2666b83 and published origin/main f9c74a49 are unchanged.
+Retained mode `standalone-selector-pairs`, no peer maps; active code restored exactly to eade5bff.
 Full-lab SSIM/3-norm/max: vips -8.090/-4.730/-5.575% (mean -6.132%); jSquash -8.553/+0.770/+2.537%.
 Production control -7.254/-9.856/-9.629%; native replay -10.350/-5.612/-5.321%.
-No full-band development guard failures: eight SSIM admissions, zero 3-norm admissions.
-Mirrored-input DCT reuse improves 15-pair isolated timing by 4.880% and 5.194%, 13/15 wins on both crops.
-Fresh 64-crop timing: 1390.868/485.562ms, 2.864447x jSquash; zero failures/omissions.
-Fresh 13 MP original: 47.942s, 1.851700x jSquash, identical bytes and 59,071,615 managed bytes.
-The prior 21 MP entry remains 92.402s and 90,903,965 managed bytes; not rerun here.
-Six quality screens do not justify replacing the retained decisions. Actual writer rounding
-improves full-lab SSIM/3-norm by 0.236/0.105%, worsens max by 0.415%, and costs 12.889% more time.
-All 576 rounding streams pass independent decoding within one code value.
-Full check passes 4,125 tests, three skips; all three browsers pass. Bundles remain 614,941/687,773 bytes.
-Previous holdout vips -6.064/-3.380/-2.301%, mean -3.915%, passes the aggregate objective.
-Two of nine full-band holdout SSIM guards still block promotion. No holdout rerun or inspection in this continuation.
-Watch/scale qualification and public integration remain pending. No production source changes or main merge.
-See the [selector report](lossy-lab/WRITER-REPORT.md) and preserved [guard report](lossy-lab/GUARD-REPORT.md).
-Remove or isolate inherited peer-forcing hooks before a main merge.
+Previous isolated speed: crops 2.864447x jSquash; 13 MP 1.851700x. Neither is rerun this continuation.
+Managed peaks: full lab 9,232,573 bytes; 13 MP 59,071,615; prior 21 MP 90,903,965.
+Six new screens and two full labs reject both luma rounding alternatives; all 1,152 full-lab outputs validate independently.
+Actual luma rounding: retained -0.240/-0.090/+0.423%, isolated +10.347% time; nearest-level luma +0.051/+0.022/+0.301%, noisy +2.604% time.
+The cheaper mode fails one development SSIM guard. Screen/full differences are sensitive to distance sampling; frozen ladders remain unchanged.
+Experimental full check: 4,131 tests, three skips; all three browsers pass. Restored code: 72 focused tests pass.
+Bundles unchanged at 614,941/687,773 bytes. Rejected code/tests archived in the reproducible CENTROID-EXPERIMENT.patch.
+Prior holdout vips -6.064/-3.380/-2.301% passes aggregate targets, but two SSIM guards still block promotion; no holdout rerun.
+Ranked next hypotheses: constrain actual-luma merge error; soften its rate penalty; accelerate exact plane quantization. New quality trials need reopening.
+[Latest report](lossy-lab/CENTROID-REPORT.md). Watch/scale, public integration and peer-hook isolation remain pending; no main merge.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -1885,3 +1879,29 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | LL-744, 2026-10-14 | Measure the actual writer-rounding selector cost with 15 isolated alternating im26-3012/d2 pairs. | Full-lab paired quality is -0.236/-0.105/+0.415%, mean +0.025%; output correctness is independently qualified. | Median 1168.212 to 1315.351ms; paired 12.889%, 0/15 faster. | Reject for effort 7: added time does not buy the required quality improvement. Keep the named development experiment as evidence, not a default or effort-9 promotion. Raw: standalone-writer-20261014/rounding-speed.json. | rejected |
 
 | LL-745, 2026-10-14 | Confirm the exact selector speed change on the 13 MP original with fresh isolated peer measurements. | Original stream remains byte-identical: 1,835,008 bytes, SHA256 bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee. Native decode and all scores pass. | Own 47.942s, jSquash 25.891s, 1.851700x; vips 9.359s. Managed peak unchanged at 59,071,615 bytes; encoder-receipt RSS 402,812,928 bytes. Whole-worker RSS including validation/scoring is 556,003,328 bytes versus prior 543,997,952. | Passes the 5x original target and memory ceiling for this original. This is not full-watch qualification; the 21 MP original is not rerun. Raw: standalone-writer-20261014/paired-original and original-parity.json. | passed |
+
+| LL-746, 2026-10-14 | Score actual writer rounding only in luma, using the retained paired-input DCT and unchanged coherent allocation. Base eade5bff. | 80 valid screen points. Vips -10.768/-5.472/-4.572%; jSquash -11.773/+0.308/+2.737%; retained -0.028/+0.124/-1.295%. | Concurrent quality run; timing excluded. | Maximum-error improvement survives channel separation. Compare cheaper estimates before selecting full-lab finalists. Raw: standalone-centroids-20261014/luma-screen. | measured |
+
+| LL-747, 2026-10-14 | Score actual writer rounding only in chroma to isolate its contribution. | 80 valid screen points. Vips -10.755/-5.578/-3.246%; jSquash -11.668/+0.282/+4.095%; retained -0.021/-0.020/-0.024%. | Concurrent quality run; timing excluded. | Nearly neutral; luma drives the earlier large allocation changes. Raw: standalone-centroids-20261014/chroma-screen. | measured |
+
+| LL-748, 2026-10-14 | Apply normative decoded-centroid bias to nearest-integer selector coefficients in all channels, without changing integer selection. | 80 valid points. Vips -10.683/-5.561/-3.226%; jSquash -11.680/+0.212/+4.119%; retained +0.043/+0.008/+0.020%. | Concurrent quality timing excluded. | Reject as neutral to slightly worse. Reconstruction bias alone does not reproduce writer-rounding gains. Raw: standalone-centroids-20261014/bias-screen. | rejected |
+
+| LL-749, 2026-10-14 | Apply decoded-centroid bias only to luma residuals. | 80 valid points. Vips -10.681/-5.561/-3.241%; jSquash -11.678/+0.212/+4.103%; retained +0.046/+0.008/+0.005%. | Concurrent quality timing excluded. | Reject as neutral to slightly worse. Test centroid-aware integer choice next. Raw: standalone-centroids-20261014/bias-luma-screen. | rejected |
+
+| LL-750, 2026-10-14 | Choose the nearest normative decoded centroid in all channels, omitting the writer's token-rate penalty. | 80 valid points. Vips -10.606/-5.594/-4.100%; jSquash -11.449/+0.357/+3.210%; retained +0.149/-0.014/-0.833%. | Concurrent quality timing excluded. | Improves maximum error but slightly worsens SSIM. Luma-only version is stronger on all three means. Raw: standalone-centroids-20261014/centroid-screen. | superseded |
+
+| LL-751, 2026-10-14 | Use nearest decoded-centroid choice only in luma. | 80 valid points. Vips -10.619/-5.608/-4.132%; jSquash -11.468/+0.341/+3.173%; retained +0.139/-0.029/-0.867%. | Concurrent quality timing excluded. | Take to full lab alongside actual luma rounding: smaller screen mean gain but potentially cheaper. Grain SSIM worsens 0.350% versus retained, unlike actual rounding's 2.293% gain. Raw: standalone-centroids-20261014/centroid-luma-screen. | full-lab finalist |
+
+| LL-752, 2026-10-14 | Confirm actual luma-only rounding across all 64 development photos and nine distances. | All 576 points valid. Vips -8.286/-4.809/-5.201%; jSquash -8.782/+0.621/+2.866%; retained -0.240/-0.090/+0.423%, mean +0.031%. Eight admitted production SSIM guards pass; zero 3-norm admissions. Grain SSIM improves +6.756% to +3.744%, texture +7.677% to +7.178%; door partial max worsens +27.556% to +37.685%. | Managed peak 9,272,693 bytes. Concurrent quality timing excluded. | Reject as replacement: aggregate balance remains slightly worse and maximum-error tails persist. Measure isolated cost after checks to distinguish quality failure from speed cost. Raw: standalone-centroids-20261014/luma-lab. | rejected |
+
+| LL-753, 2026-10-14 | Confirm nearest decoded-centroid luma rounding across the full development ladder. | All 576 points valid. Vips -8.046/-4.710/-5.255%; jSquash -8.504/+0.769/+2.956%; retained +0.051/+0.022/+0.301%, mean +0.125%. Texture im26-3302 reaches +8.238% full-band SSIM against production, failing the unchanged 8% guard plus 0.05-point tolerance. | Managed peak 9,268,653 bytes. Concurrent quality timing excluded. | Reject: all three mean metrics worsen and one development guard fails. Raw: standalone-centroids-20261014/centroid-luma-lab. | rejected |
+
+| LL-754, 2026-10-14 | Explain the screen/full-lab maximum-error reversal using existing development curves only. | On the same 16 photos, luma max changes -1.295% on five distances to +0.832% on nine; other 48 are +0.287%. Nearest-level luma changes -0.867% to +1.065%; other 48 are +0.046%. A diagnostic union of all 14 measured distances gives -0.192% and +0.100% max respectively. | Analysis only, no encodes or timing claim. | Curve sampling materially affects these small deltas. Keep the fixed full-lab gates and frozen screen unchanged; no method or ladder tuning. Raw: screen-reversal.json and union-curves.json. | diagnostic |
+
+| LL-755, 2026-10-14 | Measure actual luma-only rounding against retained paired-input selection with 15 isolated alternating im26-3012/d2 pairs. | Correct outputs, changed decisions; full-lab paired quality -0.240/-0.090/+0.423%, mean +0.031%. | Baseline/candidate medians 1165.882/1317.182ms; paired +10.347%, MAD 4.165 points, zero faster pairs. Managed paired peak 5,682,267 bytes. | Reject on quality and speed. Luma-only rounding still pays most of the scalar rounding cost. Raw: standalone-centroids-20261014/luma-speed.json and stats. | rejected |
+
+| LL-756, 2026-10-14 | Measure nearest-level luma rounding with 15 isolated alternating im26-3012/d2 pairs. | Correct outputs; fixed full-lab quality worsens all means and one production guard fails. | Baseline/candidate medians 1147.324/1181.794ms; paired +2.604%, MAD 5.041 points, 6/15 faster. Managed peak 5,680,219 bytes. | No demonstrated speed benefit; noisy timing does not rescue failed quality. Raw: standalone-centroids-20261014/centroid-luma-speed.json and stats. | rejected |
+
+| LL-757, 2026-10-14 | Complete correctness and repository checks, then remove rejected experiments from the active selector. | Both 576-point labs decode independently in jxl-rs within one code value of native. All 78 experimental focused cases and three browsers pass. Full check passes 4,131 tests with three existing skips in 1192.28s; all static/package/docs/browser-build gates pass. Restored code passes 72 focused cases; archived patch applies cleanly. | Bundles unchanged at 614,941/687,773 bytes. All tests and quality jobs finish before isolated timing. | Restore active code exactly to eade5bff. Keep reproducible patch, report and raw evidence. No public-source or dependency changes. | verified |
+
+| LL-758, 2026-10-14 | Apply the quality plateau stop after completing the reopened writer-estimate and channel-rounding investigations. | Twelve screens and three full labs since the last retained quality policy produce no retained quality gain. The prior exact transform speed improvement remains retained. | Existing qualified crop ratio 2.864447x and 13 MP ratio 1.851700x are unchanged-code evidence, not new measurements. | Stop quality trials under LOSSY_STEERING section 9. Rank merge-error constraints, softened luma rate cost and exact plane quantization for the next owner decision. Holdout remains unopened; two prior guards still block main. | plateau stop |

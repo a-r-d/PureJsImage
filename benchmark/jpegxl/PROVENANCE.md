@@ -212,3 +212,15 @@ libjxl source files and v0.12.0 revision are unchanged. No new source material
 or peer maps are consumed. `forwardPairedSelectorTransform` in
 `selector-transforms.ts` is a first-party optimization that reuses mirrored
 pixel sums and preserves the existing arithmetic order.
+
+The channel-rounding continuation in `libjxl-strategy-port.ts` separates actual
+writer rounding for luma and chroma, normative reconstruction bias after integer
+rounding, and nearest decoded-centroid rounding without a rate penalty. These
+are first-party experiments on the existing attributed selector, not additional
+libjxl ports. All six aliases in `libjxl-standalone-port.ts` retain the same field,
+DC and filter policy and use the already verified paired-input transform.
+
+These six rejected variants are archived in `lossy-lab/CENTROID-EXPERIMENT.patch`
+and removed from the active TypeScript modules after measurement. The patch
+preserves the modules' existing attribution and adds the focused tests needed
+to reproduce the experiments.

@@ -1,0 +1,213 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 762a5583..cc159d03 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -67,6 +67,12 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-writer-matrices' ||
+     value === 'standalone-loss75' ||
+     value === 'standalone-loss125' ||
++    value === 'standalone-round-luma' ||
++    value === 'standalone-round-chroma' ||
++    value === 'standalone-round-bias' ||
++    value === 'standalone-round-bias-luma' ||
++    value === 'standalone-round-centroid' ||
++    value === 'standalone-round-centroid-luma' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+     value === 'standalone-guard-bounded'
+@@ -145,6 +151,12 @@ export function libjxlPortOverrides(
+     mode === 'standalone-writer-matrices' ||
+     mode === 'standalone-loss75' ||
+     mode === 'standalone-loss125' ||
++    mode === 'standalone-round-luma' ||
++    mode === 'standalone-round-chroma' ||
++    mode === 'standalone-round-bias' ||
++    mode === 'standalone-round-bias-luma' ||
++    mode === 'standalone-round-centroid' ||
++    mode === 'standalone-round-centroid-luma' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+     mode === 'standalone-guard-bounded'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 76dc380e..671de8e3 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -55,6 +55,12 @@ export type StandalonePort =
+   | 'standalone-writer-rounding'
+   | 'standalone-writer-matrices'
+   | 'standalone-writer-all'
++  | 'standalone-round-luma'
++  | 'standalone-round-chroma'
++  | 'standalone-round-bias'
++  | 'standalone-round-bias-luma'
++  | 'standalone-round-centroid'
++  | 'standalone-round-centroid-luma'
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+@@ -65,6 +71,20 @@ export function libjxlStandaloneOverrides(
+   height: number,
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
++  const roundingEstimate =
++    requestedMode === 'standalone-round-luma'
++      ? 'luma'
++      : requestedMode === 'standalone-round-chroma'
++        ? 'chroma'
++        : requestedMode === 'standalone-round-bias'
++          ? 'bias'
++          : requestedMode === 'standalone-round-bias-luma'
++            ? 'bias-luma'
++            : requestedMode === 'standalone-round-centroid'
++              ? 'centroid'
++              : requestedMode === 'standalone-round-centroid-luma'
++                ? 'centroid-luma'
++                : undefined
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -78,7 +98,10 @@ export function libjxlStandaloneOverrides(
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+   const guardVariant =
+-    writerEstimate !== undefined || requestedMode === 'standalone-selector-pairs' || lossScale !== 1
++    writerEstimate !== undefined ||
++    roundingEstimate !== undefined ||
++    requestedMode === 'standalone-selector-pairs' ||
++    lossScale !== 1
+   const guardNoSmooth =
+     guardVariant ||
+     requestedMode === 'standalone-refined-chroma75-nosmooth' ||
+@@ -200,7 +223,9 @@ export function libjxlStandaloneOverrides(
+       try {
+         const select = strategyPortOverrides(distance, 'spatial-source', context, {
+           initialField: field,
+-          pairedTransform: requestedMode === 'standalone-selector-pairs',
++          pairedTransform:
++            requestedMode === 'standalone-selector-pairs' || roundingEstimate !== undefined,
++          ...(roundingEstimate ? { roundingEstimate } : {}),
+           lossScale,
+           ...(writerEstimate ? { writerEstimate } : {}),
+           compactStorage:
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 019c9c58..7e50d1ac 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -15,6 +15,7 @@
+  * and the compact candidate menu are first-party speed adaptations.
+  * Writer-estimate experiments independently match the final quantization field,
+  * chroma matrix scales and rate-aware rounding used by our writer.
++ * Channel ablations and nearest-centroid estimates are first-party experiments.
+  * Tiny's split-cost literal is written as its representable JavaScript double.
+  * This is a development experiment, never imported by the public encoder.
+  */
+@@ -84,6 +85,7 @@ export interface StrategyOptions {
+   limit16?: boolean
+   compactStorage?: boolean
+   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
++  roundingEstimate?: 'luma' | 'chroma' | 'bias' | 'bias-luma' | 'centroid' | 'centroid-luma'
+   pairedTransform?: boolean
+   lossScale?: number
+ }
+@@ -120,6 +122,7 @@ function selectGeometry(
+     limit16 = false,
+     compactStorage = false,
+     writerEstimate,
++    roundingEstimate,
+     pairedTransform = false,
+     lossScale = 1,
+   } = options
+@@ -237,7 +240,8 @@ function selectGeometry(
+       lumaLoss = 0,
+       absoluteError = 0,
+       squaredError = 0
+-    if (actualRounding) context.readBlock(x, y, true)
++    if (actualRounding || roundingEstimate === 'luma' || roundingEstimate === 'chroma')
++      context.readBlock(x, y, true)
+     const tables = jpegXlDevelopmentDequantization(strategy)
+     const naturalWidth = Math.max(width, height)
+     for (let channelIndex = 0; channelIndex < 3; channelIndex++) {
+@@ -270,6 +274,18 @@ function selectGeometry(
+               : 1
+       let nonzero = 0,
+         channelEntropy = 0
++      const writerRounding =
++        actualRounding ||
++        (roundingEstimate === 'luma' && c === 1) ||
++        (roundingEstimate === 'chroma' && c !== 1)
++      const centroidRounding =
++        roundingEstimate === 'centroid' || (roundingEstimate === 'centroid-luma' && c === 1)
++      const reconstructBias =
++        writerRounding ||
++        centroidRounding ||
++        roundingEstimate === 'bias' ||
++        (roundingEstimate === 'bias-luma' && c === 1)
++      const bias = defaultJpegXlQuantizationBiases[c] ?? 1
+       residual.fill(0, 0, size)
+       for (let p = 0; p < size; p++) {
+         if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
+@@ -279,18 +295,28 @@ function selectGeometry(
+         // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.
+         const lower = Math.floor(value),
+           fraction = value - lower
+-        const rounded = actualRounding
++        let rounded = writerRounding
+           ? context.quantize(value, c)
+           : fraction === 0.5
+             ? lower % 2 === 0
+               ? lower
+               : lower + 1
+             : Math.round(value)
++        if (centroidRounding) {
++          // Match decoded levels without the writer's per-token rate cost.
++          const magnitude = Math.abs(value),
++            low = Math.floor(magnitude),
++            high = low + 1
++          const lowValue = low === 0 ? 0 : low === 1 ? bias : low - 0.145 / low
++          const highValue = high === 1 ? bias : high - 0.145 / high
++          const nearest = magnitude > (lowValue + highValue) / 2 ? high : low
++          rounded = value < 0 ? -nearest : nearest
++        }
+         if (!Number.isFinite(value) || Math.abs(rounded) > 4095) return Infinity
+         const magnitude = Math.abs(rounded),
+           error =
+             value -
+-            (actualRounding && rounded !== 0
++            (reconstructBias && rounded !== 0
+               ? Math.abs(rounded) === 1
+                 ? Math.sign(rounded) * (defaultJpegXlQuantizationBiases[c] ?? 1)
+                 : rounded - 0.145 / rounded
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 0c3c047f..ed3cccfe 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -171,6 +171,12 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-refined-dcfine-hfhalf',
+     'standalone-refined-chroma75',
+     'standalone-guard-bounded',
++    'standalone-round-luma',
++    'standalone-round-chroma',
++    'standalone-round-bias',
++    'standalone-round-bias-luma',
++    'standalone-round-centroid',
++    'standalone-round-centroid-luma',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+     'standalone-loss75',
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index 5d292982..bb95a4a5 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -55,6 +55,12 @@ it.each([
+   'standalone-writer-all',
+   'standalone-loss75',
+   'standalone-loss125',
++  'standalone-round-luma',
++  'standalone-round-chroma',
++  'standalone-round-bias',
++  'standalone-round-bias-luma',
++  'standalone-round-centroid',
++  'standalone-round-centroid-luma',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+   'standalone-epf0',

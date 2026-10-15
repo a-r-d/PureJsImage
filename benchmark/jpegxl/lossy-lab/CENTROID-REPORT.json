@@ -1,0 +1,2219 @@
+{
+  "base": "eade5bff694101553e470b2276f4fcc62b326a2e",
+  "branch": "jxl-libjxl-ports",
+  "holdoutOpened": false,
+  "publicSourceChanged": false,
+  "promoted": false,
+  "screens": [
+    {
+      "name": "luma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/luma-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.028221967503045644,
+          "median": 0.0804040323211879,
+          "p90": 0.8248573759949689,
+          "worst": 1.7302013214371204,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.1242997706472064,
+          "median": 0.07805995382978964,
+          "p90": 1.0108572682117218,
+          "worst": 1.782846196341053,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.2953321930372201,
+          "median": -0.10690917865675975,
+          "p90": 1.548896770923829,
+          "worst": 3.364667520047738,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.773153258821395,
+          "median": -8.627797512240079,
+          "p90": -1.8381007034511847,
+          "worst": 3.4859110000287616
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.737061536307912,
+          "median": 1.3656469184964661,
+          "p90": 10.908864016906728,
+          "worst": 15.535343791020118
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.30799350338231246,
+          "median": 0.8098207479970694,
+          "p90": 6.320507050730502,
+          "worst": 8.916972225669157
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.76844187261655,
+          "median": -6.925931392219378,
+          "p90": -3.033977595385002,
+          "worst": -0.7692593791718085
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.571758546756856,
+          "median": -5.40614365514552,
+          "p90": 2.2759275902756975,
+          "worst": 5.32149508454148
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.472377318639129,
+          "median": -4.220138730833234,
+          "p90": -0.9963802434459827,
+          "worst": 0.3662997524966082
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "chroma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/chroma-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.021374347364821085,
+          "median": 0,
+          "p90": 0.04961069084320481,
+          "worst": 0.18779379367560686,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.019824592959235984,
+          "median": 0,
+          "p90": 0.03242384742130869,
+          "worst": 0.036084540973230834,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.024416688572931357,
+          "median": 0,
+          "p90": 0.11926081896162521,
+          "worst": 0.26139028504350703,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.668158601188875,
+          "median": -8.475046490586791,
+          "p90": -1.3884904166518597,
+          "worst": 5.914588294840236
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 4.094840821620091,
+          "median": 4.128439857303015,
+          "p90": 11.053462070510012,
+          "worst": 11.747702345550541
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.28243529297927916,
+          "median": 1.1794712193439794,
+          "p90": 5.5453967297184565,
+          "worst": 8.769183018446395
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.754924388530794,
+          "median": -6.900783451260015,
+          "p90": -1.6006483794549915,
+          "worst": -0.8734212233792313
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.245790059055516,
+          "median": -1.2312776240643881,
+          "p90": 4.256060032092066,
+          "worst": 5.892781851981196
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.578456486331386,
+          "median": -4.224788567052233,
+          "p90": -0.6734243646749969,
+          "worst": 0.09307044195765207
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "bias",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/bias-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.04316548378850943,
+          "median": -0.011072149835495244,
+          "p90": 0.4665157668866405,
+          "worst": 1.7302013214371204,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.008182591747160944,
+          "median": -0.04130077962764746,
+          "p90": 0.4681366762086171,
+          "worst": 1.782846196341053,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.020037386482717495,
+          "median": 0.01054346732528392,
+          "p90": 1.4309787705665806,
+          "worst": 2.1888766260009898,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.680408186353555,
+          "median": -8.394843002194897,
+          "p90": -1.55989873438755,
+          "worst": 5.39899635531324
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 4.118775240301171,
+          "median": 4.1189573218022275,
+          "p90": 10.722713830636849,
+          "worst": 11.47380069161035
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.2121259515410293,
+          "median": 1.2553506334089093,
+          "p90": 5.105675915465612,
+          "worst": 8.624867474296591
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.683205094234387,
+          "median": -6.863437215469457,
+          "p90": -1.8150453714115464,
+          "worst": -1.1210811604591004
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.225840993074644,
+          "median": -1.872552138639827,
+          "p90": 3.320826264157315,
+          "worst": 5.695100968652479
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.561439417819807,
+          "median": -4.342120939007383,
+          "p90": -0.9463886471651414,
+          "worst": 0.19150420329802278
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "bias-luma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/bias-luma-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.04590086328632095,
+          "median": -0.011072149835495244,
+          "p90": 0.4780086450695174,
+          "worst": 1.7302013214371204,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.008244543084685588,
+          "median": -0.04158950589620253,
+          "p90": 0.46794074217574644,
+          "worst": 1.782846196341053,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.005141249879102729,
+          "median": -0.01794296650923061,
+          "p90": 1.4308512213063582,
+          "worst": 2.1872638558734727,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.677894025821272,
+          "median": -8.394843002194897,
+          "p90": -1.5509334849690577,
+          "worst": 5.399107214670291
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 4.102849847158461,
+          "median": 4.1189573218022275,
+          "p90": 10.721145795722325,
+          "worst": 11.47380069161035
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.2121260194902609,
+          "median": 1.255156687112379,
+          "p90": 5.1043665284207975,
+          "worst": 8.624867474296591
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.680681522452456,
+          "median": -6.863491234574438,
+          "p90": -1.8149989014873134,
+          "worst": -1.1214712185457907
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.2409463302883323,
+          "median": -1.872621080215528,
+          "p90": 3.3200267342640624,
+          "worst": 5.696569884422094
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.561401802084055,
+          "median": -4.3415693900417,
+          "p90": -0.9468155625620153,
+          "worst": 0.1894965907185518
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "centroid",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/centroid-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.14863655715194543,
+          "median": 0.1267256330141777,
+          "p90": 0.4339064343531246,
+          "worst": 0.8707055866766178,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.013775691778719651,
+          "median": -0.07734005024555157,
+          "p90": 0.2380741102299163,
+          "worst": 0.8396126883823176,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.8334130225086422,
+          "median": -0.41032102914834445,
+          "p90": 0.5393703138090411,
+          "worst": 1.2637849506847145,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.44926811794816,
+          "median": -8.496081035938506,
+          "p90": -1.1560685488389033,
+          "worst": 6.301790311828968
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 3.2099803285357464,
+          "median": 3.660172102502583,
+          "p90": 9.191903507738534,
+          "worst": 11.934727963558966
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.357378447886652,
+          "median": 1.0254431735228546,
+          "p90": 5.371859207980576,
+          "worst": 8.674694469958165
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.606420274705966,
+          "median": -6.981646327783757,
+          "p90": -1.4750967129413417,
+          "worst": -0.6673087072602344
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.100269233967655,
+          "median": -3.395567751803572,
+          "p90": 1.450066834746564,
+          "worst": 4.647648312927907
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.593726061533333,
+          "median": -4.358108552060765,
+          "p90": -1.0225255461665945,
+          "worst": -0.09801467426480581
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "centroid-luma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/centroid-luma-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.13946521047770855,
+          "median": 0.05046719014815576,
+          "p90": 0.4870756869855616,
+          "worst": 0.6958061952468452,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.029333817367201538,
+          "median": -0.12405558249908108,
+          "p90": 0.2638802290160815,
+          "worst": 0.8279351016461297,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.8666108210994701,
+          "median": -0.41032102914834445,
+          "p90": 0.4356745592073586,
+          "worst": 1.3031841513932119,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.468191947344453,
+          "median": -8.535511449693875,
+          "p90": -1.2012687516099723,
+          "worst": 6.285493464639921
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 3.17338807668174,
+          "median": 3.64214282967626,
+          "p90": 9.140213037414377,
+          "worst": 11.665588916534979
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.34057171343466913,
+          "median": 0.9863834510189324,
+          "p90": 5.274455613969426,
+          "worst": 8.670945015612013
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.618935542420731,
+          "median": -6.996193506424,
+          "p90": -1.486728879511422,
+          "worst": -0.6787279615293852
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.131875219936823,
+          "median": -3.4154852015390817,
+          "p90": 1.422918529721954,
+          "worst": 4.649572418731613
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.608350717707744,
+          "median": -4.374500013244528,
+          "p90": -1.0137015034816441,
+          "worst": -0.11800698102270592
+        }
+      ],
+      "failures": []
+    }
+  ],
+  "labs": [
+    {
+      "name": "luma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/luma-lab",
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.781698311739136,
+          "median": -6.903968633487235,
+          "p90": -1.8920970893182503,
+          "worst": 7.833433916908657
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.86574922763432,
+          "median": 2.2290517871742654,
+          "p90": 10.534404725924185,
+          "worst": 24.114024336391935
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.6214786195518107,
+          "median": 1.769114600397681,
+          "p90": 4.94102368160104,
+          "worst": 10.475370974879619
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.286239330300395,
+          "median": -5.1235711454509225,
+          "p90": -1.573994277043881,
+          "worst": 1.2933459085870376
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.201222379891862,
+          "median": -3.7499909383047396,
+          "p90": 3.300682866530695,
+          "worst": 8.704872946843887
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -4.8089098549254405,
+          "median": -3.504330124321553,
+          "p90": -0.2802368278930045,
+          "worst": 1.545630698544609
+        }
+      ],
+      "failures": [],
+      "managedPeakBytes": 9272693,
+      "gates": {
+        "control": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -0.24031801470349615,
+            "median": -0.0708087445321859,
+            "p90": 0.31487579115753045,
+            "worst": 1.5270689365684966,
+            "fullBandCount": 46
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -0.09032662293061794,
+            "median": -0.04922891322102851,
+            "p90": 0.5855810352104269,
+            "worst": 1.3899922225500996,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": 0.42314922647471487,
+            "median": 0.014350119848677047,
+            "p90": 4.146592886982869,
+            "worst": 6.928859152801086,
+            "fullBandCount": 0
+          }
+        ],
+        "production": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -7.417097303538491,
+            "median": -5.627651495016437,
+            "p90": -0.2623841665074859,
+            "worst": 8.226536214871224,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -9.898924994818035,
+            "median": -6.6841462151111255,
+            "p90": -1.0668829640328434,
+            "worst": 14.083322290506576,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -9.224863375572063,
+            "median": -6.994106578607148,
+            "p90": 1.326627446880797,
+            "worst": 37.685451849706666,
+            "fullBandCount": 0
+          }
+        ],
+        "fullBand": [
+          {
+            "id": "im26-1468-lab",
+            "metric": "ssimulacra2",
+            "percent": -2.5359323149098647,
+            "meanLogRateDifference": -0.025686412473756567,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.65782564,
+              "maximum": 92.91651994
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.744458420476978,
+            "meanLogRateDifference": 0.036760558881521396,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.30174578,
+              "maximum": 90.89381622
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2008-lab",
+            "metric": "ssimulacra2",
+            "percent": -3.5610070578637307,
+            "meanLogRateDifference": -0.036259575055064865,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 57.3705072,
+              "maximum": 91.31299696
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2014-lab",
+            "metric": "ssimulacra2",
+            "percent": -0.8273833393222932,
+            "meanLogRateDifference": -0.008308251530833862,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 58.70601905,
+              "maximum": 91.66695411
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3002-lab",
+            "metric": "ssimulacra2",
+            "percent": -5.6998349938116855,
+            "meanLogRateDifference": -0.058687246549698105,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 59.97827243,
+              "maximum": 93.40457582
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.3196042341576337,
+            "meanLogRateDifference": 0.032656951745932854,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 53.26136961,
+              "maximum": 93.15062639
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.177942247166964,
+            "meanLogRateDifference": 0.06932027885686694,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 39.29881957,
+              "maximum": 92.56075542
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3316-lab",
+            "metric": "ssimulacra2",
+            "percent": -3.564051962604129,
+            "meanLogRateDifference": -0.03629114893112349,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 55.11315292,
+              "maximum": 92.19168328
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          }
+        ],
+        "failures": [],
+        "tails": [
+          {
+            "id": "im26-2004-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.744458420476978,
+            "meanLogRateDifference": 0.036760558881521396,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.30174578,
+              "maximum": 90.89381622
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 0.24728319158448764,
+            "meanLogRateDifference": 0.0024697794980447123,
+            "overlap": {
+              "minimum": 0.324245,
+              "maximum": 1.703639
+            },
+            "measuredOverlap": {
+              "minimum": 0.324245,
+              "maximum": 1.703639
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliMax",
+            "percent": -1.306386940212194,
+            "meanLogRateDifference": -0.013149952282927051,
+            "overlap": {
+              "minimum": 0.708692193,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.708692193,
+              "maximum": 3.1432104111
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.226536214871224,
+            "meanLogRateDifference": 0.0790564018788147,
+            "overlap": {
+              "minimum": 62.81961676,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 62.81961676,
+              "maximum": 94.15582291
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 14.083322290506576,
+            "meanLogRateDifference": 0.13175889271620855,
+            "overlap": {
+              "minimum": 0.287254,
+              "maximum": 1.271379
+            },
+            "measuredOverlap": {
+              "minimum": 0.287254,
+              "maximum": 1.271379
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliMax",
+            "percent": 37.685451849706666,
+            "meanLogRateDifference": 0.3198015631099079,
+            "overlap": {
+              "minimum": 0.7008120418,
+              "maximum": 2.9034187794
+            },
+            "measuredOverlap": {
+              "minimum": 0.7008120418,
+              "maximum": 2.9034187794
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.3196042341576337,
+            "meanLogRateDifference": 0.032656951745932854,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 53.26136961,
+              "maximum": 93.15062639
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "butteraugliNorm3",
+            "percent": -0.17555559508977983,
+            "meanLogRateDifference": -0.0017570987451516597,
+            "overlap": {
+              "minimum": 0.307183,
+              "maximum": 1.701006
+            },
+            "measuredOverlap": {
+              "minimum": 0.307183,
+              "maximum": 1.701006
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "butteraugliMax",
+            "percent": -1.7613777412773657,
+            "meanLogRateDifference": -0.017770745926986464,
+            "overlap": {
+              "minimum": 0.6313524246,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6313524246,
+              "maximum": 3.3753526211
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.177942247166964,
+            "meanLogRateDifference": 0.06932027885686694,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 39.29881957,
+              "maximum": 92.56075542
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "butteraugliNorm3",
+            "percent": -2.1901738438887497,
+            "meanLogRateDifference": -0.022145142050409607,
+            "overlap": {
+              "minimum": 0.304552,
+              "maximum": 2.303845
+            },
+            "measuredOverlap": {
+              "minimum": 0.304552,
+              "maximum": 2.303845
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.306272711481976,
+            "meanLogRateDifference": 0.061154107134170466,
+            "overlap": {
+              "minimum": 0.6047570705,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6047570705,
+              "maximum": 4.3801188469
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ],
+        "largestRegressions": [
+          {
+            "id": "im26-2014-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.928859152801086,
+            "meanLogRateDifference": 0.06699355962041714,
+            "overlap": {
+              "minimum": 0.800989747,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.800989747,
+              "maximum": 4.5393762589
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1002-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.770951470684125,
+            "meanLogRateDifference": 0.06551571356715363,
+            "overlap": {
+              "minimum": 0.8900420666,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.8900420666,
+              "maximum": 5.181728363
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.4083363552055435,
+            "meanLogRateDifference": 0.06211373705337375,
+            "overlap": {
+              "minimum": 0.7008120418,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7008120418,
+              "maximum": 4.9233150482
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3318-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.124154957696719,
+            "meanLogRateDifference": 0.05943949590450166,
+            "overlap": {
+              "minimum": 0.6490680575,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6490680575,
+              "maximum": 5.3995804787
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "butteraugliMax",
+            "percent": 4.842280870529211,
+            "meanLogRateDifference": 0.04728694795851608,
+            "overlap": {
+              "minimum": 0.64282161,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.64282161,
+              "maximum": 5.4692893028
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1408-lab",
+            "metric": "butteraugliMax",
+            "percent": 4.566615704698447,
+            "meanLogRateDifference": 0.04465415317689326,
+            "overlap": {
+              "minimum": 0.6421160698,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6421160698,
+              "maximum": 5.5944418907
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2408-lab",
+            "metric": "butteraugliMax",
+            "percent": 4.265133703193904,
+            "meanLogRateDifference": 0.04176683157177774,
+            "overlap": {
+              "minimum": 0.7142156363,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7142156363,
+              "maximum": 5.5103826523
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3008-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.8699976491571184,
+            "meanLogRateDifference": 0.03796990861907925,
+            "overlap": {
+              "minimum": 0.6085464954,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6085464954,
+              "maximum": 4.7783699036
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "centroid-luma",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/centroid-luma-lab",
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.504067272173375,
+          "median": -6.738812053245113,
+          "p90": -1.5595763636995996,
+          "worst": 7.833158863556809
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.956203464069,
+          "median": 3.2132698828872357,
+          "p90": 10.715505500737635,
+          "worst": 22.902949178248004
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.7694322987112949,
+          "median": 1.3872669201670809,
+          "p90": 5.169490692678889,
+          "worst": 10.37138491610506
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -8.046464217371307,
+          "median": -5.078814780323471,
+          "p90": -1.19852450817799,
+          "worst": 1.2930753042188592
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -5.255373045455781,
+          "median": -3.3100912014765345,
+          "p90": 1.9834907494731921,
+          "worst": 6.344250802718611
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -4.709850372951298,
+          "median": -3.3094576920067165,
+          "p90": -0.4660650605133586,
+          "worst": 1.5712960652645804
+        }
+      ],
+      "failures": [],
+      "managedPeakBytes": 9268653,
+      "gates": {
+        "control": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": 0.051056347369966934,
+            "median": 0.05725660274591773,
+            "p90": 0.44492185991958233,
+            "worst": 1.693204173169837,
+            "fullBandCount": 46
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": 0.02205662909796454,
+            "median": 0.03868870068061628,
+            "p90": 0.32247535171883357,
+            "worst": 1.0778562657197288,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": 0.3005285648723612,
+            "median": 0.12715130825031384,
+            "p90": 3.159732227372346,
+            "worst": 7.136296098308259,
+            "fullBandCount": 0
+          }
+        ],
+        "production": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -7.176414226024439,
+            "median": -5.688825732244311,
+            "p90": 0.8049756129020325,
+            "worst": 8.5227367868938,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -9.797409691027921,
+            "median": -6.492631712753147,
+            "p90": -1.0125057278439638,
+            "worst": 12.243643789013596,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -9.142815779501145,
+            "median": -8.17802284447476,
+            "p90": 3.349801497594871,
+            "worst": 31.746286063783764,
+            "fullBandCount": 0
+          }
+        ],
+        "fullBand": [
+          {
+            "id": "im26-1468-lab",
+            "metric": "ssimulacra2",
+            "percent": -2.207837751011218,
+            "meanLogRateDifference": -0.02232575276213614,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.65782564,
+              "maximum": 92.92537801
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "ssimulacra2",
+            "percent": 6.836418290159071,
+            "meanLogRateDifference": 0.06612867763855282,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.30174578,
+              "maximum": 91.0423523
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2008-lab",
+            "metric": "ssimulacra2",
+            "percent": -3.4861605504274467,
+            "meanLogRateDifference": -0.035483773940745776,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 57.3705072,
+              "maximum": 91.37852993
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2014-lab",
+            "metric": "ssimulacra2",
+            "percent": 0.9818069133793911,
+            "meanLogRateDifference": 0.009770185057387455,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 58.70601905,
+              "maximum": 91.88377599
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3002-lab",
+            "metric": "ssimulacra2",
+            "percent": -5.623218906143763,
+            "meanLogRateDifference": -0.057875106079304336,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 59.97827243,
+              "maximum": 93.41095938
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.2493666173134637,
+            "meanLogRateDifference": 0.03197691137722245,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 53.26136961,
+              "maximum": 93.17495642
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.23840661158599,
+            "meanLogRateDifference": 0.07916607688273605,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 39.29881957,
+              "maximum": 92.53744234
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3316-lab",
+            "metric": "ssimulacra2",
+            "percent": -2.4512914854066317,
+            "meanLogRateDifference": -0.02481835822143997,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 55.11315292,
+              "maximum": 92.17876689
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          }
+        ],
+        "failures": [
+          {
+            "id": "im26-3302-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.23840661158599,
+            "meanLogRateDifference": 0.07916607688273605,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 39.29881957,
+              "maximum": 92.53744234
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          }
+        ],
+        "tails": [
+          {
+            "id": "im26-2004-lab",
+            "metric": "ssimulacra2",
+            "percent": 6.836418290159071,
+            "meanLogRateDifference": 0.06612867763855282,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 51.30174578,
+              "maximum": 91.0423523
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 1.8942130991527517,
+            "meanLogRateDifference": 0.01876496262947378,
+            "overlap": {
+              "minimum": 0.317547,
+              "maximum": 1.703639
+            },
+            "measuredOverlap": {
+              "minimum": 0.317547,
+              "maximum": 1.703639
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliMax",
+            "percent": 0.32522097665942695,
+            "meanLogRateDifference": 0.0032469327705812027,
+            "overlap": {
+              "minimum": 0.6992194057,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6992194057,
+              "maximum": 3.1432104111
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.5227367868938,
+            "meanLogRateDifference": 0.08178952067828099,
+            "overlap": {
+              "minimum": 62.81961676,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 62.81961676,
+              "maximum": 94.20784728
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 12.243643789013596,
+            "meanLogRateDifference": 0.11550171354335942,
+            "overlap": {
+              "minimum": 0.27043,
+              "maximum": 1.271379
+            },
+            "measuredOverlap": {
+              "minimum": 0.27043,
+              "maximum": 1.271379
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliMax",
+            "percent": 31.746286063783764,
+            "meanLogRateDifference": 0.275707811766862,
+            "overlap": {
+              "minimum": 0.6035792828,
+              "maximum": 2.9034187794
+            },
+            "measuredOverlap": {
+              "minimum": 0.6035792828,
+              "maximum": 2.9034187794
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "ssimulacra2",
+            "percent": 3.2493666173134637,
+            "meanLogRateDifference": 0.03197691137722245,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 53.26136961,
+              "maximum": 93.17495642
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "butteraugliNorm3",
+            "percent": -0.7788718195142177,
+            "meanLogRateDifference": -0.007819208685115507,
+            "overlap": {
+              "minimum": 0.305593,
+              "maximum": 1.701006
+            },
+            "measuredOverlap": {
+              "minimum": 0.305593,
+              "maximum": 1.701006
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3012-lab",
+            "metric": "butteraugliMax",
+            "percent": -4.878611099791139,
+            "meanLogRateDifference": -0.050016332154041575,
+            "overlap": {
+              "minimum": 0.6427912116,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6427912116,
+              "maximum": 3.3753526211
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "ssimulacra2",
+            "percent": 8.23840661158599,
+            "meanLogRateDifference": 0.07916607688273605,
+            "overlap": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 39.29881957,
+              "maximum": 92.53744234
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": true
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "butteraugliNorm3",
+            "percent": -2.2603797991952597,
+            "meanLogRateDifference": -0.022863179964920086,
+            "overlap": {
+              "minimum": 0.30407,
+              "maximum": 2.303845
+            },
+            "measuredOverlap": {
+              "minimum": 0.30407,
+              "maximum": 2.303845
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3302-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.092215392599905,
+            "meanLogRateDifference": 0.030453696777743705,
+            "overlap": {
+              "minimum": 0.6047568917,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6047568917,
+              "maximum": 4.3801188469
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ],
+        "largestRegressions": [
+          {
+            "id": "im26-1234-lab",
+            "metric": "butteraugliMax",
+            "percent": 7.136296098308259,
+            "meanLogRateDifference": 0.06893163319613602,
+            "overlap": {
+              "minimum": 0.6694563627,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6694563627,
+              "maximum": 5.159696579
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2014-lab",
+            "metric": "butteraugliMax",
+            "percent": 5.582536618888223,
+            "meanLogRateDifference": 0.054322798681264606,
+            "overlap": {
+              "minimum": 0.7935958505,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7935958505,
+              "maximum": 4.5393762589
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2400-lab",
+            "metric": "butteraugliMax",
+            "percent": 5.506796691009565,
+            "meanLogRateDifference": 0.053605188464383155,
+            "overlap": {
+              "minimum": 0.7985334992,
+              "maximum": 2.8797698021
+            },
+            "measuredOverlap": {
+              "minimum": 0.7985334992,
+              "maximum": 2.8797698021
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3306-lab",
+            "metric": "butteraugliMax",
+            "percent": 4.946458013176377,
+            "meanLogRateDifference": 0.04828011043010167,
+            "overlap": {
+              "minimum": 0.6643423438,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6643423438,
+              "maximum": 5.503051281
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1468-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.778801995971505,
+            "meanLogRateDifference": 0.03709154419602677,
+            "overlap": {
+              "minimum": 0.6860474348,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6860474348,
+              "maximum": 4.0541410446
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1212-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.387274733080608,
+            "meanLogRateDifference": 0.03331170016725851,
+            "overlap": {
+              "minimum": 0.6749902368,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6749902368,
+              "maximum": 4.9748353958
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1002-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.1620899145786465,
+            "meanLogRateDifference": 0.031131253782411925,
+            "overlap": {
+              "minimum": 0.8866914511,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.8866914511,
+              "maximum": 5.1444072723
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1408-lab",
+            "metric": "butteraugliMax",
+            "percent": 3.1542309572243097,
+            "meanLogRateDifference": 0.031055070208325986,
+            "overlap": {
+              "minimum": 0.6421160698,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.6421160698,
+              "maximum": 5.5944418907
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    }
+  ],
+  "retainedMode": "standalone-selector-pairs",
+  "experimentsReverted": true,
+  "experimentPatch": "benchmark/jpegxl/lossy-lab/CENTROID-EXPERIMENT.patch",
+  "isolatedSpeed": [
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/luma-speed.json",
+      "modes": [
+        "standalone-selector-pairs",
+        "standalone-round-luma"
+      ],
+      "samples": 15,
+      "byteIdentical": false,
+      "baseline": {
+        "median": 1165.881515000001,
+        "mad": 36.4149639999996,
+        "iqr": 99.94600999999602,
+        "cv": 0.0510977417409864
+      },
+      "candidate": {
+        "median": 1317.1823669999994,
+        "mad": 52.030674999998155,
+        "iqr": 99.94690099999934,
+        "cv": 0.04095924614203557
+      },
+      "paired": {
+        "median": 10.346736975614213,
+        "mad": 4.16493870340231,
+        "iqr": 6.829909138074575,
+        "cv": 0.4702080165436408
+      },
+      "wins": 0,
+      "peakManagedBytes": 5682267
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/centroid-luma-speed.json",
+      "modes": [
+        "standalone-selector-pairs",
+        "standalone-round-centroid-luma"
+      ],
+      "samples": 15,
+      "byteIdentical": false,
+      "baseline": {
+        "median": 1147.3238390000006,
+        "mad": 28.40472199999931,
+        "iqr": 54.8487030000033,
+        "cv": 0.03497117384634163
+      },
+      "candidate": {
+        "median": 1181.794296,
+        "mad": 46.14671200000157,
+        "iqr": 130.81084600000167,
+        "cv": 0.09902838527229384
+      },
+      "paired": {
+        "median": 2.6039486470258666,
+        "mad": 5.041067071303229,
+        "iqr": 11.489869632268647,
+        "cv": 2.507639664670371
+      },
+      "wins": 6,
+      "peakManagedBytes": 5680219
+    }
+  ],
+  "independent": [
+    {
+      "name": "luma",
+      "points": 576,
+      "maximum": 1
+    },
+    {
+      "name": "centroid-luma",
+      "points": 576,
+      "maximum": 1
+    }
+  ],
+  "screenReversal": [
+    {
+      "name": "luma",
+      "groups": [
+        {
+          "name": "screen 16, five distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 16,
+              "mean": -0.028221967503045644
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 16,
+              "mean": 0.1242997706472064
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 16,
+              "mean": -1.2953321930372201
+            }
+          ]
+        },
+        {
+          "name": "screen 16, full nine distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 16,
+              "mean": -0.3390253022549726
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 16,
+              "mean": -0.17894507422355044
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 16,
+              "mean": 0.8324381531537344
+            }
+          ]
+        },
+        {
+          "name": "other 48, full nine distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 48,
+              "mean": -0.20741558551967074
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 48,
+              "mean": -0.06078713916630704
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 48,
+              "mean": 0.2867195842483751
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "centroid-luma",
+      "groups": [
+        {
+          "name": "screen 16, five distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 16,
+              "mean": 0.13946521047770855
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 16,
+              "mean": -0.029333817367201538
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 16,
+              "mean": -0.8666108210994701
+            }
+          ]
+        },
+        {
+          "name": "screen 16, full nine distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 16,
+              "mean": 0.01925978943157669
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 16,
+              "mean": -0.07664469746712582
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 16,
+              "mean": 1.0645926137480342
+            }
+          ]
+        },
+        {
+          "name": "other 48, full nine distances",
+          "metrics": [
+            {
+              "metric": "ssimulacra2",
+              "count": 48,
+              "mean": 0.06165520001609701
+            },
+            {
+              "metric": "butteraugliNorm3",
+              "count": 48,
+              "mean": 0.054957071286328006
+            },
+            {
+              "metric": "butteraugliMax",
+              "count": 48,
+              "mean": 0.04584054858047015
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "unionCurveDiagnostic": [
+    {
+      "name": "luma",
+      "means": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.19430595577690057
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.07486429165356136
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.19152215135881503
+        }
+      ]
+    },
+    {
+      "name": "centroid-luma",
+      "means": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.08588367257638428
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.07178373920568276
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.09960860091492046
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "experimentalFullCheckPassed": true,
+    "experimentalTests": 4131,
+    "skips": 3,
+    "testSeconds": 1192.28,
+    "focusedTests": 78,
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "bundleBytes": [
+      614941,
+      687773
+    ],
+    "restoredFocusedTests": 72,
+    "restoredCodeEqualsBase": true
+  },
+  "plateau": {
+    "qualityTrialsSinceLastRetainedQualityChange": 15,
+    "retainedQualityGains": 0,
+    "stopped": true
+  },
+  "previousQualifiedRetainedSpeed": {
+    "cropRatio": 2.8644466717,
+    "original13MpRatio": 1.851700118,
+    "rerun": false
+  },
+  "unionCurveArtifact": ".tmp/jpegxl-lossy-lab/standalone-centroids-20261014/union-curves.json"
+}
