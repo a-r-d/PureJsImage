@@ -1,0 +1,63 @@
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_132eb8f197bb2d 205-214
+tests/jpegxl-libjxl-strategy-port.test.ts
+  s_42a303a21f7525::t_108941f2332c9a 52-55,58,166
+  s_42a303a21f7525::t_4350df9796d569 56-57
+benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+  s_42a303a21f7525::t_6e969d7bfdd048 54-57,68-77,192,205,208
+  s_42a303a21f7525::t_4350df9796d569 79
+  s_42a303a21f7525::t_df143a6e7ae99e 59-60,78,80-81,83,92,193,204,209
+  s_42a303a21f7525::t_108941f2332c9a 58,203
+benchmark/jpegxl/lossy-lab/WRITER-REPORT.md
+  s_42a303a21f7525::t_3958446ee33e00 110-111
+  s_42a303a21f7525::t_6e26a4a538f1d6 101-105
+  s_42a303a21f7525::t_86837f6e28733b 112-117
+  s_42a303a21f7525::t_5f4ce823f40923 131-152
+  s_42a303a21f7525::t_b21273612a5ce9 80-88
+  s_42a303a21f7525::t_e3ca96d54b8dc6 1-33,62-79,89-90,107-109,125-130
+  s_42a303a21f7525::t_d94820fca3df62 98-100,106
+  s_42a303a21f7525::t_3e32a837b6368a 34-43,52,91-97,118-124
+  s_42a303a21f7525::t_cdb6a6dc22d626 44-51
+  s_42a303a21f7525::t_7f27849df53924 53-61
+benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+  s_42a303a21f7525::t_6e969d7bfdd048 16-17,86,122,168-174,222-223,225,264
+  s_42a303a21f7525::t_108941f2332c9a 138-141
+  s_42a303a21f7525::t_df143a6e7ae99e 88,124,163
+  s_42a303a21f7525::t_4eb2bad5ca5bb0 40,87,123,133-137,523
+benchmark/jpegxl/lossy-lab/selector-transforms.ts
+  s_42a303a21f7525::t_4eb2bad5ca5bb0 146-198
+benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+  s_42a303a21f7525::t_4350df9796d569 68-69,146-147
+  s_42a303a21f7525::t_108941f2332c9a 65-67,70-71,143-145,148-149,178-181,189-192
+tests/jpegxl-development-transforms.test.ts
+  s_42a303a21f7525::t_108941f2332c9a 6,48-50
+benchmark/jpegxl/lossy-lab/WRITER-REPORT.json
+  s_42a303a21f7525::t_67d5b97b111ec5 1-1290
+tests/helpers/jpegxl-decision-transplant.ts
+  s_42a303a21f7525::t_406197972fc62d 174-177
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_b7a58b9e722432 1872-1873
+  s_42a303a21f7525::t_168f5e17547707 1876-1877
+  s_42a303a21f7525::t_ba1cee6d6e8708 1874-1875
+  s_42a303a21f7525::t_12960cf81682b2 1880-1881
+  s_42a303a21f7525::t_d8f4b06c8526bc 1887
+  s_42a303a21f7525::t_6214154492ff49 1878-1879
+  s_42a303a21f7525::t_67d5b97b111ec5 3-4,6-7,10-23,1886
+  s_42a303a21f7525::t_bfb5bcbedec8da 1856-1871,1882-1885
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "eade5bff694101553e470b2276f4fcc62b326a2e",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
