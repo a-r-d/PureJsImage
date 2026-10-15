@@ -1,0 +1,19 @@
+benchmark/jpegxl/lossy-lab/MERGE-EXPERIMENT.patch
+  s_c2b6cc73f1c634::t_a63cfa7dd6f034 57,184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6f282d5132984b33187df9023804c1722fec0ab6",
+  "prompts": {},
+  "sessions": {
+    "s_c2b6cc73f1c634": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13fce-110d-7420-9829-228d7d625aae",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
