@@ -13,6 +13,8 @@
  * Optional error guard is our own.
  * Bounded caching, admissible cost pruning, Y-first evaluation, tile traversal
  * and the compact candidate menu are first-party speed adaptations.
+ * Writer-estimate experiments independently match the final quantization field,
+ * chroma matrix scales and rate-aware rounding used by our writer.
  * Tiny's split-cost literal is written as its representable JavaScript double.
  * This is a development experiment, never imported by the public encoder.
  */
@@ -35,6 +37,7 @@ import { forwardDevelopmentTransform } from './transform-kernels.ts'
 import {
   forwardSelectorTransform,
   forwardSymmetricSelectorTransform,
+  forwardPairedSelectorTransform,
 } from './selector-transforms.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
@@ -80,6 +83,9 @@ export interface StrategyOptions {
   symmetricInverse?: boolean
   limit16?: boolean
   compactStorage?: boolean
+  writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
+  pairedTransform?: boolean
+  lossScale?: number
 }
 
 export function strategyPortOverrides(
@@ -113,6 +119,9 @@ function selectGeometry(
     symmetricInverse = false,
     limit16 = false,
     compactStorage = false,
+    writerEstimate,
+    pairedTransform = false,
+    lossScale = 1,
   } = options
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
@@ -121,11 +130,15 @@ function selectGeometry(
   if (initialField && (mode !== 'spatial-source' || initialField.length !== blockCount))
     throw new Error('Invalid floating selector field')
   const selectionField = initialField ?? base.quantizationMap
-  const transform = symmetric
-    ? forwardSymmetricSelectorTransform
-    : fastTransforms
-      ? forwardSelectorTransform
-      : forwardDevelopmentTransform
+  const pairs = pairedTransform ? memory.allocate(Float64Array, 64) : undefined
+  const transform = pairs
+    ? (strategy: number, pixels: Float32Array, scratch: Float64Array, output: Float64Array) =>
+        forwardPairedSelectorTransform(strategy, pixels, scratch, output, pairs)
+    : symmetric
+      ? forwardSymmetricSelectorTransform
+      : fastTransforms
+        ? forwardSelectorTransform
+        : forwardDevelopmentTransform
   const inverse = symmetricInverse ? inverseSelectorTransform : inverseJpegXlDevelopmentTransform
   const strategies = memory.allocate(Int32Array, blockCount)
   const first = memory.allocate(Uint8Array, blockCount)
@@ -147,12 +160,18 @@ function selectGeometry(
   const spatial = memory.allocate(Float32Array, 4096)
   const active = memory.allocate(Uint16Array, 64)
   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
-  const infoWeight = 1.2 * ratio ** 0.33677806662454718
+  const infoWeight = 1.2 * ratio ** 0.33677806662454718 * lossScale
   const zeroWeight = 9.3089059022677905 * ratio ** 0.50990926717963703
   const magnitudeWeight = 10.833273317067883 * ratio ** 0.36702940662370243
   const invGlobal = 65536 / base.globalScale
   const tiny = mode === 'tiny'
-  const actualRounding = mode === 'spatial-actual' || mode === 'spatial-actual-guarded'
+  const actualRounding =
+    mode === 'spatial-actual' ||
+    mode === 'spatial-actual-guarded' ||
+    writerEstimate === 'rounding' ||
+    writerEstimate === 'all'
+  const writerField = writerEstimate === 'field' || writerEstimate === 'all'
+  const writerMatrices = writerEstimate === 'matrices' || writerEstimate === 'all'
   const guarded = mode === 'spatial-guarded' || mode === 'spatial-actual-guarded'
   const maskField =
     !boundedMask &&
@@ -200,8 +219,10 @@ function selectGeometry(
         bw,
         bh,
         distance,
-        true,
+        !writerField,
+        false,
       )
+    if (writerField) quantizer = Math.max(1, Math.min(256, Math.floor(quantizer + 0.5)))
     for (let c = prune ? 1 : 0; c < (prune ? 2 : 3); c++) {
       const source = planes[c],
         output = transformed[c]
@@ -240,7 +261,7 @@ function selectGeometry(
               (base.correlationB?.[tile] ?? 0) / (base.developmentCorrelation?.colorFactor ?? 84)
             : 0
       const channelScale =
-        mode === 'spatial-source'
+        mode === 'spatial-source' && !writerMatrices
           ? 1
           : c === 0
             ? 0.8 ** ((base.xScale ?? 2) - 2)
@@ -499,6 +520,7 @@ function selectGeometry(
   ])
     memory.release(buffer)
   if (maskField) memory.release(maskField)
+  if (pairs) memory.release(pairs)
   tileMask?.release()
   const adjusted = mode === 'spatial-source' ? memory.allocate(Int32Array, blockCount) : undefined
   if (adjusted) {

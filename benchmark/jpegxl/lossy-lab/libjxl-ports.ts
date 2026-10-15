@@ -62,6 +62,13 @@ export function parseLibjxlPort(value: string): LibjxlPort {
     value === 'standalone-guard-hf375' ||
     value === 'standalone-guard-packed' ||
     value === 'standalone-guard-source-cache' ||
+    value === 'standalone-writer-field' ||
+    value === 'standalone-writer-rounding' ||
+    value === 'standalone-writer-matrices' ||
+    value === 'standalone-loss75' ||
+    value === 'standalone-loss125' ||
+    value === 'standalone-selector-pairs' ||
+    value === 'standalone-writer-all' ||
     value === 'standalone-guard-bounded'
   )
     return value
@@ -133,6 +140,13 @@ export function libjxlPortOverrides(
     mode === 'standalone-guard-hf375' ||
     mode === 'standalone-guard-packed' ||
     mode === 'standalone-guard-source-cache' ||
+    mode === 'standalone-writer-field' ||
+    mode === 'standalone-writer-rounding' ||
+    mode === 'standalone-writer-matrices' ||
+    mode === 'standalone-loss75' ||
+    mode === 'standalone-loss125' ||
+    mode === 'standalone-selector-pairs' ||
+    mode === 'standalone-writer-all' ||
     mode === 'standalone-guard-bounded'
   )
     return libjxlStandaloneOverrides(distance, width, height, mode)
@@ -161,7 +175,10 @@ export function libjxlPortOverrides(
             return select(
               {
                 ...base,
-                developmentFilters: { gaborish: true, epfIterations: base.sharpnessMap ? 2 : 0 },
+                developmentFilters: {
+                  gaborish: true,
+                  epfIterations: base.sharpnessMap ? 2 : 0,
+                },
               },
               filtered,
             )
@@ -169,7 +186,10 @@ export function libjxlPortOverrides(
           return rewriteStrategyGeometry(
             {
               ...base,
-              developmentFilters: { gaborish: true, epfIterations: base.sharpnessMap ? 2 : 0 },
+              developmentFilters: {
+                gaborish: true,
+                epfIterations: base.sharpnessMap ? 2 : 0,
+              },
             },
             filtered,
             decisions,

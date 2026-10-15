@@ -49,6 +49,13 @@ it.each([
   'standalone-guard-packed',
   'standalone-guard-source-cache',
   'standalone-guard-bounded',
+  'standalone-writer-field',
+  'standalone-writer-rounding',
+  'standalone-writer-matrices',
+  'standalone-writer-all',
+  'standalone-loss75',
+  'standalone-loss125',
+  'standalone-selector-pairs',
   'standalone-sharp2',
   'standalone-epf0',
   'standalone-16',
@@ -156,6 +163,7 @@ it('preserves coherent streams with bounded source caching and packed AC storage
       'standalone-guard-packed',
       'standalone-guard-source-cache',
       'standalone-guard-bounded',
+      'standalone-selector-pairs',
     ] as const) {
       const result = await encodeTransplant(
         pixels,

@@ -1,0 +1,1290 @@
+{
+  "base": "ef651e29d4990167d3ecdd4fe0346d898bb4bc13",
+  "branch": "jxl-libjxl-ports",
+  "holdoutOpened": false,
+  "publicSourceChanged": false,
+  "promoted": false,
+  "retainedMode": "standalone-selector-pairs",
+  "screens": [
+    {
+      "name": "field",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/field-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.23338270878110653,
+          "median": 0.23833008856128887,
+          "p90": 0.6459412021207831,
+          "worst": 1.6023801125758266,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.06719331924286054,
+          "median": -0.019424354802493972,
+          "p90": 0.43787754822636094,
+          "worst": 2.0523517251171954,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.8090408679233406,
+          "median": -0.06502176694421685,
+          "p90": 0.9472514852057774,
+          "worst": 4.182509217628869,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.429993542654621,
+          "median": -8.329219931856763,
+          "p90": -0.841042736494343,
+          "worst": 6.578958300003279
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 3.2616221230072897,
+          "median": 2.266076559436388,
+          "p90": 11.236723571943932,
+          "worst": 11.980193691928813
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.34554671455586017,
+          "median": 1.1614778474264853,
+          "p90": 5.388126632429098,
+          "worst": 9.141106759939513
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.531024270927551,
+          "median": -6.607198817048419,
+          "p90": -1.3995595175355264,
+          "worst": -0.5433370439463061
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.0456579053857835,
+          "median": -3.720872469095762,
+          "p90": 2.716612286314579,
+          "worst": 6.682109633421806
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.492223932911334,
+          "median": -4.113864257867628,
+          "p90": -1.018493247094172,
+          "worst": 0.02554265897119939
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "rounding",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/rounding-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.09854628988683609,
+          "median": 0.11518324117064865,
+          "p90": 1.2090096407705069,
+          "worst": 1.7302013214371204,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.20620665451660633,
+          "median": 0.157927427919439,
+          "p90": 1.1966431917978553,
+          "worst": 1.782846196341053,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.1408993951388549,
+          "median": -0.01268651584134476,
+          "p90": 1.5366263952884132,
+          "worst": 3.857845733937869,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.659468698208807,
+          "median": -8.120559830347204,
+          "p90": -1.8648366369620968,
+          "worst": 3.5587265320141723
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.9002164596241866,
+          "median": 2.144885952466586,
+          "p90": 10.902852148140006,
+          "worst": 16.08659129037463
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.3909517300227303,
+          "median": 1.291701557526701,
+          "p90": 6.441188606377574,
+          "worst": 8.979921669344076
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.650365225622805,
+          "median": -6.929983898205204,
+          "p90": -2.849219222267058,
+          "worst": -0.7277670100691521
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.4182027226527385,
+          "median": -5.360420911823011,
+          "p90": 2.2799619600742758,
+          "worst": 5.32149508454148
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.394646470078959,
+          "median": -4.2253584966333,
+          "p90": -1.0179781409060022,
+          "worst": 0.28445094051599806
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "matrices",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/matrices-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0,
+          "median": 0,
+          "p90": 0,
+          "worst": 0,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0,
+          "median": 0,
+          "p90": 0,
+          "worst": 0,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0,
+          "median": 0,
+          "p90": 0,
+          "worst": 0,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.649888988772055,
+          "median": -8.47041943802468,
+          "p90": -1.350633749023715,
+          "worst": 5.914337276480893
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 4.119523360324015,
+          "median": 4.172365748393641,
+          "p90": 11.046428574276481,
+          "worst": 11.686441872723922
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.3018063897718076,
+          "median": 1.1919725158514956,
+          "p90": 5.5268048865102015,
+          "worst": 8.752981348601859
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.735274419462014,
+          "median": -6.908757520033547,
+          "p90": -1.566445594758938,
+          "worst": -0.8713486694049051
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.218698198729483,
+          "median": -1.1672661213083981,
+          "p90": 4.318900945160843,
+          "worst": 5.892781851981196
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.559996941364992,
+          "median": -4.256239977382336,
+          "p90": -0.6508790718318349,
+          "worst": 0.09111268526192572
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "all",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/all-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.20515844658267102,
+          "median": 0.16697560736923628,
+          "p90": 0.789532279033256,
+          "worst": 1.7040531869322018,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.33493309551505784,
+          "median": 0.23307978637013915,
+          "p90": 0.9916410903641732,
+          "worst": 1.2954471117902864,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.03931809761130813,
+          "median": 0.09454276044309412,
+          "p90": 2.9730293168398996,
+          "worst": 7.254455955232239,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.486447894954992,
+          "median": -8.370042880387151,
+          "p90": -1.1990758766249898,
+          "worst": 4.406992425417674
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 4.085870352526484,
+          "median": 4.505911379914475,
+          "p90": 11.255388654631687,
+          "worst": 14.818072437859728
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.5553643489309066,
+          "median": 1.0277379329481833,
+          "p90": 6.029430986714283,
+          "worst": 8.287200865319742
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.559797492391528,
+          "median": -6.062823032003054,
+          "p90": -2.3584236278368502,
+          "worst": -0.5261439969310004
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.231460318842017,
+          "median": -2.7050255039287494,
+          "p90": 3.1181519356675524,
+          "worst": 6.251193716955288
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.271848524449303,
+          "median": -3.728453947075625,
+          "p90": -0.7426712543470262,
+          "worst": 0.32103502954219454
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "loss75",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/loss75-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.08621671054609724,
+          "median": -0.20413270880190268,
+          "p90": 1.4229627704157977,
+          "worst": 2.0747048417430256,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.0481804170730056,
+          "median": -0.20392237205514813,
+          "p90": 1.1069554171307763,
+          "worst": 2.212249770420769,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.9781040666849088,
+          "median": -0.10401751746456257,
+          "p90": 2.521068593507776,
+          "worst": 28.34884322759547,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.49824503620185,
+          "median": -8.690880249753006,
+          "p90": -2.0436432576429753,
+          "worst": 4.2201472084165195
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 5.195353646896882,
+          "median": 3.0558686965588535,
+          "p90": 9.113302825562592,
+          "worst": 43.348256185701985
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.3682425790664405,
+          "median": 0.7414926968859197,
+          "p90": 6.828314596629007,
+          "worst": 8.938342366931144
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.718991174922847,
+          "median": -7.387085341461858,
+          "p90": -2.5160975314779366,
+          "worst": -0.311024568602022
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.465340013107381,
+          "median": -2.658753820346198,
+          "p90": 2.5196994218771382,
+          "worst": 16.356579849449407
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.638368371591892,
+          "median": -4.670046209744122,
+          "p90": -1.0297409141767477,
+          "worst": 0.25961344985610013
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "loss125",
+      "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/loss125-screen",
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.5444386994095347,
+          "median": 0.34824143049326234,
+          "p90": 1.2932730100279577,
+          "worst": 1.9685860763881315,
+          "fullBandCount": 12
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.3433219664357491,
+          "median": 0.43240543259099834,
+          "p90": 0.9961446354430812,
+          "worst": 1.3233331694308021,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.1170743060791288,
+          "median": 0.0578530716885212,
+          "p90": 0.6838007014177128,
+          "worst": 1.06617652906418,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.198270794320852,
+          "median": -8.249486162950802,
+          "p90": -0.49082184877608415,
+          "worst": 7.999352173004459
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.88058079087282,
+          "median": 3.21354559410885,
+          "p90": 9.908305179817894,
+          "worst": 11.174603168220408
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.581039796833904,
+          "median": 1.5728631180279375,
+          "p90": 5.829981407854774,
+          "worst": 8.518735253799461
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.205798080791505,
+          "median": -6.426540340526449,
+          "p90": -1.0896948381672145,
+          "worst": 0.7949945273862394
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.38427399595438,
+          "median": -4.730854567010162,
+          "p90": 1.8372223167203314,
+          "worst": 5.815799341857555
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.215881108020522,
+          "median": -3.385495752031785,
+          "p90": -0.23883392213889876,
+          "worst": 0.14207734260065366
+        }
+      ],
+      "failures": []
+    }
+  ],
+  "pairedDevelopment": {
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.552596028699911,
+        "median": -6.713021211243193,
+        "p90": -1.7155439532237646,
+        "worst": 7.834453340167678
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 2.5373713434520213,
+        "median": 2.169094853352454,
+        "p90": 13.163030868187043,
+        "worst": 23.552858145477295
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 0.7704844822118379,
+        "median": 1.9233108041246822,
+        "p90": 5.187032390107209,
+        "worst": 10.412880575928211
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.090390829838919,
+        "median": -5.035142227425355,
+        "p90": -1.1774514798078886,
+        "worst": 1.294348842975789
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.574543537762201,
+        "median": -4.246451563724968,
+        "p90": 2.840520337778247,
+        "worst": 6.809406024094327
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -4.730209588727027,
+        "median": -3.3737959362409455,
+        "p90": -0.5614913600762683,
+        "worst": 1.714694777822566
+      }
+    ],
+    "failures": [],
+    "managedPeakBytes": 9232573,
+    "byteIdenticalPoints": 576,
+    "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/paired-lab"
+  },
+  "roundingDevelopment": {
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.77804678451301,
+        "median": -6.944603113745332,
+        "p90": -1.940781084230466,
+        "worst": 7.833433916908657
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": 2.8456744595998593,
+        "median": 2.2316235776624085,
+        "p90": 10.698240411521093,
+        "worst": 24.026526428057547
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": 0.6046154016346547,
+        "median": 1.771722869973333,
+        "p90": 4.98723092574258,
+        "worst": 10.448523502352025
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -8.282115410188965,
+        "median": -5.16641955835008,
+        "p90": -1.6283033539875655,
+        "worst": 1.2933459085870376
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.214018972051295,
+        "median": -3.7415527035374208,
+        "p90": 3.263848427027411,
+        "worst": 8.695530317025298
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -4.823521915793505,
+        "median": -3.4473468775351304,
+        "p90": -0.2784192048568485,
+        "worst": 1.599483325607455
+      }
+    ],
+    "failures": [],
+    "gates": {
+      "control": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -0.23639773802350106,
+          "median": -0.06866206437106034,
+          "p90": 0.3017450974386414,
+          "worst": 1.5503862136541604,
+          "fullBandCount": 46
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.10492997076955869,
+          "median": -0.05679418670378074,
+          "p90": 0.4845134490032271,
+          "worst": 1.3944100264795496,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.41489764136357044,
+          "median": 0.01857177762530452,
+          "p90": 4.357623564938514,
+          "worst": 6.91192372126304,
+          "fullBandCount": 0
+        }
+      ],
+      "production": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.413666262235426,
+          "median": -5.635977661005532,
+          "p90": -0.1794168800688812,
+          "worst": 8.189191126117002,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -9.902090297461697,
+          "median": -6.7043592759077,
+          "p90": -0.988779528197991,
+          "worst": 14.012324938607648,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -9.230011299552787,
+          "median": -7.330274545764567,
+          "p90": 1.3036868671671125,
+          "worst": 37.560874635865275,
+          "fullBandCount": 0
+        }
+      ],
+      "fullBand": [
+        {
+          "id": "im26-1468-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.5360604458938023,
+          "meanLogRateDifference": -0.025687727123054553,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.65782564,
+            "maximum": 92.91639809
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2004-lab",
+          "metric": "ssimulacra2",
+          "percent": 3.6692484650869344,
+          "meanLogRateDifference": 0.03603534202082604,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 51.30174578,
+            "maximum": 90.90008706
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2008-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.6285491362671602,
+          "meanLogRateDifference": -0.03696018109935342,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 57.3705072,
+            "maximum": 91.17669317
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-2014-lab",
+          "metric": "ssimulacra2",
+          "percent": -0.7867881470882758,
+          "meanLogRateDifference": -0.007898996564339693,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 58.70601905,
+            "maximum": 91.68404482
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3002-lab",
+          "metric": "ssimulacra2",
+          "percent": -5.698070642618861,
+          "meanLogRateDifference": -0.05866853677662978,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 59.97827243,
+            "maximum": 93.43381735
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3012-lab",
+          "metric": "ssimulacra2",
+          "percent": 3.3587467099873947,
+          "meanLogRateDifference": 0.03303572848881799,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 53.26136961,
+            "maximum": 93.14875052
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3302-lab",
+          "metric": "ssimulacra2",
+          "percent": 7.177942247166964,
+          "meanLogRateDifference": 0.06932027885686694,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 39.29881957,
+            "maximum": 92.56075542
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        },
+        {
+          "id": "im26-3316-lab",
+          "metric": "ssimulacra2",
+          "percent": -3.5610101187325127,
+          "meanLogRateDifference": -0.03625960679397811,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 55.11315292,
+            "maximum": 92.15694146
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        }
+      ],
+      "guardFailures": [],
+      "grain": [
+        {
+          "id": "im26-2004-lab",
+          "metric": "ssimulacra2",
+          "percent": -2.8910868511042627,
+          "meanLogRateDifference": -0.02933702140310667,
+          "overlap": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "measuredOverlap": {
+            "minimum": 9.17889358,
+            "maximum": 90.90008706
+          },
+          "requiredRange": {
+            "minimum": 60,
+            "maximum": 90
+          },
+          "coversRequiredRange": true
+        }
+      ]
+    },
+    "artifact": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/rounding-lab"
+  },
+  "pairedTiming": [
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/paired-speed.json",
+      "modes": ["standalone-guard-bounded", "standalone-selector-pairs"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1153.0232050000013,
+        "mad": 11.723150000001624,
+        "iqr": 35.58206400000199,
+        "cv": 0.033706091559035735
+      },
+      "candidate": {
+        "median": 1098.7740320000012,
+        "mad": 24.22032400000171,
+        "iqr": 55.68490300000121,
+        "cv": 0.055672093543365574
+      },
+      "paired": {
+        "median": -4.879933240303258,
+        "mad": 1.9256103653869427,
+        "iqr": 4.7090889999472525,
+        "cv": 0.8879206283366753
+      },
+      "wins": 13,
+      "peakManagedBytes": 5680219
+    },
+    {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/paired-neighbor.json",
+      "modes": ["standalone-guard-bounded", "standalone-selector-pairs"],
+      "samples": 15,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1286.270903999999,
+        "mad": 11.732535000001008,
+        "iqr": 29.168228999998973,
+        "cv": 0.02900703977690845
+      },
+      "candidate": {
+        "median": 1212.1890299999995,
+        "mad": 17.168354999999792,
+        "iqr": 30.35206599999765,
+        "cv": 0.03881429081291494
+      },
+      "paired": {
+        "median": -5.194035192689972,
+        "mad": 4.4968614739526505,
+        "iqr": 8.35135827509057,
+        "cv": 0.8905855901578126
+      },
+      "wins": 13,
+      "peakManagedBytes": 5676123
+    }
+  ],
+  "roundingSpeed": {
+    "path": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/rounding-speed.json",
+    "modes": ["standalone-guard-bounded", "standalone-writer-rounding"],
+    "samples": 15,
+    "byteIdentical": false,
+    "baseline": {
+      "median": 1168.211597999998,
+      "mad": 27.741593999999168,
+      "iqr": 62.47103100000459,
+      "cv": 0.04627944325218813
+    },
+    "candidate": {
+      "median": 1315.3512059999994,
+      "mad": 33.27025400000093,
+      "iqr": 61.52488500000072,
+      "cv": 0.031201823424161838
+    },
+    "paired": {
+      "median": 12.889029152096487,
+      "mad": 3.626480194865511,
+      "iqr": 7.295589892948495,
+      "cv": 0.4492351684596119
+    },
+    "wins": 0,
+    "peakManagedBytes": 5682267
+  },
+  "isolatedCorpusSpeed": {
+    "mode": "speed",
+    "variant": "standalone-selector-pairs",
+    "effort": 7,
+    "finalReport": false,
+    "distances": [2],
+    "peerSettings": {
+      "jsquash": [80],
+      "vips": [2]
+    },
+    "effortSevenReference": "",
+    "effortSevenSpeed": null,
+    "effortNineSpeedRatios": null,
+    "workers": 1,
+    "manifestPath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json",
+    "measurementRun": "fresh measurement run",
+    "resumedSpeed": false,
+    "reusedSpeedJobs": 0,
+    "measuredSpeedJobs": 192,
+    "intervalPolicy": "required-ranges",
+    "selectedImages": 64,
+    "elapsedSeconds": 268.855,
+    "table": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2"
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax"
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3"
+      }
+    ],
+    "speed": [
+      {
+        "engine": "purejsimage",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 1380.457148671875,
+          "median": 1390.8677395,
+          "p90": 1443.4792122,
+          "worst": 1513.703104
+        },
+        "watch": null
+      },
+      {
+        "engine": "jsquash",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 488.89684456249984,
+          "median": 485.56244849999996,
+          "p90": 533.9037890000001,
+          "worst": 600.535811
+        },
+        "watch": null
+      },
+      {
+        "engine": "vips",
+        "effort": 7,
+        "lab": {
+          "count": 64,
+          "mean": 342.1245528750001,
+          "median": 336.86828299999996,
+          "p90": 364.5055733,
+          "worst": 399.280963
+        },
+        "watch": null
+      }
+    ],
+    "managedPeakBytes": 8735786,
+    "processPeakRssBytes": 207388672,
+    "comparisons": [],
+    "failures": [],
+    "omissions": [],
+    "drops": [],
+    "complete": true
+  },
+  "originalSpeed": {
+    "mode": "speed",
+    "variant": "standalone-selector-pairs",
+    "effort": 7,
+    "finalReport": false,
+    "distances": [2],
+    "peerSettings": {
+      "jsquash": [80],
+      "vips": [2]
+    },
+    "effortSevenReference": "",
+    "effortSevenSpeed": null,
+    "effortNineSpeedRatios": null,
+    "workers": 1,
+    "manifestPath": ".tmp/jpegxl-lossy-lab/watch-v2/manifest.json",
+    "measurementRun": "fresh measurement run",
+    "resumedSpeed": false,
+    "reusedSpeedJobs": 0,
+    "measuredSpeedJobs": 3,
+    "intervalPolicy": "required-ranges",
+    "selectedImages": 1,
+    "elapsedSeconds": 132.699,
+    "table": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2"
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax"
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax"
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3"
+      }
+    ],
+    "speed": [
+      {
+        "engine": "purejsimage",
+        "effort": 7,
+        "lab": null,
+        "watch": {
+          "count": 1,
+          "mean": 47941.639123999994,
+          "median": 47941.639123999994,
+          "p90": 47941.639123999994,
+          "worst": 47941.639123999994
+        }
+      },
+      {
+        "engine": "jsquash",
+        "effort": 7,
+        "lab": null,
+        "watch": {
+          "count": 1,
+          "mean": 25890.606507,
+          "median": 25890.606507,
+          "p90": 25890.606507,
+          "worst": 25890.606507
+        }
+      },
+      {
+        "engine": "vips",
+        "effort": 7,
+        "lab": null,
+        "watch": {
+          "count": 1,
+          "mean": 9358.940104,
+          "median": 9358.940104,
+          "p90": 9358.940104,
+          "worst": 9358.940104
+        }
+      }
+    ],
+    "managedPeakBytes": 59071615,
+    "processPeakRssBytes": 556003328,
+    "comparisons": [],
+    "failures": [],
+    "omissions": [],
+    "drops": [],
+    "complete": true
+  },
+  "originalParity": {
+    "byteIdentical": true,
+    "bytes": 1835008,
+    "current": {
+      "status": "encoded",
+      "engine": "purejsimage",
+      "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+      "width": 2945,
+      "height": 4417,
+      "channels": 4,
+      "effort": 7,
+      "strategyPort": "standalone-selector-pairs",
+      "allocation": null,
+      "transplantSourceSha256": null,
+      "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+      "encodedSha256": "bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee",
+      "setting": 2,
+      "bytes": 1835008,
+      "encodeMs": 47941.639123999994,
+      "managedPeakBytes": 59071615,
+      "processPeakRssBytes": 402812928
+    },
+    "prior": {
+      "status": "encoded",
+      "engine": "purejsimage",
+      "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+      "width": 2945,
+      "height": 4417,
+      "channels": 4,
+      "effort": 7,
+      "strategyPort": "standalone-guard-bounded",
+      "allocation": null,
+      "transplantSourceSha256": null,
+      "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+      "encodedSha256": "bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee",
+      "setting": 2,
+      "bytes": 1835008,
+      "encodeMs": 49359.137142,
+      "managedPeakBytes": 59071615,
+      "processPeakRssBytes": 405594112
+    }
+  },
+  "strategyAudit": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/strategy-audit.json",
+  "verification": {
+    "independentRoundingPoints": 576,
+    "independentRoundingMaximum": 1,
+    "focusedTests": 72,
+    "fullCheckPassed": true,
+    "fullCheckTests": 4125,
+    "fullCheckSkippedTests": 3,
+    "bundleBytes": [614941, 687773],
+    "browsers": ["chromium", "firefox", "webkit"],
+    "checkLog": ".tmp/jpegxl-lossy-lab/standalone-writer-20261014/check.log"
+  }
+}

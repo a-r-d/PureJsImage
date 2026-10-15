@@ -1,24 +1,26 @@
 # JPEG XL lossy lab
 
-Current owner decision (2026-10-14): Step C approved, including selector speed work.
-Research base f6f473fa on `jxl-libjxl-ports`; local main is b2666b83.
+Current owner decision (2026-10-14): continue Step C research and selector speed work.
+Research base ef651e29 on `jxl-libjxl-ports`; local main is b2666b83.
 Published origin/main remains f9c74a49, one commit before the local transplant checkpoint.
-Retained mode `standalone-guard-bounded`, 64 photos x nine distances, no peer maps.
+Retained mode `standalone-selector-pairs`, no peer maps. All 576 development files are
+byte-identical to `standalone-guard-bounded`; managed lab peak remains 9,232,573 bytes.
 Full-lab SSIM/3-norm/max: vips -8.090/-4.730/-5.575% (mean -6.132%); jSquash -8.553/+0.770/+2.537%.
 Production control -7.254/-9.856/-9.629%; native replay -10.350/-5.612/-5.321%.
-No full-band per-image failures: eight SSIM admissions, zero 3-norm admissions.
-Isolated fresh crop timing: 1479.17/493.90ms, 2.994898x jSquash, passing nominal 3x.
-Formal 13/21 MP times: 49.359/92.402s. 13 MP ratio 1.959650x; jSquash aborts on 21 MP.
-Original managed peaks 59,071,615/90,903,965 bytes, below the unchanged 137,514,476 ceiling.
-All 576 development streams, 80 screen streams and both originals preserve bytes after storage repair.
-All 576 development streams pass independent jxl-rs comparison within one code value; three browsers pass.
-Holdout vips -6.064/-3.380/-2.301%, mean -3.915%, passes the owner aggregate objective.
-Two of nine full-band holdout SSIM guards fail against production. No individual holdout quality is inspected.
-Watch/scale qualification stopped at the failed guard. Full check passes 4,118 tests, three skips.
-All 567 holdout candidate streams pass both decoders; all 567 fresh default control streams match the reference.
-Research checkpoint only: no holdout tuning, production integration or main merge.
-See the [guard and storage report](lossy-lab/GUARD-REPORT.md). Prior refinement evidence stays preserved.
-No new production source changes. Remove or isolate inherited peer-forcing hooks before a main merge.
+No full-band development guard failures: eight SSIM admissions, zero 3-norm admissions.
+Mirrored-input DCT reuse improves 15-pair isolated timing by 4.880% and 5.194%, 13/15 wins on both crops.
+Fresh 64-crop timing: 1390.868/485.562ms, 2.864447x jSquash; zero failures/omissions.
+Fresh 13 MP original: 47.942s, 1.851700x jSquash, identical bytes and 59,071,615 managed bytes.
+The prior 21 MP entry remains 92.402s and 90,903,965 managed bytes; not rerun here.
+Six quality screens do not justify replacing the retained decisions. Actual writer rounding
+improves full-lab SSIM/3-norm by 0.236/0.105%, worsens max by 0.415%, and costs 12.889% more time.
+All 576 rounding streams pass independent decoding within one code value.
+Full check passes 4,125 tests, three skips; all three browsers pass. Bundles remain 614,941/687,773 bytes.
+Previous holdout vips -6.064/-3.380/-2.301%, mean -3.915%, passes the aggregate objective.
+Two of nine full-band holdout SSIM guards still block promotion. No holdout rerun or inspection in this continuation.
+Watch/scale qualification and public integration remain pending. No production source changes or main merge.
+See the [selector report](lossy-lab/WRITER-REPORT.md) and preserved [guard report](lossy-lab/GUARD-REPORT.md).
+Remove or isolate inherited peer-forcing hooks before a main merge.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -1851,3 +1853,35 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | LL-728, 2026-10-14 | Run the promotion scale ladder on two 2080 crops and the two watch originals. | Stopped after the holdout guard failure: eight valid own points, zero own failures, peak 26,010,835 bytes. | Two-worker quality and memory qualification, not timing evidence. | Exit 130 is intentional; partial scale is not qualified. Formal isolated speed remains LL-722/723. | interrupted |
 
 | LL-729, 2026-10-14 | Confirm independent decoding and the current public control used for the holdout guard. | All 576 development and 567 holdout candidate streams agree between jxl-rs and native libjxl within one code value. All 567 fresh public effort-7 control encodes are byte-identical to the qualified reference, with no managed increase; maximum 30,819,889 bytes. | Verification only; no new quality fit or timing claim. | Holdout inspection remains aggregate-only. Two guard failures are confirmed against the current default path. | verified |
+
+| LL-730, 2026-10-14 | Estimate selector cost with final AdjustQuantField and wire rounding instead of the pre-selection sixteenth norm. Research base ef651e29; all other bounded-mode decisions fixed. | 80 valid screen points. Vips -10.531/-5.492/-4.046%; jSquash -11.430/+0.346/+3.262%. Paired retained 0.233/0.067/-0.809%. | Four-worker quality diagnostic, not isolated timing. | SSIM slightly worse, maximum error improves; evaluate other writer mismatches before selecting a full-lab candidate. Raw: standalone-writer-20261014/field-screen. | measured |
+
+| LL-731, 2026-10-14 | Score the actual rate-aware rounded coefficients and normative reconstruction bias in the retained coherent selector. | 80 valid points. Vips -10.650/-5.395/-4.418%; jSquash -11.659/+0.391/+2.900%. Paired retained 0.099/0.206/-1.141%. | Four-worker diagnostic median 1630ms; extra rounding cost needs isolated confirmation if retained. | Aggregate SSIM and 3-norm do not improve; max improves. Compare joint model before retention. Raw: standalone-writer-20261014/rounding-screen. | measured |
+
+| LL-732, 2026-10-14 | Use signaled chroma matrix scales inside the coherent selector cost. | 80 valid points. Vips -10.735/-5.560/-3.219%; jSquash -11.650/0.302/4.120%. Paired retained 0.000/0.000/0.000%. | Four-worker quality diagnostic. | Isolated matrix-estimate result; complete joint model next. Raw: standalone-writer-20261014/matrices-screen. | measured |
+
+| LL-733, 2026-10-14 | Couple the selector's final-field, chroma-matrix and writer-rounding estimates. | 80 valid points. Vips -10.560/-5.272/-3.231%; jSquash -11.486/0.555/4.086%. Paired retained 0.205/0.335/0.039%. | Four-worker quality diagnostic. | Compare full results before selecting the finalist; LL-732 has all 80 streams byte-identical to control. Raw: standalone-writer-20261014/all-screen. | measured |
+
+| LL-734, 2026-10-14 | Reuse mirrored pixel sums across DCT frequencies. Existing profile attributes 234.5ms to the symmetric forward transform. | 21 transform fixtures preserve exact Float64 coefficients; 15 isolated alternating im26-3012/d2 pairs preserve bytes. | Median 1153.02 to 1098.77ms; paired -4.880%, 13/15 wins; managed peak unchanged. | Retain provisionally; confirm on a flat-texture neighbor before full-corpus timing. Raw: standalone-writer-20261014/paired-speed.json. | promising |
+
+| LL-735, 2026-10-14 | Confirm paired-input DCT reuse on flat texture im26-3312/d2. | All 15 alternating isolated pairs are byte-identical. | Median 1286.27 to 1212.19ms; paired -5.194%, 13/15 wins. Managed peak unchanged. | Retain the exact transform optimization and verify the full development ladder plus fresh isolated crop speed. Raw: standalone-writer-20261014/paired-neighbor.json. | retained |
+
+| LL-736, 2026-10-14 | Reduce selector information-loss weight to 0.75 while retaining the coherent field and writer. | 80 valid points. Vips -10.719/-5.638/-2.465%; jSquash -11.498/+0.368/+5.195%. Paired retained 0.086/-0.048/0.978%. | Four-worker diagnostic only. | Lower weight does not improve SSIM and worsens maximum error. Raw: standalone-writer-20261014/loss75-screen. | rejected |
+
+| LL-737, 2026-10-14 | Increase selector information-loss weight to 1.25. | 80 valid points. Vips -10.206/-5.216/-4.384%; jSquash -11.198/+0.581/+2.881%. Paired retained 0.544/0.343/-1.117%. | Four-worker quality diagnostic, briefly concurrent with browser verification. | SSIM and 3-norm regress; reject. Neither loss-weight direction improves the retained balance. Raw: standalone-writer-20261014/loss125-screen. | rejected |
+
+| LL-738, 2026-10-14 | Verify paired-input DCT reuse across all 64 development photos and nine distances. | All 576 streams are byte-identical to standalone-guard-bounded. Vips -8.090/-4.730/-5.575%; jSquash -8.553/+0.770/+2.537%; all compression deltas zero. | Managed peak unchanged at 9,232,573 bytes. Quality timing excluded because the other lab and repository checks are concurrent. | Retain exact optimization. Independent decoder qualification transfers from identical LL-729 streams; fresh isolated speed follows. Raw: standalone-writer-20261014/paired-lab and paired-full-parity.json. | passed |
+
+| LL-739, 2026-10-14 | Take actual writer rounding to the full development lab after its grain improvement. | All 576 points valid. Vips -8.282/-4.824/-5.214%; jSquash -8.778/+0.605/+2.846%. Against retained -0.236/-0.105/0.415%; 0 full-band failures against production. | Concurrent quality timing excluded. | Small SSIM/3-norm tradeoff for worse max; isolated speed cost follows before a retention decision. Raw: standalone-writer-20261014/rounding-lab. | measured |
+
+| LL-740, 2026-10-14 | Independently decode the complete writer-rounding development ladder and profile the retained speed mode. | All 576 rounding streams agree between jxl-rs and native libjxl within one code value. All 576 retained speed streams are identical to the previously qualified streams. | Concurrent diagnostic profile: selector score 236.2ms, paired forward DCT 166.3ms, inverse DCT 156.1ms self time. Direct-launch RSS anomaly is excluded from formal memory claims. | Correctness passes. Scoring is the largest remaining sampled selector cost; no further change is inferred from profile timing. Raw: standalone-writer-20261014/independent-rounding and profile. | verified |
+
+| LL-741, 2026-10-14 | Inspect signaled decisions after the writer-rounding tradeoff, using only three known development images at four distances. | All twelve comparisons preserve DC parameters and filter maps. Grain im26-2004/d1.85 changes 2,127/4,096 strategy cells; DCT32 coverage rises from 1,296 to 2,512. Door im26-3000/d0.9 rises from 1,616 to 2,112 DCT32 cells. | Decoder inspection only, no speed claim or native internal probe. | Rounding changes transform allocation substantially; greater large-transform use does not uniformly improve quality. Raw: standalone-writer-20261014/strategy-audit.json. | diagnostic |
+
+| LL-742, 2026-10-14 | Complete repository and browser verification for the research changes. | npm run check with VITEST_MAX_WORKERS=2 passes 4,125 tests, three existing skips, and all static/package/docs/browser-build gates. All 72 focused cases and Chromium/Firefox/WebKit receipts pass. | Full test duration 1029.96s. No timeout or assertion changes. Bundles unchanged at 614,941/687,773 bytes, under unchanged ceilings. | Verified before isolated timing. No production source or runtime dependency changes. Raw: standalone-writer-20261014/check.log and browser.log. | passed |
+
+| LL-743, 2026-10-14 | Qualify paired-input DCT reuse with fresh isolated timing on all 64 crops. | All 192 engine jobs complete, zero failures or omissions. | Own median 1390.868ms, jSquash 485.562ms, vips 336.868ms; 2.864447x jSquash. Own p90 1443.479ms, worst 1513.703ms. Managed peak 8735786 bytes, RSS 207388672 bytes. | One worker, no overlapping CPU tests or benchmarks. Raw: standalone-writer-20261014/paired-speed. | passed |
+
+| LL-744, 2026-10-14 | Measure the actual writer-rounding selector cost with 15 isolated alternating im26-3012/d2 pairs. | Full-lab paired quality is -0.236/-0.105/+0.415%, mean +0.025%; output correctness is independently qualified. | Median 1168.212 to 1315.351ms; paired 12.889%, 0/15 faster. | Reject for effort 7: added time does not buy the required quality improvement. Keep the named development experiment as evidence, not a default or effort-9 promotion. Raw: standalone-writer-20261014/rounding-speed.json. | rejected |
+
+| LL-745, 2026-10-14 | Confirm the exact selector speed change on the 13 MP original with fresh isolated peer measurements. | Original stream remains byte-identical: 1,835,008 bytes, SHA256 bf5af0e7aef114d596a6dde6b3a7786ab09931cbc2a16f548c9ee0e511e7b6ee. Native decode and all scores pass. | Own 47.942s, jSquash 25.891s, 1.851700x; vips 9.359s. Managed peak unchanged at 59,071,615 bytes; encoder-receipt RSS 402,812,928 bytes. Whole-worker RSS including validation/scoring is 556,003,328 bytes versus prior 543,997,952. | Passes the 5x original target and memory ceiling for this original. This is not full-watch qualification; the 21 MP original is not rerun. Raw: standalone-writer-20261014/paired-original and original-parity.json. | passed |

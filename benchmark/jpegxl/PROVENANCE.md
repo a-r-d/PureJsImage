@@ -202,3 +202,13 @@ The follow-up Gaborish source cache and signed-byte AC storage with Int16
 exceptions are first-party storage adaptations. The Gaborish weights and
 convolution accumulation order are unchanged. Coefficient compaction changes
 no quantized value; dense planes retain their original Int16 storage.
+
+The writer-estimate continuation tests final AdjustQuantField wire precision,
+our rate-aware rounding with normative reconstruction bias, and signaled chroma
+matrix scales inside the existing selector. It also tests 0.75 and 1.25
+multipliers of the attributed information-loss weight. These are first-party
+adaptations of `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts`; their
+libjxl source files and v0.12.0 revision are unchanged. No new source material
+or peer maps are consumed. `forwardPairedSelectorTransform` in
+`selector-transforms.ts` is a first-party optimization that reuses mirrored
+pixel sums and preserves the existing arithmetic order.

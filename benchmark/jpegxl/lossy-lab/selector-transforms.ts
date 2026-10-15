@@ -143,3 +143,56 @@ export function forwardSymmetricSelectorTransform(
       coefficients[height >= width ? h * height + v : v * width + h] = sum * scale
     }
 }
+
+/** Reuse mirrored input sums for every frequency, preserving dot-product order. */
+export function forwardPairedSelectorTransform(
+  strategy: number,
+  pixels: Float32Array,
+  scratch: Float64Array,
+  coefficients: Float64Array,
+  pairs: Float64Array,
+): void {
+  const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
+  const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
+  if (width === 8 && height === 8) {
+    forwardSelectorTransform(strategy, pixels, scratch, coefficients)
+    return
+  }
+  if (width < 8 || height < 8 || width > 64 || height > 64 || pairs.length < 64)
+    throw new Error('Invalid paired transform extent')
+  const horizontal = dctBasis(width),
+    vertical = dctBasis(height)
+  const scale = 1 / Math.sqrt(width * height)
+  const halfWidth = width / 2,
+    halfHeight = height / 2
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < halfWidth; x++) {
+      const a = pixels[y * width + x] ?? 0,
+        b = pixels[y * width + width - 1 - x] ?? 0
+      pairs[x] = a + b
+      pairs[halfWidth + x] = a - b
+    }
+    for (let h = 0; h < width; h++) {
+      let sum = 0
+      const offset = (h % 2) * halfWidth
+      for (let x = 0; x < halfWidth; x++)
+        sum += (pairs[offset + x] ?? 0) * (horizontal[h * width + x] ?? 0)
+      scratch[y * width + h] = sum
+    }
+  }
+  for (let h = 0; h < width; h++) {
+    for (let y = 0; y < halfHeight; y++) {
+      const a = scratch[y * width + h] ?? 0,
+        b = scratch[(height - 1 - y) * width + h] ?? 0
+      pairs[y] = a + b
+      pairs[halfHeight + y] = a - b
+    }
+    for (let v = 0; v < height; v++) {
+      let sum = 0
+      const offset = (v % 2) * halfHeight
+      for (let y = 0; y < halfHeight; y++)
+        sum += (pairs[offset + y] ?? 0) * (vertical[v * height + y] ?? 0)
+      coefficients[height >= width ? h * height + v : v * width + h] = sum * scale
+    }
+  }
+}

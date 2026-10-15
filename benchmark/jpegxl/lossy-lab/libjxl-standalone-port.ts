@@ -51,6 +51,13 @@ export type StandalonePort =
   | 'standalone-guard-packed'
   | 'standalone-guard-source-cache'
   | 'standalone-guard-bounded'
+  | 'standalone-writer-field'
+  | 'standalone-writer-rounding'
+  | 'standalone-writer-matrices'
+  | 'standalone-writer-all'
+  | 'standalone-selector-pairs'
+  | 'standalone-loss75'
+  | 'standalone-loss125'
 
 export function libjxlStandaloneOverrides(
   distance: number,
@@ -58,7 +65,22 @@ export function libjxlStandaloneOverrides(
   height: number,
   requestedMode: StandalonePort,
 ): JpegXlDevelopmentDecisions {
+  const writerEstimate =
+    requestedMode === 'standalone-writer-field'
+      ? 'field'
+      : requestedMode === 'standalone-writer-rounding'
+        ? 'rounding'
+        : requestedMode === 'standalone-writer-matrices'
+          ? 'matrices'
+          : requestedMode === 'standalone-writer-all'
+            ? 'all'
+            : undefined
+  const lossScale =
+    requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+  const guardVariant =
+    writerEstimate !== undefined || requestedMode === 'standalone-selector-pairs' || lossScale !== 1
   const guardNoSmooth =
+    guardVariant ||
     requestedMode === 'standalone-refined-chroma75-nosmooth' ||
     requestedMode === 'standalone-guard-hf625' ||
     requestedMode === 'standalone-guard-hf375' ||
@@ -67,6 +89,7 @@ export function libjxlStandaloneOverrides(
     requestedMode === 'standalone-guard-bounded'
   const mode = guardNoSmooth ? 'standalone-refined-chroma75' : requestedMode
   const guardHf =
+    guardVariant ||
     requestedMode === 'standalone-guard-hf625' ||
     requestedMode === 'standalone-guard-packed' ||
     requestedMode === 'standalone-guard-source-cache' ||
@@ -166,7 +189,8 @@ export function libjxlStandaloneOverrides(
               width,
               height,
               requestedMode === 'standalone-guard-source-cache' ||
-                requestedMode === 'standalone-guard-bounded',
+                requestedMode === 'standalone-guard-bounded' ||
+                guardVariant,
             )
       const cached = cache ? selectorBlockCache(base, filtered ?? context) : undefined
       const sharpness = defaults
@@ -176,9 +200,13 @@ export function libjxlStandaloneOverrides(
       try {
         const select = strategyPortOverrides(distance, 'spatial-source', context, {
           initialField: field,
+          pairedTransform: requestedMode === 'standalone-selector-pairs',
+          lossScale,
+          ...(writerEstimate ? { writerEstimate } : {}),
           compactStorage:
             requestedMode === 'standalone-guard-packed' ||
-            requestedMode === 'standalone-guard-bounded',
+            requestedMode === 'standalone-guard-bounded' ||
+            guardVariant,
           prune,
           fastTransforms,
           compact,

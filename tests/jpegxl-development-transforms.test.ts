@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   forwardSelectorTransform,
   forwardSymmetricSelectorTransform,
+  forwardPairedSelectorTransform,
 } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
 import {
   forwardDevelopmentTransform,
@@ -44,6 +45,9 @@ describe('development normative transform kernels', () => {
       for (let i = 0; i < size; i++) expect(fast[i]).toBeCloseTo(coefficients[i] ?? 0, 6)
       forwardSymmetricSelectorTransform(strategy, input, scratch, fast)
       for (let i = 0; i < size; i++) expect(fast[i]).toBeCloseTo(coefficients[i] ?? 0, 6)
+      const paired = new Float64Array(size)
+      forwardPairedSelectorTransform(strategy, input, scratch, paired, new Float64Array(64))
+      expect(paired).toEqual(fast)
       coefficients.set(fast)
       const dc = new Float64Array(bw * bh),
         frequencies = new Float64Array(bw * bh)
