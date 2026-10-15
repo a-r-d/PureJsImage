@@ -1,0 +1,67 @@
+benchmark/jpegxl/lossy-lab/MERGE-REPORT.json
+  s_c2b6cc73f1c634::t_63c5abff484091 1-8204
+benchmark/jpegxl/lossy-lab/MERGE-REPORT.md
+  s_c2b6cc73f1c634::t_19c457921dd572 3-6,95-112,114-116,121-129,163,165-166
+  s_c2b6cc73f1c634::t_39fcfb590b7afa 1-2,7-72,161-162,164,167-169,176-179
+  s_c2b6cc73f1c634::t_3ce71c7cc115bb 170-175
+  s_c2b6cc73f1c634::t_6cebc7cc29ca19 113,117-120
+  s_c2b6cc73f1c634::t_d59d0d3ed285e2 131-160,180-206
+  s_c2b6cc73f1c634::t_c5b9edf711155d 73-94,130
+benchmark/jpegxl/lossy-lab-log.md
+  s_c2b6cc73f1c634::t_3ce71c7cc115bb 1952-1953
+  s_c2b6cc73f1c634::t_d59d0d3ed285e2 3,5-17,1961
+  s_c2b6cc73f1c634::t_c5b9edf711155d 1938-1939
+  s_c2b6cc73f1c634::t_5dbaf74d6b9cfe 1940-1941
+  s_c2b6cc73f1c634::t_5aacc70f1184b6 1926-1931
+  s_c2b6cc73f1c634::t_6c5329dd879cc6 1936-1937
+  s_c2b6cc73f1c634::t_feabe7f402fbac 1942-1945
+  s_c2b6cc73f1c634::t_63c5abff484091 1954-1960
+  s_c2b6cc73f1c634::t_9908b790083282 1918-1921
+  s_c2b6cc73f1c634::t_a4675182a70473 1946-1947
+  s_c2b6cc73f1c634::t_8141a7fc54c535 4
+  s_c2b6cc73f1c634::t_1125d8ecb5dfbd 1948-1949
+  s_c2b6cc73f1c634::t_6cebc7cc29ca19 1950-1951
+  s_c2b6cc73f1c634::t_429dd03a5f3cc8 1908-1917,1922-1925,1932-1935
+benchmark/jpegxl/PROVENANCE.md
+  s_c2b6cc73f1c634::t_995196a978699a 237-243
+  s_c2b6cc73f1c634::t_a48f611ed3ea7a 227-233
+  s_c2b6cc73f1c634::t_f8bbf5c7c0b1b7 244-247
+  s_c2b6cc73f1c634::t_2d9bad3bb21ed3 234-236
+tests/jpegxl-libjxl-strategy-port.test.ts
+  s_c2b6cc73f1c634::t_af230136549374 58
+benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+  s_c2b6cc73f1c634::t_e67942ab4d87d0 23,89,126,145-149
+benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+  s_c2b6cc73f1c634::t_af230136549374 70,149
+tests/jpegxl-development-transforms.test.ts
+  s_c2b6cc73f1c634::t_af230136549374 68-74
+  s_c2b6cc73f1c634::t_e67942ab4d87d0 2,67,75
+tests/helpers/jpegxl-decision-transplant.ts
+  s_c2b6cc73f1c634::t_af230136549374 174
+benchmark/jpegxl/lossy-lab/MERGE-EXPERIMENT.patch
+  s_c2b6cc73f1c634::t_2607af52c1434a 1-689
+benchmark/jpegxl/LOSSY_LIBJXL_REOPENING.md
+  s_c2b6cc73f1c634::t_a48f611ed3ea7a 101-108
+benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts
+  s_c2b6cc73f1c634::t_989ad1ecfcfcbd 1-72
+benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+  s_c2b6cc73f1c634::t_af230136549374 58,82-85,207-210
+benchmark/jpegxl/lossy-lab/CENTROID-REPORT.json
+  s_c2b6cc73f1c634::t_19325ce2a8ff9c 1947,1973,2190-2191
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "605a57352b3db8f205ef98b739854b58ec3c735e",
+  "prompts": {},
+  "sessions": {
+    "s_c2b6cc73f1c634": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13fce-110d-7420-9829-228d7d625aae",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
