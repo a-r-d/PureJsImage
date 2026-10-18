@@ -1,10 +1,12 @@
 # JPEG XL lossy lab
 
-The [sampled reconstruction report](SAMPLED-AR-REPORT.md) records twelve coarse
-sharpness screens with map-rate costs. No mode earns retention: the best combined
-gain is 0.027%, with a 14.688% encode-time cost. The coherent standalone work
-stays on `jxl-libjxl-ports`; main is unchanged. Step C was approved after the
-allocation checkpoint below. Earlier checkpoint text preserves its original status.
+The [filter-loss report](FILTER-LOSS-REPORT.md) records thirteen screens and
+regional causal tests. Pointwise error can reward erased detail. Structural loss
+repairs the SSIM mean, but its Butteraugli trade and 86% time cost prevent
+retention. No filter-loss mode earns a full lab or holdout. The retained writer
+stays on `jxl-libjxl-ports`; main is unchanged. The earlier
+[sampled reconstruction report](SAMPLED-AR-REPORT.md) preserves the prior twelve
+screens. Step C was approved after the allocation checkpoint below.
 
 The 2026-10-14 allocation checkpoint is recorded in
 [LOSSY_LIBJXL_REOPENING.md](../LOSSY_LIBJXL_REOPENING.md). It replaces the separate

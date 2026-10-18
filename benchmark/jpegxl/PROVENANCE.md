@@ -357,3 +357,23 @@ All twelve sampled AR screens are rejected under the quality and speed rules.
 The licensed modules, aliases and focused tests are preserved in
 `lossy-lab/SAMPLED-AR-EXPERIMENT.patch` for `9924201c`; active encoder and
 benchmark module paths return to that retained control. No public source changes.
+
+## Filter distortion model investigation, 2026-10-18
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-filter-loss.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap and MakePositiveXYB, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Corrected structural-error formula, C2=0.0009, normalized X and B-Y, and separate added-edge/lost-detail measures. Four-pixel box moments replace Gaussian neighborhoods. Two pooled XYB scales approximate linear-RGB downsampling. Channel/scale weights, gradient diagnostics and native-loss mixing are first-party adaptations. This sampled surrogate is not the SSIMULACRA2 metric. Actual native scores remain the gates. |
+| `lossy-lab/libjxl-ssim-weights.ts` | libjxl `tools/ssimulacra2.cc`, Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Exact 108 feature weights in Float64Array. The sampled proxy uses the first three scales and preserves separate mean and L4 structure, added-edge and lost-detail terms. |
+| `lossy-lab/filter-loss-diagnostic.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap and EdgeDiffMap, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline four-scale feature diagnosis on actual decoded development PNGs, using four-pixel box neighborhoods and linear-RGB downsampling. Uses our forward color constants. Reports features rather than substituting for native scores. |
+| `lossy-lab/libjxl-filter-gaussian-loss.ts` | libjxl `tools/ssimulacra2.cc`, SSIMMap, EdgeDiffMap, MakePositiveXYB and Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Three-scale sampled feature loss with native mean/L4 weights. First-party separable seven-tap Gaussian at sigma 1.5 replaces recursive Gaussian filtering; edges clamp to the sampled patch. XYB pooling approximates native linear-RGB pooling. Optional compact moment vectors support image-wide pooling before fourth roots and a normalized pointwise blend. No score polynomial or complete-metric claim. |
+| `lossy-lab/filter-loss-region-audit.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline comparison of the attributed native loss with Gaussian feature loss on sixteen fixed development regions. Individual own sharpness interventions are decoded and scored natively. First-party predicted-pixel parity checks cover uniform and changing sharpness maps. No native decisions enter the encoder. |
+
+The sampled reconstruction and masking modules restored for this investigation
+retain their headers and previous provenance. No peer maps or runtime dependencies.
+The full BSD-3 license remains in THIRD_PARTY_NOTICES and the docs-site copy.
+
+All thirteen filter-loss screens are rejected under the quality and speed rules.
+The restored sampled port, new losses, causal diagnostics, aliases and focused
+tests are preserved in `lossy-lab/FILTER-LOSS-EXPERIMENT.patch` for `1e10c5f4`.
+The archive passes `git apply --check`. Active encoder and benchmark paths
+return to that retained writer; no public codec source changes.
