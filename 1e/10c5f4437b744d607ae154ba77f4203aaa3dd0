@@ -1,0 +1,40 @@
+benchmark/jpegxl/lossy-lab/SAMPLED-AR-REPORT.md
+  s_c2b6cc73f1c634::t_232fa8e97477bf 131-136,154
+  s_c2b6cc73f1c634::t_07e83ee7b00c5c 1-68,72-73,77-89,93-130,137-148,150-153,155-161
+  s_c2b6cc73f1c634::t_0d22c9bd4bcba9 69-71,74-76,90-92,149
+benchmark/jpegxl/PROVENANCE.md
+  s_c2b6cc73f1c634::t_e3701e35226ad8 342-346,348-354
+  s_c2b6cc73f1c634::t_aaa0743ba181fb 355-359
+  s_c2b6cc73f1c634::t_3dd8d1baf2d567 347
+benchmark/jpegxl/lossy-lab-log.md
+  s_c2b6cc73f1c634::t_aaa0743ba181fb 2207-2208
+  s_c2b6cc73f1c634::t_232fa8e97477bf 2209-2210
+  s_c2b6cc73f1c634::t_86441f1c152cae 2185-2186
+  s_c2b6cc73f1c634::t_401d3d79410883 2179-2184,2187-2206
+benchmark/jpegxl/lossy-lab/README.md
+  s_c2b6cc73f1c634::t_b6f39f421b33d7 15-16
+  s_c2b6cc73f1c634::t_f418aede515b12 14
+  s_c2b6cc73f1c634::t_07e83ee7b00c5c 3-9
+benchmark/jpegxl/lossy-lab/SAMPLED-AR-REPORT.json
+  s_c2b6cc73f1c634::t_232fa8e97477bf 451-454,602-606
+  s_c2b6cc73f1c634::t_07e83ee7b00c5c 1,7-450,455-601,607-608
+  s_c2b6cc73f1c634::t_b6f39f421b33d7 2-6
+benchmark/jpegxl/lossy-lab/SAMPLED-AR-EXPERIMENT.patch
+  s_c2b6cc73f1c634::t_aaa0743ba181fb 1-1099
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1e10c5f4437b744d607ae154ba77f4203aaa3dd0",
+  "prompts": {},
+  "sessions": {
+    "s_c2b6cc73f1c634": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13fce-110d-7420-9829-228d7d625aae",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
