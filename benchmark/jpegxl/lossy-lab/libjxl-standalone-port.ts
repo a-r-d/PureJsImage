@@ -59,6 +59,9 @@ export type StandalonePort =
   | 'standalone-selector-mask'
   | 'standalone-selector-copy'
   | 'standalone-selector-mask-copy'
+  | 'standalone-forward-small'
+  | 'standalone-forward-paired'
+  | 'standalone-forward-all'
   | 'standalone-guard-coarse'
   | 'standalone-selector-pairs'
   | 'standalone-loss75'
@@ -82,7 +85,16 @@ export function libjxlStandaloneOverrides(
             : undefined
   const lossScale =
     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
-  const coarseAllocation = requestedMode === 'standalone-guard-coarse'
+  const writerTransform =
+    requestedMode === 'standalone-forward-small'
+      ? 'small'
+      : requestedMode === 'standalone-forward-paired'
+        ? 'paired'
+        : requestedMode === 'standalone-forward-all'
+          ? 'all'
+          : undefined
+  const coarseAllocation =
+    requestedMode === 'standalone-guard-coarse' || writerTransform !== undefined
   const inverseWeights =
     requestedMode === 'standalone-selector-inverse' ||
     requestedMode === 'standalone-selector-mask' ||
@@ -234,6 +246,7 @@ export function libjxlStandaloneOverrides(
             coarseAllocation,
           lossScale,
           ...(writerEstimate ? { writerEstimate } : {}),
+          ...(writerTransform ? { writerTransform } : {}),
           compactStorage:
             requestedMode === 'standalone-guard-packed' ||
             requestedMode === 'standalone-guard-bounded' ||

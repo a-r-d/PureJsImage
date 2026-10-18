@@ -1,0 +1,356 @@
+{
+  "base": "1f8d6a5ab98cc413c44c3375737d073e1f2a4b52",
+  "branch": "jxl-libjxl-ports",
+  "screens": [
+    {
+      "run": "native",
+      "description": "Native choices and no-smoothing preference",
+      "control": [5.131790735941317, 4.123401666142994, 3.1970818583952934],
+      "vips": [-6.60382851418256, -2.145174967830142, -2.2153451576704972],
+      "jsquash": [-7.427067178125066, 3.7349520116276027, 5.387890375419382]
+    },
+    {
+      "run": "four",
+      "description": "Include retained sharpness 4",
+      "control": [5.993541455735737, 4.942275156018312, 3.8706581201799746],
+      "vips": [-5.841151236796426, -1.3940140474296463, -1.584826429094128],
+      "jsquash": [-6.673299904446405, 4.5067063730089405, 6.0795495656993035]
+    },
+    {
+      "run": "unbiased",
+      "description": "Remove no-smoothing preference",
+      "control": [6.876117983820253, 4.841562031906654, 3.886837625901951],
+      "vips": [-5.401055567822882, -1.5922649648034999, -1.656758773204926],
+      "jsquash": [-6.354823056291411, 4.258885836617091, 6.056306250023115]
+    },
+    {
+      "run": "iterations",
+      "description": "Couple native iteration counts",
+      "control": [7.773071569972403, 6.085195902907948, 5.265496587473594],
+      "vips": [-4.7113077801575525, -0.3305003920145315, -0.31812505359118126],
+      "jsquash": [-5.65715638556312, 5.415457202005337, 7.4219459784686075]
+    },
+    {
+      "run": "static",
+      "description": "Native iterations, constant sharpness 4",
+      "control": [2.2393125185467238, 1.954832622936109, 1.2310062677001945],
+      "vips": [-8.534966910993974, -4.003804341239124, -3.8812651964828153],
+      "jsquash": [-9.519331011578481, 1.6831103258565074, 3.342849041215478]
+    },
+    {
+      "run": "luma",
+      "description": "Luma error only",
+      "control": [5.1455608487968725, 4.1479970200280825, 3.190080071167649],
+      "vips": [-6.591936641425369, -2.123284437913524, -2.2234304953284885],
+      "jsquash": [-7.415545563861671, 3.7598256303157274, 5.381026484678375]
+    },
+    {
+      "run": "unmasked",
+      "description": "Unmasked XYB error",
+      "control": [5.196461428553745, 4.603261218350518, 3.4079327975847127],
+      "vips": [-6.619821445170349, -1.6958559293620559, -2.020445679708452],
+      "jsquash": [-7.426018629359563, 4.263334388813169, 5.608428848394317]
+    },
+    {
+      "run": "safe",
+      "description": "Require 1% actual error reduction",
+      "control": [5.166843581503991, 4.182579576200327, 3.367036943060999],
+      "vips": [-6.4417863031853875, -2.0398908861076896, -2.050578387672113],
+      "jsquash": [-7.391626831608766, 3.7286037510511227, 5.544752923938308]
+    },
+    {
+      "run": "weak",
+      "description": "Require 5% actual error reduction",
+      "control": [2.1650101466007854, 1.597431915876139, 1.6596158492312396],
+      "vips": [-8.760396025268513, -4.351371072872047, -3.586936593601681],
+      "jsquash": [-9.684692021222727, 1.27763786994779, 3.817949707940688]
+    },
+    {
+      "run": "forward",
+      "description": "Separable/paired writer transforms",
+      "control": [0, 0, 0],
+      "vips": [-10.65362134650059, -5.8664989942794, -5.164194269951685],
+      "jsquash": [-11.54616340908252, -0.2995007305121049, 2.1154609263680157]
+    }
+  ],
+  "fullWriter": {
+    "executionComplete": true,
+    "byteIdentical": 572,
+    "control": [3.707280779137064e-5, -2.7049109520955918e-5, -3.8779024459677084e-5],
+    "vips": [-8.002765999325776, -5.0302865456361205, -5.582248431182134],
+    "jsquash": [-8.47351755704432, 0.2268080373913741, 2.571320343833548],
+    "independentDecodes": {
+      "points": 576,
+      "maximumCodeDifference": 1
+    },
+    "mainGuards": {
+      "ssimAdmitted": 8,
+      "ssimFailures": 0,
+      "worstSsimPercent": 7.192477501604983,
+      "norm3Admitted": 0
+    },
+    "nativeReplay": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -10.208116118469244,
+        "median": -7.379245027910612,
+        "p90": -3.2804318450174286,
+        "worst": -1.5544169159750516,
+        "fullBandCount": 46
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -5.976008253806734,
+        "median": -3.9537599766546254,
+        "p90": -1.0826923686800738,
+        "worst": 0.6402647848081364,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.243917807457683,
+        "median": -3.7436344881087362,
+        "p90": 1.5476808520891399,
+        "worst": 4.59000052549645,
+        "fullBandCount": 0
+      }
+    ]
+  },
+  "qualityOutputs": 1376,
+  "holdoutRerun": false,
+  "mapAudit": [
+    {
+      "mode": "standalone-guard-coarse",
+      "bytes": 32830,
+      "histogram": [0, 0, 0, 0, 4096, 0, 0, 0]
+    },
+    {
+      "mode": "standalone-ar-native",
+      "bytes": 33433,
+      "histogram": [2195, 0, 38, 0, 0, 0, 0, 1863]
+    },
+    {
+      "mode": "standalone-ar-four",
+      "bytes": 33695,
+      "histogram": [1922, 0, 23, 0, 497, 0, 0, 1654]
+    },
+    {
+      "mode": "standalone-ar-unbiased",
+      "bytes": 33634,
+      "histogram": [863, 0, 930, 0, 0, 0, 0, 2303]
+    },
+    {
+      "mode": "standalone-ar-iterations",
+      "bytes": 33395,
+      "histogram": [2690, 0, 88, 0, 0, 0, 0, 1318]
+    }
+  ],
+  "speed": {
+    "forward-speed": {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-reconstruction-20261017/forward-speed.json",
+      "modes": ["standalone-guard-coarse", "standalone-forward-all"],
+      "samples": 21,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1033.837802999995,
+        "mad": 28.121932999994897,
+        "iqr": 45.127612999998746,
+        "cv": 0.044988866226089406
+      },
+      "candidate": {
+        "median": 1003.5387339999979,
+        "mad": 28.19054999999571,
+        "iqr": 54.87429800000427,
+        "cv": 0.045934122062713766
+      },
+      "paired": {
+        "median": -3.278082787037495,
+        "mad": 5.1784945048507955,
+        "iqr": 9.686978398495194,
+        "cv": 2.0749532128450596
+      },
+      "wins": 13,
+      "peakManagedBytes": 5682267
+    },
+    "direct-speed": {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-reconstruction-20261017/direct-speed.json",
+      "modes": ["standalone-guard-coarse", "standalone-forward-all"],
+      "samples": 21,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1041.8792729999986,
+        "mad": 22.96889799999917,
+        "iqr": 42.8048800000015,
+        "cv": 0.033877865778449694
+      },
+      "candidate": {
+        "median": 1001.8385629999975,
+        "mad": 22.12367499999891,
+        "iqr": 44.37944400000197,
+        "cv": 0.05518322408616959
+      },
+      "paired": {
+        "median": -2.7102537999939447,
+        "mad": 3.0441325381988404,
+        "iqr": 5.506579942749757,
+        "cv": 2.8879115749297215
+      },
+      "wins": 15,
+      "peakManagedBytes": 5682267
+    },
+    "texture-speed": {
+      "path": ".tmp/jpegxl-lossy-lab/standalone-reconstruction-20261017/texture-speed.json",
+      "modes": ["standalone-guard-coarse", "standalone-forward-all"],
+      "samples": 21,
+      "byteIdentical": true,
+      "baseline": {
+        "median": 1079.401625999999,
+        "mad": 37.230767000000924,
+        "iqr": 69.70730200000253,
+        "cv": 0.044489186300497426
+      },
+      "candidate": {
+        "median": 1032.2183160000022,
+        "mad": 25.231222999998863,
+        "iqr": 38.36731399999735,
+        "cv": 0.04710438385495649
+      },
+      "paired": {
+        "median": -4.08069454142862,
+        "mad": 2.734330915189064,
+        "iqr": 5.445401976012043,
+        "cv": 1.1262887902917031
+      },
+      "wins": 18,
+      "peakManagedBytes": 5678171
+    }
+  },
+  "writerRetainedOnResearchBranch": true,
+  "productionCodeChanged": false,
+  "verification": {
+    "experimentalFocusedCases": 101,
+    "retainedFocusedCases": 71,
+    "browsers": ["Chromium", "Firefox", "WebKit"],
+    "fullCheck": {
+      "status": "passed",
+      "startedAt": "2026-10-18T02:35:17.464Z",
+      "endedAt": "2026-10-18T02:44:07.398Z",
+      "code": 0,
+      "signal": null,
+      "passedTests": 4156,
+      "skippedTests": 3,
+      "passedFiles": 328,
+      "skippedFiles": 1,
+      "testDurationSeconds": 489.92,
+      "commandDurationSeconds": 529.934
+    },
+    "runtimeDependencies": 0,
+    "bundleBytes": {
+      "codec": 614941,
+      "specialized": 687773
+    }
+  },
+  "coldCropSpeed": {
+    "executionPass": true,
+    "reusedSpeedJobs": 0,
+    "mediansMs": {
+      "purejsimage": 1280.3424025,
+      "jsquash": 485.754009,
+      "vips": 333.819846
+    },
+    "ratioToJsquash": 2.6357835010683357,
+    "managedPeakBytes": 8760382
+  },
+  "original13Speed": {
+    "executionPass": true,
+    "mediansMs": {
+      "purejsimage": 41894.447317,
+      "jsquash": 24662.238014,
+      "vips": 9220.971568
+    },
+    "ratioToJsquash": 1.6987285295526626,
+    "managedPeakBytes": 59139199,
+    "encoderProcessPeakRssBytes": 437436416,
+    "independentMaximumCodeDifference": 1
+  },
+  "arVirtualDecomposition": [
+    {
+      "run": "native",
+      "meanMatchedFileSizePercent": 4.32066944183061,
+      "qualityAtControlBytes": {
+        "ssimulacra2": -0.5811271657851065,
+        "butteraugliNorm3": -0.7481786182849887,
+        "butteraugliMax": -1.0300963451212055
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 5.696048746691752,
+        "butteraugliNorm3": 4.857280837182937,
+        "butteraugliMax": 4.217544289518106
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "four",
+      "meanMatchedFileSizePercent": 5.141779642978911,
+      "qualityAtControlBytes": {
+        "ssimulacra2": -0.755842054790544,
+        "butteraugliNorm3": -0.9496501441945702,
+        "butteraugliMax": -1.3993647478023072
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 6.739721495335533,
+        "butteraugliNorm3": 5.8875206364222015,
+        "butteraugliMax": 5.262739198091217
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "weak",
+      "meanMatchedFileSizePercent": 2.2285970021634673,
+      "qualityAtControlBytes": {
+        "ssimulacra2": -0.591888084822459,
+        "butteraugliNorm3": -1.0699019828024616,
+        "butteraugliMax": -0.6492552739432549
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 2.765961923269923,
+        "butteraugliNorm3": 2.6879095184653576,
+        "butteraugliMax": 2.309479792076987
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    }
+  ],
+  "arSignalAudit": {
+    "fixture": "development im26-3012/d2",
+    "unchangedDecisionFields": [
+      "strategies",
+      "strategyFirstBlocks",
+      "rawQuantization",
+      "globalScale",
+      "quantDc",
+      "dcQuantization",
+      "colorCorrelation",
+      "correlationX",
+      "correlationB",
+      "gaborish",
+      "epfIterations",
+      "gaborishWeights",
+      "epfSharpness",
+      "epfWeights",
+      "epfSigma",
+      "xQuantizationScale",
+      "bQuantizationScale",
+      "smoothDc",
+      "quantizationTables",
+      "dcExtraPrecision",
+      "passCount",
+      "patches",
+      "noise",
+      "splines"
+    ],
+    "sharpnessChanges": 4096
+  }
+}

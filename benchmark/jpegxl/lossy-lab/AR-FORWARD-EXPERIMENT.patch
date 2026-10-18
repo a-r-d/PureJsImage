@@ -1,0 +1,929 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 4e9dfba4..32fcc8b2 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -71,6 +71,19 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-selector-mask' ||
+     value === 'standalone-selector-copy' ||
+     value === 'standalone-selector-mask-copy' ||
++    value === 'standalone-ar-iterations' ||
++    value === 'standalone-ar-iterations-static' ||
++    value === 'standalone-forward-small' ||
++    value === 'standalone-forward-paired' ||
++    value === 'standalone-forward-all' ||
++    value === 'standalone-ar-native' ||
++    value === 'standalone-ar-unbiased' ||
++    value === 'standalone-ar-four' ||
++    value === 'standalone-ar-all' ||
++    value === 'standalone-ar-unmasked' ||
++    value === 'standalone-ar-luma' ||
++    value === 'standalone-ar-safe' ||
++    value === 'standalone-ar-weak' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -154,6 +167,19 @@ export function libjxlPortOverrides(
+     mode === 'standalone-selector-mask' ||
+     mode === 'standalone-selector-copy' ||
+     mode === 'standalone-selector-mask-copy' ||
++    mode === 'standalone-ar-iterations' ||
++    mode === 'standalone-ar-iterations-static' ||
++    mode === 'standalone-forward-small' ||
++    mode === 'standalone-forward-paired' ||
++    mode === 'standalone-forward-all' ||
++    mode === 'standalone-ar-native' ||
++    mode === 'standalone-ar-unbiased' ||
++    mode === 'standalone-ar-four' ||
++    mode === 'standalone-ar-all' ||
++    mode === 'standalone-ar-unmasked' ||
++    mode === 'standalone-ar-luma' ||
++    mode === 'standalone-ar-safe' ||
++    mode === 'standalone-ar-weak' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 24652a69..886a8bf1 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -17,6 +17,7 @@ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+ import { strategyPortOverrides } from './libjxl-strategy-port.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
++import { libjxlArSharpness, type ArPort } from './libjxl-ar-port.ts'
+ 
+ export type StandalonePort =
+   | 'standalone'
+@@ -63,6 +64,19 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
++  | 'standalone-ar-iterations'
++  | 'standalone-ar-iterations-static'
++  | 'standalone-forward-small'
++  | 'standalone-forward-paired'
++  | 'standalone-forward-all'
++  | 'standalone-ar-native'
++  | 'standalone-ar-unbiased'
++  | 'standalone-ar-four'
++  | 'standalone-ar-all'
++  | 'standalone-ar-unmasked'
++  | 'standalone-ar-luma'
++  | 'standalone-ar-safe'
++  | 'standalone-ar-weak'
+ 
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -82,7 +96,39 @@ export function libjxlStandaloneOverrides(
+             : undefined
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+-  const coarseAllocation = requestedMode === 'standalone-guard-coarse'
++  const writerTransform =
++    requestedMode === 'standalone-forward-small'
++      ? 'small'
++      : requestedMode === 'standalone-forward-paired'
++        ? 'paired'
++        : requestedMode === 'standalone-forward-all'
++          ? 'all'
++          : undefined
++  const arMode: ArPort | undefined =
++    requestedMode === 'standalone-ar-iterations'
++      ? 'iterations'
++      : requestedMode === 'standalone-ar-native'
++        ? 'native'
++        : requestedMode === 'standalone-ar-unbiased'
++          ? 'unbiased'
++          : requestedMode === 'standalone-ar-four'
++            ? 'four'
++            : requestedMode === 'standalone-ar-all'
++              ? 'all'
++              : requestedMode === 'standalone-ar-unmasked'
++                ? 'unmasked'
++                : requestedMode === 'standalone-ar-luma'
++                  ? 'luma'
++                  : requestedMode === 'standalone-ar-safe'
++                    ? 'safe'
++                    : requestedMode === 'standalone-ar-weak'
++                      ? 'weak'
++                      : undefined
++  const coarseAllocation =
++    requestedMode === 'standalone-guard-coarse' ||
++    arMode !== undefined ||
++    requestedMode === 'standalone-ar-iterations-static' ||
++    writerTransform !== undefined
+   const inverseWeights =
+     requestedMode === 'standalone-selector-inverse' ||
+     requestedMode === 'standalone-selector-mask' ||
+@@ -179,7 +225,12 @@ export function libjxlStandaloneOverrides(
+       if (defaults && mode === 'standalone-epf0') defaults.epfIterations = 0
+       if (defaults && mode === 'standalone-sharp5') defaults.sharpness = 5
+       if (defaults && mode === 'standalone-sharp6') defaults.sharpness = 6
+-      if (defaults && (mode === 'standalone-epf1' || refined))
++      if (
++        defaults &&
++        requestedMode !== 'standalone-ar-iterations' &&
++        requestedMode !== 'standalone-ar-iterations-static' &&
++        (mode === 'standalone-epf1' || refined)
++      )
+         defaults.epfIterations = Math.min(1, defaults.epfIterations)
+       const field = libjxlInitialQuantField(
+         base,
+@@ -234,6 +285,7 @@ export function libjxlStandaloneOverrides(
+             coarseAllocation,
+           lossScale,
+           ...(writerEstimate ? { writerEstimate } : {}),
++          ...(writerTransform ? { writerTransform } : {}),
+           compactStorage:
+             requestedMode === 'standalone-guard-packed' ||
+             requestedMode === 'standalone-guard-bounded' ||
+@@ -247,7 +299,7 @@ export function libjxlStandaloneOverrides(
+           limit16: mode === 'standalone-16',
+         }).rewriteGeometry
+         if (!select) throw new Error('Missing standalone selector')
+-        return select(
++        const selected = select(
+           {
+             ...base,
+             smoothDc: mode !== 'standalone-refined-nosmooth' && !guardNoSmooth,
+@@ -259,6 +311,8 @@ export function libjxlStandaloneOverrides(
+           },
+           cached ?? filtered ?? context,
+         )
++        if (arMode) libjxlArSharpness(selected, context, distance, width, height, arMode)
++        return selected
+       } finally {
+         base.memory?.release(field)
+         cached?.release()
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index f76f12e8..84c17262 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -85,6 +85,7 @@ export interface StrategyOptions {
+   symmetricInverse?: boolean
+   limit16?: boolean
+   compactStorage?: boolean
++  writerTransform?: 'small' | 'paired' | 'all'
+   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
+   pairedTransform?: boolean
+   inverseWeights?: boolean
+@@ -125,6 +126,7 @@ function selectGeometry(
+     limit16 = false,
+     compactStorage = false,
+     writerEstimate,
++    writerTransform,
+     pairedTransform = false,
+     inverseWeights = false,
+     rowMask = false,
+@@ -589,6 +591,7 @@ function selectGeometry(
+       false,
+       false,
+       compactStorage,
++      writerTransform,
+     )
+   } finally {
+     memory.release(strategies)
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 2bbf480e..8ccbd6ac 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -16,6 +16,7 @@ import {
+   jpegXlVarDctStrategyBlockHeights,
+ } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
+ import { forwardDevelopmentTransform, developmentDcGrid } from './transform-kernels.ts'
++import { forwardSelectorTransform, forwardPairedSelectorTransform } from './selector-transforms.ts'
+ import type { TransplantDecisions } from './decisions.ts'
+ import { libjxlRoundtripLuma, libjxlChromaResidual } from './libjxl-chroma-roundtrip-port.ts'
+ 
+@@ -29,6 +30,7 @@ export function rewriteStrategyGeometry(
+   exactQuant: boolean,
+   roundtripChroma = false,
+   compactStorage = false,
++  writerTransform?: 'small' | 'paired' | 'all',
+ ): VarDctCoefficientGeometry {
+   const memory = base.memory
+   if (
+@@ -42,6 +44,30 @@ export function rewriteStrategyGeometry(
+   const q = memory.allocate(Int32Array, strategies.length)
+   if (!base.quantizationMap) throw new Error('Missing own quant field')
+   q.set(base.quantizationMap)
++  const pairs =
++    writerTransform === 'paired' || writerTransform === 'all'
++      ? memory.allocate(Float64Array, 64)
++      : undefined
++  const transform = writerTransform
++    ? (
++        strategy: number,
++        plane: Float32Array,
++        scratch: Float64Array,
++        result: Float64Array,
++      ): void => {
++        if (
++          pairs &&
++          (writerTransform === 'all' ||
++            (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) *
++              (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) >
++              1)
++        )
++          forwardPairedSelectorTransform(strategy, plane, scratch, result, pairs)
++        else if (writerTransform === 'small' && strategy <= 3)
++          forwardSelectorTransform(strategy, plane, scratch, result)
++        else forwardDevelopmentTransform(strategy, plane, scratch, result)
++      }
++    : forwardDevelopmentTransform
+   const scratch = memory.allocate(Float64Array, 4096)
+   const transformed = [
+     memory.allocate(Float64Array, 4096),
+@@ -163,7 +189,7 @@ export function rewriteStrategyGeometry(
+             const plane = source[c]
+             const result = transformed[c]
+             if (!plane || !result) throw new Error('Missing transform plane')
+-            forwardDevelopmentTransform(strategy, plane, scratch, result)
++            transform(strategy, plane, scratch, result)
+             {
+               developmentDcGrid(result, bw, bh, dc)
+               const target = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
+@@ -269,6 +295,7 @@ export function rewriteStrategyGeometry(
+     }
+   }
+   for (const buffer of [...source, scratch, ...transformed, dc]) memory.release(buffer)
++  if (pairs) memory.release(pairs)
+   const restored = compactStorage
+     ? [
+         memory.allocate(Int16Array, 65536),
+diff --git a/src/codecs/jpegxl-vardct-render.ts b/src/codecs/jpegxl-vardct-render.ts
+index c3bba473..28d676db 100644
+--- a/src/codecs/jpegxl-vardct-render.ts
++++ b/src/codecs/jpegxl-vardct-render.ts
+@@ -1257,7 +1257,7 @@ export const inverseJpegXlDevelopmentTransform = (
+ }
+ 
+ const applyDefaultGaborish = (
+-  frame: Readonly<JpegXlFrameStructure>,
++  frame: Readonly<Pick<JpegXlFrameStructure, 'gaborishWeights'>>,
+   planes: readonly Float32Array[],
+   stride: number,
+   width: number,
+@@ -2170,6 +2170,12 @@ const applyDefaultEpfStage = (
+   }
+ }
+ 
++/** Internal bounded-tile conformance kernels used by the development lab. */
++export const gaborishJpegXlDevelopmentTile = applyDefaultGaborish
++export const epfJpegXlDevelopmentTile = applyDefaultEpfStage1
++export const epf0JpegXlDevelopmentTile = applyDefaultEpfStage0
++export const epf2JpegXlDevelopmentTile = applyDefaultEpfStage2
++
+ const makeEpfInverseSigmas = (
+   frame: Readonly<JpegXlFrameStructure>,
+   quantization: Int32Array<ArrayBufferLike>,
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 407b254b..c7914172 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -175,6 +175,19 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-selector-mask',
+     'standalone-selector-copy',
+     'standalone-selector-mask-copy',
++    'standalone-ar-iterations',
++    'standalone-ar-iterations-static',
++    'standalone-forward-small',
++    'standalone-forward-paired',
++    'standalone-forward-all',
++    'standalone-ar-native',
++    'standalone-ar-unbiased',
++    'standalone-ar-four',
++    'standalone-ar-all',
++    'standalone-ar-unmasked',
++    'standalone-ar-luma',
++    'standalone-ar-safe',
++    'standalone-ar-weak',
+     'standalone-guard-coarse',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index 7b619282..dc186f7b 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -59,6 +59,19 @@ it.each([
+   'standalone-selector-mask',
+   'standalone-selector-copy',
+   'standalone-selector-mask-copy',
++  'standalone-ar-iterations',
++  'standalone-ar-iterations-static',
++  'standalone-forward-small',
++  'standalone-forward-paired',
++  'standalone-forward-all',
++  'standalone-ar-native',
++  'standalone-ar-unbiased',
++  'standalone-ar-four',
++  'standalone-ar-all',
++  'standalone-ar-unmasked',
++  'standalone-ar-luma',
++  'standalone-ar-safe',
++  'standalone-ar-weak',
+   'standalone-guard-coarse',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+@@ -131,6 +144,19 @@ it.each([
+   'standalone-selector-mask',
+   'standalone-selector-copy',
+   'standalone-selector-mask-copy',
++  'standalone-ar-iterations',
++  'standalone-ar-iterations-static',
++  'standalone-forward-small',
++  'standalone-forward-paired',
++  'standalone-forward-all',
++  'standalone-ar-native',
++  'standalone-ar-unbiased',
++  'standalone-ar-four',
++  'standalone-ar-all',
++  'standalone-ar-unmasked',
++  'standalone-ar-luma',
++  'standalone-ar-safe',
++  'standalone-ar-weak',
+   'standalone-guard-coarse',
+ ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
+   for (const distance of [0.45, 2, 7.5]) {
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ar-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-ar-port.ts
+new file mode 100644
+index 00000000..049c02d8
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ar-port.ts
+@@ -0,0 +1,397 @@
++/**
++ * Source: libjxl lib/jxl/enc_heuristics.cc, ComputeARHeuristics and
++ * ComputeBlockL2Distance, v0.12.0, a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: reconstruct our emitted coefficients in 64x64 tiles with an eight
++ * pixel halo, reusing our normative inverse/filter kernels. No peer decisions.
++ * Preserve native choices, squared masking and channel weights; experimental
++ * variants change the candidate menu, masking or zero-smoothing preference.
++ * The native context multiplier is identically one: size_t histogram counts
++ * are strictly less than totals (initialized to one), so integer division is
++ * zero. Its final pass therefore reduces to independent weighted minima.
++ * Retains unsmoothed DC; the iteration diagnostic restores native iteration
++ * counts. Other modes preserve our one-iteration cap. Double error accumulators
++ * replace native float accumulators. Development only.
++ */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {
++  jpegXlDevelopmentDequantization,
++  populateJpegXlDevelopmentLowestFrequencies,
++  gaborishJpegXlDevelopmentTile,
++  epfJpegXlDevelopmentTile,
++  epf0JpegXlDevelopmentTile,
++  epf2JpegXlDevelopmentTile,
++} from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths as widths,
++  jpegXlVarDctStrategyBlockHeights as heights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
++import { selectorTileMask } from './selector-tile-mask.ts'
++
++export type ArPort =
++  | 'iterations'
++  | 'native'
++  | 'unbiased'
++  | 'four'
++  | 'all'
++  | 'unmasked'
++  | 'luma'
++  | 'safe'
++  | 'weak'
++
++export function arCandidateSteps(distance: number, mode: ArPort): readonly number[] {
++  if (mode === 'four' || mode === 'safe' || mode === 'weak') return [0, 2, 4, 7]
++  if (mode === 'all') return [0, 1, 2, 3, 4, 5, 6, 7]
++  return distance > 4.5 ? [0, 4] : [0, 2, 7]
++}
++
++export function arBestSharpness(
++  steps: readonly number[],
++  errors: ArrayLike<number>,
++  distance: number,
++  mode: ArPort,
++): number {
++  let best = 4
++  let bestError = Number.POSITIVE_INFINITY
++  const noSmoothing =
++    mode === 'unbiased'
++      ? 1
++      : Math.max(0.85970338919928291, 0.98017198824148288 ** Math.min(5, distance))
++  for (let i = 0; i < steps.length; i++) {
++    const value = steps[i] ?? 0
++    const error = (errors[i] ?? Number.POSITIVE_INFINITY) * (value === 0 ? noSmoothing : 1)
++    if (error < bestError) {
++      best = value
++      bestError = error
++    }
++  }
++  if (mode === 'safe' || mode === 'weak') {
++    const baseline = errors[steps.indexOf(4)] ?? Number.POSITIVE_INFINITY
++    const actual = errors[steps.indexOf(best)] ?? Number.POSITIVE_INFINITY
++    if (actual > baseline * (mode === 'safe' ? 0.99 : 0.95)) return 4
++  }
++  return best
++}
++
++function mirror(value: number, size: number): number {
++  if (size === 1) return 0
++  let p = value
++  while (p < 0 || p >= size) p = p < 0 ? -p - 1 : 2 * size - p - 1
++  return p
++}
++
++export function libjxlArSharpness(
++  base: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  distance: number,
++  width: number,
++  height: number,
++  mode: ArPort,
++  observe?: (sharpness: number, x: number, y: number, planes: readonly Float32Array[]) => void,
++): void {
++  const memory = base.memory
++  const sharpness = base.sharpnessMap
++  const strategies = base.strategyMap
++  const first = base.developmentFirstBlocks
++  const quantization = base.quantizationMap
++  if (!memory || !sharpness || !strategies || !first || !quantization || !base.loadAc)
++    throw new Error('Missing AR reconstruction geometry')
++  if (distance < 0.5 || base.developmentFilters?.epfIterations === 0) return
++  if (base.smoothDc) throw new Error('AR trial requires unsmoothed DC')
++  const steps = arCandidateSteps(distance, mode)
++  const owners = memory.allocate(Int32Array, strategies.length)
++  for (let y = 0; y < base.blocksHigh; y++)
++    for (let x = 0; x < base.blocksWide; x++) {
++      const at = y * base.blocksWide + x
++      if (!first[at]) continue
++      const strategy = strategies[at] ?? 0
++      const bw = widths[strategy] ?? 0,
++        bh = heights[strategy] ?? 0
++      for (let dy = 0; dy < bh; dy++)
++        for (let dx = 0; dx < bw; dx++) owners[at + dy * base.blocksWide + dx] = at
++    }
++  const raw = [
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++  ] as const
++  const filtered = [
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++  ] as const
++  const output = [
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++  ] as const
++  const differences = [
++    memory.allocate(Float32Array, 6400),
++    memory.allocate(Float32Array, 6400),
++  ] as const
++  const values = [
++    memory.allocate(Float64Array, 4096),
++    memory.allocate(Float64Array, 4096),
++    memory.allocate(Float64Array, 4096),
++  ] as const
++  const samples = [
++    memory.allocate(Float32Array, 4096),
++    memory.allocate(Float32Array, 4096),
++    memory.allocate(Float32Array, 4096),
++  ] as const
++  const scratch = memory.allocate(Float64Array, 4096)
++  const dc = memory.allocate(Float64Array, 64)
++  const frequencies = memory.allocate(Float64Array, 64)
++  const active = memory.allocate(Uint16Array, 64)
++  const seen = memory.allocate(Int32Array, 100)
++  const inverseSigmas = memory.allocate(Float64Array, 100)
++  const errors = memory.allocate(Float64Array, steps.length * 64)
++  const blockErrors = memory.allocate(Float64Array, steps.length)
++  const mask = selectorTileMask(base, context)
++  const invGlobal = 65536 / (base.globalScale ?? 0)
++  try {
++    for (let ty = 0; ty < base.blocksHigh; ty += 8)
++      for (let tx = 0; tx < base.blocksWide; tx += 8) {
++        const originX = tx * 8 - 8,
++          originY = ty * 8 - 8
++        const right = Math.min(width, originX + 80),
++          bottom = Math.min(height, originY + 80)
++        const copyFilteredOutput = (): void => {
++          for (let py = 0; py < 80; py++)
++            for (let px = 0; px < 80; px++) {
++              const x = mirror(originX + px, width) - originX
++              const y = mirror(originY + py, height) - originY
++              filtered[0][py * 80 + px] = output[0][y * 80 + x] ?? 0
++              filtered[1][py * 80 + px] = output[1][y * 80 + x] ?? 0
++              filtered[2][py * 80 + px] = output[2][y * 80 + x] ?? 0
++            }
++        }
++        const left = Math.max(0, originX),
++          top = Math.max(0, originY)
++        let seenCount = 0
++        for (let by = Math.max(0, ty - 1); by < Math.min(base.blocksHigh, ty + 9); by++)
++          for (let bx = Math.max(0, tx - 1); bx < Math.min(base.blocksWide, tx + 9); bx++) {
++            const owner = owners[by * base.blocksWide + bx] ?? 0
++            let found = false
++            for (let i = 0; i < seenCount; i++)
++              if (seen[i] === owner) {
++                found = true
++                break
++              }
++            if (found) continue
++            seen[seenCount++] = owner
++            const x = owner % base.blocksWide,
++              y = Math.floor(owner / base.blocksWide)
++            const strategy = strategies[owner] ?? 0,
++              bw = widths[strategy] ?? 0,
++              bh = heights[strategy] ?? 0
++            const size = bw * bh * 64
++            const group = Math.floor(y / 32) * base.groupsAcross + Math.floor(x / 32)
++            const planes = base.loadAc(group, 0)
++            const tile = Math.floor(y / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(x / 8)
++            const correlation = base.developmentCorrelation
++            for (let c = 0; c < 3; c++) {
++              const plane = planes[c],
++                target = values[c],
++                matrix = jpegXlDevelopmentDequantization(strategy)[c]
++              const dcPlane = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
++              const dst = samples[c]
++              if (!plane || !target || !matrix || !dcPlane || !dst)
++                throw new Error('Missing AR coefficient plane')
++              const offset =
++                plane.coefficientOffsets?.[(y % 32) * plane.blocksPerLineForMcu + (x % 32)]
++              if (offset === undefined || offset < 0)
++                throw new Error('Missing AR coefficient offset')
++              const scale =
++                (invGlobal / (quantization[owner] ?? 1)) *
++                (c === 0
++                  ? 0.8 ** ((base.xScale ?? 2) - 2)
++                  : c === 2
++                    ? 0.8 ** ((base.bScale ?? 2) - 2)
++                    : 1)
++              for (let p = 0; p < size; p++) {
++                const q =
++                  plane.coefficients[offset + (size === 64 ? (p & 7) * 8 + (p >>> 3) : p)] ?? 0
++                target[p] =
++                  (Math.abs(q) === 1
++                    ? Math.sign(q) * (defaultJpegXlQuantizationBiases[c] ?? 1)
++                    : q === 0
++                      ? 0
++                      : q - 0.145 / q) *
++                  scale *
++                  (matrix[p] ?? 0)
++              }
++            }
++            for (let c = 0; c < 3; c++) {
++              const target = values[c],
++                dst = samples[c],
++                dcPlane = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
++              if (!target || !dst || !dcPlane) throw new Error('Missing AR inverse plane')
++              const ratio =
++                c === 0
++                  ? (correlation?.baseCorrelationX ?? 0) +
++                    (base.correlationX?.[tile] ?? 0) / (correlation?.colorFactor ?? 84)
++                  : c === 2
++                    ? (correlation ? correlation.baseCorrelationB - 1 : 0) +
++                      (base.correlationB?.[tile] ?? 0) / (correlation?.colorFactor ?? 84)
++                    : 0
++              if (c !== 1)
++                for (let p = 0; p < size; p++)
++                  target[p] = (target[p] ?? 0) + (values[1][p] ?? 0) * ratio
++              const dcStep = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
++              for (let dy = 0; dy < bh; dy++)
++                for (let dx = 0; dx < bw; dx++)
++                  dc[dy * bw + dx] = (dcPlane[(y + dy) * base.blocksWide + x + dx] ?? 0) * dcStep
++              populateJpegXlDevelopmentLowestFrequencies(target, dc, bw, bh, frequencies)
++              inverseWeightedSelectorTransform(
++                strategy,
++                target.subarray(0, size),
++                scratch,
++                dst.subarray(0, size),
++                active,
++              )
++            }
++            for (let py = Math.max(top, y * 8); py < Math.min(bottom, (y + bh) * 8); py++)
++              for (let px = Math.max(left, x * 8); px < Math.min(right, (x + bw) * 8); px++) {
++                const p = (py - y * 8) * bw * 8 + px - x * 8,
++                  at = (py - originY) * 80 + px - originX
++                raw[0][at] = samples[0][p] ?? 0
++                raw[1][at] = samples[1][p] ?? 0
++                raw[2][at] = (samples[2][p] ?? 0) + (samples[1][p] ?? 0)
++              }
++          }
++        // Gaborish clamps the image edge; EPF mirrors it after Gaborish.
++        for (let py = 0; py < 80; py++)
++          for (let px = 0; px < 80; px++) {
++            const x = Math.max(left, Math.min(right - 1, originX + px)) - originX
++            const y = Math.max(top, Math.min(bottom - 1, originY + py)) - originY
++            raw[0][py * 80 + px] = raw[0][y * 80 + x] ?? 0
++            raw[1][py * 80 + px] = raw[1][y * 80 + x] ?? 0
++            raw[2][py * 80 + px] = raw[2][y * 80 + x] ?? 0
++          }
++        if (base.developmentFilters?.gaborish)
++          gaborishJpegXlDevelopmentTile({}, raw, 80, 80, 80, differences[0])
++        for (let py = 0; py < 80; py++)
++          for (let px = 0; px < 80; px++) {
++            const gx = originX + px,
++              gy = originY + py
++            if (gx >= 0 && gx < width && gy >= 0 && gy < height) continue
++            const x = mirror(gx, width) - originX,
++              y = mirror(gy, height) - originY
++            raw[0][py * 80 + px] = raw[0][y * 80 + x] ?? 0
++            raw[1][py * 80 + px] = raw[1][y * 80 + x] ?? 0
++            raw[2][py * 80 + px] = raw[2][y * 80 + x] ?? 0
++          }
++        errors.fill(0)
++        mask.fill(tx, ty)
++        for (let s = 0; s < steps.length; s++) {
++          for (let by = 0; by < 10; by++)
++            for (let bx = 0; bx < 10; bx++) {
++              const x = Math.max(0, Math.min(base.blocksWide - 1, tx + bx - 1)),
++                y = Math.max(0, Math.min(base.blocksHigh - 1, ty + by - 1))
++              const sigma = Math.min(
++                -1e-4,
++                ((0.46 /
++                  (((base.globalScale ?? 0) / 65536) *
++                    (quantization[y * base.blocksWide + x] ?? 1) *
++                    -1.17157287525381)) *
++                  (steps[s] ?? 0)) /
++                  7,
++              )
++              inverseSigmas[by * 10 + bx] = 1 / sigma
++            }
++          filtered[0].set(raw[0])
++          filtered[1].set(raw[1])
++          filtered[2].set(raw[2])
++          if ((base.developmentFilters?.epfIterations ?? 0) >= 3) {
++            epf0JpegXlDevelopmentTile(
++              filtered,
++              80,
++              80,
++              80,
++              10,
++              inverseSigmas,
++              0,
++              output,
++              differences,
++              80,
++            )
++            copyFilteredOutput()
++          }
++          epfJpegXlDevelopmentTile(
++            filtered,
++            80,
++            80,
++            80,
++            10,
++            inverseSigmas,
++            0,
++            output,
++            differences,
++            80,
++          )
++          if ((base.developmentFilters?.epfIterations ?? 0) >= 2) {
++            copyFilteredOutput()
++            epf2JpegXlDevelopmentTile(filtered, 80, 80, 80, 10, inverseSigmas, 0, output, 80)
++          }
++          observe?.(steps[s] ?? 0, tx * 8, ty * 8, output)
++          for (let by = 0; by < Math.min(8, base.blocksHigh - ty); by++)
++            for (let bx = 0; bx < Math.min(8, base.blocksWide - tx); bx++) {
++              const source = context.readBlock(tx + bx, ty + by, false)
++              let errorX = 0,
++                errorY = 0,
++                errorB = 0
++              for (let py = 0; py < Math.min(8, height - (ty + by) * 8); py++)
++                for (let px = 0; px < Math.min(8, width - (tx + bx) * 8); px++) {
++                  const p = py * 8 + px,
++                    at = (by * 8 + py + 8) * 80 + bx * 8 + px + 8
++                  const m =
++                    mode === 'unmasked' ? 1 : (mask.data[(by * 8 + py) * 64 + bx * 8 + px] ?? 1)
++                  const dx = (source[0]?.[p] ?? 0) - (output[0][at] ?? 0)
++                  const dy = (source[1]?.[p] ?? 0) - (output[1][at] ?? 0)
++                  const db = (source[2]?.[p] ?? 0) + (source[1]?.[p] ?? 0) - (output[2][at] ?? 0)
++                  errorX += m * m * dx * dx
++                  errorY += m * m * dy * dy
++                  errorB += m * m * db * db
++                }
++              errors[s * 64 + by * 8 + bx] =
++                mode === 'luma' ? errorY : 12.339445295782363 * errorX + errorY + 0.2 * errorB
++            }
++        }
++        for (let by = 0; by < Math.min(8, base.blocksHigh - ty); by++)
++          for (let bx = 0; bx < Math.min(8, base.blocksWide - tx); bx++) {
++            for (let s = 0; s < steps.length; s++)
++              blockErrors[s] = errors[s * 64 + by * 8 + bx] ?? 0
++            sharpness[(ty + by) * base.blocksWide + tx + bx] = arBestSharpness(
++              steps,
++              blockErrors,
++              distance,
++              mode,
++            )
++          }
++      }
++  } finally {
++    mask.release()
++    for (const buffer of [
++      owners,
++      ...raw,
++      ...filtered,
++      ...output,
++      ...differences,
++      ...values,
++      ...samples,
++      scratch,
++      dc,
++      frequencies,
++      active,
++      seen,
++      inverseSigmas,
++      errors,
++      blockErrors,
++    ])
++      memory.release(buffer)
++  }
++}
+diff --git a/tests/jpegxl-libjxl-ar-port.test.ts b/tests/jpegxl-libjxl-ar-port.test.ts
+new file mode 100644
+index 00000000..a362d234
+--- /dev/null
++++ b/tests/jpegxl-libjxl-ar-port.test.ts
+@@ -0,0 +1,130 @@
++import { expect, it } from 'vitest'
++import { arBestSharpness, arCandidateSteps } from '../benchmark/jpegxl/lossy-lab/libjxl-ar-port.ts'
++
++it('uses the native low and high distance sharpness choices', () => {
++  expect(arCandidateSteps(4.5, 'native')).toEqual([0, 2, 7])
++  expect(arCandidateSteps(4.51, 'native')).toEqual([0, 4])
++})
++
++it('preserves the native preference for no smoothing on tied errors', () => {
++  expect(arBestSharpness([0, 2, 7], [1, 1, 1], 2, 'native')).toBe(0)
++  expect(arBestSharpness([0, 2, 7], [1.02, 1, 1.1], 2, 'native')).toBe(0)
++  expect(arBestSharpness([0, 2, 7], [1.02, 1, 1.1], 2, 'unbiased')).toBe(2)
++})
++
++it('chooses reconstructed error rather than sharpness ordering', () => {
++  expect(arBestSharpness([0, 2, 7], [3, 2, 1], 2, 'native')).toBe(7)
++  expect(arBestSharpness([0, 2, 7], [3, 1, 2], 2, 'native')).toBe(2)
++})
++
++it('bounds the no-smoothing preference at coarse distances', () => {
++  expect(arBestSharpness([0, 4], [1.12, 1], 5, 'native')).toBe(4)
++  expect(arBestSharpness([0, 4], [1.12, 1], 25, 'native')).toBe(4)
++  expect(arBestSharpness([0, 4], [1.09, 1], 5, 'native')).toBe(0)
++})
++
++it('requires a meaningful improvement before replacing the retained sharpness', () => {
++  expect(arBestSharpness([0, 2, 4, 7], [3, 0.995, 1, 2], 2, 'safe')).toBe(4)
++  expect(arBestSharpness([0, 2, 4, 7], [3, 0.98, 1, 2], 2, 'safe')).toBe(2)
++  expect(arBestSharpness([0, 2, 4, 7], [3, 0.98, 1, 2], 2, 'weak')).toBe(4)
++})
++
++it.each([
++  [73, 29, 2],
++  [273, 79, 2],
++  [73, 29, 7],
++  [273, 79, 7],
++])(
++  'reconstructs emitted pixels across tile and group boundaries (%s x %s, d%s)',
++  async (width, height, distance) => {
++    const { libjxlPortOverrides } = await import('../benchmark/jpegxl/lossy-lab/libjxl-ports.ts')
++    const { libjxlArSharpness } = await import('../benchmark/jpegxl/lossy-lab/libjxl-ar-port.ts')
++    const { encodeTransplant } = await import('../benchmark/jpegxl/lossy-lab/transplant.ts')
++    const { convertJpegXlNativeXybPlanes } = await import('../src/codecs/jpegxl-vardct-render.ts')
++    const { jpegxlCodec } = await import('../src/codecs/jpegxl.ts')
++    const { MemorySource } = await import('../src/source.ts')
++    const { defaultImageLimits } = await import('../src/limits.ts')
++    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++      i % 4 === 3
++        ? 255
++        : Math.round(
++            100 +
++              (i % 4) * 20 +
++              25 * Math.sin(Math.floor(i / 4) / 7) +
++              15 * Math.cos(Math.floor(i / 4 / width) / 5),
++          ),
++    )
++    const reconstructed = [
++      new Float64Array(width * height),
++      new Float64Array(width * height),
++      new Float64Array(width * height),
++    ] as const
++    const overrides = libjxlPortOverrides(
++      distance === 7 ? 'standalone-ar-iterations-static' : 'standalone-guard-coarse',
++      distance,
++      width,
++      height,
++    )
++    const rewrite = overrides.rewriteGeometry
++    if (!rewrite) throw new Error('Missing standalone rewrite')
++    const encoded = await encodeTransplant(pixels, width, height, distance, {
++      ...overrides,
++      rewriteGeometry(base, context) {
++        const geometry = rewrite(base, context)
++        libjxlArSharpness(
++          geometry,
++          context,
++          2,
++          width,
++          height,
++          'four',
++          (sharpness, x, y, planes) => {
++            if (sharpness !== 4) return
++            for (let py = 0; py < Math.min(64, height - y); py++)
++              for (let px = 0; px < Math.min(64, width - x); px++)
++                for (let c = 0; c < 3; c++) {
++                  const target = reconstructed[c]
++                  if (!target) throw new Error('Missing reconstruction target')
++                  target[(y + py) * width + x + px] = planes[c]?.[(py + 8) * 80 + px + 8] ?? 0
++                }
++          },
++        )
++        geometry.sharpnessMap?.fill(4)
++        return geometry
++      },
++    })
++    const rgb = convertJpegXlNativeXybPlanes(reconstructed, undefined)
++    const decoder = await jpegxlCodec.createDecoder?.(
++      new MemorySource(encoded.bytes),
++      defaultImageLimits,
++    )
++    if (!decoder) throw new Error('Missing decoder')
++    let maximum = 0,
++      count = 0
++    for await (const block of decoder.decode()) {
++      try {
++        for (let y = 0; y < block.height; y++)
++          for (let x = 0; x < block.width; x++)
++            for (let c = 0; c < 3; c++) {
++              const expected = Math.max(
++                0,
++                Math.min(255, Math.round((rgb[c]?.[(block.y + y) * width + x] ?? 0) * 255)),
++              )
++              maximum = Math.max(
++                maximum,
++                Math.abs(expected - (block.data[y * block.stride + x * 4 + c] ?? 0)),
++              )
++              count++
++            }
++      } finally {
++        block.release?.()
++      }
++    }
++    expect(count).toBe(width * height * 3)
++    expect(maximum).toBeLessThanOrEqual(1)
++  },
++)
++
++it('requires actual error reduction even when the no-smoothing bias prefers zero', () => {
++  expect(arBestSharpness([0, 2, 4, 7], [1.02, 2, 1, 3], 2, 'safe')).toBe(4)
++})
+diff --git a/tests/jpegxl-writer-forward.test.ts b/tests/jpegxl-writer-forward.test.ts
+new file mode 100644
+index 00000000..b94231d0
+--- /dev/null
++++ b/tests/jpegxl-writer-forward.test.ts
+@@ -0,0 +1,37 @@
++import { expect, it } from 'vitest'
++import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
++import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
++
++it.each([
++  'standalone-forward-small',
++  'standalone-forward-paired',
++  'standalone-forward-all',
++] as const)('preserves encoded bytes using %s writer transforms', async (mode) => {
++  const width = 129,
++    height = 89
++  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++    i % 4 === 3
++      ? 255
++      : Math.round(
++          80 +
++            (i % 4) * 30 +
++            25 * Math.sin(Math.floor(i / 4) / 12) +
++            10 * Math.cos(Math.floor(i / 4 / width) / 9),
++        ),
++  )
++  const baseline = await encodeTransplant(
++    pixels,
++    width,
++    height,
++    2,
++    libjxlPortOverrides('standalone-guard-coarse', 2, width, height),
++  )
++  const candidate = await encodeTransplant(
++    pixels,
++    width,
++    height,
++    2,
++    libjxlPortOverrides(mode, 2, width, height),
++  )
++  expect(candidate.bytes).toEqual(baseline.bytes)
++})

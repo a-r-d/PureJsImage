@@ -121,11 +121,11 @@ main merge. Full watch/scale promotion remains pending.
 
 Estimated remaining upside, ranked qualitatively; none is measured here:
 
-1. Final quantizer refinement after transform selection. Native FindBestQuantizer
-   uses reconstructed error after the initial field and AdjustQuantField stages.
-   This has the highest plausible quality upside. A bounded, cheap approximation
-   needs a separate large-port proposal; the native perceptual search has unknown
-   TypeScript speed and memory cost.
+1. Correction from the next source audit: native FindBestQuantizer runs its
+   normal perceptual refinement only at speed tiers at most kKitten (2), which
+   means effort 8 and above. Effort 7 maps to kSquirrel (3) and skips it. It is
+   therefore not a missing decision in our target peer. A cheap first-party
+   refinement could still be tested separately; this report did not measure it.
 2. Reconstruction-driven EPF sharpness. Native ComputeARHeuristics evaluates
    reconstructed block error, while our retained mode uses constant sharpness
    and caps iterations. Estimated upside is moderate and may affect texture

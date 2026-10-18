@@ -321,3 +321,21 @@ The new port, all trial aliases and tests are preserved in
 `c706e64d`). The patch applies cleanly; these experiments are removed from
 active code. `lossy-lab/CFL-MENU-REPORT.md` records the measurements and the
 remaining hypotheses. No new source logic is promoted.
+
+## Reconstruction-driven EPF continuation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-ar-port.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeARHeuristics and ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Sharpness candidates, distance threshold, squared initial masking, XYB weights and no-smoothing preference. Reconstruct our final coefficients using existing first-party normative transforms and filters on 64x64 tiles with an eight-pixel halo. Preserve unsmoothed DC; the iteration diagnostic restores native iteration counts. Other modes keep the retained one-iteration cap. Error accumulators use doubles. No peer maps. The native histogram multiplier simplifies exactly to one because its integer count/total ratio is always zero. Additional menus, luma-only and unmasked losses, and minimum-gain guards are first-party experiments. |
+
+Source audit correction: `encode.cc` maps effort to `10 - effort`; `common.h`
+defines kKitten=2 and kSquirrel=3. `FindBestQuantizer` in
+`enc_adaptive_quantization.cc` runs normal perceptual refinement only through
+kKitten. It therefore skips that refinement at our effort-7 target.
+The existing full BSD-3 license and npm/docs inclusion remain unchanged.
+
+All nine AR screens are rejected. The port, its source header and tests are
+preserved in `lossy-lab/AR-FORWARD-EXPERIMENT.patch` for `1f8d6a5a`; active AR
+code, aliases and normative-kernel exports are removed. The same patch also
+preserves the separate first-party writer experiment. Its existing transform
+kernels contain no new third-party decision logic.

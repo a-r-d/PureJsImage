@@ -59,6 +59,9 @@ it.each([
   'standalone-selector-mask',
   'standalone-selector-copy',
   'standalone-selector-mask-copy',
+  'standalone-forward-small',
+  'standalone-forward-paired',
+  'standalone-forward-all',
   'standalone-guard-coarse',
   'standalone-selector-pairs',
   'standalone-sharp2',
@@ -131,6 +134,9 @@ it.each([
   'standalone-selector-mask',
   'standalone-selector-copy',
   'standalone-selector-mask-copy',
+  'standalone-forward-small',
+  'standalone-forward-paired',
+  'standalone-forward-all',
   'standalone-guard-coarse',
 ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
   for (const distance of [0.45, 2, 7.5]) {

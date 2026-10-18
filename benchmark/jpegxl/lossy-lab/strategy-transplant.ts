@@ -16,6 +16,7 @@ import {
   jpegXlVarDctStrategyBlockHeights,
 } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
 import { forwardDevelopmentTransform, developmentDcGrid } from './transform-kernels.ts'
+import { forwardSelectorTransform, forwardPairedSelectorTransform } from './selector-transforms.ts'
 import type { TransplantDecisions } from './decisions.ts'
 import { libjxlRoundtripLuma, libjxlChromaResidual } from './libjxl-chroma-roundtrip-port.ts'
 
@@ -29,6 +30,7 @@ export function rewriteStrategyGeometry(
   exactQuant: boolean,
   roundtripChroma = false,
   compactStorage = false,
+  writerTransform?: 'small' | 'paired' | 'all',
 ): VarDctCoefficientGeometry {
   const memory = base.memory
   if (
@@ -42,6 +44,30 @@ export function rewriteStrategyGeometry(
   const q = memory.allocate(Int32Array, strategies.length)
   if (!base.quantizationMap) throw new Error('Missing own quant field')
   q.set(base.quantizationMap)
+  const pairs =
+    writerTransform === 'paired' || writerTransform === 'all'
+      ? memory.allocate(Float64Array, 64)
+      : undefined
+  const transform = writerTransform
+    ? (
+        strategy: number,
+        plane: Float32Array,
+        scratch: Float64Array,
+        result: Float64Array,
+      ): void => {
+        if (
+          pairs &&
+          (writerTransform === 'all' ||
+            (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) *
+              (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) >
+              1)
+        )
+          forwardPairedSelectorTransform(strategy, plane, scratch, result, pairs)
+        else if (writerTransform === 'small' && strategy <= 3)
+          forwardSelectorTransform(strategy, plane, scratch, result)
+        else forwardDevelopmentTransform(strategy, plane, scratch, result)
+      }
+    : forwardDevelopmentTransform
   const scratch = memory.allocate(Float64Array, 4096)
   const transformed = [
     memory.allocate(Float64Array, 4096),
@@ -163,7 +189,7 @@ export function rewriteStrategyGeometry(
             const plane = source[c]
             const result = transformed[c]
             if (!plane || !result) throw new Error('Missing transform plane')
-            forwardDevelopmentTransform(strategy, plane, scratch, result)
+            transform(strategy, plane, scratch, result)
             {
               developmentDcGrid(result, bw, bh, dc)
               const target = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
@@ -269,6 +295,7 @@ export function rewriteStrategyGeometry(
     }
   }
   for (const buffer of [...source, scratch, ...transformed, dc]) memory.release(buffer)
+  if (pairs) memory.release(pairs)
   const restored = compactStorage
     ? [
         memory.allocate(Int16Array, 65536),

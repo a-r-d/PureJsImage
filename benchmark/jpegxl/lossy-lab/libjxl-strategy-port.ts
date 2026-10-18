@@ -85,6 +85,7 @@ export interface StrategyOptions {
   symmetricInverse?: boolean
   limit16?: boolean
   compactStorage?: boolean
+  writerTransform?: 'small' | 'paired' | 'all'
   writerEstimate?: 'field' | 'rounding' | 'matrices' | 'all'
   pairedTransform?: boolean
   inverseWeights?: boolean
@@ -125,6 +126,7 @@ function selectGeometry(
     limit16 = false,
     compactStorage = false,
     writerEstimate,
+    writerTransform,
     pairedTransform = false,
     inverseWeights = false,
     rowMask = false,
@@ -589,6 +591,7 @@ function selectGeometry(
       false,
       false,
       compactStorage,
+      writerTransform,
     )
   } finally {
     memory.release(strategies)
