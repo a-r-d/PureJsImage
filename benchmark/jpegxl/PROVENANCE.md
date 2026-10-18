@@ -302,3 +302,22 @@ return exactly to that revision. No additional third-party port is promoted.
 | Archived module | Source and exact revision | Material and changes |
 | --- | --- | --- |
 | `lossy-lab/selector-source-correlation.ts`, in `SELECTOR-ERROR-EXPERIMENT.patch` | libjxl `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Post-Gaborish CfL ordering only. The covariance estimator, bounded tile execution and optional quantizer weighting are ours; no native CfL search code or constants are copied. The archived module carries the source, revision and BSD-3 header. |
+
+## Native coefficient CfL continuation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-cfl-port.ts` | libjxl `lib/jxl/enc_chroma_from_luma.cc` and `lib/jxl/enc_heuristics.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Quantization-weighted AC fitting, fast least-squares and clipped Newton objective, regularization, 2.6 shrinkage, signed rounding and bounds, DCT8 initial fit followed by selected-transform/raw-quant final fit. Scalar double accumulators, Float32 weighted coefficients, existing first-party transforms and shared bounded selector scratch. B-minus-Y uses an equivalent zero-base residual. DC correlation stays at our default. No peer maps or runtime dependency. |
+
+Stage-separated, writer-scaled and shrinkage-free diagnostics use the same
+attributed solver. A following selector experiment restores the already
+attributed native small-transform menu while keeping our existing 32-pixel
+maximum merge footprint. Separate half-transform, AFV and incumbent-driven
+adaptive menus are first-party speed experiments. No new constants are taken.
+
+All nineteen screens and the complete-menu/final-field full lab are rejected.
+The new port, all trial aliases and tests are preserved in
+`lossy-lab/CFL-MENU-EXPERIMENT.patch` for `fba646a8` (encoder source matches
+`c706e64d`). The patch applies cleanly; these experiments are removed from
+active code. `lossy-lab/CFL-MENU-REPORT.md` records the measurements and the
+remaining hypotheses. No new source logic is promoted.

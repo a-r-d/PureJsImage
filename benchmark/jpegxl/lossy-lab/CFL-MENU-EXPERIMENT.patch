@@ -1,0 +1,709 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 4e9dfba4..6a98f0c0 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -72,6 +72,25 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-selector-copy' ||
+     value === 'standalone-selector-mask-copy' ||
+     value === 'standalone-guard-coarse' ||
++    value === 'standalone-cfl-initial' ||
++    value === 'standalone-cfl-both' ||
++    value === 'standalone-cfl-fast' ||
++    value === 'standalone-cfl-final' ||
++    value === 'standalone-cfl-initial-fast' ||
++    value === 'standalone-cfl-final-fast' ||
++    value === 'standalone-cfl-writer' ||
++    value === 'standalone-cfl-shrink' ||
++    value === 'standalone-cfl-no-shrink' ||
++    value === 'standalone-small-full' ||
++    value === 'standalone-small-halves' ||
++    value === 'standalone-small-afv' ||
++    value === 'standalone-small-adaptive' ||
++    value === 'standalone-small-field' ||
++    value === 'standalone-small-writer' ||
++    value === 'standalone-coarse-field' ||
++    value === 'standalone-small-adaptive-field' ||
++    value === 'standalone-small-halves-field' ||
++    value === 'standalone-small-afv-field' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+     value === 'standalone-guard-bounded'
+@@ -155,6 +174,25 @@ export function libjxlPortOverrides(
+     mode === 'standalone-selector-copy' ||
+     mode === 'standalone-selector-mask-copy' ||
+     mode === 'standalone-guard-coarse' ||
++    mode === 'standalone-cfl-initial' ||
++    mode === 'standalone-cfl-both' ||
++    mode === 'standalone-cfl-fast' ||
++    mode === 'standalone-cfl-final' ||
++    mode === 'standalone-cfl-initial-fast' ||
++    mode === 'standalone-cfl-final-fast' ||
++    mode === 'standalone-cfl-writer' ||
++    mode === 'standalone-cfl-shrink' ||
++    mode === 'standalone-cfl-no-shrink' ||
++    mode === 'standalone-small-full' ||
++    mode === 'standalone-small-halves' ||
++    mode === 'standalone-small-afv' ||
++    mode === 'standalone-small-adaptive' ||
++    mode === 'standalone-small-field' ||
++    mode === 'standalone-small-writer' ||
++    mode === 'standalone-coarse-field' ||
++    mode === 'standalone-small-adaptive-field' ||
++    mode === 'standalone-small-halves-field' ||
++    mode === 'standalone-small-afv-field' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+     mode === 'standalone-guard-bounded'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 24652a69..47ff99cc 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -17,6 +17,7 @@ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+ import { strategyPortOverrides } from './libjxl-strategy-port.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
++import { libjxlShrinkCfLMultiplier } from './libjxl-cfl-port.ts'
+ 
+ export type StandalonePort =
+   | 'standalone'
+@@ -60,6 +61,25 @@ export type StandalonePort =
+   | 'standalone-selector-copy'
+   | 'standalone-selector-mask-copy'
+   | 'standalone-guard-coarse'
++  | 'standalone-cfl-initial'
++  | 'standalone-cfl-both'
++  | 'standalone-cfl-fast'
++  | 'standalone-cfl-final'
++  | 'standalone-cfl-initial-fast'
++  | 'standalone-cfl-final-fast'
++  | 'standalone-cfl-writer'
++  | 'standalone-cfl-shrink'
++  | 'standalone-cfl-no-shrink'
++  | 'standalone-small-full'
++  | 'standalone-small-halves'
++  | 'standalone-small-afv'
++  | 'standalone-small-adaptive'
++  | 'standalone-small-field'
++  | 'standalone-small-writer'
++  | 'standalone-coarse-field'
++  | 'standalone-small-adaptive-field'
++  | 'standalone-small-halves-field'
++  | 'standalone-small-afv-field'
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+@@ -71,18 +91,61 @@ export function libjxlStandaloneOverrides(
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
+   const writerEstimate =
+-    requestedMode === 'standalone-writer-field'
++    requestedMode === 'standalone-writer-field' ||
++    requestedMode === 'standalone-small-field' ||
++    requestedMode === 'standalone-coarse-field' ||
++    requestedMode === 'standalone-small-adaptive-field' ||
++    requestedMode === 'standalone-small-halves-field' ||
++    requestedMode === 'standalone-small-afv-field'
+       ? 'field'
+       : requestedMode === 'standalone-writer-rounding'
+         ? 'rounding'
+         : requestedMode === 'standalone-writer-matrices'
+           ? 'matrices'
+-          : requestedMode === 'standalone-writer-all'
++          : requestedMode === 'standalone-writer-all' || requestedMode === 'standalone-small-writer'
+             ? 'all'
+             : undefined
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+-  const coarseAllocation = requestedMode === 'standalone-guard-coarse'
++  const cfl =
++    requestedMode === 'standalone-cfl-initial'
++      ? 'initial'
++      : requestedMode === 'standalone-cfl-both'
++        ? 'both'
++        : requestedMode === 'standalone-cfl-fast'
++          ? 'fast'
++          : requestedMode === 'standalone-cfl-final'
++            ? 'final'
++            : requestedMode === 'standalone-cfl-initial-fast'
++              ? 'initial-fast'
++              : requestedMode === 'standalone-cfl-final-fast'
++                ? 'final-fast'
++                : requestedMode === 'standalone-cfl-writer'
++                  ? 'writer'
++                  : requestedMode === 'standalone-cfl-no-shrink'
++                    ? 'no-shrink'
++                    : undefined
++  const shrinkCfL = requestedMode === 'standalone-cfl-shrink'
++  const smallTransforms =
++    requestedMode === 'standalone-small-full' ||
++    requestedMode === 'standalone-small-field' ||
++    requestedMode === 'standalone-small-writer'
++      ? 'full'
++      : requestedMode === 'standalone-small-halves' ||
++          requestedMode === 'standalone-small-halves-field'
++        ? 'halves'
++        : requestedMode === 'standalone-small-afv' || requestedMode === 'standalone-small-afv-field'
++          ? 'afv'
++          : requestedMode === 'standalone-small-adaptive' ||
++              requestedMode === 'standalone-small-adaptive-field'
++            ? 'adaptive'
++            : undefined
++  const coarseAllocation =
++    requestedMode === 'standalone-guard-coarse' ||
++    requestedMode === 'standalone-coarse-field' ||
++    cfl !== undefined ||
++    shrinkCfL ||
++    smallTransforms !== undefined
+   const inverseWeights =
+     requestedMode === 'standalone-selector-inverse' ||
+     requestedMode === 'standalone-selector-mask' ||
+@@ -220,6 +283,13 @@ export function libjxlStandaloneOverrides(
+         : base.sharpnessMap
+       if (defaults) sharpness?.fill(defaults.sharpness)
+       try {
++        if (shrinkCfL) {
++          if (!base.correlationX || !base.correlationB) throw new Error('Missing own CfL maps')
++          for (let i = 0; i < base.correlationX.length; i++) {
++            base.correlationX[i] = libjxlShrinkCfLMultiplier(base.correlationX[i] ?? 0)
++            base.correlationB[i] = libjxlShrinkCfLMultiplier(base.correlationB[i] ?? 0)
++          }
++        }
+         const select = strategyPortOverrides(distance, 'spatial-source', context, {
+           initialField: field,
+           pairedTransform: requestedMode === 'standalone-selector-pairs' || inverseWeights,
+@@ -233,6 +303,8 @@ export function libjxlStandaloneOverrides(
+             requestedMode === 'standalone-selector-mask-copy' ||
+             coarseAllocation,
+           lossScale,
++          ...(cfl ? { cfl } : {}),
++          ...(smallTransforms ? { smallTransforms } : {}),
+           ...(writerEstimate ? { writerEstimate } : {}),
+           compactStorage:
+             requestedMode === 'standalone-guard-packed' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index f76f12e8..231356b9 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -45,6 +45,7 @@ import { rewriteStrategyGeometry } from './strategy-transplant.ts'
+ import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
+ import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
+ import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++import { libjxlCfLEstimator } from './libjxl-cfl-port.ts'
+ 
+ export type StrategyPort =
+   | 'tiny'
+@@ -91,6 +92,16 @@ export interface StrategyOptions {
+   rowMask?: boolean
+   bulkBlockCopy?: boolean
+   lossScale?: number
++  cfl?:
++    | 'initial'
++    | 'both'
++    | 'fast'
++    | 'final'
++    | 'initial-fast'
++    | 'final-fast'
++    | 'writer'
++    | 'no-shrink'
++  smallTransforms?: 'full' | 'halves' | 'afv' | 'adaptive'
+ }
+ 
+ export function strategyPortOverrides(
+@@ -130,6 +141,8 @@ function selectGeometry(
+     rowMask = false,
+     bulkBlockCopy = false,
+     lossScale = 1,
++    cfl,
++    smallTransforms,
+   } = options
+   const memory = base.memory
+   if (!memory || !base.quantizationMap || !base.globalScale)
+@@ -171,6 +184,22 @@ function selectGeometry(
+   const residual = memory.allocate(Float64Array, 4096)
+   const spatial = memory.allocate(Float32Array, 4096)
+   const active = memory.allocate(Uint16Array, 64)
++  if (cfl && !initialField) throw new Error('Missing CfL floating field')
++  const cflEstimator =
++    cfl && initialField
++      ? libjxlCfLEstimator(
++          base,
++          context,
++          { planes, transformed, scratch, transform },
++          strategies,
++          first,
++          initialField,
++          distance,
++          cfl === 'fast' || cfl === 'initial-fast' || cfl === 'final-fast' || cfl === 'no-shrink',
++          cfl === 'writer',
++          cfl !== 'no-shrink',
++        )
++      : undefined
+   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
+   const infoWeight = 1.2 * ratio ** 0.33677806662454718 * lossScale
+   const zeroWeight = 9.3089059022677905 * ratio ** 0.50990926717963703
+@@ -424,6 +453,7 @@ function selectGeometry(
+       maskOriginY = ty * 8
+       const endX = Math.min(base.blocksWide, tx + tileSize)
+       const endY = Math.min(base.blocksHigh, ty + tileSize)
++      if (cfl !== 'final' && cfl !== 'final-fast') cflEstimator?.update(tx, ty, false)
+       for (let y = ty; y < endY; y++)
+         for (let x = tx; x < endX; x++) {
+           let best = 0,
+@@ -432,7 +462,15 @@ function selectGeometry(
+           if (!tiny)
+             for (let i = 1; i < smallMenu.length; i++) {
+               const strategy = smallMenu[i] ?? 0
+-              if (compact && strategy > 3) continue
++              if (compact && strategy > 3) {
++                const half = strategy === 12 || strategy === 13
++                const enabled =
++                  smallTransforms === 'full' ||
++                  (smallTransforms === 'halves' && half) ||
++                  (smallTransforms === 'afv' && !half) ||
++                  (smallTransforms === 'adaptive' && (half || best !== 0))
++                if (!enabled) continue
++              }
+               let weight = (smallWeights[i] ?? 0.8) / 0.8
+               if ((strategy === 1 || strategy === 2) && distance < 5)
+                 weight -= 0.4 * ((5 - distance) / 5) ** 2
+@@ -534,7 +572,9 @@ function selectGeometry(
+             }
+           }
+       }
++      if (cfl !== 'initial' && cfl !== 'initial-fast') cflEstimator?.update(tx, ty, true)
+     }
++  cflEstimator?.release()
+   for (const buffer of [
+     ...planes,
+     ...transformed,
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 407b254b..c4ec331d 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -176,6 +176,25 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-selector-copy',
+     'standalone-selector-mask-copy',
+     'standalone-guard-coarse',
++    'standalone-cfl-initial',
++    'standalone-cfl-both',
++    'standalone-cfl-fast',
++    'standalone-cfl-final',
++    'standalone-cfl-initial-fast',
++    'standalone-cfl-final-fast',
++    'standalone-cfl-writer',
++    'standalone-cfl-shrink',
++    'standalone-cfl-no-shrink',
++    'standalone-small-full',
++    'standalone-small-halves',
++    'standalone-small-afv',
++    'standalone-small-adaptive',
++    'standalone-small-field',
++    'standalone-small-writer',
++    'standalone-coarse-field',
++    'standalone-small-adaptive-field',
++    'standalone-small-halves-field',
++    'standalone-small-afv-field',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+     'standalone-loss75',
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index 7b619282..03acd6f0 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -60,6 +60,25 @@ it.each([
+   'standalone-selector-copy',
+   'standalone-selector-mask-copy',
+   'standalone-guard-coarse',
++  'standalone-cfl-initial',
++  'standalone-cfl-both',
++  'standalone-cfl-fast',
++  'standalone-cfl-final',
++  'standalone-cfl-initial-fast',
++  'standalone-cfl-final-fast',
++  'standalone-cfl-writer',
++  'standalone-cfl-shrink',
++  'standalone-cfl-no-shrink',
++  'standalone-small-full',
++  'standalone-small-halves',
++  'standalone-small-afv',
++  'standalone-small-adaptive',
++  'standalone-small-field',
++  'standalone-small-writer',
++  'standalone-coarse-field',
++  'standalone-small-adaptive-field',
++  'standalone-small-halves-field',
++  'standalone-small-afv-field',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+   'standalone-epf0',
+@@ -132,6 +151,25 @@ it.each([
+   'standalone-selector-copy',
+   'standalone-selector-mask-copy',
+   'standalone-guard-coarse',
++  'standalone-cfl-initial',
++  'standalone-cfl-both',
++  'standalone-cfl-fast',
++  'standalone-cfl-final',
++  'standalone-cfl-initial-fast',
++  'standalone-cfl-final-fast',
++  'standalone-cfl-writer',
++  'standalone-cfl-shrink',
++  'standalone-cfl-no-shrink',
++  'standalone-small-full',
++  'standalone-small-halves',
++  'standalone-small-afv',
++  'standalone-small-adaptive',
++  'standalone-small-field',
++  'standalone-small-writer',
++  'standalone-coarse-field',
++  'standalone-small-adaptive-field',
++  'standalone-small-halves-field',
++  'standalone-small-afv-field',
+ ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
+   for (const distance of [0.45, 2, 7.5]) {
+     const control = libjxlPortOverrides('standalone-selector-inverse', distance, 73, 29)
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-cfl-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-cfl-port.ts
+new file mode 100644
+index 00000000..a4aa94a4
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-cfl-port.ts
+@@ -0,0 +1,198 @@
++/**
++ * Source: libjxl lib/jxl/enc_chroma_from_luma.cc (CFLFunction,
++ * FindBestMultiplier and ComputeTile), lib/jxl/enc_heuristics.cc (CfL1/CfL2),
++ * v0.12.0, a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript with double accumulators and Float32 weighted
++ * coefficients. Reuses our transforms and selector scratch, one bounded tile.
++ * B-minus-Y input makes native B base=1 algebraically equivalent to base=0.
++ * DC correlation remains our default. No SIMD, threading, native or peer maps.
++ * Diagnostics can omit shrinkage or apply our writer's chroma matrix scales.
++ */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import { jpegXlDevelopmentDequantization } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
++
++export function libjxlShrinkCfLMultiplier(value: number): number {
++  const x = value >= 2.6 ? value - 2.6 : value <= -2.6 ? value + 2.6 : 0
++  const rounded = x < 0 ? -Math.round(-x) : Math.round(x)
++  return Math.max(-128, Math.min(127, rounded))
++}
++
++export function libjxlCfLMultiplier(
++  luma: Float32Array,
++  chroma: Float32Array,
++  count: number,
++  fast: boolean,
++  shrink = true,
++): number {
++  if (!Number.isInteger(count) || count < 0 || count > luma.length || count > chroma.length)
++    throw new Error('Invalid CfL coefficient extent')
++  if (count === 0) return 0
++  const regularization = count * 1e-9
++  let x = 0
++  if (fast) {
++    let ca = 0,
++      cb = 0
++    for (let i = 0; i < count; i++) {
++      const a = (luma[i] ?? 0) / 84,
++        b = -(chroma[i] ?? 0)
++      ca += a * a
++      cb += a * b
++    }
++    x = -cb / (ca + regularization * 0.5)
++  } else {
++    for (let iteration = 0; iteration < 20; iteration++) {
++      let derivative = 2 * regularization * x,
++        plus = 2 * regularization * (x + 100),
++        minus = 2 * regularization * (x - 100)
++      for (let i = 0; i < count; i++) {
++        const a = (luma[i] ?? 0) / 84,
++          b = -(chroma[i] ?? 0),
++          v = a * x + b
++        // Native uses the central residual to mask all three derivatives.
++        if (Math.abs(v) >= 100) continue
++        const vp = a * (x + 100) + b,
++          vm = a * (x - 100) + b,
++          coefficient = (2 / 3) * a
++        derivative += coefficient * (Math.abs(v) + 1) * (v < 0 ? -1 : 1)
++        plus += coefficient * (Math.abs(vp) + 1) * (vp < 0 ? -1 : 1)
++        minus += coefficient * (Math.abs(vm) + 1) * (vm < 0 ? -1 : 1)
++      }
++      const second = (plus - minus) / 200
++      const step = Math.max(-20, Math.min(20, derivative / (second + 0.85)))
++      x -= step
++      if (Math.abs(step) < 0.003) break
++    }
++  }
++  // Native suppresses weak correlations to avoid HF chroma oscillations.
++  // std::round has ties away from zero, unlike Math.round for negatives.
++  if (shrink) return libjxlShrinkCfLMultiplier(x)
++  return Math.max(-128, Math.min(127, x < 0 ? -Math.round(-x) : Math.round(x)))
++}
++
++interface CfLScratch {
++  planes: readonly Float32Array[]
++  transformed: readonly Float64Array[]
++  scratch: Float64Array
++  transform(
++    strategy: number,
++    pixels: Float32Array,
++    scratch: Float64Array,
++    output: Float64Array,
++  ): void
++}
++
++/** Updates the same own-map arrays used by selection and the final writer. */
++export function libjxlCfLEstimator(
++  base: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  work: CfLScratch,
++  strategies: Int32Array,
++  first: Uint8Array,
++  field: Float32Array,
++  distance: number,
++  fast: boolean,
++  writerMatrices = false,
++  shrink = true,
++) {
++  const { memory, correlationX, correlationB, globalScale } = base
++  if (!memory || !correlationX || !correlationB || !globalScale || base.developmentCorrelation)
++    throw new Error('Missing standalone CfL input')
++  const yx = memory.allocate(Float32Array, 4096),
++    xx = memory.allocate(Float32Array, 4096),
++    yb = memory.allocate(Float32Array, 4096),
++    bb = memory.allocate(Float32Array, 4096)
++  const scaleX = writerMatrices ? 0.8 ** ((base.xScale ?? 2) - 2) : 1,
++    scaleB = writerMatrices ? 0.8 ** ((base.bScale ?? 2) - 2) : 1
++  return {
++    release: () => {
++      for (const buffer of [yx, xx, yb, bb]) memory.release(buffer)
++    },
++    update: (tx: number, ty: number, final: boolean): void => {
++      const endX = Math.min(base.blocksWide, tx + 8),
++        endY = Math.min(base.blocksHigh, ty + 8)
++      let count = 0
++      for (let y = ty; y < endY; y++)
++        for (let x = tx; x < endX; x++) {
++          const at = y * base.blocksWide + x
++          if (final && !first[at]) continue
++          const strategy = final ? (strategies[at] ?? 0) : 0
++          const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++            bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0,
++            width = bw * 8,
++            size = bw * bh * 64
++          if (!bw || !bh || x + bw > endX || y + bh > endY)
++            throw new Error('CfL transform crosses tile extent')
++          for (let dy = 0; dy < bh; dy++)
++            for (let dx = 0; dx < bw; dx++) {
++              const block = context.readBlock(x + dx, y + dy, false)
++              for (let c = 0; c < 3; c++) {
++                const source = block[c],
++                  target = work.planes[c]
++                if (!source || !target) throw new Error('Missing CfL pixels')
++                for (let py = 0; py < 8; py++)
++                  for (let px = 0; px < 8; px++)
++                    target[(dy * 8 + py) * width + dx * 8 + px] = source[py * 8 + px] ?? 0
++              }
++            }
++          for (let c = 0; c < 3; c++) {
++            const pixels = work.planes[c],
++              coefficients = work.transformed[c]
++            if (!pixels || !coefficients) throw new Error('Missing CfL scratch')
++            work.transform(strategy, pixels, work.scratch, coefficients)
++          }
++          const cy = work.transformed[1],
++            cx = work.transformed[0],
++            cb = work.transformed[2],
++            matrices = jpegXlDevelopmentDequantization(strategy),
++            mx = matrices[0],
++            mb = matrices[2]
++          if (!cy || !cx || !cb || !mx || !mb) throw new Error('Missing CfL coefficients')
++          const q = final
++            ? (globalScale / 65536) *
++              128 *
++              Math.max(
++                1,
++                Math.min(
++                  256,
++                  Math.floor(
++                    libjxlTransformQuantization(
++                      field,
++                      base.blocksWide,
++                      x,
++                      y,
++                      bw,
++                      bh,
++                      distance,
++                      false,
++                      false,
++                    ) + 0.5,
++                  ),
++                ),
++              )
++            : 1
++          const naturalWidth = Math.max(bw, bh) * 8
++          for (let i = 0; i < size; i++) {
++            const lf =
++              i % naturalWidth < Math.max(bw, bh) && Math.floor(i / naturalWidth) < Math.min(bw, bh)
++            const wx = q / ((mx[i] ?? 1) * scaleX),
++              wb = q / ((mb[i] ?? 1) * scaleB)
++            yx[count] = lf ? 0 : (cy[i] ?? 0) * wx
++            xx[count] = lf ? 0 : (cx[i] ?? 0) * wx
++            yb[count] = lf ? 0 : (cy[i] ?? 0) * wb
++            bb[count] = lf ? 0 : (cb[i] ?? 0) * wb
++            count++
++          }
++        }
++      const tile = Math.floor(ty / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(tx / 8)
++      correlationX[tile] = libjxlCfLMultiplier(yx, xx, count, fast, shrink)
++      correlationB[tile] = libjxlCfLMultiplier(yb, bb, count, fast, shrink)
++    },
++  }
++}
+diff --git a/tests/jpegxl-libjxl-cfl-port.test.ts b/tests/jpegxl-libjxl-cfl-port.test.ts
+new file mode 100644
+index 00000000..4b5a9ae0
+--- /dev/null
++++ b/tests/jpegxl-libjxl-cfl-port.test.ts
+@@ -0,0 +1,135 @@
++import { expect, it } from 'vitest'
++import {
++  libjxlCfLEstimator,
++  libjxlCfLMultiplier,
++  libjxlShrinkCfLMultiplier,
++} from '../benchmark/jpegxl/lossy-lab/libjxl-cfl-port.ts'
++import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
++import { forwardSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../src/codecs/jpegxl-vardct-jpeg.ts'
++
++it('rounds signed shrinkage ties away from zero and clamps the map range', () => {
++  expect(libjxlShrinkCfLMultiplier(3.1)).toBe(1)
++  expect(libjxlShrinkCfLMultiplier(-3.1)).toBe(-1)
++  expect(libjxlShrinkCfLMultiplier(2.6)).toBe(0)
++  expect(libjxlShrinkCfLMultiplier(-2.6)).toBe(0)
++  expect(libjxlShrinkCfLMultiplier(1000)).toBe(127)
++  expect(libjxlShrinkCfLMultiplier(-1000)).toBe(-128)
++})
++
++it.each([false, true])('handles empty and flat coefficient sets, fast=%s', (fast) => {
++  expect(libjxlCfLMultiplier(new Float32Array(), new Float32Array(), 0, fast)).toBe(0)
++  expect(libjxlCfLMultiplier(new Float32Array(64), new Float32Array(64), 64, fast)).toBe(0)
++})
++
++it.each([1, -1])('fits and shrinks a known signed AC correlation %s', (sign) => {
++  const y = Float32Array.of(84, -84, 168, -168)
++  const x = Float32Array.from(y, (v) => (sign * v) / 4)
++  expect(libjxlCfLMultiplier(y, x, 4, true)).toBe(sign * 18)
++  expect(libjxlCfLMultiplier(y, x, 4, true, false)).toBe(sign * 21)
++  expect(Math.abs(libjxlCfLMultiplier(y, x, 4, false) - sign * 18)).toBeLessThanOrEqual(1)
++})
++
++it.each([false, true])('suppresses weak estimates and bounds signed maps, fast=%s', (fast) => {
++  const y = Float32Array.of(84, -84)
++  expect(libjxlCfLMultiplier(y, Float32Array.of(2, -2), 2, fast)).toBe(0)
++  const strong = Float32Array.of(1000, -1000)
++  if (fast) {
++    expect(libjxlCfLMultiplier(y, strong, 2, true)).toBe(127)
++    expect(libjxlCfLMultiplier(y, Float32Array.of(-1000, 1000), 2, true)).toBe(-128)
++  } else {
++    // The full fit clips large central residuals, including the initial one.
++    expect(libjxlCfLMultiplier(y, strong, 2, false)).toBe(0)
++  }
++})
++
++it('ignores clipped outliers in the full objective', () => {
++  const y = Float32Array.of(84, -84, 168, -168, 84)
++  const x = Float32Array.of(21, -21, 42, -42, 10000)
++  expect(Math.abs(libjxlCfLMultiplier(y, x, 5, false) - 18)).toBeLessThanOrEqual(1)
++  expect(libjxlCfLMultiplier(y, x, 5, true)).toBe(127)
++})
++
++it('rejects invalid coefficient extents', () => {
++  const data = new Float32Array(4)
++  for (const count of [-1, 1.5, 5, NaN])
++    expect(() => libjxlCfLMultiplier(data, data, count, true)).toThrow(
++      'Invalid CfL coefficient extent',
++    )
++})
++
++it.each([0, 1, 2, 3, 4, 5, 6, 7, 10, 11])(
++  'preserves signed linear AC fits across selected transform %s and ignores DC offsets',
++  async (strategy) => {
++    const width = 64,
++      height = 64
++    const pixels = new Uint8Array(width * height * 4).fill(128)
++    for (let p = 3; p < pixels.length; p += 4) pixels[p] = 255
++    await encodeTransplant(pixels, width, height, 2, {
++      rewriteGeometry: (base) => {
++        const memory = base.memory
++        if (!memory) throw new Error('Missing test memory')
++        const planes = Array.from({ length: 3 }, () => memory.allocate(Float32Array, 4096))
++        const transformed = Array.from({ length: 3 }, () => memory.allocate(Float64Array, 4096))
++        const scratch = memory.allocate(Float64Array, 4096)
++        const blocks = Array.from({ length: 3 }, () => memory.allocate(Float32Array, 64))
++        const field = memory.allocate(Float32Array, 64).fill(1)
++        const strategies = memory.allocate(Int32Array, 64).fill(strategy)
++        const first = memory.allocate(Uint8Array, 64)
++        const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++          bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
++        for (let y = 0; y < 8; y += bh) for (let x = 0; x < 8; x += bw) first[y * 8 + x] = 1
++        const estimator = libjxlCfLEstimator(
++          base,
++          {
++            quantize: Math.round,
++            readBlock: (bx, by) => {
++              const xx = blocks[0],
++                yy = blocks[1],
++                bb = blocks[2]
++              if (!xx || !yy || !bb) throw new Error('Missing test block')
++              for (let y = 0; y < 8; y++)
++                for (let x = 0; x < 8; x++) {
++                  const v =
++                    0.2 + 0.1 * Math.sin((bx * 8 + x) / 7) + 0.04 * Math.cos((by * 8 + y) / 3)
++                  yy[y * 8 + x] = v
++                  xx[y * 8 + x] = 0.25 * v + 0.03
++                  bb[y * 8 + x] = -0.125 * v + 0.07
++                }
++              return blocks
++            },
++          },
++          { planes, transformed, scratch, transform: forwardSelectorTransform },
++          strategies,
++          first,
++          field,
++          2,
++          true,
++        )
++        const before = memory.liveBytes
++        estimator.update(0, 0, false)
++        expect(base.correlationX?.[0]).toBe(18)
++        expect(base.correlationB?.[0]).toBe(-8)
++        estimator.update(0, 0, true)
++        expect(base.correlationX?.[0]).toBe(18)
++        expect(base.correlationB?.[0]).toBe(-8)
++        estimator.release()
++        expect(memory.liveBytes).toBe(before - 65_536)
++        for (const buffer of [
++          ...planes,
++          ...transformed,
++          ...blocks,
++          scratch,
++          field,
++          strategies,
++          first,
++        ])
++          memory.release(buffer)
++        return base
++      },
++    })
++  },
++)
