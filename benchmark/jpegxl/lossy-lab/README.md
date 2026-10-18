@@ -1,12 +1,19 @@
 # JPEG XL lossy lab
 
-The latest owner decision is the 2026-10-14 allocation sweep in
+The [sampled reconstruction report](SAMPLED-AR-REPORT.md) records twelve coarse
+sharpness screens with map-rate costs. No mode earns retention: the best combined
+gain is 0.027%, with a 14.688% encode-time cost. The coherent standalone work
+stays on `jxl-libjxl-ports`; main is unchanged. Step C was approved after the
+allocation checkpoint below. Earlier checkpoint text preserves its original status.
+
+The 2026-10-14 allocation checkpoint is recorded in
 [LOSSY_LIBJXL_REOPENING.md](../LOSSY_LIBJXL_REOPENING.md). It replaces the separate
 component strategy and metric targets: mean BD-rate against vips at most +2%,
 with every metric at most +5%. Existing speed, memory and remaining promotion
 checks continue. A large coherent port requires a separate approval. The [allocation report](ALLOCATION-REPORT.md) records 4,288 valid encodes.
-Its best full-lab mean is +2.704%, missing +2%; Step C awaits approval. The older
-checkpoints below retain their original gates and measurements.
+Its best full-lab mean was +2.704%, missing +2%; Step C awaited approval at that
+checkpoint. The older checkpoints below retain their original gates and
+measurements.
 
 The [2026-10-13 owner decision](../LOSSY_LIBJXL_REOPENING.md) reopens source-informed
 lossy work. Read it before the older decisions below. Decision transplants precede

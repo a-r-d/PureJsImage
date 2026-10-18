@@ -339,3 +339,21 @@ preserved in `lossy-lab/AR-FORWARD-EXPERIMENT.patch` for `1f8d6a5a`; active AR
 code, aliases and normative-kernel exports are removed. The same patch also
 preserves the separate first-party writer experiment. Its existing transform
 kernels contain no new third-party decision logic.
+
+## Sampled, rate-aware AR investigation, 2026-10-17
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-sampled-ar-port.ts` | libjxl `lib/jxl/enc_heuristics.cc`, ComputeARHeuristics and ComputeBlockL2Distance, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Squared initial masking and XYB error weights. Adapt reconstruction to sampled patches of our emitted coefficients, retain one EPF iteration, include sharpness four, and test the native preference for zero separately. Coarse-region decisions, map-rate objective and the cached image-wide distortion normalization are first-party adaptations. Reconstruction, Gaborish and EPF use our first-party decoder formulas. No peer maps. |
+| `lossy-lab/sampled-tile-mask.ts` | libjxl `lib/jxl/enc_adaptive_quantization.cc`, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Laplacian gamma and Blur1x1Masking constants already attributed in selector-tile-mask.ts, adapted to variable sampled patch dimensions. Float32 intermediates and clamped padded borders remain. |
+
+`lossy-lab/sampled-sharpness-cost.ts` estimates our writer's predictor-5 residual
+histogram, with entropy and alphabet charges. It is first-party development code.
+The estimate is used to choose maps; actual complete encoded bytes determine all
+reported BD-rates and gates. The existing full BSD-3 license and its npm/docs
+inclusion remain unchanged.
+
+All twelve sampled AR screens are rejected under the quality and speed rules.
+The licensed modules, aliases and focused tests are preserved in
+`lossy-lab/SAMPLED-AR-EXPERIMENT.patch` for `9924201c`; active encoder and
+benchmark module paths return to that retained control. No public source changes.

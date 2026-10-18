@@ -1,0 +1,608 @@
+{
+  "retainedBundles": {
+    "coreJpegXlMinifiedBytes": 614941,
+    "specializedJpegXlMinifiedBytes": 687773,
+    "runtimeDependencies": 0
+  },
+  "branch": "jxl-libjxl-ports",
+  "base": "9924201c67ffae699118de97309cb14dc2dc6d04",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/standalone-sampled-ar-20261017",
+  "screens": [
+    {
+      "run": "sample64",
+      "description": "64 px, one 16 px patch, rate 1",
+      "control": [0.328691952799949, 0.08293201250513424, 0.7668201021082746],
+      "combined": 0.39281468913778594,
+      "vips": [-10.35178479892708, -5.787590865060641, -4.44774350559713],
+      "jsquash": [-11.24576606890639, -0.21151548069246828, 2.878459672480396],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample128",
+      "description": "128 px, one 16 px patch, rate 1",
+      "control": [0.4855880928199411, 0.17284049283037037, 0.15324133150466807],
+      "combined": 0.27055663905165983,
+      "vips": [-10.206039822539983, -5.705242523515945, -5.035932055452373],
+      "jsquash": [-11.098414792366091, -0.10812321403808356, 2.266790119707372],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample-global",
+      "description": "Image-wide, four 16 px patches",
+      "control": [0.4357165456379238, -0.013673675894572211, -0.031852462101252865],
+      "combined": 0.13006346921403292,
+      "vips": [-10.263464664358292, -5.898733132157136, -5.252291390988814],
+      "jsquash": [-11.163358468656583, -0.24355029284621335, 2.052296469089674],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-four",
+      "description": "64 px, four 16 px patches, rate 1",
+      "control": [0.1460838849036975, -0.12333807564054691, -0.017085498212427552],
+      "combined": 0.0018867703502410127,
+      "vips": [-10.523346598566423, -5.986507022892033, -5.196100546889286],
+      "jsquash": [-11.417078505118248, -0.4195544109212961, 2.0897418465704938],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample32",
+      "description": "32 px, one 8 px patch, rate 1",
+      "control": [0.4005783303524532, 0.19612610804035874, 0.21250132323418797],
+      "combined": 0.2697352538756666,
+      "vips": [-10.278876971637581, -5.676855069125445, -4.9801296152224745],
+      "jsquash": [-11.170540293182095, -0.09856095302522519, 2.325168955952946],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-small",
+      "description": "64 px, one 8 px patch, rate 2",
+      "control": [0.4083951387294172, 0.2619587730960723, -0.15457813310633087],
+      "combined": 0.1719252595730529,
+      "vips": [-10.274596562885728, -5.6179697123736, -5.316091954716439],
+      "jsquash": [-11.1648387756004, -0.03621640959333183, 1.9064693493330513],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-rate4",
+      "description": "64 px, one 16 px patch, rate 4",
+      "control": [0.08543359481509354, -0.03869492201268516, 0.26562765207006633],
+      "combined": 0.10412210829082491,
+      "vips": [-10.574663165024525, -5.904149838361429, -4.910111125582544],
+      "jsquash": [-11.46777377070807, -0.3370796438407712, 2.38326966433124],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-rate0",
+      "description": "64 px, one 16 px patch, no rate term",
+      "control": [1.1783567190926791, 0.742765634818568, 1.2117912185274264],
+      "combined": 1.0443045241462245,
+      "vips": [-9.680893873450902, -5.2064005778992435, -4.075212470377265],
+      "jsquash": [-10.570868034549527, 0.46217507866162993, 3.306025848814582],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample-global-native",
+      "description": "Image-wide with native zero preference",
+      "control": [0.967205798892717, 1.3127005749957978, 0.8325890782344629],
+      "combined": 1.0374984840409927,
+      "vips": [-9.857811250210384, -4.668349709283418, -4.457384883418191],
+      "jsquash": [-10.662845063681752, 1.1695697811084085, 2.9448888166724356],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-native",
+      "description": "64 px, four patches, native zero preference",
+      "control": [0.429242508092991, 1.0920531792810209, 0.35874654638016057],
+      "combined": 0.6266807445847241,
+      "vips": [-10.299605383038518, -4.877202519201602, -4.827039803539701],
+      "jsquash": [-11.107708567624346, 0.9094174944138215, 2.493481246604618],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-global-rd",
+      "description": "64 px, one patch, image error normalization",
+      "control": [0.3576499127184962, 0.1038899214825349, 0.5325311763912851],
+      "combined": 0.3313570035307721,
+      "vips": [-10.328758662663372, -5.769131819910398, -4.671691532670461],
+      "jsquash": [-11.223898576714907, -0.18796461305054826, 2.6331644622074104],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    },
+    {
+      "run": "sample64-four-global-rd",
+      "description": "64 px, four patches, image error normalization",
+      "control": [0.17799909153238486, -0.1686593920585253, -0.09168505420250252],
+      "combined": -0.027448451576214315,
+      "vips": [-10.494910768657267, -6.030916165217933, -5.265754469059967],
+      "jsquash": [-11.38963241920664, -0.46440013475437103, 2.016999195222837],
+      "executionComplete": true,
+      "outputs": 80,
+      "managedPeakBytes": 9238381
+    }
+  ],
+  "qualityOutputs": 960,
+  "best": {
+    "run": "sample64-four-global-rd",
+    "description": "64 px, four patches, image error normalization",
+    "control": [0.17799909153238486, -0.1686593920585253, -0.09168505420250252],
+    "combined": -0.027448451576214315,
+    "vips": [-10.494910768657267, -6.030916165217933, -5.265754469059967],
+    "jsquash": [-11.38963241920664, -0.46440013475437103, 2.016999195222837],
+    "executionComplete": true,
+    "outputs": 80,
+    "managedPeakBytes": 9238381
+  },
+  "decomposition": [
+    {
+      "run": "sample64",
+      "meanMatchedFileSizePercent": 0.08529547708540142,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.21200226409030729,
+        "butteraugliNorm3": -0.02531061589996753,
+        "butteraugliMax": 0.6560006574314471
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.11648008573154184,
+        "butteraugliNorm3": 0.10820952871668009,
+        "butteraugliMax": 0.1107423281326784
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample128",
+      "meanMatchedFileSizePercent": 0.057409209815452444,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.4135503927300962,
+        "butteraugliNorm3": 0.0992347162005064,
+        "butteraugliMax": 0.09081930747970232
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.07204844709345819,
+        "butteraugliNorm3": 0.07364281588353423,
+        "butteraugliMax": 0.062492995742192664
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample-global",
+      "meanMatchedFileSizePercent": -0.003860490423032714,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.4381305039814569,
+        "butteraugliNorm3": -0.01005378337139886,
+        "butteraugliMax": -0.03005411520267512
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": -0.0024817880353415625,
+        "butteraugliNorm3": -0.0037273325406760234,
+        "butteraugliMax": -0.0018156593296821504
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-four",
+      "meanMatchedFileSizePercent": 0.031204585325302625,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.10207784365954278,
+        "butteraugliNorm3": -0.16151012641589035,
+        "butteraugliMax": -0.06274759867370522
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.04390187057920208,
+        "butteraugliNorm3": 0.038205219292404176,
+        "butteraugliMax": 0.04565116963053563
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample32",
+      "meanMatchedFileSizePercent": 0.1327224455614337,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.21202352851974693,
+        "butteraugliNorm3": 0.03409080650415684,
+        "butteraugliMax": 0.005118395719035585
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.1881371705434326,
+        "butteraugliNorm3": 0.1618203452484481,
+        "butteraugliMax": 0.20755382244578371
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-small",
+      "meanMatchedFileSizePercent": 0.08749020158771131,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.2893328259629583,
+        "butteraugliNorm3": 0.14780089150917247,
+        "butteraugliMax": -0.26814563746661196
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.11901599084736844,
+        "butteraugliNorm3": 0.11389907606888891,
+        "butteraugliMax": 0.11459813405336927
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-rate4",
+      "meanMatchedFileSizePercent": 0.009222889987160476,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.07347927970706994,
+        "butteraugliNorm3": -0.04882006151631029,
+        "butteraugliMax": 0.25217498715146536
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.011884877962272599,
+        "butteraugliNorm3": 0.010158522994115498,
+        "butteraugliMax": 0.013541867796447478
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-rate0",
+      "meanMatchedFileSizePercent": 0.5802145529678343,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.5399509710951256,
+        "butteraugliNorm3": 0.15212239494882965,
+        "butteraugliMax": 0.7693234549687256
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.6376095467192744,
+        "butteraugliNorm3": 0.5918605650198159,
+        "butteraugliMax": 0.44183252123614525
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample-global-native",
+      "meanMatchedFileSizePercent": -0.03859277629048294,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 1.0076039946766464,
+        "butteraugliNorm3": 1.3470426927911014,
+        "butteraugliMax": 0.8567190940095717
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": -0.040493297319938816,
+        "butteraugliNorm3": -0.03508891426996221,
+        "butteraugliMax": -0.024536998109269244
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-native",
+      "meanMatchedFileSizePercent": 0.031719698741769636,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.3841037963359346,
+        "butteraugliNorm3": 1.0450143417233688,
+        "butteraugliMax": 0.3105691747888727
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.044639781527343735,
+        "butteraugliNorm3": 0.045824058092340254,
+        "butteraugliMax": 0.047459523538137295
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-global-rd",
+      "meanMatchedFileSizePercent": 0.102225783762947,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.21680282054988387,
+        "butteraugliNorm3": -0.028675936161024814,
+        "butteraugliMax": 0.40730977297652304
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.14061105758220852,
+        "butteraugliNorm3": 0.13261888296771918,
+        "butteraugliMax": 0.12508390306689865
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    },
+    {
+      "run": "sample64-four-global-rd",
+      "meanMatchedFileSizePercent": 0.04178270443269516,
+      "qualityAtControlBytes": {
+        "ssimulacra2": 0.11822204304675968,
+        "butteraugliNorm3": -0.22276266400932213,
+        "butteraugliMax": -0.1510284232847887
+      },
+      "rateAtControlQuality": {
+        "ssimulacra2": 0.05963629914315811,
+        "butteraugliNorm3": 0.05425862203214813,
+        "butteraugliMax": 0.05954677866031979
+      },
+      "policy": "Virtual diagnostic curves only. Actual valid stream quality and actual byte counts remain the promotion metrics. These decompositions are not additive."
+    }
+  ],
+  "mapAudit": {
+    "controlEstimatedMapBits": 43.44322327128363,
+    "rows": [
+      {
+        "run": "sample64",
+        "bytes": 32890,
+        "controlBytes": 32830,
+        "deltaBytes": 60,
+        "sharpnessCounts": [192, 0, 0, 0, 2112, 0, 0, 1792],
+        "estimatedMapBits": 514.3879139625858,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample128",
+        "bytes": 32852,
+        "controlBytes": 32830,
+        "deltaBytes": 22,
+        "sharpnessCounts": [256, 0, 0, 0, 1536, 0, 0, 2304],
+        "estimatedMapBits": 223.09554257272956,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample-global",
+        "bytes": 32830,
+        "controlBytes": 32830,
+        "deltaBytes": 0,
+        "sharpnessCounts": [0, 0, 0, 0, 0, 0, 0, 4096],
+        "estimatedMapBits": 43.44322327128363,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-four",
+        "bytes": 32859,
+        "controlBytes": 32830,
+        "deltaBytes": 29,
+        "sharpnessCounts": [0, 0, 0, 0, 2240, 0, 0, 1856],
+        "estimatedMapBits": 267.03614453620185,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample32",
+        "bytes": 32987,
+        "controlBytes": 32830,
+        "deltaBytes": 157,
+        "sharpnessCounts": [640, 0, 0, 0, 1824, 0, 0, 1632],
+        "estimatedMapBits": 1252.0693098528473,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-small",
+        "bytes": 32888,
+        "controlBytes": 32830,
+        "deltaBytes": 58,
+        "sharpnessCounts": [1088, 0, 0, 0, 1280, 0, 0, 1728],
+        "estimatedMapBits": 532.4382453752014,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-rate4",
+        "bytes": 32863,
+        "controlBytes": 32830,
+        "deltaBytes": 33,
+        "sharpnessCounts": [0, 0, 0, 0, 2944, 0, 0, 1152],
+        "estimatedMapBits": 292.98256185899163,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-rate0",
+        "bytes": 32901,
+        "controlBytes": 32830,
+        "deltaBytes": 71,
+        "sharpnessCounts": [256, 0, 512, 0, 1408, 0, 0, 1920],
+        "estimatedMapBits": 670.8590475733383,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample-global-native",
+        "bytes": 32830,
+        "controlBytes": 32830,
+        "deltaBytes": 0,
+        "sharpnessCounts": [0, 0, 0, 0, 0, 0, 0, 4096],
+        "estimatedMapBits": 43.44322327128363,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-native",
+        "bytes": 32881,
+        "controlBytes": 32830,
+        "deltaBytes": 51,
+        "sharpnessCounts": [1984, 0, 0, 0, 512, 0, 0, 1600],
+        "estimatedMapBits": 443.2916784837602,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-global-rd",
+        "bytes": 32886,
+        "controlBytes": 32830,
+        "deltaBytes": 56,
+        "sharpnessCounts": [128, 0, 0, 0, 2176, 0, 0, 1792],
+        "estimatedMapBits": 485.1854607759158,
+        "nonSharpnessFieldsEqual": 30
+      },
+      {
+        "run": "sample64-four-global-rd",
+        "bytes": 32859,
+        "controlBytes": 32830,
+        "deltaBytes": 29,
+        "sharpnessCounts": [0, 0, 0, 0, 2304, 0, 0, 1792],
+        "estimatedMapBits": 258.29029013515037,
+        "nonSharpnessFieldsEqual": 30
+      }
+    ]
+  },
+  "alternatingSeriesPeakRssBytes": {
+    "dense": 350416896,
+    "sparse": 343773184
+  },
+  "denseSpeed": {
+    "path": ".tmp/jpegxl-lossy-lab/standalone-sampled-ar-20261017/dense-speed.json",
+    "modes": ["standalone-forward-all", "standalone-sample64-four-global-rd"],
+    "samples": 21,
+    "byteIdentical": false,
+    "baseline": {
+      "median": 1013.9240899999995,
+      "mad": 36.63996600000155,
+      "iqr": 76.89758499999971,
+      "cv": 0.048480950473254736
+    },
+    "candidate": {
+      "median": 1138.4016699999993,
+      "mad": 51.06305499999871,
+      "iqr": 101.00358700000288,
+      "cv": 0.06987812270097295
+    },
+    "paired": {
+      "median": 14.687559405820473,
+      "mad": 5.024638221605372,
+      "iqr": 7.854024927658987,
+      "cv": 0.6367873888004454
+    },
+    "wins": 2,
+    "peakManagedBytes": 5682267
+  },
+  "sparseSpeed": {
+    "path": ".tmp/jpegxl-lossy-lab/standalone-sampled-ar-20261017/sparse-speed.json",
+    "modes": ["standalone-forward-all", "standalone-sample64"],
+    "samples": 21,
+    "byteIdentical": false,
+    "baseline": {
+      "median": 1032.0081340000006,
+      "mad": 24.105359999998655,
+      "iqr": 46.28794899999775,
+      "cv": 0.03447932476891015
+    },
+    "candidate": {
+      "median": 1066.3914089999998,
+      "mad": 44.267093000002205,
+      "iqr": 86.27696300000025,
+      "cv": 0.05374995389027436
+    },
+    "paired": {
+      "median": 4.698090287060186,
+      "mad": 5.005170227721456,
+      "iqr": 9.53186727761749,
+      "cv": 1.815116178552547
+    },
+    "wins": 8,
+    "peakManagedBytes": 5682267
+  },
+  "sourceVerification": {
+    "focusedTests": 96,
+    "browsers": ["chromium", "firefox", "webkit"],
+    "sampledReconstructionMaximumCodeDifference": 1
+  },
+  "retainedFullControl": {
+    "executionComplete": true,
+    "byteIdentical": 572,
+    "control": [0.00003707280779137064, -0.000027049109520955918, -0.000038779024459677084],
+    "vips": [-8.002765999325776, -5.0302865456361205, -5.582248431182134],
+    "jsquash": [-8.47351755704432, 0.2268080373913741, 2.571320343833548],
+    "independentDecodes": {
+      "points": 576,
+      "maximumCodeDifference": 1
+    },
+    "mainGuards": {
+      "ssimAdmitted": 8,
+      "ssimFailures": 0,
+      "worstSsimPercent": 7.192477501604983,
+      "norm3Admitted": 0
+    },
+    "nativeReplay": [
+      {
+        "metric": "ssimulacra2",
+        "count": 64,
+        "mean": -10.208116118469244,
+        "median": -7.379245027910612,
+        "p90": -3.2804318450174286,
+        "worst": -1.5544169159750516,
+        "fullBandCount": 46
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 64,
+        "mean": -5.976008253806734,
+        "median": -3.9537599766546254,
+        "p90": -1.0826923686800738,
+        "worst": 0.6402647848081364,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 64,
+        "mean": -5.243917807457683,
+        "median": -3.7436344881087362,
+        "p90": 1.5476808520891399,
+        "worst": 4.59000052549645,
+        "fullBandCount": 0
+      }
+    ]
+  },
+  "retainedFullControlAgainstMain": [
+    {
+      "metric": "ssimulacra2",
+      "count": 64,
+      "mean": -7.148911803679406,
+      "median": -5.723178514448877,
+      "p90": 1.0796202518311313,
+      "worst": 8.765069158224392,
+      "fullBandCount": 8
+    },
+    {
+      "metric": "butteraugliNorm3",
+      "count": 64,
+      "mean": -10.071581893398001,
+      "median": -7.155300252754214,
+      "p90": -1.5147593002594095,
+      "worst": 12.501457827529459,
+      "fullBandCount": 0
+    },
+    {
+      "metric": "butteraugliMax",
+      "count": 64,
+      "mean": -9.609274045934395,
+      "median": -8.740640815722616,
+      "p90": 3.07302865676517,
+      "worst": 31.716103906924964,
+      "fullBandCount": 0
+    }
+  ],
+  "retainedColdCropSpeed": {
+    "executionPass": true,
+    "reusedSpeedJobs": 0,
+    "mediansMs": {
+      "purejsimage": 1280.3424025,
+      "jsquash": 485.754009,
+      "vips": 333.819846
+    },
+    "ratioToJsquash": 2.6357835010683357,
+    "managedPeakBytes": 8760382
+  },
+  "fullLabRun": false,
+  "holdoutRun": false,
+  "promoted": false,
+  "check": {
+    "status": "passed",
+    "startedAt": "2026-10-18T03:16:06.727Z",
+    "endedAt": "2026-10-18T03:25:34.438Z",
+    "code": 0,
+    "signal": null
+  }
+}

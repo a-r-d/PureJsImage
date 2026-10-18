@@ -1,0 +1,1099 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 31e3a3b8..5db8c53b 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,6 +74,18 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
++    value === 'standalone-sample64-native' ||
++    value === 'standalone-sample-global-native' ||
++    value === 'standalone-sample64-global-rd' ||
++    value === 'standalone-sample64-four-global-rd' ||
++    value === 'standalone-sample64' ||
++    value === 'standalone-sample128' ||
++    value === 'standalone-sample32' ||
++    value === 'standalone-sample-global' ||
++    value === 'standalone-sample64-small' ||
++    value === 'standalone-sample64-four' ||
++    value === 'standalone-sample64-rate4' ||
++    value === 'standalone-sample64-rate0' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -160,6 +172,18 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
++    mode === 'standalone-sample64-native' ||
++    mode === 'standalone-sample-global-native' ||
++    mode === 'standalone-sample64-global-rd' ||
++    mode === 'standalone-sample64-four-global-rd' ||
++    mode === 'standalone-sample64' ||
++    mode === 'standalone-sample128' ||
++    mode === 'standalone-sample32' ||
++    mode === 'standalone-sample-global' ||
++    mode === 'standalone-sample64-small' ||
++    mode === 'standalone-sample64-four' ||
++    mode === 'standalone-sample64-rate4' ||
++    mode === 'standalone-sample64-rate0' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 39f2fe1f..8af6506a 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -16,6 +16,7 @@ import { libjxlInitialGlobalScale, libjxlInitialQuantField } from './libjxl-init
+ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+ import { strategyPortOverrides } from './libjxl-strategy-port.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
++import { libjxlSampledArSharpness, sampledArOptions } from './libjxl-sampled-ar-port.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
+ 
+ export type StandalonePort =
+@@ -62,6 +63,18 @@ export type StandalonePort =
+   | 'standalone-forward-small'
+   | 'standalone-forward-paired'
+   | 'standalone-forward-all'
++  | 'standalone-sample64-native'
++  | 'standalone-sample-global-native'
++  | 'standalone-sample64-global-rd'
++  | 'standalone-sample64-four-global-rd'
++  | 'standalone-sample64'
++  | 'standalone-sample128'
++  | 'standalone-sample32'
++  | 'standalone-sample-global'
++  | 'standalone-sample64-small'
++  | 'standalone-sample64-four'
++  | 'standalone-sample64-rate4'
++  | 'standalone-sample64-rate0'
+   | 'standalone-guard-coarse'
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+@@ -85,12 +98,13 @@ export function libjxlStandaloneOverrides(
+             : undefined
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
++  const sampled = sampledArOptions(requestedMode)
+   const writerTransform =
+     requestedMode === 'standalone-forward-small'
+       ? 'small'
+       : requestedMode === 'standalone-forward-paired'
+         ? 'paired'
+-        : requestedMode === 'standalone-forward-all'
++        : requestedMode === 'standalone-forward-all' || sampled !== undefined
+           ? 'all'
+           : undefined
+   const coarseAllocation =
+@@ -260,7 +274,7 @@ export function libjxlStandaloneOverrides(
+           limit16: mode === 'standalone-16',
+         }).rewriteGeometry
+         if (!select) throw new Error('Missing standalone selector')
+-        return select(
++        const selected = select(
+           {
+             ...base,
+             smoothDc: mode !== 'standalone-refined-nosmooth' && !guardNoSmooth,
+@@ -272,6 +286,8 @@ export function libjxlStandaloneOverrides(
+           },
+           cached ?? filtered ?? context,
+         )
++        if (sampled) libjxlSampledArSharpness(selected, context, distance, width, height, sampled)
++        return selected
+       } finally {
+         base.memory?.release(field)
+         cached?.release()
+diff --git a/tests/helpers/jpegxl-decision-transplant.ts b/tests/helpers/jpegxl-decision-transplant.ts
+index 6d24fbb8..9993b657 100644
+--- a/tests/helpers/jpegxl-decision-transplant.ts
++++ b/tests/helpers/jpegxl-decision-transplant.ts
+@@ -178,6 +178,18 @@ export async function verifyDecisionTransplantBrowser() {
+     'standalone-forward-small',
+     'standalone-forward-paired',
+     'standalone-forward-all',
++    'standalone-sample64-native',
++    'standalone-sample-global-native',
++    'standalone-sample64-global-rd',
++    'standalone-sample64-four-global-rd',
++    'standalone-sample64',
++    'standalone-sample128',
++    'standalone-sample32',
++    'standalone-sample-global',
++    'standalone-sample64-small',
++    'standalone-sample64-four',
++    'standalone-sample64-rate4',
++    'standalone-sample64-rate0',
+     'standalone-guard-coarse',
+     'standalone-selector-pairs',
+     'standalone-writer-rounding',
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index b0997fd2..97647952 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -62,6 +62,18 @@ it.each([
+   'standalone-forward-small',
+   'standalone-forward-paired',
+   'standalone-forward-all',
++  'standalone-sample64-native',
++  'standalone-sample-global-native',
++  'standalone-sample64-global-rd',
++  'standalone-sample64-four-global-rd',
++  'standalone-sample64',
++  'standalone-sample128',
++  'standalone-sample32',
++  'standalone-sample-global',
++  'standalone-sample64-small',
++  'standalone-sample64-four',
++  'standalone-sample64-rate4',
++  'standalone-sample64-rate0',
+   'standalone-guard-coarse',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+@@ -137,6 +149,18 @@ it.each([
+   'standalone-forward-small',
+   'standalone-forward-paired',
+   'standalone-forward-all',
++  'standalone-sample64-native',
++  'standalone-sample-global-native',
++  'standalone-sample64-global-rd',
++  'standalone-sample64-four-global-rd',
++  'standalone-sample64',
++  'standalone-sample128',
++  'standalone-sample32',
++  'standalone-sample-global',
++  'standalone-sample64-small',
++  'standalone-sample64-four',
++  'standalone-sample64-rate4',
++  'standalone-sample64-rate0',
+   'standalone-guard-coarse',
+ ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
+   for (const distance of [0.45, 2, 7.5]) {
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-sampled-ar-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-sampled-ar-port.ts
+new file mode 100644
+index 00000000..12ee790c
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-sampled-ar-port.ts
+@@ -0,0 +1,533 @@
++/**
++ * Source: libjxl lib/jxl/enc_heuristics.cc, ComputeARHeuristics and
++ * ComputeBlockL2Distance, v0.12.0, a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: reconstruct sampled patches from our final coefficients, use our
++ * one-iteration filter policy, include sharpness four and test the native zero bias separately.
++ * Select one sharpness per coarse region using first-party estimated map bits.
++ * Bounded scratch, original pixels and our decisions only. Development only.
++ */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {
++  jpegXlDevelopmentDequantization,
++  populateJpegXlDevelopmentLowestFrequencies,
++} from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths as widths,
++  jpegXlVarDctStrategyBlockHeights as heights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
++import { sampledTileMask } from './sampled-tile-mask.ts'
++import { sharpnessMapCost } from './sampled-sharpness-cost.ts'
++
++export interface SampledArOptions {
++  readonly region: number
++  readonly patch: number
++  readonly count: number
++  readonly rate: number
++  readonly globalError?: boolean
++  readonly zeroBias?: boolean
++}
++export function sampledArOptions(mode: string): SampledArOptions | undefined {
++  switch (mode) {
++    case 'standalone-sample64-global-rd':
++      return { region: 64, patch: 16, count: 1, rate: 1, globalError: true }
++    case 'standalone-sample64-four-global-rd':
++      return { region: 64, patch: 16, count: 4, rate: 1, globalError: true }
++    case 'standalone-sample64-native':
++      return { region: 64, patch: 16, count: 4, rate: 1, zeroBias: true }
++    case 'standalone-sample-global-native':
++      return { region: 0, patch: 16, count: 4, rate: 1, zeroBias: true }
++    case 'standalone-sample64':
++      return { region: 64, patch: 16, count: 1, rate: 1 }
++    case 'standalone-sample128':
++      return { region: 128, patch: 16, count: 1, rate: 1 }
++    case 'standalone-sample32':
++      return { region: 32, patch: 8, count: 1, rate: 1 }
++    case 'standalone-sample-global':
++      return { region: 0, patch: 16, count: 4, rate: 1 }
++    case 'standalone-sample64-small':
++      return { region: 64, patch: 8, count: 1, rate: 2 }
++    case 'standalone-sample64-four':
++      return { region: 64, patch: 16, count: 4, rate: 1 }
++    case 'standalone-sample64-rate4':
++      return { region: 64, patch: 16, count: 1, rate: 4 }
++    case 'standalone-sample64-rate0':
++      return { region: 64, patch: 16, count: 1, rate: 0 }
++    default:
++      return undefined
++  }
++}
++function mirror(value: number, size: number): number {
++  let p = value
++  while (p < 0 || p >= size) p = p < 0 ? -p - 1 : 2 * size - p - 1
++  return p
++}
++
++export function libjxlSampledArSharpness(
++  base: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  distance: number,
++  width: number,
++  height: number,
++  options: SampledArOptions,
++  observe?: (
++    sharpness: number,
++    x: number,
++    y: number,
++    size: number,
++    planes: readonly Float32Array[],
++  ) => void,
++): void {
++  const memory = base.memory,
++    sharpness = base.sharpnessMap,
++    strategies = base.strategyMap,
++    first = base.developmentFirstBlocks,
++    quantization = base.quantizationMap
++  if (!memory || !sharpness || !strategies || !first || !quantization || !base.loadAc)
++    throw new Error('Missing sampled AR geometry')
++  if (distance < 0.5 || base.developmentFilters?.epfIterations === 0) return
++  if (base.smoothDc || base.developmentFilters?.epfIterations !== 1)
++    throw new Error('Sampled AR requires unsmoothed DC and one EPF iteration')
++  const loadAc = base.loadAc
++  const patch = options.patch,
++    stride = patch + 16,
++    length = stride * stride
++  const raw = [
++    memory.allocate(Float32Array, length),
++    memory.allocate(Float32Array, length),
++    memory.allocate(Float32Array, length),
++  ] as const
++  const filtered = [
++    memory.allocate(Float32Array, length),
++    memory.allocate(Float32Array, length),
++    memory.allocate(Float32Array, length),
++  ] as const
++  const source = [
++    memory.allocate(Float32Array, patch * patch),
++    memory.allocate(Float32Array, patch * patch),
++    memory.allocate(Float32Array, patch * patch),
++  ] as const
++  const output = [
++    memory.allocate(Float32Array, patch * patch),
++    memory.allocate(Float32Array, patch * patch),
++    memory.allocate(Float32Array, patch * patch),
++  ] as const
++  const differences = [
++    memory.allocate(Float32Array, length),
++    memory.allocate(Float32Array, length),
++  ] as const
++  const values = [
++    memory.allocate(Float64Array, 4096),
++    memory.allocate(Float64Array, 4096),
++    memory.allocate(Float64Array, 4096),
++  ] as const
++  const samples = [
++    memory.allocate(Float32Array, 4096),
++    memory.allocate(Float32Array, 4096),
++    memory.allocate(Float32Array, 4096),
++  ] as const
++  const scratch = memory.allocate(Float64Array, 4096),
++    dc = memory.allocate(Float64Array, 64),
++    frequencies = memory.allocate(Float64Array, 64),
++    active = memory.allocate(Uint16Array, 64),
++    seen = memory.allocate(Int32Array, 100)
++  const errors = memory.allocate(Float64Array, 4),
++    steps = [0, 2, 4, 7] as const
++  const mask = sampledTileMask(base, context, patch)
++  const cost = sharpnessMapCost(sharpness, base.blocksWide, base.blocksHigh)
++  const invGlobal = 65536 / (base.globalScale ?? 0)
++  // A cheap complete-file rate normalizer from our final quantized coefficients.
++  // Absolute map bits come from the predictor histogram, not this coefficient proxy.
++  let fileBits = strategies.length * 6
++  for (let group = 0; group < base.groupsAcross * base.groupsDown; group++) {
++    fileBits += 128
++    for (const plane of loadAc(group, 0))
++      for (let p = 0; p < plane.coefficients.length; p++) {
++        const q = Math.abs(plane.coefficients[p] ?? 0)
++        if (q) fileBits += 2 + 32 - Math.clz32(q)
++      }
++  }
++  const sampleErrors = (sampleX: number, sampleY: number): void => {
++    const originX = sampleX - 8,
++      originY = sampleY - 8
++    const right = Math.min(width, originX + stride),
++      bottom = Math.min(height, originY + stride)
++    const left = Math.max(0, originX),
++      top = Math.max(0, originY)
++    let seenCount = 0
++    for (let by = Math.floor(top / 8); by < Math.ceil(bottom / 8); by++)
++      for (let bx = Math.floor(left / 8); bx < Math.ceil(right / 8); bx++) {
++        const strategy: number = strategies[by * base.blocksWide + bx] ?? 0
++        const bw: number = widths[strategy] ?? 0,
++          bh: number = heights[strategy] ?? 0
++        const ox: number = bx - (bx % bw),
++          oy: number = by - (by % bh),
++          owner: number = oy * base.blocksWide + ox
++        if (!bw || !bh || first[owner] !== 1) throw new Error('Unaligned sampled transform')
++        let found = false
++        for (let i = 0; i < seenCount; i++)
++          if (seen[i] === owner) {
++            found = true
++            break
++          }
++        if (found) continue
++        seen[seenCount++] = owner
++        {
++          const x = owner % base.blocksWide,
++            y = Math.floor(owner / base.blocksWide)
++          const strategy = strategies[owner] ?? 0,
++            bw = widths[strategy] ?? 0,
++            bh = heights[strategy] ?? 0
++          const size = bw * bh * 64
++          const group = Math.floor(y / 32) * base.groupsAcross + Math.floor(x / 32)
++          const planes = loadAc(group, 0)
++          const tile = Math.floor(y / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(x / 8)
++          const correlation = base.developmentCorrelation
++          for (let c = 0; c < 3; c++) {
++            const plane = planes[c],
++              target = values[c],
++              matrix = jpegXlDevelopmentDequantization(strategy)[c]
++            const dcPlane = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
++            const dst = samples[c]
++            if (!plane || !target || !matrix || !dcPlane || !dst)
++              throw new Error('Missing AR coefficient plane')
++            const offset =
++              plane.coefficientOffsets?.[(y % 32) * plane.blocksPerLineForMcu + (x % 32)]
++            if (offset === undefined || offset < 0) throw new Error('Missing AR coefficient offset')
++            const scale =
++              (invGlobal / (quantization[owner] ?? 1)) *
++              (c === 0
++                ? 0.8 ** ((base.xScale ?? 2) - 2)
++                : c === 2
++                  ? 0.8 ** ((base.bScale ?? 2) - 2)
++                  : 1)
++            for (let p = 0; p < size; p++) {
++              const q =
++                plane.coefficients[offset + (size === 64 ? (p & 7) * 8 + (p >>> 3) : p)] ?? 0
++              target[p] =
++                (Math.abs(q) === 1
++                  ? Math.sign(q) * (defaultJpegXlQuantizationBiases[c] ?? 1)
++                  : q === 0
++                    ? 0
++                    : q - 0.145 / q) *
++                scale *
++                (matrix[p] ?? 0)
++            }
++          }
++          for (let c = 0; c < 3; c++) {
++            const target = values[c],
++              dst = samples[c],
++              dcPlane = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
++            if (!target || !dst || !dcPlane) throw new Error('Missing AR inverse plane')
++            const ratio =
++              c === 0
++                ? (correlation?.baseCorrelationX ?? 0) +
++                  (base.correlationX?.[tile] ?? 0) / (correlation?.colorFactor ?? 84)
++                : c === 2
++                  ? (correlation ? correlation.baseCorrelationB - 1 : 0) +
++                    (base.correlationB?.[tile] ?? 0) / (correlation?.colorFactor ?? 84)
++                  : 0
++            if (c !== 1)
++              for (let p = 0; p < size; p++)
++                target[p] = (target[p] ?? 0) + (values[1][p] ?? 0) * ratio
++            const dcStep = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
++            for (let dy = 0; dy < bh; dy++)
++              for (let dx = 0; dx < bw; dx++)
++                dc[dy * bw + dx] = (dcPlane[(y + dy) * base.blocksWide + x + dx] ?? 0) * dcStep
++            populateJpegXlDevelopmentLowestFrequencies(target, dc, bw, bh, frequencies)
++            inverseWeightedSelectorTransform(
++              strategy,
++              target.subarray(0, size),
++              scratch,
++              dst.subarray(0, size),
++              active,
++            )
++          }
++          for (let py = Math.max(top, y * 8); py < Math.min(bottom, (y + bh) * 8); py++)
++            for (let px = Math.max(left, x * 8); px < Math.min(right, (x + bw) * 8); px++) {
++              const p = (py - y * 8) * bw * 8 + px - x * 8,
++                at = (py - originY) * stride + px - originX
++              raw[0][at] = samples[0][p] ?? 0
++              raw[1][at] = samples[1][p] ?? 0
++              raw[2][at] = (samples[2][p] ?? 0) + (samples[1][p] ?? 0)
++            }
++        }
++      }
++    // Clamp before forward Gaborish, then mirror the filtered image for EPF.
++    for (let py = 0; py < stride; py++)
++      for (let px = 0; px < stride; px++) {
++        const x = Math.max(left, Math.min(right - 1, originX + px)) - originX
++        const y = Math.max(top, Math.min(bottom - 1, originY + py)) - originY
++        for (let c = 0; c < 3; c++) {
++          const plane = raw[c]
++          if (plane) plane[py * stride + px] = plane[y * stride + x] ?? 0
++        }
++      }
++    const adjacent = 1.1 * 0.104699568,
++      diagonal = 1.1 * 0.055680538,
++      normalization = 1 / (1 + 4 * (adjacent + diagonal))
++    for (let c = 0; c < 3; c++) {
++      const plane = raw[c],
++        target = filtered[c]
++      if (!plane || !target) throw new Error('Missing sampled filter plane')
++      for (let y = 1; y < stride - 1; y++)
++        for (let x = 1; x < stride - 1; x++) {
++          const p = y * stride + x
++          target[p] = base.developmentFilters?.gaborish
++            ? (plane[p] ?? 0) * normalization +
++              ((plane[p - 1] ?? 0) +
++                (plane[p + 1] ?? 0) +
++                (plane[p - stride] ?? 0) +
++                (plane[p + stride] ?? 0)) *
++                (adjacent * normalization) +
++              ((plane[p - stride - 1] ?? 0) +
++                (plane[p - stride + 1] ?? 0) +
++                (plane[p + stride - 1] ?? 0) +
++                (plane[p + stride + 1] ?? 0)) *
++                (diagonal * normalization)
++            : (plane[p] ?? 0)
++        }
++    }
++    for (let y = 2; y < stride - 2; y++)
++      for (let x = 2; x < stride - 2; x++) {
++        const gx = originX + x,
++          gy = originY + y
++        if (gx >= 0 && gx < width && gy >= 0 && gy < height) continue
++        const p = (mirror(gy, height) - originY) * stride + mirror(gx, width) - originX
++        for (let c = 0; c < 3; c++) {
++          const plane = filtered[c]
++          if (plane) plane[y * stride + x] = plane[p] ?? 0
++        }
++      }
++    for (let y = 3; y < stride - 3; y++)
++      for (let x = 3; x < stride - 3; x++) {
++        const p = y * stride + x
++        differences[0][p] =
++          Math.abs((filtered[0][p] ?? 0) - (filtered[0][p + 1] ?? 0)) * 40 +
++          Math.abs((filtered[1][p] ?? 0) - (filtered[1][p + 1] ?? 0)) * 5 +
++          Math.abs((filtered[2][p] ?? 0) - (filtered[2][p + 1] ?? 0)) * 3.5
++        differences[1][p] =
++          Math.abs((filtered[0][p] ?? 0) - (filtered[0][p + stride] ?? 0)) * 40 +
++          Math.abs((filtered[1][p] ?? 0) - (filtered[1][p + stride] ?? 0)) * 5 +
++          Math.abs((filtered[2][p] ?? 0) - (filtered[2][p + stride] ?? 0)) * 3.5
++      }
++    for (
++      let by = Math.floor(sampleY / 8);
++      by < Math.ceil(Math.min(height, sampleY + patch) / 8);
++      by++
++    )
++      for (
++        let bx = Math.floor(sampleX / 8);
++        bx < Math.ceil(Math.min(width, sampleX + patch) / 8);
++        bx++
++      ) {
++        const block = context.readBlock(bx, by, false)
++        for (
++          let y = Math.max(sampleY, by * 8);
++          y < Math.min(height, sampleY + patch, by * 8 + 8);
++          y++
++        )
++          for (
++            let x = Math.max(sampleX, bx * 8);
++            x < Math.min(width, sampleX + patch, bx * 8 + 8);
++            x++
++          ) {
++            const p = (y - sampleY) * patch + x - sampleX,
++              q = (y % 8) * 8 + (x % 8)
++            source[0][p] = block[0]?.[q] ?? 0
++            source[1][p] = block[1]?.[q] ?? 0
++            source[2][p] = (block[2]?.[q] ?? 0) + (block[1]?.[q] ?? 0)
++          }
++      }
++    mask.fill(sampleX, sampleY)
++    const h = differences[0],
++      v = differences[1]
++    for (let s = 0; s < steps.length; s++) {
++      let error = 0
++      for (let y = 0; y < Math.min(patch, height - sampleY); y++)
++        for (let x = 0; x < Math.min(patch, width - sampleX); x++) {
++          const gx = sampleX + x,
++            gy = sampleY + y,
++            p = (y + 8) * stride + x + 8,
++            dest = y * patch + x
++          const rawQ = quantization[Math.floor(gy / 8) * base.blocksWide + Math.floor(gx / 8)] ?? 1
++          const sigma = Math.min(
++            -1e-4,
++            ((0.46 / (((base.globalScale ?? 0) / 65536) * rawQ * -1.17157287525381)) *
++              (steps[s] ?? 0)) /
++              7,
++          )
++          const inverse = 1 / sigma
++          let wt = 0,
++            wl = 0,
++            wr = 0,
++            wb = 0
++          if (inverse >= -3.9052429175127) {
++            const scale =
++              inverse *
++              1.65 *
++              ((gx & 7) === 0 || (gx & 7) === 7 || (gy & 7) === 0 || (gy & 7) === 7 ? 2 / 3 : 1)
++            wt = Math.max(
++              0,
++              1 +
++                ((v[p - stride] ?? 0) +
++                  (v[p - stride - 1] ?? 0) +
++                  (v[p - 2 * stride] ?? 0) +
++                  (v[p - stride + 1] ?? 0) +
++                  (v[p] ?? 0)) *
++                  scale,
++            )
++            wl = Math.max(
++              0,
++              1 +
++                ((h[p - 1] ?? 0) +
++                  (h[p - 2] ?? 0) +
++                  (h[p - stride - 1] ?? 0) +
++                  (h[p] ?? 0) +
++                  (h[p + stride - 1] ?? 0)) *
++                  scale,
++            )
++            wr = Math.max(
++              0,
++              1 +
++                ((h[p] ?? 0) +
++                  (h[p - 1] ?? 0) +
++                  (h[p - stride] ?? 0) +
++                  (h[p + 1] ?? 0) +
++                  (h[p + stride] ?? 0)) *
++                  scale,
++            )
++            wb = Math.max(
++              0,
++              1 +
++                ((v[p] ?? 0) +
++                  (v[p - 1] ?? 0) +
++                  (v[p - stride] ?? 0) +
++                  (v[p + 1] ?? 0) +
++                  (v[p + stride] ?? 0)) *
++                  scale,
++            )
++          }
++          const total = 1 + wt + wl + wr + wb,
++            m = mask.data[dest] ?? 1
++          for (let c = 0; c < 3; c++) {
++            const plane = filtered[c],
++              target = output[c],
++              original = source[c]
++            if (!plane || !target || !original) throw new Error('Missing sampled error plane')
++            target[dest] =
++              ((plane[p] ?? 0) +
++                wt * (plane[p - stride] ?? 0) +
++                wl * (plane[p - 1] ?? 0) +
++                wr * (plane[p + 1] ?? 0) +
++                wb * (plane[p + stride] ?? 0)) /
++              total
++            const difference = (original[dest] ?? 0) - (target[dest] ?? 0)
++            error +=
++              difference * difference * m * m * (c === 0 ? 12.339445295782363 : c === 1 ? 1 : 0.2)
++          }
++        }
++      errors[s] = (errors[s] ?? 0) + error
++      observe?.(steps[s] ?? 0, sampleX, sampleY, patch, output)
++    }
++  }
++  const region = options.region || Math.max(base.blocksWide, base.blocksHigh) * 8
++  const regionsAcross = Math.ceil((base.blocksWide * 8) / region)
++  const cachedErrors = options.globalError
++    ? memory.allocate(Float64Array, regionsAcross * Math.ceil((base.blocksHigh * 8) / region) * 4)
++    : undefined
++  let totalError = 0
++  const chooseRegion = (
++    rx: number,
++    ry: number,
++    right: number,
++    bottom: number,
++    replay: boolean,
++  ): void => {
++    const at = (Math.floor((ry * 8) / region) * regionsAcross + Math.floor((rx * 8) / region)) * 4
++    const expansion = ((right - rx) * (bottom - ry) * 64) / (patch * patch * options.count)
++    if (cachedErrors && replay) errors.set(cachedErrors.subarray(at, at + 4))
++    else {
++      errors.fill(0)
++      const count = options.count
++      for (let sample = 0; sample < count; sample++) {
++        const fx = count === 1 ? 0.5 : sample % 2 === 0 ? 0.25 : 0.75
++        const fy = count === 1 ? 0.5 : sample < 2 ? 0.25 : 0.75
++        // Place the halo inside a 32-pixel transform tile where possible.
++        const cx = Math.floor(((rx + (right - rx) * fx) * 8) / 32) * 32 + 16
++        const cy = Math.floor(((ry + (bottom - ry) * fy) * 8) / 32) * 32 + 16
++        const x = Math.max(rx * 8, Math.min(width - patch, right * 8 - patch, cx - patch / 2))
++        const y = Math.max(ry * 8, Math.min(height - patch, bottom * 8 - patch, cy - patch / 2))
++        sampleErrors(x, y)
++      }
++    }
++    const baseline = errors[2] ?? 0
++    if (cachedErrors && !replay) {
++      cachedErrors.set(errors, at)
++      totalError += baseline * expansion
++      return
++    }
++    if (!(baseline > 0)) return
++    let best = 4,
++      bestCost = 1
++    const budget = options.globalError
++      ? (fileBits * baseline * expansion) / totalError
++      : (fileBits * (right - rx) * (bottom - ry)) / strategies.length
++    for (let s = 0; s < steps.length; s++) {
++      const value = steps[s] ?? 4
++      const preference =
++        value === 0 && options.zeroBias
++          ? Math.max(0.85970338919928291, 0.98017198824148288 ** Math.min(5, distance))
++          : 1
++      const score =
++        ((errors[s] ?? 0) * preference) / baseline +
++        (options.rate * cost.change(rx, ry, right, bottom, value)) / budget
++      if (score < bestCost) {
++        best = value
++        bestCost = score
++      }
++    }
++    cost.change(rx, ry, right, bottom, best, true)
++  }
++  const visit = (replay: boolean): void => {
++    if (!options.region) chooseRegion(0, 0, base.blocksWide, base.blocksHigh, replay)
++    else
++      for (let gy = 0; gy < base.blocksHigh; gy += 32)
++        for (let gx = 0; gx < base.blocksWide; gx += 32)
++          for (let y = gy; y < Math.min(gy + 32, base.blocksHigh); y += region / 8)
++            for (let x = gx; x < Math.min(gx + 32, base.blocksWide); x += region / 8)
++              chooseRegion(
++                x,
++                y,
++                Math.min(x + region / 8, base.blocksWide),
++                Math.min(y + region / 8, base.blocksHigh),
++                replay,
++              )
++  }
++  try {
++    visit(false)
++    if (cachedErrors) visit(true)
++  } finally {
++    if (cachedErrors) memory.release(cachedErrors)
++    mask.release()
++    for (const buffer of [
++      ...raw,
++      ...filtered,
++      ...source,
++      ...output,
++      ...differences,
++      ...values,
++      ...samples,
++      scratch,
++      dc,
++      frequencies,
++      active,
++      seen,
++      errors,
++    ])
++      memory.release(buffer)
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/sampled-sharpness-cost.ts b/benchmark/jpegxl/lossy-lab/sampled-sharpness-cost.ts
+new file mode 100644
+index 00000000..c4316d96
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/sampled-sharpness-cost.ts
+@@ -0,0 +1,116 @@
++/** First-party development estimate of our predictor-5 sharpness stream cost.
++ * Counts signed residuals per DC group, with Shannon bits and an alphabet charge.
++ * This estimates the map only; measured complete output bytes remain the gate.
++ */
++export function sharpnessResidual(
++  map: Uint8Array,
++  width: number,
++  x: number,
++  y: number,
++  rx = -1,
++  ry = -1,
++  right = -1,
++  bottom = -1,
++  value = 4,
++): number {
++  const localX = x % 256,
++    localY = y % 256
++  const left =
++    localX > 0
++      ? sharpnessSample(map, width, x - 1, y, rx, ry, right, bottom, value)
++      : localY > 0
++        ? sharpnessSample(map, width, x, y - 1, rx, ry, right, bottom, value)
++        : 0
++  const top =
++    localY > 0 ? sharpnessSample(map, width, x, y - 1, rx, ry, right, bottom, value) : left
++  const diagonal =
++    localX > 0 && localY > 0
++      ? sharpnessSample(map, width, x - 1, y - 1, rx, ry, right, bottom, value)
++      : left
++  const prediction = Math.max(
++    Math.min(left, top),
++    Math.min(Math.max(left, top), left + top - diagonal),
++  )
++  return sharpnessSample(map, width, x, y, rx, ry, right, bottom, value) - prediction + 7
++}
++
++export function sharpnessHistogramBits(histogram: Int32Array, offset = 0): number {
++  let total = 0,
++    sum = 0,
++    alphabet = 0
++  for (let i = 0; i < 15; i++) {
++    const n = histogram[offset + i] ?? 0
++    total += n
++    if (n > 0) {
++      sum += n * Math.log2(n)
++      alphabet++
++    }
++  }
++  return total ? total * Math.log2(total) - sum + alphabet * (Math.log2(total + 1) + 3) : 0
++}
++
++export function sharpnessMapCost(map: Uint8Array, width: number, height: number) {
++  const across = Math.ceil(width / 256)
++  const histogram = new Int32Array(across * Math.ceil(height / 256) * 15)
++  const delta = new Int32Array(histogram.length)
++  for (let y = 0; y < height; y++)
++    for (let x = 0; x < width; x++) {
++      const at =
++        (Math.floor(y / 256) * across + Math.floor(x / 256)) * 15 +
++        sharpnessResidual(map, width, x, y)
++      histogram[at] = (histogram[at] ?? 0) + 1
++    }
++  return {
++    bits(): number {
++      let bits = 0
++      for (let at = 0; at < histogram.length; at += 15)
++        bits += sharpnessHistogramBits(histogram, at)
++      return bits
++    },
++    change(
++      rx: number,
++      ry: number,
++      right: number,
++      bottom: number,
++      value: number,
++      commit = false,
++    ): number {
++      delta.fill(0)
++      // The predictor sees left, top and top-left: only this rectangle plus
++      // its right and bottom neighbors can change. DC-group edges reset it.
++      for (let y = ry; y < Math.min(height, bottom + 1); y++)
++        for (let x = rx; x < Math.min(width, right + 1); x++) {
++          const at = (Math.floor(y / 256) * across + Math.floor(x / 256)) * 15
++          const old = at + sharpnessResidual(map, width, x, y)
++          const next = at + sharpnessResidual(map, width, x, y, rx, ry, right, bottom, value)
++          delta[old] = (delta[old] ?? 0) - 1
++          delta[next] = (delta[next] ?? 0) + 1
++        }
++      let difference = 0
++      for (let at = 0; at < histogram.length; at += 15) {
++        const before = sharpnessHistogramBits(histogram, at)
++        for (let i = at; i < at + 15; i++) histogram[i] = (histogram[i] ?? 0) + (delta[i] ?? 0)
++        difference += sharpnessHistogramBits(histogram, at) - before
++        if (!commit)
++          for (let i = at; i < at + 15; i++) histogram[i] = (histogram[i] ?? 0) - (delta[i] ?? 0)
++      }
++      if (commit)
++        for (let y = ry; y < bottom; y++) map.fill(value, y * width + rx, y * width + right)
++      return difference
++    },
++  }
++}
++
++function sharpnessSample(
++  map: Uint8Array,
++  width: number,
++  x: number,
++  y: number,
++  rx: number,
++  ry: number,
++  right: number,
++  bottom: number,
++  value: number,
++): number {
++  return x >= rx && x < right && y >= ry && y < bottom ? value : (map[y * width + x] ?? 0)
++}
+diff --git a/benchmark/jpegxl/lossy-lab/sampled-tile-mask.ts b/benchmark/jpegxl/lossy-lab/sampled-tile-mask.ts
+new file mode 100644
+index 00000000..21e032f3
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/sampled-tile-mask.ts
+@@ -0,0 +1,118 @@
++/**
++ * Source: libjxl lib/jxl/enc_adaptive_quantization.cc, v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: the separately ported Laplacian and Blur1x1Masking formula computed
++ * on one sampled selector patch with a three-pixel halo. Clamped padded borders,
++ * Float32 intermediate storage and accumulation order match the full-plane port.
++ * Scratch is bounded independently of image dimensions. Development only.
++ */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++
++export function sampledTileMask(
++  base: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  size: number,
++) {
++  const memory = base.memory
++  if (!memory) throw new Error('Missing tile mask memory')
++  const width = base.blocksWide * 8,
++    height = base.blocksHigh * 8
++  const luma = memory.allocate(Float32Array, (size + 6) * (size + 6))
++  const raw = memory.allocate(Float32Array, (size + 4) * (size + 4))
++  const data = memory.allocate(Float32Array, size * size)
++  const numeratorMul = ((18.6580932135 * Math.LN2) / 73.377132366608819) * 3 * 226.77216153508914
++  const denominatorMul = Math.LN2 * 226.77216153508914
++  const offset = 7.7825991679894591 * Math.LN2 + 0.01
++  const adjacent = 0.364911248,
++    diagonal = 0.05,
++    farAxis = 0.1688888021,
++    mixed = 0.221069183,
++    farDiagonal = 0.306563504
++  const normalization = 1 / (1 + 4 * (adjacent + diagonal + farAxis + farDiagonal + 2 * mixed))
++  const kernel = Float64Array.of(
++    1,
++    adjacent,
++    farAxis,
++    adjacent,
++    diagonal,
++    mixed,
++    farAxis,
++    mixed,
++    farDiagonal,
++  )
++  return {
++    data,
++    fill(pixelX: number, pixelY: number): void {
++      const originX = pixelX,
++        originY = pixelY
++      // Copy each intersecting block once. readBlock returns reusable scratch.
++      for (
++        let by = Math.floor((originY - 3) / 8);
++        by <= Math.floor((originY + (size + 2)) / 8);
++        by++
++      )
++        for (
++          let bx = Math.floor((originX - 3) / 8);
++          bx <= Math.floor((originX + (size + 2)) / 8);
++          bx++
++        ) {
++          const source = context.readBlock(
++            Math.max(0, Math.min(base.blocksWide - 1, bx)),
++            Math.max(0, Math.min(base.blocksHigh - 1, by)),
++            false,
++          )[1]
++          if (!source) throw new Error('Missing tile mask luminance')
++          for (
++            let y = Math.max(originY - 3, by * 8);
++            y < Math.min(originY + (size + 3), by * 8 + 8);
++            y++
++          )
++            for (
++              let x = Math.max(originX - 3, bx * 8);
++              x < Math.min(originX + (size + 3), bx * 8 + 8);
++              x++
++            )
++              luma[(y - originY + 3) * (size + 6) + x - originX + 3] =
++                source[
++                  (Math.max(0, Math.min(height - 1, y)) % 8) * 8 +
++                    (Math.max(0, Math.min(width - 1, x)) % 8)
++                ] ?? 0
++        }
++      for (let y = 0; y < size + 4; y++)
++        for (let x = 0; x < size + 4; x++) {
++          // Clamp the Laplacian center before reading its neighbors. Clamping
++          // raw-mask coordinates is not the same as differentiating padding.
++          const px = Math.max(0, Math.min(width - 1, originX + x - 2)) - originX + 3
++          const py = Math.max(0, Math.min(height - 1, originY + y - 2)) - originY + 3
++          const at = py * (size + 6) + px,
++            value = luma[at] ?? 0
++          const average =
++            0.25 *
++            ((luma[at - (size + 6)] ?? 0) +
++              (luma[at + (size + 6)] ?? 0) +
++              (luma[at - 1] ?? 0) +
++              (luma[at + 1] ?? 0))
++          const v = Math.max(0, value + 0.019)
++          const gamma = (denominatorMul * v * v * v + offset) / (numeratorMul * v * v + 0.01)
++          raw[y * (size + 4) + x] = 1 / (Math.log1p(Math.abs(gamma * (value - average))) + 0.01)
++        }
++      for (let y = 0; y < Math.min(size, height - originY); y++)
++        for (let x = 0; x < Math.min(size, width - originX); x++) {
++          let sum = 0
++          for (let dy = -2; dy <= 2; dy++)
++            for (let dx = -2; dx <= 2; dx++)
++              sum +=
++                (kernel[Math.abs(dy) * 3 + Math.abs(dx)] ?? 0) *
++                (raw[(y + dy + 2) * (size + 4) + x + dx + 2] ?? 0)
++          data[y * size + x] = sum * normalization
++        }
++    },
++    release(): void {
++      memory.release(luma)
++      memory.release(raw)
++      memory.release(data)
++    },
++  }
++}
+diff --git a/tests/jpegxl-sampled-ar.test.ts b/tests/jpegxl-sampled-ar.test.ts
+new file mode 100644
+index 00000000..f71d74b9
+--- /dev/null
++++ b/tests/jpegxl-sampled-ar.test.ts
+@@ -0,0 +1,137 @@
++import { expect, it } from 'vitest'
++import {
++  sharpnessMapCost,
++  sharpnessResidual,
++} from '../benchmark/jpegxl/lossy-lab/sampled-sharpness-cost.ts'
++import { libjxlSampledArSharpness } from '../benchmark/jpegxl/lossy-lab/libjxl-sampled-ar-port.ts'
++import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
++import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
++import { convertJpegXlNativeXybPlanes } from '../src/codecs/jpegxl-vardct-render.ts'
++import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
++import { MemorySource } from '../src/source.ts'
++import { defaultImageLimits } from '../src/limits.ts'
++
++it('charges map transitions and predicts incremental cost across image and DC-group edges', () => {
++  const width = 269,
++    height = 263
++  const map = new Uint8Array(width * height).fill(4)
++  const cost = sharpnessMapCost(map, width, height)
++  for (const [x, y, right, bottom, value] of [
++    [0, 0, 8, 8, 0],
++    [8, 0, 16, 8, 7],
++    [254, 253, 269, 263, 2],
++    [0, 0, 269, 263, 7],
++    [256, 256, 269, 263, 4],
++  ]) {
++    if (
++      x === undefined ||
++      y === undefined ||
++      right === undefined ||
++      bottom === undefined ||
++      value === undefined
++    )
++      throw new Error('Missing region')
++    const before = cost.bits(),
++      copy = map.slice()
++    const delta = cost.change(x, y, right, bottom, value)
++    expect(map).toEqual(copy)
++    for (let row = y; row < bottom; row++) copy.fill(value, row * width + x, row * width + right)
++    const expected = sharpnessMapCost(copy, width, height).bits()
++    expect(before + delta).toBeCloseTo(expected, 8)
++    expect(cost.change(x, y, right, bottom, value, true)).toBeCloseTo(delta, 8)
++    expect(cost.bits()).toBeCloseTo(expected, 8)
++    expect(map).toEqual(copy)
++  }
++  const flat = new Uint8Array(4096).fill(4),
++    flatCost = sharpnessMapCost(flat, 64, 64)
++  expect(flatCost.change(8, 8, 16, 16, 0)).toBeGreaterThan(0)
++  expect(sharpnessResidual(flat, 64, 0, 0)).toBe(11)
++  expect(sharpnessResidual(flat, 64, 1, 0)).toBe(7)
++})
++
++it.each([
++  [73, 29],
++  [273, 37],
++  [1, 9],
++] as const)(
++  'sampled final-coefficient reconstruction matches full decoding for %ix%i',
++  async (width, height) => {
++    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++      i % 4 === 3
++        ? 255
++        : Math.round(
++            100 +
++              (i % 4) * 20 +
++              25 * Math.sin(Math.floor(i / 4) / 7) +
++              15 * Math.cos(Math.floor(i / 4 / width) / 5),
++          ),
++    )
++    const reconstructed = [
++      new Float64Array(width * height),
++      new Float64Array(width * height),
++      new Float64Array(width * height),
++    ] as const
++    const seen = new Uint8Array(width * height)
++    const overrides = libjxlPortOverrides('standalone-forward-all', 2, width, height),
++      rewrite = overrides.rewriteGeometry
++    if (!rewrite) throw new Error('Missing standalone rewrite')
++    const encoded = await encodeTransplant(pixels, width, height, 2, {
++      ...overrides,
++      rewriteGeometry(base, context) {
++        const geometry = rewrite(base, context)
++        libjxlSampledArSharpness(
++          geometry,
++          context,
++          2,
++          width,
++          height,
++          { region: 32, patch: 16, count: 4, rate: 1 },
++          (sharpness, x, y, size, planes) => {
++            if (sharpness !== 4) return
++            for (let py = 0; py < Math.min(size, height - y); py++)
++              for (let px = 0; px < Math.min(size, width - x); px++) {
++                const at = (y + py) * width + x + px
++                seen[at] = 1
++                for (let c = 0; c < 3; c++) {
++                  const target = reconstructed[c]
++                  if (!target) throw new Error('Missing reconstruction target')
++                  target[at] = planes[c]?.[py * size + px] ?? 0
++                }
++              }
++          },
++        )
++        geometry.sharpnessMap?.fill(4)
++        return geometry
++      },
++    })
++    const rgb = convertJpegXlNativeXybPlanes(reconstructed, undefined)
++    const decoder = await jpegxlCodec.createDecoder?.(
++      new MemorySource(encoded.bytes),
++      defaultImageLimits,
++    )
++    if (!decoder) throw new Error('Missing decoder')
++    let maximum = 0,
++      count = 0
++    for await (const block of decoder.decode()) {
++      try {
++        for (let y = 0; y < block.height; y++)
++          for (let x = 0; x < block.width; x++) {
++            const at = (block.y + y) * width + x
++            if (!seen[at]) continue
++            for (let c = 0; c < 3; c++) {
++              const expected = Math.max(0, Math.min(255, Math.round((rgb[c]?.[at] ?? 0) * 255)))
++              maximum = Math.max(
++                maximum,
++                Math.abs(expected - (block.data[y * block.stride + x * 4 + c] ?? 0)),
++              )
++              count++
++            }
++          }
++      } finally {
++        block.release?.()
++      }
++    }
++    expect(count).toBeGreaterThan(0)
++    expect(maximum).toBeLessThanOrEqual(1)
++  },
++)
