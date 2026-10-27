@@ -1,0 +1,351 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 31e3a3b8..c52cca05 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -32,6 +32,11 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'dc' ||
+     value === 'dc-smooth' ||
+     value === 'standalone' ||
++    value === 'standalone-frequency-middle' ||
++    value === 'standalone-frequency-detail' ||
++    value === 'standalone-frequency-low' ||
++    value === 'standalone-frequency-high' ||
++    value === 'standalone-frequency-weak' ||
+     value === 'standalone-reference' ||
+     value === 'standalone-cache' ||
+     value === 'standalone-fast' ||
+@@ -118,6 +123,11 @@ export function libjxlPortOverrides(
+ ): JpegXlDevelopmentDecisions {
+   if (
+     mode === 'standalone' ||
++    mode === 'standalone-frequency-middle' ||
++    mode === 'standalone-frequency-detail' ||
++    mode === 'standalone-frequency-low' ||
++    mode === 'standalone-frequency-high' ||
++    mode === 'standalone-frequency-weak' ||
+     mode === 'standalone-reference' ||
+     mode === 'standalone-cache' ||
+     mode === 'standalone-fast' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 39f2fe1f..35a36c4d 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -17,8 +17,14 @@ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+ import { strategyPortOverrides } from './libjxl-strategy-port.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
++import { redistributeFrequencyPrecision, type FrequencyAllocation } from './frequency-allocation.ts'
+ 
+ export type StandalonePort =
++  | 'standalone-frequency-middle'
++  | 'standalone-frequency-detail'
++  | 'standalone-frequency-low'
++  | 'standalone-frequency-high'
++  | 'standalone-frequency-weak'
+   | 'standalone'
+   | 'standalone-reference'
+   | 'standalone-cache'
+@@ -73,6 +79,17 @@ export function libjxlStandaloneOverrides(
+   height: number,
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
++  const frequency: FrequencyAllocation | undefined =
++    requestedMode === 'standalone-frequency-middle'
++      ? 'middle'
++      : requestedMode === 'standalone-frequency-detail' ||
++          requestedMode === 'standalone-frequency-weak'
++        ? 'detail'
++        : requestedMode === 'standalone-frequency-low'
++          ? 'low'
++          : requestedMode === 'standalone-frequency-high'
++            ? 'high'
++            : undefined
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -85,8 +102,9 @@ export function libjxlStandaloneOverrides(
+             : undefined
+   const lossScale =
+     requestedMode === 'standalone-loss75' ? 0.75 : requestedMode === 'standalone-loss125' ? 1.25 : 1
+-  const writerTransform =
+-    requestedMode === 'standalone-forward-small'
++  const writerTransform = frequency
++    ? 'all'
++    : requestedMode === 'standalone-forward-small'
+       ? 'small'
+       : requestedMode === 'standalone-forward-paired'
+         ? 'paired'
+@@ -214,6 +232,14 @@ export function libjxlStandaloneOverrides(
+         if (precision !== 1)
+           for (let i = 0; i < field.length; i++) field[i] = (field[i] ?? 0) * precision
+       }
++      if (frequency)
++        redistributeFrequencyPrecision(
++          field,
++          base,
++          context,
++          frequency,
++          requestedMode === 'standalone-frequency-weak' ? 0.2 : 0.4,
++        )
+       const filtered =
+         defaults?.gaborish === false
+           ? undefined
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index b0997fd2..56e92056 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -62,6 +62,11 @@ it.each([
+   'standalone-forward-small',
+   'standalone-forward-paired',
+   'standalone-forward-all',
++  'standalone-frequency-middle',
++  'standalone-frequency-detail',
++  'standalone-frequency-low',
++  'standalone-frequency-high',
++  'standalone-frequency-weak',
+   'standalone-guard-coarse',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+diff --git a/benchmark/jpegxl/lossy-lab/frequency-allocation.ts b/benchmark/jpegxl/lossy-lab/frequency-allocation.ts
+new file mode 100644
+index 00000000..c77f1418
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/frequency-allocation.ts
+@@ -0,0 +1,59 @@
++/** First-party development allocation from source luma frequency energy. No peer maps. */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import { forwardSelectorTransform } from './selector-transforms.ts'
++import { frequencyBand } from './frequency-error.ts'
++export type FrequencyAllocation = 'middle' | 'detail' | 'low' | 'high'
++export function redistributeFrequencyPrecision(
++  field: Float32Array,
++  geometry: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  band: FrequencyAllocation,
++  strength: number,
++): void {
++  const memory = geometry.memory
++  if (
++    !memory ||
++    field.length !== geometry.blocksWide * geometry.blocksHigh ||
++    !(strength > 0 && strength <= 1)
++  )
++    throw new Error('Invalid frequency allocation')
++  const shares = memory.allocate(Float32Array, field.length),
++    scratch = memory.allocate(Float64Array, 64),
++    coefficients = memory.allocate(Float64Array, 64)
++  try {
++    let mean = 0
++    for (let y = 0; y < geometry.blocksHigh; y++)
++      for (let x = 0; x < geometry.blocksWide; x++) {
++        const luma = context.readBlock(x, y, false)[1]
++        if (!luma) throw new Error('Missing source luma')
++        forwardSelectorTransform(0, luma, scratch, coefficients)
++        let selected = 0,
++          total = 0
++        for (let p = 1; p < 64; p++) {
++          const value = coefficients[p] ?? 0,
++            energy = value * value
++          const at = frequencyBand(p % 8, Math.floor(p / 8))
++          total += energy
++          if (
++            (band === 'detail' && at >= 2) ||
++            (band === 'middle' && at === 2) ||
++            (band === 'low' && at === 1) ||
++            (band === 'high' && at === 3)
++          )
++            selected += energy
++        }
++        const at = y * geometry.blocksWide + x
++        // Fixed small energy floor prevents a flat cell's rounding dust deciding allocation.
++        shares[at] = total > 1e-12 ? selected / total : 0
++        mean += shares[at] ?? 0
++      }
++    mean /= field.length
++    for (let i = 0; i < field.length; i++)
++      field[i] = (field[i] ?? 0) * Math.exp(strength * ((shares[i] ?? 0) - mean))
++  } finally {
++    memory.release(shares)
++    memory.release(scratch)
++    memory.release(coefficients)
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/run-frequency-screen.ts b/benchmark/jpegxl/lossy-lab/run-frequency-screen.ts
+new file mode 100644
+index 00000000..92f1ad4e
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/run-frequency-screen.ts
+@@ -0,0 +1,78 @@
++import { execFileSync } from 'node:child_process'
++import { appendFile, mkdir, open, readFile } from 'node:fs/promises'
++import { object, number, string } from '../comparison/model.ts'
++const [root] = process.argv.slice(2)
++if (!root) throw new Error('Need output root')
++const modes = [
++  'standalone-forward-all',
++  'standalone-frequency-detail',
++  'standalone-frequency-middle',
++  'standalone-frequency-low',
++  'standalone-frequency-high',
++  'standalone-frequency-weak',
++]
++for (let index = 0; index < modes.length; index++) {
++  const mode = modes[index]
++  if (!mode) throw new Error('Missing mode')
++  const directory = `${root}/${mode}-screen`
++  await mkdir(directory)
++  const log = await open(`${directory}/run.log`, 'w')
++  console.log(`Starting ${mode}`)
++  try {
++    execFileSync(
++      process.execPath,
++      [
++        'benchmark/jpegxl/lossy-lab/run.ts',
++        '--manifest',
++        '.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json',
++        '--out',
++        directory,
++        '--mode',
++        'screen',
++        '--variant',
++        mode,
++        '--workers',
++        '4',
++        '--strategy-port',
++        mode,
++      ],
++      { stdio: ['ignore', log.fd, log.fd] },
++    )
++    execFileSync(
++      process.execPath,
++      [
++        'benchmark/jpegxl/lossy-lab/summarize-port.ts',
++        directory,
++        `${root}/standalone-forward-all-screen/standalone-forward-all-purejsimage`,
++      ],
++      { stdio: ['ignore', log.fd, log.fd] },
++    )
++  } finally {
++    await log.close()
++  }
++  const report = object(JSON.parse(await readFile(`${directory}/against-control.json`, 'utf8')))
++  if (
++    !Array.isArray(report.control) ||
++    !Array.isArray(report.peers) ||
++    !Array.isArray(report.failures) ||
++    report.failures.length
++  )
++    throw new Error('Incomplete comparison')
++  const rates = (rows: unknown[]) =>
++    ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax']
++      .map((metric) => {
++        const row = rows.map(object).find((r) => r.metric === metric)
++        if (!row || number(row.count) !== 16) throw new Error('Incomplete metric')
++        return number(row.mean).toFixed(3)
++      })
++      .join('/')
++  const control = rates(report.control),
++    vips = rates(report.peers.filter((r) => object(r).peer === 'vips')),
++    jsquash = rates(report.peers.filter((r) => object(r).peer === 'jsquash'))
++  const label = string(mode)
++  await appendFile(
++    'benchmark/jpegxl/lossy-lab-log.md',
++    `\n| LL-${940 + index}, 2026-10-27 | ${label}: source-frequency precision redistribution at fixed geometric mean field. | All 80 screen outputs validate and score. Control ${control}%; vips ${vips}%; jSquash ${jsquash}%. | Four-worker quality timing excluded. | Screen evidence; no promotion or holdout. Raw: frequency-20261027/${label}-screen. | measured |\n`,
++  )
++  console.log(JSON.stringify({ mode, control, vips, jsquash }))
++}
+diff --git a/benchmark/jpegxl/lossy-lab/frequency-error.ts b/benchmark/jpegxl/lossy-lab/frequency-error.ts
+new file mode 100644
+index 00000000..1b49b986
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/frequency-error.ts
+@@ -0,0 +1,88 @@
++/** First-party orthonormal 8x8 DCT diagnostic on displayed XYB planes. */
++import { dctBasis } from './transform-kernels.ts'
++import type { DisplayPlanes } from './libjxl-display-loss.ts'
++export const frequencyBands = ['dc', 'low', 'middle', 'high'] as const
++export function frequencyBand(x: number, y: number): number {
++  const sum = x + y
++  return sum === 0 ? 0 : sum <= 2 ? 1 : sum <= 6 ? 2 : 3
++}
++function transform(
++  source: Float32Array,
++  width: number,
++  x: number,
++  y: number,
++  scratch: Float64Array,
++  out: Float64Array,
++): void {
++  const basis = dctBasis(8)
++  for (let row = 0; row < 8; row++)
++    for (let u = 0; u < 8; u++) {
++      let value = 0
++      for (let col = 0; col < 8; col++)
++        value += (source[(y + row) * width + x + col] ?? 0) * (basis[u * 8 + col] ?? 0)
++      scratch[row * 8 + u] = value
++    }
++  for (let v = 0; v < 8; v++)
++    for (let u = 0; u < 8; u++) {
++      let value = 0
++      for (let row = 0; row < 8; row++)
++        value += (scratch[row * 8 + u] ?? 0) * (basis[v * 8 + row] ?? 0)
++      out[v * 8 + u] = value
++    }
++}
++export function frequencyError(
++  source: DisplayPlanes,
++  decoded: DisplayPlanes,
++  width: number,
++  height: number,
++) {
++  if (
++    !Number.isSafeInteger(width) ||
++    !Number.isSafeInteger(height) ||
++    width < 8 ||
++    height < 8 ||
++    width % 8 ||
++    height % 8 ||
++    [...source, ...decoded].some((p) => p.length !== width * height)
++  )
++    throw new Error('Expected complete 8x8 diagnostic tiles')
++  const error = new Float64Array(12),
++    signal = new Float64Array(12),
++    lost = new Float64Array(12),
++    added = new Float64Array(12)
++  const coefficientError = new Float64Array(192),
++    coefficientSignal = new Float64Array(192)
++  const a = new Float64Array(64),
++    b = new Float64Array(64),
++    scratch = new Float64Array(64)
++  for (let c = 0; c < 3; c++) {
++    const src = source[c],
++      dst = decoded[c]
++    if (!src || !dst) throw new Error('Missing plane')
++    for (let y = 0; y < height; y += 8)
++      for (let x = 0; x < width; x += 8) {
++        transform(src, width, x, y, scratch, a)
++        transform(dst, width, x, y, scratch, b)
++        for (let p = 0; p < 64; p++) {
++          const at = c * 4 + frequencyBand(p % 8, Math.floor(p / 8)),
++            av = a[p] ?? 0,
++            bv = b[p] ?? 0
++          error[at] = (error[at] ?? 0) + (av - bv) ** 2
++          const frequency = c * 64 + p
++          coefficientError[frequency] = (coefficientError[frequency] ?? 0) + (av - bv) ** 2
++          coefficientSignal[frequency] = (coefficientSignal[frequency] ?? 0) + av * av
++          signal[at] = (signal[at] ?? 0) + av * av
++          lost[at] = (lost[at] ?? 0) + Math.max(0, av * av - bv * bv)
++          added[at] = (added[at] ?? 0) + Math.max(0, bv * bv - av * av)
++        }
++      }
++  }
++  return {
++    error: Array.from(error, (v) => v / (width * height)),
++    signal: Array.from(signal, (v) => v / (width * height)),
++    lost: Array.from(lost, (v) => v / (width * height)),
++    added: Array.from(added, (v) => v / (width * height)),
++    coefficientError: Array.from(coefficientError, (v) => v / (width * height)),
++    coefficientSignal: Array.from(coefficientSignal, (v) => v / (width * height)),
++  }
++}

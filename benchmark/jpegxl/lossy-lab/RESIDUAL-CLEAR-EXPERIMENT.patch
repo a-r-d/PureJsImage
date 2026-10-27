@@ -1,0 +1,18 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 84c17262..a9318f76 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -288,10 +288,11 @@ function selectGeometry(
+               : 1
+       let nonzero = 0,
+         channelEntropy = 0
+-      residual.fill(0, 0, size)
+       for (let p = 0; p < size; p++) {
+-        if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
++        if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh)) {
++          residual[p] = 0
+           continue
++        }
+         const step = scale * channelScale * (matrix[p] ?? 0)
+         const value = ((coefficients[p] ?? 0) - correlation * (luma[p] ?? 0)) / step
+         // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.

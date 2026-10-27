@@ -1,0 +1,196 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 31e3a3b8..bfe960aa 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -73,6 +73,10 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-selector-mask-copy' ||
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
++    value === 'standalone-score-lean' ||
++    value === 'standalone-score-sparse' ||
++    value === 'standalone-score-ties' ||
++    value === 'standalone-score-combined' ||
+     value === 'standalone-forward-all' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+@@ -159,6 +163,10 @@ export function libjxlPortOverrides(
+     mode === 'standalone-selector-mask-copy' ||
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
++    mode === 'standalone-score-lean' ||
++    mode === 'standalone-score-sparse' ||
++    mode === 'standalone-score-ties' ||
++    mode === 'standalone-score-combined' ||
+     mode === 'standalone-forward-all' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 39f2fe1f..1a11a28e 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -19,6 +19,10 @@ import { selectorBlockCache } from './selector-block-cache.ts'
+ import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
+ 
+ export type StandalonePort =
++  | 'standalone-score-lean'
++  | 'standalone-score-sparse'
++  | 'standalone-score-ties'
++  | 'standalone-score-combined'
+   | 'standalone'
+   | 'standalone-reference'
+   | 'standalone-cache'
+@@ -73,6 +77,16 @@ export function libjxlStandaloneOverrides(
+   height: number,
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
++  const scoreKernel =
++    requestedMode === 'standalone-score-lean'
++      ? 'lean'
++      : requestedMode === 'standalone-score-sparse'
++        ? 'sparse'
++        : requestedMode === 'standalone-score-ties'
++          ? 'ties'
++          : requestedMode === 'standalone-score-combined'
++            ? 'combined'
++            : undefined
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -90,7 +104,7 @@ export function libjxlStandaloneOverrides(
+       ? 'small'
+       : requestedMode === 'standalone-forward-paired'
+         ? 'paired'
+-        : requestedMode === 'standalone-forward-all'
++        : requestedMode === 'standalone-forward-all' || scoreKernel !== undefined
+           ? 'all'
+           : undefined
+   const coarseAllocation =
+@@ -245,6 +259,7 @@ export function libjxlStandaloneOverrides(
+             requestedMode === 'standalone-selector-mask-copy' ||
+             coarseAllocation,
+           lossScale,
++          ...(scoreKernel ? { scoreKernel } : {}),
+           ...(writerEstimate ? { writerEstimate } : {}),
+           ...(writerTransform ? { writerTransform } : {}),
+           compactStorage:
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 84c17262..c14addb3 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -92,6 +92,7 @@ export interface StrategyOptions {
+   rowMask?: boolean
+   bulkBlockCopy?: boolean
+   lossScale?: number
++  scoreKernel?: 'lean' | 'sparse' | 'ties' | 'combined'
+ }
+ 
+ export function strategyPortOverrides(
+@@ -132,6 +133,7 @@ function selectGeometry(
+     rowMask = false,
+     bulkBlockCopy = false,
+     lossScale = 1,
++    scoreKernel,
+   } = options
+   const memory = base.memory
+   if (!memory || !base.quantizationMap || !base.globalScale)
+@@ -179,6 +181,9 @@ function selectGeometry(
+   const magnitudeWeight = 10.833273317067883 * ratio ** 0.36702940662370243
+   const invGlobal = 65536 / base.globalScale
+   const tiny = mode === 'tiny'
++  const leanScore = scoreKernel === 'lean' || scoreKernel === 'combined'
++  const sparseScore = scoreKernel === 'sparse' || scoreKernel === 'combined'
++  const fastTies = scoreKernel === 'ties' || scoreKernel === 'combined'
+   const actualRounding =
+     mode === 'spatial-actual' ||
+     mode === 'spatial-actual-guarded' ||
+@@ -295,15 +300,16 @@ function selectGeometry(
+         const step = scale * channelScale * (matrix[p] ?? 0)
+         const value = ((coefficients[p] ?? 0) - correlation * (luma[p] ?? 0)) / step
+         // C++ SIMD Round uses nearest-even; ties are explicit in this scalar port.
+-        const lower = Math.floor(value),
+-          fraction = value - lower
+-        const rounded = actualRounding
+-          ? context.quantize(value, c)
+-          : fraction === 0.5
+-            ? lower % 2 === 0
+-              ? lower
+-              : lower + 1
+-            : Math.round(value)
++        let rounded: number
++        if (actualRounding) rounded = context.quantize(value, c)
++        else if (fastTies) {
++          rounded = Math.round(value)
++          if (Math.abs(value - rounded) === 0.5 && rounded % 2 !== 0) rounded -= 1
++        } else {
++          const lower = Math.floor(value),
++            fraction = value - lower
++          rounded = fraction === 0.5 ? (lower % 2 === 0 ? lower : lower + 1) : Math.round(value)
++        }
+         if (!Number.isFinite(value) || Math.abs(rounded) > 4095) return Infinity
+         const magnitude = Math.abs(rounded),
+           error =
+@@ -313,12 +319,15 @@ function selectGeometry(
+                 ? Math.sign(rounded) * (defaultJpegXlQuantizationBiases[c] ?? 1)
+                 : rounded - 0.145 / rounded
+               : rounded)
+-        absoluteError += Math.abs(error)
+-        squaredError += error * error
++        if (!leanScore || tiny) {
++          absoluteError += Math.abs(error)
++          squaredError += error * error
++        }
+         if (magnitude !== 0) nonzero++
+-        channelEntropy += tiny
+-          ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+-          : Math.sqrt(magnitude) * magnitudeWeight
++        if (!sparseScore || magnitude !== 0)
++          channelEntropy += tiny
++            ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
++            : Math.sqrt(magnitude) * magnitudeWeight
+         residual[p] = error * channelScale * (matrix[p] ?? 0)
+       }
+       const bits = ceilLog2(nonzero + 1) + 1
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index b0997fd2..135cc968 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -197,6 +197,39 @@ it.each([0.45, 1.3])(
+   },
+ )
+ 
++it('preserves streams with cheaper selector scoring across odd edges and distances', async () => {
++  const width = 137,
++    height = 75
++  const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++    i % 4 === 3 ? 255 : 30 + ((i * 17 + Math.floor(i / width) * 31) % 200),
++  )
++  for (const distance of [0.45, 2, 7.5]) {
++    const control = await encodeTransplant(
++      pixels,
++      width,
++      height,
++      distance,
++      libjxlPortOverrides('standalone-forward-all', distance, width, height),
++    )
++    for (const mode of [
++      'standalone-score-lean',
++      'standalone-score-sparse',
++      'standalone-score-ties',
++      'standalone-score-combined',
++    ] as const) {
++      const result = await encodeTransplant(
++        pixels,
++        width,
++        height,
++        distance,
++        libjxlPortOverrides(mode, distance, width, height),
++      )
++      expect(result.bytes).toEqual(control.bytes)
++      expect(result.managedPeakBytes).toBe(control.managedPeakBytes)
++    }
++  }
++})
++
+ it('preserves coherent streams with bounded source caching and packed AC storage', async () => {
+   const width = 257,
+     height = 65

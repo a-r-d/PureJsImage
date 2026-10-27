@@ -1,0 +1,13 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 84c17262..da4f2005 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -316,7 +316,7 @@ function selectGeometry(
+         absoluteError += Math.abs(error)
+         squaredError += error * error
+         if (magnitude !== 0) nonzero++
+-        channelEntropy += tiny
++        if (magnitude !== 0) channelEntropy += tiny
+           ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+           : Math.sqrt(magnitude) * magnitudeWeight
+         residual[p] = error * channelScale * (matrix[p] ?? 0)

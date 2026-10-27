@@ -391,3 +391,13 @@ are first-party development harnesses. They call the pinned public metric and
 decoder binaries only as development oracles. No peer decisions, runtime
 dependencies or new public codec imports. The full BSD-3 license remains in
 the npm package's THIRD_PARTY_NOTICES and its docs-site copy.
+
+## Frequency allocation and score cost, 2026-10-27
+
+The `lossy-lab/frequency-error.ts`, `audit-frequency-error.ts` and
+`profile-selector.ts` tools are first-party offline diagnostics. They reuse the
+already attributed display-XYB conversion and the existing orthonormal DCT basis.
+No new libjxl constants, tables or heuristics are imported. The rejected source
+band allocation and six score-cost adaptations are archived with their original
+module attribution headers. Active encoder decisions and scoring return to
+`bb43c721`; no public codec source or runtime dependency changes.

@@ -1,0 +1,32 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 84c17262..743a48a6 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -173,6 +173,8 @@ function selectGeometry(
+   const residual = memory.allocate(Float64Array, 4096)
+   const spatial = memory.allocate(Float32Array, 4096)
+   const active = memory.allocate(Uint16Array, 64)
++  const squareRoots = memory.allocate(Float64Array, 4096)
++  for (let i = 0; i < squareRoots.length; i++) squareRoots[i] = Math.sqrt(i)
+   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
+   const infoWeight = 1.2 * ratio ** 0.33677806662454718 * lossScale
+   const zeroWeight = 9.3089059022677905 * ratio ** 0.50990926717963703
+@@ -317,8 +319,8 @@ function selectGeometry(
+         squaredError += error * error
+         if (magnitude !== 0) nonzero++
+         channelEntropy += tiny
+-          ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+-          : Math.sqrt(magnitude) * magnitudeWeight
++          ? (squareRoots[magnitude] ?? 0) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
++          : (squareRoots[magnitude] ?? 0) * magnitudeWeight
+         residual[p] = error * channelScale * (matrix[p] ?? 0)
+       }
+       const bits = ceilLog2(nonzero + 1) + 1
+@@ -544,6 +546,7 @@ function selectGeometry(
+     residual,
+     spatial,
+     active,
++    squareRoots,
+     costs,
+     losses,
+   ])
