@@ -1,0 +1,66 @@
+benchmark/jpegxl/lossy-lab/frequency-error.ts
+  s_42a303a21f7525::t_7c836bc4db4d56 10-17,19-32,34-58,60-61,63-78,80-87
+  s_42a303a21f7525::t_c0d38ac282814e 2,4
+  s_42a303a21f7525::t_d96d45c16848b3 1,3,5-9,18,33,59,62,79,88-89
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_82d0c883fd406c 394-403
+benchmark/jpegxl/lossy-lab/SCORE-EXPERIMENT.patch
+  s_42a303a21f7525::t_bd991183df620a 1-196
+benchmark/jpegxl/lossy-lab/FREQUENCY-EXPERIMENT.patch
+  s_42a303a21f7525::t_55856bd90b3ef0 1-257,259,261,271,279,295,302,310,340-342,350-351
+  s_42a303a21f7525::t_51a25ac3851674 258,260,262-270,272-278,280-294,296-301,303-309,311-339,343-349
+benchmark/jpegxl/lossy-lab/audit-frequency-error.ts
+  s_42a303a21f7525::t_d96d45c16848b3 1-3,5-6,9-10,14,25-26,31,39,42,57-59
+  s_42a303a21f7525::t_c0d38ac282814e 4,7-8
+  s_42a303a21f7525::t_7c836bc4db4d56 64,66,76-77
+  s_42a303a21f7525::t_cd0223d307a0de 11-13,15-18,27-30,32-38,40-41,43-56,60-63,65,67-75,78-83
+  s_42a303a21f7525::t_a7f29892fe9e6c 19-24
+benchmark/jpegxl/lossy-lab/FREQUENCY-REPORT.md
+  s_42a303a21f7525::t_7016a55f139172 141-151
+  s_42a303a21f7525::t_6ec5ac917f8f0a 59-63
+  s_42a303a21f7525::t_add45e93082d7d 152-161
+  s_42a303a21f7525::t_d5c256f7bfaf33 17-24,32-33,89
+  s_42a303a21f7525::t_82d0c883fd406c 92-140
+  s_42a303a21f7525::t_2063a9adb1007e 25-31
+  s_42a303a21f7525::t_030d9f422436bd 1-16,34-58,64-88,90-91
+benchmark/jpegxl/lossy-lab/RESIDUAL-CLEAR-EXPERIMENT.patch
+  s_42a303a21f7525::t_e9be857f638ec1 1-18
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_add45e93082d7d 2300-2301
+  s_42a303a21f7525::t_d5c256f7bfaf33 11-17,2283-2287,2289,2298-2299
+  s_42a303a21f7525::t_e9be857f638ec1 2292-2295
+  s_42a303a21f7525::t_51f92cd83c2a19 2288
+  s_42a303a21f7525::t_759d3ef4024207 2266,2268-2269
+  s_42a303a21f7525::t_030d9f422436bd 2267,2271-2281
+  s_42a303a21f7525::t_b7549e16a6d49d 2270,2282,2290-2291,2296-2297
+tests/jpegxl-frequency-error.test.ts
+  s_42a303a21f7525::t_d96d45c16848b3 1,4,7-8,10,12-14,36
+  s_42a303a21f7525::t_c0d38ac282814e 3
+  s_42a303a21f7525::t_89ff4a78928d04 37-43,46-51,53-55
+  s_42a303a21f7525::t_7c836bc4db4d56 2,5-6,9,11,15-25,27-35
+  s_42a303a21f7525::t_cddf92ff0abee4 26,44-45,52
+benchmark/jpegxl/lossy-lab/profile-selector.ts
+  s_42a303a21f7525::t_ac55a9f2738dd2 7-18,24-35,37
+  s_42a303a21f7525::t_c0d38ac282814e 3
+  s_42a303a21f7525::t_65dedaa2d20670 1-2,4-6,19-23,36
+benchmark/jpegxl/lossy-lab/SPARSE-SCORE-EXPERIMENT.patch
+  s_42a303a21f7525::t_eed362236ef3af 1-13
+benchmark/jpegxl/lossy-lab/SQRT-SCORE-EXPERIMENT.patch
+  s_42a303a21f7525::t_9ecce31ee8f610 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c10c99be7df13517254562a4bb17937b46ecc649",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
