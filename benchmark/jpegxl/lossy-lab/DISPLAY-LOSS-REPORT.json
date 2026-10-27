@@ -1,0 +1,3907 @@
+{
+  "base": "d9681032f5388c35edd32f6f5ebd53429a86fb6b",
+  "holdoutOpened": false,
+  "policy": "Diagnostic only. Orientation mean is not a replacement metric or promotion result.",
+  "cases": [
+    {
+      "name": "region-audit-v2",
+      "inputPath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3012.png",
+      "distance": 2,
+      "stable": 15,
+      "total": 16,
+      "orientations": [
+        {
+          "kind": "identity",
+          "control": 74.39884054,
+          "controlDifference": 0,
+          "signAgreement": 16,
+          "maximumDeltaDifference": 0
+        },
+        {
+          "kind": "flipX",
+          "control": 74.40435682,
+          "controlDifference": 0.005516280000009033,
+          "signAgreement": 15,
+          "maximumDeltaDifference": 0.017106279999993035
+        },
+        {
+          "kind": "flipY",
+          "control": 74.39559389,
+          "controlDifference": -0.0032466499999941334,
+          "signAgreement": 16,
+          "maximumDeltaDifference": 0.01599803000000577
+        },
+        {
+          "kind": "rotate180",
+          "control": 74.39774288,
+          "controlDifference": -0.0010976599999992231,
+          "signAgreement": 16,
+          "maximumDeltaDifference": 0.017478960000005372
+        },
+        {
+          "kind": "transpose",
+          "control": 74.38867582,
+          "controlDifference": -0.01016471999999169,
+          "signAgreement": 16,
+          "maximumDeltaDifference": 0.013294409999986101
+        }
+      ],
+      "summary": [
+        {
+          "model": "oldFloatingPointwise",
+          "originalCorrect": 8,
+          "stableCorrect": 8,
+          "meanCorrect": 8
+        },
+        {
+          "model": "oldFloatingGaussian",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayRegionXyb3",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayRegionRgb3",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayFullXyb3",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayFullXyb6",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayFullRgb3",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "displayFullRgb6",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "wideClamp",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "shortZero",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "wideZero",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "wideZeroFloat",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "cosineZero",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "cosineZeroFloat",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        },
+        {
+          "model": "cosineZeroDouble",
+          "originalCorrect": 16,
+          "stableCorrect": 15,
+          "meanCorrect": 16
+        }
+      ],
+      "rows": [
+        {
+          "x": 0,
+          "y": 0,
+          "actual": -0.025554209999995692,
+          "stable": true,
+          "min": -0.025554209999995692,
+          "max": -0.016212080000002516,
+          "mean": -0.021020200000000953,
+          "predictions": {
+            "oldFloatingPointwise": 1.7850093012214074,
+            "oldFloatingGaussian": -0.13161660440006973,
+            "displayRegionXyb3": -0.12060276829005279,
+            "displayRegionRgb3": -0.13791023835129934,
+            "displayFullXyb3": -0.0024835635364270914,
+            "displayFullXyb6": -0.002613156581670495,
+            "displayFullRgb3": -0.002794927367680833,
+            "displayFullRgb6": -0.0029908525340922587,
+            "wideClamp": -0.002966109300220676,
+            "shortZero": -0.003071306383933159,
+            "wideZero": -0.0029607549395800348,
+            "wideZeroFloat": -0.002962991771611634,
+            "cosineZero": -0.0029791481159642252,
+            "cosineZeroFloat": -0.0029818715544154273,
+            "cosineZeroDouble": -0.002975360692467177
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.025554209999995692
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.020139530000008676
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.019914290000002666
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.023280889999995225
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.016212080000002516
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "actual": -0.025992849999994405,
+          "stable": true,
+          "min": -0.027516899999994848,
+          "max": -0.017594979999998372,
+          "mean": -0.024023337999997806,
+          "predictions": {
+            "oldFloatingPointwise": 24.183888241315117,
+            "oldFloatingGaussian": -0.1493166109294175,
+            "displayRegionXyb3": -0.14358316390447534,
+            "displayRegionRgb3": -0.15897350348326755,
+            "displayFullXyb3": -0.002835675959363293,
+            "displayFullXyb6": -0.0028037890671006593,
+            "displayFullRgb3": -0.0030774787714558105,
+            "displayFullRgb6": -0.003309265832006414,
+            "wideClamp": -0.0033133080616933874,
+            "shortZero": -0.0035983058848239047,
+            "wideZero": -0.0035743645572243743,
+            "wideZeroFloat": -0.003561918744864556,
+            "cosineZero": -0.003576250595582753,
+            "cosineZeroFloat": -0.00359307597459102,
+            "cosineZeroDouble": -0.003576171793077343
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.025992849999994405
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.02373898999999824
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.02527297000000317
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.027516899999994848
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.017594979999998372
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "actual": -0.04216780999999514,
+          "stable": true,
+          "min": -0.04216780999999514,
+          "max": -0.028873400000009042,
+          "mean": -0.03571888199999762,
+          "predictions": {
+            "oldFloatingPointwise": -19.172418599511047,
+            "oldFloatingGaussian": -0.1658402342343943,
+            "displayRegionXyb3": -0.16310527948767017,
+            "displayRegionRgb3": -0.19099466676969223,
+            "displayFullXyb3": -0.004134880468023461,
+            "displayFullXyb6": -0.004740717688415774,
+            "displayFullRgb3": -0.004618043688339402,
+            "displayFullRgb6": -0.0054713882309460615,
+            "wideClamp": -0.005401464751920049,
+            "shortZero": -0.005262289949997001,
+            "wideZero": -0.005095977311148303,
+            "wideZeroFloat": -0.005096845784687165,
+            "cosineZero": -0.005109976155376117,
+            "cosineZeroFloat": -0.005118363274803972,
+            "cosineZeroDouble": -0.00510786528826257
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.04216780999999514
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.03560595999999805
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.035803779999994845
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.03614345999999102
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.028873400000009042
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 0,
+          "actual": -0.008918999999991684,
+          "stable": true,
+          "min": -0.010594239999988986,
+          "max": -0.006641229999999609,
+          "mean": -0.00893939599999669,
+          "predictions": {
+            "oldFloatingPointwise": 19.780131125536172,
+            "oldFloatingGaussian": -0.10492124849006967,
+            "displayRegionXyb3": -0.08751276562540689,
+            "displayRegionRgb3": -0.0979446509295121,
+            "displayFullXyb3": -0.0013445165438392692,
+            "displayFullXyb6": -0.001363822022127703,
+            "displayFullRgb3": -0.0014700230917041868,
+            "displayFullRgb6": -0.001518695514602264,
+            "wideClamp": -0.0014983506361572196,
+            "shortZero": -0.0015115216122660868,
+            "wideZero": -0.0014797598874523032,
+            "wideZeroFloat": -0.0014762490820405816,
+            "cosineZero": -0.0014783470185997238,
+            "cosineZeroFloat": -0.0014830396230154363,
+            "cosineZeroDouble": -0.001483382085146534
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.008918999999991684
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.006641229999999609
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.01006098000000577
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.010594239999988986
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.008481529999997406
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 128,
+          "actual": -0.02095663999999431,
+          "stable": true,
+          "min": -0.029489740000002485,
+          "max": -0.02095663999999431,
+          "mean": -0.025184878000001732,
+          "predictions": {
+            "oldFloatingPointwise": 23.63181427701784,
+            "oldFloatingGaussian": -0.14432750097171843,
+            "displayRegionXyb3": -0.1631270792656525,
+            "displayRegionRgb3": -0.16442866839211723,
+            "displayFullXyb3": -0.003364504364632648,
+            "displayFullXyb6": -0.0037577714904064585,
+            "displayFullRgb3": -0.0033968344739800926,
+            "displayFullRgb6": -0.003827974734649242,
+            "wideClamp": -0.0037216526539900485,
+            "shortZero": -0.0035405101794681038,
+            "wideZero": -0.0033765110458769954,
+            "wideZeroFloat": -0.0033605320198857314,
+            "cosineZero": -0.0033735273799577747,
+            "cosineZeroFloat": -0.003343595997808091,
+            "cosineZeroDouble": -0.0033794855356301667
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.02095663999999431
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.027614080000006425
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.025296150000002626
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.029489740000002485
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.022567780000002813
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 128,
+          "actual": -0.018539189999998484,
+          "stable": true,
+          "min": -0.025658050000004096,
+          "max": -0.012492910000005963,
+          "mean": -0.019291505999999004,
+          "predictions": {
+            "oldFloatingPointwise": -13.466289590352744,
+            "oldFloatingGaussian": -0.12225770855112006,
+            "displayRegionXyb3": -0.13124679136262474,
+            "displayRegionRgb3": -0.13272162651427744,
+            "displayFullXyb3": -0.0021251758785290065,
+            "displayFullXyb6": -0.0022856444657941566,
+            "displayFullRgb3": -0.0022234004379473316,
+            "displayFullRgb6": -0.002398356985426009,
+            "wideClamp": -0.0024247295987973594,
+            "shortZero": -0.0024708456477706697,
+            "wideZero": -0.0025018879880049916,
+            "wideZeroFloat": -0.0024895890264176046,
+            "cosineZero": -0.0024725047044955595,
+            "cosineZeroFloat": -0.002476915918024236,
+            "cosineZeroDouble": -0.002489828612144862
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.018539189999998484
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.025658050000004096
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0159244599999937
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.023842919999992773
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.012492910000005963
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 128,
+          "actual": -0.02472099999999955,
+          "stable": true,
+          "min": -0.02472099999999955,
+          "max": -0.0072420399999941765,
+          "mean": -0.013668400000000247,
+          "predictions": {
+            "oldFloatingPointwise": -10.201501045438363,
+            "oldFloatingGaussian": -0.09719863167701437,
+            "displayRegionXyb3": -0.11378714943908563,
+            "displayRegionRgb3": -0.11829908622120255,
+            "displayFullXyb3": -0.001670212846181185,
+            "displayFullXyb6": -0.0017180072956124448,
+            "displayFullRgb3": -0.0017098980196934566,
+            "displayFullRgb6": -0.0017819014144042633,
+            "wideClamp": -0.0017446151563222934,
+            "shortZero": -0.0018207732759578654,
+            "wideZero": -0.001788442690244807,
+            "wideZeroFloat": -0.0017377117091683658,
+            "cosineZero": -0.0017817934489228193,
+            "cosineZeroFloat": -0.0017571071900728263,
+            "cosineZeroDouble": -0.001772993475150919
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.02472099999999955
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.007614720000006514
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.00872296999999378
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.0072420399999941765
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.020041270000007216
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 128,
+          "actual": -0.0038524200000011888,
+          "stable": false,
+          "min": -0.007010919999999032,
+          "max": 0.00015632999999581898,
+          "mean": -0.0036723080000001574,
+          "predictions": {
+            "oldFloatingPointwise": 9.323522644739114,
+            "oldFloatingGaussian": -0.03126711241401048,
+            "displayRegionXyb3": -0.0383623586538715,
+            "displayRegionRgb3": -0.04083177102074931,
+            "displayFullXyb3": -0.00044055804999354464,
+            "displayFullXyb6": -0.00043852887369055793,
+            "displayFullRgb3": -0.000467020253756667,
+            "displayFullRgb6": -0.0005680226636028962,
+            "wideClamp": -0.0005594210731367788,
+            "shortZero": -0.0006134592503568292,
+            "wideZero": -0.0006115719470023429,
+            "wideZeroFloat": -0.0006173284423738323,
+            "cosineZero": -0.000626919162674433,
+            "cosineZeroFloat": -0.0006514729208046965,
+            "cosineZeroDouble": -0.0006153671732755939
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.0038524200000011888
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.00015632999999581898
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0019258800000017118
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.005728649999994673
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.007010919999999032
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 256,
+          "actual": -0.009460019999991687,
+          "stable": true,
+          "min": -0.012985999999997944,
+          "max": -0.0038417700000081823,
+          "mean": -0.008903774000000909,
+          "predictions": {
+            "oldFloatingPointwise": 24.891442624063757,
+            "oldFloatingGaussian": -0.13091998450019027,
+            "displayRegionXyb3": -0.13617613573831133,
+            "displayRegionRgb3": -0.13091664340851916,
+            "displayFullXyb3": -0.002101957338460636,
+            "displayFullXyb6": -0.00214546158724227,
+            "displayFullRgb3": -0.001985627325272521,
+            "displayFullRgb6": -0.0019204932629381943,
+            "wideClamp": -0.0019391701707389686,
+            "shortZero": -0.0015527638951753353,
+            "wideZero": -0.0014518668198508777,
+            "wideZeroFloat": -0.0014443523656595403,
+            "cosineZero": -0.0014503828796055274,
+            "cosineZeroFloat": -0.001453855084305733,
+            "cosineZeroDouble": -0.001443211165769398
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.009460019999991687
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.012985999999997944
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.006507690000006505
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.011723390000000222
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.0038417700000081823
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 256,
+          "actual": -0.03125781999999333,
+          "stable": true,
+          "min": -0.034702010000003725,
+          "max": -0.03125781999999333,
+          "mean": -0.033387518000000685,
+          "predictions": {
+            "oldFloatingPointwise": -0.10965612811128267,
+            "oldFloatingGaussian": -0.1449594833326877,
+            "displayRegionXyb3": -0.1711125308609338,
+            "displayRegionRgb3": -0.17964134617515048,
+            "displayFullXyb3": -0.0031584327837590465,
+            "displayFullXyb6": -0.003328222387362967,
+            "displayFullRgb3": -0.0032975133938897283,
+            "displayFullRgb6": -0.0035493775884107848,
+            "wideClamp": -0.003544108647965505,
+            "shortZero": -0.00366227937317376,
+            "wideZero": -0.0036882777553985946,
+            "wideZeroFloat": -0.0036610774837364524,
+            "cosineZero": -0.003664589116034289,
+            "cosineZeroFloat": -0.003638256512574767,
+            "cosineZeroDouble": -0.003664208002950975
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.03125781999999333
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.03388901000000999
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.03438878000000045
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.032699969999995915
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.034702010000003725
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 256,
+          "actual": -0.013856899999993288,
+          "stable": true,
+          "min": -0.01693892000000119,
+          "max": -0.004334310000004393,
+          "mean": -0.010285397999999191,
+          "predictions": {
+            "oldFloatingPointwise": -6.976177322654621,
+            "oldFloatingGaussian": -0.08580238679774466,
+            "displayRegionXyb3": -0.08091134098645458,
+            "displayRegionRgb3": -0.08863201047235991,
+            "displayFullXyb3": -0.0008585442750201899,
+            "displayFullXyb6": -0.0009244046914247406,
+            "displayFullRgb3": -0.0009798175586890334,
+            "displayFullRgb6": -0.0011260827680934504,
+            "wideClamp": -0.0011230401155484238,
+            "shortZero": -0.0011724602558227382,
+            "wideZero": -0.0011803918844677241,
+            "wideZeroFloat": -0.0011506686954425582,
+            "cosineZero": -0.0011808289570462982,
+            "cosineZeroFloat": -0.0011784414250071151,
+            "cosineZeroDouble": -0.0011761872648041738
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.013856899999993288
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.01693892000000119
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.005715640000005351
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.010581219999991731
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.004334310000004393
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 256,
+          "actual": -0.0103658299999978,
+          "stable": true,
+          "min": -0.012709590000000048,
+          "max": -0.0028340300000024854,
+          "mean": -0.007454803999999626,
+          "predictions": {
+            "oldFloatingPointwise": -0.23023422970163665,
+            "oldFloatingGaussian": -0.06112024332046451,
+            "displayRegionXyb3": -0.04480590474868085,
+            "displayRegionRgb3": -0.05543266396601587,
+            "displayFullXyb3": -0.000673890002663935,
+            "displayFullXyb6": -0.0005922160111184738,
+            "displayFullRgb3": -0.0008709725098066112,
+            "displayFullRgb6": -0.0008535342039022176,
+            "wideClamp": -0.0008684715389453146,
+            "shortZero": -0.0008729636817941255,
+            "wideZero": -0.000867906919711281,
+            "wideZeroFloat": -0.0008386862329783362,
+            "cosineZero": -0.0009166596877854261,
+            "cosineZeroFloat": -0.0009268274862770376,
+            "cosineZeroDouble": -0.0008940246004072172
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.0103658299999978
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.0049468200000006846
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0028340300000024854
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.012709590000000048
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.006417749999997113
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 384,
+          "actual": -0.01370464999999399,
+          "stable": true,
+          "min": -0.015647079999993707,
+          "max": -0.006726009999994176,
+          "mean": -0.012390265999997041,
+          "predictions": {
+            "oldFloatingPointwise": 1.0111015456452606,
+            "oldFloatingGaussian": -0.11114990359660526,
+            "displayRegionXyb3": -0.09070264485331059,
+            "displayRegionRgb3": -0.07370034251858293,
+            "displayFullXyb3": -0.0015088524789397262,
+            "displayFullXyb6": -0.0016856458702978472,
+            "displayFullRgb3": -0.0011672362280974458,
+            "displayFullRgb6": -0.0013724125829610578,
+            "wideClamp": -0.001350171282124002,
+            "shortZero": -0.0019032480675673646,
+            "wideZero": -0.0018394752508616996,
+            "wideZeroFloat": -0.0018293804333575636,
+            "cosineZero": -0.001802042396705783,
+            "cosineZeroFloat": -0.0017963476935429767,
+            "cosineZeroDouble": -0.0018286358796024693
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.01370464999999399
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.015201340000004393
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.006726009999994176
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.015647079999993707
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.01067224999999894
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 384,
+          "actual": -0.006205529999988357,
+          "stable": true,
+          "min": -0.014074370000003,
+          "max": -0.006205529999988357,
+          "mean": -0.009613941999998588,
+          "predictions": {
+            "oldFloatingPointwise": 16.647174555322408,
+            "oldFloatingGaussian": -0.06378680478017551,
+            "displayRegionXyb3": -0.06747366351434314,
+            "displayRegionRgb3": -0.07255988148389547,
+            "displayFullXyb3": -0.0013895667318148952,
+            "displayFullXyb6": -0.0013358345035672237,
+            "displayFullRgb3": -0.0014209013294028683,
+            "displayFullRgb6": -0.0014325328366937562,
+            "wideClamp": -0.0013271736719415728,
+            "shortZero": -0.0014678066897775288,
+            "wideZero": -0.0013550045355144036,
+            "wideZeroFloat": -0.001382020197255418,
+            "cosineZero": -0.0013347081702881347,
+            "cosineZeroFloat": -0.0012910218792114847,
+            "cosineZeroDouble": -0.0013604610106163761
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.006205529999988357
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.014074370000003
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.011050490000002355
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.008223270000002003
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.008516049999997222
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 384,
+          "actual": -0.011816999999993527,
+          "stable": true,
+          "min": -0.012997900000002005,
+          "max": -0.0024203699999958417,
+          "mean": -0.007562590000000568,
+          "predictions": {
+            "oldFloatingPointwise": -42.75363736178156,
+            "oldFloatingGaussian": -0.09152069856043532,
+            "displayRegionXyb3": -0.07504698676297217,
+            "displayRegionRgb3": -0.08463933947267277,
+            "displayFullXyb3": -0.0008116279779182278,
+            "displayFullXyb6": -0.0009879080751709068,
+            "displayFullRgb3": -0.0008322318489064617,
+            "displayFullRgb6": -0.0009186941754584232,
+            "wideClamp": -0.0009294662580741075,
+            "shortZero": -0.0009451460618308261,
+            "wideZero": -0.000960714372602034,
+            "wideZeroFloat": -0.0009611037526018329,
+            "cosineZero": -0.0009775127870028655,
+            "cosineZeroFloat": -0.000967067822422063,
+            "cosineZeroDouble": -0.0009446826334289504
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.011816999999993527
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.004423560000006432
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0024203699999958417
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.012997900000002005
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.006154120000005037
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 384,
+          "actual": -0.01074192000000096,
+          "stable": true,
+          "min": -0.013618170000000873,
+          "max": -0.00393624000000159,
+          "mean": -0.00989612400000226,
+          "predictions": {
+            "oldFloatingPointwise": -24.11243115209959,
+            "oldFloatingGaussian": -0.12405540724402497,
+            "displayRegionXyb3": -0.1031791823024446,
+            "displayRegionRgb3": -0.10008354341099412,
+            "displayFullXyb3": -0.001454441770815773,
+            "displayFullXyb6": -0.00158786573833547,
+            "displayFullRgb3": -0.0013711462327019586,
+            "displayFullRgb6": -0.0015327602037951138,
+            "wideClamp": -0.0014564521559310428,
+            "shortZero": -0.00157807789976383,
+            "wideZero": -0.0015221814001589173,
+            "wideZeroFloat": -0.001528149882083163,
+            "cosineZero": -0.0015058803294563106,
+            "cosineZeroFloat": -0.0015031679410038024,
+            "cosineZeroDouble": -0.001522310065517285
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.01074192000000096
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.013618170000000873
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.00393624000000159
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.012983619999999974
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.008200670000007904
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "texture-region-audit-v2",
+      "inputPath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3312.png",
+      "distance": 4,
+      "stable": 1,
+      "total": 16,
+      "orientations": [
+        {
+          "kind": "identity",
+          "control": 71.68380332,
+          "controlDifference": 0,
+          "signAgreement": 16,
+          "maximumDeltaDifference": 0
+        },
+        {
+          "kind": "flipX",
+          "control": 71.66519363,
+          "controlDifference": -0.01860968999999102,
+          "signAgreement": 10,
+          "maximumDeltaDifference": 0.06416502000000435
+        },
+        {
+          "kind": "flipY",
+          "control": 71.73186949,
+          "controlDifference": 0.048066169999998465,
+          "signAgreement": 5,
+          "maximumDeltaDifference": 0.05054183000000023
+        },
+        {
+          "kind": "rotate180",
+          "control": 71.67481045,
+          "controlDifference": -0.008992870000000153,
+          "signAgreement": 6,
+          "maximumDeltaDifference": 0.05052719999999056
+        },
+        {
+          "kind": "transpose",
+          "control": 71.7280473,
+          "controlDifference": 0.04424398000000451,
+          "signAgreement": 9,
+          "maximumDeltaDifference": 0.051582989999999995
+        }
+      ],
+      "summary": [
+        {
+          "model": "oldFloatingPointwise",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 4
+        },
+        {
+          "model": "oldFloatingGaussian",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 4
+        },
+        {
+          "model": "displayRegionXyb3",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 6
+        },
+        {
+          "model": "displayRegionRgb3",
+          "originalCorrect": 8,
+          "stableCorrect": 0,
+          "meanCorrect": 8
+        },
+        {
+          "model": "displayFullXyb3",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 6
+        },
+        {
+          "model": "displayFullXyb6",
+          "originalCorrect": 7,
+          "stableCorrect": 0,
+          "meanCorrect": 5
+        },
+        {
+          "model": "displayFullRgb3",
+          "originalCorrect": 7,
+          "stableCorrect": 0,
+          "meanCorrect": 7
+        },
+        {
+          "model": "displayFullRgb6",
+          "originalCorrect": 8,
+          "stableCorrect": 0,
+          "meanCorrect": 10
+        },
+        {
+          "model": "wideClamp",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 8
+        },
+        {
+          "model": "shortZero",
+          "originalCorrect": 8,
+          "stableCorrect": 0,
+          "meanCorrect": 10
+        },
+        {
+          "model": "wideZero",
+          "originalCorrect": 5,
+          "stableCorrect": 0,
+          "meanCorrect": 7
+        },
+        {
+          "model": "wideZeroFloat",
+          "originalCorrect": 8,
+          "stableCorrect": 1,
+          "meanCorrect": 6
+        },
+        {
+          "model": "cosineZero",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 8
+        },
+        {
+          "model": "cosineZeroFloat",
+          "originalCorrect": 6,
+          "stableCorrect": 0,
+          "meanCorrect": 10
+        },
+        {
+          "model": "cosineZeroDouble",
+          "originalCorrect": 7,
+          "stableCorrect": 0,
+          "meanCorrect": 7
+        }
+      ],
+      "rows": [
+        {
+          "x": 0,
+          "y": 0,
+          "actual": -0.0022199999999941156,
+          "stable": false,
+          "min": -0.016539579999999887,
+          "max": 0.010029230000000666,
+          "mean": -0.0003959259999959386,
+          "predictions": {
+            "oldFloatingPointwise": 0.00452672854589764,
+            "oldFloatingGaussian": 0.0010390558076314171,
+            "displayRegionXyb3": -0.0024291012162309666,
+            "displayRegionRgb3": -0.0018308935712294527,
+            "displayFullXyb3": -0.000038660234623622,
+            "displayFullXyb6": 0.000009296687558002503,
+            "displayFullRgb3": -0.000027906417261025496,
+            "displayFullRgb6": 0.00001937118218631184,
+            "wideClamp": -0.000022297903115919837,
+            "shortZero": 0.000005141009734366264,
+            "wideZero": 0.000006232599234046177,
+            "wideZeroFloat": -0.000023420094168891126,
+            "cosineZero": -0.0000016943978931038828,
+            "cosineZeroFloat": -0.000006676813478101451,
+            "cosineZeroDouble": -0.000007684799562923672
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.0022199999999941156
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.010029230000000666
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.0007572300000049381
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.0059934900000087055
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.016539579999999887
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "actual": 0.04114208000000019,
+          "stable": false,
+          "min": -0.0013954399999960287,
+          "max": 0.04114208000000019,
+          "mean": 0.011318330000000288,
+          "predictions": {
+            "oldFloatingPointwise": 0.11007583749881178,
+            "oldFloatingGaussian": 0.002184784919684768,
+            "displayRegionXyb3": 0.0003983272145393624,
+            "displayRegionRgb3": 0.0006379128860425354,
+            "displayFullXyb3": -0.0000036759994899160375,
+            "displayFullXyb6": 0.000013481059009556873,
+            "displayFullRgb3": 0.00000879355230054557,
+            "displayFullRgb6": 0.000040175394419250665,
+            "wideClamp": 0.00007117226051533976,
+            "shortZero": 0.000014050999650905283,
+            "wideZero": 0.000022703822442071697,
+            "wideZeroFloat": -0.0000052149351708052905,
+            "cosineZero": 0.000004301059104427907,
+            "cosineZeroFloat": 0.00010514524684879234,
+            "cosineZeroDouble": 0.000020914506605240746
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.04114208000000019
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.0003063600000103861
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0013954399999960287
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.006049360000005777
+            },
+            {
+              "kind": "transpose",
+              "delta": 0.011102010000001883
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 0,
+          "actual": -0.021079129999989732,
+          "stable": false,
+          "min": -0.021079129999989732,
+          "max": 0.006095490000006976,
+          "mean": -0.0014499719999975015,
+          "predictions": {
+            "oldFloatingPointwise": 0.05318968378719546,
+            "oldFloatingGaussian": 0.0006477704083662772,
+            "displayRegionXyb3": 0.0008530884568929142,
+            "displayRegionRgb3": 0.00015897716662927053,
+            "displayFullXyb3": 0.000006555501725680202,
+            "displayFullXyb6": 0.00006244366501340082,
+            "displayFullRgb3": 0.000008098605303707984,
+            "displayFullRgb6": -0.000008075107740257437,
+            "wideClamp": -0.0000188613524740866,
+            "shortZero": 0.00001205279601368403,
+            "wideZero": -1.8223980946530105e-7,
+            "wideZeroFloat": -0.00004297684807230695,
+            "cosineZero": 0.000025957370240803357,
+            "cosineZeroFloat": 0.00008183185988919206,
+            "cosineZeroDouble": 0.000006643882136891932
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.021079129999989732
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.00019170000000201526
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.006095490000006976
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.0031305899999978237
+            },
+            {
+              "kind": "transpose",
+              "delta": 0.0044114899999954105
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 0,
+          "actual": -0.00004414999999369229,
+          "stable": false,
+          "min": -0.06420916999999804,
+          "max": 0.006120230000007609,
+          "mean": -0.014340927999998598,
+          "predictions": {
+            "oldFloatingPointwise": 0.08807020858091619,
+            "oldFloatingGaussian": 0.001795368475563608,
+            "displayRegionXyb3": 0.0012827294695159086,
+            "displayRegionRgb3": 0.00022489292910865544,
+            "displayFullXyb3": 0.000016907783444652935,
+            "displayFullXyb6": 0.0001030989244186209,
+            "displayFullRgb3": 0.0000041760511080291,
+            "displayFullRgb6": 0.000032623167115719554,
+            "wideClamp": 0.00006926409787277876,
+            "shortZero": -0.000010937497091134674,
+            "wideZero": 0.00005199023844992823,
+            "wideZeroFloat": 0.00008115202491687512,
+            "cosineZero": -0.00001693080791165258,
+            "cosineZeroFloat": 0.000015371305137623636,
+            "cosineZeroDouble": 0.00001311026900197021
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.00004414999999369229
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.06420916999999804
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.006120230000007609
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.005979019999998059
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.019550570000006928
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 128,
+          "actual": 0.031810149999998316,
+          "stable": false,
+          "min": -0.013285280000005173,
+          "max": 0.031810149999998316,
+          "mean": 0.006312482000001296,
+          "predictions": {
+            "oldFloatingPointwise": 0.4626429221223134,
+            "oldFloatingGaussian": 0.0009513471065856205,
+            "displayRegionXyb3": 0.0016199674465611213,
+            "displayRegionRgb3": 0.002704020913483207,
+            "displayFullXyb3": 0.000007895229209298193,
+            "displayFullXyb6": 0.00006397614363118365,
+            "displayFullRgb3": 0.00002159275865842858,
+            "displayFullRgb6": 0.00009904693538809184,
+            "wideClamp": 0.000052245937749439975,
+            "shortZero": 0.0001244723520850144,
+            "wideZero": 0.0000011940954971478845,
+            "wideZeroFloat": -0.000034932984127156175,
+            "cosineZero": 0.00008573369871012204,
+            "cosineZeroFloat": 0.00009801648332041779,
+            "cosineZeroDouble": 0.00003622234461619911
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.031810149999998316
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.006241439999996601
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.009572289999994155
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.01636839000001089
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.013285280000005173
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 128,
+          "actual": -0.010810440000000199,
+          "stable": false,
+          "min": -0.01902470000000278,
+          "max": 0.016963670000009756,
+          "mean": -0.002035433999998304,
+          "predictions": {
+            "oldFloatingPointwise": 0.13647981407711995,
+            "oldFloatingGaussian": 0.0013252927952422944,
+            "displayRegionXyb3": 0.001645431117235141,
+            "displayRegionRgb3": 0.0014432066574885383,
+            "displayFullXyb3": 0.000014844547307157896,
+            "displayFullXyb6": 0.000026398401966609697,
+            "displayFullRgb3": 0.000007975245420954735,
+            "displayFullRgb6": -0.000016537281491757483,
+            "wideClamp": 0.00002778623215293763,
+            "shortZero": -0.00002468578887526718,
+            "wideZero": 0.00003397990351983182,
+            "wideZeroFloat": 0.00001160136297828629,
+            "cosineZero": 0.000016048247295064044,
+            "cosineZeroFloat": 0.000042911844173154634,
+            "cosineZeroDouble": 0.000016341174112088908
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.010810440000000199
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.01902470000000278
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.016963670000009756
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.013999789999999734
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.01130548999999803
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 128,
+          "actual": 0.016197509999997806,
+          "stable": false,
+          "min": -0.03538548000000219,
+          "max": 0.016197509999997806,
+          "mean": -0.003369118000000526,
+          "predictions": {
+            "oldFloatingPointwise": 0.12305470696105658,
+            "oldFloatingGaussian": 0.0009661986282147872,
+            "displayRegionXyb3": 0.0007183788406528446,
+            "displayRegionRgb3": 0.000647953494592235,
+            "displayFullXyb3": 0.000019407537818372234,
+            "displayFullXyb6": -0.000017109599189879532,
+            "displayFullRgb3": 0.000016018404801920738,
+            "displayFullRgb6": -0.00004823667527276143,
+            "wideClamp": -0.000006302395620494394,
+            "shortZero": -0.00005703852398530884,
+            "wideZero": -0.000017280843793709977,
+            "wideZeroFloat": -0.0000181291189118582,
+            "cosineZero": -0.000027207303057164012,
+            "cosineZeroFloat": -0.000003195107420417287,
+            "cosineZeroDouble": 0.000020517007985887403
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.016197509999997806
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.002461349999990148
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.0008461400000072672
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.0009651099999956614
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.03538548000000219
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 128,
+          "actual": -0.014764989999989098,
+          "stable": false,
+          "min": -0.0151813599999997,
+          "max": 0.03576221000000146,
+          "mean": 0.005432296000003589,
+          "predictions": {
+            "oldFloatingPointwise": 0.03523831626807805,
+            "oldFloatingGaussian": 0.00038579762268731166,
+            "displayRegionXyb3": 0.002199938969022819,
+            "displayRegionRgb3": 0.0019127581097628799,
+            "displayFullXyb3": 0.000026649021445779297,
+            "displayFullXyb6": -7.223699167724362e-7,
+            "displayFullRgb3": 0.00003286314476125263,
+            "displayFullRgb6": -0.00000819676908214717,
+            "wideClamp": 0.0000768674601188124,
+            "shortZero": -0.0000035099589910103646,
+            "wideZero": 0.00008319063206130295,
+            "wideZeroFloat": 0.00020103497145429472,
+            "cosineZero": 0.000055891695952325904,
+            "cosineZeroFloat": 0.00012557628585208036,
+            "cosineZeroDouble": 0.00004893469462396993
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.014764989999989098
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.0151813599999997
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.013331390000004717
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.03576221000000146
+            },
+            {
+              "kind": "transpose",
+              "delta": 0.008014230000000566
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 256,
+          "actual": -0.0417463799999922,
+          "stable": false,
+          "min": -0.0417463799999922,
+          "max": 0.008795450000008032,
+          "mean": -0.007345743999997012,
+          "predictions": {
+            "oldFloatingPointwise": 0.17170284643520972,
+            "oldFloatingGaussian": 0.0006610370313968605,
+            "displayRegionXyb3": 0.00017390658570337614,
+            "displayRegionRgb3": -0.00045538782822029944,
+            "displayFullXyb3": 0.000007448172669510811,
+            "displayFullXyb6": 0.00004336539738414302,
+            "displayFullRgb3": -0.000007905961149301532,
+            "displayFullRgb6": 0.00005192572344547841,
+            "wideClamp": 0.00013849239659036172,
+            "shortZero": 0.00006864549534579822,
+            "wideZero": 0.000026144031048058736,
+            "wideZeroFloat": 0.00003577094439144446,
+            "cosineZero": 0.00004175212469137435,
+            "cosineZeroFloat": 0.0000025424762197800987,
+            "cosineZeroDouble": -0.0000013223315011856585
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.0417463799999922
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.0052515099999936865
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.008795450000008032
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.002473150000000146
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.006556149999994432
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 256,
+          "actual": 0.017808260000009568,
+          "stable": true,
+          "min": 0.008009439999995038,
+          "max": 0.0373887900000085,
+          "mean": 0.020187486000003217,
+          "predictions": {
+            "oldFloatingPointwise": -4.020294694311588,
+            "oldFloatingGaussian": -0.01617693987718538,
+            "displayRegionXyb3": -0.017715426153895653,
+            "displayRegionRgb3": -0.016285890252852653,
+            "displayFullXyb3": -0.00021742816621417305,
+            "displayFullXyb6": -0.00018276085830049027,
+            "displayFullRgb3": -0.00019661075696930652,
+            "displayFullRgb6": -0.00014853331956610205,
+            "wideClamp": -0.00016981383618297485,
+            "shortZero": -0.00014504202592124926,
+            "wideZero": -0.00017298613077354474,
+            "wideZeroFloat": 0.00007333652720920014,
+            "cosineZero": -0.00019190154538195614,
+            "cosineZeroFloat": -0.0001395069638228108,
+            "cosineZeroDouble": -0.00018718038136311677
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.017808260000009568
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.008009439999995038
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.0373887900000085
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.0204254000000077
+            },
+            {
+              "kind": "transpose",
+              "delta": 0.01730553999999529
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 256,
+          "actual": 0.007913490000007073,
+          "stable": false,
+          "min": -0.02077192999999511,
+          "max": 0.012295280000003572,
+          "mean": -0.0041444079999962465,
+          "predictions": {
+            "oldFloatingPointwise": 0.13075700839078763,
+            "oldFloatingGaussian": 0.000597348736431691,
+            "displayRegionXyb3": 0.005138338541976095,
+            "displayRegionRgb3": 0.004498055718791694,
+            "displayFullXyb3": 0.00008149003485091733,
+            "displayFullXyb6": 0.00009325329433007568,
+            "displayFullRgb3": 0.00007108197243299585,
+            "displayFullRgb6": 0.00008507329333617974,
+            "wideClamp": 0.00007568780889544158,
+            "shortZero": 0.00008746518353319743,
+            "wideZero": 0.00007717870474843735,
+            "wideZeroFloat": 0.000041409458153118806,
+            "cosineZero": 0.00005890745433401179,
+            "cosineZeroFloat": -0.00006142942034825793,
+            "cosineZeroDouble": 0.00007951550504792237
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.007913490000007073
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.017426340000000096
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.002732539999996675
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.012295280000003572
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.02077192999999511
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 256,
+          "actual": -0.00261854000000028,
+          "stable": false,
+          "min": -0.01443393000000981,
+          "max": 0.02680920000000242,
+          "mean": 0.000594100000000708,
+          "predictions": {
+            "oldFloatingPointwise": 0.08308165920504962,
+            "oldFloatingGaussian": -0.0004961364286604208,
+            "displayRegionXyb3": -0.0007265777532832196,
+            "displayRegionRgb3": -0.00047075805866603204,
+            "displayFullXyb3": -0.000011807968082200304,
+            "displayFullXyb6": -0.0000406995254329523,
+            "displayFullRgb3": -0.000009510797078116084,
+            "displayFullRgb6": 0.00004566188599941512,
+            "wideClamp": 0.00005148546977817858,
+            "shortZero": 0.00005598322618549645,
+            "wideZero": 0.00005372823923988079,
+            "wideZeroFloat": -0.000052163150281892,
+            "cosineZero": 0.000004523507642240077,
+            "cosineZeroFloat": 0.000010715100152935975,
+            "cosineZeroDouble": -0.000024129501680292265
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.00261854000000028
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.01443393000000981
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.0024909499999949958
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.02680920000000242
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.004295279999993795
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 384,
+          "actual": 0.003972730000000979,
+          "stable": false,
+          "min": -0.015077529999999228,
+          "max": 0.014166310000007343,
+          "mean": -0.0007060959999989791,
+          "predictions": {
+            "oldFloatingPointwise": 0.07993762825140038,
+            "oldFloatingGaussian": -0.0016257003302575512,
+            "displayRegionXyb3": -0.004353993006933177,
+            "displayRegionRgb3": -0.004550593152507165,
+            "displayFullXyb3": -0.00009291839480085606,
+            "displayFullXyb6": -0.00011086659286618783,
+            "displayFullRgb3": -0.00008437095529290062,
+            "displayFullRgb6": -0.00012817798037945138,
+            "wideClamp": -0.00009724836571578521,
+            "shortZero": -0.00010676585438007535,
+            "wideZero": -0.000024149016590424566,
+            "wideZeroFloat": 0.0001045887826967018,
+            "cosineZero": -0.00009312477469292091,
+            "cosineZeroFloat": -0.00014476082382319788,
+            "cosineZeroDouble": -0.00007552735556171086
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.003972730000000979
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.003179960000011306
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.014166310000007343
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.003412029999992683
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.015077529999999228
+            }
+          ]
+        },
+        {
+          "x": 128,
+          "y": 384,
+          "actual": 0.005939960000006295,
+          "stable": false,
+          "min": -0.033074029999994536,
+          "max": 0.005939960000006295,
+          "mean": -0.013273949999998536,
+          "predictions": {
+            "oldFloatingPointwise": 0.15175169744270534,
+            "oldFloatingGaussian": 0.0003909895285469922,
+            "displayRegionXyb3": -0.0005618083666207863,
+            "displayRegionRgb3": -0.0016847369894612552,
+            "displayFullXyb3": -0.000010336430903645777,
+            "displayFullXyb6": 0.000017026958402333037,
+            "displayFullRgb3": -0.00002485752781611339,
+            "displayFullRgb6": -0.00006538977986725314,
+            "wideClamp": 0.000026409217084744085,
+            "shortZero": -0.00006995752678307099,
+            "wideZero": 0.00004270430098962663,
+            "wideZeroFloat": 0.00018115923634809405,
+            "cosineZero": 0.00002227733457482728,
+            "cosineZeroFloat": 0.00004277482928660703,
+            "cosineZeroDouble": -0.000004890054721151671
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": 0.005939960000006295
+            },
+            {
+              "kind": "flipX",
+              "delta": 0.0028860399999928177
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.012999719999996273
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.033074029999994536
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.02912200000000098
+            }
+          ]
+        },
+        {
+          "x": 256,
+          "y": 384,
+          "actual": -0.02122176999999681,
+          "stable": false,
+          "min": -0.02122176999999681,
+          "max": 0.012759320000000685,
+          "mean": -0.007506413999999495,
+          "predictions": {
+            "oldFloatingPointwise": 0.14650236095371838,
+            "oldFloatingGaussian": 0.001224616935716849,
+            "displayRegionXyb3": 0.0008202926671261324,
+            "displayRegionRgb3": 0.0008610466048848409,
+            "displayFullXyb3": -0.0000032700286343168017,
+            "displayFullXyb6": -0.00005653145562911632,
+            "displayFullRgb3": 8.987161315143766e-7,
+            "displayFullRgb6": -0.000002377881668458315,
+            "wideClamp": 0.00004990834216656026,
+            "shortZero": -0.000002104041661787903,
+            "wideZero": 0.00004821489150375058,
+            "wideZeroFloat": -0.00010636775456607239,
+            "cosineZero": 0.000041650881798638295,
+            "cosineZeroFloat": -0.00008775227538970753,
+            "cosineZeroDouble": 0.000006797886898723959
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.02122176999999681
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.01513272000001109
+            },
+            {
+              "kind": "flipY",
+              "delta": -0.012023239999990665
+            },
+            {
+              "kind": "rotate180",
+              "delta": 0.012759320000000685
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.0019136599999995951
+            }
+          ]
+        },
+        {
+          "x": 384,
+          "y": 384,
+          "actual": -0.006121269999994183,
+          "stable": false,
+          "min": -0.022279720000000225,
+          "max": 0.033100700000005645,
+          "mean": -0.005394073999997318,
+          "predictions": {
+            "oldFloatingPointwise": 0.21834530649778117,
+            "oldFloatingGaussian": 0.0026595187323068537,
+            "displayRegionXyb3": 0.0012972749783208837,
+            "displayRegionRgb3": -0.00015968579415215345,
+            "displayFullXyb3": 0.00001726981305316677,
+            "displayFullXyb6": 0.000021121041673399787,
+            "displayFullRgb3": 0.000013158164612114831,
+            "displayFullRgb6": -0.00003370629749177567,
+            "wideClamp": 0.00004606685816765932,
+            "shortZero": -0.000026488882220121468,
+            "wideZero": 0.000054495267097998124,
+            "wideZeroFloat": 0.00014542296465647198,
+            "cosineZero": 0.00001628592889213465,
+            "cosineZeroFloat": -0.00006706204890294387,
+            "cosineZeroDouble": 0.00001948595424394739
+          },
+          "deltas": [
+            {
+              "kind": "identity",
+              "delta": -0.006121269999994183
+            },
+            {
+              "kind": "flipX",
+              "delta": -0.01664839000000029
+            },
+            {
+              "kind": "flipY",
+              "delta": 0.033100700000005645
+            },
+            {
+              "kind": "rotate180",
+              "delta": -0.015021689999997534
+            },
+            {
+              "kind": "transpose",
+              "delta": -0.022279720000000225
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "group128": {
+    "base": "d9681032",
+    "regionSize": 128,
+    "binaryHash": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740",
+    "holdoutOpened": false,
+    "cases": [
+      {
+        "summary": {
+          "id": "im26-3012",
+          "distance": 2,
+          "stable": 16,
+          "stableCorrect": 16,
+          "originalCorrect": 16,
+          "harmful": 16,
+          "maximumOrientationRange": 0.035225650000000996
+        },
+        "sourcePath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3012.png",
+        "sourceSha256": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+        "control": {
+          "bytes": 32830,
+          "sha256": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+          "scores": [
+            {
+              "kind": "identity",
+              "score": 74.39884054
+            },
+            {
+              "kind": "flipX",
+              "score": 74.40435682
+            },
+            {
+              "kind": "flipY",
+              "score": 74.39559389
+            },
+            {
+              "kind": "rotate180",
+              "score": 74.39774288
+            },
+            {
+              "kind": "transpose",
+              "score": 74.38867582
+            }
+          ],
+          "loss": 2.0408872080485576
+        },
+        "rows": [
+          {
+            "x": 0,
+            "y": 0,
+            "bytes": 32839,
+            "sha256": "7a2505b6e6f32e2ab4622e7b602c1b54c06112ff49db20c516e546806bd7c1ae",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.34564245
+              },
+              {
+                "kind": "flipX",
+                "score": 74.34518238
+              },
+              {
+                "kind": "flipY",
+                "score": 74.33983834
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.33933308
+              },
+              {
+                "kind": "transpose",
+                "score": 74.3235776
+              }
+            ],
+            "loss": 2.048852785826911,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.05319808999999509
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.05917444000000671
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.05575555000000065
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.05840979999999263
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.06509822000001009
+              }
+            ],
+            "min": -0.06509822000001009,
+            "max": -0.05319808999999509,
+            "stable": true,
+            "predicted": -0.007965577778353605,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 0,
+            "bytes": 32841,
+            "sha256": "16fcf5b15527858a482c18be5d5887a7993da80f8e057832b0c248f9b5428b6c",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.31588867
+              },
+              {
+                "kind": "flipX",
+                "score": 74.31117868
+              },
+              {
+                "kind": "flipY",
+                "score": 74.30540738
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.30399099
+              },
+              {
+                "kind": "transpose",
+                "score": 74.31810677
+              }
+            ],
+            "loss": 2.05326420850721,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.08295186999998805
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.09317814000000624
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.09018650999999522
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.09375188999999295
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.07056905000000313
+              }
+            ],
+            "min": -0.09375188999999295,
+            "max": -0.07056905000000313,
+            "stable": true,
+            "predicted": -0.012377000458652532,
+            "originalCorrect": true
+          },
+          {
+            "x": 256,
+            "y": 0,
+            "bytes": 32841,
+            "sha256": "dd3f4ac48885fcddda8ebb16a9ff29ec78fdfe7e9d74c9c3e622c5cf86f14431",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.27951615
+              },
+              {
+                "kind": "flipX",
+                "score": 74.28636655
+              },
+              {
+                "kind": "flipY",
+                "score": 74.28522513
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.28058765
+              },
+              {
+                "kind": "transpose",
+                "score": 74.27928124
+              }
+            ],
+            "loss": 2.0566323366964117,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.11932438999998851
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.11799027000000706
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.11036876000000007
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.1171552299999945
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.10939458000000002
+              }
+            ],
+            "min": -0.11932438999998851,
+            "max": -0.10939458000000002,
+            "stable": true,
+            "predicted": -0.015745128647854045,
+            "originalCorrect": true
+          },
+          {
+            "x": 384,
+            "y": 0,
+            "bytes": 32839,
+            "sha256": "4b8e34e79453340019f0aed67ee598ec478bdb94bc3855fc95b47062c63960cc",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.34385189
+              },
+              {
+                "kind": "flipX",
+                "score": 74.34817702
+              },
+              {
+                "kind": "flipY",
+                "score": 74.34279309
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.34239521
+              },
+              {
+                "kind": "transpose",
+                "score": 74.34004449
+              }
+            ],
+            "loss": 2.0482873112759736,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.05498864999999853
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.05617980000000955
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.05280079999999998
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.05534766999998908
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.0486313300000063
+              }
+            ],
+            "min": -0.05617980000000955,
+            "max": -0.0486313300000063,
+            "stable": true,
+            "predicted": -0.007400103227416022,
+            "originalCorrect": true
+          },
+          {
+            "x": 0,
+            "y": 128,
+            "bytes": 32841,
+            "sha256": "a6c3b5f1795b401b5d29881b89075b5148deb97764a5fd3eabe7280eded8fe1e",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.31973494
+              },
+              {
+                "kind": "flipX",
+                "score": 74.3239269
+              },
+              {
+                "kind": "flipY",
+                "score": 74.30833765
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.31471265
+              },
+              {
+                "kind": "transpose",
+                "score": 74.30948226
+              }
+            ],
+            "loss": 2.051299932392123,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.07910559999999123
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.08042992000000027
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.0872562400000021
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.08303022999999143
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.07919356000000732
+              }
+            ],
+            "min": -0.0872562400000021,
+            "max": -0.07910559999999123,
+            "stable": true,
+            "predicted": -0.010412724343565216,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 128,
+            "bytes": 32841,
+            "sha256": "f1c6592bd1f86ebc18457a441a0ea0acd186bc8c51acc6ba8f7fe3b98be8dbd1",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.31857016
+              },
+              {
+                "kind": "flipX",
+                "score": 74.3257876
+              },
+              {
+                "kind": "flipY",
+                "score": 74.32280807
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.32186214
+              },
+              {
+                "kind": "transpose",
+                "score": 74.33111495
+              }
+            ],
+            "loss": 2.050948658306131,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.08027038000000175
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.07856922000000566
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.0727858200000071
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.07588074000000233
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.057560870000003206
+              }
+            ],
+            "min": -0.08027038000000175,
+            "max": -0.057560870000003206,
+            "stable": true,
+            "predicted": -0.010061450257573323,
+            "originalCorrect": true
+          },
+          {
+            "x": 256,
+            "y": 128,
+            "bytes": 32841,
+            "sha256": "13d13dc711cb2fd1a9cc7025d8482cef7de7ebe907af8d3a8e1b2b11e950c229",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.35373796
+              },
+              {
+                "kind": "flipX",
+                "score": 74.3597755
+              },
+              {
+                "kind": "flipY",
+                "score": 74.36501471
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.35914963
+              },
+              {
+                "kind": "transpose",
+                "score": 74.35718008
+              }
+            ],
+            "loss": 2.045882611395235,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.04510257999999112
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.04458132000000603
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.030579180000003703
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.03859324999999103
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.031495739999996886
+              }
+            ],
+            "min": -0.04510257999999112,
+            "max": -0.030579180000003703,
+            "stable": true,
+            "predicted": -0.004995403346677474,
+            "originalCorrect": true
+          },
+          {
+            "x": 384,
+            "y": 128,
+            "bytes": 32839,
+            "sha256": "f8470b4abe91d47c2d01b6c86fd26883fa381e97b30cd4cf7b430f1881140119",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.34552258
+              },
+              {
+                "kind": "flipX",
+                "score": 74.34430923
+              },
+              {
+                "kind": "flipY",
+                "score": 74.34167532
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.35050625
+              },
+              {
+                "kind": "transpose",
+                "score": 74.3293006
+              }
+            ],
+            "loss": 2.048254598178874,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.05331796000000111
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.06004759000001059
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.05391857000000755
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.047236630000000446
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.059375220000006834
+              }
+            ],
+            "min": -0.06004759000001059,
+            "max": -0.047236630000000446,
+            "stable": true,
+            "predicted": -0.007367390130316398,
+            "originalCorrect": true
+          },
+          {
+            "x": 0,
+            "y": 256,
+            "bytes": 32841,
+            "sha256": "610c6167e31e715540430fa9b40baa02df81d943d2d1ab52c83c0fb5bdf0b5ee",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.35910728
+              },
+              {
+                "kind": "flipX",
+                "score": 74.35691015
+              },
+              {
+                "kind": "flipY",
+                "score": 74.3548477
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.34473416
+              },
+              {
+                "kind": "transpose",
+                "score": 74.34011407
+              }
+            ],
+            "loss": 2.0469771125233347,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.03973325999999133
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.04744666999999936
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.04074619000000723
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.053008719999994014
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.04856175000000462
+              }
+            ],
+            "min": -0.053008719999994014,
+            "max": -0.03973325999999133,
+            "stable": true,
+            "predicted": -0.006089904474777086,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 256,
+            "bytes": 32841,
+            "sha256": "92f1f4aef5877d2bd7b1b1a6540004f94a1da60aa5144bf55d33af5791a9ac12",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.33091201
+              },
+              {
+                "kind": "flipX",
+                "score": 74.3218746
+              },
+              {
+                "kind": "flipY",
+                "score": 74.32781585
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.33259309
+              },
+              {
+                "kind": "transpose",
+                "score": 74.34141925
+              }
+            ],
+            "loss": 2.049790891186201,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.067928529999989
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.08248222000000283
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.06777804000000742
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.06514978999999244
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.04725657000000183
+              }
+            ],
+            "min": -0.08248222000000283,
+            "max": -0.04725657000000183,
+            "stable": true,
+            "predicted": -0.008903683137643448,
+            "originalCorrect": true
+          },
+          {
+            "x": 256,
+            "y": 256,
+            "bytes": 32841,
+            "sha256": "99c3126fa311e3290cd056ed7a4a42c8d54a60ff54712a3ac80c6fd1074cb606",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.35899357
+              },
+              {
+                "kind": "flipX",
+                "score": 74.36259949
+              },
+              {
+                "kind": "flipY",
+                "score": 74.37656929
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.35813677
+              },
+              {
+                "kind": "transpose",
+                "score": 74.353343
+              }
+            ],
+            "loss": 2.045398525945263,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.03984696999999926
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.04175733000001003
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.019024599999994507
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.03960610999999403
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.035332820000007814
+              }
+            ],
+            "min": -0.04175733000001003,
+            "max": -0.019024599999994507,
+            "stable": true,
+            "predicted": -0.004511317896705336,
+            "originalCorrect": true
+          },
+          {
+            "x": 384,
+            "y": 256,
+            "bytes": 32839,
+            "sha256": "78255121edc2a4648f4ab7e1d5d24fac09abf6d53075b7b0786779f5113aaf66",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.37075647
+              },
+              {
+                "kind": "flipX",
+                "score": 74.39056484
+              },
+              {
+                "kind": "flipY",
+                "score": 74.3737046
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.36256021
+              },
+              {
+                "kind": "transpose",
+                "score": 74.36183024
+              }
+            ],
+            "loss": 2.043888794579479,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.028084069999991357
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.013791980000007698
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.02188929000000428
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.03518266999999753
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.026845579999999813
+              }
+            ],
+            "min": -0.03518266999999753,
+            "max": -0.013791980000007698,
+            "stable": true,
+            "predicted": -0.0030015865309214185,
+            "originalCorrect": true
+          },
+          {
+            "x": 0,
+            "y": 384,
+            "bytes": 32839,
+            "sha256": "76368dc82e09706b8aaf0ff2e392812f4172818f045ebf1d60e4eedc7facfdda",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.34879714
+              },
+              {
+                "kind": "flipX",
+                "score": 74.35034622
+              },
+              {
+                "kind": "flipY",
+                "score": 74.35670696
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.34531723
+              },
+              {
+                "kind": "transpose",
+                "score": 74.33529751
+              }
+            ],
+            "loss": 2.0475252882461166,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.050043399999992744
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.05401059999999802
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.03888693000000387
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.05242564999998933
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.053378309999999374
+              }
+            ],
+            "min": -0.05401059999999802,
+            "max": -0.03888693000000387,
+            "stable": true,
+            "predicted": -0.00663808019755896,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 384,
+            "bytes": 32839,
+            "sha256": "9a37b1e93df3c5b876d54d0981d084418a097e5b0e77561f4ff49f276ea993f1",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.3532428
+              },
+              {
+                "kind": "flipX",
+                "score": 74.34888781
+              },
+              {
+                "kind": "flipY",
+                "score": 74.34667488
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.33599504
+              },
+              {
+                "kind": "transpose",
+                "score": 74.33426952
+              }
+            ],
+            "loss": 2.047954954522689,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.04559773999999095
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.055469010000010144
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.04891901000000587
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.061747839999995335
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.05440629999999658
+              }
+            ],
+            "min": -0.061747839999995335,
+            "max": -0.04559773999999095,
+            "stable": true,
+            "predicted": -0.007067746474131553,
+            "originalCorrect": true
+          },
+          {
+            "x": 256,
+            "y": 384,
+            "bytes": 32839,
+            "sha256": "cb0c7eb570ea3aeedc17364ccc59ba13cebffb8731a7fbdfef81e22a9684d474",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.36679343
+              },
+              {
+                "kind": "flipX",
+                "score": 74.37161048
+              },
+              {
+                "kind": "flipY",
+                "score": 74.36216843
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.36079763
+              },
+              {
+                "kind": "transpose",
+                "score": 74.35197386
+              }
+            ],
+            "loss": 2.0451229371135438,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.032047109999993495
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.03274634000000276
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.03342546000000368
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.03694525000000226
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.03670196000000203
+              }
+            ],
+            "min": -0.03694525000000226,
+            "max": -0.032047109999993495,
+            "stable": true,
+            "predicted": -0.004235729064986149,
+            "originalCorrect": true
+          },
+          {
+            "x": 384,
+            "y": 384,
+            "bytes": 32835,
+            "sha256": "b09c0318567e3f7a0bee8f002677e78b64ca04ad9d8b57617f5337a5bff8aa0b",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 74.36838812
+              },
+              {
+                "kind": "flipX",
+                "score": 74.37719376
+              },
+              {
+                "kind": "flipY",
+                "score": 74.36242456
+              },
+              {
+                "kind": "rotate180",
+                "score": 74.36372726
+              },
+              {
+                "kind": "transpose",
+                "score": 74.36375641
+              }
+            ],
+            "loss": 2.0449093307253077,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.030452419999988933
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.027163060000006567
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.03316933000000688
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.03401561999999103
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.024919410000009634
+              }
+            ],
+            "min": -0.03401561999999103,
+            "max": -0.024919410000009634,
+            "stable": true,
+            "predicted": -0.004022122676750062,
+            "originalCorrect": true
+          }
+        ]
+      },
+      {
+        "summary": {
+          "id": "im26-3312",
+          "distance": 4,
+          "stable": 2,
+          "stableCorrect": 1,
+          "originalCorrect": 7,
+          "harmful": 10,
+          "maximumOrientationRange": 0.1152092900000099
+        },
+        "sourcePath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3312.png",
+        "sourceSha256": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+        "control": {
+          "bytes": 2508,
+          "sha256": "bcbe61879df509b5e30eff1faca961ea041d2feed8a0e7ab1f13f675c0390dca",
+          "scores": [
+            {
+              "kind": "identity",
+              "score": 71.68380332
+            },
+            {
+              "kind": "flipX",
+              "score": 71.66519363
+            },
+            {
+              "kind": "flipY",
+              "score": 71.73186949
+            },
+            {
+              "kind": "rotate180",
+              "score": 71.67481045
+            },
+            {
+              "kind": "transpose",
+              "score": 71.7280473
+            }
+          ],
+          "loss": 2.345750856224006
+        },
+        "rows": [
+          {
+            "x": 0,
+            "y": 0,
+            "bytes": 2517,
+            "sha256": "4166fdba3bf0212e336214a1a48708223aa7304403ef8eb4d21d51e2a76ad383",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.67563123
+              },
+              {
+                "kind": "flipX",
+                "score": 71.67151165
+              },
+              {
+                "kind": "flipY",
+                "score": 71.72644996
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.6868479
+              },
+              {
+                "kind": "transpose",
+                "score": 71.71567771
+              }
+            ],
+            "loss": 2.34583045449395,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.008172090000002186
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.006318019999994817
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.005419529999997508
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.01203745000000822
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.012369590000005815
+              }
+            ],
+            "min": -0.012369590000005815,
+            "max": 0.01203745000000822,
+            "stable": false,
+            "predicted": -0.00007959826994374808,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 0,
+            "bytes": 2518,
+            "sha256": "4b603f2b92c3ea72685d1fb2a018597cc245b0c87da068f3924cff90c5d6ead6",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.62798875
+              },
+              {
+                "kind": "flipX",
+                "score": 71.64048998
+              },
+              {
+                "kind": "flipY",
+                "score": 71.7341779
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.67687483
+              },
+              {
+                "kind": "transpose",
+                "score": 71.65431095
+              }
+            ],
+            "loss": 2.3457097583625655,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.055814569999995456
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.024703650000006405
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.002308410000011918
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.0020643800000073043
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.07373635000000434
+              }
+            ],
+            "min": -0.07373635000000434,
+            "max": 0.002308410000011918,
+            "stable": false,
+            "predicted": 0.0000410978614406865,
+            "originalCorrect": false
+          },
+          {
+            "x": 256,
+            "y": 0,
+            "bytes": 2518,
+            "sha256": "c1e5268e1b0d750a9ec409df8c06a27dbe0912fdd7d7b183686c33e941a79604",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.67514499
+              },
+              {
+                "kind": "flipX",
+                "score": 71.68999306
+              },
+              {
+                "kind": "flipY",
+                "score": 71.71268334
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.68029988
+              },
+              {
+                "kind": "transpose",
+                "score": 71.7167917
+              }
+            ],
+            "loss": 2.3456959914189914,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.008658329999988723
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.02479943000000162
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.019186149999995905
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.005489430000011453
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.011255599999998367
+              }
+            ],
+            "min": -0.019186149999995905,
+            "max": 0.02479943000000162,
+            "stable": false,
+            "predicted": 0.00005486480501470936,
+            "originalCorrect": false
+          },
+          {
+            "x": 384,
+            "y": 0,
+            "bytes": 2516,
+            "sha256": "a54d725b47ece18a6bc76a0cef53063f5d9e4707c1c58216c13371d49ccdc417",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.69022192
+              },
+              {
+                "kind": "flipX",
+                "score": 71.64769092
+              },
+              {
+                "kind": "flipY",
+                "score": 71.74397333
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.71625508
+              },
+              {
+                "kind": "transpose",
+                "score": 71.72821883
+              }
+            ],
+            "loss": 2.3454626813659436,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.006418600000003494
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.017502710000002253
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.012103840000008859
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.04144463000000087
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.0001715300000029174
+              }
+            ],
+            "min": -0.017502710000002253,
+            "max": 0.04144463000000087,
+            "stable": false,
+            "predicted": 0.00028817485806253984,
+            "originalCorrect": true
+          },
+          {
+            "x": 0,
+            "y": 128,
+            "bytes": 2518,
+            "sha256": "36851abd4675a2c46d5ed3bff732582c29b5ed743713a24207302132b9a037dc",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.72005906
+              },
+              {
+                "kind": "flipX",
+                "score": 71.66458376
+              },
+              {
+                "kind": "flipY",
+                "score": 71.72953723
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.67092836
+              },
+              {
+                "kind": "transpose",
+                "score": 71.73853214
+              }
+            ],
+            "loss": 2.345683091756357,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.036255740000001424
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.0006098700000052304
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.0023322599999886506
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.0038820899999905123
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.010484840000003715
+              }
+            ],
+            "min": -0.0038820899999905123,
+            "max": 0.036255740000001424,
+            "stable": false,
+            "predicted": 0.00006776446764922284,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 128,
+            "bytes": 2518,
+            "sha256": "9162d45afc02a4bfdfbf8c29132b5a4e57580922bf50d072ee45b69fcddfa3c4",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.71126232
+              },
+              {
+                "kind": "flipX",
+                "score": 71.64199202
+              },
+              {
+                "kind": "flipY",
+                "score": 71.70129519
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.67439796
+              },
+              {
+                "kind": "transpose",
+                "score": 71.76564446
+              }
+            ],
+            "loss": 2.3460245715698846,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.02745900000000745
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.023201610000000983
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.030574299999997834
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.00041249000000220803
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.03759716000000424
+              }
+            ],
+            "min": -0.030574299999997834,
+            "max": 0.03759716000000424,
+            "stable": false,
+            "predicted": -0.0002737153458785002,
+            "originalCorrect": false
+          },
+          {
+            "x": 256,
+            "y": 128,
+            "bytes": 2518,
+            "sha256": "47ba86feabd9cadfd5f6d6c6d90530b86d8e2d18dc03e9660a51a48acbefc2e3",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.69054348
+              },
+              {
+                "kind": "flipX",
+                "score": 71.66846867
+              },
+              {
+                "kind": "flipY",
+                "score": 71.71978723
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.68455811
+              },
+              {
+                "kind": "transpose",
+                "score": 71.73070385
+              }
+            ],
+            "loss": 2.345751622335719,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.006740160000006767
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.003275039999991236
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.012082259999999678
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.009747660000002156
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.0026565499999975373
+              }
+            ],
+            "min": -0.012082259999999678,
+            "max": 0.009747660000002156,
+            "stable": false,
+            "predicted": -7.66111712735551e-7,
+            "originalCorrect": false
+          },
+          {
+            "x": 384,
+            "y": 128,
+            "bytes": 2516,
+            "sha256": "fbbcbaa7cd60c776e7c1e46bce3d11c21cab8e90a8f8e7714758e357b19d25d3",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.64896225
+              },
+              {
+                "kind": "flipX",
+                "score": 71.63388593
+              },
+              {
+                "kind": "flipY",
+                "score": 71.73384473
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.65167776
+              },
+              {
+                "kind": "transpose",
+                "score": 71.73012918
+              }
+            ],
+            "loss": 2.345691114884545,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.03484106999999881
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.03130769999999927
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.001975240000007261
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.02313268999999707
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.0020818800000057536
+              }
+            ],
+            "min": -0.03484106999999881,
+            "max": 0.0020818800000057536,
+            "stable": false,
+            "predicted": 0.00005974133946118343,
+            "originalCorrect": false
+          },
+          {
+            "x": 0,
+            "y": 256,
+            "bytes": 2518,
+            "sha256": "c056f24490f1d5db9758650a366aca088649043baf03f4acec5f7037645b71a8",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.61585013
+              },
+              {
+                "kind": "flipX",
+                "score": 71.67059649
+              },
+              {
+                "kind": "flipY",
+                "score": 71.77912559
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.66131201
+              },
+              {
+                "kind": "transpose",
+                "score": 71.69671701
+              }
+            ],
+            "loss": 2.3459204266817415,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.06795318999999722
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.005402859999989573
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.04725610000001268
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.013498439999992229
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.03133028999999965
+              }
+            ],
+            "min": -0.06795318999999722,
+            "max": 0.04725610000001268,
+            "stable": false,
+            "predicted": -0.0001695704577353574,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 256,
+            "bytes": 2518,
+            "sha256": "3f2d12a175d98c9ed2ad4a58317cd71bea355d37147b55533d8099f1e75640a0",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.68980391
+              },
+              {
+                "kind": "flipX",
+                "score": 71.66898148
+              },
+              {
+                "kind": "flipY",
+                "score": 71.731934
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.65528004
+              },
+              {
+                "kind": "transpose",
+                "score": 71.64655613
+              }
+            ],
+            "loss": 2.3467100718992784,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.006000589999999306
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.003787849999994819
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.00006451000000140539
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.019530410000001552
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.08149117000000672
+              }
+            ],
+            "min": -0.08149117000000672,
+            "max": 0.006000589999999306,
+            "stable": false,
+            "predicted": -0.0009592156752722403,
+            "originalCorrect": false
+          },
+          {
+            "x": 256,
+            "y": 256,
+            "bytes": 2518,
+            "sha256": "7ddd42e3f2ae84640107b74692820187228fa44fb9562671ecb770595758c0fe",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.65588964
+              },
+              {
+                "kind": "flipX",
+                "score": 71.67375753
+              },
+              {
+                "kind": "flipY",
+                "score": 71.73197337
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.65392662
+              },
+              {
+                "kind": "transpose",
+                "score": 71.70908199
+              }
+            ],
+            "loss": 2.3456337875207365,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.0279136799999975
+              },
+              {
+                "kind": "flipX",
+                "delta": 0.008563899999998625
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.00010388000001171349
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.02088383000000249
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.01896530999999868
+              }
+            ],
+            "min": -0.0279136799999975,
+            "max": 0.008563899999998625,
+            "stable": false,
+            "predicted": 0.00011706870326966268,
+            "originalCorrect": false
+          },
+          {
+            "x": 384,
+            "y": 256,
+            "bytes": 2516,
+            "sha256": "5eae53723dddb645d1c66173c3fa6226d7b0ba599d43353339ad795b9a5905e0",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.67024535
+              },
+              {
+                "kind": "flipX",
+                "score": 71.66189544
+              },
+              {
+                "kind": "flipY",
+                "score": 71.73897471
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.69652912
+              },
+              {
+                "kind": "transpose",
+                "score": 71.72312408
+              }
+            ],
+            "loss": 2.345931271441758,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.013557969999993702
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.0032981900000095266
+              },
+              {
+                "kind": "flipY",
+                "delta": 0.00710521999999969
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.021718669999998497
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.004923219999994899
+              }
+            ],
+            "min": -0.013557969999993702,
+            "max": 0.021718669999998497,
+            "stable": false,
+            "predicted": -0.00018041521775202796,
+            "originalCorrect": true
+          },
+          {
+            "x": 0,
+            "y": 384,
+            "bytes": 2516,
+            "sha256": "b87f14c487e9b4b8bd5743840838c50b9d85d0b74b54b131d4734cfe5fc655cd",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.64246003
+              },
+              {
+                "kind": "flipX",
+                "score": 71.65403158
+              },
+              {
+                "kind": "flipY",
+                "score": 71.72442654
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.67153316
+              },
+              {
+                "kind": "transpose",
+                "score": 71.73462003
+              }
+            ],
+            "loss": 2.34587092933959,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.041343290000000366
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.011162050000010026
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.00744294999999795
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.0032772899999997662
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.006572730000002025
+              }
+            ],
+            "min": -0.041343290000000366,
+            "max": 0.006572730000002025,
+            "stable": false,
+            "predicted": -0.00012007311558370759,
+            "originalCorrect": true
+          },
+          {
+            "x": 128,
+            "y": 384,
+            "bytes": 2516,
+            "sha256": "1a5089286080343c27a213aad6988d30e6627d3eea5ba90ef3a730ff533aefad",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.68462857
+              },
+              {
+                "kind": "flipX",
+                "score": 71.64547378
+              },
+              {
+                "kind": "flipY",
+                "score": 71.73062083
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.6851504
+              },
+              {
+                "kind": "transpose",
+                "score": 71.69450814
+              }
+            ],
+            "loss": 2.3458488062598515,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": 0.0008252500000054397
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.019719850000001315
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.001248659999987467
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.010339950000002318
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.033539160000003676
+              }
+            ],
+            "min": -0.033539160000003676,
+            "max": 0.010339950000002318,
+            "stable": false,
+            "predicted": -0.00009795003584534001,
+            "originalCorrect": false
+          },
+          {
+            "x": 256,
+            "y": 384,
+            "bytes": 2516,
+            "sha256": "96c4ccb2a18a765647d5a5e66d0ad0dde36ab223c7aee770270c9c2c979b2fe8",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.64197883
+              },
+              {
+                "kind": "flipX",
+                "score": 71.61717909
+              },
+              {
+                "kind": "flipY",
+                "score": 71.72244911
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.66284779
+              },
+              {
+                "kind": "transpose",
+                "score": 71.71316426
+              }
+            ],
+            "loss": 2.3457222505545534,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.04182448999999622
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.04801454000001115
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.009420379999994566
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.011962659999994685
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.014883040000000847
+              }
+            ],
+            "min": -0.04801454000001115,
+            "max": -0.009420379999994566,
+            "stable": true,
+            "predicted": 0.000028605669452730353,
+            "originalCorrect": false
+          },
+          {
+            "x": 384,
+            "y": 384,
+            "bytes": 2513,
+            "sha256": "40f61594f58ff8f3595ea992ba3772553bf8c2b43f283b0dcc38bb06396c4315",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.67702573
+              },
+              {
+                "kind": "flipX",
+                "score": 71.6415993
+              },
+              {
+                "kind": "flipY",
+                "score": 71.72374526
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.66757291
+              },
+              {
+                "kind": "transpose",
+                "score": 71.71745716
+              }
+            ],
+            "loss": 2.345843421350395,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.006777589999998668
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.023594330000008767
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.008124229999992849
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.007237539999991327
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.010590140000005022
+              }
+            ],
+            "min": -0.023594330000008767,
+            "max": -0.006777589999998668,
+            "stable": true,
+            "predicted": -0.00009256512638877723,
+            "originalCorrect": true
+          }
+        ]
+      }
+    ]
+  },
+  "uniform512": {
+    "base": "d9681032",
+    "regionSize": 512,
+    "binaryHash": "820f6a08b46335000c0e2cd8c1c0baef5d343d8717a28682a100f5ee60278740",
+    "holdoutOpened": false,
+    "cases": [
+      {
+        "summary": {
+          "id": "im26-3012",
+          "distance": 2,
+          "stable": 1,
+          "stableCorrect": 1,
+          "originalCorrect": 1,
+          "harmful": 1,
+          "maximumOrientationRange": 0.019926900000001524
+        },
+        "sourcePath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3012.png",
+        "sourceSha256": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+        "control": {
+          "bytes": 32830,
+          "sha256": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+          "scores": [
+            {
+              "kind": "identity",
+              "score": 74.39884054
+            },
+            {
+              "kind": "flipX",
+              "score": 74.40435682
+            },
+            {
+              "kind": "flipY",
+              "score": 74.39559389
+            },
+            {
+              "kind": "rotate180",
+              "score": 74.39774288
+            },
+            {
+              "kind": "transpose",
+              "score": 74.38867582
+            }
+          ],
+          "loss": 2.0408872080485576
+        },
+        "rows": [
+          {
+            "x": 0,
+            "y": 0,
+            "bytes": 32830,
+            "sha256": "7f80dc2654407de12210093a37472bd0e80449de98b884a4f64fffda6327fc67",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 73.551929
+              },
+              {
+                "kind": "flipX",
+                "score": 73.54996257
+              },
+              {
+                "kind": "flipY",
+                "score": 73.54159297
+              },
+              {
+                "kind": "rotate180",
+                "score": 73.54906367
+              },
+              {
+                "kind": "transpose",
+                "score": 73.55420847
+              }
+            ],
+            "loss": 2.153107422245243,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.8469115399999936
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.8543942499999986
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.8540009200000043
+              },
+              {
+                "kind": "rotate180",
+                "delta": -0.8486792100000002
+              },
+              {
+                "kind": "transpose",
+                "delta": -0.834467349999997
+              }
+            ],
+            "min": -0.8543942499999986,
+            "max": -0.834467349999997,
+            "stable": true,
+            "predicted": -0.11222021419668549,
+            "originalCorrect": true
+          }
+        ]
+      },
+      {
+        "summary": {
+          "id": "im26-3312",
+          "distance": 4,
+          "stable": 0,
+          "stableCorrect": 0,
+          "originalCorrect": 1,
+          "harmful": 1,
+          "maximumOrientationRange": 0.11239012000000059
+        },
+        "sourcePath": ".tmp/jpegxl-lossy-lab/corpus-512-v2/im26-3312.png",
+        "sourceSha256": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+        "control": {
+          "bytes": 2508,
+          "sha256": "bcbe61879df509b5e30eff1faca961ea041d2feed8a0e7ab1f13f675c0390dca",
+          "scores": [
+            {
+              "kind": "identity",
+              "score": 71.68380332
+            },
+            {
+              "kind": "flipX",
+              "score": 71.66519363
+            },
+            {
+              "kind": "flipY",
+              "score": 71.73186949
+            },
+            {
+              "kind": "rotate180",
+              "score": 71.67481045
+            },
+            {
+              "kind": "transpose",
+              "score": 71.7280473
+            }
+          ],
+          "loss": 2.345750856224006
+        },
+        "rows": [
+          {
+            "x": 0,
+            "y": 0,
+            "bytes": 2508,
+            "sha256": "7062e2a5cb43d447413a40faf084873b49a4bc9e1ac620f8ead219af8c406d93",
+            "scores": [
+              {
+                "kind": "identity",
+                "score": 71.64579644
+              },
+              {
+                "kind": "flipX",
+                "score": 71.6274321
+              },
+              {
+                "kind": "flipY",
+                "score": 71.66759152
+              },
+              {
+                "kind": "rotate180",
+                "score": 71.7229226
+              },
+              {
+                "kind": "transpose",
+                "score": 71.73589279
+              }
+            ],
+            "loss": 2.347090787529667,
+            "deltas": [
+              {
+                "kind": "identity",
+                "delta": -0.03800687999999752
+              },
+              {
+                "kind": "flipX",
+                "delta": -0.03776153000001159
+              },
+              {
+                "kind": "flipY",
+                "delta": -0.06427796999999202
+              },
+              {
+                "kind": "rotate180",
+                "delta": 0.04811215000000857
+              },
+              {
+                "kind": "transpose",
+                "delta": 0.007845489999994015
+              }
+            ],
+            "min": -0.06427796999999202,
+            "max": 0.04811215000000857,
+            "stable": false,
+            "predicted": -0.0013399313056607909,
+            "originalCorrect": true
+          }
+        ]
+      }
+    ]
+  }
+}

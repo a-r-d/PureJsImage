@@ -377,3 +377,17 @@ The restored sampled port, new losses, causal diagnostics, aliases and focused
 tests are preserved in `lossy-lab/FILTER-LOSS-EXPERIMENT.patch` for `1e10c5f4`.
 The archive passes `git apply --check`. Active encoder and benchmark paths
 return to that retained writer; no public codec source changes.
+
+## Display loss and metric sensitivity, 2026-10-27
+
+| Our file | Source and exact revision | Material and changes |
+| --- | --- | --- |
+| `lossy-lab/libjxl-display-loss.ts` | libjxl `tools/ssimulacra2.cc`, Downsample, MakePositiveXYB, SSIMMap, EdgeDiffMap and Msssim::Score; `lib/jxl/enc_xyb.cc`; `tools/gauss_blur.cc` and `.h`; v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Offline scalar display-RGB diagnostic. Corrected SSIM and detail terms, native XYB normalization, linear-RGB scale order and three/six scales. Compares finite Gaussian/cosine support, zero/clamped borders and float/double moments. Math.cbrt, direct convolution and scalar arithmetic replace native approximations and SIMD. No exact-metric or runtime-selector claim. |
+| `lossy-lab/libjxl-ssim-blur.ts` | libjxl `tools/gauss_blur.cc`, CreateRecursiveGaussian, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Sigma-1.5 radius, frequencies, normalization and moment equations for the three cosine coefficients. A first-party scalar 3x3 solve evaluates the finite cosine kernel. No native recursive, SIMD, threading or image infrastructure. Float recurrence drift is not reproduced. |
+| `lossy-lab/libjxl-ssim-weights.ts` | libjxl `tools/ssimulacra2.cc`, Msssim::Score, v0.12.0 `a7a9c787341cf703dede03c2009fa460cae5e5df` | Restore the previously attributed 108 weights for the offline three/six-scale audit. No changed values. |
+
+The replay, geometric permutation, larger-region intervention and report scripts
+are first-party development harnesses. They call the pinned public metric and
+decoder binaries only as development oracles. No peer decisions, runtime
+dependencies or new public codec imports. The full BSD-3 license remains in
+the npm package's THIRD_PARTY_NOTICES and its docs-site copy.
