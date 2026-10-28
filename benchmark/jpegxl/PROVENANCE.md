@@ -498,6 +498,17 @@ and half-resolution support from the existing kernels. These are first-party
 optimizations of the already recorded v0.12.0 ports, with identical reference
 scores. Attribution headers and the packaged/docs license remain in place.
 
+## Sparse output and coefficient reuse trial, 2026-10-28
+
+`lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch` extends the existing attributed
+perceptual modules with optional output sampling. It preserves all source bands,
+stencils, constants and operation order at sampled locations. The accompanying
+coefficient reuse in `strategy-transplant.ts` is first-party development tooling.
+No additional libjxl code or constants were taken. Both changes and their
+fixtures are archived because no quality policy passes the cost gate; active
+modules are restored. Apply the preceding `JOINT-ALLOCATION-EXPERIMENT.patch`
+before this layer. Existing v0.12.0 attribution and BSD notices remain in force.
+
 ## Reconstruction-driven quantization trial, 2026-10-28
 
 `lossy-lab/libjxl-quant-refine-port.ts` ports `TileDistMap` and the first

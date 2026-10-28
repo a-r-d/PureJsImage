@@ -1,0 +1,5133 @@
+{
+  "date": "2026-10-28",
+  "base": "dfd8650f7ad7a69fd0b7b3a06b149c239abe7800",
+  "branch": "jxl-libjxl-ports",
+  "scope": "Three development screens and isolated timing. All candidate code is archived; retained encoder unchanged.",
+  "experiments": [
+    {
+      "id": "LL-1034/2",
+      "sampleStep": 2,
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.42302515451045586,
+          "median": 0.31987732412459396,
+          "p90": 1.5197194960961737,
+          "worst": 1.9143723031837065
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.384265728371745,
+          "median": -0.23826469452805552,
+          "p90": 0.3851767064945345,
+          "worst": 1.4279909879370682
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.535596582838969,
+          "median": -3.722729827756049,
+          "p90": -0.09769516832285778,
+          "worst": 1.0695953983545914
+        }
+      ],
+      "mean": -1.8322790522334194,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.305946742988615,
+          "median": -8.209105875655546,
+          "p90": -1.0591570679624276,
+          "worst": 6.4592753200471265
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.6070321639591505,
+          "median": -1.8628720672485704,
+          "p90": 0.8568822372334581,
+          "worst": 2.169279569310033
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.9340170297045292,
+          "median": 0.5254096147932809,
+          "p90": 3.504042839888994,
+          "worst": 5.869642768605121
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.292703506953735,
+          "median": -5.806241221056952,
+          "p90": -1.4256652996108947,
+          "worst": -0.13971285021618865
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -10.37518940417075,
+          "median": -7.366639185691151,
+          "p90": -4.463497271565672,
+          "worst": -3.3926476421518794
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.13539246171381,
+          "median": -4.06505624335983,
+          "p90": -1.6738316304508878,
+          "worst": -0.7953214105231292
+        }
+      ],
+      "elapsedSeconds": 136.853,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 9
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/sparse2-screen"
+    },
+    {
+      "id": "LL-1034/4",
+      "sampleStep": 4,
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.5853228183136705,
+          "median": 0.34690050889415447,
+          "p90": 1.7329871926330185,
+          "worst": 2.171987655331298
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.16421777274121307,
+          "median": 0.07496853779479778,
+          "p90": 0.6116196095717488,
+          "worst": 1.4679874541440705
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -3.205894578409937,
+          "median": -1.7625261398484682,
+          "p90": 1.1565134199181033,
+          "worst": 2.6605872280960283
+        }
+      ],
+      "mean": -0.9282631776124933,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.142295993770215,
+          "median": -7.899307280848072,
+          "p90": -1.163753117511508,
+          "worst": 6.647976594101386
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.2015434830977336,
+          "median": 0.5548811696053035,
+          "p90": 3.006508692933579,
+          "worst": 4.234519485916501
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.5966698439929521,
+          "median": 0.8189303474508495,
+          "p90": 3.525307299444991,
+          "worst": 6.799342167712373
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.149575508554936,
+          "median": -5.624973528827001,
+          "p90": -1.0723386493969547,
+          "worst": -0.13258892455164598
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -8.20224187627608,
+          "median": -6.376311695226439,
+          "p90": -2.054449195147906,
+          "worst": -1.6696533694242344
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.933724008530324,
+          "median": -4.0857259790095934,
+          "p90": -1.5427891991449632,
+          "worst": -0.3081900534887715
+        }
+      ],
+      "elapsedSeconds": 131.514,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/sparse4-screen"
+    },
+    {
+      "id": "LL-1034/8",
+      "sampleStep": 8,
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.6312399638197778,
+          "median": 0.49339015657014074,
+          "p90": 1.3570963005262886,
+          "worst": 1.9762260586826064
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.0932753961058589,
+          "median": 0.22079203345794657,
+          "p90": 0.776424082768149,
+          "worst": 1.3254693992566993
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.493762801435227,
+          "median": 0.9286071025405079,
+          "p90": 2.133675617905329,
+          "worst": 3.024881306922585
+        }
+      ],
+      "mean": -0.25641581383653017,
+      "guardPass": false,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.103155324232151,
+          "median": -8.36786806419138,
+          "p90": -1.150559066405514,
+          "worst": 6.904548925632341
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 0.496536601293822,
+          "median": 1.0657648357707923,
+          "p90": 6.129580926695266,
+          "worst": 14.847378507420375
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.3382299954596879,
+          "median": 0.8396762239316259,
+          "p90": 4.2338478059780735,
+          "worst": 6.386329392639222
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.099428800517009,
+          "median": -5.448606426747782,
+          "p90": -1.0357180151413787,
+          "worst": -0.1463986303551552
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -6.614191760325114,
+          "median": -5.590784531597887,
+          "p90": -1.4211434954474134,
+          "worst": 0.8866715959767016
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.711498360441059,
+          "median": -3.963655872537437,
+          "p90": -0.8921583493882904,
+          "worst": -0.41993599904947165
+        }
+      ],
+      "elapsedSeconds": 109.596,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/sparse8-screen"
+    }
+  ],
+  "timings": [
+    {
+      "id": "im26-3012",
+      "variant": "2",
+      "comparison": "Retained control versus sparse-map update with coefficient reuse",
+      "summary": {
+        "controlMs": 1078.714824999999,
+        "trialMs": 2088.4589970000015,
+        "ratio": 1.8745191353052943,
+        "mad": 0.03951287470949172
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "328ad257d5ef9fff9bd42843f70288ca7108597b9b0c8f592b21211069c93024"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1152.2672349999993,
+            "trial": 2152.601482
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2162.0329930000007,
+            "control": 1052.1047930000004
+          },
+          "results": {
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1161.097259000002,
+            "trial": 2053.251462
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2088.4589970000015,
+            "control": 1138.1209110000018
+          },
+          "results": {
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1056.0402460000005,
+            "trial": 2021.2677429999967
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2124.8504170000015,
+            "control": 988.8858330000003
+          },
+          "results": {
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1078.714824999999,
+            "trial": 2022.0715810000002
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33258,
+              "managedPeakBytes": 6964315,
+              "colorBits": 264908
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 337977344,
+      "before": {
+        "rss": 279310336,
+        "heapTotal": 51453952,
+        "heapUsed": 11270512,
+        "external": 102901346,
+        "arrayBuffers": 86301077
+      },
+      "after": {
+        "rss": 315166720,
+        "heapTotal": 85409792,
+        "heapUsed": 11467448,
+        "external": 52664154,
+        "arrayBuffers": 33337503
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.7683716381936587,
+      "maximumRatio": 2.1487317808505817,
+      "fasterPairs": 0,
+      "measuredMeanGain": 1.8322790522334194,
+      "requiredMeanGain": 8.745191353052943,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3012-2.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "2",
+      "comparison": "Retained control versus sparse-map update with coefficient reuse",
+      "summary": {
+        "controlMs": 1149.6611559999983,
+        "trialMs": 2251.171069,
+        "ratio": 1.958117013218461,
+        "mad": 0.06826153784334776
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "trial": "f64aae0a10b01d509450b8628b7b5fb16ba09ffb078694b55700d98c98f04a39"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1124.7740689999991,
+            "trial": 2172.168657
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2431.586572,
+            "control": 1172.314918
+          },
+          "results": {
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1372.3449409999994,
+            "trial": 2450.5816369999993
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2251.171069,
+            "control": 1149.6611559999983
+          },
+          "results": {
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1115.6237099999998,
+            "trial": 2260.6759569999995
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2154.960633999999,
+            "control": 1096.0124849999993
+          },
+          "results": {
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1151.4308039999996,
+            "trial": 2101.9872259999975
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8066,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63371
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 335151104,
+      "before": {
+        "rss": 287641600,
+        "heapTotal": 50143232,
+        "heapUsed": 11405408,
+        "external": 112300116,
+        "arrayBuffers": 97963940
+      },
+      "after": {
+        "rss": 314826752,
+        "heapTotal": 83959808,
+        "heapUsed": 11377384,
+        "external": 36357368,
+        "arrayBuffers": 7839088
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.7856892708143124,
+      "maximumRatio": 2.074175236248252,
+      "fasterPairs": 0,
+      "measuredMeanGain": 1.8322790522334194,
+      "requiredMeanGain": 9.58117013218461,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3312-2.json"
+    },
+    {
+      "id": "im26-3012",
+      "variant": "4",
+      "comparison": "Retained control versus sparse-map update with coefficient reuse",
+      "summary": {
+        "controlMs": 1039.5167100000017,
+        "trialMs": 2010.6120410000003,
+        "ratio": 2.0033933879006023,
+        "mad": 0.06645720988097858
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "442edb61fd7b8055fa13e47e6eb56cb9279593f2831cfe23d51d04a71d1f3072"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1100.0418119999995,
+            "trial": 1988.1685420000013
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2140.984937000001,
+            "control": 1039.5167100000017
+          },
+          "results": {
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1003.6032130000003,
+            "trial": 2010.6120410000003
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2028.5837009999996,
+            "control": 1009.3649150000019
+          },
+          "results": {
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1069.4996839999985,
+            "trial": 1950.5250799999994
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2067.030594,
+            "control": 998.637580999999
+          },
+          "results": {
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1062.6763019999999,
+            "trial": 1947.7872529999986
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33316,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265374
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 343359488,
+      "before": {
+        "rss": 297680896,
+        "heapTotal": 50667520,
+        "heapUsed": 11277664,
+        "external": 119640332,
+        "arrayBuffers": 105557129
+      },
+      "after": {
+        "rss": 318373888,
+        "heapTotal": 85409792,
+        "heapUsed": 11448888,
+        "external": 37139665,
+        "arrayBuffers": 15591376
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.8073572479806814,
+      "maximumRatio": 2.069850597781581,
+      "fasterPairs": 0,
+      "measuredMeanGain": 0.9282631776124933,
+      "requiredMeanGain": 10.033933879006023,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3012-4.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "4",
+      "comparison": "Retained control versus sparse-map update with coefficient reuse",
+      "summary": {
+        "controlMs": 1159.3705599999994,
+        "trialMs": 2019.1654600000002,
+        "ratio": 1.7304213713677425,
+        "mad": 0.06467990231938536
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "trial": "1e9ed3a70d011c0be48816fc432c0525366ba54264a407475767a690037ae17c"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1229.3402690000003,
+            "trial": 2107.157116999999
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 1956.0785930000002,
+            "control": 1174.2990309999986
+          },
+          "results": {
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1068.0713170000017,
+            "trial": 2006.434867
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2066.2520479999985,
+            "control": 1065.3349570000028
+          },
+          "results": {
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1166.8634549999988,
+            "trial": 2019.1654600000002
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 1968.876257,
+            "control": 1159.3705599999994
+          },
+          "results": {
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1126.8985580000008,
+            "trial": 2082.8460049999994
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8093,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63586
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 331354112,
+      "before": {
+        "rss": 299569152,
+        "heapTotal": 50405376,
+        "heapUsed": 11189992,
+        "external": 114933259,
+        "arrayBuffers": 21728920
+      },
+      "after": {
+        "rss": 313798656,
+        "heapTotal": 83959808,
+        "heapUsed": 11061056,
+        "external": 35158326,
+        "arrayBuffers": 16322873
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.6657414690483572,
+      "maximumRatio": 1.9395327586157423,
+      "fasterPairs": 0,
+      "measuredMeanGain": 0.9282631776124933,
+      "requiredMeanGain": 7.3042137136774254,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3312-4.json"
+    },
+    {
+      "id": "im26-3012",
+      "variant": "reuse",
+      "comparison": "Full-map update: rebuild all versus reuse unchanged transforms",
+      "summary": {
+        "controlMs": 2400.909633000003,
+        "trialMs": 2250.8943660000004,
+        "ratio": 0.9244973714778627,
+        "mad": 0.006439717111870413
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20",
+        "trial": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 2497.8789319999996,
+            "trial": 2269.553659000001
+          },
+          "results": {
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2250.8943660000004,
+            "control": 2381.908141
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 2390.7339059999977,
+            "trial": 2210.2272120000016
+          },
+          "results": {
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2263.2444780000005,
+            "control": 2432.4297789999982
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 2443.8576299999986,
+            "trial": 2275.077707000004
+          },
+          "results": {
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2198.783123000001,
+            "control": 2388.1834769999987
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 2400.909633000003,
+            "trial": 2191.886713
+          },
+          "results": {
+            "control": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 342790144,
+      "before": {
+        "rss": 279003136,
+        "heapTotal": 50405376,
+        "heapUsed": 11217224,
+        "external": 112266037,
+        "arrayBuffers": 97062739
+      },
+      "after": {
+        "rss": 319930368,
+        "heapTotal": 84623360,
+        "heapUsed": 11570792,
+        "external": 100566159,
+        "arrayBuffers": 6893962
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 0.9085923380533166,
+      "maximumRatio": 0.944996294044742,
+      "fasterPairs": 7,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3012-reuse.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "reuse",
+      "comparison": "Full-map update: rebuild all versus reuse unchanged transforms",
+      "summary": {
+        "controlMs": 2572.045677000002,
+        "trialMs": 2357.785714000005,
+        "ratio": 0.9166966726462236,
+        "mad": 0.006436221316008073
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035",
+        "trial": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 2629.3251089999994,
+            "trial": 2334.9033200000013
+          },
+          "results": {
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2326.2005229999995,
+            "control": 2537.8942309999984
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 2506.379829999998,
+            "trial": 2390.5807669999995
+          },
+          "results": {
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2400.390578999999,
+            "control": 2637.037097999997
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 2593.701718999997,
+            "trial": 2398.275232
+          },
+          "results": {
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2250.9996979999996,
+            "control": 2452.0446440000014
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 2572.045677000002,
+            "trial": 2357.785714000005
+          },
+          "results": {
+            "control": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 349650944,
+      "before": {
+        "rss": 277184512,
+        "heapTotal": 49618944,
+        "heapUsed": 11207128,
+        "external": 110877679,
+        "arrayBuffers": 96100542
+      },
+      "after": {
+        "rss": 331329536,
+        "heapTotal": 83697664,
+        "heapUsed": 11115960,
+        "external": 107856503,
+        "arrayBuffers": 91422060
+      },
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 0.8880238172175009,
+      "maximumRatio": 0.9537982784516748,
+      "fasterPairs": 7,
+      "raw": ".tmp/jpegxl-lossy-lab/sparse-allocation-20261028/time-im26-3312-reuse.json"
+    }
+  ],
+  "ranking": {
+    "summary": [
+      {
+        "step": 2,
+        "count": 80,
+        "meanSelectedOverlap": 2.1125,
+        "exactSelections": 6,
+        "includesTruePeak": 55
+      },
+      {
+        "step": 4,
+        "count": 80,
+        "meanSelectedOverlap": 1.2625,
+        "exactSelections": 0,
+        "includesTruePeak": 36
+      },
+      {
+        "step": 8,
+        "count": 80,
+        "meanSelectedOverlap": 0.9125,
+        "exactSelections": 0,
+        "includesTruePeak": 20
+      }
+    ],
+    "rows": [
+      {
+        "step": 2,
+        "id": "im26-3012",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.7447251275761545,
+        "sparsePeak": 0.7447251275761545
+      },
+      {
+        "step": 2,
+        "id": "im26-3012",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.2410877744593076,
+        "sparsePeak": 1.2410877744593076
+      },
+      {
+        "step": 2,
+        "id": "im26-3012",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 2.184697926888598,
+        "sparsePeak": 2.174398468730198
+      },
+      {
+        "step": 2,
+        "id": "im26-3012",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.567852810882691,
+        "sparsePeak": 3.4940835607447776
+      },
+      {
+        "step": 2,
+        "id": "im26-3012",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.742540236476429,
+        "sparsePeak": 4.6006315168328635
+      },
+      {
+        "step": 2,
+        "id": "im26-1052",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.6527201335882571,
+        "sparsePeak": 0.6135435987492983
+      },
+      {
+        "step": 2,
+        "id": "im26-1052",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.2555512863736027,
+        "sparsePeak": 1.1558727123096222
+      },
+      {
+        "step": 2,
+        "id": "im26-1052",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.7638763982493277,
+        "sparsePeak": 1.7638763982493277
+      },
+      {
+        "step": 2,
+        "id": "im26-1052",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 2.7642967977135524,
+        "sparsePeak": 2.6930213876712097
+      },
+      {
+        "step": 2,
+        "id": "im26-1052",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.5643833150037425,
+        "sparsePeak": 4.160944111067667
+      },
+      {
+        "step": 2,
+        "id": "im26-1610",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 0.8113038700739768,
+        "sparsePeak": 0.7250855807726377
+      },
+      {
+        "step": 2,
+        "id": "im26-1610",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.1395524358128601,
+        "sparsePeak": 1.0624315034756073
+      },
+      {
+        "step": 2,
+        "id": "im26-1610",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.830762095837458,
+        "sparsePeak": 1.8241070555667296
+      },
+      {
+        "step": 2,
+        "id": "im26-1610",
+        "distance": 4,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 3.7495742646591386,
+        "sparsePeak": 3.7495742646591386
+      },
+      {
+        "step": 2,
+        "id": "im26-1610",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 6.059541177363008,
+        "sparsePeak": 5.375463403021323
+      },
+      {
+        "step": 2,
+        "id": "im26-3312",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 0.7910557410483565,
+        "sparsePeak": 0.7478910418754582
+      },
+      {
+        "step": 2,
+        "id": "im26-3312",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.3274801932752351,
+        "sparsePeak": 1.199173881056156
+      },
+      {
+        "step": 2,
+        "id": "im26-3312",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.820563083699011,
+        "sparsePeak": 1.8013609332905385
+      },
+      {
+        "step": 2,
+        "id": "im26-3312",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.231287547030604,
+        "sparsePeak": 3.118349186103093
+      },
+      {
+        "step": 2,
+        "id": "im26-3312",
+        "distance": 7,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 4.260377168974417,
+        "sparsePeak": 3.9240125839542332
+      },
+      {
+        "step": 2,
+        "id": "im26-1002",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 0.8659435641899054,
+        "sparsePeak": 0.8539727612422482
+      },
+      {
+        "step": 2,
+        "id": "im26-1002",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2166830317666197,
+        "sparsePeak": 1.1686681176350848
+      },
+      {
+        "step": 2,
+        "id": "im26-1002",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.9802772227514809,
+        "sparsePeak": 1.889963811261395
+      },
+      {
+        "step": 2,
+        "id": "im26-1002",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.05874511864618,
+        "sparsePeak": 3.040372955159391
+      },
+      {
+        "step": 2,
+        "id": "im26-1002",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 4.5629932385908285,
+        "sparsePeak": 4.294847263115864
+      },
+      {
+        "step": 2,
+        "id": "im26-3014",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.4440977718210059,
+        "sparsePeak": 0.40328997122209265
+      },
+      {
+        "step": 2,
+        "id": "im26-3014",
+        "distance": 1,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 0.7061339440271378,
+        "sparsePeak": 0.6994104095310805
+      },
+      {
+        "step": 2,
+        "id": "im26-3014",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 0.9069376723469786,
+        "sparsePeak": 0.8921106034183881
+      },
+      {
+        "step": 2,
+        "id": "im26-3014",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.029987018487263,
+        "sparsePeak": 0.9987418960288605
+      },
+      {
+        "step": 2,
+        "id": "im26-3014",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.144924291015675,
+        "sparsePeak": 1.1073440322410422
+      },
+      {
+        "step": 2,
+        "id": "im26-1026",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.5699731823327979,
+        "sparsePeak": 0.5699731823327979
+      },
+      {
+        "step": 2,
+        "id": "im26-1026",
+        "distance": 1,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.012010266517505,
+        "sparsePeak": 0.9931356506033835
+      },
+      {
+        "step": 2,
+        "id": "im26-1026",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.4875221538195635,
+        "sparsePeak": 1.4875221538195635
+      },
+      {
+        "step": 2,
+        "id": "im26-1026",
+        "distance": 4,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 2.497823336908999,
+        "sparsePeak": 2.386406351173061
+      },
+      {
+        "step": 2,
+        "id": "im26-1026",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.401103982902282,
+        "sparsePeak": 4.192063524596504
+      },
+      {
+        "step": 2,
+        "id": "im26-1626",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.6911019590029956,
+        "sparsePeak": 0.6911019590029956
+      },
+      {
+        "step": 2,
+        "id": "im26-1626",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.1302456106767007,
+        "sparsePeak": 1.096800828905274
+      },
+      {
+        "step": 2,
+        "id": "im26-1626",
+        "distance": 2,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 1.9328537926399227,
+        "sparsePeak": 1.6465176903108727
+      },
+      {
+        "step": 2,
+        "id": "im26-1626",
+        "distance": 4,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 2.3793898316505406,
+        "sparsePeak": 2.3139717705246015
+      },
+      {
+        "step": 2,
+        "id": "im26-1626",
+        "distance": 7,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 3.7743149059602406,
+        "sparsePeak": 3.7743149059602406
+      },
+      {
+        "step": 2,
+        "id": "im26-2002",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.7365816373381909,
+        "sparsePeak": 0.6863627426369098
+      },
+      {
+        "step": 2,
+        "id": "im26-2002",
+        "distance": 1,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.3351436279710154,
+        "sparsePeak": 1.2988291452308731
+      },
+      {
+        "step": 2,
+        "id": "im26-2002",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.113352327470739,
+        "sparsePeak": 1.9440016054277134
+      },
+      {
+        "step": 2,
+        "id": "im26-2002",
+        "distance": 4,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.1694382594361814,
+        "sparsePeak": 2.7191907324851403
+      },
+      {
+        "step": 2,
+        "id": "im26-2002",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.508014383944017,
+        "sparsePeak": 4.35730157168058
+      },
+      {
+        "step": 2,
+        "id": "im26-2004",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.7872987103384425,
+        "sparsePeak": 0.7872987103384425
+      },
+      {
+        "step": 2,
+        "id": "im26-2004",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.459718612417955,
+        "sparsePeak": 1.290707243137905
+      },
+      {
+        "step": 2,
+        "id": "im26-2004",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.6335136021614685,
+        "sparsePeak": 2.4524918057223015
+      },
+      {
+        "step": 2,
+        "id": "im26-2004",
+        "distance": 4,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 3.6992781726623356,
+        "sparsePeak": 3.6447039548937807
+      },
+      {
+        "step": 2,
+        "id": "im26-2004",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 5.150087992840265,
+        "sparsePeak": 4.599203321159955
+      },
+      {
+        "step": 2,
+        "id": "im26-1622",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6858109856777818,
+        "sparsePeak": 0.6361599210407218
+      },
+      {
+        "step": 2,
+        "id": "im26-1622",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.3403096891759567,
+        "sparsePeak": 1.26017974241931
+      },
+      {
+        "step": 2,
+        "id": "im26-1622",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.0575603809377934,
+        "sparsePeak": 2.0575603809377934
+      },
+      {
+        "step": 2,
+        "id": "im26-1622",
+        "distance": 4,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.2293203041353133,
+        "sparsePeak": 3.180715515175149
+      },
+      {
+        "step": 2,
+        "id": "im26-1622",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.990915187526684,
+        "sparsePeak": 4.4784941845444735
+      },
+      {
+        "step": 2,
+        "id": "im26-1210",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.7575823603093389,
+        "sparsePeak": 0.7331243204861206
+      },
+      {
+        "step": 2,
+        "id": "im26-1210",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.2190111865698192,
+        "sparsePeak": 1.187242555929006
+      },
+      {
+        "step": 2,
+        "id": "im26-1210",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.9503224547425086,
+        "sparsePeak": 1.8652950873720275
+      },
+      {
+        "step": 2,
+        "id": "im26-1210",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.879177766144501,
+        "sparsePeak": 2.879177766144501
+      },
+      {
+        "step": 2,
+        "id": "im26-1210",
+        "distance": 7,
+        "overlap": 4,
+        "includesTruePeak": true,
+        "fullPeak": 5.24388751357159,
+        "sparsePeak": 5.24388751357159
+      },
+      {
+        "step": 2,
+        "id": "im26-1634",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.0342142790517168,
+        "sparsePeak": 0.9520124450959774
+      },
+      {
+        "step": 2,
+        "id": "im26-1634",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.3918811146830419,
+        "sparsePeak": 1.3918811146830419
+      },
+      {
+        "step": 2,
+        "id": "im26-1634",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.7837054726340793,
+        "sparsePeak": 1.6658140539193445
+      },
+      {
+        "step": 2,
+        "id": "im26-1634",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.644857200055325,
+        "sparsePeak": 2.4543951499210723
+      },
+      {
+        "step": 2,
+        "id": "im26-1634",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.43459207928109,
+        "sparsePeak": 3.2607142975027616
+      },
+      {
+        "step": 2,
+        "id": "im26-3000",
+        "distance": 0.5,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 0.6626925112046721,
+        "sparsePeak": 0.6451648282498886
+      },
+      {
+        "step": 2,
+        "id": "im26-3000",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 1.2146937266816211,
+        "sparsePeak": 1.2146937266816211
+      },
+      {
+        "step": 2,
+        "id": "im26-3000",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.2659479422777715,
+        "sparsePeak": 1.978176431040785
+      },
+      {
+        "step": 2,
+        "id": "im26-3000",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.0838708471827845,
+        "sparsePeak": 3.0838708471827845
+      },
+      {
+        "step": 2,
+        "id": "im26-3000",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.217309426930195,
+        "sparsePeak": 4.1333149980774335
+      },
+      {
+        "step": 2,
+        "id": "im26-3306",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.7965059611396207,
+        "sparsePeak": 0.6983665609116445
+      },
+      {
+        "step": 2,
+        "id": "im26-3306",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.2021340612645108,
+        "sparsePeak": 1.1922525475939452
+      },
+      {
+        "step": 2,
+        "id": "im26-3306",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 2.301567342780827,
+        "sparsePeak": 2.2326042271724513
+      },
+      {
+        "step": 2,
+        "id": "im26-3306",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 3.118080097024008,
+        "sparsePeak": 2.9937738920971246
+      },
+      {
+        "step": 2,
+        "id": "im26-3306",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.77141023427622,
+        "sparsePeak": 4.6518573531213665
+      },
+      {
+        "step": 2,
+        "id": "im26-2012",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.6380234161133109,
+        "sparsePeak": 0.6322440447218081
+      },
+      {
+        "step": 2,
+        "id": "im26-2012",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.120993297589676,
+        "sparsePeak": 1.0916014715502336
+      },
+      {
+        "step": 2,
+        "id": "im26-2012",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.5922106273749859,
+        "sparsePeak": 1.572969868955655
+      },
+      {
+        "step": 2,
+        "id": "im26-2012",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.5624131940729056,
+        "sparsePeak": 2.5624131940729056
+      },
+      {
+        "step": 2,
+        "id": "im26-2012",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.9301477301271115,
+        "sparsePeak": 3.8716066263008067
+      },
+      {
+        "step": 4,
+        "id": "im26-3012",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.7447251275761545,
+        "sparsePeak": 0.5982064139929777
+      },
+      {
+        "step": 4,
+        "id": "im26-3012",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2410877744593076,
+        "sparsePeak": 1.0212033001960996
+      },
+      {
+        "step": 4,
+        "id": "im26-3012",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 2.184697926888598,
+        "sparsePeak": 2.0122571419907525
+      },
+      {
+        "step": 4,
+        "id": "im26-3012",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.567852810882691,
+        "sparsePeak": 3.2474887876012213
+      },
+      {
+        "step": 4,
+        "id": "im26-3012",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.742540236476429,
+        "sparsePeak": 4.540088426055917
+      },
+      {
+        "step": 4,
+        "id": "im26-1052",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6527201335882571,
+        "sparsePeak": 0.5920586846709729
+      },
+      {
+        "step": 4,
+        "id": "im26-1052",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2555512863736027,
+        "sparsePeak": 1.089434314832168
+      },
+      {
+        "step": 4,
+        "id": "im26-1052",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.7638763982493277,
+        "sparsePeak": 1.5764799232150013
+      },
+      {
+        "step": 4,
+        "id": "im26-1052",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.7642967977135524,
+        "sparsePeak": 2.5090902138145412
+      },
+      {
+        "step": 4,
+        "id": "im26-1052",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.5643833150037425,
+        "sparsePeak": 4.149518602517835
+      },
+      {
+        "step": 4,
+        "id": "im26-1610",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.8113038700739768,
+        "sparsePeak": 0.6688661872465672
+      },
+      {
+        "step": 4,
+        "id": "im26-1610",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.1395524358128601,
+        "sparsePeak": 1.054599398752992
+      },
+      {
+        "step": 4,
+        "id": "im26-1610",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.830762095837458,
+        "sparsePeak": 1.8241070555667296
+      },
+      {
+        "step": 4,
+        "id": "im26-1610",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.7495742646591386,
+        "sparsePeak": 3.7495742646591386
+      },
+      {
+        "step": 4,
+        "id": "im26-1610",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 6.059541177363008,
+        "sparsePeak": 5.333443930209217
+      },
+      {
+        "step": 4,
+        "id": "im26-3312",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.7910557410483565,
+        "sparsePeak": 0.6888736391621757
+      },
+      {
+        "step": 4,
+        "id": "im26-3312",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.3274801932752351,
+        "sparsePeak": 1.13413927240456
+      },
+      {
+        "step": 4,
+        "id": "im26-3312",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.820563083699011,
+        "sparsePeak": 1.8013609332905385
+      },
+      {
+        "step": 4,
+        "id": "im26-3312",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.231287547030604,
+        "sparsePeak": 2.8127047329428683
+      },
+      {
+        "step": 4,
+        "id": "im26-3312",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 4.260377168974417,
+        "sparsePeak": 3.455323718356604
+      },
+      {
+        "step": 4,
+        "id": "im26-1002",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.8659435641899054,
+        "sparsePeak": 0.7580296464605838
+      },
+      {
+        "step": 4,
+        "id": "im26-1002",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.2166830317666197,
+        "sparsePeak": 1.1686681176350848
+      },
+      {
+        "step": 4,
+        "id": "im26-1002",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.9802772227514809,
+        "sparsePeak": 1.889963811261395
+      },
+      {
+        "step": 4,
+        "id": "im26-1002",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 3.05874511864618,
+        "sparsePeak": 2.636506156886692
+      },
+      {
+        "step": 4,
+        "id": "im26-1002",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.5629932385908285,
+        "sparsePeak": 4.170245797136685
+      },
+      {
+        "step": 4,
+        "id": "im26-3014",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.4440977718210059,
+        "sparsePeak": 0.39856974149844815
+      },
+      {
+        "step": 4,
+        "id": "im26-3014",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.7061339440271378,
+        "sparsePeak": 0.6834853229998684
+      },
+      {
+        "step": 4,
+        "id": "im26-3014",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 0.9069376723469786,
+        "sparsePeak": 0.8623974211673908
+      },
+      {
+        "step": 4,
+        "id": "im26-3014",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.029987018487263,
+        "sparsePeak": 0.9987418960288605
+      },
+      {
+        "step": 4,
+        "id": "im26-3014",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.144924291015675,
+        "sparsePeak": 1.1073440322410422
+      },
+      {
+        "step": 4,
+        "id": "im26-1026",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.5699731823327979,
+        "sparsePeak": 0.5699731823327979
+      },
+      {
+        "step": 4,
+        "id": "im26-1026",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.012010266517505,
+        "sparsePeak": 0.9080379200539922
+      },
+      {
+        "step": 4,
+        "id": "im26-1026",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.4875221538195635,
+        "sparsePeak": 1.4526799456225417
+      },
+      {
+        "step": 4,
+        "id": "im26-1026",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.497823336908999,
+        "sparsePeak": 2.3402509042845234
+      },
+      {
+        "step": 4,
+        "id": "im26-1026",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 4.401103982902282,
+        "sparsePeak": 4.192063524596504
+      },
+      {
+        "step": 4,
+        "id": "im26-1626",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6911019590029956,
+        "sparsePeak": 0.635623561197952
+      },
+      {
+        "step": 4,
+        "id": "im26-1626",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.1302456106767007,
+        "sparsePeak": 1.0182159304376952
+      },
+      {
+        "step": 4,
+        "id": "im26-1626",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.9328537926399227,
+        "sparsePeak": 1.4984214110542542
+      },
+      {
+        "step": 4,
+        "id": "im26-1626",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.3793898316505406,
+        "sparsePeak": 2.1706987459917544
+      },
+      {
+        "step": 4,
+        "id": "im26-1626",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.7743149059602406,
+        "sparsePeak": 3.3595744616473278
+      },
+      {
+        "step": 4,
+        "id": "im26-2002",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.7365816373381909,
+        "sparsePeak": 0.6266582529293715
+      },
+      {
+        "step": 4,
+        "id": "im26-2002",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.3351436279710154,
+        "sparsePeak": 1.0876909216662254
+      },
+      {
+        "step": 4,
+        "id": "im26-2002",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.113352327470739,
+        "sparsePeak": 1.7559964777638917
+      },
+      {
+        "step": 4,
+        "id": "im26-2002",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.1694382594361814,
+        "sparsePeak": 2.7191907324851403
+      },
+      {
+        "step": 4,
+        "id": "im26-2002",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.508014383944017,
+        "sparsePeak": 4.287096999649502
+      },
+      {
+        "step": 4,
+        "id": "im26-2004",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.7872987103384425,
+        "sparsePeak": 0.6686068298308124
+      },
+      {
+        "step": 4,
+        "id": "im26-2004",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.459718612417955,
+        "sparsePeak": 1.290707243137905
+      },
+      {
+        "step": 4,
+        "id": "im26-2004",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.6335136021614685,
+        "sparsePeak": 2.308146823156049
+      },
+      {
+        "step": 4,
+        "id": "im26-2004",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 3.6992781726623356,
+        "sparsePeak": 3.5650734574242033
+      },
+      {
+        "step": 4,
+        "id": "im26-2004",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 5.150087992840265,
+        "sparsePeak": 4.599203321159955
+      },
+      {
+        "step": 4,
+        "id": "im26-1622",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.6858109856777818,
+        "sparsePeak": 0.6361599210407218
+      },
+      {
+        "step": 4,
+        "id": "im26-1622",
+        "distance": 1,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.3403096891759567,
+        "sparsePeak": 1.1353373913835862
+      },
+      {
+        "step": 4,
+        "id": "im26-1622",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.0575603809377934,
+        "sparsePeak": 1.782811881875428
+      },
+      {
+        "step": 4,
+        "id": "im26-1622",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 3.2293203041353133,
+        "sparsePeak": 3.180715515175149
+      },
+      {
+        "step": 4,
+        "id": "im26-1622",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.990915187526684,
+        "sparsePeak": 4.4175302238038
+      },
+      {
+        "step": 4,
+        "id": "im26-1210",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.7575823603093389,
+        "sparsePeak": 0.7087739842194212
+      },
+      {
+        "step": 4,
+        "id": "im26-1210",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.2190111865698192,
+        "sparsePeak": 1.187242555929006
+      },
+      {
+        "step": 4,
+        "id": "im26-1210",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.9503224547425086,
+        "sparsePeak": 1.8652950873720275
+      },
+      {
+        "step": 4,
+        "id": "im26-1210",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.879177766144501,
+        "sparsePeak": 2.7195613439175084
+      },
+      {
+        "step": 4,
+        "id": "im26-1210",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 5.24388751357159,
+        "sparsePeak": 4.226342298564578
+      },
+      {
+        "step": 4,
+        "id": "im26-1634",
+        "distance": 0.5,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 1.0342142790517168,
+        "sparsePeak": 0.8070975208819997
+      },
+      {
+        "step": 4,
+        "id": "im26-1634",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.3918811146830419,
+        "sparsePeak": 1.2627239765846652
+      },
+      {
+        "step": 4,
+        "id": "im26-1634",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.7837054726340793,
+        "sparsePeak": 1.591012740527502
+      },
+      {
+        "step": 4,
+        "id": "im26-1634",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.644857200055325,
+        "sparsePeak": 2.4543951499210723
+      },
+      {
+        "step": 4,
+        "id": "im26-1634",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 3.43459207928109,
+        "sparsePeak": 3.2013860067059476
+      },
+      {
+        "step": 4,
+        "id": "im26-3000",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.6626925112046721,
+        "sparsePeak": 0.6210956518952397
+      },
+      {
+        "step": 4,
+        "id": "im26-3000",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.2146937266816211,
+        "sparsePeak": 1.0767935041251273
+      },
+      {
+        "step": 4,
+        "id": "im26-3000",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.2659479422777715,
+        "sparsePeak": 1.8059120662430925
+      },
+      {
+        "step": 4,
+        "id": "im26-3000",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.0838708471827845,
+        "sparsePeak": 3.0838708471827845
+      },
+      {
+        "step": 4,
+        "id": "im26-3000",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.217309426930195,
+        "sparsePeak": 4.127241863555181
+      },
+      {
+        "step": 4,
+        "id": "im26-3306",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.7965059611396207,
+        "sparsePeak": 0.616503326995435
+      },
+      {
+        "step": 4,
+        "id": "im26-3306",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2021340612645108,
+        "sparsePeak": 1.134535347754555
+      },
+      {
+        "step": 4,
+        "id": "im26-3306",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.301567342780827,
+        "sparsePeak": 2.2326042271724513
+      },
+      {
+        "step": 4,
+        "id": "im26-3306",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 3.118080097024008,
+        "sparsePeak": 2.9937738920971246
+      },
+      {
+        "step": 4,
+        "id": "im26-3306",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.77141023427622,
+        "sparsePeak": 4.5334390955434785
+      },
+      {
+        "step": 4,
+        "id": "im26-2012",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6380234161133109,
+        "sparsePeak": 0.5751273662463866
+      },
+      {
+        "step": 4,
+        "id": "im26-2012",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.120993297589676,
+        "sparsePeak": 0.8802769156691614
+      },
+      {
+        "step": 4,
+        "id": "im26-2012",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.5922106273749859,
+        "sparsePeak": 1.4638447236711334
+      },
+      {
+        "step": 4,
+        "id": "im26-2012",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.5624131940729056,
+        "sparsePeak": 2.5611300284619025
+      },
+      {
+        "step": 4,
+        "id": "im26-2012",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.9301477301271115,
+        "sparsePeak": 3.525766259707621
+      },
+      {
+        "step": 8,
+        "id": "im26-3012",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.7447251275761545,
+        "sparsePeak": 0.5982064139929777
+      },
+      {
+        "step": 8,
+        "id": "im26-3012",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.2410877744593076,
+        "sparsePeak": 1.0212033001960996
+      },
+      {
+        "step": 8,
+        "id": "im26-3012",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 2.184697926888598,
+        "sparsePeak": 2.0122571419907525
+      },
+      {
+        "step": 8,
+        "id": "im26-3012",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.567852810882691,
+        "sparsePeak": 3.2055069324390333
+      },
+      {
+        "step": 8,
+        "id": "im26-3012",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.742540236476429,
+        "sparsePeak": 4.333593234008041
+      },
+      {
+        "step": 8,
+        "id": "im26-1052",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6527201335882571,
+        "sparsePeak": 0.5234691937184336
+      },
+      {
+        "step": 8,
+        "id": "im26-1052",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2555512863736027,
+        "sparsePeak": 1.0758787006906663
+      },
+      {
+        "step": 8,
+        "id": "im26-1052",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.7638763982493277,
+        "sparsePeak": 1.4675457238564078
+      },
+      {
+        "step": 8,
+        "id": "im26-1052",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.7642967977135524,
+        "sparsePeak": 2.374875924121963
+      },
+      {
+        "step": 8,
+        "id": "im26-1052",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.5643833150037425,
+        "sparsePeak": 4.027762756585261
+      },
+      {
+        "step": 8,
+        "id": "im26-1610",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.8113038700739768,
+        "sparsePeak": 0.6688661872465672
+      },
+      {
+        "step": 8,
+        "id": "im26-1610",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.1395524358128601,
+        "sparsePeak": 0.965348827180062
+      },
+      {
+        "step": 8,
+        "id": "im26-1610",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.830762095837458,
+        "sparsePeak": 1.8241070555667296
+      },
+      {
+        "step": 8,
+        "id": "im26-1610",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 3.7495742646591386,
+        "sparsePeak": 2.4547490435084494
+      },
+      {
+        "step": 8,
+        "id": "im26-1610",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 6.059541177363008,
+        "sparsePeak": 5.333443930209217
+      },
+      {
+        "step": 8,
+        "id": "im26-3312",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.7910557410483565,
+        "sparsePeak": 0.6876882673338433
+      },
+      {
+        "step": 8,
+        "id": "im26-3312",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.3274801932752351,
+        "sparsePeak": 1.0519508303566811
+      },
+      {
+        "step": 8,
+        "id": "im26-3312",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.820563083699011,
+        "sparsePeak": 1.8013609332905385
+      },
+      {
+        "step": 8,
+        "id": "im26-3312",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 3.231287547030604,
+        "sparsePeak": 2.4726813579919154
+      },
+      {
+        "step": 8,
+        "id": "im26-3312",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 4.260377168974417,
+        "sparsePeak": 3.455323718356604
+      },
+      {
+        "step": 8,
+        "id": "im26-1002",
+        "distance": 0.5,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.8659435641899054,
+        "sparsePeak": 0.7580296464605838
+      },
+      {
+        "step": 8,
+        "id": "im26-1002",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.2166830317666197,
+        "sparsePeak": 1.0655983678552183
+      },
+      {
+        "step": 8,
+        "id": "im26-1002",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.9802772227514809,
+        "sparsePeak": 1.889963811261395
+      },
+      {
+        "step": 8,
+        "id": "im26-1002",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 3.05874511864618,
+        "sparsePeak": 2.636506156886692
+      },
+      {
+        "step": 8,
+        "id": "im26-1002",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 4.5629932385908285,
+        "sparsePeak": 3.8594588931084144
+      },
+      {
+        "step": 8,
+        "id": "im26-3014",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.4440977718210059,
+        "sparsePeak": 0.38314426117890404
+      },
+      {
+        "step": 8,
+        "id": "im26-3014",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 0.7061339440271378,
+        "sparsePeak": 0.6639515036272322
+      },
+      {
+        "step": 8,
+        "id": "im26-3014",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.9069376723469786,
+        "sparsePeak": 0.7666046204124168
+      },
+      {
+        "step": 8,
+        "id": "im26-3014",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.029987018487263,
+        "sparsePeak": 0.9192923586379438
+      },
+      {
+        "step": 8,
+        "id": "im26-3014",
+        "distance": 7,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.144924291015675,
+        "sparsePeak": 0.98356218915799
+      },
+      {
+        "step": 8,
+        "id": "im26-1026",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.5699731823327979,
+        "sparsePeak": 0.46458854348490936
+      },
+      {
+        "step": 8,
+        "id": "im26-1026",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.012010266517505,
+        "sparsePeak": 0.9080379200539922
+      },
+      {
+        "step": 8,
+        "id": "im26-1026",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.4875221538195635,
+        "sparsePeak": 1.3230066387986552
+      },
+      {
+        "step": 8,
+        "id": "im26-1026",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.497823336908999,
+        "sparsePeak": 2.2165110277310873
+      },
+      {
+        "step": 8,
+        "id": "im26-1026",
+        "distance": 7,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 4.401103982902282,
+        "sparsePeak": 3.407488884269707
+      },
+      {
+        "step": 8,
+        "id": "im26-1626",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6911019590029956,
+        "sparsePeak": 0.5743538726871761
+      },
+      {
+        "step": 8,
+        "id": "im26-1626",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.1302456106767007,
+        "sparsePeak": 0.8847574459279783
+      },
+      {
+        "step": 8,
+        "id": "im26-1626",
+        "distance": 2,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 1.9328537926399227,
+        "sparsePeak": 1.4984214110542542
+      },
+      {
+        "step": 8,
+        "id": "im26-1626",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.3793898316505406,
+        "sparsePeak": 2.1706987459917544
+      },
+      {
+        "step": 8,
+        "id": "im26-1626",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 3.7743149059602406,
+        "sparsePeak": 3.3595744616473278
+      },
+      {
+        "step": 8,
+        "id": "im26-2002",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.7365816373381909,
+        "sparsePeak": 0.6266582529293715
+      },
+      {
+        "step": 8,
+        "id": "im26-2002",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.3351436279710154,
+        "sparsePeak": 1.0876909216662254
+      },
+      {
+        "step": 8,
+        "id": "im26-2002",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.113352327470739,
+        "sparsePeak": 1.5966950053148143
+      },
+      {
+        "step": 8,
+        "id": "im26-2002",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.1694382594361814,
+        "sparsePeak": 2.2582783339959747
+      },
+      {
+        "step": 8,
+        "id": "im26-2002",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 4.508014383944017,
+        "sparsePeak": 3.8119993812312876
+      },
+      {
+        "step": 8,
+        "id": "im26-2004",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 0.7872987103384425,
+        "sparsePeak": 0.6151353601568652
+      },
+      {
+        "step": 8,
+        "id": "im26-2004",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.459718612417955,
+        "sparsePeak": 1.2205394779315721
+      },
+      {
+        "step": 8,
+        "id": "im26-2004",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.6335136021614685,
+        "sparsePeak": 2.2327222773088446
+      },
+      {
+        "step": 8,
+        "id": "im26-2004",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 3.6992781726623356,
+        "sparsePeak": 3.3345332363182725
+      },
+      {
+        "step": 8,
+        "id": "im26-2004",
+        "distance": 7,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 5.150087992840265,
+        "sparsePeak": 4.557420364629362
+      },
+      {
+        "step": 8,
+        "id": "im26-1622",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6858109856777818,
+        "sparsePeak": 0.6361599210407218
+      },
+      {
+        "step": 8,
+        "id": "im26-1622",
+        "distance": 1,
+        "overlap": 3,
+        "includesTruePeak": false,
+        "fullPeak": 1.3403096891759567,
+        "sparsePeak": 1.088771806886273
+      },
+      {
+        "step": 8,
+        "id": "im26-1622",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 2.0575603809377934,
+        "sparsePeak": 1.782811881875428
+      },
+      {
+        "step": 8,
+        "id": "im26-1622",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 3.2293203041353133,
+        "sparsePeak": 2.6358127791179444
+      },
+      {
+        "step": 8,
+        "id": "im26-1622",
+        "distance": 7,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 4.990915187526684,
+        "sparsePeak": 4.4175302238038
+      },
+      {
+        "step": 8,
+        "id": "im26-1210",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.7575823603093389,
+        "sparsePeak": 0.5860071948463174
+      },
+      {
+        "step": 8,
+        "id": "im26-1210",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2190111865698192,
+        "sparsePeak": 0.9900967909654214
+      },
+      {
+        "step": 8,
+        "id": "im26-1210",
+        "distance": 2,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.9503224547425086,
+        "sparsePeak": 1.6398006610602516
+      },
+      {
+        "step": 8,
+        "id": "im26-1210",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 2.879177766144501,
+        "sparsePeak": 2.664212337130241
+      },
+      {
+        "step": 8,
+        "id": "im26-1210",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 5.24388751357159,
+        "sparsePeak": 3.869112882614401
+      },
+      {
+        "step": 8,
+        "id": "im26-1634",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 1.0342142790517168,
+        "sparsePeak": 0.7518250726028258
+      },
+      {
+        "step": 8,
+        "id": "im26-1634",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.3918811146830419,
+        "sparsePeak": 1.1564315472160855
+      },
+      {
+        "step": 8,
+        "id": "im26-1634",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.7837054726340793,
+        "sparsePeak": 1.591012740527502
+      },
+      {
+        "step": 8,
+        "id": "im26-1634",
+        "distance": 4,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 2.644857200055325,
+        "sparsePeak": 2.4543951499210723
+      },
+      {
+        "step": 8,
+        "id": "im26-1634",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 3.43459207928109,
+        "sparsePeak": 2.821837411271984
+      },
+      {
+        "step": 8,
+        "id": "im26-3000",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.6626925112046721,
+        "sparsePeak": 0.45943592220506263
+      },
+      {
+        "step": 8,
+        "id": "im26-3000",
+        "distance": 1,
+        "overlap": 1,
+        "includesTruePeak": true,
+        "fullPeak": 1.2146937266816211,
+        "sparsePeak": 1.0371806101989423
+      },
+      {
+        "step": 8,
+        "id": "im26-3000",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.2659479422777715,
+        "sparsePeak": 1.7583534986708773
+      },
+      {
+        "step": 8,
+        "id": "im26-3000",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 3.0838708471827845,
+        "sparsePeak": 2.831265715087074
+      },
+      {
+        "step": 8,
+        "id": "im26-3000",
+        "distance": 7,
+        "overlap": 3,
+        "includesTruePeak": true,
+        "fullPeak": 4.217309426930195,
+        "sparsePeak": 3.7174845351538175
+      },
+      {
+        "step": 8,
+        "id": "im26-3306",
+        "distance": 0.5,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 0.7965059611396207,
+        "sparsePeak": 0.5935221589864906
+      },
+      {
+        "step": 8,
+        "id": "im26-3306",
+        "distance": 1,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 1.2021340612645108,
+        "sparsePeak": 1.1087380868140382
+      },
+      {
+        "step": 8,
+        "id": "im26-3306",
+        "distance": 2,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 2.301567342780827,
+        "sparsePeak": 1.9093407638109339
+      },
+      {
+        "step": 8,
+        "id": "im26-3306",
+        "distance": 4,
+        "overlap": 0,
+        "includesTruePeak": false,
+        "fullPeak": 3.118080097024008,
+        "sparsePeak": 2.793281258923292
+      },
+      {
+        "step": 8,
+        "id": "im26-3306",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 4.77141023427622,
+        "sparsePeak": 4.013891884605967
+      },
+      {
+        "step": 8,
+        "id": "im26-2012",
+        "distance": 0.5,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 0.6380234161133109,
+        "sparsePeak": 0.5123120698108206
+      },
+      {
+        "step": 8,
+        "id": "im26-2012",
+        "distance": 1,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.120993297589676,
+        "sparsePeak": 0.8464285984444697
+      },
+      {
+        "step": 8,
+        "id": "im26-2012",
+        "distance": 2,
+        "overlap": 2,
+        "includesTruePeak": false,
+        "fullPeak": 1.5922106273749859,
+        "sparsePeak": 1.4638447236711334
+      },
+      {
+        "step": 8,
+        "id": "im26-2012",
+        "distance": 4,
+        "overlap": 2,
+        "includesTruePeak": true,
+        "fullPeak": 2.5624131940729056,
+        "sparsePeak": 2.300336026956443
+      },
+      {
+        "step": 8,
+        "id": "im26-2012",
+        "distance": 7,
+        "overlap": 1,
+        "includesTruePeak": false,
+        "fullPeak": 3.9301477301271115,
+        "sparsePeak": 3.525766259707621
+      }
+    ]
+  },
+  "reuse": {
+    "status": {
+      "status": "passed",
+      "images": 16,
+      "points": 80
+    },
+    "rows": [
+      {
+        "id": "im26-3012",
+        "distance": 0.5,
+        "hash": "6236d897d94c31a67c114bdfdfd2ebe0869c378e9dd957ac526e13e6d97899c9",
+        "bytes": 99655,
+        "managedPeakBytes": 7153479
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1,
+        "hash": "bdd37b6688725cc9d3be96b2a4d85b5d116cc2f704b2b8631f27eed0d4771bc1",
+        "bytes": 60455,
+        "managedPeakBytes": 6999131
+      },
+      {
+        "id": "im26-3012",
+        "distance": 2,
+        "hash": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20",
+        "bytes": 33358,
+        "managedPeakBytes": 6964315
+      },
+      {
+        "id": "im26-3012",
+        "distance": 4,
+        "hash": "007ecbe7d6916b0f8bc991864f5d0a8254ebc2d045ca37197cbd3dd7326d21d7",
+        "bytes": 15835,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7,
+        "hash": "837d857a2617a47c0e076ad300c1671b8253927a597ac89abbc0d682d437e026",
+        "bytes": 7489,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-1052",
+        "distance": 0.5,
+        "hash": "fe471dd348c3fc92285ceaba93332f8a10e100c18400f1cfaa42f8b7d716d4ca",
+        "bytes": 92483,
+        "managedPeakBytes": 7297219
+      },
+      {
+        "id": "im26-1052",
+        "distance": 1,
+        "hash": "0db91c91b8cc185a78f9ce967223f1cd5c0e75c81527cef7c5f3924e7dc7cfd1",
+        "bytes": 55306,
+        "managedPeakBytes": 7117127
+      },
+      {
+        "id": "im26-1052",
+        "distance": 2,
+        "hash": "9465651fba5df96ba22e2f409888b7dc074a22e982a477ae1b0cd2f4516e5a36",
+        "bytes": 33166,
+        "managedPeakBytes": 6990939
+      },
+      {
+        "id": "im26-1052",
+        "distance": 4,
+        "hash": "a7ea7369b197b0fa626c31077d6ab20ad596859a6e0f1b29e2224237fc10d8aa",
+        "bytes": 18816,
+        "managedPeakBytes": 6960219
+      },
+      {
+        "id": "im26-1052",
+        "distance": 7,
+        "hash": "5f9b83d71d1a176b413fde95761d6041b6bb29eb08371c88e3c6b6708faf72fa",
+        "bytes": 11955,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-1610",
+        "distance": 0.5,
+        "hash": "1e99e32a62d9972d7686514fd34a481494f74430e06f46b1fb8295ac415f428f",
+        "bytes": 70991,
+        "managedPeakBytes": 10444691
+      },
+      {
+        "id": "im26-1610",
+        "distance": 1,
+        "hash": "5160ac9bd6443fb629088b8fb82f02901fe7a7e222df6b9270c978702bd3f7db",
+        "bytes": 38914,
+        "managedPeakBytes": 7076331
+      },
+      {
+        "id": "im26-1610",
+        "distance": 2,
+        "hash": "6dc8dbc3f66608675e2d3ce3bce8ab678c7a479d070b3631efb58caf20119f78",
+        "bytes": 24224,
+        "managedPeakBytes": 6966367
+      },
+      {
+        "id": "im26-1610",
+        "distance": 4,
+        "hash": "c9fa2f571cc1c651b2f8d4ed214fa1be6589a1d2e6ac79eeec75d525dd329a54",
+        "bytes": 15722,
+        "managedPeakBytes": 6960219
+      },
+      {
+        "id": "im26-1610",
+        "distance": 7,
+        "hash": "f257f4ef9a52d471bf1b2a751640799aa056c3b313aacc9bbc6c098312aa47bf",
+        "bytes": 10991,
+        "managedPeakBytes": 6954075
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.5,
+        "hash": "e6b78dd96ad4962693f35a2daca97ecb1d8df3fd29a3760fd0688fb1cd3829aa",
+        "bytes": 40589,
+        "managedPeakBytes": 10026026
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1,
+        "hash": "406a811808cf2b286f531024d75e052f37e7de0a2229665037c18110fda3ff38",
+        "bytes": 16751,
+        "managedPeakBytes": 6966363
+      },
+      {
+        "id": "im26-3312",
+        "distance": 2,
+        "hash": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035",
+        "bytes": 8088,
+        "managedPeakBytes": 6960219
+      },
+      {
+        "id": "im26-3312",
+        "distance": 4,
+        "hash": "d1dd7f82b0b6c80199ad6da0dc58e7482584a30599663528fa40a650bd51169b",
+        "bytes": 2572,
+        "managedPeakBytes": 6945883
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7,
+        "hash": "1ae151734c6cafa3e9c15ad6c6f5c5cb505bcee044a55a6e639546d14038b6f8",
+        "bytes": 1632,
+        "managedPeakBytes": 6947931
+      },
+      {
+        "id": "im26-1002",
+        "distance": 0.5,
+        "hash": "e4105e4756010ad1222d21524c7678af7c8368ec0fe9742edaeebd5066eaa14c",
+        "bytes": 61238,
+        "managedPeakBytes": 10370349
+      },
+      {
+        "id": "im26-1002",
+        "distance": 1,
+        "hash": "308d489a520e312151271cf72aacbf5854a0a091abe47a4824b84ac9969df36a",
+        "bytes": 34801,
+        "managedPeakBytes": 7080371
+      },
+      {
+        "id": "im26-1002",
+        "distance": 2,
+        "hash": "ed4d1d815c48266037e9fe9b23a07525e4d4f6ddc0ad5fbf653eb37072272444",
+        "bytes": 20270,
+        "managedPeakBytes": 6964315
+      },
+      {
+        "id": "im26-1002",
+        "distance": 4,
+        "hash": "2becadb4f8def7806ea8de9e2bc22063cd1b3e14bd879d5f7d09cbbc718c47e9",
+        "bytes": 11743,
+        "managedPeakBytes": 6958171
+      },
+      {
+        "id": "im26-1002",
+        "distance": 7,
+        "hash": "3070dbc6d58f12cf8653851ee187d3e2eddffffd839caeed3e7a667816973dd6",
+        "bytes": 7441,
+        "managedPeakBytes": 6954075
+      },
+      {
+        "id": "im26-3014",
+        "distance": 0.5,
+        "hash": "bc421af5b15f54cf09d3d3b8db3c91f9c2a5b7d3e1ebbf7bcb6821e3bd9a076c",
+        "bytes": 17101,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-3014",
+        "distance": 1,
+        "hash": "3ace6be3f5a99f5ead41c61157170a00decf1f68f690875bdbfee9aa298efd6b",
+        "bytes": 6700,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-3014",
+        "distance": 2,
+        "hash": "17a37fe9b06cfe657616162168dccdb5f6fc344937ff96d8b03c94aa8f5765cc",
+        "bytes": 2663,
+        "managedPeakBytes": 6945883
+      },
+      {
+        "id": "im26-3014",
+        "distance": 4,
+        "hash": "2c0cfbaafd8dd87b2922f9d5af03c874460228ceefe25961ab3fc9f08b7658cf",
+        "bytes": 1171,
+        "managedPeakBytes": 6943835
+      },
+      {
+        "id": "im26-3014",
+        "distance": 7,
+        "hash": "a2032375f7faa771f22df9fbbb2ce9e859ebcb2f0b33714c1bf33d79e42c1c85",
+        "bytes": 861,
+        "managedPeakBytes": 6943835
+      },
+      {
+        "id": "im26-1026",
+        "distance": 0.5,
+        "hash": "54cf60fe578ed3e5cc184cadcbb9319e7488290845cc79e67ab71277a5f2bdc4",
+        "bytes": 96207,
+        "managedPeakBytes": 7259987
+      },
+      {
+        "id": "im26-1026",
+        "distance": 1,
+        "hash": "a3c5f33d45dc89d088958a451591c85a3862e93b6af809078a32f154651324a4",
+        "bytes": 57697,
+        "managedPeakBytes": 7207223
+      },
+      {
+        "id": "im26-1026",
+        "distance": 2,
+        "hash": "d77b65b9c085444b95f66ea7fac01f3eb3d275ae890aaeebc77ceac4a0ff42e4",
+        "bytes": 35247,
+        "managedPeakBytes": 6982747
+      },
+      {
+        "id": "im26-1026",
+        "distance": 4,
+        "hash": "2cb0bd825d90cbf1df1d7d701230077359b6a3e29712a8777734c1554543fcc9",
+        "bytes": 21809,
+        "managedPeakBytes": 6970971
+      },
+      {
+        "id": "im26-1026",
+        "distance": 7,
+        "hash": "c9cd4abbd13a66bcfbe17dab02e0c4bc89af7b224a686ae893e168e38814711d",
+        "bytes": 14572,
+        "managedPeakBytes": 6977115
+      },
+      {
+        "id": "im26-1626",
+        "distance": 0.5,
+        "hash": "241a2ed81009b2d4a5b5ca18d252895c496693de6003ba31f6516bd14544843e",
+        "bytes": 39322,
+        "managedPeakBytes": 7004591
+      },
+      {
+        "id": "im26-1626",
+        "distance": 1,
+        "hash": "6d6091a295dd3d19f7d00a2bd0f2643a67589ebc5f30b3ed0ac08fc0488a2e5b",
+        "bytes": 17873,
+        "managedPeakBytes": 6964315
+      },
+      {
+        "id": "im26-1626",
+        "distance": 2,
+        "hash": "0cc93ab7805e3964f6c658a3c34295a9cb3ba5609a7aa28d2eda9bcc575cbf91",
+        "bytes": 10067,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-1626",
+        "distance": 4,
+        "hash": "f06be393877b08cdf7153e5f2c13b7a0418936567cea0d8d701e696a47599b31",
+        "bytes": 6444,
+        "managedPeakBytes": 6947931
+      },
+      {
+        "id": "im26-1626",
+        "distance": 7,
+        "hash": "6e6bec1bfd1d938351678f2fed3968bdb8ea750e1a8e2a5ea2c42d8657b47af5",
+        "bytes": 4629,
+        "managedPeakBytes": 6947931
+      },
+      {
+        "id": "im26-2002",
+        "distance": 0.5,
+        "hash": "428f9edacb37cdc0290050e1edf63f256d0cbbabe7c1ed54102a4069040485e4",
+        "bytes": 51863,
+        "managedPeakBytes": 7072103
+      },
+      {
+        "id": "im26-2002",
+        "distance": 1,
+        "hash": "cc3513176456b3393b862217f1dd07ef50b3f753329d2039a5517e9111a17eb6",
+        "bytes": 23244,
+        "managedPeakBytes": 6966363
+      },
+      {
+        "id": "im26-2002",
+        "distance": 2,
+        "hash": "a7705484ff4a1aa1572ed314436337ae0f811c9e71b191eb7dd9b8dd01da5dd9",
+        "bytes": 12921,
+        "managedPeakBytes": 6958171
+      },
+      {
+        "id": "im26-2002",
+        "distance": 4,
+        "hash": "34b2e54847be01d7662d54b8bef65ca3f751b850b10903eec90eb3f2857c17af",
+        "bytes": 7170,
+        "managedPeakBytes": 6952027
+      },
+      {
+        "id": "im26-2002",
+        "distance": 7,
+        "hash": "baf90db3540d1c0831dab39e172c417860303d3fc71f6c4670b48d30f664545b",
+        "bytes": 4160,
+        "managedPeakBytes": 6945883
+      },
+      {
+        "id": "im26-2004",
+        "distance": 0.5,
+        "hash": "ef2d19edcf620880938f26c9523b5c747cf2514cff07ffc2b8d05363a218b144",
+        "bytes": 119295,
+        "managedPeakBytes": 10091229
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1,
+        "hash": "0c4b5c36dada382a4ca70d8665fb98cbdb326478b30feef73b10467423317dff",
+        "bytes": 80573,
+        "managedPeakBytes": 6974555
+      },
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "hash": "161edebe75741877fdd1b81f0d6faeaca8d9f2e96cb0520b5a3de691c895fd3c",
+        "bytes": 42415,
+        "managedPeakBytes": 6962267
+      },
+      {
+        "id": "im26-2004",
+        "distance": 4,
+        "hash": "da2d2d2c04e19f76ef6ce141966e87c93bf99f53fd17e9c6447dedc8b8c71db8",
+        "bytes": 16791,
+        "managedPeakBytes": 6958171
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7,
+        "hash": "b2ea181897ff9a2b0089070f22b7c94e56342bff2076117362b19459ccb3183a",
+        "bytes": 7404,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-1622",
+        "distance": 0.5,
+        "hash": "0810bae4ac45cfcfe8691676d9bc482ce069105683b065ee0014519770b7a220",
+        "bytes": 89255,
+        "managedPeakBytes": 7368511
+      },
+      {
+        "id": "im26-1622",
+        "distance": 1,
+        "hash": "68bd4e0d75501127029a3df72669b3889a57164634e40aae3d9487bf43f36994",
+        "bytes": 52569,
+        "managedPeakBytes": 7008751
+      },
+      {
+        "id": "im26-1622",
+        "distance": 2,
+        "hash": "95c8a7b8143794952dbe8e41971a7b6e37ef5cdcfdb4af59ed6a6e34a61820dc",
+        "bytes": 27497,
+        "managedPeakBytes": 6958171
+      },
+      {
+        "id": "im26-1622",
+        "distance": 4,
+        "hash": "a0d7cfdc1e4bbe43b24f497986df21d04a4b77bd8c9eee92a71e10ed63fe0670",
+        "bytes": 13166,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-1622",
+        "distance": 7,
+        "hash": "f65322cf98663612e543a600df241a5dbb53f4e6535c771cfcaced2c2f0cc140",
+        "bytes": 7320,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-1210",
+        "distance": 0.5,
+        "hash": "ec2fe4c74fa8f373d5b90efcfcd8d314f25f6c9bd292fd8fb3dbfb56340768ba",
+        "bytes": 87083,
+        "managedPeakBytes": 10451417
+      },
+      {
+        "id": "im26-1210",
+        "distance": 1,
+        "hash": "0378d7d1128ff387694c03dbb27974cff3bfa5b684423a3e5d1a2995157a43ca",
+        "bytes": 54151,
+        "managedPeakBytes": 10317317
+      },
+      {
+        "id": "im26-1210",
+        "distance": 2,
+        "hash": "741a2fb838f52ae218baad622660f2e9eb59e4816bf4bb962c2af1d31716549a",
+        "bytes": 33287,
+        "managedPeakBytes": 10124645
+      },
+      {
+        "id": "im26-1210",
+        "distance": 4,
+        "hash": "cfb620385191a75277b4656d9a1c1eff972a9c70f1eae7a8ff66f2afedeb7ffd",
+        "bytes": 21098,
+        "managedPeakBytes": 6968411
+      },
+      {
+        "id": "im26-1210",
+        "distance": 7,
+        "hash": "60f917a4005390119f835f72205f3b168867f454486abd1e31fbb9595c39c6b0",
+        "bytes": 14130,
+        "managedPeakBytes": 6960219
+      },
+      {
+        "id": "im26-1634",
+        "distance": 0.5,
+        "hash": "47105577dcf6e9660be4b94ed0ee03d339dad4c97d05362e29e0f14a193cc01b",
+        "bytes": 48772,
+        "managedPeakBytes": 7045709
+      },
+      {
+        "id": "im26-1634",
+        "distance": 1,
+        "hash": "fb648e2f4c00728f41b52de564c6b186633e7f53f246ba960fc489740a6f0df4",
+        "bytes": 19494,
+        "managedPeakBytes": 6964341
+      },
+      {
+        "id": "im26-1634",
+        "distance": 2,
+        "hash": "953895471472eb90ec9c63ef6494bce02ade7265ac6cda8cef591e0206c485ce",
+        "bytes": 9455,
+        "managedPeakBytes": 6954075
+      },
+      {
+        "id": "im26-1634",
+        "distance": 4,
+        "hash": "9076691e43a4ff086d16f0c8e1f7bfc89626b90d4ada4d7f330fd58483d33e3e",
+        "bytes": 5454,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-1634",
+        "distance": 7,
+        "hash": "e61f67597b602025017906af0554a8e113a8ee3995501648a2f08a42cde1b8b5",
+        "bytes": 3935,
+        "managedPeakBytes": 6972507
+      },
+      {
+        "id": "im26-3000",
+        "distance": 0.5,
+        "hash": "0cd49dbb7b8ad97e1140e989b8e85aafee0fb4cfaa09a0033e5dbccd93888b62",
+        "bytes": 37222,
+        "managedPeakBytes": 10077441
+      },
+      {
+        "id": "im26-3000",
+        "distance": 1,
+        "hash": "9b59cd615bae3368f06255438ccb108ff6e593f13cb118337ebfd263b93e5449",
+        "bytes": 22552,
+        "managedPeakBytes": 6962271
+      },
+      {
+        "id": "im26-3000",
+        "distance": 2,
+        "hash": "298783fa5dd456b165b6e0a0018e287e78c3735409de7ab0986dd4f63846a0b5",
+        "bytes": 11348,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-3000",
+        "distance": 4,
+        "hash": "0738f3bc26be4b4a38949ce479957de34050ead91b25e6abd32084318cb2f1c6",
+        "bytes": 4947,
+        "managedPeakBytes": 6952027
+      },
+      {
+        "id": "im26-3000",
+        "distance": 7,
+        "hash": "afb2e6f119d36d01467b72ae3d7322afbb385a63f43b862385e939d5c2396969",
+        "bytes": 2963,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-3306",
+        "distance": 0.5,
+        "hash": "384048aa69ad89bd3523e850f9c407f282fc6cf3a7879c081e9c0c9874e29be1",
+        "bytes": 122868,
+        "managedPeakBytes": 7286597
+      },
+      {
+        "id": "im26-3306",
+        "distance": 1,
+        "hash": "03aee441d8a61396d35257e7affa58b598c5cc4804e257804bda048b32bb83b5",
+        "bytes": 78431,
+        "managedPeakBytes": 7006635
+      },
+      {
+        "id": "im26-3306",
+        "distance": 2,
+        "hash": "91515fdc7ef9749befb43c08cde632df0f10ddcfc18780caaf7e8b2b52fab781",
+        "bytes": 43074,
+        "managedPeakBytes": 6966363
+      },
+      {
+        "id": "im26-3306",
+        "distance": 4,
+        "hash": "b2c45f57143981611226962ca9f6166dc48e2090a5c0d7b22950f14e79a1e65d",
+        "bytes": 22048,
+        "managedPeakBytes": 6956123
+      },
+      {
+        "id": "im26-3306",
+        "distance": 7,
+        "hash": "c27b5cb12073ab4214456b07b873a4d3984450b74a7702b4c0ac99a5f8cd3510",
+        "bytes": 13083,
+        "managedPeakBytes": 6952027
+      },
+      {
+        "id": "im26-2012",
+        "distance": 0.5,
+        "hash": "31b886cd9c6cc777d4c28e6fd88ec8457558d60dbdda7b38d986264b647150ab",
+        "bytes": 44181,
+        "managedPeakBytes": 10179993
+      },
+      {
+        "id": "im26-2012",
+        "distance": 1,
+        "hash": "8f26ff7356eaa52bd287404be85e585eb3d8778ce6e20794aa6897e4441206c1",
+        "bytes": 22075,
+        "managedPeakBytes": 6962267
+      },
+      {
+        "id": "im26-2012",
+        "distance": 2,
+        "hash": "ee942a2ae30ee23bb5a042aeb12c7a001224a169db128ae1902060d00d1d3999",
+        "bytes": 11349,
+        "managedPeakBytes": 6960219
+      },
+      {
+        "id": "im26-2012",
+        "distance": 4,
+        "hash": "3a565253350d03e8985fc0b4969ffb305ccd950b737dd5daae0f4f54e12d7703",
+        "bytes": 5033,
+        "managedPeakBytes": 6949979
+      },
+      {
+        "id": "im26-2012",
+        "distance": 7,
+        "hash": "6e31cfef1603036e7a3e108173d6ff3d444e2366c31a77005f2a0da6774efb3d",
+        "bytes": 2637,
+        "managedPeakBytes": 6970459
+      }
+    ]
+  },
+  "profile": {
+    "id": "im26-3012",
+    "distance": 2,
+    "sampleStep": 2,
+    "warmups": 3,
+    "encodes": 3,
+    "totalMicroseconds": 6704430,
+    "functions": [
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:29 perceptualBlur",
+        "microseconds": 1601149,
+        "percent": 23.881955662151743
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts:205 score",
+        "microseconds": 399795,
+        "percent": 5.96314675520514
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts:56 maltaDirectionalCost",
+        "microseconds": 375866,
+        "percent": 5.606233490393665
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts:62 readBlock",
+        "microseconds": 366407,
+        "percent": 5.4651476710175215
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-transforms.ts:148 forwardPairedSelectorTransform",
+        "microseconds": 365883,
+        "percent": 5.4573319432077
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:107 opsin",
+        "microseconds": 334380,
+        "percent": 4.987448597419915
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:153 fillXybBlock",
+        "microseconds": 293990,
+        "percent": 4.3850111045980045
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:164 preparePerceptualLinear",
+        "microseconds": 232375,
+        "percent": 3.4659918889450707
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts:21 inverseWeightedSelectorTransform",
+        "microseconds": 220070,
+        "percent": 3.282456525014058
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts:23 rewriteStrategyGeometry",
+        "microseconds": 128797,
+        "percent": 1.9210730815296753
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts:112 selectGeometry",
+        "microseconds": 123583,
+        "percent": 1.8433036067197361
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/geometry-display.ts:31 renderSelectedGeometry",
+        "microseconds": 108910,
+        "percent": 1.624448312533653
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:101 run",
+        "microseconds": 108854,
+        "percent": 1.6236130439127563
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-tile-mask.ts:46 fill",
+        "microseconds": 91850,
+        "percent": 1.3699896933818385
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:5162 convertJpegXlNativeXybPlanes",
+        "microseconds": 91293,
+        "percent": 1.3616817537061316
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-transforms.ts:20 forwardSelectorTransform",
+        "microseconds": 86001,
+        "percent": 1.2827488690313718
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1844 ",
+        "microseconds": 83898,
+        "percent": 1.2513815492144746
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:263 ",
+        "microseconds": 83206,
+        "percent": 1.2410600155419627
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:751 encodeHybridUintPacked",
+        "microseconds": 81703,
+        "percent": 1.2186420023775324
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-initial-quant-port.ts:33 libjxlInitialQuantField",
+        "microseconds": 71504,
+        "percent": 1.0665187047966793
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:837 inverseDctRectangle",
+        "microseconds": 61475,
+        "percent": 0.9169310441006916
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-output-dither-port.ts:116 libjxlDitheredRgba",
+        "microseconds": 57053,
+        "percent": 0.8509746540720091
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:296 perceptualQuadraticMaps",
+        "microseconds": 50754,
+        "percent": 0.757021849732192
+      },
+      {
+        "name": ":0 (garbage collector)",
+        "microseconds": 44503,
+        "percent": 0.6637849899245722
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:550 ",
+        "microseconds": 44356,
+        "percent": 0.6615924097947178
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:685 prepare8",
+        "microseconds": 39694,
+        "percent": 0.5920562971050485
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1175 ",
+        "microseconds": 39443,
+        "percent": 0.5883125038220998
+      },
+      {
+        "name": "src/codecs/icc.ts:941 linearToSrgb",
+        "microseconds": 38713,
+        "percent": 0.5774241807282647
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:185 ",
+        "microseconds": 37122,
+        "percent": 0.5536936025881395
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1681 ",
+        "microseconds": 35795,
+        "percent": 0.5339007193750998
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:1264 applyDefaultGaborish",
+        "microseconds": 33368,
+        "percent": 0.4977007739658703
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:975 ",
+        "microseconds": 31748,
+        "percent": 0.47353764600420917
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:2203 filterJpegXlDevelopmentPlanes",
+        "microseconds": 31302,
+        "percent": 0.4668853280592086
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1720 ",
+        "microseconds": 30091,
+        "percent": 0.44882264413231254
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:61 allocate",
+        "microseconds": 29929,
+        "percent": 0.4464063313361464
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1624 assignCachedAcHistograms",
+        "microseconds": 29456,
+        "percent": 0.43935129459178485
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:755 inverseDct8Native",
+        "microseconds": 28392,
+        "percent": 0.42348119079474317
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts:255 refinePeakTilesGeometry",
+        "microseconds": 27669,
+        "percent": 0.4126972762785203
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:1439 applyDefaultEpfStage1InteriorRow",
+        "microseconds": 27464,
+        "percent": 0.40963959650559406
+      },
+      {
+        "name": "src/codecs/jpegxl-decode.ts:2354 predict",
+        "microseconds": 27220,
+        "percent": 0.4060002118002574
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1517 ",
+        "microseconds": 26173,
+        "percent": 0.39038367169170235
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1840 ",
+        "microseconds": 24306,
+        "percent": 0.36253641249144225
+      },
+      {
+        "name": "node:inspector:115 post",
+        "microseconds": 24280,
+        "percent": 0.36214860920316866
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:2034 ",
+        "microseconds": 24059,
+        "percent": 0.3588522812528433
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/packed-coefficients.ts:8 packCoefficients",
+        "microseconds": 23330,
+        "percent": 0.3479788736700957
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts:41 displayLinearPlanes",
+        "microseconds": 23271,
+        "percent": 0.34709885851593647
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:1380 applyDefaultEpfStage1EdgePixel",
+        "microseconds": 21111,
+        "percent": 0.3148813545670549
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/packed-coefficients.ts:32 unpackCoefficients",
+        "microseconds": 20408,
+        "percent": 0.304395750272581
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-sort.ts:2 sortJpegXlModularTrainingKeys",
+        "microseconds": 17714,
+        "percent": 0.26421336340300366
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1422 learnJpegXlForwardCoefficientOrders",
+        "microseconds": 17005,
+        "percent": 0.25363826604200507
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/geometry-display.ts:199 crop",
+        "microseconds": 15964,
+        "percent": 0.23811121899997464
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:963 inverseDct2TopBlock",
+        "microseconds": 15892,
+        "percent": 0.2370373022016786
+      },
+      {
+        "name": ":0 (program)",
+        "microseconds": 15721,
+        "percent": 0.23448674980572548
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:1304 fill",
+        "microseconds": 15291,
+        "percent": 0.22807308003812404
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:218 visitPlaneResiduals",
+        "microseconds": 14774,
+        "percent": 0.2203617608059149
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts:107 rewriteGeometry",
+        "microseconds": 13886,
+        "percent": 0.2071167869602636
+      },
+      {
+        "name": "src/codecs/jpegxl-decode.ts:2346 #errorWeight",
+        "microseconds": 13677,
+        "percent": 0.20399944514298754
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:183 #own",
+        "microseconds": 12379,
+        "percent": 0.18463911175148373
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:580 applyJpegXlModularTree",
+        "microseconds": 11798,
+        "percent": 0.17597319980967807
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts:88 downsampleDisplay",
+        "microseconds": 11742,
+        "percent": 0.17513793118878115
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-block-cache.ts:26 readBlock",
+        "microseconds": 11646,
+        "percent": 0.17370604212438642
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1069 ",
+        "microseconds": 10786,
+        "percent": 0.16087870258918358
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts:137 perceptualDirectionalMap",
+        "microseconds": 10651,
+        "percent": 0.15886510859237848
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:1533 applyDefaultEpfStage1",
+        "microseconds": 10541,
+        "percent": 0.1572244023727595
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2004 ",
+        "microseconds": 10261,
+        "percent": 0.15304805926827486
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts:73 ceilLog2",
+        "microseconds": 9536,
+        "percent": 0.1422343137298771
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:2827 loadGroup",
+        "microseconds": 9404,
+        "percent": 0.14026546626633435
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:138 promote",
+        "microseconds": 8489,
+        "percent": 0.126617773621322
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2405 ",
+        "microseconds": 8481,
+        "percent": 0.12649844953262246
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts:26 rebuildTileAllocation",
+        "microseconds": 8477,
+        "percent": 0.12643878748827267
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/gaborish-source-cache.ts:29 readBlock",
+        "microseconds": 8437,
+        "percent": 0.12584216704477488
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2105 estimateJpegXlForwardAcModelPair",
+        "microseconds": 7873,
+        "percent": 0.1174298187914558
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2595 coefficientSectionSteps",
+        "microseconds": 7596,
+        "percent": 0.11329822222023349
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:3640 ",
+        "microseconds": 7433,
+        "percent": 0.11086699391297992
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2029 ",
+        "microseconds": 7426,
+        "percent": 0.11076258533536781
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:318 ",
+        "microseconds": 7419,
+        "percent": 0.11065817675775569
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1785 fixedPrediction",
+        "microseconds": 7418,
+        "percent": 0.11064326124666825
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:1384 rateAwareAc",
+        "microseconds": 7406,
+        "percent": 0.1104642751136189
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2730 ",
+        "microseconds": 7395,
+        "percent": 0.110300204491657
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2238 ",
+        "microseconds": 7391,
+        "percent": 0.11024054244730723
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:73 writeBits",
+        "microseconds": 6951,
+        "percent": 0.10367771756883136
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:18 planes",
+        "microseconds": 6542,
+        "percent": 0.09757727353406628
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts:81 blurPlan",
+        "microseconds": 6425,
+        "percent": 0.09583215873683519
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1048 ",
+        "microseconds": 6320,
+        "percent": 0.09426603007265345
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:855 ",
+        "microseconds": 6320,
+        "percent": 0.09426603007265345
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts:184 rewriteGeometry",
+        "microseconds": 6169,
+        "percent": 0.09201378789844923
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:3656 ",
+        "microseconds": 5297,
+        "percent": 0.07900746223019704
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:431 chooseForwardOrderGeometry",
+        "microseconds": 5293,
+        "percent": 0.07894780018584727
+      },
+      {
+        "name": "src/codecs/jpegxl-decode.ts:2465 update",
+        "microseconds": 5219,
+        "percent": 0.07784405236537632
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:5095 hasOpaque8BitAlpha",
+        "microseconds": 5175,
+        "percent": 0.07718776987752873
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1721 ",
+        "microseconds": 4583,
+        "percent": 0.0683577873137612
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:278 ",
+        "microseconds": 4361,
+        "percent": 0.06504654385234837
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts:200 mixPerceptualScales",
+        "microseconds": 4252,
+        "percent": 0.06342075314381684
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:69 ",
+        "microseconds": 4244,
+        "percent": 0.06330142905511729
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2677 ",
+        "microseconds": 4242,
+        "percent": 0.0632715980329424
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1146 ",
+        "microseconds": 4237,
+        "percent": 0.06319702047750517
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/transform-kernels.ts:8 dctBasis",
+        "microseconds": 4221,
+        "percent": 0.06295837230010605
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:1086 ",
+        "microseconds": 4115,
+        "percent": 0.061377328124836865
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:216 copyJpegXlArray",
+        "microseconds": 4005,
+        "percent": 0.05973662190521789
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1984 collectForwardAcFrequencies",
+        "microseconds": 3189,
+        "percent": 0.04756556485786264
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts:9 weights",
+        "microseconds": 3181,
+        "percent": 0.047446240769163074
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:515 packSigned",
+        "microseconds": 3172,
+        "percent": 0.04731200116937607
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:191 #releaseBuffer",
+        "microseconds": 3170,
+        "percent": 0.04728217014720118
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-initial-quant-port.ts:53 loadBlockRow",
+        "microseconds": 3115,
+        "percent": 0.046461817037391696
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:493 ",
+        "microseconds": 2179,
+        "percent": 0.03250089865954302
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2752 ",
+        "microseconds": 2115,
+        "percent": 0.03154630594994653
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/transform-kernels.ts:128 developmentDcGrid",
+        "microseconds": 2114,
+        "percent": 0.03153139043885908
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:493 writeHybridUint",
+        "microseconds": 2114,
+        "percent": 0.03153139043885908
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:820 ",
+        "microseconds": 2113,
+        "percent": 0.03151647492777164
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:210 allocateJpegXlArray",
+        "microseconds": 2109,
+        "percent": 0.03145681288342186
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1688 ",
+        "microseconds": 1705,
+        "percent": 0.02543094640409401
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:2088 applyDefaultEpfStage",
+        "microseconds": 1252,
+        "percent": 0.01867421988148135
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:5101 hasSmallVisiblePalette",
+        "microseconds": 1228,
+        "percent": 0.018316247615382666
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:535 ",
+        "microseconds": 1219,
+        "percent": 0.01818200801559566
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:101 loss",
+        "microseconds": 1110,
+        "percent": 0.016556217307064136
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:117 #ensure",
+        "microseconds": 1099,
+        "percent": 0.01639214668510224
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/transplant.ts:477 encodeJpegXlVarDct8Async.developmentDecisions",
+        "microseconds": 1088,
+        "percent": 0.01622807606314034
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:1710 ",
+        "microseconds": 1068,
+        "percent": 0.015929765841391438
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:3667 ",
+        "microseconds": 1068,
+        "percent": 0.015929765841391438
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:933 populateLowestFrequencies",
+        "microseconds": 1067,
+        "percent": 0.015914850330303994
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-jpeg.ts:792 naturalJpegXlDevelopmentCoefficientOrder",
+        "microseconds": 1065,
+        "percent": 0.015885019308129102
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:46 JpegXlBitWriter",
+        "microseconds": 1065,
+        "percent": 0.015885019308129102
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:773 hybridTokenForEncoding",
+        "microseconds": 1064,
+        "percent": 0.01587010379704166
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts:363 planes",
+        "microseconds": 1063,
+        "percent": 0.01585518828595421
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:202 withJpegXlMemory",
+        "microseconds": 1063,
+        "percent": 0.01585518828595421
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-initial-quant-port.ts:18 gammaRatio",
+        "microseconds": 1062,
+        "percent": 0.015840272774866767
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-mask-loss.ts:9 selectorMaskLoss",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2273 writeHfPass",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:948 writeDcGroup",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:3789 ",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:119 runAsync",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts:79 logCount",
+        "microseconds": 1060,
+        "percent": 0.015810441752691876
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts:75 release",
+        "microseconds": 1059,
+        "percent": 0.01579552624160443
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:887 ",
+        "microseconds": 1059,
+        "percent": 0.01579552624160443
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/display-error-trace.ts:19 tracePlanes",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:341 writeAlphaPlane",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts:70 libjxlStandaloneOverrides",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-quantization-port.ts:11 libjxlTransformQuantization",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2228 writeCoefficientOrderPermutations",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts:334 ",
+        "microseconds": 1057,
+        "percent": 0.01576569521942954
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:1332 fillCorrelated",
+        "microseconds": 1056,
+        "percent": 0.015750779708342096
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:274 ",
+        "microseconds": 1056,
+        "percent": 0.015750779708342096
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:269 ",
+        "microseconds": 1056,
+        "percent": 0.015750779708342096
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2946 ",
+        "microseconds": 1055,
+        "percent": 0.015735864197254652
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:3100 ",
+        "microseconds": 1055,
+        "percent": 0.015735864197254652
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2021 forwardAcModelEstimate",
+        "microseconds": 1053,
+        "percent": 0.01570603317507976
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts:599 jpegXlDevelopmentDequantization",
+        "microseconds": 1049,
+        "percent": 0.01564637113072998
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:2385 learnedResidualPlan",
+        "microseconds": 1020,
+        "percent": 0.01521382130919407
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts:2617 ",
+        "microseconds": 1014,
+        "percent": 0.0151243282426694
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts:513 forwardFrameParts",
+        "microseconds": 1010,
+        "percent": 0.015064666198319619
+      },
+      {
+        "name": "node:internal/crypto/hash:90 Hash",
+        "microseconds": 861,
+        "percent": 0.012842255046290288
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts:367 ",
+        "microseconds": 838,
+        "percent": 0.012499198291279049
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts:2010 ",
+        "microseconds": 741,
+        "percent": 0.011052393715796869
+      }
+    ],
+    "files": [
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts",
+        "microseconds": 2231625,
+        "percent": 33.285827430519824
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+        "microseconds": 546800,
+        "percent": 8.155801462615017
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-transforms.ts",
+        "microseconds": 451884,
+        "percent": 6.740080812239071
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-encode.ts",
+        "microseconds": 417500,
+        "percent": 6.2272258790083574
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts",
+        "microseconds": 390769,
+        "percent": 5.82851935212986
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts",
+        "microseconds": 366407,
+        "percent": 5.4651476710175215
+      },
+      {
+        "name": "src/codecs/jpegxl-jpeg-encode.ts",
+        "microseconds": 349930,
+        "percent": 5.219384794829687
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-render.ts",
+        "microseconds": 324206,
+        "percent": 4.835698187616248
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-encode.ts",
+        "microseconds": 266228,
+        "percent": 3.970926685788352
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-inverse-weights.ts",
+        "microseconds": 223251,
+        "percent": 3.329902765783221
+      },
+      {
+        "name": "src/codecs/jpegxl-encoder-memory.ts",
+        "microseconds": 172118,
+        "percent": 2.5672279373488873
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-tree.ts",
+        "microseconds": 140719,
+        "percent": 2.0988958047141963
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+        "microseconds": 131755,
+        "percent": 1.965193163326338
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/geometry-display.ts",
+        "microseconds": 124874,
+        "percent": 1.8625595315336279
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-tile-mask.ts",
+        "microseconds": 91850,
+        "percent": 1.3699896933818385
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-initial-quant-port.ts",
+        "microseconds": 75681,
+        "percent": 1.1288207946089377
+      },
+      {
+        "name": "",
+        "microseconds": 60224,
+        "percent": 0.8982717397302977
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-output-dither-port.ts",
+        "microseconds": 57053,
+        "percent": 0.8509746540720091
+      },
+      {
+        "name": "src/codecs/jpegxl-decode.ts",
+        "microseconds": 46116,
+        "percent": 0.6878437093086213
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/packed-coefficients.ts",
+        "microseconds": 43738,
+        "percent": 0.6523746239426768
+      },
+      {
+        "name": "src/codecs/icc.ts",
+        "microseconds": 38713,
+        "percent": 0.5774241807282647
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts",
+        "microseconds": 36146,
+        "percent": 0.539136063766793
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts",
+        "microseconds": 35013,
+        "percent": 0.5222367897047177
+      },
+      {
+        "name": "node:inspector",
+        "microseconds": 24280,
+        "percent": 0.36214860920316866
+      },
+      {
+        "name": "src/codecs/jpegxl-modular-sort.ts",
+        "microseconds": 17714,
+        "percent": 0.26421336340300366
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-block-cache.ts",
+        "microseconds": 11646,
+        "percent": 0.17370604212438642
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/gaborish-source-cache.ts",
+        "microseconds": 8437,
+        "percent": 0.12584216704477488
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+        "microseconds": 7227,
+        "percent": 0.10779439862896623
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/transform-kernels.ts",
+        "microseconds": 6335,
+        "percent": 0.09448976273896513
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/transplant.ts",
+        "microseconds": 1088,
+        "percent": 0.01622807606314034
+      },
+      {
+        "name": "src/codecs/jpegxl-vardct-jpeg.ts",
+        "microseconds": 1065,
+        "percent": 0.015885019308129102
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/selector-mask-loss.ts",
+        "microseconds": 1061,
+        "percent": 0.015825357263779323
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/display-error-trace.ts",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "benchmark/jpegxl/lossy-lab/libjxl-quantization-port.ts",
+        "microseconds": 1058,
+        "percent": 0.015780610730516988
+      },
+      {
+        "name": "node:internal/crypto/hash",
+        "microseconds": 861,
+        "percent": 0.012842255046290288
+      }
+    ],
+    "scope": "Isolated candidate CPU profile after warmup. Samples are diagnostic, not wall-time qualification."
+  },
+  "archive": {
+    "base": "dfd8650f7ad7a69fd0b7b3a06b149c239abe7800",
+    "prior": "benchmark/jpegxl/lossy-lab/JOINT-ALLOCATION-EXPERIMENT.patch",
+    "destination": "benchmark/jpegxl/lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch",
+    "patchBytes": 20977,
+    "reverseCheck": true,
+    "priorCheck": true,
+    "layerCheck": true,
+    "activeChangesRemoved": true
+  },
+  "initialVerification": {
+    "status": "failed",
+    "startedAt": "2026-10-28T23:22:37.940Z",
+    "endedAt": "2026-10-28T23:23:20.330Z",
+    "code": 1,
+    "signal": null
+  },
+  "verification": {
+    "status": "passed",
+    "startedAt": "2026-10-28T23:24:27.559Z",
+    "endedAt": "2026-10-28T23:33:30.627Z",
+    "code": 0,
+    "signal": null
+  },
+  "plateau": {
+    "qualityScreens": 14,
+    "groups": [
+      {
+        "ids": ["LL-1021", "LL-1022", "LL-1023"],
+        "screens": 3
+      },
+      {
+        "ids": [
+          "LL-1025",
+          "LL-1026",
+          "LL-1027",
+          "LL-1028",
+          "LL-1029",
+          "LL-1030",
+          "LL-1031",
+          "LL-1032"
+        ],
+        "screens": 8
+      },
+      {
+        "ids": ["LL-1034/2", "LL-1034/4", "LL-1034/8"],
+        "screens": 3
+      }
+    ],
+    "retainedDevelopmentGainPercent": 0,
+    "rule": "LOSSY_STEERING.md section 9: stop after about 15 experiments without 1% cumulative development gain",
+    "verdict": "No new quality experiment pending an owner decision; correctness, archival and checkpoint work completed separately."
+  },
+  "verificationMetrics": {
+    "passedTests": 4207,
+    "skippedTests": 3,
+    "passedFiles": 337,
+    "skippedFiles": 1,
+    "testSeconds": 501.54,
+    "checkSeconds": 543.068
+  }
+}

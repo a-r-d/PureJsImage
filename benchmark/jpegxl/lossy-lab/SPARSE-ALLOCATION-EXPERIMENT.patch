@@ -1,0 +1,499 @@
+diff --git a/benchmark/jpegxl/lossy-lab/worker.ts b/benchmark/jpegxl/lossy-lab/worker.ts
+index b94a3a67..521981f0 100644
+--- a/benchmark/jpegxl/lossy-lab/worker.ts
++++ b/benchmark/jpegxl/lossy-lab/worker.ts
+@@ -39,11 +39,20 @@ if (effortArgument !== '7' && effortArgument !== '9') throw new Error('Invalid w
+ const effort = effortArgument === '9' ? 9 : 7
+ const portAt = process.argv.indexOf('--strategy-port')
+ const portArgument = process.argv[portAt + 1] ?? ''
++const sampleStep =
++  portArgument === 'standalone-peak-sparse2'
++    ? 2
++    : portArgument === 'standalone-peak-sparse4'
++      ? 4
++      : portArgument === 'standalone-peak-sparse8'
++        ? 8
++        : 1
+ const peakScale =
+   portArgument === 'standalone-peak-full' ||
+   portArgument === 'standalone-peak-quadratic' ||
+   portArgument === 'standalone-peak-fine-quadratic' ||
+-  portArgument === 'standalone-peak-quadratic-strong'
++  portArgument === 'standalone-peak-quadratic-strong' ||
++  sampleStep !== 1
+     ? 1
+     : portArgument === 'standalone-peak-half'
+       ? 2
+@@ -60,7 +69,10 @@ const strategyPort =
+         portArgument === 'standalone-peak-quarter' ||
+         portArgument === 'standalone-peak-quadratic' ||
+         portArgument === 'standalone-peak-fine-quadratic' ||
+-        portArgument === 'standalone-peak-quadratic-strong'
++        portArgument === 'standalone-peak-quadratic-strong' ||
++        portArgument === 'standalone-peak-sparse2' ||
++        portArgument === 'standalone-peak-sparse4' ||
++        portArgument === 'standalone-peak-sparse8'
+       ? portArgument
+       : parseLibjxlPort(portArgument)
+ if (
+@@ -194,7 +206,10 @@ try {
+                 strategyPort === 'standalone-peak-quarter' ||
+                 strategyPort === 'standalone-peak-quadratic' ||
+                 strategyPort === 'standalone-peak-fine-quadratic' ||
+-                strategyPort === 'standalone-peak-quadratic-strong'
++                strategyPort === 'standalone-peak-quadratic-strong' ||
++                strategyPort === 'standalone-peak-sparse2' ||
++                strategyPort === 'standalone-peak-sparse4' ||
++                strategyPort === 'standalone-peak-sparse8'
+                 ? 'standalone-forward-all'
+                 : strategyPort,
+               setting,
+@@ -235,6 +250,7 @@ try {
+                           ? 'quadratic'
+                           : 'complete',
+                       portArgument === 'standalone-peak-quadratic-strong' ? 1.5 : 1.25,
++                      sampleStep,
+                     )
+                     peakAudit.push(result.audit)
+                     return result.geometry
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 8ccbd6ac..65722749 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -31,8 +31,38 @@ export function rewriteStrategyGeometry(
+   roundtripChroma = false,
+   compactStorage = false,
+   writerTransform?: 'small' | 'paired' | 'all',
++  unchanged?: VarDctCoefficientGeometry,
+ ): VarDctCoefficientGeometry {
+   const memory = base.memory
++  if (
++    unchanged &&
++    (roundtripChroma ||
++      writerTransform !== 'all' ||
++      memory !== unchanged.memory ||
++      base.globalScale !== unchanged.globalScale ||
++      base.quantDc !== unchanged.quantDc ||
++      base.dcQuantization !== unchanged.dcQuantization ||
++      base.xScale !== unchanged.xScale ||
++      base.bScale !== unchanged.bScale ||
++      base.developmentCorrelation !== unchanged.developmentCorrelation ||
++      base.correlationX !== unchanged.correlationX ||
++      base.correlationB !== unchanged.correlationB ||
++      base.developmentFilters !== unchanged.developmentFilters ||
++      base.defaultMatrices !== true ||
++      unchanged.defaultMatrices !== true ||
++      base.smoothDc !== unchanged.smoothDc)
++  )
++    throw new Error('Unchanged transforms require identical coding parameters')
++  if (
++    unchanged &&
++    (unchanged.blocksWide !== base.blocksWide ||
++      unchanged.blocksHigh !== base.blocksHigh ||
++      !unchanged.loadAc ||
++      !unchanged.strategyMap ||
++      !unchanged.developmentFirstBlocks ||
++      !unchanged.quantizationMap)
++  )
++    throw new Error('Missing unchanged transform geometry')
+   if (
+     !memory ||
+     base.blocksWide !== decisions.blocksWide ||
+@@ -130,6 +160,7 @@ export function rewriteStrategyGeometry(
+       oy = Math.floor(group / base.groupsAcross) * 32
+     const width = Math.min(32, base.blocksWide - ox),
+       height = Math.min(32, base.blocksHigh - oy)
++    const retained = unchanged?.loadAc?.(group, 0)
+     const offsets = memory.allocate(Int32Array, width * height)
+     offsets.fill(-1)
+     const coefficients = [
+@@ -172,6 +203,29 @@ export function rewriteStrategyGeometry(
+           for (let dx = 0; dx < bw; dx++) q[(oy + y + dy) * base.blocksWide + ox + x + dx] = quant
+         const size = bw * bh * 64,
+           stride = bw * 8
++        if (
++          retained &&
++          unchanged?.developmentFirstBlocks?.[at] === 1 &&
++          unchanged.strategyMap?.[at] === strategy &&
++          unchanged.quantizationMap?.[at] === quant
++        ) {
++          for (let c = 0; c < 3; c++) {
++            const plane = retained[c],
++              target = coefficients[c],
++              offset = plane?.coefficientOffsets?.[y * width + x]
++            if (
++              !plane ||
++              !target ||
++              offset === undefined ||
++              offset < 0 ||
++              offset + size > plane.coefficients.length
++            )
++              throw new Error('Invalid unchanged transform coefficients')
++            target.set(plane.coefficients.subarray(offset, offset + size), cursor)
++          }
++          cursor += size
++          continue
++        }
+         {
+           for (let dy = 0; dy < bh; dy++)
+             for (let dx = 0; dx < bw; dx++) {
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+index 6b817329..fa884819 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+@@ -10,6 +10,7 @@
+  * No SIMD, threading, allocation infrastructure or peer decisions are ported.
+  * Optional output windows skip unused quadratic-map pixels without changing math.
+  * Gaussian tap indices and normalization are precomputed with the same tap order.
++ * Optional sparse output grids preserve complete input bands at sampled pixels.
+  */
+ import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
+
+@@ -296,10 +297,12 @@ export function perceptualQuadraticMaps(
+   source: PerceptualImage,
+   decoded: PerceptualImage,
+   box?: PerceptualWindow,
++  sampleStep = 1,
+ ) {
+   if (source.width !== decoded.width || source.height !== decoded.height)
+     throw new Error('Perceptual dimensions differ')
+-  const window = perceptualWindow(source.width, source.height, box),
++  const step = perceptualSamplingStep(sampleStep),
++    window = perceptualWindow(source.width, source.height, box),
+     unmasked = new Float64Array(window.width * window.height),
+     masked = new Float64Array(unmasked.length),
+     asymmetric = new Float64Array(unmasked.length),
+@@ -307,8 +310,8 @@ export function perceptualQuadraticMaps(
+     middleWeights = [2150, 10.6195433239, 16.2176043152],
+     highWeights = [400, 1.50815703118],
+     scale = 1 / (17.83 * 0.79079917404)
+-  for (let y = 0; y < window.height; y++)
+-    for (let x = 0; x < window.width; x++) {
++  for (let y = 0; y < window.height; y += step)
++    for (let x = 0; x < window.width; x += step) {
+       const p = (y + window.y) * source.width + x + window.x,
+         q = y * window.width + x
+       let dc = 0,
+@@ -340,6 +343,12 @@ export function perceptualQuadraticMaps(
+   return { unmasked, masked, asymmetric }
+ }
+
++export function perceptualSamplingStep(step: number): number {
++  if (step !== 1 && step !== 2 && step !== 4 && step !== 8)
++    throw new Error('Invalid perceptual sampling step')
++  return step
++}
++
+ export function poolPerceptualMap(map: Float64Array) {
+   let maximum = 0,
+     cube = 0
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+index dca00a04..3ff83363 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+@@ -7,8 +7,13 @@
+  * Fixed hf_asymmetry=1, no native allocation or threading infrastructure.
+  * Optional output windows bound the padded difference plane to requested support.
+  * Fixed tap sums are unrolled without changing accumulation order.
++ * Sparse output grids retain the complete directional input stencil.
+  */
+-import { type PerceptualWindow, perceptualWindow } from './libjxl-perceptual-local-port.ts'
++import {
++  type PerceptualWindow,
++  perceptualWindow,
++  perceptualSamplingStep,
++} from './libjxl-perceptual-local-port.ts'
+
+ // Each row contains (dx,dy) pairs. Retain the source's repeated UHF directions.
+ const lowStencils = [
+@@ -57,6 +62,7 @@ export function maltaDirectionalCost(
+   norm: number,
+   band: 'low' | 'high',
+   box?: PerceptualWindow,
++  sampleStep = 1,
+ ): Float64Array {
+   if (
+     source.length !== width * height ||
+@@ -71,7 +77,8 @@ export function maltaDirectionalCost(
+     norm <= 0
+   )
+     throw new Error('Invalid Malta input')
+-  const window = perceptualWindow(width, height, box),
++  const step = perceptualSamplingStep(sampleStep),
++    window = perceptualWindow(width, height, box),
+     stride = window.width + 8,
+     padded = new Float64Array(stride * (window.height + 8)),
+     out = new Float64Array(window.width * window.height),
+@@ -98,8 +105,8 @@ export function maltaDirectionalCost(
+       padded[(y - window.y + 4) * stride + x - window.x + 4] =
+         scale * (symmetric * (a - b) + asymmetric * sign * penalty)
+     }
+-  for (let y = 0; y < window.height; y++)
+-    for (let x = 0; x < window.width; x++) {
++  for (let y = 0; y < window.height; y += step)
++    for (let x = 0; x < window.width; x += step) {
+       const p = (y + 4) * stride + x + 4
+       let cost = 0
+       for (let k = 0; k < stencils.length; k++) {
+@@ -132,8 +139,10 @@ export function perceptualDirectionalMap(
+   decoded: import('./libjxl-perceptual-local-port.ts').PerceptualImage,
+   quadratic: Float64Array,
+   box?: PerceptualWindow,
++  sampleStep = 1,
+ ): Float64Array {
+-  const window = perceptualWindow(source.width, source.height, box)
++  const step = perceptualSamplingStep(sampleStep),
++    window = perceptualWindow(source.width, source.height, box)
+   if (
+     source.width !== decoded.width ||
+     source.height !== decoded.height ||
+@@ -166,12 +175,17 @@ export function perceptualDirectionalMap(
+       item.norm,
+       item.band,
+       window,
++      step,
+     )
+-    for (let p = 0; p < costs.length; p++) costs[p] = (costs[p] ?? 0) + (cost[p] ?? 0)
++    for (let y = 0; y < window.height; y += step)
++      for (let x = 0; x < window.width; x += step) {
++        const p = y * window.width + x
++        costs[p] = (costs[p] ?? 0) + (cost[p] ?? 0)
++      }
+   }
+   const scale = 1 / (17.83 * 0.79079917404)
+-  for (let y = 0; y < window.height; y++)
+-    for (let x = 0; x < window.width; x++) {
++  for (let y = 0; y < window.height; y += step)
++    for (let x = 0; x < window.width; x += step) {
+       const p = y * window.width + x,
+         q = (y + window.y) * source.width + x + window.x
+       const mask =
+diff --git a/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts b/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts
+index c2085181..2f51c996 100644
+--- a/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts
++++ b/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts
+@@ -29,6 +29,7 @@ export function rebuildTileAllocation(
+   width: number,
+   height: number,
+   proposal: TileProposal,
++  reuseUnchanged = false,
+ ): VarDctCoefficientGeometry {
+   const memory = g.memory
+   if (!memory || !g.strategyMap || !g.developmentFirstBlocks || !g.quantizationMap)
+@@ -88,6 +89,7 @@ export function rebuildTileAllocation(
+       false,
+       true,
+       'all',
++      reuseUnchanged ? g : undefined,
+     )
+   } finally {
+     filtered?.release()
+@@ -259,6 +261,8 @@ export function refinePeakTilesGeometry(
+   scale: 1 | 2 | 4,
+   kind: 'complete' | 'quadratic' | 'fine-quadratic' = 'complete',
+   precision: 1.25 | 1.5 = 1.25,
++  sampleStep: 1 | 2 | 4 | 8 = 1,
++  reuseUnchanged = true,
+ ) {
+   if (width > 512 || height > 512 || width < 257 || height < 257)
+     throw new Error('Peak refinement is restricted to development crops')
+@@ -275,8 +279,11 @@ export function refinePeakTilesGeometry(
+   }
+   const af = preparePerceptualLinear(a, w, h),
+     bf = preparePerceptualLinear(b, w, h),
+-    quadratic = perceptualQuadraticMaps(af, bf).asymmetric,
+-    fine = kind === 'complete' ? perceptualDirectionalMap(af, bf, quadratic) : quadratic
++    quadratic = perceptualQuadraticMaps(af, bf, undefined, sampleStep).asymmetric,
++    fine =
++      kind === 'complete'
++        ? perceptualDirectionalMap(af, bf, quadratic, undefined, sampleStep)
++        : quadratic
+   let map = fine
+   if (kind !== 'fine-quadratic') {
+     const ah = preparePerceptualLinear(
+@@ -285,15 +292,16 @@ export function refinePeakTilesGeometry(
+         Math.ceil(h / 2),
+       ),
+       bh = preparePerceptualLinear(downsampleDisplay(b, w, h), Math.ceil(w / 2), Math.ceil(h / 2)),
+-      qh = perceptualQuadraticMaps(ah, bh).asymmetric,
+-      half = kind === 'complete' ? perceptualDirectionalMap(ah, bh, qh) : qh
++      halfStep = Math.max(1, sampleStep / 2),
++      qh = perceptualQuadraticMaps(ah, bh, undefined, halfStep).asymmetric,
++      half = kind === 'complete' ? perceptualDirectionalMap(ah, bh, qh, undefined, halfStep) : qh
+     map = mixPerceptualScales(fine, half, w, h)
+   }
+   const across = Math.ceil(width / 64),
+     side = 64 / scale,
+     peaks = new Float64Array(across * Math.ceil(height / 64))
+-  for (let y = 0; y < h; y++)
+-    for (let x = 0; x < w; x++) {
++  for (let y = 0; y < h; y += sampleStep)
++    for (let x = 0; x < w; x += sampleStep) {
+       const tile = Math.floor(y / side) * across + Math.floor(x / side)
+       peaks[tile] = Math.max(peaks[tile] ?? 0, map[y * w + x] ?? 0)
+     }
+@@ -306,9 +314,9 @@ export function refinePeakTilesGeometry(
+       precision,
+       split: false,
+     },
+-    geometry = rebuildTileAllocation(g, context, width, height, proposal)
++    geometry = rebuildTileAllocation(g, context, width, height, proposal, reuseUnchanged)
+   return {
+     geometry,
+-    audit: { scale, kind, proposal, ranked, elapsedMs: performance.now() - started },
++    audit: { scale, kind, sampleStep, proposal, ranked, elapsedMs: performance.now() - started },
+   }
+ }
+diff --git a/tests/jpegxl-perceptual-sampling.test.ts b/tests/jpegxl-perceptual-sampling.test.ts
+new file mode 100644
+index 00000000..5164cdfd
+--- /dev/null
++++ b/tests/jpegxl-perceptual-sampling.test.ts
+@@ -0,0 +1,61 @@
++import { expect, it } from 'vitest'
++import {
++  preparePerceptualImage,
++  perceptualQuadraticMaps,
++} from '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts'
++import {
++  perceptualDirectionalMap,
++  maltaDirectionalCost,
++} from '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts'
++
++it('preserves complete metric inputs and values at sampled output locations', () => {
++  const width = 37,
++    height = 31,
++    a = new Uint8Array(width * height * 4),
++    b = a.slice()
++  for (let p = 0; p < width * height; p++)
++    for (let c = 0; c < 4; c++) {
++      a[p * 4 + c] = c === 3 ? 255 : (p * 7 + c * 31) % 256
++      b[p * 4 + c] = c === 3 ? 255 : (p * 7 + c * 31 + (p % 13 < 7 ? 11 : 0)) % 256
++    }
++  const source = preparePerceptualImage(a, width, height),
++    decoded = preparePerceptualImage(b, width, height)
++  for (const box of [undefined, { x: 7, y: 9, width: 29, height: 21 }]) {
++    const w = box?.width ?? width,
++      h = box?.height ?? height,
++      fullQ = perceptualQuadraticMaps(source, decoded, box),
++      full = perceptualDirectionalMap(source, decoded, fullQ.asymmetric, box)
++    for (const step of [2, 4, 8]) {
++      const sparseQ = perceptualQuadraticMaps(source, decoded, box, step),
++        sparse = perceptualDirectionalMap(source, decoded, sparseQ.asymmetric, box, step)
++      for (let y = 0; y < h; y++)
++        for (let x = 0; x < w; x++) {
++          const p = y * w + x,
++            sampled = x % step === 0 && y % step === 0
++          expect(sparse[p]).toBe(sampled ? full[p] : 0)
++          expect(sparseQ.asymmetric[p]).toBe(sampled ? fullQ.asymmetric[p] : 0)
++          expect(sparseQ.masked[p]).toBe(sampled ? fullQ.masked[p] : 0)
++          expect(sparseQ.unmasked[p]).toBe(sampled ? fullQ.unmasked[p] : 0)
++        }
++    }
++  }
++  for (const step of [0, 3, -1, Number.NaN]) {
++    expect(() => perceptualQuadraticMaps(source, decoded, undefined, step)).toThrow('sampling')
++    expect(() =>
++      perceptualDirectionalMap(source, decoded, new Float64Array(width * height), undefined, step),
++    ).toThrow('sampling')
++    expect(() =>
++      maltaDirectionalCost(
++        source.hf[0],
++        decoded.hf[0],
++        width,
++        height,
++        1,
++        5,
++        'low',
++        undefined,
++        step,
++      ),
++    ).toThrow('sampling')
++  }
++})
+diff --git a/tests/jpegxl-coefficient-reuse.test.ts b/tests/jpegxl-coefficient-reuse.test.ts
+new file mode 100644
+index 00000000..ce9fda85
+--- /dev/null
++++ b/tests/jpegxl-coefficient-reuse.test.ts
+@@ -0,0 +1,80 @@
++import { expect, it } from 'vitest'
++import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
++import { libjxlGaborishContext } from '../benchmark/jpegxl/lossy-lab/libjxl-gaborish-port.ts'
++import { rewriteStrategyGeometry } from '../benchmark/jpegxl/lossy-lab/strategy-transplant.ts'
++import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
++
++it('preserves the stream when reusing unaffected transforms across groups and odd edges', async () => {
++  const width = 263,
++    height = 73,
++    distance = 2,
++    pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++      i % 4 === 3 ? 255 : (i * 7 + Math.floor(i / width) * 11) % 256,
++    ),
++    streams: Uint8Array[] = []
++  for (const reuse of [false, true]) {
++    const options = libjxlPortOverrides('standalone-forward-all', distance, width, height),
++      rewrite = options.rewriteGeometry
++    if (!rewrite) throw new Error('Missing selector')
++    const encoded = await encodeTransplant(pixels, width, height, distance, {
++      ...options,
++      rewriteGeometry(base, context) {
++        const g = rewrite(base, context),
++          memory = g.memory
++        if (!memory || !g.quantizationMap || !g.strategyMap || !g.developmentFirstBlocks)
++          throw new Error('Missing geometry')
++        const quantizationMap = memory.allocate(Int32Array, g.quantizationMap.length),
++          dcComponents = g.dcComponents.map((plane) => {
++            const coefficients = memory.allocate(Int32Array, plane.coefficients.length)
++            coefficients.set(plane.coefficients)
++            return { ...plane, coefficients }
++          }),
++          decisions = {
++            blocksWide: g.blocksWide,
++            blocksHigh: g.blocksHigh,
++            strategies: Array.from(g.strategyMap),
++            strategyFirstBlocks: Array.from(g.developmentFirstBlocks),
++          },
++          filtered = libjxlGaborishContext(g, context, width, height, true)
++        quantizationMap.set(g.quantizationMap)
++        for (let y = 0; y < g.blocksHigh; y++)
++          for (let x = 0; x < g.blocksWide; x++)
++            if (x < 8 || x >= 32) {
++              const p = y * g.blocksWide + x
++              quantizationMap[p] = Math.min(256, Math.round((quantizationMap[p] ?? 1) * 1.25))
++            }
++        const changed = { ...g, dcComponents, quantizationMap }
++        try {
++          if (reuse)
++            expect(() =>
++              rewriteStrategyGeometry(
++                { ...changed, globalScale: (g.globalScale ?? 1) + 1 },
++                filtered,
++                decisions,
++                true,
++                false,
++                true,
++                'all',
++                g,
++              ),
++            ).toThrow('identical coding')
++          return rewriteStrategyGeometry(
++            changed,
++            filtered,
++            decisions,
++            true,
++            false,
++            true,
++            'all',
++            reuse ? g : undefined,
++          )
++        } finally {
++          filtered.release()
++          memory.release(quantizationMap)
++        }
++      },
++    })
++    streams.push(encoded.bytes)
++  }
++  expect(streams[1]).toEqual(streams[0])
++}, 30000)
