@@ -8,6 +8,8 @@
  * quadratic/asymmetric costs. Omits Malta directional costs and coarse-scale
  * mixing. This is a component ablation, not the native metric or an encoder rule.
  * No SIMD, threading, allocation infrastructure or peer decisions are ported.
+ * Optional output windows skip unused quadratic-map pixels without changing math.
+ * Gaussian tap indices and normalization are precomputed with the same tap order.
  */
 import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
 
@@ -45,31 +47,60 @@ export function perceptualBlur(
     ),
     temp = new Float64Array(input.length),
     out = new Float64Array(input.length)
-  const mirror = (v: number, n: number) => {
-    let p = ((v % (2 * n)) + 2 * n) % (2 * n)
-    if (p >= n) p = 2 * n - 1 - p
-    return p
-  }
-  for (let axis = 0; axis < 2; axis++) {
-    const src = axis === 0 ? input : temp,
-      dst = axis === 0 ? temp : out,
-      extent = axis === 0 ? width : height
-    for (let y = 0; y < height; y++)
-      for (let x = 0; x < width; x++) {
-        let sum = 0,
-          weights = 0
-        for (let k = -radius; k <= radius; k++) {
-          let p = (axis === 0 ? x : y) + k
-          if (radius === 2) p = mirror(p, extent)
-          else if (p < 0 || p >= extent) continue
-          const weight = kernel[k + radius] ?? 0
-          sum += weight * (src[axis === 0 ? y * width + p : p * width + x] ?? 0)
-          weights += weight
-        }
-        dst[y * width + x] = sum / weights
-      }
+  const horizontal = blurPlan(width, 1, radius, kernel),
+    vertical = blurPlan(height, width, radius, kernel),
+    taps = kernel.length
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      let sum = 0
+      const begin = horizontal.first[x] ?? 0,
+        end = horizontal.end[x] ?? 0,
+        row = y * width,
+        offset = x * taps
+      for (let k = begin; k < end; k++)
+        sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
+      temp[row + x] = sum / (horizontal.weights[x] ?? 1)
+    }
+  for (let y = 0; y < height; y++) {
+    const begin = vertical.first[y] ?? 0,
+      end = vertical.end[y] ?? 0,
+      offset = y * taps,
+      weights = vertical.weights[y] ?? 1
+    for (let x = 0; x < width; x++) {
+      let sum = 0
+      for (let k = begin; k < end; k++)
+        sum += (kernel[k] ?? 0) * (temp[(vertical.indices[offset + k] ?? 0) + x] ?? 0)
+      out[y * width + x] = sum / weights
+    }
   }
   return out
+}
+
+/** Same tap order and edge normalization, prepared once per axis. */
+function blurPlan(extent: number, step: number, radius: number, kernel: Float64Array) {
+  const taps = kernel.length,
+    indices = new Int32Array(extent * taps),
+    first = new Int32Array(extent),
+    end = new Int32Array(extent),
+    weights = new Float64Array(extent)
+  for (let p = 0; p < extent; p++) {
+    const begin = radius === 2 ? 0 : Math.max(0, radius - p),
+      limit = radius === 2 ? taps : Math.min(taps, extent + radius - p)
+    first[p] = begin
+    end[p] = limit
+    let sum = 0
+    for (let k = begin; k < limit; k++) {
+      let q = p + k - radius
+      if (radius === 2) {
+        q = ((q % (2 * extent)) + 2 * extent) % (2 * extent)
+        if (q >= extent) q = 2 * extent - 1 - q
+      }
+      indices[p * taps + k] = q * step
+      sum += kernel[k] ?? 0
+    }
+    weights[p] = sum
+  }
+  return { indices, first, end, weights }
 }
 
 function opsin(rgb: DisplayPlanes, width: number, height: number): PerceptualPlanes {
@@ -239,43 +270,73 @@ export function preparePerceptualLinear(
   return { width, height, lf, mf, hf, uhf, blurredActivity, mask }
 }
 
-export function perceptualQuadraticMaps(source: PerceptualImage, decoded: PerceptualImage) {
+export interface PerceptualWindow {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+export function perceptualWindow(width: number, height: number, box?: PerceptualWindow) {
+  const window = box ?? { x: 0, y: 0, width, height }
+  if (
+    [window.x, window.y, window.width, window.height].some((v) => !Number.isSafeInteger(v)) ||
+    window.x < 0 ||
+    window.y < 0 ||
+    window.width < 1 ||
+    window.height < 1 ||
+    window.x + window.width > width ||
+    window.y + window.height > height
+  )
+    throw new Error('Invalid perceptual output window')
+  return window
+}
+
+export function perceptualQuadraticMaps(
+  source: PerceptualImage,
+  decoded: PerceptualImage,
+  box?: PerceptualWindow,
+) {
   if (source.width !== decoded.width || source.height !== decoded.height)
     throw new Error('Perceptual dimensions differ')
-  const unmasked = new Float64Array(source.mask.length),
+  const window = perceptualWindow(source.width, source.height, box),
+    unmasked = new Float64Array(window.width * window.height),
     masked = new Float64Array(unmasked.length),
     asymmetric = new Float64Array(unmasked.length),
     lowWeights = [29.2353797994, 0.844626970982, 0.703646627719],
     middleWeights = [2150, 10.6195433239, 16.2176043152],
     highWeights = [400, 1.50815703118],
     scale = 1 / (17.83 * 0.79079917404)
-  for (let p = 0; p < unmasked.length; p++) {
-    let dc = 0,
-      ac = 0,
-      extra = 0
-    for (let c = 0; c < 3; c++) {
-      dc += (lowWeights[c] ?? 0) * ((source.lf[c]?.[p] ?? 0) - (decoded.lf[c]?.[p] ?? 0)) ** 2
-      ac += (middleWeights[c] ?? 0) * ((source.mf[c]?.[p] ?? 0) - (decoded.mf[c]?.[p] ?? 0)) ** 2
-      if (c < 2) {
-        const a = source.hf[c]?.[p] ?? 0,
-          b = decoded.hf[c]?.[p] ?? 0,
-          min = 0.4 * Math.abs(a),
-          max = Math.abs(a),
-          signed = a < 0 ? -b : b,
-          penalty = signed < min ? min - signed : signed > max ? signed - max : 0,
-          weight = 0.8 * (highWeights[c] ?? 0)
-        ac += weight * (a - b) ** 2
-        extra += weight * penalty ** 2
+  for (let y = 0; y < window.height; y++)
+    for (let x = 0; x < window.width; x++) {
+      const p = (y + window.y) * source.width + x + window.x,
+        q = y * window.width + x
+      let dc = 0,
+        ac = 0,
+        extra = 0
+      for (let c = 0; c < 3; c++) {
+        dc += (lowWeights[c] ?? 0) * ((source.lf[c]?.[p] ?? 0) - (decoded.lf[c]?.[p] ?? 0)) ** 2
+        ac += (middleWeights[c] ?? 0) * ((source.mf[c]?.[p] ?? 0) - (decoded.mf[c]?.[p] ?? 0)) ** 2
+        if (c < 2) {
+          const a = source.hf[c]?.[p] ?? 0,
+            b = decoded.hf[c]?.[p] ?? 0,
+            min = 0.4 * Math.abs(a),
+            max = Math.abs(a),
+            signed = a < 0 ? -b : b,
+            penalty = signed < min ? min - signed : signed > max ? signed - max : 0,
+            weight = 0.8 * (highWeights[c] ?? 0)
+          ac += weight * (a - b) ** 2
+          extra += weight * penalty ** 2
+        }
       }
+      ac += 10 * ((source.blurredActivity[p] ?? 0) - (decoded.blurredActivity[p] ?? 0)) ** 2
+      const value = source.mask[p] ?? 0,
+        acMask = (scale * (1 + 2.5485944793 / (0.451936922203 * value + 0.829591754942))) ** 2,
+        dcMask = (scale * (1 + 0.505054525019 / (3.87449418804 * value + 0.20025578522))) ** 2
+      unmasked[q] = Math.sqrt(dc + ac)
+      masked[q] = Math.sqrt(dcMask * dc + acMask * ac)
+      asymmetric[q] = Math.sqrt(dcMask * dc + acMask * (ac + extra))
     }
-    ac += 10 * ((source.blurredActivity[p] ?? 0) - (decoded.blurredActivity[p] ?? 0)) ** 2
-    const value = source.mask[p] ?? 0,
-      acMask = (scale * (1 + 2.5485944793 / (0.451936922203 * value + 0.829591754942))) ** 2,
-      dcMask = (scale * (1 + 0.505054525019 / (3.87449418804 * value + 0.20025578522))) ** 2
-    unmasked[p] = Math.sqrt(dc + ac)
-    masked[p] = Math.sqrt(dcMask * dc + acMask * ac)
-    asymmetric[p] = Math.sqrt(dcMask * dc + acMask * (ac + extra))
-  }
   return { unmasked, masked, asymmetric }
 }
 

@@ -485,3 +485,15 @@ The original texture is Christoph Peters's CC0 blue noise, as credited by
 libjxl and the author's [download page](https://momentsingraphics.de/BlueNoise.html#Downloads).
 The existing packaged/docs THIRD_PARTY_NOTICES includes the full libjxl BSD-3
 license; the texture attribution is also recorded there. No runtime dependency.
+
+## Exact perceptual diagnostic optimization, 2026-10-28
+
+The same attributed perceptual modules now accept bounded output windows.
+`libjxl-perceptual-local-port.ts` precomputes Gaussian indices and normalization;
+`libjxl-perceptual-malta-port.ts` restricts padded support and unrolls the fixed
+stencils in their original accumulation order. `libjxl-display-loss.ts` caches
+its existing 8-bit Float32 transfer values. No new source constants or native
+infrastructure are taken. `local-perceptual-region.ts` derives separate fine
+and half-resolution support from the existing kernels. These are first-party
+optimizations of the already recorded v0.12.0 ports, with identical reference
+scores. Attribution headers and the packaged/docs license remain in place.

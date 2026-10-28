@@ -55,6 +55,10 @@ it('matches a full-image map at odd interior coordinates and both image edges', 
     full = mixPerceptualScales(fine, half, width, height)
   for (const box of [
     { x: 173, y: 157, width: 9, height: 7 },
+    { x: 172, y: 156, width: 8, height: 6 },
+    { x: 171, y: 158, width: 1, height: 1 },
+    { x: 1, y: 3, width: 31, height: 30 },
+    { x: 353, y: 290, width: 31, height: 30 },
     { x: 0, y: 0, width: 9, height: 7 },
     { x: 376, y: 314, width: 9, height: 7 },
   ]) {

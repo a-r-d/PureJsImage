@@ -49,6 +49,24 @@ it('gives zero identity cost and finite costs for lost structure and brightness 
   }
 })
 
+it('rejects invalid output windows before computing local cost maps', async () => {
+  const { maltaDirectionalCost } = await import(
+    '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts'
+  )
+  const source = preparePerceptualImage(new Uint8Array(16 * 16 * 4).fill(255), 16, 16)
+  for (const box of [
+    { x: -1, y: 0, width: 1, height: 1 },
+    { x: 0, y: 0, width: 0, height: 1 },
+    { x: 15, y: 0, width: 2, height: 1 },
+    { x: 0, y: Number.NaN, width: 1, height: 1 },
+  ]) {
+    expect(() => perceptualQuadraticMaps(source, source, box)).toThrow('window')
+    expect(() =>
+      maltaDirectionalCost(source.lf[0], source.lf[0], 16, 16, 1, 5, 'low', box),
+    ).toThrow('window')
+  }
+})
+
 it('keeps directional identity zero and preserves sign reversal and border locality', async () => {
   const { maltaDirectionalCost, mixPerceptualScales } = await import(
     '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts'

@@ -10,9 +10,11 @@
  * clamped/zero borders and float/double moments. Direct convolution and Math.cbrt
  * replace native recursive/SIMD math; numerical equivalence is not claimed.
  * This is not the native metric and is never imported by the public encoder.
+ * The 8-bit linear RGB conversion caches the same Float32 results for all codes.
  */
 import { ssimCosineKernel } from './libjxl-ssim-blur.ts'
 import { filterMetricWeights } from './libjxl-ssim-weights.ts'
+
 const cosineKernel = ssimCosineKernel()
 export type DisplayPlanes = readonly [Float32Array, Float32Array, Float32Array]
 const bias = 0.0037930732552754493
@@ -31,6 +33,10 @@ export interface DisplayBlur {
   moment64?: boolean
 }
 const defaultBlur: DisplayBlur = { radius: 3, border: 'clamp' }
+const linearRgb8 = Float32Array.from({ length: 256 }, (_, code) => {
+  const value = code / 255
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+})
 
 export function displayLinearPlanes(
   bytes: Uint8Array,
@@ -53,9 +59,8 @@ export function displayLinearPlanes(
   for (let p = 0; p < width * height; p++) {
     if (bytes[p * 4 + 3] !== 255) throw new Error('Display diagnostic requires opaque RGB')
     for (let c = 0; c < 3; c++) {
-      const value = (bytes[p * 4 + c] ?? 0) / 255
       const plane = planes[c]
-      if (plane) plane[p] = value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+      if (plane) plane[p] = linearRgb8[bytes[p * 4 + c] ?? 0] ?? 0
     }
   }
   return planes
