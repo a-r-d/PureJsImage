@@ -417,3 +417,17 @@ partition budget. Winning cost arithmetic, decisions and streams are unchanged
 on the measured corpus. The module keeps its libjxl source header; the full
 BSD-3 license remains in the npm package and docs-site notices. No public codec
 source, runtime dependencies or peer-decision inputs are added.
+
+## Display-stage coefficient audit, 2026-10-28
+
+`lossy-lab/display-error-trace.ts`, `trace-rounding-display.ts` and
+`summarize-display-trace.ts` are first-party offline diagnostics. They call the
+existing decoder for raw XYB, Gaborish, EPF and display conversion, and reuse the
+already attributed inverse-filter context for the source reference. No new
+libjxl implementation, constants or tables are imported.
+
+The filtered rate-cost and nonzero-preserving rounding experiments reuse our
+existing normative centroid constants, default filter weights and logarithmic
+rate proxy. Their analytical DCT response and trial policies are first-party.
+Existing port-module attribution headers are preserved in the experiment
+archive. No public codec source, runtime dependency or peer-map input is added.

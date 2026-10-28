@@ -7,12 +7,12 @@ Last frozen holdout: vips -5.996/-3.605/-2.909%, mean -4.170%; jSquash -6.492/+1
 Retained qualification: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
 Managed peaks: crops 8,760,382 bytes; 13 MP 59,139,199; 21 MP 91,010,461, below 137,514,476.
 Bundles 614,941/687,773 bytes; dependencies zero. Public codec source is unchanged in this pass.
-Selected-transform audit: 576 exact streams; seven rounding screens regress the mean quality balance and are archived.
-Clean first-party pruning saves 10.108% and 10.614% on two development probes versus Git c10c99be, with exact bytes and managed peaks.
-These 21-pair results are speed-only research evidence, not a new full watch/scale qualification.
-[Latest report](lossy-lab/SELECTED-REPORT.md). Hypothesis 1: compare error after display filtering with emitted coefficient error.
-Hypothesis 2: measure rate cost and cross-channel error together before proposing another rounding policy.
-Hypothesis 3: profile the surviving candidates after pruning; full watch/scale and peer-hook cleanup remain promotion work.
+Display audit: 256 native-checked stage traces; eight rounding modes, nine screens and two full labs yield no retained quality change.
+Both full candidates fail the 3% individual-image max guard. All encoder edits are archived; active encoder equals d18b41b4.
+Prior selector pruning saves 10.108% and 10.614% on two probes with exact bytes; no new speed claim.
+[Latest report](lossy-lab/DISPLAY-TRACE-REPORT.md). Hypothesis 1: explain local contrast and edge errors after filtering on development tails.
+Hypothesis 2: measure actual entropy costs and nonzero-context changes before changing rounding again.
+Hypothesis 3: test joint local rate-distortion decisions only if those diagnostics justify their selector cost.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2335,3 +2335,37 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | LL-973, 2026-10-28 | Cross-check absolute process peak RSS in three fresh processes per revision, im26-3012 d2, cold then second encode. | Exact bytes and 5,682,267 B managed peak throughout. | Linux VmHWM median cold 180,716 to 179,920 KiB (-0.440%); through second encode 208,768 to 210,688 KiB (+0.920%). | No material RSS regression. process.resourceUsage maxRSS inherited a pre-encode high-water value on one child; use process-local /proc/self/status VmHWM, retain both raw measurements. Raw: selected-20261028/rss-confirm.jsonl. | kept |
 
 Validation for LL-956 through LL-973: `VITEST_MAX_WORKERS=4 npm run check` passes (exit 0; 4,180 tests, three existing skips; 330 passed files, one skipped). Test phase 489.37s; full command 530.18s. Chromium, Firefox and WebKit decision fixtures pass. Archive application and `git diff --check` pass. Retained source changes only the development selector and its regression tests; no public src changes, holdout rerun, promotion or merge. Evidence: `selected-20261028/check-status.json`, `check.log`, `browser.log`.
+
+| LL-974, 2026-10-28 | Trace the prior rounding variants through raw XYB, Gaborish, EPF, linear RGB and display rounding on all 16 screen photos at d2/d4. | 128 stream traces; all final pixels within one code value of native decode. At d2 guarded rounding reduces raw Y error 5.637%, EPF Y error 5.438% and rounded RGB error 3.747%; bytes rise 2.951%, mean native SSIM rises 0.276 points. At d4 the same trend survives filters but costs 1.876% bytes. | Offline stage decode only; no speed claim. | Filter transport does not erase the guarded improvement. Precondition bias is tiny (0.517 Y SSE vs 351/765 after Gaborish). Test rate-saving filtered coefficient costs and promotions that preserve nonzero count. No holdout. Raw: display-trace-20261028/trace-summary.json. | diagnostic |
+
+| LL-975, 2026-10-28 | standalone-forward-all: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control 0.000/0.000/0.000%; vips -10.654/-5.866/-5.164%; jSquash -11.546/-0.300/2.115%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-forward-all-screen. | control |
+
+| LL-976, 2026-10-28 | standalone-rd25: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control -0.053/-0.020/-0.209%; vips -10.701/-5.888/-5.412%; jSquash -11.591/-0.324/1.849%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-rd25-screen. | rejected; archived |
+
+| LL-977, 2026-10-28 | standalone-rd50: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control -0.128/0.170/2.248%; vips -10.771/-5.772/-3.227%; jSquash -11.635/-0.204/4.109%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-rd50-screen. | rejected; archived |
+
+| LL-978, 2026-10-28 | standalone-rd100: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control 0.916/2.875/7.231%; vips -9.766/-3.637/0.965%; jSquash -10.556/2.318/8.968%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-rd100-screen. | rejected; archived |
+
+| LL-979, 2026-10-28 | standalone-rd50-all: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control -0.128/0.170/2.247%; vips -10.771/-5.772/-3.228%; jSquash -11.634/-0.205/4.108%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-rd50-all-screen. | rejected; archived |
+
+| LL-980, 2026-10-28 | standalone-promote-existing: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control 0.038/0.062/0.012%; vips -10.617/-5.808/-5.198%; jSquash -11.507/-0.237/2.102%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-promote-existing-screen. | rejected; archived |
+
+After the three stronger rate-cost misses (LL-977 through LL-979), switch from deleting tokens to promotions that preserve the nonzero count. The measured tail regression rules out increasing the scalar penalty. Re-trace the retained quarter-strength and failed stronger variants through display stages before any further penalty tuning.
+
+| LL-981, 2026-10-28 | standalone-promote-two: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control 0.019/0.013/0.004%; vips -10.636/-5.855/-5.156%; jSquash -11.529/-0.287/2.130%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-promote-two-screen. | rejected; archived |
+
+| LL-982, 2026-10-28 | standalone-promote-class: filtered-error rate saving or nonzero-preserving promotions. | All 80 screen outputs decode and score. Control 0.015/0.012/0.003%; vips -10.640/-5.855/-5.157%; jSquash -11.532/-0.287/2.128%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: display-trace-20261028/standalone-promote-class-screen. | rejected; archived |
+
+| LL-983, 2026-10-28 | Isolated 15-pair timing screen for the quarter-strength filtered rate cost, im26-3012 d2. | Stable per-mode hashes; control/candidate 32,830/32,768 bytes, managed peak both 5,682,267 B. Screen mean across metrics improves 0.094%. | Medians 883.916/871.288ms; paired -0.030%, MAD 4.755 points, 8/15 wins, CV 7.892/6.652%. | Neutral within noise; no speed benefit claimed. Full development quality next; actual-Git timing confirmation required before retention. Raw: display-trace-20261028/rd25-speed.json. | neutral timing |
+
+| LL-984, 2026-10-28 | Full development ladder for quarter-strength filtered rate cost. | All 576 native outputs valid. Control -0.019/-0.019/+0.112%; vips -8.022/-5.051/-5.472%; jSquash -8.492/+0.204/+2.668%. Worst per-image max regression +3.309%, above 3% guard. Managed peak 9,238,489 B. | Concurrent timings excluded. | Reject full candidate. Fine-distance filter-state correction is a separate experiment: original response assumed Gaborish where d<=0.5 disables it. Raw: display-trace-20261028/rd25-lab. | rejected |
+
+| LL-985, 2026-10-28 | Re-trace rate-saving modes after Gaborish, EPF and display rounding, fixed 16 photos at d2/d4. | 128 traces; all final pixels within one native code value. Quarter/half/full penalty improve raw or EPF Y SSE on 0/32 points each; mean byte changes -0.103/-1.800/-7.591%, mean SSIM changes -0.018/-0.310/-1.787 points. | Offline diagnostic. | Removed coefficients increase display error; stronger penalties pay too much native quality for saved rate. Global filtered SSE is insufficient to protect perceptual tails. Raw: display-trace-20261028/demotion-summary.json. | diagnostic |
+
+| LL-986, 2026-10-28 | Correct quarter-strength response to identity when the actual frame disables Gaborish. | All 80 screen outputs valid. Control -0.053/-0.023/-0.243%; worst individual max +0.175%. | Concurrent timings excluded. | Small improvement over uncorrected screen; advance to full ladder to test the max tail. Raw: display-trace-20261028/standalone-rd25-filtered-screen. | promising |
+
+| LL-987, 2026-10-28 | Full ladder with identity response when Gaborish is disabled. | All 576 native outputs valid. Control -0.022/-0.021/+0.089%; vips -8.024/-5.051/-5.485%; jSquash -8.494/0.206/2.671%. Worst max regression +3.308%, above 3% guard; managed peak 9232573 B. | Concurrent timings excluded; no further timing on rejected quality. | Reject and archive all eight rounding modes; encoder files restored exactly to d18b41b4. Keep offline trace tools and tests. Raw: display-trace-20261028/rd25-filtered-lab. | rejected |
+
+| LL-988, 2026-10-28 | Locate the corrected candidate's worst full-development max regression by distance, im26-2004. | At d1.85, saves 344 bytes but native max rises 7.565%, 3-norm rises 0.579%, SSIM falls 0.206 points. Fine d0.45 is exact; d3+ max nearly unchanged. | Cached native curves; no encoding or timing. | The damage persists at an intermediate distance where Gaborish is active; next diagnostic should inspect local contrast/edges there. These are fixed-distance metric changes, not BD-rate. Raw: display-trace-20261028/tail-distance.json. | diagnostic |
+
+Validation for LL-974 through LL-988: `VITEST_MAX_WORKERS=4 npm run check` passes (exit 0; 4,184 tests, three existing skips; 331 passed files, one skipped). Test phase 517.58s; full command 560.42s. Chromium, Firefox and WebKit fixtures pass. Final four-photo replay reproduces eight trace files (32 streams) exactly; summarizer output is identical. Archive application and diff whitespace checks pass. Initial summarizer lint error was fixed before the successful rerun. Only offline tools, tests, archive and reports remain; encoder equals d18b41b4. No holdout rerun, promotion or merge. Evidence: display-trace-20261028/check-status.json, check.log, browser.log, trace-smoke.
