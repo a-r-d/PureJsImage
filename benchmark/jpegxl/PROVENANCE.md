@@ -497,3 +497,16 @@ infrastructure are taken. `local-perceptual-region.ts` derives separate fine
 and half-resolution support from the existing kernels. These are first-party
 optimizations of the already recorded v0.12.0 ports, with identical reference
 scores. Attribution headers and the packaged/docs license remain in place.
+
+## Reconstruction-driven quantization trial, 2026-10-28
+
+`lossy-lab/libjxl-quant-refine-port.ts` ports `TileDistMap` and the first
+`FindBestQuantization` update from libjxl `lib/jxl/enc_adaptive_quantization.cc`,
+v0.12.0, commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It retains the 1.2
+tile-norm factor, 16th norm, 0.2 low-error exponent, high-error precision update
+and 250:1/asymmetry bounds. Changes: fixed raw scale/DC, one iteration, margin
+zero, normalized scalar accumulation and our dithered reconstruction map.
+This is a development trial of logic native libjxl uses above effort 7.
+The module is BSD-3-Clause; the full license is in `THIRD_PARTY_NOTICES`.
+The trial failed the development guard and is preserved, with its fixtures,
+in `lossy-lab/JOINT-ALLOCATION-EXPERIMENT.patch`. It is not in the active module graph.

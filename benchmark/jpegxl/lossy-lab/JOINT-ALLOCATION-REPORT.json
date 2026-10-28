@@ -1,0 +1,2126 @@
+{
+  "date": "2026-10-28",
+  "base": "f3169514210b9376404f0a0c44304cde84b3b3a3",
+  "branch": "jxl-libjxl-ports",
+  "scope": "Development-only crop screens. No full lab, holdout or promotion.",
+  "experiments": [
+    {
+      "id": "LL-1025",
+      "name": "joint-allocation",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.02810388560776108,
+          "median": 0.11753696147635781,
+          "p90": 0.42194324088614443,
+          "worst": 0.582784724134617
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.6496020554992951,
+          "median": -0.4156752214999588,
+          "p90": 0.09404120500538943,
+          "worst": 0.12724264493831436
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -10.083571227249228,
+          "median": -9.688117747147157,
+          "p90": -3.6583160255419,
+          "worst": -0.4652888894172793
+        }
+      ],
+      "mean": -3.587092389452095,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.550651708081254,
+          "median": -8.29549988735198,
+          "p90": -1.1453177546988718,
+          "worst": 6.151661571477733
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.97770671562177,
+          "median": -6.217997186213306,
+          "p90": -2.5039766992520933,
+          "worst": 1.0347391088233504
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.9860094277818838,
+          "median": 0.5551779387505552,
+          "p90": 3.3778757316714376,
+          "worst": 5.719582957271364
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.703995899307799,
+          "median": -6.656865951538152,
+          "p90": -1.6752695586107418,
+          "worst": -0.4389974385583798
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -14.680931756134163,
+          "median": -13.991952380389765,
+          "p90": -8.367489444774536,
+          "worst": -5.481195482445587
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.404269370389881,
+          "median": -5.064172525183765,
+          "p90": -1.7508788430492581,
+          "worst": -0.8355592430459423
+        }
+      ],
+      "elapsedSeconds": 214.229,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "chosen": {
+        "precision4": 52,
+        "precision1": 10,
+        "split1": 9,
+        "control": 7,
+        "joint1": 2
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/screen"
+    },
+    {
+      "id": "LL-1026",
+      "name": "quant-refine",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.05627257153155017,
+          "median": -0.22036891534419076,
+          "p90": 1.1876492986568012,
+          "worst": 1.5399740037967247
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.22809981592153375,
+          "median": 0.22304179197812238,
+          "p90": 1.4099445153488104,
+          "worst": 1.6080621120892078
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.776281770647791,
+          "median": -3.058990557776796,
+          "p90": 3.861736431559805,
+          "worst": 7.1462935535697
+        }
+      ],
+      "mean": -0.8681515087526024,
+      "guardPass": false,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.508935886657195,
+          "median": -7.692429803563517,
+          "p90": -0.528865901147126,
+          "worst": 5.4114765493874994
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.6287196910740539,
+          "median": -0.2563896705678885,
+          "p90": 5.187040130176186,
+          "worst": 9.533793601825149
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.37042981530643054,
+          "median": 1.9480371344216676,
+          "p90": 5.1198709408904035,
+          "worst": 9.763362841153558
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.73840527623248,
+          "median": -6.776413061431151,
+          "p90": -1.6314665166269957,
+          "worst": -1.3304278987276086
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.864140296396281,
+          "median": -8.71444687541005,
+          "p90": -1.891751690481286,
+          "worst": 1.7530836096714506
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.913270610390507,
+          "median": -4.3816965407705855,
+          "p90": -1.5700614189407733,
+          "worst": -0.5191074100636397
+        }
+      ],
+      "elapsedSeconds": 75.673,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 9
+      },
+      "chosen": {
+        "refine": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/refine-screen"
+    },
+    {
+      "id": "LL-1027",
+      "name": "peak-full",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.4426755446295857,
+          "median": 0.31804404896764793,
+          "p90": 1.2994164878862624,
+          "worst": 2.005807824355452
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.38063040572713364,
+          "median": -0.2506549393273209,
+          "p90": 0.3650679434934151,
+          "worst": 1.289315940839039
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -9.844418034285967,
+          "median": -9.425039787176317,
+          "p90": -3.5259356655791105,
+          "worst": 0.05160104386251108
+        }
+      ],
+      "mean": -3.2607909651278386,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.29467435631517,
+          "median": -8.178544634063039,
+          "p90": -1.0677767217394538,
+          "worst": 6.126197250042672
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.717415232756622,
+          "median": -6.062459485017101,
+          "p90": -1.4471111798157774,
+          "worst": 3.285481687483572
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.9301738435282766,
+          "median": 0.5551779387505552,
+          "p90": 3.408005703966542,
+          "worst": 5.879973736124413
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.287610699998602,
+          "median": -5.821832279246232,
+          "p90": -1.6872762847486216,
+          "worst": -0.162560723630073
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -14.458260569664832,
+          "median": -14.005071450376597,
+          "p90": -8.39427803465768,
+          "worst": -4.807867521618952
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.136187448269785,
+          "median": -4.275064136548764,
+          "p90": -1.699628606393345,
+          "worst": -0.8355592430459423
+        }
+      ],
+      "elapsedSeconds": 183.397,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-full-screen"
+    },
+    {
+      "id": "LL-1028",
+      "name": "peak-half",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.32488437719078506,
+          "median": 0.3546747400938776,
+          "p90": 1.108441953058846,
+          "worst": 1.77181015788539
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.07240867318681277,
+          "median": -0.07586113376545162,
+          "p90": 0.5863519404120139,
+          "worst": 1.1579474231103002
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.106706083073083,
+          "median": 0.5253067567548988,
+          "p90": 1.368247705234002,
+          "worst": 2.4168113191428224
+        }
+      ],
+      "mean": -0.618076793023037,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.371408109819283,
+          "median": -8.154354451338527,
+          "p90": -1.563193378261052,
+          "worst": 7.278035878236031
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.2362034519803262,
+          "median": -0.30469024989678445,
+          "p90": 6.154918708108358,
+          "worst": 7.205072541348158
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.6089343457217685,
+          "median": 0.6502364496537968,
+          "p90": 4.473488044072191,
+          "worst": 6.140550083905047
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.35689958048707,
+          "median": -5.9965587933506725,
+          "p90": -1.3104229075706502,
+          "worst": 0.11647153475549067
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.262421555819563,
+          "median": -5.12515893712723,
+          "p90": -2.605981787502941,
+          "worst": 1.158130225086697
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.862439899075778,
+          "median": -4.247066195986278,
+          "p90": -1.0142782857614074,
+          "worst": -0.1645608605395634
+        }
+      ],
+      "elapsedSeconds": 119.603,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-half-screen"
+    },
+    {
+      "id": "LL-1029",
+      "name": "peak-quarter",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.1711787111122147,
+          "median": 0.1430988180864124,
+          "p90": 0.8380636512966686,
+          "worst": 1.079129634947218
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.34280407217418146,
+          "median": 0.39320094692943003,
+          "p90": 0.8513664446853099,
+          "worst": 1.4479975302566819
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.037623518677939,
+          "median": 1.2063729415908244,
+          "p90": 2.1118600314416427,
+          "worst": 2.339124629817433
+        }
+      ],
+      "mean": 0.5172021006547783,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.42002036735629,
+          "median": -8.358774752955147,
+          "p90": -1.3136904812965726,
+          "worst": 7.1788133456921654
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 3.141571129648137,
+          "median": 2.8409663857530845,
+          "p90": 6.890723676613102,
+          "worst": 17.425586058084594
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.009019334569303594,
+          "median": 0.7018751556082752,
+          "p90": 4.565366676623711,
+          "worst": 7.3119966068062965
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.516453891736402,
+          "median": -6.54266428552676,
+          "p90": -1.2483527497615197,
+          "worst": 0.4673844157657968
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -4.205422889384151,
+          "median": -3.4957114114431214,
+          "p90": 0.6288593375906373,
+          "worst": 1.086960736760666
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.50207842512626,
+          "median": -3.7756854260816155,
+          "p90": -0.7295136144015298,
+          "worst": -0.5711104127115892
+        }
+      ],
+      "elapsedSeconds": 104.099,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 13
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-quarter-screen"
+    },
+    {
+      "id": "LL-1030",
+      "name": "peak-quadratic",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.6125031339932885,
+          "median": 0.6637945639023657,
+          "p90": 1.2213363250258962,
+          "worst": 1.4146030593370678
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.03805091377848329,
+          "median": 0.13719565146874432,
+          "p90": 0.47097095124476174,
+          "worst": 1.231450776260074
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.4491397102555674,
+          "median": -0.06390204640783463,
+          "p90": 1.945394339174936,
+          "worst": 2.67843098034639
+        }
+      ],
+      "mean": -0.6248958300135874,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.12034523064637,
+          "median": -8.069523642002055,
+          "p90": -0.8118904852254824,
+          "worst": 7.639593295243258
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.5914227724214948,
+          "median": 0.6879072000309381,
+          "p90": 3.1164365696140095,
+          "worst": 5.427523091981372
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.5587640424602948,
+          "median": 1.045676668424464,
+          "p90": 4.073077026584246,
+          "worst": 6.089989189146829
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.106636891187465,
+          "median": -6.242491663808529,
+          "p90": -0.7146434500097685,
+          "worst": 0.4540038416990755
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.569716487610688,
+          "median": -6.005940668125952,
+          "p90": -2.25671935902657,
+          "worst": 1.3162839631649563
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.828813731603464,
+          "median": -3.800900949415597,
+          "p90": -1.1867511004214693,
+          "worst": -0.2367632847005383
+        }
+      ],
+      "elapsedSeconds": 149.353,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 9
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-quadratic-screen"
+    },
+    {
+      "id": "LL-1031",
+      "name": "peak-fine-quadratic",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 0.6636672040168036,
+          "median": 0.6462900635828164,
+          "p90": 1.404592070028495,
+          "worst": 1.9376371483914288
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.018161161520963965,
+          "median": 0.19853450909884102,
+          "p90": 0.4690390425494937,
+          "worst": 1.2103215786050159
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -2.560663968218977,
+          "median": 0.11867558603571332,
+          "p90": 1.8544115257717428,
+          "worst": 2.636724599724245
+        }
+      ],
+      "mean": -0.6383859752410458,
+      "guardPass": true,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.085696504375594,
+          "median": -8.085494280455265,
+          "p90": -0.8395186902213451,
+          "worst": 7.495244140683104
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.6208499792981135,
+          "median": 0.5896892873607114,
+          "p90": 2.875229449362368,
+          "worst": 5.358361387297989
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.5361677880094682,
+          "median": 0.9449662759038919,
+          "p90": 4.024341949195877,
+          "worst": 6.315411546535465
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.07640745780541,
+          "median": -6.277902273283484,
+          "p90": -0.8913204610734421,
+          "worst": 0.31891112221701307
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.62388333671833,
+          "median": -5.866727285305602,
+          "p90": -2.1099506457727397,
+          "worst": 1.2476753594551535
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.809683177498129,
+          "median": -3.738861073244192,
+          "p90": -1.249129858208291,
+          "worst": -0.3501258698955966
+        }
+      ],
+      "elapsedSeconds": 143.167,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-fine-quadratic-screen"
+    },
+    {
+      "id": "LL-1032",
+      "name": "peak-quadratic-strong",
+      "againstControl": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 1.8860440886696124,
+          "median": 1.6217788198507956,
+          "p90": 3.449256226994046,
+          "worst": 4.63090118600892
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 1.042738013518072,
+          "median": 1.1313759404960981,
+          "p90": 1.6326485764760208,
+          "worst": 1.9294907014471907
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.8270831592959451,
+          "median": 1.7289351457829918,
+          "p90": 4.702770640756139,
+          "worst": 8.150490563079751
+        }
+      ],
+      "mean": 0.7005663142972463,
+      "guardPass": false,
+      "againstPeers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.13747882516533,
+          "median": -7.564405528028033,
+          "p90": 0.1404827425277938,
+          "worst": 8.569543570739128
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.0295744419010504,
+          "median": 2.7092010756832163,
+          "p90": 6.375159022828958,
+          "worst": 6.638093240857011
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.3909461529442945,
+          "median": 2.0771834535277964,
+          "p90": 4.91150710443218,
+          "worst": 6.515810964631033
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -8.99984320944624,
+          "median": -5.453081214368433,
+          "p90": 0.3173474561222945,
+          "worst": 1.3226375706641098
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -6.0993949289546405,
+          "median": -4.842899403350354,
+          "p90": -0.6182609844501554,
+          "worst": 2.496064232531637
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -4.8014216258625755,
+          "median": -2.9881286132580094,
+          "p90": -0.2126866037596954,
+          "worst": 1.009543109672209
+        }
+      ],
+      "elapsedSeconds": 75.848,
+      "points": 80,
+      "failures": 0,
+      "omissions": {
+        "butteraugliMax: incomplete required-range overlap": 32,
+        "butteraugliNorm3: incomplete required-range overlap": 32,
+        "ssimulacra2: incomplete required-range overlap": 11
+      },
+      "chosen": {
+        "precision4": 80
+      },
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-quadratic-strong-screen"
+    }
+  ],
+  "timings": [
+    {
+      "id": "im26-3012",
+      "variant": "joint",
+      "summary": {
+        "controlMs": 1073.555014000005,
+        "trialMs": 7629.625297999992,
+        "ratio": 7.191405411801832,
+        "mad": 0.3149288022149257
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 986.3427529999972,
+            "trial": 7908.598246000001
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 7746.206208999996,
+            "control": 1077.1477569999988
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1023.7109770000025,
+            "trial": 7753.12311
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 7385.125801999995,
+            "control": 1085.3161170000021
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1073.555014000005,
+            "trial": 7629.625297999992
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 7410.538303000008,
+            "control": 1077.6650200000004
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1031.0634589999972,
+            "trial": 7551.716710000008
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 10835035,
+              "colorBits": 265719
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 457723904,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 6.804585029487755,
+      "maximumRatio": 8.018103465499912,
+      "measuredMeanGain": 3.587092389452095,
+      "requiredMeanGain": 61.91405411801832,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3012-joint.json"
+    },
+    {
+      "id": "im26-3012",
+      "variant": "full",
+      "summary": {
+        "controlMs": 1059.3224610000034,
+        "trialMs": 2443.3948880000025,
+        "ratio": 2.313355529822844,
+        "mad": 0.10571079983012499
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1102.139405,
+            "trial": 2437.482312
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2443.3948880000025,
+            "control": 963.3004870000004
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1059.3224610000034,
+            "trial": 2428.096555
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2527.8335210000005,
+            "control": 1002.5791430000027
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1104.7017760000017,
+            "trial": 2438.7890540000008
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2459.3069319999995,
+            "control": 997.9868659999993
+          },
+          "results": {
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1068.5987070000047,
+            "trial": 2472.0487280000016
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 344354816,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 2.207644729992719,
+      "maximumRatio": 2.536482562787287,
+      "measuredMeanGain": 3.2607909651278386,
+      "requiredMeanGain": 13.133555298228439,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3012-full.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "full",
+      "summary": {
+        "controlMs": 1123.3531250000015,
+        "trialMs": 2522.5235850000026,
+        "ratio": 2.239159957789967,
+        "mad": 0.08271518122918708
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "trial": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1200.278214,
+            "trial": 2588.3336850000014
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2566.4137249999985,
+            "control": 1088.0339310000018
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1118.948249000001,
+            "trial": 2505.5041139999994
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2462.850258000002,
+            "control": 1150.327538999998
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1138.6749019999988,
+            "trial": 2498.432882000001
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2558.462195,
+            "control": 1069.3799450000006
+          },
+          "results": {
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1123.3531250000015,
+            "trial": 2522.5235850000026
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 334221312,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 2.1409991280753005,
+      "maximumRatio": 2.392472579051404,
+      "measuredMeanGain": 3.2607909651278386,
+      "requiredMeanGain": 12.391599577899669,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3312-full.json"
+    },
+    {
+      "id": "im26-3012",
+      "variant": "half",
+      "summary": {
+        "controlMs": 1074.407610000002,
+        "trialMs": 1728.6188540000003,
+        "ratio": 1.6055547081252595,
+        "mad": 0.029224629485721243
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "c9d389bb84222ae14165851ff96c24e0cbc93c9f1186579488f7d0e809551089"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1036.2046389999996,
+            "trial": 1789.8664949999984
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 1607.4550780000009,
+            "control": 1001.1836220000005
+          },
+          "results": {
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1049.1643980000008,
+            "trial": 1679.5331560000013
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 1756.4193610000002,
+            "control": 1074.407610000002
+          },
+          "results": {
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1149.8591799999995,
+            "trial": 1677.7148579999994
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 1728.6188540000003,
+            "control": 1094.2909440000003
+          },
+          "results": {
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1088.0969900000018,
+            "trial": 1937.9523810000028
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33298,
+              "managedPeakBytes": 6966363,
+              "colorBits": 265231
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 293773312,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.4590611504271334,
+      "maximumRatio": 1.781047460668005,
+      "measuredMeanGain": 0.618076793023037,
+      "requiredMeanGain": 6.055547081252595,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3012-half.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "half",
+      "summary": {
+        "controlMs": 1110.8699529999976,
+        "trialMs": 1729.900227,
+        "ratio": 1.583684654028027,
+        "mad": 0.01884315599367614
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "trial": "f58be2d532c94bee293d8465e7ca0a542774dcd32401fead182fe846f22f0013"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1173.5500549999997,
+            "trial": 1729.900227
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 1803.5439109999988,
+            "control": 1102.226478999999
+          },
+          "results": {
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1083.9038419999997,
+            "trial": 1729.2360260000005
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 1678.397441000001,
+            "control": 1066.578387999998
+          },
+          "results": {
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1137.9487149999986,
+            "trial": 1632.0514519999997
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 1780.1999929999984,
+            "control": 1110.8699529999976
+          },
+          "results": {
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1120.8085830000018,
+            "trial": 1775.0073530000009
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8082,
+              "managedPeakBytes": 6958171,
+              "colorBits": 63501
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 283090944,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.434204749728112,
+      "maximumRatio": 1.6362734386822877,
+      "measuredMeanGain": 0.618076793023037,
+      "requiredMeanGain": 5.83684654028027,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3312-half.json"
+    },
+    {
+      "id": "im26-3012",
+      "variant": "fine-quadratic",
+      "summary": {
+        "controlMs": 1105.9326589999982,
+        "trialMs": 2126.012009000002,
+        "ratio": 1.9325270817082438,
+        "mad": 0.023731973882964663
+      },
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "trial": "b3a45787ab9b9cf21ea76b69ef4f7e8e76ebc81c8c0784790e4fcc75f5e4f7ff"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1162.5327230000003,
+            "trial": 2226.2712169999995
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2145.766936,
+            "control": 1019.359907
+          },
+          "results": {
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1110.9951459999993,
+            "trial": 2103.8799579999977
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2102.7747439999985,
+            "control": 1088.0958739999987
+          },
+          "results": {
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1074.6817310000006,
+            "trial": 2126.012009000002
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2114.7033889999984,
+            "control": 1107.8734330000007
+          },
+          "results": {
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1105.9326589999982,
+            "trial": 2154.565082000001
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "trial": {
+              "bytes": 33315,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265373
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 339095552,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.8936896039327962,
+      "maximumRatio": 2.1050140595729747,
+      "measuredMeanGain": 0.6383859752410458,
+      "requiredMeanGain": 9.325270817082439,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3012-fine-quadratic.json"
+    },
+    {
+      "id": "im26-3312",
+      "variant": "fine-quadratic",
+      "summary": {
+        "controlMs": 1137.0579309999994,
+        "trialMs": 2163.9964089999994,
+        "ratio": 1.9034025097654486,
+        "mad": 0.11988928329225845
+      },
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "trial": "3e6291328b0c5797e8ec0e218316e65ea712ba522da03ccdc415328ef121c4ba"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1171.184204000001,
+            "trial": 2381.616513000001
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "trial": 2243.157681999999,
+            "control": 1108.667414999998
+          },
+          "results": {
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1181.4681859999982,
+            "trial": 1980.5253440000015
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "trial": 2091.665590999997,
+            "control": 1137.0579309999994
+          },
+          "results": {
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1163.8455060000015,
+            "trial": 2125.9331820000007
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "trial": 2222.9592239999984,
+            "control": 1096.095752000001
+          },
+          "results": {
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1136.9095070000003,
+            "trial": 2163.9964089999994
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "trial": {
+              "bytes": 8096,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63615
+            }
+          }
+        }
+      ],
+      "warmups": 3,
+      "peakRssBytes": 322867200,
+      "scope": "Isolated paired encoder/prototype timing; managed ledger excludes perceptual diagnostic allocations",
+      "minimumRatio": 1.6763255815675466,
+      "maximumRatio": 2.0335114705833233,
+      "measuredMeanGain": 0.6383859752410458,
+      "requiredMeanGain": 9.034025097654485,
+      "meanRulePass": false,
+      "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/time-im26-3312-fine-quadratic.json"
+    }
+  ],
+  "rateValidation": {
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "name": "precision1",
+        "actual": 1248,
+        "estimated": 1241.0051661377656,
+        "error": -6.994833862234373,
+        "sameSign": true
+      },
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "name": "precision4",
+        "actual": 4913,
+        "estimated": 4916.345352909702,
+        "error": 3.345352909702342,
+        "sameSign": true
+      },
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "name": "split1",
+        "actual": 511,
+        "estimated": 518.2150982195744,
+        "error": 7.215098219574429,
+        "sameSign": true
+      },
+      {
+        "id": "im26-2004",
+        "distance": 2,
+        "name": "joint1",
+        "actual": 1657,
+        "estimated": 1641.5953275422798,
+        "error": -15.404672457720153,
+        "sameSign": true
+      },
+      {
+        "id": "im26-3312",
+        "distance": 4,
+        "name": "precision1",
+        "actual": 203,
+        "estimated": 200.44691172268358,
+        "error": -2.5530882773164194,
+        "sameSign": true
+      },
+      {
+        "id": "im26-3312",
+        "distance": 4,
+        "name": "precision4",
+        "actual": 516,
+        "estimated": 495.65544156221586,
+        "error": -20.344558437784144,
+        "sameSign": true
+      },
+      {
+        "id": "im26-3312",
+        "distance": 4,
+        "name": "split1",
+        "actual": 114,
+        "estimated": 96.73413737427836,
+        "error": -17.26586262572164,
+        "sameSign": true
+      },
+      {
+        "id": "im26-3312",
+        "distance": 4,
+        "name": "joint1",
+        "actual": 211,
+        "estimated": 204.70049924193154,
+        "error": -6.299500758068461,
+        "sameSign": true
+      }
+    ],
+    "maxDeltaError": 20.344558437784144,
+    "correct": 8
+  },
+  "predictionValidation": [
+    {
+      "metric": "max",
+      "all": {
+        "rows": 80,
+        "material": 73,
+        "correct": 73,
+        "abstained": 0,
+        "missedHarm": 0,
+        "falseAlarm": 0,
+        "worsened": 0,
+        "improved": 73,
+        "alwaysWorseAccuracy": 0,
+        "accuracy": 1
+      },
+      "material": {
+        "rows": 80,
+        "material": 73,
+        "correct": 73,
+        "abstained": 0,
+        "missedHarm": 0,
+        "falseAlarm": 0,
+        "worsened": 0,
+        "improved": 73,
+        "alwaysWorseAccuracy": 0,
+        "accuracy": 1
+      },
+      "maximumDeltaError": 0.022560629577084157
+    },
+    {
+      "metric": "norm3",
+      "all": {
+        "rows": 80,
+        "material": 73,
+        "correct": 73,
+        "abstained": 0,
+        "missedHarm": 0,
+        "falseAlarm": 0,
+        "worsened": 5,
+        "improved": 68,
+        "alwaysWorseAccuracy": 0.0684931506849315,
+        "accuracy": 1
+      },
+      "material": {
+        "rows": 80,
+        "material": 69,
+        "correct": 69,
+        "abstained": 0,
+        "missedHarm": 0,
+        "falseAlarm": 0,
+        "worsened": 3,
+        "improved": 66,
+        "alwaysWorseAccuracy": 0.043478260869565216,
+        "accuracy": 1
+      },
+      "maximumDeltaError": 0.002165681583043977
+    }
+  ],
+  "portSource": {
+    "upstream": "libjxl",
+    "tag": "v0.12.0",
+    "commit": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "file": "lib/jxl/enc_adaptive_quantization.cc",
+    "sha256": "caa998d8bbdbc6a793917cfb676b4cadb4b1142648dadf11fd7651c717e0a554",
+    "verification": "Extracted source file matches the same file in the cached source-a7a9c787.tar.gz archive byte for byte."
+  },
+  "verification": {
+    "status": "passed",
+    "startedAt": "2026-10-28T22:47:22.607Z",
+    "endedAt": "2026-10-28T22:57:05.717Z",
+    "code": 0,
+    "signal": null
+  }
+}
