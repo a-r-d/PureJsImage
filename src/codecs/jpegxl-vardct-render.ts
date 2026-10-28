@@ -1256,8 +1256,13 @@ export const inverseJpegXlDevelopmentTransform = (
   else inverseDctRectangle(coefficients, width, height, intermediate, output, width, 0, 0, active)
 }
 
+type LoopFilterParameters = Pick<
+  JpegXlFrameStructure,
+  'gaborishWeights' | 'epfWeights' | 'epfSigma' | 'epfSharpness'
+>
+
 const applyDefaultGaborish = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly Float32Array[],
   stride: number,
   width: number,
@@ -1820,7 +1825,7 @@ const applyDefaultEpfStage2 = (
 }
 
 const applyCustomEpfStage = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   output: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
@@ -2081,7 +2086,7 @@ const applyDefaultEpfStage0 = (
 }
 
 const applyDefaultEpfStage = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   planes: readonly [Float32Array, Float32Array, Float32Array],
   stride: number,
   width: number,
@@ -2171,7 +2176,7 @@ const applyDefaultEpfStage = (
 }
 
 const makeEpfInverseSigmas = (
-  frame: Readonly<JpegXlFrameStructure>,
+  frame: Readonly<LoopFilterParameters>,
   quantization: Int32Array<ArrayBufferLike>,
   sharpness: Int32Array<ArrayBufferLike>,
   globalScale: number,
@@ -2192,6 +2197,43 @@ const makeEpfInverseSigmas = (
     inverseSigmas[blockIndex] = 1 / sigma
   }
   return inverseSigmas
+}
+
+/** Internal encoder research uses the same default reconstruction filters. */
+export function filterJpegXlDevelopmentPlanes(
+  planes: readonly [Float32Array, Float32Array, Float32Array],
+  width: number,
+  height: number,
+  quantization: Int32Array,
+  sharpness: Uint8Array,
+  globalScale: number,
+  gaborish: boolean,
+  epfIterations: number,
+): void {
+  const stride = Math.ceil(width / 8) * 8,
+    blocksWide = stride / 8
+  if (
+    !Number.isSafeInteger(width) ||
+    !Number.isSafeInteger(height) ||
+    width < 1 ||
+    height < 1 ||
+    planes.some((p) => p.length !== stride * Math.ceil(height / 8) * 8) ||
+    quantization.length !== blocksWide * Math.ceil(height / 8) ||
+    sharpness.length !== quantization.length ||
+    !(globalScale > 0) ||
+    !Number.isFinite(globalScale) ||
+    !Number.isInteger(epfIterations) ||
+    epfIterations < 0 ||
+    epfIterations > 3
+  )
+    throw invalidJpegXlInput('development filter extent is invalid')
+  if (gaborish) applyDefaultGaborish({}, planes, stride, width, height)
+  if (epfIterations === 0) return
+  const sigmas = makeEpfInverseSigmas({}, quantization, Int32Array.from(sharpness), globalScale)
+  for (const stage of [0, 1, 2] as const) {
+    if (stage === 0 ? epfIterations < 3 : stage === 2 && epfIterations < 2) continue
+    applyDefaultEpfStage({}, planes, stride, width, height, blocksWide, sigmas, stage)
+  }
 }
 
 const uint64Mask = (1n << 64n) - 1n

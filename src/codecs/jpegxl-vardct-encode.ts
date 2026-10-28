@@ -17,6 +17,7 @@ import {
 import {
   encodeVarDctCoefficientSections,
   encodeVarDctCoefficientSectionsAsync,
+  estimateJpegXlDevelopmentColorBits,
   estimateJpegXlForwardAcModel,
   estimateJpegXlForwardAcModelPair,
   estimateJpegXlForwardOrderBits,
@@ -486,6 +487,20 @@ function* chooseForwardOrderGeometry(
   } finally {
     if (!complete) releaseModel(bestModel)
   }
+}
+
+/** Internal research estimate uses the same order/context search as the final writer. */
+export function estimateJpegXlDevelopmentRate(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): number {
+  if (!usesForwardCoefficientOrderSearch(geometry))
+    throw invalidJpegXlInput('development rate requires forward order search')
+  return withJpegXlMemory(geometry.memory, () => {
+    const steps = chooseForwardOrderGeometry(geometry)
+    let step = steps.next()
+    while (!step.done) step = steps.next()
+    return estimateJpegXlDevelopmentColorBits(step.value)
+  })
 }
 
 const colorFrameBits = new WeakMap<readonly Uint8Array[], number>()

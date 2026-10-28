@@ -1,0 +1,422 @@
+diff --git a/benchmark/jpegxl/lossy-lab/worker.ts b/benchmark/jpegxl/lossy-lab/worker.ts
+index 8d94317e..a2f8a8d7 100644
+--- a/benchmark/jpegxl/lossy-lab/worker.ts
++++ b/benchmark/jpegxl/lossy-lab/worker.ts
+@@ -13,6 +13,7 @@ import { type CurvePoint, curveMatches, type EncodePoint, parsePoint } from './m
+ import { extractDecisions } from './decisions.ts'
+ import { parseAllocation, allocationOverrides } from './allocation.ts'
+ import { parseLibjxlPort, libjxlPortOverrides } from './libjxl-ports.ts'
++import { selectJointRdGeometry } from './joint-rd-prototype.ts'
+ import {
+   assertTransplantDecisions,
+   encodeTransplant,
+@@ -33,7 +34,23 @@ const effortArgument = effortAt === -1 ? '7' : process.argv[effortAt + 1]
+ if (effortArgument !== '7' && effortArgument !== '9') throw new Error('Invalid worker effort')
+ const effort = effortArgument === '9' ? 9 : 7
+ const portAt = process.argv.indexOf('--strategy-port')
+-const strategyPort = portAt < 0 ? null : parseLibjxlPort(process.argv[portAt + 1] ?? '')
++const portArgument = process.argv[portAt + 1] ?? ''
++const strategyPort =
++  portAt < 0
++    ? null
++    : portArgument === 'standalone-joint-rd' ||
++        portArgument === 'standalone-joint-rd128' ||
++        portArgument === 'standalone-joint-rd512'
++      ? portArgument
++      : parseLibjxlPort(portArgument)
++const jointCap =
++  strategyPort === 'standalone-joint-rd'
++    ? 32
++    : strategyPort === 'standalone-joint-rd128'
++      ? 128
++      : strategyPort === 'standalone-joint-rd512'
++        ? 512
++        : undefined
+ if (
+   strategyPort &&
+   (engine !== 'purejsimage' || effort !== 7 || process.argv.includes('--transplant'))
+@@ -144,6 +161,7 @@ if (process.argv.includes('--append')) {
+ try {
+   for (const setting of settings) {
+     try {
++      const jointAudit: ReturnType<typeof selectJointRdGeometry>['audit'][] = []
+       const overrides = transplant
+         ? transplantOverrides(
+             transplant,
+@@ -154,7 +172,16 @@ try {
+             setting,
+           )
+         : strategyPort
+-          ? libjxlPortOverrides(strategyPort, setting, image.width, image.height)
++          ? libjxlPortOverrides(
++              strategyPort === 'standalone-joint-rd' ||
++                strategyPort === 'standalone-joint-rd128' ||
++                strategyPort === 'standalone-joint-rd512'
++                ? 'standalone-forward-all'
++                : strategyPort,
++              setting,
++              image.width,
++              image.height,
++            )
+           : allocation
+             ? allocationOverrides(allocation, setting)
+             : null
+@@ -162,12 +189,34 @@ try {
+       let bytes: Uint8Array
+       let managedPeakBytes: number | null = null
+       if (overrides) {
++        const rewrite = overrides.rewriteGeometry
++        const selectedOverrides =
++          jointCap !== undefined && rewrite
++            ? {
++                ...overrides,
++                rewriteGeometry(
++                  base: Parameters<typeof rewrite>[0],
++                  context: Parameters<typeof rewrite>[1],
++                ) {
++                  const result = selectJointRdGeometry(
++                    rewrite(base, context),
++                    context,
++                    inputPixels,
++                    image.width,
++                    image.height,
++                    jointCap,
++                  )
++                  jointAudit.push(result.audit)
++                  return result.geometry
++                },
++              }
++            : overrides
+         const encoded = await encodeTransplant(
+           inputPixels,
+           image.width,
+           image.height,
+           setting,
+-          overrides,
++          selectedOverrides,
+         )
+         bytes = encoded.bytes
+         managedPeakBytes = encoded.managedPeakBytes
+@@ -222,6 +271,11 @@ try {
+         bytes = encoded.bytes
+       }
+       const encodeMs = performance.now() - started
++      if (jointAudit.length)
++        await writeFile(
++          join(directory, `${setting}.joint.json`),
++          `${JSON.stringify(jointAudit, null, 2)}\n`,
++        )
+       if (overrides) assertTransplantDecisions(overrides, await extractDecisions(bytes))
+       if (hash(pixels.data) !== originalHash) throw new Error('Encoder changed input pixels')
+       if (hash(inputPixels) !== inputHash) throw new Error('Encoder changed color input')
+diff --git a/benchmark/jpegxl/lossy-lab/joint-rd-prototype.ts b/benchmark/jpegxl/lossy-lab/joint-rd-prototype.ts
+new file mode 100644
+index 00000000..cd202d50
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/joint-rd-prototype.ts
+@@ -0,0 +1,305 @@
++/** First-party crop-only research. Generates decisions from source pixels, never peer maps. */
++import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
++import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import { estimateJpegXlDevelopmentRate } from '../../../src/codecs/jpegxl-vardct-encode.ts'
++import { jpegXlDevelopmentDequantization } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
++import { forwardPairedSelectorTransform } from './selector-transforms.ts'
++import { renderSelectedGeometry } from './geometry-display.ts'
++import { displayLinearPlanes, downsampleDisplay } from './libjxl-display-loss.ts'
++import { preparePerceptualLinear, perceptualQuadraticMaps } from './libjxl-perceptual-local-port.ts'
++import { perceptualDirectionalMap, mixPerceptualScales } from './libjxl-perceptual-malta-port.ts'
++import { poolNativePerceptual } from './libjxl-perceptual-pool-port.ts'
++
++export interface CoefficientProposal {
++  readonly group: number
++  readonly offset: number
++  readonly before: number
++  readonly after: number
++  readonly priority: number
++}
++const centroid = (q: number): number =>
++  q === 0 ? 0 : q === 1 ? (defaultJpegXlQuantizationBiases[1] ?? 1) : q - 0.145 / q
++const proxyRate = (q: number): number => (q === 0 ? 0 : 1 + 2 * Math.log2(q + 1))
++const regular = (s: number): boolean => s === 0 || (s >= 4 && s <= 11) || (s >= 18 && s <= 26)
++
++/** Recompute selected luma transforms only; these proposals are not acceptance decisions. */
++export function proposeCoefficientBatches(
++  g: VarDctCoefficientGeometry,
++  source: JpegXlDevelopmentTransformContext,
++  width: number,
++  height: number,
++  maximumChanges: 32 | 128 | 512 = 32,
++) {
++  if (
++    !g.memory ||
++    !g.loadAc ||
++    !g.strategyMap ||
++    !g.quantizationMap ||
++    !g.globalScale ||
++    !g.developmentFirstBlocks
++  )
++    throw new Error('Missing selected proposal geometry')
++  const filtered = g.developmentFilters?.gaborish
++      ? libjxlGaborishContext(g, source, width, height, true)
++      : undefined,
++    context = filtered ?? source,
++    reductions: CoefficientProposal[] = [],
++    increases: CoefficientProposal[] = [],
++    plane = new Float32Array(4096),
++    transformed = new Float64Array(4096),
++    temporary = new Float64Array(4096),
++    pairs = new Float64Array(64),
++    invGlobal = 65536 / g.globalScale
++  let checked = 0,
++    mismatched = 0
++  try {
++    for (let group = 0; group < g.groupsAcross * g.groupsDown; group++) {
++      const ox = (group % g.groupsAcross) * 32,
++        oy = Math.floor(group / g.groupsAcross) * 32,
++        gw = Math.min(32, g.blocksWide - ox),
++        gh = Math.min(32, g.blocksHigh - oy),
++        ac = g.loadAc(group, 0)[1]
++      if (!ac) throw new Error('Missing selected luma')
++      for (let y = 0; y < gh; y++)
++        for (let x = 0; x < gw; x++) {
++          const at = (oy + y) * g.blocksWide + ox + x,
++            strategy = g.strategyMap[at] ?? -1
++          if (!g.developmentFirstBlocks[at] || !regular(strategy)) continue
++          const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0,
++            bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0,
++            size = bw * bh * 64,
++            stride = bw * 8,
++            nw = Math.max(bw, bh) * 8,
++            nh = Math.min(bw, bh) * 8,
++            offset = ac.coefficientOffsets?.[y * gw + x],
++            matrix = jpegXlDevelopmentDequantization(strategy)[1],
++            step = invGlobal / (g.quantizationMap[at] ?? 0)
++          if (offset === undefined || offset < 0 || !matrix || !Number.isFinite(step))
++            throw new Error('Invalid proposal transform')
++          for (let dy = 0; dy < bh; dy++)
++            for (let dx = 0; dx < bw; dx++) {
++              const block = context.readBlock(ox + x + dx, oy + y + dy, false)[1]
++              if (!block) throw new Error('Missing source luma')
++              for (let py = 0; py < 8; py++)
++                for (let px = 0; px < 8; px++)
++                  plane[(dy * 8 + py) * stride + dx * 8 + px] = block[py * 8 + px] ?? 0
++            }
++          forwardPairedSelectorTransform(strategy, plane, temporary, transformed, pairs)
++          context.readBlock(ox + x, oy + y, true)
++          let low = 0,
++            high = 1
++          for (let i = 0; i < 12; i++) {
++            const middle = (low + high) / 2
++            if (context.quantize(middle, 1) === 0) low = middle
++            else high = middle
++          }
++          const bias = defaultJpegXlQuantizationBiases[1] ?? 1,
++            weight = Math.max(0, (2 * bias * ((low + high) / 2) - bias * bias) / 3),
++            adjacent = 1.1 * 0.104699568,
++            diagonal = 1.1 * 0.055680538,
++            norm = 1 / (1 + 4 * (adjacent + diagonal))
++          for (let p = 0; p < size; p++) {
++            if (p % nw < Math.max(bw, bh) && Math.floor(p / nw) < Math.min(bw, bh)) continue
++            const storage = offset + (size === 64 ? (p & 7) * 8 + (p >>> 3) : p),
++              before = ac.coefficients[storage] ?? 0,
++              value = (transformed[p] ?? 0) / (step * (matrix[p] ?? 0)),
++              q = Math.abs(before),
++              v = Math.abs(value)
++            checked++
++            if (context.quantize(value, 1) !== before) {
++              mismatched++
++              continue
++            }
++            if (q === 0) continue
++            const sign = before < 0 ? -1 : 1,
++              current = (v - centroid(q)) ** 2,
++              cx = Math.cos((Math.PI * (p % nw)) / nw),
++              cy = Math.cos((Math.PI * Math.floor(p / nw)) / nh),
++              response = ((1 + 2 * adjacent * (cx + cy) + 4 * diagonal * cx * cy) * norm) ** 2,
++              reductionError = response * ((v - centroid(q - 1)) ** 2 - current),
++              saving = proxyRate(q) - proxyRate(q - 1)
++            if (reductionError < 0.25 * weight * saving)
++              reductions.push({
++                group,
++                offset: storage,
++                before,
++                after: sign * (q - 1),
++                priority: 0.25 * weight * saving - reductionError,
++              })
++            const improvement = response * (current - (v - centroid(q + 1)) ** 2)
++            if (q < 4095 && improvement > 0)
++              increases.push({
++                group,
++                offset: storage,
++                before,
++                after: sign * (q + 1),
++                priority: improvement / (proxyRate(q + 1) - proxyRate(q)),
++              })
++          }
++        }
++    }
++  } finally {
++    filtered?.release()
++  }
++  if (mismatched !== 0)
++    throw new Error(`Selected source quantization differs: ${mismatched}/${checked}`)
++  const order = (a: CoefficientProposal, b: CoefficientProposal) =>
++    b.priority - a.priority || a.group - b.group || a.offset - b.offset
++  reductions.sort(order)
++  increases.sort(order)
++  return {
++    checked,
++    reductions: reductions.slice(0, maximumChanges),
++    increases: increases.slice(0, maximumChanges),
++    eligibleReductions: reductions.length,
++    eligibleIncreases: increases.length,
++  }
++}
++
++export function applyCoefficientBatch(
++  g: VarDctCoefficientGeometry,
++  changes: readonly CoefficientProposal[],
++): VarDctCoefficientGeometry {
++  const load = g.loadAc,
++    memory = g.memory
++  if (!load || !memory) throw new Error('Missing coefficient storage')
++  const luma = memory.allocate(Int16Array, 65536)
++  return {
++    ...g,
++    loadAc(group, pass) {
++      const planes = load(group, pass),
++        x = planes[0],
++        y = planes[1],
++        b = planes[2]
++      if (!x || !y || !b || y.coefficients.length > luma.length)
++        throw new Error('Invalid coefficient group')
++      luma.set(y.coefficients)
++      for (const change of changes)
++        if (change.group === group) {
++          if (luma[change.offset] !== change.before) throw new Error('Stale coefficient proposal')
++          luma[change.offset] = change.after
++        }
++      return [x, { ...y, coefficients: luma.subarray(0, y.coefficients.length) }, b]
++    },
++  }
++}
++
++function prepare(rgba: Uint8Array, width: number, height: number) {
++  const rgb = displayLinearPlanes(rgba, width, height)
++  return {
++    fine: preparePerceptualLinear(rgb, width, height),
++    half: preparePerceptualLinear(
++      downsampleDisplay(rgb, width, height),
++      Math.ceil(width / 2),
++      Math.ceil(height / 2),
++    ),
++  }
++}
++function score(
++  reference: ReturnType<typeof prepare>,
++  rgba: Uint8Array,
++  width: number,
++  height: number,
++) {
++  const trial = prepare(rgba, width, height),
++    fine = perceptualDirectionalMap(
++      reference.fine,
++      trial.fine,
++      perceptualQuadraticMaps(reference.fine, trial.fine).asymmetric,
++    ),
++    half = perceptualDirectionalMap(
++      reference.half,
++      trial.half,
++      perceptualQuadraticMaps(reference.half, trial.half).asymmetric,
++    )
++  return poolNativePerceptual(mixPerceptualScales(fine, half, width, height))
++}
++export function selectJointRdGeometry(
++  g: VarDctCoefficientGeometry,
++  context: JpegXlDevelopmentTransformContext,
++  rgba: Uint8Array,
++  width: number,
++  height: number,
++  maximumChanges: 32 | 128 | 512 = 32,
++) {
++  if (width > 512 || height > 512 || width < 257 || height < 257)
++    throw new Error('Joint RD prototype is restricted to development crops')
++  const started = performance.now(),
++    proposals = proposeCoefficientBatches(g, context, width, height, maximumChanges),
++    reference = prepare(rgba, width, height),
++    candidates = [
++      { name: 'control', changes: [] },
++      { name: 'reduce', changes: proposals.reductions },
++      { name: 'increase', changes: proposals.increases },
++      { name: 'both', changes: [...proposals.reductions, ...proposals.increases] },
++    ]
++  const rows: {
++    name: string
++    changes: readonly CoefficientProposal[]
++    bits: number
++    predicted: ReturnType<typeof score>
++    cost: number
++    accepted: boolean
++    elapsedMs: number
++  }[] = []
++  let selected = g,
++    best = 0,
++    chosen = 'control'
++  for (const candidate of candidates) {
++    if (candidate.name !== 'control' && candidate.changes.length === 0) continue
++    if (candidate.name === 'both' && (!proposals.reductions.length || !proposals.increases.length))
++      continue
++    const start = performance.now(),
++      geometry = candidate.name === 'control' ? g : applyCoefficientBatch(g, candidate.changes),
++      bits = estimateJpegXlDevelopmentRate(geometry),
++      predicted = score(
++        reference,
++        renderSelectedGeometry(geometry, width, height).rgba,
++        width,
++        height,
++      ),
++      control = rows[0]
++    const cost = control
++        ? Math.log((bits + 32) / control.bits) +
++          0.5 *
++            (Math.log(predicted.maximum / control.predicted.maximum) +
++              Math.log(predicted.norm3 / control.predicted.norm3))
++        : 0,
++      accepted =
++        !!control &&
++        cost < best &&
++        predicted.maximum <= control.predicted.maximum * 1.01 &&
++        predicted.norm3 <= control.predicted.norm3 * 1.01
++    if (accepted) {
++      best = cost
++      chosen = candidate.name
++      selected = geometry
++    }
++    rows.push({
++      ...candidate,
++      bits,
++      predicted,
++      cost,
++      accepted,
++      elapsedMs: performance.now() - start,
++    })
++  }
++  return {
++    geometry: selected,
++    audit: {
++      maximumChanges,
++      chosen,
++      rows,
++      checked: proposals.checked,
++      eligibleReductions: proposals.eligibleReductions,
++      eligibleIncreases: proposals.eligibleIncreases,
++      elapsedMs: performance.now() - started,
++    },
++  }
++}

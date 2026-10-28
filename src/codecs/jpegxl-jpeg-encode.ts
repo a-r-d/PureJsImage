@@ -2596,6 +2596,7 @@ function* coefficientSectionSteps(
   geometry: Readonly<JpegDerivedGeometry>,
   profiler?: JpegXlJpegEncodeProfiler,
   sharedAlpha?: Readonly<SharedAlphaCode>,
+  measureRate?: (bits: number, orders: readonly Uint32Array[], encoding: AcEncoding) => void,
 ): Generator<void, readonly Uint8Array[], void> {
   const dcGroupCount = geometry.dcAcross * geometry.dcDown
   const acContextCount = acBlockContextCount(geometry) * (37 + 458)
@@ -2931,6 +2932,10 @@ function* coefficientSectionSteps(
   }, geometry.memory)
   profiler?.record('hf-global', performance.now() - started, hf.byteLength)
   if (!acEncoding) throw invalidJpegXlInput('AC encoding was not initialized')
+  if (measureRate) {
+    measureRate(colorBits, coefficientOrders, acEncoding)
+    return []
+  }
   started = performance.now()
   const passCount = geometry.progressive ? 2 : 1
   const ac: Uint8Array[] = new Array<Uint8Array>(groupCount * passCount)
@@ -2970,6 +2975,57 @@ function* coefficientSectionSteps(
   const sections = Object.freeze([lf, ...dc, hf, ...ac])
   colorSectionBits.set(sections, colorBits)
   return sections
+}
+
+/** Internal research: train the final model and write metadata, without an AC payload. */
+export function estimateJpegXlDevelopmentColorBits(
+  geometry: Readonly<VarDctCoefficientGeometry>,
+): number {
+  if (
+    geometry.groupsAcross * geometry.groupsDown < 2 ||
+    geometry.progressive ||
+    geometry.groupContexts ||
+    geometry.deferredDc ||
+    (geometry.alpha && !geometry.opaqueColorCost) ||
+    !geometry.defaultMatrices ||
+    !geometry.loadAc ||
+    geometry.effort !== 7
+  )
+    throw invalidJpegXlInput('development rate requires grouped opaque effort-7 geometry')
+  return withJpegXlMemory(geometry.memory, () => {
+    let estimate: number | undefined
+    const steps = coefficientSectionSteps(
+      geometry,
+      undefined,
+      undefined,
+      (metadata, orders, code) => {
+        if (code.kind !== 'ans') throw invalidJpegXlInput('development rate requires ANS')
+        const encoding = code.encoding
+        let bits = metadata
+        for (let group = 0; group < geometry.groupsAcross * geometry.groupsDown; group++) {
+          bits += 32
+          visitAcGroup(geometry, orders, group, (value, context) => {
+            const histogram = encoding.contextMap[context]
+            if (histogram === undefined)
+              throw invalidJpegXlInput('missing development rate context')
+            const packed = encodeHybridUintPacked(
+                value,
+                encoding.histogramConfigs?.[histogram] ?? encoding.config,
+              ),
+              frequency = encoding.histograms[histogram]?.frequencies[packed & 255] ?? 0
+            if (frequency === 0) throw invalidJpegXlInput('missing development rate symbol')
+            bits += Math.log2(4096 / frequency) + ((packed >>> 8) & 31)
+          })
+        }
+        estimate = bits
+      },
+    )
+    while (!steps.next().done) {
+      /* Synchronous research probe. */
+    }
+    if (estimate === undefined) throw invalidJpegXlInput('development rate was not measured')
+    return estimate
+  })
 }
 
 const releaseCoefficientSections = (
