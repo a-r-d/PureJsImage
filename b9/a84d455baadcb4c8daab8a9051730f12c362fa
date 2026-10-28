@@ -1,0 +1,37 @@
+benchmark/jpegxl/lossy-lab/SPARSE-ALLOCATION-REPORT.md
+  s_42a303a21f7525::t_0335eef1a67247 133-139,154-158
+  s_42a303a21f7525::t_196d33867a8c4e 160-167
+  s_42a303a21f7525::t_7a9eee0b93730e 1-132,140-153,159
+benchmark/jpegxl/lossy-lab/SPARSE-ALLOCATION-REPORT.json
+  s_42a303a21f7525::t_196d33867a8c4e 5090-5094
+  s_42a303a21f7525::t_f4c2b224111857 5082-5088
+  s_42a303a21f7525::t_ac3aff748a746e 5076,5100,5117
+  s_42a303a21f7525::t_3b6b8e3a242ef9 5124-5131
+  s_42a303a21f7525::t_a0208e3cde3bda 1-5075,5077-5081,5089,5095-5099,5101-5116,5118-5123,5132-5133
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_5cc9b2f1c887bb 2524-2527
+  s_42a303a21f7525::t_b345acf20ee68d 2537
+  s_42a303a21f7525::t_196d33867a8c4e 2543
+  s_42a303a21f7525::t_2ebf162689d14c 11-14,2528-2536,2538-2542
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_eec4112022534b 501-511
+benchmark/jpegxl/lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch
+  s_42a303a21f7525::t_6ac88aa9af8ff6 1-150,152-179,181-205,207-499
+  s_42a303a21f7525::t_ac3aff748a746e 151,180,206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
