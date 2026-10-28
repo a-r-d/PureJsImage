@@ -1,0 +1,48 @@
+benchmark/jpegxl/lossy-lab/audit-output-dither.ts
+  s_42a303a21f7525::t_5b193f86a380f7 73-80
+  s_42a303a21f7525::t_0b4cc75c8c7545 1-63,85-190
+  s_42a303a21f7525::t_0fef7c43eddd6b 64-72,81-84
+benchmark/jpegxl/lossy-lab/LOCAL-MODEL-REPORT.md
+  s_42a303a21f7525::t_7806bd7359a21f 1-147,156-161
+  s_42a303a21f7525::t_faf1d10af34c73 148-155
+benchmark/jpegxl/lossy-lab/libjxl-output-dither-port.ts
+  s_42a303a21f7525::t_e319304bd945a8 1-155
+benchmark/jpegxl/lossy-lab/local-perceptual-region.ts
+  s_42a303a21f7525::t_d3fba67200029e 1-107
+tests/jpegxl-output-dither.test.ts
+  s_42a303a21f7525::t_0b4cc75c8c7545 1-30
+THIRD_PARTY_NOTICES
+  s_42a303a21f7525::t_e319304bd945a8 35-42
+tests/jpegxl-local-perceptual-region.test.ts
+  s_42a303a21f7525::t_d3fba67200029e 1-73
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_e319304bd945a8 475-487
+benchmark/jpegxl/lossy-lab/replay-joint-rd.ts
+  s_42a303a21f7525::t_6f52d1903b6f17 1-149
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_49f15d81c97568 2438-2439
+  s_42a303a21f7525::t_e319304bd945a8 2420-2421
+  s_42a303a21f7525::t_5282b4c1ca3e8d 2432-2437
+  s_42a303a21f7525::t_6f52d1903b6f17 2430-2431
+  s_42a303a21f7525::t_aa3c5eced8c1d7 2422-2429
+benchmark/jpegxl/lossy-lab/audit-local-perceptual-region.ts
+  s_42a303a21f7525::t_9e705e2cc87cb3 1-100
+benchmark/jpegxl/lossy-lab/time-local-perceptual-region.ts
+  s_42a303a21f7525::t_f109476528676f 1-144
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e8d131c04738a27e02081071976bf1ae356761aa",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
