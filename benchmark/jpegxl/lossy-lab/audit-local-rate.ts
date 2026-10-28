@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { PNG } from 'pngjs'
+import * as coefficientEncoder from '../../../src/codecs/jpegxl-jpeg-encode.ts'
 import type {
   VarDctCoefficientGeometry,
   VarDctCoefficientPlane,
@@ -16,6 +17,25 @@ import { parseButteraugliOutput, parseSsimulacra2Output } from './metrics.ts'
 import { encodeTransplant } from './transplant.ts'
 
 const [root, phase = 'cohorts', id = 'im26-2004'] = process.argv.slice(2)
+const rateAudit = process.argv[5] === 'rate'
+function readRateAudit(): unknown {
+  if (!rateAudit) return undefined
+  if (
+    !('takeDevelopmentRateAudit' in coefficientEncoder) ||
+    typeof coefficientEncoder.takeDevelopmentRateAudit !== 'function'
+  )
+    throw new Error('Apply RATE-INSTRUMENTATION.patch before the rate audit')
+  const result: unknown = coefficientEncoder.takeDevelopmentRateAudit()
+  return result
+}
+if (rateAudit) {
+  if (
+    !('beginDevelopmentRateAudit' in coefficientEncoder) ||
+    typeof coefficientEncoder.beginDevelopmentRateAudit !== 'function'
+  )
+    throw new Error('Apply RATE-INSTRUMENTATION.patch before the rate audit')
+  coefficientEncoder.beginDevelopmentRateAudit()
+}
 if (!root) throw new Error('Need fresh audit directory')
 if (phase !== 'cohorts' && phase !== 'marginal' && phase !== 'endpoints')
   throw new Error('Unknown audit phase')
@@ -84,7 +104,12 @@ async function encode(mode: string, mutate?: (snapshot: Capture) => void) {
     },
   })
   if (!holder.value) throw new Error('Missing captured coefficients')
-  return { bytes: result.bytes, colorBits: result.colorBits, captured: holder.value }
+  return {
+    bytes: result.bytes,
+    colorBits: result.colorBits,
+    captured: holder.value,
+    rate: readRateAudit(),
+  }
 }
 const control = await encode('standalone-forward-all'),
   changed = await encode('standalone-rd25-filtered')
@@ -156,7 +181,7 @@ for (let group = 0; group < control.captured.groups.length; group++) {
     }
 }
 await writeFile(`${root}/changes.json`, `${JSON.stringify(changes, null, 2)}\n`)
-async function measure(name: string, bytes: Uint8Array, colorBits: number) {
+async function measure(name: string, bytes: Uint8Array, colorBits: number, rate: unknown) {
   const artifact = `${root}/${name}.jxl`,
     decoded = `${root}/${name}.png`,
     map = `${root}/${name}.pfm`
@@ -166,11 +191,19 @@ async function measure(name: string, bytes: Uint8Array, colorBits: number) {
     run(`${metrics}/butteraugli_main`, [reference, decoded, '--rawdistmap', map]),
   )
   const ssim = parseSsimulacra2Output(run(`${metrics}/ssimulacra2`, [reference, decoded]))
-  return { name, hash: hash(bytes), colorBits, cost: await encodedSectionCosts(bytes), ba, ssim }
+  return {
+    name,
+    hash: hash(bytes),
+    colorBits,
+    cost: await encodedSectionCosts(bytes),
+    ba,
+    ssim,
+    rate,
+  }
 }
 const rows = [
-  await measure('control', control.bytes, control.colorBits),
-  await measure('changed', changed.bytes, changed.colorBits),
+  await measure('control', control.bytes, control.colorBits, control.rate),
+  await measure('changed', changed.bytes, changed.colorBits, changed.rate),
 ]
 const map = readDistanceMap(await readFile(`${root}/changed.pfm`))
 let peak = 0
@@ -231,7 +264,7 @@ for (const cohort of phase === 'cohorts' ? cohorts : phase === 'marginal' ? marg
   })
   if (cohort.name === 'all' && hash(result.bytes) !== hash(changed.bytes))
     throw new Error('All coefficient changes do not reproduce trial')
-  const row = await measure(cohort.name, result.bytes, result.colorBits)
+  const row = await measure(cohort.name, result.bytes, result.colorBits, result.rate)
   rows.push(row)
   costs.push({
     name: cohort.name,

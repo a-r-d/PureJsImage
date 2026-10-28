@@ -1,0 +1,120 @@
+diff --git a/src/codecs/jpegxl-jpeg-encode.ts b/src/codecs/jpegxl-jpeg-encode.ts
+index 0401df74..8ff30150 100644
+--- a/src/codecs/jpegxl-jpeg-encode.ts
++++ b/src/codecs/jpegxl-jpeg-encode.ts
+@@ -1833,6 +1833,95 @@ type AcEncoding =
+
+ type ModularEncoding = AcEncoding
+
++// Temporary offline measurement. Archived and removed before handoff.
++interface DevelopmentRateReference {
++  readonly encoding: AnsEncoding
++  readonly orders: readonly Uint32Array[]
++  readonly familyContexts: boolean
++  readonly lumaThreshold: number | undefined
++}
++let developmentRateRows: unknown[] | undefined
++let developmentRateReference: DevelopmentRateReference | undefined
++export function beginDevelopmentRateAudit(): void {
++  developmentRateRows = []
++  developmentRateReference = undefined
++}
++export function takeDevelopmentRateAudit(): unknown {
++  const rows = developmentRateRows
++  developmentRateRows = []
++  return rows
++}
++function developmentRateCost(
++  geometry: Readonly<VarDctCoefficientGeometry>,
++  orders: readonly Uint32Array[],
++  encoding: AnsEncoding,
++) {
++  let estimated = 0,
++    exact = 0,
++    missing = 0,
++    symbols = 0
++  const groups = geometry.groupsAcross * geometry.groupsDown
++  for (let group = 0; group < groups; group++) {
++    estimated += 32
++    visitAcGroup(geometry, orders, group, (value, context) => {
++      const histogram = encoding.contextMap[context]
++      if (histogram === undefined) throw new Error('Missing audit context')
++      const config = encoding.histogramConfigs?.[histogram] ?? encoding.config
++      const packed = encodeHybridUintPacked(value, config)
++      const frequency = encoding.histograms[histogram]?.frequencies[packed & 255] ?? 0
++      symbols++
++      if (!frequency) missing++
++      else estimated += Math.log2(4096 / frequency) + ((packed >>> 8) & 31)
++    })
++  }
++  if (missing === 0) {
++    for (let group = 0; group < groups; group++) {
++      const writer = new JpegXlBitWriter(geometry.memory)
++      writeAcGroup(writer, geometry, orders, group, { kind: 'ans', encoding })
++      exact += writer.bitPosition
++    }
++  }
++  return { estimated: missing ? null : estimated, exact: missing ? null : exact, missing, symbols }
++}
++function developmentRateRecord(
++  geometry: Readonly<VarDctCoefficientGeometry>,
++  orders: readonly Uint32Array[],
++  encoding: AcEncoding,
++  hfBits: number,
++): void {
++  if (!developmentRateRows) return
++  if (encoding.kind !== 'ans' || geometry.progressive || geometry.groupContexts)
++    throw new Error('Rate audit requires one pass and shared ANS histograms')
++  const started = performance.now()
++  if (!developmentRateReference) {
++    developmentRateReference = {
++      encoding: structuredClone(encoding.encoding),
++      orders: orders.map((o) => o.slice()),
++      familyContexts: geometry.familyContexts === true,
++      lumaThreshold: geometry.lumaThreshold,
++    }
++  }
++  const reference = developmentRateReference
++  const { lumaThreshold: _threshold, ...rest } = geometry
++  const frozenGeometry = {
++    ...rest,
++    familyContexts: reference.familyContexts,
++    ...(reference.lumaThreshold === undefined ? {} : { lumaThreshold: reference.lumaThreshold }),
++  }
++  const writer = new JpegXlBitWriter(geometry.memory)
++  writeComponentBlockContexts(writer, geometry)
++  developmentRateRows.push({
++    orderEstimate: geometry.baselineAcModel?.bits ?? null,
++    componentBits: writer.bitPosition,
++    hfBits,
++    histograms: encoding.encoding.histograms.length,
++    familyContexts: geometry.familyContexts === true,
++    adaptive: developmentRateCost(geometry, orders, encoding.encoding),
++    frozen: developmentRateCost(frozenGeometry, reference.orders, reference.encoding),
++    elapsedMs: performance.now() - started,
++  })
++}
++
+ const visitAcGroup = (
+   geometry: Readonly<JpegDerivedGeometry>,
+   coefficientOrders: readonly Uint32Array[],
+@@ -2913,6 +3002,7 @@ function* coefficientSectionSteps(
+   }
+   profiler?.record('dc-groups', performance.now() - started, jpegXlPartsByteLength(dc))
+   let acEncoding: AcEncoding | undefined
++  let auditHfBits = 0
+   started = performance.now()
+   const hf = finishSection((writer) => {
+     acEncoding = writeHfGlobal(
+@@ -2928,9 +3018,11 @@ function* coefficientSectionSteps(
+       compactAc.histogramConfigs,
+     )
+     colorBits += writer.bitPosition
++    auditHfBits = writer.bitPosition
+   }, geometry.memory)
+   profiler?.record('hf-global', performance.now() - started, hf.byteLength)
+   if (!acEncoding) throw invalidJpegXlInput('AC encoding was not initialized')
++  developmentRateRecord(geometry, coefficientOrders, acEncoding, auditHfBits)
+   started = performance.now()
+   const passCount = geometry.progressive ? 2 : 1
+   const ac: Uint8Array[] = new Array<Uint8Array>(groupCount * passCount)
