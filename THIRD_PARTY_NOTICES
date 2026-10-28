@@ -32,3 +32,11 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Blue-noise texture used by libjxl's ordered-output-dithering diagnostic
+--------------------------------------------------------------------
+The original blue-noise texture is by Christoph Peters and is offered under
+CC0 1.0 Universal. The table is adapted from libjxl's BSD-3-Clause stage_write.cc
+as attributed above. PureJsImage uses it only in offline development tools.
+Source: https://momentsingraphics.de/BlueNoise.html#Downloads
+License: https://creativecommons.org/publicdomain/zero/1.0/

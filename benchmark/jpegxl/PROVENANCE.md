@@ -472,3 +472,16 @@ from `lib/extras/metrics.cc`, v0.12.0, commit
 L3, L6 and L12. The port uses scalar Float64 sums, checks finite nonnegative
 input and also reports maximum distance. Plain L3 remains an explicitly named
 ablation; it is not labeled as native-equivalent pooling.
+
+## Ordered output dithering diagnostic, 2026-10-28
+
+`lossy-lab/libjxl-output-dither-port.ts` ports `kDither` and RGB8
+`MakeUnsigned` from libjxl `lib/jxl/render_pipeline/stage_write.cc`, v0.12.0,
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. It removes repeated SIMD row
+padding, retains the 32x32 values and channel offsets, uses scalar float
+arithmetic and ties-to-even rounding, and accepts an explicit crop origin.
+This is an offline reconstruction diagnostic, with no public decoder change.
+The original texture is Christoph Peters's CC0 blue noise, as credited by
+libjxl and the author's [download page](https://momentsingraphics.de/BlueNoise.html#Downloads).
+The existing packaged/docs THIRD_PARTY_NOTICES includes the full libjxl BSD-3
+license; the texture attribution is also recorded there. No runtime dependency.
