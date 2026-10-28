@@ -1,6 +1,9 @@
 import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import { JpegXlEncoderMemory } from '../../../src/codecs/jpegxl-encoder-memory.ts'
-import { encodeJpegXlVarDct8Async } from '../../../src/codecs/jpegxl-vardct-encode.ts'
+import {
+  encodeJpegXlVarDct8Async,
+  jpegXlVarDctColorBits,
+} from '../../../src/codecs/jpegxl-vardct-encode.ts'
 import type { TransplantDecisions } from './decisions.ts'
 import { rewriteStrategyGeometry } from './strategy-transplant.ts'
 import {
@@ -505,7 +508,12 @@ export async function encodeTransplant(
       bytes.set(part, offset)
       offset += part.length
     }
-    return { bytes, managedPeakBytes: memory.peakBytes }
+    return {
+      bytes,
+      managedPeakBytes: memory.peakBytes,
+      // Actual final-frame color section bits before byte padding, excluding alpha.
+      colorBits: jpegXlVarDctColorBits(parts),
+    }
   } finally {
     memory.close()
   }

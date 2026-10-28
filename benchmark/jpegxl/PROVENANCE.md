@@ -431,3 +431,14 @@ existing normative centroid constants, default filter weights and logarithmic
 rate proxy. Their analytical DCT response and trial policies are first-party.
 Existing port-module attribution headers are preserved in the experiment
 archive. No public codec source, runtime dependency or peer-map input is added.
+
+## Local contrast and actual entropy costs, 2026-10-28
+
+`lossy-lab/local-rate-audit.ts` and `audit-local-rate.ts` are first-party offline
+diagnostics. They reuse the existing decoder to inspect signaled entropy models
+and the existing writer's unpadded color-bit counter. Contrast statistics and
+coefficient subset interventions are first-party. Native metric distance maps
+are development oracle outputs; no metric implementation is ported. The earlier
+rounding archive is temporarily restored only to reproduce the rejected trial,
+then removed again. No public codec source, peer-map input or runtime dependency
+is added.
