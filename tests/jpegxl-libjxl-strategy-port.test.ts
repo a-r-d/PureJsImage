@@ -130,6 +130,39 @@ it('rejects invalid strategy-port modes and distance', () => {
   expect(() => strategyPortOverrides(NaN, 'tiny')).toThrow('Invalid strategy-port distance')
 })
 
+it.each([0.45, 2, 7.5])(
+  'preserves bytes when pruning partition and channel costs at %s',
+  async (distance) => {
+    const width = 137,
+      height = 75
+    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) => {
+      if (i % 4 === 3) return 255
+      const x = Math.floor(i / 4) % width,
+        y = Math.floor(i / 4 / width)
+      return x < 64 ? 100 + ((x + y + (i % 4)) % 3) : (x * 17 + y * 31 + (i % 4) * 23) % 256
+    })
+    for (const mode of ['spatial', 'spatial-actual-guarded'] as const) {
+      const reference = await encodeTransplant(
+        pixels,
+        width,
+        height,
+        distance,
+        strategyPortOverrides(distance, mode, undefined, { prune: false }),
+      )
+      const pruned = await encodeTransplant(
+        pixels,
+        width,
+        height,
+        distance,
+        strategyPortOverrides(distance, mode, undefined, { prune: true }),
+      )
+      expect(pruned.bytes).toEqual(reference.bytes)
+      expect(pruned.managedPeakBytes).toBe(reference.managedPeakBytes)
+    }
+  },
+  30_000,
+)
+
 it.each([
   'standalone-selector-mask',
   'standalone-selector-copy',

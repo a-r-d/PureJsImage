@@ -4,17 +4,15 @@ Step C research stays on jxl-libjxl-ports. Main is unchanged; no promotion or ho
 Frozen coarse qualification still has two failed SSIM holdout guards, worst +11.617%.
 Retained development SSIM/3-norm/max: vips -8.003/-5.030/-5.582%; jSquash -8.474/+0.227/+2.571%.
 Last frozen holdout: vips -5.996/-3.605/-2.909%, mean -4.170%; jSquash -6.492/+1.640/+2.704%.
-Retained speed: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
+Retained qualification: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
 Managed peaks: crops 8,760,382 bytes; 13 MP 59,139,199; 21 MP 91,010,461, below 137,514,476.
-Bundles 614,941/687,773 bytes; dependencies zero. New work changes offline diagnostics only.
-Retained writer passes the 576-output lab and independent decoders; eight admitted development SSIM guards pass, worst 7.192%.
-The latest pass audits all 576 saved development reconstructions in 64 frequency bins per channel.
-Five allocation screens (400 candidate streams plus 80 fresh controls) regress the mean quality balance; all are archived.
-Two CPU profiles and six score-kernel hypotheses produce no repeatable speed gain. Three cleaned trials compare against Git bb43c721.
-All encoder source and active modes return exactly to bb43c721. The new tools are offline diagnostics.
-[Latest report](lossy-lab/FREQUENCY-REPORT.md). Hypothesis 1: selected-transform coefficient errors separate quantization loss from display filtering.
-Hypothesis 2: frequency-dependent rounding within each transform may improve allocation without relying on source energy alone.
-Hypothesis 3: count and profile losing transform candidates before changing pruning. Full watch/scale and peer-hook cleanup remain promotion work.
+Bundles 614,941/687,773 bytes; dependencies zero. Public codec source is unchanged in this pass.
+Selected-transform audit: 576 exact streams; seven rounding screens regress the mean quality balance and are archived.
+Clean first-party pruning saves 10.108% and 10.614% on two development probes versus Git c10c99be, with exact bytes and managed peaks.
+These 21-pair results are speed-only research evidence, not a new full watch/scale qualification.
+[Latest report](lossy-lab/SELECTED-REPORT.md). Hypothesis 1: compare error after display filtering with emitted coefficient error.
+Hypothesis 2: measure rate cost and cross-channel error together before proposing another rounding policy.
+Hypothesis 3: profile the surviving candidates after pruning; full watch/scale and peer-hook cleanup remain promotion work.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2299,3 +2297,41 @@ Qualified artwork records and properties after the color-DC repair (LL-376):
 | LL-954, 2026-10-27 | Extend the offline audit to retain all 64 frequency bins per channel and repeat the 576-point decomposition. | All nine distance rows contain 64 photos; 192 error and signal bins per row. The four-band totals match the first audit exactly. Parseval, identity, constant-offset and oriented-cosine checks pass in three focused tests. All five experiment archives apply to bb43c721. | No benchmark timing or holdout read. | Keep diagnostic tools and evidence only. No retained policy or speed change. Raw: frequency-20261027/error-frequencies.json and frequency-focused.log. | diagnostic |
 
 | LL-955, 2026-10-27 | Complete full handoff verification for retained offline tools, archives and report. | VITEST_MAX_WORKERS=4 npm run check exits 0: 4,177 tests pass, 3 existing skips; 330 files pass and 1 skips, test duration 518.03s. Static, TypeScript, lint, format, documentation, package and browser-build checks pass. Three new diagnostic fixtures pass; all five archives apply independently to bb43c721. | No benchmark overlaps the check. Bundles remain 614,941/687,773 bytes; runtime dependencies remain zero. | Research checkpoint only. Active encoder and public source match bb43c721; five quality variants and six speed hypotheses are archived, no policy retained, no holdout or main changes. Raw: frequency-20261027/check.log and check-status.json. | passed |
+
+| LL-956, 2026-10-28 | Audit selected-transform AC error and selector rejection stages on all 64 development photos and nine distances. | All 576 streams match saved retained bytes. Regular-DCT normalization agrees with spatial error fixtures. At d3, nearest-level excess is 10.132% of luma AC error before display filtering; this ignores rate cost. 1458176 candidates, 3557077 forward transforms and 3043249 inverses. | Audit instrumentation excluded from timing. | Test emitted frequency rounding and conservative earlier pruning. No peer maps or holdout. Raw: selected-20261028/audit-summary.json. | diagnostic |
+
+| LL-957, 2026-10-28 | Fresh standalone-forward-all screen control for emitted-rounding trials. | All 80 screen outputs decode and score. Control 0.000/0.000/0.000%; vips -10.654/-5.866/-5.164%; jSquash -11.546/-0.300/2.115%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-forward-all-screen. | measured |
+
+| LL-958, 2026-10-28 | standalone-round-high: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control 2.565/1.213/2.623%; vips -8.431/-4.785/-2.640%; jSquash -9.284/0.952/4.831%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-high-screen. | rejected |
+
+| LL-959, 2026-10-28 | standalone-round-low: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control -0.206/1.292/3.507%; vips -10.998/-4.684/-1.951%; jSquash -11.970/1.060/5.423%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-low-screen. | rejected |
+
+| LL-960, 2026-10-28 | standalone-round-middle: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control 1.641/2.038/4.722%; vips -9.334/-3.864/-0.650%; jSquash -10.256/1.646/6.719%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-middle-screen. | rejected |
+
+| LL-961, 2026-10-28 | standalone-round-weak: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control 0.739/0.145/-0.070%; vips -9.976/-5.742/-5.249%; jSquash -10.837/-0.124/2.071%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-weak-screen. | rejected |
+
+| LL-962, 2026-10-28 | standalone-round-all: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control 2.627/1.101/2.064%; vips -8.371/-4.891/-3.161%; jSquash -9.231/0.839/4.284%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-all-screen. | rejected |
+
+| LL-963, 2026-10-28 | standalone-round-high-only: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control 0.697/0.757/1.199%; vips -10.018/-5.121/-3.975%; jSquash -10.920/0.470/3.356%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/standalone-round-high-only-screen. | rejected |
+
+| LL-964, 2026-10-28 | Permit high-frequency luma token promotion only when normative decoded coefficient error falls. | All 80 screen points valid. Control 0.585/0.568/0.711%; vips -10.114/-5.298/-4.482%; jSquash -11.021/0.293/2.858%. | Concurrent quality timings excluded. | Reject: coefficient error guard does not improve native rate-quality balance. No full lab or holdout. Raw: selected-20261028/standalone-round-guarded-screen. | rejected |
+
+| LL-965, 2026-10-28 | standalone-prune-known: conservative bounds for losing selector candidates. | Exact output and managed memory across all 15 alternating pairs; odd-edge distance fixtures pass. | Control 1026.033ms; candidate 1038.296ms; paired -0.062%, MAD 3.580 points, 8/15 wins. | Neutral alone; standalone variant archived. Raw: selected-20261028/known-speed.json. | neutral |
+
+| LL-966, 2026-10-28 | standalone-prune-minimum: conservative bounds for losing selector candidates. | Exact output and managed memory across all 15 alternating pairs; odd-edge distance fixtures pass. | Control 1020.127ms; candidate 927.101ms; paired -10.248%, MAD 1.633 points, 14/15 wins. | Combined for the cleaned Git confirmation; individual mode flags archived. Raw: selected-20261028/minimum-speed.json. | promising |
+
+| LL-967, 2026-10-28 | standalone-prune-partial: conservative bounds for losing selector candidates. | Exact output and managed memory across all 15 alternating pairs; odd-edge distance fixtures pass. | Control 1030.463ms; candidate 929.974ms; paired -11.438%, MAD 4.248 points, 14/15 wins. | Omitted after comparison: no additional transforms/inverses saved, extra coefficient-loop branch. Archived. Raw: selected-20261028/partial-speed.json. | promising |
+
+| LL-968, 2026-10-28 | standalone-prune-partition: conservative bounds for losing selector candidates. | Exact output and managed memory across all 15 alternating pairs; odd-edge distance fixtures pass. | Control 1027.054ms; candidate 1009.459ms; paired -2.524%, MAD 2.031 points, 11/15 wins. | Combined for the cleaned Git confirmation; individual mode flags archived. Raw: selected-20261028/partition-speed.json. | promising |
+
+| LL-969, 2026-10-28 | standalone-prune-combined: conservative bounds for losing selector candidates. | Exact output and managed memory across all 15 alternating pairs; odd-edge distance fixtures pass. | Control 1021.959ms; candidate 897.615ms; paired -10.672%, MAD 2.021 points, 15/15 wins. | Cleaned and confirmed against Git c10c99be in LL-970/971; counters removed. Raw: selected-20261028/combined-speed.json. | promising |
+
+| LL-970, 2026-10-28 | Clean combined minimum-channel and rectangle-budget pruning against actual Git c10c99be; im26-3012, d2. | All 21 pairs preserve exact bytes, source hash and managed peak 5,682,267 B. | Median 1037.622 to 937.657ms; paired -10.108%, MAD 5.445 points, 19/21 wins. | Material speed result; later confirmed by LL-971/972. Raw: selected-20261028/combined-git-speed.json. | material |
+
+| LL-971, 2026-10-28 | Confirm cleaned pruning on neighboring development texture im26-3312, d2, against Git c10c99be. | All 21 pairs preserve exact bytes, source hash and managed peak 5,678,171 B. | Median 1067.721 to 968.559ms; paired -10.614%, MAD 3.712 points, 20/21 wins. | Material repeatable gain on second photo; full parity passes in LL-972. Raw: selected-20261028/texture-git-speed.json. | material |
+
+| LL-972, 2026-10-28 | Verify the cleaned pruning change across the entire fixed development ladder. | All 576 output hashes and managed peaks match the saved native-valid forward-all baseline exactly; max 9,232,573 B. BD-rate unchanged. | Four-worker parity timing excluded. | Retain speed-only research change; all three real-browser fixtures pass. Holdout closed. Raw: selected-20261028/clean-parity. | kept |
+
+| LL-973, 2026-10-28 | Cross-check absolute process peak RSS in three fresh processes per revision, im26-3012 d2, cold then second encode. | Exact bytes and 5,682,267 B managed peak throughout. | Linux VmHWM median cold 180,716 to 179,920 KiB (-0.440%); through second encode 208,768 to 210,688 KiB (+0.920%). | No material RSS regression. process.resourceUsage maxRSS inherited a pre-encode high-water value on one child; use process-local /proc/self/status VmHWM, retain both raw measurements. Raw: selected-20261028/rss-confirm.jsonl. | kept |
+
+Validation for LL-956 through LL-973: `VITEST_MAX_WORKERS=4 npm run check` passes (exit 0; 4,180 tests, three existing skips; 330 passed files, one skipped). Test phase 489.37s; full command 530.18s. Chromium, Firefox and WebKit decision fixtures pass. Archive application and `git diff --check` pass. Retained source changes only the development selector and its regression tests; no public src changes, holdout rerun, promotion or merge. Evidence: `selected-20261028/check-status.json`, `check.log`, `browser.log`.

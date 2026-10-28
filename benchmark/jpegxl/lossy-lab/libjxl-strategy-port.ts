@@ -16,6 +16,8 @@
  * Writer-estimate experiments independently match the final quantization field,
  * chroma matrix scales and rate-aware rounding used by our writer.
  * Tiny's split-cost literal is written as its representable JavaScript double.
+ * First-party pruning includes known luma cost, minimum remaining channel
+ * entropy and the remaining budget for rectangle partitions.
  * This is a development experiment, never imported by the public encoder.
  */
 import { selectorTileMask } from './selector-tile-mask.ts'
@@ -176,6 +178,8 @@ function selectGeometry(
   const ratio = (distance + 0.13731742964354549) / (1 + 0.13731742964354549)
   const infoWeight = 1.2 * ratio ** 0.33677806662454718 * lossScale
   const zeroWeight = 9.3089059022677905 * ratio ** 0.50990926717963703
+  // With no nonzero ACs: bits = 1, ceilLog2(bits + 17) + bits = 6.
+  const minimumEntropy = zeroWeight * 6
   const magnitudeWeight = 10.833273317067883 * ratio ** 0.36702940662370243
   const invGlobal = 65536 / base.globalScale
   const tiny = mode === 'tiny'
@@ -256,10 +260,24 @@ function selectGeometry(
       absoluteError = 0,
       squaredError = 0
     if (actualRounding) context.readBlock(x, y, true)
+    const penalty = bw * bh >= 2 ? 1 + Math.min(3, (bw * bh) / 8) : 1
     const tables = jpegXlDevelopmentDequantization(strategy)
     const naturalWidth = Math.max(width, height)
     for (let channelIndex = 0; channelIndex < 3; channelIndex++) {
       const c = prune && channelIndex < 2 ? channelIndex ^ 1 : channelIndex
+      if (prune && !tiny && c !== 1) {
+        const boundEntropy =
+          (c === 0 ? lumaEntropy : entropy) + minimumEntropy * (c === 0 ? penalty + 1 : 1)
+        const boundLoss = c === 0 ? lumaLoss : loss
+        if (
+          entropyMultiplier * boundEntropy +
+            infoWeight * (boundLoss / size) ** (1 / 8) * scale * size >
+          cutoff * (1 + 1e-12)
+        ) {
+          lastLoss = Infinity
+          return Infinity
+        }
+      }
       if (prune && c !== 1) {
         const source = planes[c],
           output = transformed[c]
@@ -324,17 +342,25 @@ function selectGeometry(
       const bits = ceilLog2(nonzero + 1) + 1
       channelEntropy += (tiny ? 7.565053364251793 : zeroWeight) * (ceilLog2(bits + 17) + bits)
       if (tiny) channelEntropy += nonzero * (1 + Math.min(1, distance / 3) * 8.8703248061477744)
-      entropy += channelEntropy
       // Nonnegative channel costs give an admissible lower bound. Preserve the
-      // complete winner calculation; only discard candidates that cannot win.
-      if (
-        prune &&
-        !tiny &&
-        entropyMultiplier * entropy + infoWeight * (loss / size) ** (1 / 8) * scale * size >= cutoff
-      ) {
-        lastLoss = Infinity
-        return Infinity
+      // complete winner calculation, including its summation order. Luma cost
+      // is held separately while evaluating X; include it in the lower bound.
+      if (prune && !tiny) {
+        const priorEntropy = c === 0 ? lumaEntropy : entropy
+        const priorLoss = c === 0 ? lumaLoss : loss
+        const pendingMinimum = minimumEntropy * (c === 1 ? penalty + 1 : c === 0 ? 1 : 0)
+        const boundEntropy =
+          priorEntropy + channelEntropy * (c === 0 ? penalty : 1) + pendingMinimum
+        if (
+          entropyMultiplier * boundEntropy +
+            infoWeight * (priorLoss / size) ** (1 / 8) * scale * size >
+          cutoff * (1 + 1e-12)
+        ) {
+          lastLoss = Infinity
+          return Infinity
+        }
       }
+      entropy += channelEntropy
       if (!tiny) {
         inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
@@ -505,10 +531,30 @@ function selectGeometry(
                     rightLoss = Math.max(rightLoss, losses[at] ?? 0)
                   }
                 }
-              let a = score(x, y, strategy, rectangleMultiplier, oldLeft)
+              let a = score(
+                x,
+                y,
+                strategy,
+                rectangleMultiplier,
+                prune ? Math.min(oldLeft, bestCost * (1 + 1e-12) + 1e-12) : oldLeft,
+              )
               const la = lastLoss
-              let b = score(x + dx, y + dy, strategy, rectangleMultiplier, oldRight)
-              const lb = lastLoss
+              // The other half has nonnegative cost. A partition must beat the
+              // current square/partition as well as each half's existing cover.
+              const left = Math.min(a, oldLeft)
+              const skipRight = prune && left >= bestCost
+              let b = skipRight
+                ? Infinity
+                : score(
+                    x + dx,
+                    y + dy,
+                    strategy,
+                    rectangleMultiplier,
+                    prune
+                      ? Math.min(oldRight, Math.max(0, bestCost - left) * (1 + 1e-12) + 1e-12)
+                      : oldRight,
+                  )
+              const lb = skipRight ? Infinity : lastLoss
               if (guarded) {
                 if (la > leftLoss) a = Infinity
                 if (lb > rightLoss) b = Infinity

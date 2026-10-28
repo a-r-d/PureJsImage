@@ -1,0 +1,1111 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 31e3a3b8..95d022d3 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -1,18 +1,18 @@
+ import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
+ import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
+ import {
+-  jpegXlVarDctStrategyBlockWidths,
+   jpegXlVarDctStrategyBlockHeights,
++  jpegXlVarDctStrategyBlockWidths,
+ } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { libjxlDcOverrides } from './libjxl-dc-port.ts'
++import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
++import { libjxlStandaloneOverrides, type StandalonePort } from './libjxl-standalone-port.ts'
+ import {
+   parseStrategyPort,
+-  strategyPortOverrides,
+   type StrategyPort,
++  strategyPortOverrides,
+ } from './libjxl-strategy-port.ts'
+-import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+-import { libjxlDcOverrides } from './libjxl-dc-port.ts'
+ import { rewriteStrategyGeometry } from './strategy-transplant.ts'
+-import { libjxlStandaloneOverrides, type StandalonePort } from './libjxl-standalone-port.ts'
+ 
+ export type LibjxlPort =
+   | StrategyPort
+@@ -73,6 +73,18 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-selector-mask-copy' ||
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
++    value === 'standalone-round-high' ||
++    value === 'standalone-round-low' ||
++    value === 'standalone-round-middle' ||
++    value === 'standalone-round-weak' ||
++    value === 'standalone-round-all' ||
++    value === 'standalone-round-high-only' ||
++    value === 'standalone-prune-known' ||
++    value === 'standalone-prune-minimum' ||
++    value === 'standalone-prune-partial' ||
++    value === 'standalone-prune-partition' ||
++    value === 'standalone-prune-combined' ||
++    value === 'standalone-round-guarded' ||
+     value === 'standalone-forward-all' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+@@ -159,6 +171,18 @@ export function libjxlPortOverrides(
+     mode === 'standalone-selector-mask-copy' ||
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
++    mode === 'standalone-round-high' ||
++    mode === 'standalone-round-low' ||
++    mode === 'standalone-round-middle' ||
++    mode === 'standalone-round-weak' ||
++    mode === 'standalone-round-all' ||
++    mode === 'standalone-round-high-only' ||
++    mode === 'standalone-prune-known' ||
++    mode === 'standalone-prune-minimum' ||
++    mode === 'standalone-prune-partial' ||
++    mode === 'standalone-prune-partition' ||
++    mode === 'standalone-prune-combined' ||
++    mode === 'standalone-round-guarded' ||
+     mode === 'standalone-forward-all' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 39f2fe1f..ccfc8697 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -12,13 +12,26 @@
+  */
+ import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
+ import { libjxlDcOverrides } from './libjxl-dc-port.ts'
+-import { libjxlInitialGlobalScale, libjxlInitialQuantField } from './libjxl-initial-quant-port.ts'
++import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
+ import { libjxlGaborishContext } from './libjxl-gaborish-port.ts'
+-import { strategyPortOverrides } from './libjxl-strategy-port.ts'
++import { libjxlInitialGlobalScale, libjxlInitialQuantField } from './libjxl-initial-quant-port.ts'
++import { type StrategyOptions, strategyPortOverrides } from './libjxl-strategy-port.ts'
++import type { FrequencyRounding } from './selected-error.ts'
+ import { selectorBlockCache } from './selector-block-cache.ts'
+-import { libjxlFilterDefaults } from './libjxl-filter-port.ts'
+ 
+ export type StandalonePort =
++  | 'standalone-round-guarded'
++  | 'standalone-prune-partition'
++  | 'standalone-prune-combined'
++  | 'standalone-prune-known'
++  | 'standalone-prune-minimum'
++  | 'standalone-prune-partial'
++  | 'standalone-round-high'
++  | 'standalone-round-low'
++  | 'standalone-round-middle'
++  | 'standalone-round-weak'
++  | 'standalone-round-all'
++  | 'standalone-round-high-only'
+   | 'standalone'
+   | 'standalone-reference'
+   | 'standalone-cache'
+@@ -72,7 +85,38 @@ export function libjxlStandaloneOverrides(
+   width: number,
+   height: number,
+   requestedMode: StandalonePort,
++  research: Pick<
++    StrategyOptions,
++    'writerResearch' | 'audit' | 'strongerPruning' | 'partitionPrune'
++  > = {},
+ ): JpegXlDevelopmentDecisions {
++  const rounding: FrequencyRounding | undefined =
++    requestedMode === 'standalone-round-guarded'
++      ? 'guarded'
++      : requestedMode === 'standalone-round-high'
++        ? 'high'
++        : requestedMode === 'standalone-round-low'
++          ? 'low'
++          : requestedMode === 'standalone-round-middle'
++            ? 'middle'
++            : requestedMode === 'standalone-round-weak'
++              ? 'weak'
++              : requestedMode === 'standalone-round-all'
++                ? 'all'
++                : requestedMode === 'standalone-round-high-only'
++                  ? 'high-only'
++                  : undefined
++  const strongerPruning =
++    requestedMode === 'standalone-prune-known'
++      ? 'known'
++      : requestedMode === 'standalone-prune-minimum' ||
++          requestedMode === 'standalone-prune-combined'
++        ? 'minimum'
++        : requestedMode === 'standalone-prune-partial'
++          ? 'partial'
++          : undefined
++  const partitionPrune =
++    requestedMode === 'standalone-prune-partition' || requestedMode === 'standalone-prune-combined'
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -90,7 +134,10 @@ export function libjxlStandaloneOverrides(
+       ? 'small'
+       : requestedMode === 'standalone-forward-paired'
+         ? 'paired'
+-        : requestedMode === 'standalone-forward-all'
++        : requestedMode === 'standalone-forward-all' ||
++            rounding !== undefined ||
++            strongerPruning !== undefined ||
++            partitionPrune
+           ? 'all'
+           : undefined
+   const coarseAllocation =
+@@ -245,6 +292,10 @@ export function libjxlStandaloneOverrides(
+             requestedMode === 'standalone-selector-mask-copy' ||
+             coarseAllocation,
+           lossScale,
++          ...research,
++          ...(partitionPrune ? { partitionPrune } : {}),
++          ...(strongerPruning ? { strongerPruning } : {}),
++          ...(rounding ? { writerResearch: { rounding } } : {}),
+           ...(writerEstimate ? { writerEstimate } : {}),
+           ...(writerTransform ? { writerTransform } : {}),
+           compactStorage:
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index 84c17262..beaf5c11 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -18,33 +18,35 @@
+  * Tiny's split-cost literal is written as its representable JavaScript double.
+  * This is a development experiment, never imported by the public encoder.
+  */
+-import { selectorTileMask } from './selector-tile-mask.ts'
+-import { selectorMaskLoss } from './selector-mask-loss.ts'
+-import { inverseSelectorTransform } from './selector-inverse.ts'
+-import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
+ import type {
+   JpegXlDevelopmentDecisions,
+   JpegXlDevelopmentTransformContext,
+ } from '../../../src/codecs/jpegxl-development-decisions.ts'
+ import type { VarDctCoefficientGeometry } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {
++  jpegXlVarDctStrategyBlockHeights,
++  jpegXlVarDctStrategyBlockWidths,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
+ import {
+   inverseJpegXlDevelopmentTransform,
+   jpegXlDevelopmentDequantization,
+ } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
++import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
++import type { WriterResearch } from './selected-error.ts'
++import type { SelectorCounts } from './selector-counts.ts'
++import { inverseSelectorTransform } from './selector-inverse.ts'
++import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
++import { selectorMaskLoss } from './selector-mask-loss.ts'
++import { selectorTileMask } from './selector-tile-mask.ts'
+ import {
+-  jpegXlVarDctStrategyBlockWidths,
+-  jpegXlVarDctStrategyBlockHeights,
+-} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
+-import { forwardDevelopmentTransform } from './transform-kernels.ts'
+-import {
++  forwardPairedSelectorTransform,
+   forwardSelectorTransform,
+   forwardSymmetricSelectorTransform,
+-  forwardPairedSelectorTransform,
+ } from './selector-transforms.ts'
+ import { rewriteStrategyGeometry } from './strategy-transplant.ts'
+-import { libjxlStrategyMask } from './libjxl-strategy-mask.ts'
+-import { libjxlTransformQuantization } from './libjxl-quantization-port.ts'
+-import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++import { forwardDevelopmentTransform } from './transform-kernels.ts'
+ 
+ export type StrategyPort =
+   | 'tiny'
+@@ -91,6 +93,10 @@ export interface StrategyOptions {
+   inverseWeights?: boolean
+   rowMask?: boolean
+   bulkBlockCopy?: boolean
++  audit?: SelectorCounts
++  partitionPrune?: boolean
++  strongerPruning?: 'known' | 'minimum' | 'partial'
++  writerResearch?: WriterResearch
+   lossScale?: number
+ }
+ 
+@@ -205,6 +211,8 @@ function selectGeometry(
+     entropyMultiplier: number,
+     cutoff = Infinity,
+   ): number => {
++    if (options.audit)
++      options.audit.candidates[strategy] = (options.audit.candidates[strategy] ?? 0) + 1
+     const bw = jpegXlVarDctStrategyBlockWidths[strategy] ?? 0
+     const bh = jpegXlVarDctStrategyBlockHeights[strategy] ?? 0
+     const width = bw * 8,
+@@ -245,6 +253,8 @@ function selectGeometry(
+       const source = planes[c],
+         output = transformed[c]
+       if (!source || !output) throw new Error('Missing transform scratch')
++      if (options.audit)
++        options.audit.forward[strategy * 3 + c] = (options.audit.forward[strategy * 3 + c] ?? 0) + 1
+       transform(strategy, source, scratch, output)
+     }
+     const tile = Math.floor(y / 8) * Math.ceil(base.blocksWide / 8) + Math.floor(x / 8)
+@@ -256,14 +266,36 @@ function selectGeometry(
+       absoluteError = 0,
+       squaredError = 0
+     if (actualRounding) context.readBlock(x, y, true)
++    const penalty = bw * bh >= 2 ? 1 + Math.min(3, (bw * bh) / 8) : 1
++    const minimumEntropy = zeroWeight * 6
++    const useMinimum =
++      options.strongerPruning === 'minimum' || options.strongerPruning === 'partial'
+     const tables = jpegXlDevelopmentDequantization(strategy)
+     const naturalWidth = Math.max(width, height)
+     for (let channelIndex = 0; channelIndex < 3; channelIndex++) {
+       const c = prune && channelIndex < 2 ? channelIndex ^ 1 : channelIndex
++      if (prune && !tiny && useMinimum && c !== 1) {
++        const boundEntropy =
++          (c === 0 ? lumaEntropy : entropy) + minimumEntropy * (c === 0 ? penalty + 1 : 1)
++        const boundLoss = c === 0 ? lumaLoss : loss
++        if (
++          entropyMultiplier * boundEntropy +
++            infoWeight * (boundLoss / size) ** (1 / 8) * scale * size >
++          cutoff * (1 + 1e-12)
++        ) {
++          if (options.audit)
++            options.audit.early[strategy * 3 + c] = (options.audit.early[strategy * 3 + c] ?? 0) + 1
++          lastLoss = Infinity
++          return Infinity
++        }
++      }
+       if (prune && c !== 1) {
+         const source = planes[c],
+           output = transformed[c]
+         if (!source || !output) throw new Error('Missing deferred transform scratch')
++        if (options.audit)
++          options.audit.forward[strategy * 3 + c] =
++            (options.audit.forward[strategy * 3 + c] ?? 0) + 1
+         transform(strategy, source, scratch, output)
+       }
+       const coefficients = transformed[c],
+@@ -288,6 +320,12 @@ function selectGeometry(
+               : 1
+       let nonzero = 0,
+         channelEntropy = 0
++      const priorEntropy = c === 0 && prune ? lumaEntropy : entropy
++      const priorLoss = c === 0 && prune ? lumaLoss : loss
++      const channelPenalty = c === 0 ? penalty : 1
++      const pendingMinimum = useMinimum
++        ? minimumEntropy * (c === 1 ? penalty + 1 : c === 0 ? 1 : 0)
++        : 0
+       residual.fill(0, 0, size)
+       for (let p = 0; p < size; p++) {
+         if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
+@@ -320,10 +358,45 @@ function selectGeometry(
+           ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+           : Math.sqrt(magnitude) * magnitudeWeight
+         residual[p] = error * channelScale * (matrix[p] ?? 0)
++        if (
++          options.strongerPruning === 'partial' &&
++          prune &&
++          !tiny &&
++          size >= 256 &&
++          (p & 127) === 127
++        ) {
++          const boundEntropy =
++            priorEntropy + (channelEntropy + minimumEntropy) * channelPenalty + pendingMinimum
++          if (
++            entropyMultiplier * boundEntropy +
++              infoWeight * (priorLoss / size) ** (1 / 8) * scale * size >
++            cutoff * (1 + 1e-12)
++          ) {
++            if (options.audit)
++              options.audit.early[strategy * 3 + c] =
++                (options.audit.early[strategy * 3 + c] ?? 0) + 1
++            lastLoss = Infinity
++            return Infinity
++          }
++        }
+       }
+       const bits = ceilLog2(nonzero + 1) + 1
+       channelEntropy += (tiny ? 7.565053364251793 : zeroWeight) * (ceilLog2(bits + 17) + bits)
+       if (tiny) channelEntropy += nonzero * (1 + Math.min(1, distance / 3) * 8.8703248061477744)
++      if (options.strongerPruning && prune && !tiny) {
++        const boundEntropy = priorEntropy + channelEntropy * channelPenalty + pendingMinimum
++        if (
++          entropyMultiplier * boundEntropy +
++            infoWeight * (priorLoss / size) ** (1 / 8) * scale * size >
++          cutoff * (1 + 1e-12)
++        ) {
++          if (options.audit)
++            options.audit.beforeInverse[strategy * 3 + c] =
++              (options.audit.beforeInverse[strategy * 3 + c] ?? 0) + 1
++          lastLoss = Infinity
++          return Infinity
++        }
++      }
+       entropy += channelEntropy
+       // Nonnegative channel costs give an admissible lower bound. Preserve the
+       // complete winner calculation; only discard candidates that cannot win.
+@@ -332,10 +405,16 @@ function selectGeometry(
+         !tiny &&
+         entropyMultiplier * entropy + infoWeight * (loss / size) ** (1 / 8) * scale * size >= cutoff
+       ) {
++        if (options.audit)
++          options.audit.beforeInverse[strategy * 3 + c] =
++            (options.audit.beforeInverse[strategy * 3 + c] ?? 0) + 1
+         lastLoss = Infinity
+         return Infinity
+       }
+       if (!tiny) {
++        if (options.audit)
++          options.audit.inverse[strategy * 3 + c] =
++            (options.audit.inverse[strategy * 3 + c] ?? 0) + 1
+         inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
+         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
+         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
+@@ -384,6 +463,9 @@ function selectGeometry(
+           entropyMultiplier * entropy + infoWeight * (loss / size) ** (1 / 8) * scale * size >=
+             cutoff
+         ) {
++          if (options.audit)
++            options.audit.afterInverse[strategy * 3 + c] =
++              (options.audit.afterInverse[strategy * 3 + c] ?? 0) + 1
+           lastLoss = Infinity
+           return Infinity
+         }
+@@ -505,10 +587,30 @@ function selectGeometry(
+                     rightLoss = Math.max(rightLoss, losses[at] ?? 0)
+                   }
+                 }
+-              let a = score(x, y, strategy, rectangleMultiplier, oldLeft)
++              let a = score(
++                x,
++                y,
++                strategy,
++                rectangleMultiplier,
++                options.partitionPrune && prune
++                  ? Math.min(oldLeft, bestCost * (1 + 1e-12) + 1e-12)
++                  : oldLeft,
++              )
+               const la = lastLoss
+-              let b = score(x + dx, y + dy, strategy, rectangleMultiplier, oldRight)
+-              const lb = lastLoss
++              const left = Math.min(a, oldLeft)
++              const skipRight = options.partitionPrune && prune && left >= bestCost
++              let b = skipRight
++                ? Infinity
++                : score(
++                    x + dx,
++                    y + dy,
++                    strategy,
++                    rectangleMultiplier,
++                    options.partitionPrune && prune
++                      ? Math.min(oldRight, Math.max(0, bestCost - left) * (1 + 1e-12) + 1e-12)
++                      : oldRight,
++                  )
++              const lb = skipRight ? Infinity : lastLoss
+               if (guarded) {
+                 if (la > leftLoss) a = Infinity
+                 if (lb > rightLoss) b = Infinity
+@@ -592,6 +694,7 @@ function selectGeometry(
+       false,
+       compactStorage,
+       writerTransform,
++      options.writerResearch,
+     )
+   } finally {
+     memory.release(strategies)
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 8ccbd6ac..cefb0426 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -1,24 +1,32 @@
+-import {
+-  packCoefficients,
+-  unpackCoefficients,
+-  type PackedCoefficients,
+-} from './packed-coefficients.ts'
+ import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
+ import type {
++  JpegXlDevelopmentOrderFamily,
+   VarDctCoefficientGeometry,
+   VarDctCoefficientPlane,
+-  JpegXlDevelopmentOrderFamily,
+ } from '../../../src/codecs/jpegxl-jpeg-encode.ts'
+-import { jpegXlDevelopmentDequantization } from '../../../src/codecs/jpegxl-vardct-render.ts'
+ import {
+-  naturalJpegXlDevelopmentCoefficientOrder,
+-  jpegXlVarDctStrategyBlockWidths,
+   jpegXlVarDctStrategyBlockHeights,
++  jpegXlVarDctStrategyBlockWidths,
++  naturalJpegXlDevelopmentCoefficientOrder,
+ } from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
+-import { forwardDevelopmentTransform, developmentDcGrid } from './transform-kernels.ts'
+-import { forwardSelectorTransform, forwardPairedSelectorTransform } from './selector-transforms.ts'
++import { jpegXlDevelopmentDequantization } from '../../../src/codecs/jpegxl-vardct-render.ts'
+ import type { TransplantDecisions } from './decisions.ts'
+-import { libjxlRoundtripLuma, libjxlChromaResidual } from './libjxl-chroma-roundtrip-port.ts'
++import { libjxlChromaResidual, libjxlRoundtripLuma } from './libjxl-chroma-roundtrip-port.ts'
++import {
++  type PackedCoefficients,
++  packCoefficients,
++  unpackCoefficients,
++} from './packed-coefficients.ts'
++import {
++  guardRoundedCoefficient,
++  recordSelectedError,
++  regularDct,
++  roundingShift,
++  selectedFrequencyBand,
++  type WriterResearch,
++} from './selected-error.ts'
++import { forwardPairedSelectorTransform, forwardSelectorTransform } from './selector-transforms.ts'
++import { developmentDcGrid, forwardDevelopmentTransform } from './transform-kernels.ts'
+ 
+ export function rewriteStrategyGeometry(
+   base: VarDctCoefficientGeometry,
+@@ -31,6 +39,7 @@ export function rewriteStrategyGeometry(
+   roundtripChroma = false,
+   compactStorage = false,
+   writerTransform?: 'small' | 'paired' | 'all',
++  research?: WriterResearch,
+ ): VarDctCoefficientGeometry {
+   const memory = base.memory
+   if (
+@@ -254,7 +263,7 @@ export function rewriteStrategyGeometry(
+                 Math.floor(p / naturalWidth) < Math.min(bw, bh)
+               )
+                 continue
+-              const value = context.quantize(
++              const normalized =
+                 (roundtripChroma
+                   ? libjxlChromaResidual(
+                       result[p] ?? 0,
+@@ -264,9 +273,34 @@ export function rewriteStrategyGeometry(
+                       c === 2,
+                     )
+                   : (result[p] ?? 0) - ratio * (yCoefficients[p] ?? 0)) /
+-                  (step * (table[p] ?? 0)),
+-                c,
+-              )
++                (step * (table[p] ?? 0))
++              const band =
++                research && regularDct(strategy)
++                  ? selectedFrequencyBand(p, naturalWidth, size / naturalWidth)
++                  : 0
++              const shift =
++                research?.rounding && regularDct(strategy)
++                  ? roundingShift(research.rounding, band, c)
++                  : 0
++              let value = context.quantize(normalized + Math.sign(normalized) * shift, c)
++              if (research?.rounding === 'guarded' && shift !== 0)
++                value = guardRoundedCoefficient(
++                  normalized,
++                  context.quantize(normalized, c),
++                  value,
++                  c,
++                )
++              if (research?.audit)
++                recordSelectedError(
++                  research.audit,
++                  strategy,
++                  c,
++                  band,
++                  normalized,
++                  value,
++                  step * (table[p] ?? 0),
++                  size,
++                )
+               if (Math.abs(value) > 4095)
+                 throw new Error('Forced transform coefficient exceeds writer range')
+               target[cursor + (size === 64 ? (p & 7) * 8 + (p >>> 3) : p)] = value
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index b0997fd2..14aaeb10 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -1,14 +1,14 @@
+ import { expect, it } from 'vitest'
++import { extractDecisions } from '../benchmark/jpegxl/lossy-lab/decisions.ts'
++import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
+ import {
+-  strategyPortOverrides,
+   parseStrategyPort,
++  strategyPortOverrides,
+ } from '../benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts'
+-import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
+ import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
+-import { extractDecisions } from '../benchmark/jpegxl/lossy-lab/decisions.ts'
+ import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+-import { MemorySource } from '../src/source.ts'
+ import { defaultImageLimits } from '../src/limits.ts'
++import { MemorySource } from '../src/source.ts'
+ 
+ it.each([
+   'tiny',
+@@ -61,6 +61,15 @@ it.each([
+   'standalone-selector-mask-copy',
+   'standalone-forward-small',
+   'standalone-forward-paired',
++  'standalone-prune-known',
++  'standalone-prune-minimum',
++  'standalone-prune-partial',
++  'standalone-round-high',
++  'standalone-round-low',
++  'standalone-round-middle',
++  'standalone-round-weak',
++  'standalone-round-all',
++  'standalone-round-high-only',
+   'standalone-forward-all',
+   'standalone-guard-coarse',
+   'standalone-selector-pairs',
+diff --git a/benchmark/jpegxl/lossy-lab/audit-selected.ts b/benchmark/jpegxl/lossy-lab/audit-selected.ts
+new file mode 100644
+index 00000000..6483758e
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-selected.ts
+@@ -0,0 +1,83 @@
++import { spawn } from 'node:child_process'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { parsePreparedManifest, selectPreparedFixtures } from './fixture-selection.ts'
++import { libjxlStandaloneOverrides } from './libjxl-standalone-port.ts'
++import { createSelectedError } from './selected-error.ts'
++import { createSelectorCounts } from './selector-counts.ts'
++import { encodeTransplant } from './transplant.ts'
++
++const [root, shardText] = process.argv.slice(2)
++if (!root) throw new Error('Need output directory')
++await mkdir(root, { recursive: true })
++if (shardText === undefined) {
++  const outcomes = await Promise.all(
++    [0, 1, 2, 3].map(
++      (shard) =>
++        new Promise<void>((resolve, reject) => {
++          const child = spawn(process.execPath, [import.meta.filename, root, String(shard)], {
++            stdio: 'inherit',
++          })
++          child.once('error', reject)
++          child.once('exit', (code) =>
++            code === 0 ? resolve() : reject(new Error(`Audit shard ${shard} failed ${code}`)),
++          )
++        }),
++    ),
++  )
++  console.log(`Completed ${outcomes.length} development shards`)
++} else {
++  const shard = Number(shardText)
++  if (!Number.isInteger(shard) || shard < 0 || shard > 3) throw new Error('Bad shard')
++  const manifest = parsePreparedManifest(
++    JSON.parse(await readFile('.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json', 'utf8')),
++  )
++  const fixtures = selectPreparedFixtures(manifest, { mode: 'lab' })
++  if (!fixtures.complete || fixtures.fixtures.length !== 64) throw new Error('Incomplete fixed lab')
++  const distances = [0.45, 0.65, 0.9, 1.3, 1.85, 3, 3.8, 5.35, 7.5]
++  const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
++  for (const [index, f] of fixtures.fixtures.entries()) {
++    if (index % 4 !== shard) continue
++    const bytes = await readFile(f.png)
++    if (hash(bytes) !== f.fixtureSha256) throw new Error('Source hash changed')
++    const png = PNG.sync.read(bytes),
++      pixels = Uint8Array.from(png.data)
++    for (const distance of distances) {
++      const audit = createSelectedError(),
++        counts = createSelectorCounts()
++      const output = await encodeTransplant(
++        pixels,
++        png.width,
++        png.height,
++        distance,
++        libjxlStandaloneOverrides(distance, png.width, png.height, 'standalone-forward-all', {
++          writerResearch: { audit },
++          audit: counts,
++        }),
++      )
++      const saved = await readFile(
++        `.tmp/jpegxl-lossy-lab/standalone-reconstruction-20261017/forward-lab/standalone-forward-all-purejsimage/${f.id}-lab/${distance}.jxl`,
++      )
++      if (hash(output.bytes) !== hash(saved))
++        throw new Error(`Audit changed stream ${f.id}/${distance}`)
++      await writeFile(
++        `${root}/${f.id}-${distance}.json`,
++        JSON.stringify({
++          id: f.id,
++          distance,
++          pixels: png.width * png.height,
++          hash: hash(output.bytes),
++          error: Object.fromEntries(
++            Object.entries(audit).map(([key, value]) => [key, Array.from(value)]),
++          ),
++          counts: Object.fromEntries(
++            Object.entries(counts).map(([key, value]) => [key, Array.from(value)]),
++          ),
++        }) + '\n',
++        { flag: 'wx' },
++      )
++    }
++    console.log(f.id)
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/probe-pruning.ts b/benchmark/jpegxl/lossy-lab/probe-pruning.ts
+new file mode 100644
+index 00000000..7919c612
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/probe-pruning.ts
+@@ -0,0 +1,49 @@
++import { createHash } from 'node:crypto'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { libjxlStandaloneOverrides } from './libjxl-standalone-port.ts'
++import { createSelectorCounts } from './selector-counts.ts'
++import { encodeTransplant } from './transplant.ts'
++
++const [path, output] = process.argv.slice(2)
++if (!path || !output) throw new Error('Need input and output')
++const png = PNG.sync.read(await readFile(path)),
++  pixels = Uint8Array.from(png.data),
++  rows = []
++let expected: string | undefined
++for (const mode of [
++  'standalone-forward-all',
++  'standalone-prune-known',
++  'standalone-prune-minimum',
++  'standalone-prune-partial',
++  'standalone-prune-partition',
++  'standalone-prune-combined',
++] as const) {
++  const audit = createSelectorCounts()
++  const result = await encodeTransplant(
++    pixels,
++    png.width,
++    png.height,
++    2,
++    libjxlStandaloneOverrides(2, png.width, png.height, mode, { audit }),
++  )
++  const hash = createHash('sha256').update(result.bytes).digest('hex')
++  expected ??= hash
++  if (hash !== expected) throw new Error(`Pruning changed ${mode}`)
++  rows.push({
++    mode,
++    hash,
++    counts: Object.fromEntries((['candidates','forward','inverse','beforeInverse','afterInverse','early'] as const).map(k=>[k,Array.from(audit[k])])),
++    totals: Object.fromEntries(
++      (['candidates','forward','inverse','beforeInverse','afterInverse','early'] as const).map(k=>[k,audit[k].reduce((a,b)=>a+b,0)]),
++    ),
++  })
++}
++await writeFile(output, JSON.stringify({ path, distance: 2, rows }, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    rows.map((r) => ({ mode: r.mode, ...r.totals })),
++    null,
++    2,
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/run-selected-screen.ts b/benchmark/jpegxl/lossy-lab/run-selected-screen.ts
+new file mode 100644
+index 00000000..e86aa946
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/run-selected-screen.ts
+@@ -0,0 +1,73 @@
++import { spawnSync } from 'node:child_process'
++import { appendFileSync, closeSync, mkdirSync, openSync, readFileSync } from 'node:fs'
++import { number, object, string } from '../comparison/model.ts'
++
++const [root] = process.argv.slice(2)
++if (!root) throw new Error('Need output root')
++mkdirSync(root, { recursive: true })
++const modes = [
++  'standalone-forward-all',
++  'standalone-round-high',
++  'standalone-round-low',
++  'standalone-round-middle',
++  'standalone-round-weak',
++  'standalone-round-all',
++  'standalone-round-high-only',
++]
++for (const [index, mode] of modes.entries()) {
++  const out = `${root}/${mode}-screen`
++  mkdirSync(out)
++  const fd = openSync(`${out}/run.log`, 'wx')
++  const run = (args: string[]) => {
++    const r = spawnSync(process.execPath, args, { stdio: ['ignore', fd, fd] })
++    if (r.status !== 0) throw new Error(`Failed ${mode}: ${r.status}`)
++  }
++  console.log(`Starting ${mode}`)
++  run([
++    'benchmark/jpegxl/lossy-lab/run.ts',
++    '--manifest',
++    '.tmp/jpegxl-lossy-lab/corpus-512-v2/manifest.json',
++    '--out',
++    out,
++    '--mode',
++    'screen',
++    '--variant',
++    mode,
++    '--workers',
++    '4',
++    '--strategy-port',
++    mode,
++  ])
++  run([
++    'benchmark/jpegxl/lossy-lab/summarize-port.ts',
++    out,
++    `${root}/standalone-forward-all-screen/standalone-forward-all-purejsimage`,
++  ])
++  closeSync(fd)
++  const result = object(JSON.parse(readFileSync(`${out}/against-control.json`, 'utf8')))
++  if (
++    !Array.isArray(result.control) ||
++    !Array.isArray(result.peers) ||
++    !Array.isArray(result.failures) ||
++    result.failures.length
++  )
++    throw new Error('Invalid quality results')
++  const rates = (rows: unknown[]) =>
++    ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax']
++      .map((metric) => {
++        const row = rows.map(object).find((r) => r.metric === metric)
++        if (!row || number(row.count) !== 16) throw new Error('Incomplete metric')
++        return number(row.mean).toFixed(3)
++      })
++      .join('/')
++  const peers = result.peers
++  const control = rates(result.control),
++    peer = (name: string) => rates(peers.filter((v) => string(object(v).peer) === name))
++  const vips = peer('vips'),
++    jsquash = peer('jsquash')
++  console.log(JSON.stringify({ mode, control, vips, jsquash }))
++  appendFileSync(
++    'benchmark/jpegxl/lossy-lab-log.md',
++    `\n| LL-${957 + index}, 2026-10-28 | ${mode}: frequency-dependent emitted rounding with the retained selected transforms. | All 80 screen outputs decode and score. Control ${control}%; vips ${vips}%; jSquash ${jsquash}%. | Concurrent quality timings excluded. | Screen evidence; no holdout. Raw: selected-20261028/${mode}-screen. | measured |\n`,
++  )
++}
+diff --git a/benchmark/jpegxl/lossy-lab/selected-error.ts b/benchmark/jpegxl/lossy-lab/selected-error.ts
+new file mode 100644
+index 00000000..358e326d
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selected-error.ts
+@@ -0,0 +1,95 @@
++/** First-party coefficient-domain diagnostic; uses normative decoder centroids. */
++import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
++
++export type FrequencyRounding = 'high' | 'low' | 'middle' | 'weak' | 'all' | 'high-only' | 'guarded'
++export interface SelectedError {
++  readonly count: Float64Array
++  readonly nonzero: Float64Array
++  readonly error: Float64Array
++  readonly avoidable: Float64Array
++  readonly signal: Float64Array
++}
++export interface WriterResearch {
++  readonly rounding?: FrequencyRounding
++  readonly audit?: SelectedError
++}
++export function createSelectedError(): SelectedError {
++  return {
++    count: new Float64Array(27 * 3 * 4),
++    nonzero: new Float64Array(27 * 3 * 4),
++    error: new Float64Array(27 * 3 * 4),
++    avoidable: new Float64Array(27 * 3 * 4),
++    signal: new Float64Array(27 * 3 * 4),
++  }
++}
++export function regularDct(strategy: number): boolean {
++  return (
++    strategy === 0 ||
++    strategy === 4 ||
++    strategy === 5 ||
++    strategy === 6 ||
++    strategy === 7 ||
++    strategy === 10 ||
++    strategy === 11 ||
++    strategy === 18 ||
++    strategy === 19 ||
++    strategy === 20
++  )
++}
++export function selectedFrequencyBand(p: number, width: number, height: number): number {
++  if (p === 0) return 0
++  const frequency = (p % width) / width + Math.floor(p / width) / height
++  return frequency <= 0.25 ? 1 : frequency <= 0.75 ? 2 : 3
++}
++export function decodedLevel(value: number, channel: number): number {
++  return value === 0
++    ? 0
++    : Math.abs(value) === 1
++      ? Math.sign(value) * (defaultJpegXlQuantizationBiases[channel] ?? 1)
++      : value - 0.145 / value
++}
++export function roundingShift(mode: FrequencyRounding, band: number, channel: number): number {
++  if (band === 0 || (channel !== 1 && mode !== 'all')) return 0
++  const strength = mode === 'weak' ? 0.04 : 0.08
++  if (mode === 'middle') return band === 2 ? strength : -strength / 2
++  if (mode === 'high-only' || mode === 'guarded') return band === 3 ? strength : 0
++  const direction = mode === 'low' ? -1 : 1
++  return direction * (band === 3 ? strength : band === 1 ? -strength : 0)
++}
++export function recordSelectedError(
++  audit: SelectedError,
++  strategy: number,
++  channel: number,
++  band: number,
++  source: number,
++  emitted: number,
++  step: number,
++  area: number,
++): void {
++  const at = (strategy * 3 + channel) * 4 + band
++  const weight = regularDct(strategy) ? area : 1
++  const error = (source - decodedLevel(emitted, channel)) ** 2
++  const magnitude = Math.abs(source),
++    lower = Math.floor(magnitude)
++  let best = error
++  for (let value = Math.max(0, lower - 1); value <= lower + 2; value++)
++    best = Math.min(best, (magnitude - decodedLevel(value, channel)) ** 2)
++  audit.count[at] = (audit.count[at] ?? 0) + 1
++  audit.nonzero[at] = (audit.nonzero[at] ?? 0) + (emitted !== 0 ? 1 : 0)
++  audit.error[at] = (audit.error[at] ?? 0) + error * step * step * weight
++  audit.avoidable[at] = (audit.avoidable[at] ?? 0) + (error - best) * step * step * weight
++  audit.signal[at] = (audit.signal[at] ?? 0) + source * source * step * step * weight
++}
++
++/** Accept a proposed higher precision token only when its decoded error falls. */
++export function guardRoundedCoefficient(
++  source: number,
++  original: number,
++  proposal: number,
++  channel: number,
++): number {
++  return (source - decodedLevel(proposal, channel)) ** 2 <
++    (source - decodedLevel(original, channel)) ** 2
++    ? proposal
++    : original
++}
+diff --git a/benchmark/jpegxl/lossy-lab/selector-counts.ts b/benchmark/jpegxl/lossy-lab/selector-counts.ts
+new file mode 100644
+index 00000000..706b00a1
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-counts.ts
+@@ -0,0 +1,19 @@
++/** Development-only accounting for candidate work and rejection stages. */
++export interface SelectorCounts {
++  candidates: Float64Array
++  forward: Float64Array
++  inverse: Float64Array
++  beforeInverse: Float64Array
++  afterInverse: Float64Array
++  early: Float64Array
++}
++export function createSelectorCounts(): SelectorCounts {
++  return {
++    candidates: new Float64Array(27),
++    forward: new Float64Array(81),
++    inverse: new Float64Array(81),
++    beforeInverse: new Float64Array(81),
++    afterInverse: new Float64Array(81),
++    early: new Float64Array(81),
++  }
++}
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-selected.ts b/benchmark/jpegxl/lossy-lab/summarize-selected.ts
+new file mode 100644
+index 00000000..768024b4
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-selected.ts
+@@ -0,0 +1,86 @@
++import { readdir, readFile, writeFile } from 'node:fs/promises'
++import { number, object } from '../comparison/model.ts'
++import { regularDct } from './selected-error.ts'
++
++const [root, output] = process.argv.slice(2)
++if (!root || !output) throw new Error('Need audit directory and summary path')
++const files = (await readdir(root)).filter((f) => /^im26-\d+-[\d.]+\.json$/u.test(f))
++if (files.length !== 576) throw new Error(`Need 576 audit points, got ${files.length}`)
++const groups = new Map<
++  number,
++  {
++    count: number
++    pixels: number
++    counts: Record<string, number[]>
++    errors: Record<string, number[]>
++  }
++>()
++for (const f of files) {
++  const row = object(JSON.parse(await readFile(`${root}/${f}`, 'utf8'))),
++    distance = number(row.distance)
++  let group = groups.get(distance)
++  if (!group) {
++    group = { count: 0, pixels: 0, counts: {}, errors: {} }
++    groups.set(distance, group)
++  }
++  group.count++
++  group.pixels += number(row.pixels)
++  for (const [field, target] of [
++    [row.counts, group.counts],
++    [row.error, group.errors],
++  ] as const)
++    for (const [key, value] of Object.entries(object(field))) {
++      if (!Array.isArray(value)) throw new Error('Missing vector')
++      const sum = (target[key] ??= new Array<number>(value.length).fill(0))
++      if (sum.length !== value.length) throw new Error('Mixed vector extent')
++      for (let i = 0; i < sum.length; i++) sum[i] = (sum[i] ?? 0) + number(value[i])
++    }
++}
++const rows = [...groups]
++  .sort((a, b) => a[0] - b[0])
++  .map(([distance, g]) => {
++    if (g.count !== 64) throw new Error('Incomplete distance')
++    const regularLuma = {
++      count: [0, 0, 0, 0],
++      nonzero: [0, 0, 0, 0],
++      error: [0, 0, 0, 0],
++      avoidable: [0, 0, 0, 0],
++      signal: [0, 0, 0, 0],
++    }
++    for (const key of ['count', 'nonzero', 'error', 'avoidable', 'signal'] as const)
++      for (let strategy = 0; strategy < 27; strategy++)
++        if (regularDct(strategy))
++          for (let band = 0; band < 4; band++)
++            regularLuma[key][band] =
++              (regularLuma[key][band] ?? 0) + (g.errors[key]?.[(strategy * 3 + 1) * 4 + band] ?? 0)
++    return {
++      distance,
++      ...g,
++      regularLuma,
++      work: Object.fromEntries(
++        Object.entries(g.counts).map(([key, value]) => [key, value.reduce((a, b) => a + b, 0)]),
++      ),
++    }
++  })
++await writeFile(
++  output,
++  JSON.stringify(
++    {
++      base: 'c10c99be',
++      points: files.length,
++      bands: ['unclassified-special', 'low', 'middle', 'high'],
++      policy:
++        'AC coefficient-domain energy before display filtering. Regular DCT energy is scaled to spatial SSE. Chroma is residual-domain only. Nearest-level excess ignores rate cost. No holdout.',
++      rows,
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify(
++    rows.map((r) => ({ distance: r.distance, regularLuma: r.regularLuma, work: r.work })),
++    null,
++    2,
++  ),
++)
+diff --git a/tests/jpegxl-selected-error.test.ts b/tests/jpegxl-selected-error.test.ts
+new file mode 100644
+index 00000000..463e1aa2
+--- /dev/null
++++ b/tests/jpegxl-selected-error.test.ts
+@@ -0,0 +1,112 @@
++import { expect, it } from 'vitest'
++import {
++  createSelectedError,
++  decodedLevel,
++  guardRoundedCoefficient,
++  recordSelectedError,
++  regularDct,
++  roundingShift,
++  selectedFrequencyBand,
++} from '../benchmark/jpegxl/lossy-lab/selected-error.ts'
++import { forwardSelectorTransform } from '../benchmark/jpegxl/lossy-lab/selector-transforms.ts'
++import { inverseJpegXlDevelopmentTransform } from '../src/codecs/jpegxl-vardct-render.ts'
++
++it('labels regular-transform frequencies and leaves special transforms unclassified', () => {
++  expect(selectedFrequencyBand(0, 8, 8)).toBe(0)
++  expect(selectedFrequencyBand(2, 8, 8)).toBe(1)
++  expect(selectedFrequencyBand(24, 16, 8)).toBe(2)
++  expect(selectedFrequencyBand(63, 8, 8)).toBe(3)
++  expect(regularDct(1)).toBe(false)
++  expect(regularDct(3)).toBe(false)
++  expect(regularDct(10)).toBe(true)
++  expect(roundingShift('high', 0, 1)).toBe(0)
++  expect(roundingShift('high', 3, 0)).toBe(0)
++  expect(roundingShift('high', 3, 1)).toBe(0.08)
++  expect(roundingShift('low', 3, 1)).toBe(-0.08)
++})
++it.each([
++  [0, 8, 8],
++  [4, 16, 16],
++  [6, 16, 8],
++])('accounts for coefficient normalization for strategy %i', (strategy, width, height) => {
++  const size = width * height,
++    src = Float32Array.from({ length: size }, (_, i) => Math.sin(i * 0.31) * 0.1)
++  const coefficients = new Float64Array(size),
++    scratch = new Float64Array(4096),
++    reconstructed = new Float64Array(size),
++    out = new Float32Array(size),
++    active = new Uint16Array(64)
++  forwardSelectorTransform(strategy, src, scratch, coefficients)
++  const audit = createSelectedError(),
++    step = 0.002,
++    naturalWidth = Math.max(width, height)
++  for (let p = 0; p < size; p++) {
++    if (
++      p % naturalWidth < naturalWidth / 8 &&
++      Math.floor(p / naturalWidth) < Math.min(width, height) / 8
++    ) {
++      reconstructed[p] = coefficients[p] ?? 0
++      continue
++    }
++    const normalized = (coefficients[p] ?? 0) / step,
++      q = Math.round(normalized)
++    reconstructed[p] = decodedLevel(q, 1) * step
++    recordSelectedError(
++      audit,
++      strategy,
++      1,
++      selectedFrequencyBand(p, naturalWidth, size / naturalWidth),
++      normalized,
++      q,
++      step,
++      size,
++    )
++  }
++  inverseJpegXlDevelopmentTransform(strategy, reconstructed, scratch, out, active)
++  const spatial = src.reduce((sum, v, i) => sum + (v - (out[i] ?? 0)) ** 2, 0)
++  expect(audit.error.reduce((a, b) => a + b, 0)).toBeCloseTo(spatial, 8)
++  expect(audit.avoidable.reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(0)
++})
++
++it('preserves streams when stronger bounds prune losing transform candidates', async () => {
++  const { encodeTransplant } = await import('../benchmark/jpegxl/lossy-lab/transplant.ts')
++  const { libjxlPortOverrides } = await import('../benchmark/jpegxl/lossy-lab/libjxl-ports.ts')
++  const width = 137,
++    height = 75,
++    pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++      i % 4 === 3 ? 255 : 30 + ((i * 17 + Math.floor(i / width) * 31) % 200),
++    )
++  for (const distance of [0.45, 2, 7.5]) {
++    const control = await encodeTransplant(
++      pixels,
++      width,
++      height,
++      distance,
++      libjxlPortOverrides('standalone-forward-all', distance, width, height),
++    )
++    for (const mode of [
++      'standalone-prune-known',
++      'standalone-prune-minimum',
++      'standalone-prune-partial',
++      'standalone-prune-partition',
++      'standalone-prune-combined',
++    ] as const) {
++      const result = await encodeTransplant(
++        pixels,
++        width,
++        height,
++        distance,
++        libjxlPortOverrides(mode, distance, width, height),
++      )
++      expect(result.bytes).toEqual(control.bytes)
++      expect(result.managedPeakBytes).toBe(control.managedPeakBytes)
++    }
++  }
++})
++
++it('does not spend a high-frequency token on greater decoded error', () => {
++  expect(guardRoundedCoefficient(0.4, 0, 1, 1)).toBe(0)
++  expect(guardRoundedCoefficient(0.6, 0, 1, 1)).toBe(1)
++  expect(guardRoundedCoefficient(-0.6, 0, -1, 1)).toBe(-1)
++  expect(guardRoundedCoefficient(0, 0, 0, 1)).toBe(0)
++})

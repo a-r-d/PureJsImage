@@ -401,3 +401,19 @@ No new libjxl constants, tables or heuristics are imported. The rejected source
 band allocation and six score-cost adaptations are archived with their original
 module attribution headers. Active encoder decisions and scoring return to
 `bb43c721`; no public codec source or runtime dependency changes.
+
+## Selected-transform error and pruning, 2026-10-28
+
+The selected-coefficient audit and frequency-dependent rounding trials are
+first-party diagnostics, archived in `lossy-lab/SELECTED-EXPERIMENT.patch` against
+`c10c99be`. They reuse the existing normative decoder centroid constants and
+attributed transforms; no new libjxl component is ported. Seven rounding variants
+are rejected and removed from active code.
+
+The retained changes in `lossy-lab/libjxl-strategy-port.ts` are first-party
+lower bounds on the already attributed selector's cost. They include the known
+luma cost, minimum remaining channel entropy and the remaining rectangle
+partition budget. Winning cost arithmetic, decisions and streams are unchanged
+on the measured corpus. The module keeps its libjxl source header; the full
+BSD-3 license remains in the npm package and docs-site notices. No public codec
+source, runtime dependencies or peer-decision inputs are added.
