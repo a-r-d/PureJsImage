@@ -442,3 +442,33 @@ are development oracle outputs; no metric implementation is ported. The earlier
 rounding archive is temporarily restored only to reproduce the rejected trial,
 then removed again. No public codec source, peer-map input or runtime dependency
 is added.
+
+## Perceptual component validation, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` ports selected components from
+`lib/jxl/butteraugli/butteraugli.cc` and `.h`, libjxl v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`: OpsinDynamicsImage/Gamma/absorbance
+constants, Gaussian kernels and border rules, LF/MF/HF/UHF separation and range
+shaping, source activity and fuzzy erosion, MaskY/MaskDcY, frequency/channel
+weights and asymmetric quadratic loss. It uses scalar TypeScript, Float64,
+Math.log and SDR intensity 80. It deliberately omits Malta directional errors
+and coarse-scale mixing, and is only an offline component ablation. It is not
+the native Butteraugli metric, an encoder decision or a public import. The
+existing complete BSD-3 license in THIRD_PARTY_NOTICES remains included in the
+npm package and the docs site's notices page. No runtime dependency is added.
+
+`lossy-lab/libjxl-perceptual-malta-port.ts` ports `MaltaUnit` (both stencils),
+`MaltaDiffMapT`, band weights/norms in `DiffmapPsychoImage`, and
+`AddSupersampled2x` from the same v0.12.0 `butteraugli.cc` and commit above.
+The diagnostic uses explicit coordinate stencils, scalar Float64 arithmetic,
+zero padding and fixed `hf_asymmetry=1`; it omits SIMD, threading and native
+memory infrastructure. The half-resolution input reuses the existing attributed
+linear-RGB downsampling helper. These routines remain outside the encoder and
+public bundle. The original quadratic ablations remain available separately.
+
+`lossy-lab/libjxl-perceptual-pool-port.ts` ports fixed-p=3 `ComputeDistanceP`
+from `lib/extras/metrics.cc`, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. The reported native score averages
+L3, L6 and L12. The port uses scalar Float64 sums, checks finite nonnegative
+input and also reports maximum distance. Plain L3 remains an explicitly named
+ablation; it is not labeled as native-equivalent pooling.
