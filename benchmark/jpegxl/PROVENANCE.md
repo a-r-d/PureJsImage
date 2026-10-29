@@ -532,6 +532,22 @@ changes; the full libjxl BSD license remains in the package and docs notices.
 complete-map prototype and the previously attributed quantization/reuse
 prerequisites against this checkpoint. The encoder policy remains archived.
 
+## Gaussian traversal and overlapping samples, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` shares Gaussian coefficients and
+indices across eight output pixels and reuses overlapping horizontal samples
+between successive taps. These are first-party implementation changes to the
+recorded `lib/jxl/butteraugli/butteraugli.cc` and `.h` port, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Tap order, normalization, source
+constants, buffers and boundary behavior are unchanged. No additional native
+code is taken. The module header records the changes; the full libjxl BSD
+license remains in the package and docs notices. No runtime dependencies.
+
+`lossy-lab/FULLMAP-SPEED-ROUND3-EXPERIMENT.patch` restores the measured
+complete-map prototype and its previously attributed prerequisites.
+`lossy-lab/FULLMAP-GAUSSIAN-VERTICAL-EXPERIMENT.patch` layers the rejected
+first-party vertical traversal on it. The encoder policy remains archived.
+
 ## Sparse output and coefficient reuse trial, 2026-10-28
 
 `lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch` extends the existing attributed

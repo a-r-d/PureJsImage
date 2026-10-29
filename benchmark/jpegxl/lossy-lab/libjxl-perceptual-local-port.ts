@@ -10,9 +10,10 @@
  * No SIMD, threading, allocation infrastructure or peer decisions are ported.
  * Optional output windows skip unused quadratic-map pixels without changing math.
  * Gaussian tap indices and normalization are precomputed with the same tap order.
- * Gaussian traversal shares tap loads across four adjacent pixels, with exact sums.
+ * Gaussian traversal shares tap loads across eight adjacent pixels, with exact sums.
  * Opsin channel adaptation shares pixel loads and writes final XYB in one pass.
  * Convolution reuses existing bands and bounded intermediate rows with exact sums.
+ * Horizontal convolution reuses samples shared by successive taps.
  */
 import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
 
@@ -75,25 +76,51 @@ export function perceptualBlur(
           sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
         temp[outputRow + x] = sum / (horizontal.weights[x] ?? 1)
       }
-      for (; x + 3 < width - radius; x += 4) {
+      for (; x + 7 < width - radius; x += 8) {
         let a = 0,
           b = 0,
           c = 0,
-          d = 0
+          d = 0,
+          e = 0,
+          f = 0,
+          g = 0,
+          h = 0
         const start = row + x - radius,
           weight = horizontal.weights[x] ?? 1
+        let v0 = input[start] ?? 0,
+          v1 = input[start + 1] ?? 0,
+          v2 = input[start + 2] ?? 0,
+          v3 = input[start + 3] ?? 0,
+          v4 = input[start + 4] ?? 0,
+          v5 = input[start + 5] ?? 0,
+          v6 = input[start + 6] ?? 0
         for (let k = 0; k < taps; k++) {
           const coefficient = kernel[k] ?? 0,
-            p = start + k
-          a += coefficient * (input[p] ?? 0)
-          b += coefficient * (input[p + 1] ?? 0)
-          c += coefficient * (input[p + 2] ?? 0)
-          d += coefficient * (input[p + 3] ?? 0)
+            v7 = input[start + k + 7] ?? 0
+          a += coefficient * v0
+          b += coefficient * v1
+          c += coefficient * v2
+          d += coefficient * v3
+          e += coefficient * v4
+          f += coefficient * v5
+          g += coefficient * v6
+          h += coefficient * v7
+          v0 = v1
+          v1 = v2
+          v2 = v3
+          v3 = v4
+          v4 = v5
+          v5 = v6
+          v6 = v7
         }
         temp[outputRow + x] = a / weight
         temp[outputRow + x + 1] = b / weight
         temp[outputRow + x + 2] = c / weight
         temp[outputRow + x + 3] = d / weight
+        temp[outputRow + x + 4] = e / weight
+        temp[outputRow + x + 5] = f / weight
+        temp[outputRow + x + 6] = g / weight
+        temp[outputRow + x + 7] = h / weight
       }
       for (; x < width; x++) {
         let sum = 0
@@ -110,11 +137,15 @@ export function perceptualBlur(
       offset = y * taps,
       weights = vertical.weights[y] ?? 1
     let x = 0
-    for (; x + 3 < width; x += 4) {
+    for (; x + 7 < width; x += 8) {
       let a = 0,
         b = 0,
         c = 0,
-        d = 0
+        d = 0,
+        e = 0,
+        f = 0,
+        g = 0,
+        h = 0
       for (let k = begin; k < end; k++) {
         const coefficient = kernel[k] ?? 0,
           p = (vertical.indices[offset + k] ?? 0) + x
@@ -122,11 +153,19 @@ export function perceptualBlur(
         b += coefficient * (temp[p + 1] ?? 0)
         c += coefficient * (temp[p + 2] ?? 0)
         d += coefficient * (temp[p + 3] ?? 0)
+        e += coefficient * (temp[p + 4] ?? 0)
+        f += coefficient * (temp[p + 5] ?? 0)
+        g += coefficient * (temp[p + 6] ?? 0)
+        h += coefficient * (temp[p + 7] ?? 0)
       }
       out[y * width + x] = a / weights
       out[y * width + x + 1] = b / weights
       out[y * width + x + 2] = c / weights
       out[y * width + x + 3] = d / weights
+      out[y * width + x + 4] = e / weights
+      out[y * width + x + 5] = f / weights
+      out[y * width + x + 6] = g / weights
+      out[y * width + x + 7] = h / weights
     }
     for (; x < width; x++) {
       let sum = 0

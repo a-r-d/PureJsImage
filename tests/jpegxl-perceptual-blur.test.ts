@@ -45,7 +45,11 @@ it('keeps each Gaussian sum exact across grouped pixels, scalar tails and tiny b
     [3, 1],
     [4, 5],
     [5, 4],
+    [7, 9],
+    [8, 9],
+    [9, 8],
     [19, 17],
+    [33, 35],
     [67, 53],
   ]) {
     if (!width || !height) throw new Error('Missing dimensions')
@@ -66,6 +70,7 @@ it('can reuse a destination or its input without changing sums or separate sourc
     [1, 1],
     [2, 17],
     [19, 17],
+    [67, 53],
   ]) {
     if (!width || !height) throw new Error('Missing dimensions')
     const source = Float64Array.from(

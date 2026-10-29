@@ -1,0 +1,56 @@
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+@@ -137,42 +137,19 @@
+       end = vertical.end[y] ?? 0,
+       offset = y * taps,
+       weights = vertical.weights[y] ?? 1
+-    let x = 0
+-    for (; x + 7 < width; x += 8) {
+-      let a = 0,
+-        b = 0,
+-        c = 0,
+-        d = 0,
+-        e = 0,
+-        f = 0,
+-        g = 0,
+-        h = 0
+-      for (let k = begin; k < end; k++) {
+-        const coefficient = kernel[k] ?? 0,
+-          p = (vertical.indices[offset + k] ?? 0) + x
+-        a += coefficient * (temp[p] ?? 0)
+-        b += coefficient * (temp[p + 1] ?? 0)
+-        c += coefficient * (temp[p + 2] ?? 0)
+-        d += coefficient * (temp[p + 3] ?? 0)
+-        e += coefficient * (temp[p + 4] ?? 0)
+-        f += coefficient * (temp[p + 5] ?? 0)
+-        g += coefficient * (temp[p + 6] ?? 0)
+-        h += coefficient * (temp[p + 7] ?? 0)
++    const outputRow = y * width
++    out.fill(0, outputRow, outputRow + width)
++    for (let k = begin; k < end; k++) {
++      const coefficient = kernel[k] ?? 0,
++        inputRow = vertical.indices[offset + k] ?? 0
++      for (let x = 0; x < width; x++) {
++        const p = outputRow + x
++        out[p] = (out[p] ?? 0) + coefficient * (temp[inputRow + x] ?? 0)
+       }
+-      out[y * width + x] = a / weights
+-      out[y * width + x + 1] = b / weights
+-      out[y * width + x + 2] = c / weights
+-      out[y * width + x + 3] = d / weights
+-      out[y * width + x + 4] = e / weights
+-      out[y * width + x + 5] = f / weights
+-      out[y * width + x + 6] = g / weights
+-      out[y * width + x + 7] = h / weights
+     }
+-    for (; x < width; x++) {
+-      let sum = 0
+-      for (let k = begin; k < end; k++)
+-        sum += (kernel[k] ?? 0) * (temp[(vertical.indices[offset + k] ?? 0) + x] ?? 0)
+-      out[y * width + x] = sum / weights
++    for (let x = 0; x < width; x++) {
++      const p = outputRow + x
++      out[p] = (out[p] ?? 0) / weights
+     }
+   }
+   return out
