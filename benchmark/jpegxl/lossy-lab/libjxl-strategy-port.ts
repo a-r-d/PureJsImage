@@ -18,6 +18,8 @@
  * Tiny's split-cost literal is written as its representable JavaScript double.
  * First-party pruning includes known luma cost, minimum remaining channel
  * entropy and the remaining budget for rectangle partitions.
+ * First-party rounding-state reuse bypasses unused filtered pixels and repeats
+ * at a candidate origin when the original mask context shares the quantizer.
  * This is a development experiment, never imported by the public encoder.
  */
 import { selectorTileMask } from './selector-tile-mask.ts'
@@ -94,6 +96,7 @@ export interface StrategyOptions {
   rowMask?: boolean
   bulkBlockCopy?: boolean
   lossScale?: number
+  directRoundingState?: boolean
 }
 
 export function strategyPortOverrides(
@@ -134,6 +137,7 @@ function selectGeometry(
     rowMask = false,
     bulkBlockCopy = false,
     lossScale = 1,
+    directRoundingState = false,
   } = options
   const memory = base.memory
   if (!memory || !base.quantizationMap || !base.globalScale)
@@ -200,6 +204,8 @@ function selectGeometry(
   let maskOriginX = 0,
     maskOriginY = 0
   let lastLoss = 0
+  let roundingX = -1,
+    roundingY = -1
 
   // All scratch belongs to one candidate, independent of image area.
   const score = (
@@ -259,7 +265,16 @@ function selectGeometry(
       lumaLoss = 0,
       absoluteError = 0,
       squaredError = 0
-    if (actualRounding) context.readBlock(x, y, true)
+    if (actualRounding) {
+      if (!directRoundingState) context.readBlock(x, y, true)
+      else if (x !== roundingX || y !== roundingY) {
+        // Uncorrelated reads preserve the shared writer's activity state.
+        // Only the original source read is needed to prepare rate-aware rounding.
+        maskContext.readBlock(x, y, true)
+        roundingX = x
+        roundingY = y
+      }
+    }
     const penalty = bw * bh >= 2 ? 1 + Math.min(3, (bw * bh) / 8) : 1
     const tables = jpegXlDevelopmentDequantization(strategy)
     const naturalWidth = Math.max(width, height)

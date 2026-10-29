@@ -1,17 +1,17 @@
 # JPEG XL lossy lab
 
 Step C research stays on jxl-libjxl-ports. Main is unchanged; no promotion or holdout rerun.
-Frozen coarse qualification still has two failed SSIM holdout guards, worst +11.617%.
+Frozen holdout still has two failed SSIM guards, worst +11.617%; no identities or individual holdout results read.
 Retained development SSIM/3-norm/max: vips -8.003/-5.030/-5.582%; jSquash -8.474/+0.227/+2.571%.
 Last frozen holdout: vips -5.996/-3.605/-2.909%, mean -4.170%; jSquash -6.492/+1.640/+2.704%.
-Retained qualification: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
-Managed peaks: crops 8,760,382 bytes; 13 MP 59,139,199; 21 MP 91,010,461, below 137,514,476.
+Prior retained qualification: crops 2.635783x jSquash; 13 MP 41.894s and 1.698729x; prior 21 MP finishes, jSquash aborts.
+Prior managed peaks: crops 8,760,382 bytes; 13 MP 59,139,199; 21 MP 91,010,461, below 137,514,476.
 Bundles 614,969/687,801 bytes; dependencies zero. Public codec source is unchanged in this pass.
-Final-model rate estimates pass signs; dithered complete perceptual maps pass the fixed development diagnostics.
-Three sparse-map screens complete 240 native-valid rows. Best mean gain 1.832%, at 1.875-1.958x control time; all three policies are archived.
-Coefficient reuse preserves all 80 prior streams and saves 7.550-8.330% inside the rejected complete-map prototype. Its helper is archived too.
-Fourteen consecutive quality screens have no retained gain. Aaron's fourth bounded speed round retains fixed-channel quadratic scoring and shared directional scratch; interior mask unrolling is reverted. Versus 2694cd73, complete maps are 5.113-5.215% faster and avoid 29,332,480 requested allocation bytes. Paired encoder improvements are smaller and noisy: 1.104/2.962%, with 20/30 faster. The prototype still takes 1.574-1.631x control, above 1.326079. All 80 streams and 96 native windows remain exact; isolated peak RSS is +1.555%, within the unchanged diagnostic guard, and reclaimed buffers match.
-[Latest report](lossy-lab/FULLMAP-SPEED-ROUND4-REPORT.md). The three-attempt round is exhausted. No new quality trial, full lab, holdout rerun, promotion or main merge. All gates remain unchanged; further research requires the next owner decision.
+Aaron reopened guard repair on 2026-10-29. Fourteen quality experiments complete 2,484 native-valid outputs; all quality modes are archived.
+Best grain guard improves 7.032% to 4.844%, but regularized structure costs 1.058437x control against its 1.016124 allowance. AC1.05 costs 1.058084x against 1.023233. Both fail cost; no new holdout.
+Retained exact writer-rounding state reuse improves that development mode 9.422%/5.806% on two crops; all 42 pairs preserve streams and managed peaks. Default quality mode is unchanged.
+[Latest report](lossy-lab/DETAIL-GUARD-REPORT.md). Zero retained quality gain; this round reaches the approximately-15-experiment plateau.
+Next hypotheses, only after owner continuation: tighter exact selector bounds; bounded post-filter contrast prediction; selective DC only after a block rate/error audit.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2650,3 +2650,70 @@ LL-1055 confirmation plan: the three-change bound is exhausted. Compare LL-1052/
 | LL-1055, 2026-10-29 | Confirm fixed-channel scoring and directional scratch against 2694cd73. | All 80 selected streams, 96 cached native windows and 288 directional cases are exact. Pinned quadratic and six-band border fixtures pass. | Complete-map ratios 0.948868/0.947853, all 22 pairs faster. Encoder paired ratios 0.988962/0.970382 (9/15 and 11/15 faster); control ratios 1.631404/1.574439 remain above 1.326079. | Retain diagnostic changes and allocation reduction; archive the encoder policy. Median isolated peak RSS 268722176 to 272900096 B (+1.555%), reclaimed buffers/external/managed equal. Both archives apply and reverse. | bounded round exhausted; cost gate fails |
 
 The final attribution still spends about 288 ms preparing four perceptual images, 129 ms on directional maps and 150 ms on reconstruction. Quadratic scoring is about 21 ms and rebuild 22 ms. These are diagnostic stage medians, not another speed qualification. The remaining cost reduction needed is approximately 16-19% of total candidate time, or 43-48% of the added work. No fourth optimization is attempted. Final retained-tree `VITEST_MAX_WORKERS=4 npm run check` passes: 4212 tests, three existing skips, 339 passed files and one skipped. Test phase 508.84s, full command 551.157s. All static gates, including browser:check, pass. Independent report verification confirms scored-stream hashes, current source hashes, paired ratios and memory non-regression. Bundles stay 614969/687801 minified bytes, runtime dependencies zero, version 0.17.0. Worker, strategy reconstruction, public source and package files match 2694cd73. Both archives apply and reverse; no quality trial, full lab, holdout rerun, promotion or main merge. Further research requires an owner decision after this exhausted bounded round.
+
+Owner continuation, 2026-10-29: Aaron asks to resume work on the two per-image SSIM guard failures. Reopen development-only quality research from 97c76933. Holdout identities stay sealed; all quality, speed, memory and promotion gates remain. The completed full-map cost round is not reopened. Test a cheap local-detail term in transform selection using existing source and residual planes, then native-score the fixed screen.
+
+LL-1056 plan: penalize lost luma contrast in each 8x8 cell of a transform candidate. Pool cells without a hard merge veto; multiply the existing luma loss norm by 1 + 0.5 times lost contrast. No extra reconstruction, pixel maps or peer decisions. Focused tests pass 88 cases, including identity/DC invariance, flat cells, phase error, odd-edge encodes and inherited DC/global-scale policy.
+
+| LL-1056, 2026-10-29 | Add a half-strength local contrast-loss penalty to the retained selector. | 80 native-valid points. Control +0.415/+0.038/-0.337%; vips -10.291/-5.825/-5.550%; jSquash -11.377/-0.431/+1.733%. Grain SSIM improves only 0.076%; texture im26-3312 loses 3.035%, door im26-3000 loses 2.437%. | Concurrent screen timing excluded; no new buffers. | Reject this contrast-only model. Do not increase its weight. Raw: detail-guard-20261029/detail-half-screen. | rejected |
+
+LL-1057 plan: use local structure loss from source/residual covariance, including phase error even when variance is preserved. Keep the same half-strength multiplier and all other decisions. This tests the first contrast-only failure before any weight sweep.
+
+| LL-1057, 2026-10-29 | Substitute local structure loss for contrast loss at half strength. | 80 native-valid points. Control +0.216/+0.028/-1.670%; vips -10.447/-5.830/-6.860%; jSquash -11.532/-0.549/+0.230%. Grain SSIM worsens 1.012%, texture 0.934%. | Concurrent timings excluded. | Reject as a standalone SSIM guard repair; preserve its max-error effect as a reason to test coupling with writer rounding. Raw: detail-guard-20261029/structure-half-screen. | rejected alone |
+
+LL-1058 plan: pair the half-strength structural penalty with actual writer rounding. The historical rounding model improved grain SSIM but lost max quality, while LL-1057 has the opposite tradeoff. All quantization fields and final writer policy retain control settings.
+
+| LL-1058, 2026-10-29 | Combine structural loss with actual writer rounding. | 80 native-valid points. Control -0.112/+0.069/-0.620%; vips -10.779/-5.807/-5.931%; jSquash -11.866/-0.526/+1.201%. Grain SSIM improves 2.211%; worst SSIM screen loss is 0.866%. | Concurrent timing excluded. | Advance to full development to test the grain benefit and the known screen-to-full max reversal. Partial max loss reaches 8.638%; report it. Raw: detail-guard-20261029/structure-actual-screen. | promising screen, unqualified |
+
+LL-1059 plan: full 64-photo, nine-distance development evaluation of the coupled structural/rounding mode. Compare against retained and unchanged main, inspect only development guards, and reject if its tail or speed tradeoff fails. No holdout.
+
+| LL-1059, 2026-10-29 | Full development for structural loss with writer rounding. | 576 valid points. Control -0.264/-0.165/-0.333%; vips -8.219/-5.177/-5.926%; jSquash -8.740/-0.008/+2.083%. Grain main SSIM guard improves to 4.870%, texture im26-3302 worsens to 8.064%, above 8.05%. Worst paired max regression 5.957%. | Concurrent timings excluded; managed peak 9,275,559 bytes. | Reject for promotion despite improved means. Raw: detail-guard-20261029/structure-actual-lab. | guard failure |
+
+LL-1060 plan: avoid unused Gaborish recomputation when the selector only needs the original writer activity state. Profiled source/filtered reads dominate actual-rounding overhead. Read the original context directly for that state, keeping quantization, transform inputs and quality decisions exact. Require paired stream parity and timing against the original coupled mode.
+
+| LL-1060, 2026-10-29 | Read writer activity directly from the original source context. | Fifteen paired streams and managed peaks are identical; 92 focused cases pass including state parity at fine/medium/coarse distances across tile edges. | Initial paired ratio 0.951115, MAD 0.079687, 12/15 faster. | Promising but noisy; confirm if a quality mode earns retention. Raw: detail-guard-20261029/direct-state-speed.json. | provisional exact speed change |
+
+LL-1061 plan: stabilize the structural denominator with the existing source SSIM constant 0.0009, retaining actual writer rounding and half-strength loss. This attenuates nearly flat cells rather than imposing a hard transform veto. The implementation is a box-moment approximation, not SSIMULACRA2. Use the fixed screen, then evaluate whether a full lab is justified.
+
+| LL-1061, 2026-10-29 | Stabilized local structure with actual rounding. | 80 native-valid points; control -0.046/0.028/-1.221%. Peer tables and all per-image values preserved. | Screen timing excluded. | Advance to full development; require texture guard improvement without sacrificing grain or broad quality. Raw: detail-guard-20261029/regularized-half-screen. | promising screen |
+
+LL-1062 plan: full development of the regularized mode; do not use the holdout.
+
+| LL-1062, 2026-10-29 | Full development of stabilized structural loss with writer rounding. | 576 valid outputs. Control -0.258/-0.186/-0.039%; all eight admitted main SSIM guards pass, grain 4.844%, texture 7.579%. Largest paired max regression 6.054%, partial band. Peer means and all individual results preserved. | Isolated cost follows; managed crop peak recorded in summary. | Development guard count passes, but worst admitted SSIM is worse than retained 7.192%; no holdout. Raw: detail-guard-20261029/regularized-half-lab. | provisional, cost and tails pending |
+
+| LL-1063, 2026-10-29 | Probe luma-only DC steps at 0.75 of retained on the two development guard examples, fixed full ladder. | Eighteen native-valid outputs. Grain control +0.158/+0.815/+0.631%; texture -0.221/+0.633/-0.928%. | Diagnostic timings excluded. | Reject as a general repair; small texture benefit costs grain and 3-norm. Initial diagnostic integrated full measured intervals; corrected required-band results recomputed from the same points with existing metric code, preserving both reports. Raw: detail-guard-20261029/dc-probe/required-band-results.json. | rejected |
+
+| LL-1064, 2026-10-29 | Probe luma-only DC steps at 0.5 of retained, leaving chroma unchanged. | Eighteen native-valid outputs. Grain +0.540/+2.173/+1.697%; texture +0.068/+1.922/+0.027% against retained. | Timings excluded. | Reject; every measured rate-quality delta worsens. Same fixed ladder and corrected bands as LL-1063. | rejected |
+
+LL-1062 cost: fifteen isolated pairs on im26-3012/d2 measure regularized/control ratio 1.076451, only 2/15 faster. The 0.161235% full-lab mean gain permits only 1.016124x control; this mode fails the speed rule. No holdout or qualification claim. Raw: detail-guard-20261029/regularized-cost.json.
+
+LL-1065 plan: couple actual rounding and regularized structure with constant AC precision 1.05 instead of the coarse-only envelope. The prior constant-field trial improved texture but cost grain; actual rounding now supplies a measured grain benefit. All other fields and filters are inherited from the retained mode.
+
+LL-1066 plan: compare constant AC precision 1.1 with the same coupled regularized/actual-rounding selector. Also cache the original rounding-state origin across repeated candidate shapes; uncorrelated reads do not change the state. The latter is an exact optimization and will be checked against saved streams.
+
+| LL-1065, 2026-10-29 | Couple regularized-ac105 with actual rounding and stabilized structure. | 80 native-valid points. Control -0.107/-0.247/-0.782%; peers and individual results saved. | Concurrent timing excluded. | Advance to full development; all three screen means improve. Raw: detail-guard-20261029/regularized-ac105-screen. | promising screen |
+
+| LL-1066, 2026-10-29 | Couple regularized-ac110 with actual rounding and stabilized structure. | 80 native-valid points. Control 0.088/-0.251/-2.060%; peers and individual results saved. | Concurrent timing excluded. | Reject relative to AC105 for SSIM repair; grain benefit shrinks and texture loss grows. Raw: detail-guard-20261029/regularized-ac110-screen. | rejected |
+
+LL-1067 plan: full development for AC105, with unchanged gates and no holdout.
+
+LL-1068 plan: ablate the structural term while retaining actual writer rounding, the retained coarse allocation and exact activity-state shortcut. This separates the new structural term from rounding on the current retained control.
+
+| LL-1068, 2026-10-29 | Remove structural loss while keeping actual rounding and current coarse allocation. | 80 valid screen points. Control -0.292/-0.076/+0.605%; grain -2.964/-1.230/-6.318%. | Concurrent timing excluded. | Reject as a complete repair: max mean regresses. Confirms that rounding supplies most grain SSIM benefit while structural loss changes the maximum-error tradeoff. Raw: detail-guard-20261029/actual-coarse-screen. | rejected |
+
+The activity-state origin cache preserves all 80 saved regularized screen streams exactly and the focused 92-case suite passes. No native rescoring or holdout is needed for this byte-preserving optimization.
+
+| LL-1067, 2026-10-29 | Full development for regularized AC105. | 576 valid points. Control -0.390/-0.191/-0.116%; vips -8.226/-5.164/-5.656%; jSquash -8.725/+0.121/+2.439%. Eight admitted main SSIM guards pass, grain 5.731%, texture 7.800%. | Concurrent timings excluded. | Reject for guard repair: worst admitted SSIM worsens from 7.192%; partial-band paired max tail reaches 10.157%. No holdout. | rejected |
+
+LL-1069/1070 plan: first-party lost-detail fraction, at quarter and half strength, on the actual-rounding retained-coarse selector. Unlike total structural error, this term penalizes only locally removed contrast, normalized by residual energy. Use existing transform planes, no full image maps. Screen both fixed points, full lab only if guard-relevant SSIM and broader quality warrant it. This is the final new quality hypothesis in this bounded session.
+
+| LL-1069, 2026-10-29 | Actual rounding plus quarter-strength lost-detail penalty. | 80 valid points; control +0.000/+0.094/-0.926%; grain SSIM -2.082%, texture +1.448%. | Concurrent timing excluded. | Reject: stabilized structural loss has a better SSIM/3-norm tradeoff. | rejected |
+| LL-1070, 2026-10-29 | Actual rounding plus half-strength lost-detail penalty. | 80 valid points; control +0.457/+0.458/-1.295%; grain SSIM -0.903%, texture +1.818%. | Concurrent timing excluded. | Reject: stronger loss worsens both targeted means. | rejected |
+
+Final cost repair attempt for LL-1062: after the exact state cache, 21 isolated pairs give 1.058437x retained control (2/21 faster). The 0.161235% mean quality gain allows 1.016124x. The candidate still fails cost. No holdout is opened. LL-1060 confirmation on the coupled actual-rounding baseline gives 0.890870x, all 21 pairs faster and byte/managed exact. The distinction matters: optimizing an expensive diagnostic does not by itself make it cheaper than retained control.
+
+LL-1067 final cost: 21 isolated AC105/control pairs give 1.058084x (1/21 faster), above the 1.023233 allowance from its 0.232331% mean gain. Every candidate stream equals the archived quality stream. It also fails cost. All fourteen quality experiments are archived in DETAIL-GUARD-EXPERIMENT.patch for 97c76933, with successful base apply check.
+
+LL-1060 retained confirmation: the historical standalone-writer-rounding mode improves 9.422% on im26-3012 and 5.806% on im26-3312, 19/21 and 18/21 pairs faster. All streams and managed peaks are exact. Only the first-party state shortcut stays active; the retained quality mode and public encoder behavior are unchanged.
+
+Final validation for this checkpoint: VITEST_MAX_WORKERS=4 npm run check passes all static gates and browser:check, 4,214 tests and three skips. Chromium/Firefox/WebKit decision fixtures pass separately. Retained selector tests pass 73 cases; archived experimental tests passed 106. Final child-process memory probes use three warmups and reclaim to identical 2,713,100 ArrayBuffer bytes before and after measurement, with unchanged 5,676,123-byte managed peak. Clean cold RSS is 152,657,920/155,516,928; warm high-water 194,850,816/186,716,160 (base/fast). Earlier inherited high-water and transient-warmup samples are preserved but excluded. Main and public behavior are unchanged; no new holdout or promotion.

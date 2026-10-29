@@ -591,3 +591,23 @@ complete-map prototype and its previously attributed prerequisites.
 `lossy-lab/FULLMAP-INTERIOR-MASK-EXPERIMENT.patch` layers the rejected
 first-party interior-mask specialization on it. The encoder policy remains
 archived because it does not pass the cost gate.
+
+## Selector local-detail experiments, 2026-10-29
+
+`lossy-lab/libjxl-selector-detail-loss.ts`, preserved in
+`lossy-lab/DETAIL-GUARD-EXPERIMENT.patch` for base `97c76933`, reuses the SSIM structure denominator
+and 0.0009 stabilizer from `tools/ssimulacra2.cc`, libjxl v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`, as previously recorded for
+`libjxl-display-loss.ts`. It uses first-party 8x8 box moments on preconditioned
+luma residuals and excludes DC, Gaussian windows, other channels and scales.
+Contrast-only, unregularized and lost-detail variants are first-party alternatives. The
+selector multiplier and direct access to our writer activity state are first-party
+adaptations, with no new native infrastructure. Headers and full BSD notices
+remain present; no runtime dependencies or peer decisions are introduced.
+
+The active `libjxl-strategy-port.ts` and `libjxl-standalone-port.ts` retain only
+the first-party activity-state shortcut: read the original context to restore the
+shared writer state, then reuse it across shapes at the same origin. Uncorrelated
+source reads preserve that state. The optional reference path remains available
+for exact-stream regression tests. No additional libjxl logic is taken for this
+speed change. Quality policies and their tests are archived, not promoted.

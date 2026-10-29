@@ -1,0 +1,431 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index 31e3a3b8..28623e23 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,6 +74,22 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
++    value === 'standalone-detail-half' ||
++    value === 'standalone-detail-one' ||
++    value === 'standalone-detail-two' ||
++    value === 'standalone-structure-actual' ||
++    value === 'standalone-structure-actual-fast' ||
++    value === 'standalone-regularized-half' ||
++    value === 'standalone-regularized-ac105' ||
++    value === 'standalone-regularized-ac110' ||
++    value === 'standalone-regularized-one' ||
++    value === 'standalone-regularized-two' ||
++    value === 'standalone-lost-quarter' ||
++    value === 'standalone-lost-half' ||
++    value === 'standalone-actual-coarse' ||
++    value === 'standalone-structure-half' ||
++    value === 'standalone-structure-one' ||
++    value === 'standalone-structure-two' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -160,6 +176,22 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
++    mode === 'standalone-detail-half' ||
++    mode === 'standalone-detail-one' ||
++    mode === 'standalone-detail-two' ||
++    mode === 'standalone-structure-actual' ||
++    mode === 'standalone-structure-actual-fast' ||
++    mode === 'standalone-regularized-half' ||
++    mode === 'standalone-regularized-ac105' ||
++    mode === 'standalone-regularized-ac110' ||
++    mode === 'standalone-regularized-one' ||
++    mode === 'standalone-regularized-two' ||
++    mode === 'standalone-lost-quarter' ||
++    mode === 'standalone-lost-half' ||
++    mode === 'standalone-actual-coarse' ||
++    mode === 'standalone-structure-half' ||
++    mode === 'standalone-structure-one' ||
++    mode === 'standalone-structure-two' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 39f2fe1f..5fdbb0d3 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -66,6 +66,22 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
++  | 'standalone-detail-half'
++  | 'standalone-detail-one'
++  | 'standalone-detail-two'
++  | 'standalone-structure-half'
++  | 'standalone-structure-one'
++  | 'standalone-structure-two'
++  | 'standalone-structure-actual'
++  | 'standalone-structure-actual-fast'
++  | 'standalone-regularized-half'
++  | 'standalone-regularized-one'
++  | 'standalone-regularized-two'
++  | 'standalone-lost-quarter'
++  | 'standalone-lost-half'
++  | 'standalone-actual-coarse'
++  | 'standalone-regularized-ac105'
++  | 'standalone-regularized-ac110'
+ 
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -73,10 +89,33 @@ export function libjxlStandaloneOverrides(
+   height: number,
+   requestedMode: StandalonePort,
+ ): JpegXlDevelopmentDecisions {
++  const detailKind = requestedMode.startsWith('standalone-lost-')
++    ? 'lost-detail'
++    : requestedMode.startsWith('standalone-regularized-')
++      ? 'regularized'
++      : requestedMode.startsWith('standalone-structure-')
++        ? 'structure'
++        : 'contrast'
++  const detailWeight =
++    requestedMode.startsWith('standalone-detail-') || detailKind !== 'contrast'
++      ? requestedMode.endsWith('-quarter')
++        ? 0.25
++        : requestedMode.endsWith('-half') ||
++            requestedMode.includes('-actual') ||
++            requestedMode.includes('-ac1')
++          ? 0.5
++          : requestedMode.endsWith('-one')
++            ? 1
++            : 2
++      : 0
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+-      : requestedMode === 'standalone-writer-rounding'
++      : requestedMode === 'standalone-writer-rounding' ||
++          requestedMode.startsWith('standalone-structure-actual') ||
++          detailKind === 'regularized' ||
++          detailKind === 'lost-detail' ||
++          requestedMode === 'standalone-actual-coarse'
+         ? 'rounding'
+         : requestedMode === 'standalone-writer-matrices'
+           ? 'matrices'
+@@ -90,7 +129,9 @@ export function libjxlStandaloneOverrides(
+       ? 'small'
+       : requestedMode === 'standalone-forward-paired'
+         ? 'paired'
+-        : requestedMode === 'standalone-forward-all'
++        : requestedMode === 'standalone-forward-all' ||
++            detailWeight !== 0 ||
++            requestedMode === 'standalone-actual-coarse'
+           ? 'all'
+           : undefined
+   const coarseAllocation =
+@@ -210,7 +251,12 @@ export function libjxlStandaloneOverrides(
+       // First-party guard-balancing allocation, frozen from the development
+       // coarse-envelope trial. Fine-distance DC/AC balance stays unchanged.
+       if (coarseAllocation) {
+-        const precision = 1 + 0.1 * Math.max(0, Math.min(1, (distance - 1.5) / 1.5))
++        const precision =
++          requestedMode === 'standalone-regularized-ac105'
++            ? 1.05
++            : requestedMode === 'standalone-regularized-ac110'
++              ? 1.1
++              : 1 + 0.1 * Math.max(0, Math.min(1, (distance - 1.5) / 1.5))
+         if (precision !== 1)
+           for (let i = 0; i < field.length; i++) field[i] = (field[i] ?? 0) * precision
+       }
+@@ -245,6 +291,13 @@ export function libjxlStandaloneOverrides(
+             requestedMode === 'standalone-selector-mask-copy' ||
+             coarseAllocation,
+           lossScale,
++          detailWeight,
++          detailKind,
++          directRoundingState:
++            requestedMode === 'standalone-structure-actual-fast' ||
++            detailKind === 'regularized' ||
++            detailKind === 'lost-detail' ||
++            requestedMode === 'standalone-actual-coarse',
+           ...(writerEstimate ? { writerEstimate } : {}),
+           ...(writerTransform ? { writerTransform } : {}),
+           compactStorage:
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index aff9654e..3078a6c3 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -22,6 +22,7 @@
+  */
+ import { selectorTileMask } from './selector-tile-mask.ts'
+ import { selectorMaskLoss } from './selector-mask-loss.ts'
++import { selectorDetailLoss } from './libjxl-selector-detail-loss.ts'
+ import { inverseSelectorTransform } from './selector-inverse.ts'
+ import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
+ import type {
+@@ -94,6 +95,9 @@ export interface StrategyOptions {
+   rowMask?: boolean
+   bulkBlockCopy?: boolean
+   lossScale?: number
++  detailWeight?: number
++  detailKind?: 'contrast' | 'structure' | 'regularized' | 'lost-detail'
++  directRoundingState?: boolean
+ }
+ 
+ export function strategyPortOverrides(
+@@ -134,6 +138,9 @@ function selectGeometry(
+     rowMask = false,
+     bulkBlockCopy = false,
+     lossScale = 1,
++    detailWeight = 0,
++    detailKind = 'contrast',
++    directRoundingState = false,
+   } = options
+   const memory = base.memory
+   if (!memory || !base.quantizationMap || !base.globalScale)
+@@ -200,6 +207,8 @@ function selectGeometry(
+   let maskOriginX = 0,
+     maskOriginY = 0
+   let lastLoss = 0
++  let roundingX = -1,
++    roundingY = -1
+ 
+   // All scratch belongs to one candidate, independent of image area.
+   const score = (
+@@ -259,7 +268,16 @@ function selectGeometry(
+       lumaLoss = 0,
+       absoluteError = 0,
+       squaredError = 0
+-    if (actualRounding) context.readBlock(x, y, true)
++    if (actualRounding) {
++      if (!directRoundingState) context.readBlock(x, y, true)
++      else if (x !== roundingX || y !== roundingY) {
++        // Uncorrelated source reads do not change the writer's rate weight.
++        // Candidate shapes sharing an origin can reuse its current state.
++        maskContext.readBlock(x, y, true)
++        roundingX = x
++        roundingY = y
++      }
++    }
+     const penalty = bw * bh >= 2 ? 1 + Math.min(3, (bw * bh) / 8) : 1
+     const tables = jpegXlDevelopmentDequantization(strategy)
+     const naturalWidth = Math.max(width, height)
+@@ -394,6 +412,12 @@ function selectGeometry(
+             error *= error
+             channelLoss += error
+           }
++        if (c === 1 && detailWeight !== 0) {
++          const source = planes[1]
++          if (!source) throw new Error('Missing luma detail source')
++          const detail = selectorDetailLoss(source, spatial, width, height, scale, detailKind)
++          channelLoss *= (1 + detailWeight * detail) ** 8
++        }
+         loss += channelLoss
+         if (c === 0 && bw * bh >= 2) {
+           const penalty = 1 + Math.min(3, (bw * bh) / 8)
+diff --git a/tests/jpegxl-libjxl-strategy-port.test.ts b/tests/jpegxl-libjxl-strategy-port.test.ts
+index f90f651d..eb6f19da 100644
+--- a/tests/jpegxl-libjxl-strategy-port.test.ts
++++ b/tests/jpegxl-libjxl-strategy-port.test.ts
+@@ -10,6 +10,33 @@ import { jpegxlCodec } from '../src/codecs/jpegxl.ts'
+ import { MemorySource } from '../src/source.ts'
+ import { defaultImageLimits } from '../src/limits.ts'
+ 
++it.each([0.5, 1.85, 4])(
++  'preserves rounding state without unused filtered reads at %s',
++  async (distance) => {
++    const width = 129,
++      height = 65
++    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++      i % 4 === 3 ? 255 : Math.floor(i / 4) % width < 64 ? (i * 17) % 80 : 170 + ((i * 13) % 70),
++    )
++    const reference = await encodeTransplant(
++      pixels,
++      width,
++      height,
++      distance,
++      libjxlPortOverrides('standalone-structure-actual', distance, width, height),
++    )
++    const fast = await encodeTransplant(
++      pixels,
++      width,
++      height,
++      distance,
++      libjxlPortOverrides('standalone-structure-actual-fast', distance, width, height),
++    )
++    expect(fast.bytes).toEqual(reference.bytes)
++    expect(fast.managedPeakBytes).toBe(reference.managedPeakBytes)
++  },
++)
++
+ it.each([
+   'tiny',
+   'spatial',
+@@ -62,6 +89,18 @@ it.each([
+   'standalone-forward-small',
+   'standalone-forward-paired',
+   'standalone-forward-all',
++  'standalone-structure-actual',
++  'standalone-structure-actual-fast',
++  'standalone-regularized-half',
++  'standalone-regularized-ac105',
++  'standalone-regularized-ac110',
++  'standalone-actual-coarse',
++  'standalone-detail-half',
++  'standalone-detail-one',
++  'standalone-detail-two',
++  'standalone-structure-half',
++  'standalone-structure-one',
++  'standalone-structure-two',
+   'standalone-guard-coarse',
+   'standalone-selector-pairs',
+   'standalone-sharp2',
+@@ -170,6 +209,18 @@ it.each([
+   'standalone-forward-small',
+   'standalone-forward-paired',
+   'standalone-forward-all',
++  'standalone-structure-actual',
++  'standalone-structure-actual-fast',
++  'standalone-regularized-half',
++  'standalone-regularized-ac105',
++  'standalone-regularized-ac110',
++  'standalone-actual-coarse',
++  'standalone-detail-half',
++  'standalone-detail-one',
++  'standalone-detail-two',
++  'standalone-structure-half',
++  'standalone-structure-one',
++  'standalone-structure-two',
+   'standalone-guard-coarse',
+ ] as const)('keeps coherent DC and global-scale decisions for %s', (mode) => {
+   for (const distance of [0.45, 2, 7.5]) {
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+new file mode 100644
+index 00000000..2b1b5621
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+@@ -0,0 +1,65 @@
++/**
++ * Source: libjxl tools/ssimulacra2.cc, SSIMMap, v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: the regularized mode reuses the structure denominator and 0.0009
++ * stabilizer. First-party 8x8 box moments on preconditioned luma replace Gaussian
++ * display moments; DC, other channels, scales and edge terms are excluded.
++ * Contrast-only and unregularized modes are first-party diagnostic alternatives.
++ * No peer decisions. This is not a metric implementation or public encoder.
++ */
++export function selectorDetailLoss(
++  source: Float32Array,
++  error: Float32Array,
++  width: number,
++  height: number,
++  scale: number,
++  kind: 'contrast' | 'structure' | 'regularized' | 'lost-detail',
++): number {
++  let total = 0
++  for (let by = 0; by < height; by += 8)
++    for (let bx = 0; bx < width; bx += 8) {
++      let sum = 0,
++        sumError = 0,
++        square = 0,
++        squareError = 0,
++        cross = 0
++      for (let y = 0; y < 8; y++)
++        for (let x = 0; x < 8; x++) {
++          const at = (by + y) * width + bx + x
++          const value = source[at] ?? 0
++          const residual = (error[at] ?? 0) * scale
++          sum += value
++          sumError += residual
++          square += value * value
++          squareError += residual * residual
++          cross += value * residual
++        }
++      const variance = Math.max(0, square - (sum * sum) / 64)
++      const errorVariance = Math.max(0, squareError - (sumError * sumError) / 64)
++      const covariance = cross - (sum * sumError) / 64
++      const reconstructed = Math.max(0, variance + errorVariance - 2 * covariance)
++      if (kind === 'lost-detail') {
++        // First-party asymmetric residual: only locally removed detail matters.
++        // Normalize by error energy so flat offsets and added contrast contribute zero.
++        let lostEnergy = 0
++        for (let y = 0; y < 8; y++)
++          for (let x = 0; x < 8; x++) {
++            const at = (by + y) * width + bx + x
++            const centered = (source[at] ?? 0) - sum / 64
++            const residual = (error[at] ?? 0) * scale - sumError / 64
++            const lost = Math.max(0, Math.abs(centered) - Math.abs(centered - residual))
++            lostEnergy += lost * lost
++          }
++        total += Math.sqrt(Math.min(1, lostEnergy / Math.max(errorVariance, 64e-8)))
++        continue
++      }
++      // Stabilize flat cells in the physical XYB scale; DC offsets are excluded.
++      const epsilon = kind === 'regularized' ? 64 * 0.0009 : 64e-8
++      total +=
++        kind === 'contrast'
++          ? Math.max(0, 1 - Math.sqrt((reconstructed + epsilon) / (variance + epsilon)))
++          : Math.min(1, errorVariance / (variance + reconstructed + epsilon))
++    }
++  return total / ((width * height) / 64)
++}
+diff --git a/tests/jpegxl-selector-detail-loss.test.ts b/tests/jpegxl-selector-detail-loss.test.ts
+new file mode 100644
+index 00000000..a2da7c89
+--- /dev/null
++++ b/tests/jpegxl-selector-detail-loss.test.ts
+@@ -0,0 +1,55 @@
++import { expect, it } from 'vitest'
++import { selectorDetailLoss } from '../benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts'
++
++const source = Float32Array.from({ length: 64 }, (_, i) => 0.5 + (i % 8) / 32)
++const mean = source.reduce((a, b) => a + b) / 64
++
++it.each(['contrast', 'structure', 'lost-detail'] as const)(
++  'ignores identity and DC shifts for %s',
++  (kind) => {
++    expect(selectorDetailLoss(source, new Float32Array(64), 8, 8, 1, kind)).toBe(0)
++    expect(selectorDetailLoss(source, new Float32Array(64).fill(0.125), 8, 8, 1, kind)).toBe(0)
++  },
++)
++
++it('penalizes removed contrast without penalizing increased contrast', () => {
++  const removed = Float32Array.from(source, (value) => (value - mean) / 2)
++  const increased = Float32Array.from(removed, (value) => -value)
++  expect(selectorDetailLoss(source, removed, 8, 8, 1, 'contrast')).toBeCloseTo(0.5, 5)
++  expect(selectorDetailLoss(source, increased, 8, 8, 1, 'contrast')).toBe(0)
++  expect(selectorDetailLoss(source, removed, 8, 8, 2, 'contrast')).toBeGreaterThan(0.99)
++})
++
++it('detects phase error even when contrast is preserved', () => {
++  const inverted = Float32Array.from(source, (value) => 2 * (value - mean))
++  expect(selectorDetailLoss(source, inverted, 8, 8, 1, 'contrast')).toBe(0)
++  expect(selectorDetailLoss(source, inverted, 8, 8, 1, 'structure')).toBe(1)
++})
++
++it('pools individual cells and stays finite on flat cells', () => {
++  const pixels = new Float32Array(128).fill(0.5)
++  const errors = new Float32Array(128)
++  for (let y = 0; y < 8; y++)
++    for (let x = 0; x < 8; x++) {
++      pixels[y * 16 + x] = source[y * 8 + x] ?? 0
++      errors[y * 16 + x] = ((source[y * 8 + x] ?? 0) - mean) / 2
++    }
++  expect(selectorDetailLoss(pixels, errors, 16, 8, 1, 'contrast')).toBeCloseTo(0.25, 5)
++  expect(selectorDetailLoss(pixels, errors, 16, 8, 1, 'structure')).toBeCloseTo(0.1, 5)
++})
++
++it('stabilizes nearly flat structure loss while retaining stronger detail errors', () => {
++  const faint = Float32Array.from(source, (value) => 0.5 + (value - mean) / 100)
++  const removed = Float32Array.from(faint, (value) => value - 0.5)
++  expect(selectorDetailLoss(faint, removed, 8, 8, 1, 'structure')).toBeGreaterThan(0.9)
++  expect(selectorDetailLoss(faint, removed, 8, 8, 1, 'regularized')).toBeLessThan(0.001)
++  const strong = Float32Array.from(source, (value) => value - mean)
++  expect(selectorDetailLoss(source, strong, 8, 8, 1, 'regularized')).toBeGreaterThan(0.8)
++})
++
++it('distinguishes lost detail from added detail at equal error energy', () => {
++  const removed = Float32Array.from(source, (value) => (value - mean) / 2)
++  const added = Float32Array.from(removed, (value) => -value)
++  expect(selectorDetailLoss(source, removed, 8, 8, 1, 'lost-detail')).toBeCloseTo(1, 5)
++  expect(selectorDetailLoss(source, added, 8, 8, 1, 'lost-detail')).toBe(0)
++})

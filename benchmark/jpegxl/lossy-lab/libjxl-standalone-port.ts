@@ -9,6 +9,7 @@
  * experiments cap EPF iterations and independently vary physical DC precision,
  * smoothing, high-frequency masking, AC precision or coefficient rounding.
  * All decisions derive from pixels and distance. No decoder or peer maps.
+ * First-party activity-state reuse skips filtered reads used only for rounding.
  */
 import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
 import { libjxlDcOverrides } from './libjxl-dc-port.ts'
@@ -72,6 +73,7 @@ export function libjxlStandaloneOverrides(
   width: number,
   height: number,
   requestedMode: StandalonePort,
+  directRoundingState = true,
 ): JpegXlDevelopmentDecisions {
   const writerEstimate =
     requestedMode === 'standalone-writer-field'
@@ -245,6 +247,7 @@ export function libjxlStandaloneOverrides(
             requestedMode === 'standalone-selector-mask-copy' ||
             coarseAllocation,
           lossScale,
+          directRoundingState,
           ...(writerEstimate ? { writerEstimate } : {}),
           ...(writerTransform ? { writerTransform } : {}),
           compactStorage:

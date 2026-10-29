@@ -3,6 +3,7 @@ import {
   strategyPortOverrides,
   parseStrategyPort,
 } from '../benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts'
+import { libjxlStandaloneOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts'
 import { libjxlPortOverrides } from '../benchmark/jpegxl/lossy-lab/libjxl-ports.ts'
 import { encodeTransplant } from '../benchmark/jpegxl/lossy-lab/transplant.ts'
 import { extractDecisions } from '../benchmark/jpegxl/lossy-lab/decisions.ts'
@@ -265,3 +266,32 @@ it('preserves coherent streams with bounded source caching and packed AC storage
     }
   }
 })
+
+it.each(['standalone-writer-rounding', 'standalone-writer-all'] as const)(
+  'preserves rounding state across candidate origins and tile edges for %s',
+  async (mode) => {
+    const width = 129,
+      height = 65
+    const pixels = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
+      i % 4 === 3 ? 255 : Math.floor(i / 4) % width < 64 ? (i * 17) % 80 : 170 + ((i * 13) % 70),
+    )
+    for (const distance of [0.5, 1.85, 4]) {
+      const reference = await encodeTransplant(
+        pixels,
+        width,
+        height,
+        distance,
+        libjxlStandaloneOverrides(distance, width, height, mode, false),
+      )
+      const fast = await encodeTransplant(
+        pixels,
+        width,
+        height,
+        distance,
+        libjxlStandaloneOverrides(distance, width, height, mode),
+      )
+      expect(fast.bytes).toEqual(reference.bytes)
+      expect(fast.managedPeakBytes).toBe(reference.managedPeakBytes)
+    }
+  },
+)
