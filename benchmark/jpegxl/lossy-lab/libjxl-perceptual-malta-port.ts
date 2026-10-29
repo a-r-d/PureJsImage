@@ -6,47 +6,10 @@
  * coordinate stencils and a zero-padded Float64 plane replace SIMD and pointers.
  * Fixed hf_asymmetry=1, no native allocation or threading infrastructure.
  * Optional output windows bound the padded difference plane to requested support.
- * Fixed tap sums are unrolled without changing accumulation order.
+ * Fixed directional kernels preserve each sum and cost addition order.
+ * Identical high-frequency stencils reuse their sum at the original positions.
  */
 import { type PerceptualWindow, perceptualWindow } from './libjxl-perceptual-local-port.ts'
-
-// Each row contains (dx,dy) pairs. Retain the source's repeated UHF directions.
-const lowStencils = [
-  [-4, 0, -2, 0, 0, 0, 2, 0, 4, 0],
-  [0, -4, 0, -2, 0, 0, 0, 2, 0, 4],
-  [-3, -3, -2, -2, 0, 0, 2, 2, 3, 3],
-  [3, -3, 2, -2, 0, 0, -2, 2, -3, 3],
-  [1, -4, 1, -2, 0, 0, -1, 2, -1, 4],
-  [-1, -4, -1, -2, 0, 0, 1, 2, 1, 4],
-  [-4, -1, -2, -1, 0, 0, 2, 1, 4, 1],
-  [-4, 1, -2, 1, 0, 0, 2, -1, 4, -1],
-  [-2, -3, -1, -2, 0, 0, 1, 2, 2, 3],
-  [2, -3, 1, -2, 0, 0, -1, 2, -2, 3],
-  [-3, -2, -2, -1, 0, 0, 2, 1, 3, 2],
-  [3, -2, 2, -1, 0, 0, -2, 1, -3, 2],
-  [-4, 2, -2, 1, 0, 0, 2, -1, 4, -2],
-  [-4, -2, -2, -1, 0, 0, 2, 1, 4, 2],
-  [-2, -4, -1, -2, 0, 0, 1, 2, 2, 4],
-  [2, -4, 1, -2, 0, 0, -1, 2, -2, 4],
-].map((row) => Int8Array.from(row))
-const highStencils = [
-  [-4, 0, -3, 0, -2, 0, -1, 0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0],
-  [0, -4, 0, -3, 0, -2, 0, -1, 0, 0, 0, 1, 0, 2, 0, 3, 0, 4],
-  [-3, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 3, 3],
-  [3, -3, 2, -2, 1, -1, 0, 0, -1, 1, -2, 2, -3, 3],
-  [1, -4, 1, -3, 1, -2, 0, -1, 0, 0, 0, 1, -1, 2, -1, 3, -1, 4],
-  [-1, -4, -1, -3, -1, -2, 0, -1, 0, 0, 0, 1, 1, 2, 1, 3, 1, 4],
-  [-4, -1, -3, -1, -2, -1, -1, 0, 0, 0, 1, 0, 2, 1, 3, 1, 4, 1],
-  [-4, 1, -3, 1, -2, 1, -1, 0, 0, 0, 1, 0, 2, -1, 3, -1, 4, -1],
-  [-2, -3, -1, -2, -1, -1, 0, 0, 1, 1, 1, 2, 2, 3],
-  [2, -3, 1, -2, 1, -1, 0, 0, -1, 1, -1, 2, -2, 3],
-  [-3, -2, -2, -1, -1, -1, 0, 0, 1, 1, 2, 1, 3, 2],
-  [3, -2, 2, -1, 1, -1, 0, 0, -1, 1, -2, 1, -3, 2],
-  [-4, 1, -3, 1, -2, 1, -1, 0, 0, 0, 1, 0, 2, -1, 3, -1, 4, -1],
-  [-4, -1, -3, -1, -2, -1, -1, 0, 0, 0, 1, 0, 2, 1, 3, 1, 4, 1],
-  [-1, -4, -1, -3, -1, -2, 0, -1, 0, 0, 0, 1, 1, 2, 1, 3, 1, 4],
-  [1, -4, 1, -3, 1, -2, 0, -1, 0, 0, 0, 1, -1, 2, -1, 3, -1, 4],
-].map((row) => Int8Array.from(row))
 
 export function maltaDirectionalCost(
   source: Float64Array,
@@ -77,13 +40,7 @@ export function maltaDirectionalCost(
     out = new Float64Array(window.width * window.height),
     multiplier = band === 'low' ? 0.611612573796 : 0.39905817637,
     symmetric = (multiplier * Math.sqrt(0.5 * weight)) / 8.5,
-    asymmetric = (multiplier * Math.sqrt(0.33 * weight)) / 8.5,
-    stencils = (band === 'low' ? lowStencils : highStencils).map((row) =>
-      Int32Array.from(
-        { length: row.length / 2 },
-        (_, i) => (row[2 * i] ?? 0) + stride * (row[2 * i + 1] ?? 0),
-      ),
-    )
+    asymmetric = (multiplier * Math.sqrt(0.33 * weight)) / 8.5
   for (let y = Math.max(0, window.y - 4); y < Math.min(height, window.y + window.height + 4); y++)
     for (let x = Math.max(0, window.x - 4); x < Math.min(width, window.x + window.width + 4); x++) {
       const p = y * width + x,
@@ -98,31 +55,8 @@ export function maltaDirectionalCost(
       padded[(y - window.y + 4) * stride + x - window.x + 4] =
         scale * (symmetric * (a - b) + asymmetric * sign * penalty)
     }
-  for (let y = 0; y < window.height; y++)
-    for (let x = 0; x < window.width; x++) {
-      const p = (y + 4) * stride + x + 4
-      let cost = 0
-      for (let k = 0; k < stencils.length; k++) {
-        const offsets = stencils[k]
-        if (!offsets) throw new Error('Missing Malta stencil')
-        let sum = 0
-        sum += padded[p + (offsets[0] ?? 0)] ?? 0
-        sum += padded[p + (offsets[1] ?? 0)] ?? 0
-        sum += padded[p + (offsets[2] ?? 0)] ?? 0
-        sum += padded[p + (offsets[3] ?? 0)] ?? 0
-        sum += padded[p + (offsets[4] ?? 0)] ?? 0
-        if (offsets.length > 5) {
-          sum += padded[p + (offsets[5] ?? 0)] ?? 0
-          sum += padded[p + (offsets[6] ?? 0)] ?? 0
-          if (offsets.length > 7) {
-            sum += padded[p + (offsets[7] ?? 0)] ?? 0
-            sum += padded[p + (offsets[8] ?? 0)] ?? 0
-          }
-        }
-        cost += sum * sum
-      }
-      out[y * window.width + x] = cost
-    }
+  if (band === 'low') lowDirectionalSums(padded, out, window.width, window.height, stride)
+  else highDirectionalSums(padded, out, window.width, window.height, stride)
   return out
 }
 
@@ -167,7 +101,11 @@ export function perceptualDirectionalMap(
       item.band,
       window,
     )
-    for (let p = 0; p < costs.length; p++) costs[p] = (costs[p] ?? 0) + (cost[p] ?? 0)
+    for (let y = 0; y < window.height; y++)
+      for (let x = 0; x < window.width; x++) {
+        const p = y * window.width + x
+        costs[p] = (costs[p] ?? 0) + (cost[p] ?? 0)
+      }
   }
   const scale = 1 / (17.83 * 0.79079917404)
   for (let y = 0; y < window.height; y++)
@@ -206,4 +144,306 @@ export function mixPerceptualScales(
         0.85 * (fine[y * width + x] ?? 0) +
         0.5 * (half[Math.floor(y / 2) * stride + Math.floor(x / 2)] ?? 0)
   return out
+}
+
+function lowDirectionalSums(
+  padded: Float64Array,
+  out: Float64Array,
+  width: number,
+  height: number,
+  stride: number,
+): void {
+  const r1 = stride,
+    r2 = 2 * stride,
+    r3 = 3 * stride,
+    r4 = 4 * stride
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const p = (y + 4) * stride + x + 4
+      const s0 =
+        0 +
+        (padded[p - 4] ?? 0) +
+        (padded[p - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + 2] ?? 0) +
+        (padded[p + 4] ?? 0)
+      const s1 =
+        0 +
+        (padded[p - r4] ?? 0) +
+        (padded[p - r2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2] ?? 0) +
+        (padded[p + r4] ?? 0)
+      const s2 =
+        0 +
+        (padded[p - r3 - 3] ?? 0) +
+        (padded[p - r2 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 + 2] ?? 0) +
+        (padded[p + r3 + 3] ?? 0)
+      const s3 =
+        0 +
+        (padded[p - r3 + 3] ?? 0) +
+        (padded[p - r2 + 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 - 2] ?? 0) +
+        (padded[p + r3 - 3] ?? 0)
+      const s4 =
+        0 +
+        (padded[p - r4 + 1] ?? 0) +
+        (padded[p - r2 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 - 1] ?? 0) +
+        (padded[p + r4 - 1] ?? 0)
+      const s5 =
+        0 +
+        (padded[p - r4 - 1] ?? 0) +
+        (padded[p - r2 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 + 1] ?? 0) +
+        (padded[p + r4 + 1] ?? 0)
+      const s6 =
+        0 +
+        (padded[p - r1 - 4] ?? 0) +
+        (padded[p - r1 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 2] ?? 0) +
+        (padded[p + r1 + 4] ?? 0)
+      const s7 =
+        0 +
+        (padded[p + r1 - 4] ?? 0) +
+        (padded[p + r1 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p - r1 + 2] ?? 0) +
+        (padded[p - r1 + 4] ?? 0)
+      const s8 =
+        0 +
+        (padded[p - r3 - 2] ?? 0) +
+        (padded[p - r2 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 + 1] ?? 0) +
+        (padded[p + r3 + 2] ?? 0)
+      const s9 =
+        0 +
+        (padded[p - r3 + 2] ?? 0) +
+        (padded[p - r2 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 - 1] ?? 0) +
+        (padded[p + r3 - 2] ?? 0)
+      const s10 =
+        0 +
+        (padded[p - r2 - 3] ?? 0) +
+        (padded[p - r1 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 2] ?? 0) +
+        (padded[p + r2 + 3] ?? 0)
+      const s11 =
+        0 +
+        (padded[p - r2 + 3] ?? 0) +
+        (padded[p - r1 + 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 - 2] ?? 0) +
+        (padded[p + r2 - 3] ?? 0)
+      const s12 =
+        0 +
+        (padded[p + r2 - 4] ?? 0) +
+        (padded[p + r1 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p - r1 + 2] ?? 0) +
+        (padded[p - r2 + 4] ?? 0)
+      const s13 =
+        0 +
+        (padded[p - r2 - 4] ?? 0) +
+        (padded[p - r1 - 2] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 2] ?? 0) +
+        (padded[p + r2 + 4] ?? 0)
+      const s14 =
+        0 +
+        (padded[p - r4 - 2] ?? 0) +
+        (padded[p - r2 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 + 1] ?? 0) +
+        (padded[p + r4 + 2] ?? 0)
+      const s15 =
+        0 +
+        (padded[p - r4 + 2] ?? 0) +
+        (padded[p - r2 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r2 - 1] ?? 0) +
+        (padded[p + r4 - 2] ?? 0)
+      let cost = 0
+      cost += s0 * s0
+      cost += s1 * s1
+      cost += s2 * s2
+      cost += s3 * s3
+      cost += s4 * s4
+      cost += s5 * s5
+      cost += s6 * s6
+      cost += s7 * s7
+      cost += s8 * s8
+      cost += s9 * s9
+      cost += s10 * s10
+      cost += s11 * s11
+      cost += s12 * s12
+      cost += s13 * s13
+      cost += s14 * s14
+      cost += s15 * s15
+      out[y * width + x] = cost
+    }
+}
+
+function highDirectionalSums(
+  padded: Float64Array,
+  out: Float64Array,
+  width: number,
+  height: number,
+  stride: number,
+): void {
+  const r1 = stride,
+    r2 = 2 * stride,
+    r3 = 3 * stride,
+    r4 = 4 * stride
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const p = (y + 4) * stride + x + 4
+      const s0 =
+        0 +
+        (padded[p - 4] ?? 0) +
+        (padded[p - 3] ?? 0) +
+        (padded[p - 2] ?? 0) +
+        (padded[p - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + 1] ?? 0) +
+        (padded[p + 2] ?? 0) +
+        (padded[p + 3] ?? 0) +
+        (padded[p + 4] ?? 0)
+      const s1 =
+        0 +
+        (padded[p - r4] ?? 0) +
+        (padded[p - r3] ?? 0) +
+        (padded[p - r2] ?? 0) +
+        (padded[p - r1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1] ?? 0) +
+        (padded[p + r2] ?? 0) +
+        (padded[p + r3] ?? 0) +
+        (padded[p + r4] ?? 0)
+      const s2 =
+        0 +
+        (padded[p - r3 - 3] ?? 0) +
+        (padded[p - r2 - 2] ?? 0) +
+        (padded[p - r1 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 1] ?? 0) +
+        (padded[p + r2 + 2] ?? 0) +
+        (padded[p + r3 + 3] ?? 0)
+      const s3 =
+        0 +
+        (padded[p - r3 + 3] ?? 0) +
+        (padded[p - r2 + 2] ?? 0) +
+        (padded[p - r1 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 - 1] ?? 0) +
+        (padded[p + r2 - 2] ?? 0) +
+        (padded[p + r3 - 3] ?? 0)
+      const s4 =
+        0 +
+        (padded[p - r4 + 1] ?? 0) +
+        (padded[p - r3 + 1] ?? 0) +
+        (padded[p - r2 + 1] ?? 0) +
+        (padded[p - r1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1] ?? 0) +
+        (padded[p + r2 - 1] ?? 0) +
+        (padded[p + r3 - 1] ?? 0) +
+        (padded[p + r4 - 1] ?? 0)
+      const s5 =
+        0 +
+        (padded[p - r4 - 1] ?? 0) +
+        (padded[p - r3 - 1] ?? 0) +
+        (padded[p - r2 - 1] ?? 0) +
+        (padded[p - r1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1] ?? 0) +
+        (padded[p + r2 + 1] ?? 0) +
+        (padded[p + r3 + 1] ?? 0) +
+        (padded[p + r4 + 1] ?? 0)
+      const s6 =
+        0 +
+        (padded[p - r1 - 4] ?? 0) +
+        (padded[p - r1 - 3] ?? 0) +
+        (padded[p - r1 - 2] ?? 0) +
+        (padded[p - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + 1] ?? 0) +
+        (padded[p + r1 + 2] ?? 0) +
+        (padded[p + r1 + 3] ?? 0) +
+        (padded[p + r1 + 4] ?? 0)
+      const s7 =
+        0 +
+        (padded[p + r1 - 4] ?? 0) +
+        (padded[p + r1 - 3] ?? 0) +
+        (padded[p + r1 - 2] ?? 0) +
+        (padded[p - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + 1] ?? 0) +
+        (padded[p - r1 + 2] ?? 0) +
+        (padded[p - r1 + 3] ?? 0) +
+        (padded[p - r1 + 4] ?? 0)
+      const s8 =
+        0 +
+        (padded[p - r3 - 2] ?? 0) +
+        (padded[p - r2 - 1] ?? 0) +
+        (padded[p - r1 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 1] ?? 0) +
+        (padded[p + r2 + 1] ?? 0) +
+        (padded[p + r3 + 2] ?? 0)
+      const s9 =
+        0 +
+        (padded[p - r3 + 2] ?? 0) +
+        (padded[p - r2 + 1] ?? 0) +
+        (padded[p - r1 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 - 1] ?? 0) +
+        (padded[p + r2 - 1] ?? 0) +
+        (padded[p + r3 - 2] ?? 0)
+      const s10 =
+        0 +
+        (padded[p - r2 - 3] ?? 0) +
+        (padded[p - r1 - 2] ?? 0) +
+        (padded[p - r1 - 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 + 1] ?? 0) +
+        (padded[p + r1 + 2] ?? 0) +
+        (padded[p + r2 + 3] ?? 0)
+      const s11 =
+        0 +
+        (padded[p - r2 + 3] ?? 0) +
+        (padded[p - r1 + 2] ?? 0) +
+        (padded[p - r1 + 1] ?? 0) +
+        (padded[p] ?? 0) +
+        (padded[p + r1 - 1] ?? 0) +
+        (padded[p + r1 - 2] ?? 0) +
+        (padded[p + r2 - 3] ?? 0)
+      let cost = 0
+      cost += s0 * s0
+      cost += s1 * s1
+      cost += s2 * s2
+      cost += s3 * s3
+      cost += s4 * s4
+      cost += s5 * s5
+      cost += s6 * s6
+      cost += s7 * s7
+      cost += s8 * s8
+      cost += s9 * s9
+      cost += s10 * s10
+      cost += s11 * s11
+      cost += s7 * s7
+      cost += s6 * s6
+      cost += s5 * s5
+      cost += s4 * s4
+      out[y * width + x] = cost
+    }
 }

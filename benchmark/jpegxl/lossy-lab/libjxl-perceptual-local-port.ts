@@ -12,6 +12,7 @@
  * Gaussian tap indices and normalization are precomputed with the same tap order.
  * Gaussian traversal shares tap loads across four adjacent pixels, with exact sums.
  * Opsin channel adaptation shares pixel loads and writes final XYB in one pass.
+ * Convolution reuses existing bands and bounded intermediate rows with exact sums.
  */
 import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
 
@@ -32,6 +33,7 @@ export function perceptualBlur(
   width: number,
   height: number,
   sigma: number,
+  destination?: Float64Array,
 ): Float64Array {
   if (
     input.length !== width * height ||
@@ -40,61 +42,69 @@ export function perceptualBlur(
     !Number.isInteger(width) ||
     !Number.isInteger(height) ||
     !Number.isFinite(sigma) ||
-    sigma <= 0
+    sigma <= 0 ||
+    (destination !== undefined && destination.length !== input.length)
   )
     throw new Error('Invalid perceptual blur')
   const radius = Math.max(1, Math.floor(2.25 * sigma)),
     kernel = Float64Array.from({ length: 2 * radius + 1 }, (_, i) =>
       Math.exp(-((i - radius) ** 2) / (2 * sigma ** 2)),
     ),
-    temp = new Float64Array(input.length),
-    out = new Float64Array(input.length)
+    out = destination ?? new Float64Array(input.length),
+    fullPreparation =
+      input.buffer === out.buffer &&
+      (input.byteOffset !== out.byteOffset || input.BYTES_PER_ELEMENT !== out.BYTES_PER_ELEMENT),
+    ringRows = fullPreparation ? height : Math.min(height, 2 * radius + 1),
+    temp = new Float64Array(width * ringRows)
   const horizontal = blurPlan(width, 1, radius, kernel),
-    vertical = blurPlan(height, width, radius, kernel),
+    vertical = blurPlan(height, width, radius, kernel, ringRows),
     taps = kernel.length
+  let preparedRow = 0
   for (let y = 0; y < height; y++) {
-    const row = y * width
-    let x = 0
-    for (; x < Math.min(radius, width); x++) {
-      let sum = 0
-      const begin = horizontal.first[x] ?? 0,
-        end = horizontal.end[x] ?? 0,
-        offset = x * taps
-      for (let k = begin; k < end; k++)
-        sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
-      temp[row + x] = sum / (horizontal.weights[x] ?? 1)
-    }
-    for (; x + 3 < width - radius; x += 4) {
-      let a = 0,
-        b = 0,
-        c = 0,
-        d = 0
-      const start = row + x - radius,
-        weight = horizontal.weights[x] ?? 1
-      for (let k = 0; k < taps; k++) {
-        const coefficient = kernel[k] ?? 0,
-          p = start + k
-        a += coefficient * (input[p] ?? 0)
-        b += coefficient * (input[p + 1] ?? 0)
-        c += coefficient * (input[p + 2] ?? 0)
-        d += coefficient * (input[p + 3] ?? 0)
+    const lastRequired = fullPreparation ? height - 1 : Math.min(height - 1, y + radius)
+    for (; preparedRow <= lastRequired; preparedRow++) {
+      const row = preparedRow * width,
+        outputRow = (preparedRow % ringRows) * width
+      let x = 0
+      for (; x < Math.min(radius, width); x++) {
+        let sum = 0
+        const begin = horizontal.first[x] ?? 0,
+          end = horizontal.end[x] ?? 0,
+          offset = x * taps
+        for (let k = begin; k < end; k++)
+          sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
+        temp[outputRow + x] = sum / (horizontal.weights[x] ?? 1)
       }
-      temp[row + x] = a / weight
-      temp[row + x + 1] = b / weight
-      temp[row + x + 2] = c / weight
-      temp[row + x + 3] = d / weight
+      for (; x + 3 < width - radius; x += 4) {
+        let a = 0,
+          b = 0,
+          c = 0,
+          d = 0
+        const start = row + x - radius,
+          weight = horizontal.weights[x] ?? 1
+        for (let k = 0; k < taps; k++) {
+          const coefficient = kernel[k] ?? 0,
+            p = start + k
+          a += coefficient * (input[p] ?? 0)
+          b += coefficient * (input[p + 1] ?? 0)
+          c += coefficient * (input[p + 2] ?? 0)
+          d += coefficient * (input[p + 3] ?? 0)
+        }
+        temp[outputRow + x] = a / weight
+        temp[outputRow + x + 1] = b / weight
+        temp[outputRow + x + 2] = c / weight
+        temp[outputRow + x + 3] = d / weight
+      }
+      for (; x < width; x++) {
+        let sum = 0
+        const begin = horizontal.first[x] ?? 0,
+          end = horizontal.end[x] ?? 0,
+          offset = x * taps
+        for (let k = begin; k < end; k++)
+          sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
+        temp[outputRow + x] = sum / (horizontal.weights[x] ?? 1)
+      }
     }
-    for (; x < width; x++) {
-      let sum = 0
-      const begin = horizontal.first[x] ?? 0,
-        end = horizontal.end[x] ?? 0,
-        offset = x * taps
-      for (let k = begin; k < end; k++)
-        sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
-      temp[row + x] = sum / (horizontal.weights[x] ?? 1)
-    }
-  }
-  for (let y = 0; y < height; y++) {
     const begin = vertical.first[y] ?? 0,
       end = vertical.end[y] ?? 0,
       offset = y * taps,
@@ -129,7 +139,13 @@ export function perceptualBlur(
 }
 
 /** Same tap order and edge normalization, prepared once per axis. */
-function blurPlan(extent: number, step: number, radius: number, kernel: Float64Array) {
+function blurPlan(
+  extent: number,
+  step: number,
+  radius: number,
+  kernel: Float64Array,
+  period = extent,
+) {
   const taps = kernel.length,
     indices = new Int32Array(extent * taps),
     first = new Int32Array(extent),
@@ -147,7 +163,7 @@ function blurPlan(extent: number, step: number, radius: number, kernel: Float64A
         q = ((q % (2 * extent)) + 2 * extent) % (2 * extent)
         if (q >= extent) q = 2 * extent - 1 - q
       }
-      indices[p * taps + k] = q * step
+      indices[p * taps + k] = (q % period) * step
       sum += kernel[k] ?? 0
     }
     weights[p] = sum
@@ -263,12 +279,17 @@ export function preparePerceptualLinear(
       low = lf[c],
       middle = mf[c]
     if (!src || !low || !middle) throw new Error('Missing perceptual band')
-    low.set(perceptualBlur(src, width, height, 7.15593339443))
+    perceptualBlur(src, width, height, 7.15593339443, low)
     for (let p = 0; p < src.length; p++) middle[p] = (src[p] ?? 0) - (low[p] ?? 0)
-    const blurred = perceptualBlur(middle, width, height, 3.22489901262),
+    const blurred = perceptualBlur(
+        middle,
+        width,
+        height,
+        3.22489901262,
+        c === 2 ? middle : undefined,
+      ),
       high = hf[c]
     if (c === 2) {
-      middle.set(blurred)
       continue
     }
     if (!high) throw new Error('Missing HF plane')
@@ -289,7 +310,7 @@ export function preparePerceptualLinear(
     const high = hf[c],
       ultra = uhf[c]
     if (!high || !ultra) throw new Error('Missing high-frequency plane')
-    const blurred = perceptualBlur(high, width, height, 1.56416327805)
+    const blurred = perceptualBlur(high, width, height, 1.56416327805, ultra)
     for (let p = 0; p < high.length; p++) {
       const value = blurred[p] ?? 0
       if (c === 0) {
@@ -311,7 +332,7 @@ export function preparePerceptualLinear(
       Math.sqrt(6.19424080439 * (Math.hypot(x, y) + 12.61050594197)) -
       Math.sqrt(6.19424080439 * 12.61050594197)
   }
-  const blurredActivity = perceptualBlur(activity, width, height, 2.7)
+  const blurredActivity = perceptualBlur(activity, width, height, 2.7, activity)
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       let a = blurredActivity[y * width + x] ?? 0,

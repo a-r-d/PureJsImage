@@ -515,6 +515,23 @@ preserves the rejected first-party omission of the unused decoded mask and
 applies after that archive. Historical patches remain unchanged. Full libjxl
 BSD notices remain in the package and docs site. No runtime dependencies.
 
+## Complete-map bounded buffers and directional kernels, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-malta-port.ts` specializes the existing fixed
+directional stencils and reuses identical high-frequency sums at their original
+addition positions. `lossy-lab/libjxl-perceptual-local-port.ts` accepts existing
+Gaussian output buffers and retains only the horizontal rows needed for each
+vertical sum. Incompatible overlapping output views retain a full intermediate.
+These are first-party implementation changes to the recorded
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` ports, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. No source constants, masks or
+thresholds change, and no additional native code is taken. Headers record the
+changes; the full libjxl BSD license remains in the package and docs notices.
+
+`lossy-lab/FULLMAP-SPEED-ROUND2-EXPERIMENT.patch` restores the measured
+complete-map prototype and the previously attributed quantization/reuse
+prerequisites against this checkpoint. The encoder policy remains archived.
+
 ## Sparse output and coefficient reuse trial, 2026-10-28
 
 `lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch` extends the existing attributed

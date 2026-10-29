@@ -60,3 +60,48 @@ it('keeps each Gaussian sum exact across grouped pixels, scalar tails and tiny b
     }
   }
 })
+
+it('can reuse a destination or its input without changing sums or separate source storage', () => {
+  for (const [width, height] of [
+    [1, 1],
+    [2, 17],
+    [19, 17],
+  ]) {
+    if (!width || !height) throw new Error('Missing dimensions')
+    const source = Float64Array.from(
+        { length: width * height },
+        (_, p) => (((p * 17) % 97) - 48) / 32,
+      ),
+      original = source.slice()
+    for (const sigma of [1.2, 1.56416327805, 2.7, 3.22489901262, 7.15593339443]) {
+      const expected = referenceBlur(source, width, height, sigma),
+        destination = new Float64Array(source.length).fill(Number.NaN),
+        aliased = source.slice()
+      expect(perceptualBlur(source, width, height, sigma, destination)).toBe(destination)
+      expect(destination).toEqual(expected)
+      expect(source).toEqual(original)
+      expect(perceptualBlur(aliased, width, height, sigma, aliased)).toBe(aliased)
+      expect(aliased).toEqual(expected)
+    }
+    expect(() =>
+      perceptualBlur(source, width, height, 1.2, new Float64Array(source.length + 1)),
+    ).toThrow('blur')
+  }
+})
+
+it('preserves unread source rows when destination views overlap with a different layout', () => {
+  const width = 19,
+    height = 71,
+    length = width * height
+  for (const float32 of [false, true]) {
+    const storage = new ArrayBuffer((length + 2) * 8),
+      source = float32
+        ? new Float32Array(storage, 0, length)
+        : new Float64Array(storage, 0, length),
+      destination = new Float64Array(storage, 16, length)
+    for (let p = 0; p < source.length; p++) source[p] = (((p * 17) % 97) - 48) / 32
+    const expected = referenceBlur(source.slice(), width, height, 7.15593339443)
+    expect(perceptualBlur(source, width, height, 7.15593339443, destination)).toBe(destination)
+    expect(destination).toEqual(expected)
+  }
+})
