@@ -1,0 +1,50 @@
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_ba091126a026bc 535-550
+benchmark/jpegxl/lossy-lab/FULLMAP-GAUSSIAN-VERTICAL-EXPERIMENT.patch
+  s_42a303a21f7525::t_2e3482e203ec5e 1-56
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_ea60e8b4f0ba88 13-14
+  s_42a303a21f7525::t_f852ec2d2582fa 2616-2619
+  s_42a303a21f7525::t_d7d65c4e0f537d 2610-2613
+  s_42a303a21f7525::t_360e5a50753bb7 2622-2626
+  s_42a303a21f7525::t_b5cc0e5a33bc47 2600-2603
+  s_42a303a21f7525::t_78318b53f66c85 2620-2621
+  s_42a303a21f7525::t_cd4e32ddaab704 2606-2609
+  s_42a303a21f7525::t_1c9fbfce038470 2614-2615
+  s_42a303a21f7525::t_a070a714803353 2594-2599
+  s_42a303a21f7525::t_d353c14d689275 2604-2605
+  s_42a303a21f7525::t_fdb5ff857b46ea 2627-2629
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND3-EXPERIMENT.patch
+  s_42a303a21f7525::t_2e3482e203ec5e 1-1048
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND3-REPORT.md
+  s_42a303a21f7525::t_192753b8f140c7 1-76,97-150
+  s_42a303a21f7525::t_dac432b8f150b7 151-163
+  s_42a303a21f7525::t_ea60e8b4f0ba88 77-96,164-165
+  s_42a303a21f7525::t_fdb5ff857b46ea 166-170
+tests/jpegxl-perceptual-blur.test.ts
+  s_42a303a21f7525::t_c0fb90e28fcf1f 48-50,52,73
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND3-REPORT.json
+  s_42a303a21f7525::t_360e5a50753bb7 1-12004,12010-12013
+  s_42a303a21f7525::t_4216a96dc5e34f 12005-12009
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+  s_42a303a21f7525::t_d7d65c4e0f537d 140,144-148,156-159,165-168
+  s_42a303a21f7525::t_c0fb90e28fcf1f 13,79,83-87,120-123
+  s_42a303a21f7525::t_2e3482e203ec5e 16
+  s_42a303a21f7525::t_91abb0944e7a04 90-96,99-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2694cd7318a51156ead83b98c72387776560c97e",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
