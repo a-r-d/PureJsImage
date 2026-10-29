@@ -1,0 +1,143 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -20,6 +20,8 @@
+  * entropy and the remaining budget for rectangle partitions.
+  * This is a development experiment, never imported by the public encoder.
+  */
++import { inverseSelectorWithLossBound } from './selector-inverse-bound.ts'
++
+ import { selectorTileMask } from './selector-tile-mask.ts'
+ import { selectorMaskLoss } from './selector-mask-loss.ts'
+ import { selectorDetailLoss } from './libjxl-selector-detail-loss.ts'
+@@ -380,9 +382,27 @@
+       }
+       entropy += channelEntropy
+       if (!tiny) {
+-        inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
+         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
+         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
++        const maskOrigin = (y * 8 - maskOriginY) * 64 + x * 8 - maskOriginX
++        if (prune && actualRounding && inverseWeights && rowMask && tileMask && size >= 256 && Number.isFinite(cutoff)) {
++          const priorLoss = c === 0 ? lumaLoss : loss
++          const channelPenalty = c === 0 ? penalty : 1
++          const minimumPending = minimumEntropy * (c === 1 ? penalty + 1 : c === 0 ? 1 : 0)
++          const lowerEntropy = (c === 0 ? lumaEntropy + channelEntropy * penalty : entropy) + minimumPending
++          const availableInformation = Math.max(0, (cutoff * (1 + 1e-12) - entropyMultiplier * lowerEntropy) / infoWeight / scale / size)
++          const lossLimit = (availableInformation ** 8 * size - priorLoss) / channelPenalty
++          const partial = inverseSelectorWithLossBound(strategy, residual.subarray(0, size), scratch,
++            spatial.subarray(0, size), active, tileMask.data, maskOrigin, maskOffset, channelWeight, lossLimit)
++          if (partial !== undefined) {
++            if (entropyMultiplier * lowerEntropy + infoWeight * ((priorLoss + partial * channelPenalty) / size) ** (1 / 8) * scale * size > cutoff * (1 + 1e-12)) {
++              lastLoss = Infinity
++              return Infinity
++            }
++            // A threshold rounded conservatively the wrong way: complete the exact transform.
++            inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
++          }
++        } else inverse(strategy, residual.subarray(0, size), scratch, spatial.subarray(0, size), active)
+         let channelLoss = 0
+         if (rowMask && tileMask)
+           channelLoss = selectorMaskLoss(
+diff --git a/benchmark/jpegxl/lossy-lab/selector-inverse-bound.ts b/benchmark/jpegxl/lossy-lab/selector-inverse-bound.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/selector-inverse-bound.ts
+@@ -0,0 +1,97 @@
++import { inverseJpegXlDevelopmentTransform } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import {
++  jpegXlVarDctStrategyBlockWidths,
++  jpegXlVarDctStrategyBlockHeights,
++} from '../../../src/codecs/jpegxl-vardct-jpeg.ts'
++import { dctBasis } from './transform-kernels.ts'
++
++const inverseWeights = new Map<number, Float64Array>()
++function weights(size: number): Float64Array {
++  const previous = inverseWeights.get(size)
++  if (previous) return previous
++  const forward = dctBasis(size)
++  const result = new Float64Array((size * size) / 2)
++  for (let x = 0; x < size / 2; x++)
++    for (let k = 0; k < size; k++) result[x * size + k] = forward[k * size + x] ?? 0
++  inverseWeights.set(size, result)
++  return result
++}
++
++/** First-party exact inverse with a row-ordered subset loss check.
++ * A conservative early return leaves only the first/last output rows filled.
++ * The caller verifies its complete lower bound before discarding the candidate.
++ */
++export function inverseSelectorWithLossBound(
++  strategy: number,
++  coefficients: Float64Array,
++  scratch: Float64Array,
++  destination: Float32Array,
++  active: Uint16Array,
++  mask: Float32Array,
++  maskOrigin: number,
++  maskOffset: number,
++  channelWeight: number,
++  lossLimit: number,
++): number | undefined {
++  const width = (jpegXlVarDctStrategyBlockWidths[strategy] ?? 0) * 8
++  const height = (jpegXlVarDctStrategyBlockHeights[strategy] ?? 0) * 8
++  if (width === 8 && height === 8) {
++    inverseJpegXlDevelopmentTransform(strategy, coefficients, scratch, destination, active)
++    return
++  }
++  if (width < 8 || height < 8 || width > 64 || height > 64)
++    throw new Error('Invalid selector inverse extent')
++  const horizontal = weights(width),
++    vertical = weights(height),
++    stride = height >= width ? height : 1,
++    pairStride = 2 * stride,
++    scale = Math.sqrt(width * height)
++  for (let v = 0; v < height; v++) {
++    const row = height >= width ? v : v * width
++    for (let x = 0; x < width / 2; x++) {
++      let even = 0,
++        odd = 0,
++        at = row
++      const offset = x * width
++      for (let h = 0; h < width; h += 2) {
++        even += (coefficients[at] ?? 0) * (horizontal[offset + h] ?? 0)
++        odd += (coefficients[at + stride] ?? 0) * (horizontal[offset + h + 1] ?? 0)
++        at += pairStride
++      }
++      scratch[v * width + x] = even + odd
++      scratch[v * width + width - 1 - x] = even - odd
++    }
++  }
++  for (let y = 0; y < height / 2; y++) {
++    const offset = y * height
++    for (let x = 0; x < width; x++) {
++      let even = 0,
++        odd = 0,
++        at = x
++      for (let v = 0; v < height; v += 2) {
++        even += (scratch[at] ?? 0) * (vertical[offset + v] ?? 0)
++        odd += (scratch[at + width] ?? 0) * (vertical[offset + v + 1] ?? 0)
++        at += 2 * width
++      }
++      destination[y * width + x] = (even + odd) * scale
++      destination[(height - 1 - y) * width + x] = (even - odd) * scale
++    }
++    if (y === (height >> 3) - 1) {
++      let partial = 0
++      // Keep the same pixel order as full mask scoring, omitting middle rows.
++      for (let row = 0; row < height; row++) {
++        if (row > y && row < height - 1 - y) continue
++        for (let x = 0; x < width; x++) {
++          let error = (destination[row * width + x] ?? 0) *
++            ((mask[maskOrigin + row * 64 + x] ?? 1) + maskOffset) * channelWeight
++          error *= error
++          error *= error
++          error *= error
++          partial += error
++        }
++      }
++      if (partial > lossLimit) return partial
++    }
++  }
++  return undefined
++}

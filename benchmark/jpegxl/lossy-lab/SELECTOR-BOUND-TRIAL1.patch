@@ -1,0 +1,34 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -324,6 +324,14 @@
+               : 1
+       let nonzero = 0,
+         channelEntropy = 0
++      const partialBound = prune && !tiny && actualRounding && size >= 256 && Number.isFinite(cutoff)
++      const boundPriorEntropy = c === 0 ? lumaEntropy : entropy
++      const boundPriorLoss = c === 0 ? lumaLoss : loss
++      const boundPending = minimumEntropy * (c === 1 ? penalty + 1 : c === 0 ? 1 : 0)
++      const boundChannelPenalty = c === 0 ? penalty : 1
++      const boundInformation = partialBound
++        ? infoWeight * (boundPriorLoss / size) ** (1 / 8) * scale * size
++        : 0
+       residual.fill(0, 0, size)
+       for (let p = 0; p < size; p++) {
+         if (p % naturalWidth < Math.max(bw, bh) && Math.floor(p / naturalWidth) < Math.min(bw, bh))
+@@ -356,6 +364,15 @@
+           ? Math.sqrt(magnitude) * 5.3359184934516337 + (magnitude >= 2 ? 4.4628149885273363 : 0)
+           : Math.sqrt(magnitude) * magnitudeWeight
+         residual[p] = error * channelScale * (matrix[p] ?? 0)
++        if (partialBound && (p & 63) === 63) {
++          const partialBits = ceilLog2(nonzero + 1) + 1
++          const partialEntropy = channelEntropy + zeroWeight * (ceilLog2(partialBits + 17) + partialBits)
++          const lowerEntropy = boundPriorEntropy + partialEntropy * boundChannelPenalty + boundPending
++          if (entropyMultiplier * lowerEntropy + boundInformation > cutoff * (1 + 1e-12)) {
++            lastLoss = Infinity
++            return Infinity
++          }
++        }
+       }
+       const bits = ceilLog2(nonzero + 1) + 1
+       channelEntropy += (tiny ? 7.565053364251793 : zeroWeight) * (ceilLog2(bits + 17) + bits)

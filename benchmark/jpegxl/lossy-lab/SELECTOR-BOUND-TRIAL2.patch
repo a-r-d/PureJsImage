@@ -1,0 +1,18 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -223,6 +223,14 @@
+     const width = bw * 8,
+       height = bh * 8,
+       size = width * height
++    if (prune && actualRounding && !tiny) {
++      const minimumPenalty = bw * bh >= 2 ? 1 + Math.min(3, (bw * bh) / 8) : 1
++      const minimumCost = entropyMultiplier * minimumEntropy * (minimumPenalty + 2)
++      if (minimumCost > cutoff * (1 + 1e-12)) {
++        lastLoss = Infinity
++        return Infinity
++      }
++    }
+     let quantizer = 0
+     for (let dy = 0; dy < bh; dy++)
+       for (let dx = 0; dx < bw; dx++) {
