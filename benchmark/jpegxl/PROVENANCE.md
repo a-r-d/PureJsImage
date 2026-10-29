@@ -498,6 +498,23 @@ and half-resolution support from the existing kernels. These are first-party
 optimizations of the already recorded v0.12.0 ports, with identical reference
 scores. Attribution headers and the packaged/docs license remain in place.
 
+## Complete-map preparation optimization, 2026-10-28
+
+`lossy-lab/libjxl-perceptual-local-port.ts` shares Gaussian tap loads across
+four adjacent pixels and fuses the Opsin channel adaptation with the final
+XYB writes. These are first-party traversal changes to the already attributed
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` port from v0.12.0,
+commit `a7a9c787341cf703dede03c2009fa460cae5e5df`. Constants, operation order
+within each sum, and measured outputs stay identical. No new libjxl code or
+constants were taken. The source header records both changes.
+
+`lossy-lab/FULLMAP-SPEED-EXPERIMENT.patch` preserves the preceding allocation
+and coefficient-reuse experiments against this retained checkpoint, including
+the attributed quantization trial below. `FULLMAP-MASK-EXPERIMENT.patch`
+preserves the rejected first-party omission of the unused decoded mask and
+applies after that archive. Historical patches remain unchanged. Full libjxl
+BSD notices remain in the package and docs site. No runtime dependencies.
+
 ## Sparse output and coefficient reuse trial, 2026-10-28
 
 `lossy-lab/SPARSE-ALLOCATION-EXPERIMENT.patch` extends the existing attributed

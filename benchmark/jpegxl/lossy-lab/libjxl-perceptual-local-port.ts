@@ -10,6 +10,8 @@
  * No SIMD, threading, allocation infrastructure or peer decisions are ported.
  * Optional output windows skip unused quadratic-map pixels without changing math.
  * Gaussian tap indices and normalization are precomputed with the same tap order.
+ * Gaussian traversal shares tap loads across four adjacent pixels, with exact sums.
+ * Opsin channel adaptation shares pixel loads and writes final XYB in one pass.
  */
 import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
 
@@ -50,23 +52,73 @@ export function perceptualBlur(
   const horizontal = blurPlan(width, 1, radius, kernel),
     vertical = blurPlan(height, width, radius, kernel),
     taps = kernel.length
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++) {
+  for (let y = 0; y < height; y++) {
+    const row = y * width
+    let x = 0
+    for (; x < Math.min(radius, width); x++) {
       let sum = 0
       const begin = horizontal.first[x] ?? 0,
         end = horizontal.end[x] ?? 0,
-        row = y * width,
         offset = x * taps
       for (let k = begin; k < end; k++)
         sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
       temp[row + x] = sum / (horizontal.weights[x] ?? 1)
     }
+    for (; x + 3 < width - radius; x += 4) {
+      let a = 0,
+        b = 0,
+        c = 0,
+        d = 0
+      const start = row + x - radius,
+        weight = horizontal.weights[x] ?? 1
+      for (let k = 0; k < taps; k++) {
+        const coefficient = kernel[k] ?? 0,
+          p = start + k
+        a += coefficient * (input[p] ?? 0)
+        b += coefficient * (input[p + 1] ?? 0)
+        c += coefficient * (input[p + 2] ?? 0)
+        d += coefficient * (input[p + 3] ?? 0)
+      }
+      temp[row + x] = a / weight
+      temp[row + x + 1] = b / weight
+      temp[row + x + 2] = c / weight
+      temp[row + x + 3] = d / weight
+    }
+    for (; x < width; x++) {
+      let sum = 0
+      const begin = horizontal.first[x] ?? 0,
+        end = horizontal.end[x] ?? 0,
+        offset = x * taps
+      for (let k = begin; k < end; k++)
+        sum += (kernel[k] ?? 0) * (input[row + (horizontal.indices[offset + k] ?? 0)] ?? 0)
+      temp[row + x] = sum / (horizontal.weights[x] ?? 1)
+    }
+  }
   for (let y = 0; y < height; y++) {
     const begin = vertical.first[y] ?? 0,
       end = vertical.end[y] ?? 0,
       offset = y * taps,
       weights = vertical.weights[y] ?? 1
-    for (let x = 0; x < width; x++) {
+    let x = 0
+    for (; x + 3 < width; x += 4) {
+      let a = 0,
+        b = 0,
+        c = 0,
+        d = 0
+      for (let k = begin; k < end; k++) {
+        const coefficient = kernel[k] ?? 0,
+          p = (vertical.indices[offset + k] ?? 0) + x
+        a += coefficient * (temp[p] ?? 0)
+        b += coefficient * (temp[p + 1] ?? 0)
+        c += coefficient * (temp[p + 2] ?? 0)
+        d += coefficient * (temp[p + 3] ?? 0)
+      }
+      out[y * width + x] = a / weights
+      out[y * width + x + 1] = b / weights
+      out[y * width + x + 2] = c / weights
+      out[y * width + x + 3] = d / weights
+    }
+    for (; x < width; x++) {
       let sum = 0
       for (let k = begin; k < end; k++)
         sum += (kernel[k] ?? 0) * (temp[(vertical.indices[offset + k] ?? 0) + x] ?? 0)
@@ -105,38 +157,60 @@ function blurPlan(extent: number, step: number, radius: number, kernel: Float64A
 
 function opsin(rgb: DisplayPlanes, width: number, height: number): PerceptualPlanes {
   const smooth = rgb.map((p) => perceptualBlur(p, width, height, 1.2)),
-    out = planes(width * height)
-  const matrix = [
-    [0.29956550340058319, 0.63373087833825936, 0.077705617820981968, 1.7557483643287353],
-    [0.22158691104574774, 0.69391388044116142, 0.0987313588422, 1.7557483643287353],
-    [0.02, 0.02, 0.20480129041026129, 12.226454707163354],
-  ]
-  for (let c = 0; c < 3; c++) {
-    const coefficients = matrix[c],
-      dst = out[c]
-    if (!coefficients || !dst) throw new Error('Missing perceptual channel')
-    for (let p = 0; p < dst.length; p++) {
-      const bias = coefficients[3] ?? 0
-      let average = bias,
-        current = bias
-      for (let color = 0; color < 3; color++) {
-        const weight = 80 * (coefficients[color] ?? 0)
-        average += weight * (smooth[color]?.[p] ?? 0)
-        current += weight * (rgb[color]?.[p] ?? 0)
-      }
-      average = Math.max(bias, average, 1e-4)
-      const sensitivity = Math.max(
-        1e-4,
-        (19.245013259874995 * Math.log(average + 9.9710635769299145) - 23.16046239805755) / average,
-      )
-      dst[p] = Math.max(bias, current * sensitivity)
-    }
-  }
+    out = planes(width * height),
+    [red, green, blue] = rgb,
+    [smoothRed, smoothGreen, smoothBlue] = smooth,
+    lr = 80 * 0.29956550340058319,
+    lg = 80 * 0.63373087833825936,
+    lb = 80 * 0.077705617820981968,
+    mr = 80 * 0.22158691104574774,
+    mg = 80 * 0.69391388044116142,
+    mb = 80 * 0.0987313588422,
+    br = 80 * 0.02,
+    bg = 80 * 0.02,
+    bb = 80 * 0.20480129041026129,
+    bias = 1.7557483643287353,
+    blueBias = 12.226454707163354
+  if (!smoothRed || !smoothGreen || !smoothBlue) throw new Error('Missing perceptual channel')
   for (let p = 0; p < out[0].length; p++) {
-    const l = out[0][p] ?? 0,
-      m = out[1][p] ?? 0
+    const r = red[p] ?? 0,
+      g = green[p] ?? 0,
+      b = blue[p] ?? 0,
+      sr = smoothRed[p] ?? 0,
+      sg = smoothGreen[p] ?? 0,
+      sb = smoothBlue[p] ?? 0,
+      averageL = Math.max(bias, bias + lr * sr + lg * sg + lb * sb, 1e-4),
+      averageM = Math.max(bias, bias + mr * sr + mg * sg + mb * sb, 1e-4),
+      averageB = Math.max(blueBias, blueBias + br * sr + bg * sg + bb * sb, 1e-4),
+      l = Math.max(
+        bias,
+        (bias + lr * r + lg * g + lb * b) *
+          Math.max(
+            1e-4,
+            (19.245013259874995 * Math.log(averageL + 9.9710635769299145) - 23.16046239805755) /
+              averageL,
+          ),
+      ),
+      m = Math.max(
+        bias,
+        (bias + mr * r + mg * g + mb * b) *
+          Math.max(
+            1e-4,
+            (19.245013259874995 * Math.log(averageM + 9.9710635769299145) - 23.16046239805755) /
+              averageM,
+          ),
+      )
     out[0][p] = l - m
     out[1][p] = l + m
+    out[2][p] = Math.max(
+      blueBias,
+      (blueBias + br * r + bg * g + bb * b) *
+        Math.max(
+          1e-4,
+          (19.245013259874995 * Math.log(averageB + 9.9710635769299145) - 23.16046239805755) /
+            averageB,
+        ),
+    )
   }
   return out
 }

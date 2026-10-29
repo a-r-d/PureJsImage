@@ -1,0 +1,3483 @@
+{
+  "date": "2026-10-28",
+  "base": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+  "branch": "jxl-libjxl-ports",
+  "scope": "Owner-approved bounded continuation: three exact-output full-map preparation changes; no new quality trial or holdout access.",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/fullmap-speed-20261028",
+  "node": "v24.16.0",
+  "modules": [
+    {
+      "path": "benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts",
+      "hash": "6eefc1d8b20f75aab73e0fd699ee1078825b255fe405c3ad92bbf9af33f87f96"
+    },
+    {
+      "path": "tests/jpegxl-perceptual-blur.test.ts",
+      "hash": "665ec1f9499233940f3ad8865510409d9d0910e0890eb37f8c16f8c130e8a503"
+    }
+  ],
+  "experiments": [
+    {
+      "step": "h1",
+      "verdict": "retained diagnostic optimization",
+      "measurements": [
+        {
+          "baseRevision": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+          "node": "v24.16.0",
+          "id": "im26-3012",
+          "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+          "decodedHash": "e8620d2bceca047212c0a83e012e6dd787c29751a8764c7fe292a182c9ebd387",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "e2b381b43910a28422759684f07dd0bda81f9b8200d8ff695f2e48ea451496a6",
+              "candidate": "ca1b2affa4009fca778be1d75ae1c5db798765edb5fbf8d2a52e71358ef4999f"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 1007.3268910000006,
+                  "candidateMs": 772.136763999999,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 1013.9030500000008,
+                  "candidateMs": 768.2960050000002,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 999.686318,
+                  "candidateMs": 766.7506460000004,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 1025.4597130000002,
+                  "candidateMs": 777.453121999999,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 1001.7015339999998,
+                  "candidateMs": 762.0320900000006,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 1008.5457800000004,
+                  "candidateMs": 780.2460030000002,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 992.7331620000004,
+                  "candidateMs": 759.7250380000005,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 1003.1323000000048,
+                  "candidateMs": 786.1046419999984,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 1001.6469040000011,
+                  "candidateMs": 779.2846770000033,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 1031.3384489999953,
+                  "candidateMs": 801.3876840000012,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 1002.1997150000025,
+                  "candidateMs": 810.0038760000025,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 1003.1323000000048,
+                "mad": 4.194590999995853,
+                "iqr": 12.256145999999717,
+                "cv": 0.01088706307259319
+              },
+              "candidate": {
+                "median": 777.453121999999,
+                "mad": 9.157116999998834,
+                "iqr": 19.353995999998006,
+                "cv": 0.019307980446711847
+              },
+              "ratios": {
+                "median": 0.7669912373453134,
+                "mad": 0.008840417626080899,
+                "iqr": 0.01726571113013564,
+                "cv": 0.01802608457253876
+              },
+              "wins": 11,
+              "maximumError": 0,
+              "outputHash": "c83754b7ac9778f937c8421f763832a1d634feb598c2d4942b023322633e2079"
+            }
+          ]
+        },
+        {
+          "baseRevision": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+          "node": "v24.16.0",
+          "id": "im26-3312",
+          "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+          "decodedHash": "1f2c73c9e70120cc82261566e188ae6a0a9e6097e489d48ab79764221898111c",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "e2b381b43910a28422759684f07dd0bda81f9b8200d8ff695f2e48ea451496a6",
+              "candidate": "ca1b2affa4009fca778be1d75ae1c5db798765edb5fbf8d2a52e71358ef4999f"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 1056.1928099999986,
+                  "candidateMs": 766.8705950000003,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 1060.0247879999988,
+                  "candidateMs": 764.0938989999995,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 1002.0153890000001,
+                  "candidateMs": 779.4794290000009,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 1002.0992649999971,
+                  "candidateMs": 766.1028509999996,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 1005.0030680000018,
+                  "candidateMs": 773.4847149999987,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 1008.7026769999975,
+                  "candidateMs": 793.5656369999997,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 1002.237126,
+                  "candidateMs": 760.8217829999994,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 1032.3564299999998,
+                  "candidateMs": 764.2765519999994,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 1010.893587999999,
+                  "candidateMs": 763.1070180000024,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 1025.8231849999975,
+                  "candidateMs": 753.8497550000029,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 1054.673229,
+                  "candidateMs": 766.2629280000001,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 1010.893587999999,
+                "mad": 8.878198999998858,
+                "iqr": 52.436103,
+                "cv": 0.021943348696426362
+              },
+              "candidate": {
+                "median": 766.1028509999996,
+                "mad": 2.9958329999972193,
+                "iqr": 10.37769699999626,
+                "cv": 0.013172269006207254
+              },
+              "ratios": {
+                "median": 0.7548836267818955,
+                "mad": 0.020010633050519866,
+                "iqr": 0.043093575833207165,
+                "cv": 0.0287116940218828
+              },
+              "wins": 11,
+              "maximumError": 0,
+              "outputHash": "2058cd5deac8a50a97457390b1413e05f98a69870c56abae62001588d64c9365"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "h2",
+      "verdict": "retained diagnostic optimization",
+      "measurements": [
+        {
+          "baseRevision": "LL-1037 stack on b9a84d45",
+          "node": "v24.16.0",
+          "id": "im26-3012",
+          "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+          "decodedHash": "e8620d2bceca047212c0a83e012e6dd787c29751a8764c7fe292a182c9ebd387",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "ca1b2affa4009fca778be1d75ae1c5db798765edb5fbf8d2a52e71358ef4999f",
+              "candidate": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 766.5782739999995,
+                  "candidateMs": 703.6293269999987,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 767.8870800000004,
+                  "candidateMs": 707.1513510000004,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 769.4644209999988,
+                  "candidateMs": 710.2714560000004,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 770.6804909999992,
+                  "candidateMs": 701.8915279999983,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 762.0150510000003,
+                  "candidateMs": 697.6731149999996,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 804.3413209999999,
+                  "candidateMs": 708.5880579999994,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 762.5940730000002,
+                  "candidateMs": 703.2535549999993,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 765.9525849999991,
+                  "candidateMs": 701.5457319999987,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 763.5587780000023,
+                  "candidateMs": 743.3022310000015,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 766.9247799999976,
+                  "candidateMs": 706.3433809999988,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 781.7420110000021,
+                  "candidateMs": 696.7745409999989,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 766.9247799999976,
+                "mad": 3.3660019999952056,
+                "iqr": 7.1217129999968165,
+                "cv": 0.01518254678460754
+              },
+              "candidate": {
+                "median": 703.6293269999987,
+                "mad": 3.522024000001693,
+                "iqr": 7.042326000000685,
+                "cv": 0.017068477079007764
+              },
+              "ratios": {
+                "median": 0.917883210188656,
+                "mad": 0.0043027599087002155,
+                "iqr": 0.011443404018829373,
+                "cv": 0.023884929596415454
+              },
+              "wins": 11,
+              "maximumError": 0,
+              "outputHash": "c83754b7ac9778f937c8421f763832a1d634feb598c2d4942b023322633e2079"
+            }
+          ]
+        },
+        {
+          "baseRevision": "LL-1037 stack on b9a84d45",
+          "node": "v24.16.0",
+          "id": "im26-3312",
+          "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+          "decodedHash": "1f2c73c9e70120cc82261566e188ae6a0a9e6097e489d48ab79764221898111c",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "ca1b2affa4009fca778be1d75ae1c5db798765edb5fbf8d2a52e71358ef4999f",
+              "candidate": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 807.3853230000004,
+                  "candidateMs": 726.7370960000007,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 828.2206690000003,
+                  "candidateMs": 709.7527730000002,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 768.3037789999998,
+                  "candidateMs": 715.9193200000009,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 810.0789420000001,
+                  "candidateMs": 731.9318370000001,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 776.8866299999991,
+                  "candidateMs": 716.2600630000015,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 809.0878840000005,
+                  "candidateMs": 728.1204369999978,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 798.1742889999987,
+                  "candidateMs": 739.3885179999997,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 806.0230570000022,
+                  "candidateMs": 717.9658439999985,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 776.770536,
+                  "candidateMs": 700.8979220000001,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 758.9084320000002,
+                  "candidateMs": 706.4791569999979,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 754.8721079999996,
+                  "candidateMs": 700.2721429999983,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 798.1742889999987,
+                "mad": 21.28765899999962,
+                "iqr": 40.784105000000636,
+                "cv": 0.02922657532863428
+              },
+              "candidate": {
+                "median": 716.2600630000015,
+                "mad": 10.47703299999921,
+                "iqr": 21.641279999999824,
+                "cv": 0.017033449906890732
+              },
+              "ratios": {
+                "median": 0.9035314943416959,
+                "mad": 0.01843064960716112,
+                "iqr": 0.0277424129895657,
+                "cv": 0.023683529609547074
+              },
+              "wins": 11,
+              "maximumError": 0,
+              "outputHash": "2058cd5deac8a50a97457390b1413e05f98a69870c56abae62001588d64c9365"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "h3",
+      "verdict": "reverted",
+      "measurements": [
+        {
+          "baseRevision": "LL-1038 stack on b9a84d45",
+          "node": "v24.16.0",
+          "id": "im26-3012",
+          "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+          "decodedHash": "e8620d2bceca047212c0a83e012e6dd787c29751a8764c7fe292a182c9ebd387",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "74067dae830423b3c5a996b84f2f9d52f51e48cf2f379ed9b924ae7d3f5d686c"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062",
+              "candidate": "df48a8ca41c65de576485db10da9735a387c5ad19ecb84e0c1d59d22f11a3577"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "001ed803e7072064d0eef3ce748e84bcf2e9217607234c45b037d586a9c5a7dc"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 726.2661450000014,
+                  "candidateMs": 700.6726319999998,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 697.8812629999993,
+                  "candidateMs": 711.5348480000011,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 682.9241350000011,
+                  "candidateMs": 703.5639059999994,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 713.0233769999995,
+                  "candidateMs": 719.3891089999997,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 704.2313819999999,
+                  "candidateMs": 709.9277180000008,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 725.4467789999981,
+                  "candidateMs": 736.7371370000019,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 715.6099250000007,
+                  "candidateMs": 696.9002990000008,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 700.9548720000021,
+                  "candidateMs": 715.2602259999985,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 722.4999700000008,
+                  "candidateMs": 725.6631070000003,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 713.1379469999993,
+                  "candidateMs": 736.9614399999991,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 698.940287999998,
+                  "candidateMs": 702.8474619999979,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 713.0233769999995,
+                "mad": 12.068504999997458,
+                "iqr": 23.559682000002795,
+                "cv": 0.018136738261166675
+              },
+              "candidate": {
+                "median": 711.5348480000011,
+                "mad": 8.687386000003244,
+                "iqr": 22.815645000002405,
+                "cv": 0.018558639097962064
+              },
+              "ratios": {
+                "median": 1.008927802657444,
+                "mad": 0.010636535466936659,
+                "iqr": 0.016030336396897216,
+                "cv": 0.020157349827694338
+              },
+              "wins": 2,
+              "maximumError": 0,
+              "outputHash": "c83754b7ac9778f937c8421f763832a1d634feb598c2d4942b023322633e2079"
+            }
+          ]
+        },
+        {
+          "baseRevision": "LL-1038 stack on b9a84d45",
+          "node": "v24.16.0",
+          "id": "im26-3312",
+          "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+          "decodedHash": "1f2c73c9e70120cc82261566e188ae6a0a9e6097e489d48ab79764221898111c",
+          "moduleHashes": [
+            {
+              "name": "local-perceptual-region",
+              "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+              "candidate": "74067dae830423b3c5a996b84f2f9d52f51e48cf2f379ed9b924ae7d3f5d686c"
+            },
+            {
+              "name": "libjxl-perceptual-local-port",
+              "base": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062",
+              "candidate": "df48a8ca41c65de576485db10da9735a387c5ad19ecb84e0c1d59d22f11a3577"
+            },
+            {
+              "name": "libjxl-perceptual-malta-port",
+              "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+              "candidate": "001ed803e7072064d0eef3ce748e84bcf2e9217607234c45b037d586a9c5a7dc"
+            },
+            {
+              "name": "libjxl-display-loss",
+              "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+              "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+            },
+            {
+              "name": "libjxl-ssim-blur",
+              "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+              "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+            },
+            {
+              "name": "libjxl-ssim-weights",
+              "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+              "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+            }
+          ],
+          "rows": [
+            {
+              "size": 512,
+              "warmups": 5,
+              "samples": [
+                {
+                  "trial": 0,
+                  "baseMs": 748.4695740000006,
+                  "candidateMs": 765.7503710000001,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 1,
+                  "baseMs": 718.729045,
+                  "candidateMs": 751.4044649999996,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 2,
+                  "baseMs": 711.1722020000016,
+                  "candidateMs": 684.2808210000003,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 3,
+                  "baseMs": 691.864963,
+                  "candidateMs": 674.386899000001,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 4,
+                  "baseMs": 696.6952099999999,
+                  "candidateMs": 724.0011900000009,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 5,
+                  "baseMs": 691.4767799999972,
+                  "candidateMs": 705.9934179999982,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 6,
+                  "baseMs": 695.1888980000003,
+                  "candidateMs": 703.4783769999995,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 7,
+                  "baseMs": 690.6844859999983,
+                  "candidateMs": 680.076721999998,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 8,
+                  "baseMs": 694.8885499999997,
+                  "candidateMs": 673.9109009999993,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 9,
+                  "baseMs": 680.037171,
+                  "candidateMs": 673.2871599999999,
+                  "maximumError": 0
+                },
+                {
+                  "trial": 10,
+                  "baseMs": 687.9096370000007,
+                  "candidateMs": 673.249144999998,
+                  "maximumError": 0
+                }
+              ],
+              "base": {
+                "median": 694.8885499999997,
+                "mad": 4.204064000001381,
+                "iqr": 20.487716000003275,
+                "cv": 0.02600143215914998
+              },
+              "candidate": {
+                "median": 684.2808210000003,
+                "mad": 11.031676000002335,
+                "iqr": 50.090289000001576,
+                "cv": 0.045098838486085535
+              },
+              "ratios": {
+                "median": 0.9900740558195162,
+                "mad": 0.021850011184210816,
+                "iqr": 0.048350423257544906,
+                "cv": 0.027774426640725006
+              },
+              "wins": 6,
+              "maximumError": 0,
+              "outputHash": "2058cd5deac8a50a97457390b1413e05f98a69870c56abae62001588d64c9365"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cumulativeMaps": [
+    {
+      "baseRevision": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+      "node": "v24.16.0",
+      "id": "im26-3012",
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "decodedHash": "e8620d2bceca047212c0a83e012e6dd787c29751a8764c7fe292a182c9ebd387",
+      "moduleHashes": [
+        {
+          "name": "local-perceptual-region",
+          "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+          "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+        },
+        {
+          "name": "libjxl-perceptual-local-port",
+          "base": "e2b381b43910a28422759684f07dd0bda81f9b8200d8ff695f2e48ea451496a6",
+          "candidate": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062"
+        },
+        {
+          "name": "libjxl-perceptual-malta-port",
+          "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+          "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+        },
+        {
+          "name": "libjxl-display-loss",
+          "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+          "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+        },
+        {
+          "name": "libjxl-ssim-blur",
+          "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+          "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+        },
+        {
+          "name": "libjxl-ssim-weights",
+          "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+          "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+        }
+      ],
+      "rows": [
+        {
+          "size": 512,
+          "warmups": 5,
+          "samples": [
+            {
+              "trial": 0,
+              "baseMs": 1054.2429190000003,
+              "candidateMs": 704.8459910000001,
+              "maximumError": 0
+            },
+            {
+              "trial": 1,
+              "baseMs": 1058.6344399999998,
+              "candidateMs": 700.4473159999998,
+              "maximumError": 0
+            },
+            {
+              "trial": 2,
+              "baseMs": 1057.9209210000008,
+              "candidateMs": 705.1751369999984,
+              "maximumError": 0
+            },
+            {
+              "trial": 3,
+              "baseMs": 1047.6740219999992,
+              "candidateMs": 721.458666999999,
+              "maximumError": 0
+            },
+            {
+              "trial": 4,
+              "baseMs": 1059.5431629999985,
+              "candidateMs": 705.024010000001,
+              "maximumError": 0
+            },
+            {
+              "trial": 5,
+              "baseMs": 1055.4472419999984,
+              "candidateMs": 713.9241250000014,
+              "maximumError": 0
+            },
+            {
+              "trial": 6,
+              "baseMs": 1078.168948999999,
+              "candidateMs": 801.922853,
+              "maximumError": 0
+            },
+            {
+              "trial": 7,
+              "baseMs": 1086.6171079999986,
+              "candidateMs": 867.1561070000025,
+              "maximumError": 0
+            },
+            {
+              "trial": 8,
+              "baseMs": 1067.783378,
+              "candidateMs": 711.1061399999999,
+              "maximumError": 0
+            },
+            {
+              "trial": 9,
+              "baseMs": 1075.7092740000007,
+              "candidateMs": 704.7389370000019,
+              "maximumError": 0
+            },
+            {
+              "trial": 10,
+              "baseMs": 1074.025020000001,
+              "candidateMs": 699.5149729999976,
+              "maximumError": 0
+            }
+          ],
+          "base": {
+            "median": 1059.5431629999985,
+            "mad": 8.240215000001626,
+            "iqr": 20.262032000002364,
+            "cv": 0.010861701418718237
+          },
+          "candidate": {
+            "median": 705.1751369999984,
+            "mad": 5.660164000000805,
+            "iqr": 16.71972999999707,
+            "cv": 0.07027056812337494
+          },
+          "ratios": {
+            "median": 0.6665669645075464,
+            "mad": 0.009851615778063483,
+            "iqr": 0.026977218117162804,
+            "cv": 0.06257145584562052
+          },
+          "wins": 11,
+          "maximumError": 0,
+          "outputHash": "c83754b7ac9778f937c8421f763832a1d634feb598c2d4942b023322633e2079"
+        }
+      ]
+    },
+    {
+      "baseRevision": "b9a84d455baadcb4c8daab8a9051730f12c362fa",
+      "node": "v24.16.0",
+      "id": "im26-3312",
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "decodedHash": "1f2c73c9e70120cc82261566e188ae6a0a9e6097e489d48ab79764221898111c",
+      "moduleHashes": [
+        {
+          "name": "local-perceptual-region",
+          "base": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a",
+          "candidate": "ef63b1f9e5ccd07e1411da92dc04eaa82606e3f10a1f6c4c6f32b140b971f66a"
+        },
+        {
+          "name": "libjxl-perceptual-local-port",
+          "base": "e2b381b43910a28422759684f07dd0bda81f9b8200d8ff695f2e48ea451496a6",
+          "candidate": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062"
+        },
+        {
+          "name": "libjxl-perceptual-malta-port",
+          "base": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+          "candidate": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe"
+        },
+        {
+          "name": "libjxl-display-loss",
+          "base": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c",
+          "candidate": "138409ac9b717e04d9ad754ea6573d813ed20aa78deec8ff19698373ac2c6d3c"
+        },
+        {
+          "name": "libjxl-ssim-blur",
+          "base": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a",
+          "candidate": "991c8acbf245d2d96577dc48b2002488a425e7aa974ee5402dabf54d5733e55a"
+        },
+        {
+          "name": "libjxl-ssim-weights",
+          "base": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389",
+          "candidate": "65ff1fb7ecfc65a77206f32fa10456d1be8749db915ede51f646292f49155389"
+        }
+      ],
+      "rows": [
+        {
+          "size": 512,
+          "warmups": 5,
+          "samples": [
+            {
+              "trial": 0,
+              "baseMs": 1444.8016200000002,
+              "candidateMs": 823.0061639999985,
+              "maximumError": 0
+            },
+            {
+              "trial": 1,
+              "baseMs": 1123.5567709999996,
+              "candidateMs": 785.6312759999964,
+              "maximumError": 0
+            },
+            {
+              "trial": 2,
+              "baseMs": 1267.7623090000016,
+              "candidateMs": 719.5426860000007,
+              "maximumError": 0
+            },
+            {
+              "trial": 3,
+              "baseMs": 1193.4717200000014,
+              "candidateMs": 713.5875039999992,
+              "maximumError": 0
+            },
+            {
+              "trial": 4,
+              "baseMs": 1162.9416949999977,
+              "candidateMs": 1708.2729849999996,
+              "maximumError": 0
+            },
+            {
+              "trial": 5,
+              "baseMs": 1821.344173999998,
+              "candidateMs": 956.2717489999995,
+              "maximumError": 0
+            },
+            {
+              "trial": 6,
+              "baseMs": 1171.4402719999998,
+              "candidateMs": 774.2684249999984,
+              "maximumError": 0
+            },
+            {
+              "trial": 7,
+              "baseMs": 1007.2600410000014,
+              "candidateMs": 701.138809,
+              "maximumError": 0
+            },
+            {
+              "trial": 8,
+              "baseMs": 992.5731930000038,
+              "candidateMs": 689.8179529999979,
+              "maximumError": 0
+            },
+            {
+              "trial": 9,
+              "baseMs": 1015.6211360000016,
+              "candidateMs": 706.2222660000043,
+              "maximumError": 0
+            },
+            {
+              "trial": 10,
+              "baseMs": 1002.5330380000014,
+              "candidateMs": 687.8290330000018,
+              "maximumError": 0
+            }
+          ],
+          "base": {
+            "median": 1162.9416949999977,
+            "mad": 147.32055899999614,
+            "iqr": 260.5022680000002,
+            "cv": 0.19648413813184715
+          },
+          "candidate": {
+            "median": 719.5426860000007,
+            "mad": 31.713652999998885,
+            "iqr": 121.8673549999985,
+            "cv": 0.3373679214631579
+          },
+          "ratios": {
+            "median": 0.6860911380757916,
+            "mad": 0.02513688927052382,
+            "iqr": 0.12645255987155057,
+            "cv": 0.3443360665601941
+          },
+          "wins": 10,
+          "maximumError": 0,
+          "outputHash": "2058cd5deac8a50a97457390b1413e05f98a69870c56abae62001588d64c9365"
+        }
+      ]
+    }
+  ],
+  "encoderTimings": [
+    {
+      "id": "im26-3012",
+      "distance": 2,
+      "warmups": 3,
+      "sourceHash": "6ddc4071e3c500333dda2a8d2b1bbf7e70e4b15260d327337141e34866809c51",
+      "hashes": {
+        "control": "aeea919073020b6300253cd8876a44ec22bd01e1c635d2034cb32e90b083677f",
+        "original": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20",
+        "optimized": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      },
+      "moduleHashes": {
+        "libjxl-perceptual-local-port": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062",
+        "libjxl-perceptual-malta-port": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+        "joint-allocation-prototype": "8a8bd7cfab4cbb89a337125154e2c02d746a33c3af8be72f8c56a5b9f07fd71b",
+        "strategy-transplant": "5d4821238ccee448df676fe2ec67c7c95df1b64596882db6830977fc13733f7e"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1083.4852609999998,
+            "original": 2359.072301,
+            "optimized": 1874.7010950000004
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "optimized": 1997.3363370000006,
+            "original": 2162.7518630000013,
+            "control": 992.2745880000002
+          },
+          "results": {
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1060.413749000003,
+            "original": 2227.4846709999983,
+            "optimized": 1914.9865690000006
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "optimized": 1903.7901359999996,
+            "original": 2241.1546699999963,
+            "control": 1270.688396999998
+          },
+          "results": {
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1332.778572000003,
+            "original": 2341.154920000001,
+            "optimized": 1913.0784310000017
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "optimized": 1946.8007050000015,
+            "original": 2268.3158580000018,
+            "control": 991.4343970000045
+          },
+          "results": {
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1088.5704879999976,
+            "original": 2256.1318290000054,
+            "optimized": 1863.6080199999997
+          },
+          "results": {
+            "control": {
+              "bytes": 32830,
+              "managedPeakBytes": 5682267,
+              "colorBits": 261488
+            },
+            "original": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            },
+            "optimized": {
+              "bytes": 33358,
+              "managedPeakBytes": 6964315,
+              "colorBits": 265719
+            }
+          }
+        }
+      ],
+      "summary": {
+        "medianMs": {
+          "control": 1083.4852609999998,
+          "original": 2256.1318290000054,
+          "optimized": 1913.0784310000017
+        },
+        "optimizedVsControl": {
+          "ratio": 1.7302506665109132,
+          "mad": 0.2320154260737548,
+          "min": 1.4354060540823264,
+          "max": 2.0128867161919097
+        },
+        "optimizedVsOriginal": {
+          "ratio": 0.8494684287006407,
+          "mad": 0.023449312244128273,
+          "min": 0.794677252666365,
+          "max": 0.9235161791651174
+        },
+        "originalVsControl": {
+          "ratio": 2.100580714933744,
+          "mad": 0.07900937953716358,
+          "min": 1.7565970590949715,
+          "max": 2.2879132142920713
+        }
+      },
+      "before": {
+        "rss": 316424192,
+        "heapTotal": 84099072,
+        "heapUsed": 11898504,
+        "external": 40677948,
+        "arrayBuffers": 27198643
+      },
+      "after": {
+        "rss": 310067200,
+        "heapTotal": 85409792,
+        "heapUsed": 12167880,
+        "external": 17495468,
+        "arrayBuffers": 4134907
+      },
+      "peakRssBytes": 989945856,
+      "scope": "Isolated alternating encoder timings; original and optimized use coefficient reuse; perceptual allocations are outside the encoder ledger"
+    },
+    {
+      "id": "im26-3312",
+      "distance": 2,
+      "warmups": 3,
+      "sourceHash": "176b0b98a235d9059ad3a60a151c80bcd2d9f4d37337bd2075c67ae6355901e1",
+      "hashes": {
+        "control": "38cb133b6f7215e2f47196818fc67d2d8de302ff3518b7eeace38c3481a8dbf7",
+        "original": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035",
+        "optimized": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035"
+      },
+      "moduleHashes": {
+        "libjxl-perceptual-local-port": "84f26623578bf2356cb7f02789d7a12f9e4d446e4d0d2df77588281c131ee062",
+        "libjxl-perceptual-malta-port": "129c516ddf53e65ebe7767ce1df9fa8ac4ed00e4302ca2bc59b092ad071295fe",
+        "joint-allocation-prototype": "8a8bd7cfab4cbb89a337125154e2c02d746a33c3af8be72f8c56a5b9f07fd71b",
+        "strategy-transplant": "5d4821238ccee448df676fe2ec67c7c95df1b64596882db6830977fc13733f7e"
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "times": {
+            "control": 1177.7260459999998,
+            "original": 2384.529215999999,
+            "optimized": 2091.711992999997
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "times": {
+            "optimized": 2027.7496309999988,
+            "original": 2372.6071020000018,
+            "control": 1172.7454169999983
+          },
+          "results": {
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "times": {
+            "control": 1164.2630790000003,
+            "original": 2360.7858719999967,
+            "optimized": 2061.281641999998
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "times": {
+            "optimized": 2014.7564920000004,
+            "original": 2261.6447709999993,
+            "control": 1112.648208999999
+          },
+          "results": {
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "times": {
+            "control": 1102.993733999996,
+            "original": 2234.102958999996,
+            "optimized": 1998.3819520000034
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        },
+        {
+          "trial": 5,
+          "times": {
+            "optimized": 1942.0509610000008,
+            "original": 2343.6047830000025,
+            "control": 1184.5662660000016
+          },
+          "results": {
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            }
+          }
+        },
+        {
+          "trial": 6,
+          "times": {
+            "control": 1069.499533999995,
+            "original": 2358.340860999997,
+            "optimized": 2071.5711349999983
+          },
+          "results": {
+            "control": {
+              "bytes": 7914,
+              "managedPeakBytes": 5678171,
+              "colorBits": 62158
+            },
+            "original": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            },
+            "optimized": {
+              "bytes": 8088,
+              "managedPeakBytes": 6960219,
+              "colorBits": 63545
+            }
+          }
+        }
+      ],
+      "summary": {
+        "medianMs": {
+          "control": 1164.2630790000003,
+          "original": 2358.340860999997,
+          "optimized": 2027.7496309999988
+        },
+        "optimizedVsControl": {
+          "ratio": 1.7760598910962673,
+          "mad": 0.03572007682149292,
+          "min": 1.639461646631087,
+          "max": 1.9369537518657842
+        },
+        "optimizedVsOriginal": {
+          "ratio": 0.877201243316617,
+          "mad": 0.013635601547028031,
+          "min": 0.8286597531662397,
+          "max": 0.8944896402153715
+        },
+        "originalVsControl": {
+          "ratio": 2.0254901638453044,
+          "mad": 0.002368122516529514,
+          "min": 1.9784497079372336,
+          "max": 2.2050882548584707
+        }
+      },
+      "before": {
+        "rss": 304779264,
+        "heapTotal": 83570688,
+        "heapUsed": 11858912,
+        "external": 114384683,
+        "arrayBuffers": 100091890
+      },
+      "after": {
+        "rss": 321187840,
+        "heapTotal": 85008384,
+        "heapUsed": 11722736,
+        "external": 104290314,
+        "arrayBuffers": 1868939
+      },
+      "peakRssBytes": 989945856,
+      "scope": "Isolated alternating encoder timings; original and optimized use coefficient reuse; perceptual allocations are outside the encoder ledger"
+    }
+  ],
+  "costGate": {
+    "maximumRatio": 1.326079096512784,
+    "pass": false
+  },
+  "carriedQuality": {
+    "id": "LL-1027",
+    "name": "peak-full",
+    "againstControl": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 0.4426755446295857,
+        "median": 0.31804404896764793,
+        "p90": 1.2994164878862624,
+        "worst": 2.005807824355452
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -0.38063040572713364,
+        "median": -0.2506549393273209,
+        "p90": 0.3650679434934151,
+        "worst": 1.289315940839039
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": -9.844418034285967,
+        "median": -9.425039787176317,
+        "p90": -3.5259356655791105,
+        "worst": 0.05160104386251108
+      }
+    ],
+    "mean": -3.2607909651278386,
+    "guardPass": true,
+    "againstPeers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -11.29467435631517,
+        "median": -8.178544634063039,
+        "p90": -1.0677767217394538,
+        "worst": 6.126197250042672
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": -7.717415232756622,
+        "median": -6.062459485017101,
+        "p90": -1.4471111798157774,
+        "worst": 3.285481687483572
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -0.9301738435282766,
+        "median": 0.5551779387505552,
+        "p90": 3.408005703966542,
+        "worst": 5.879973736124413
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -10.287610699998602,
+        "median": -5.821832279246232,
+        "p90": -1.6872762847486216,
+        "worst": -0.162560723630073
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": -14.458260569664832,
+        "median": -14.005071450376597,
+        "p90": -8.39427803465768,
+        "worst": -4.807867521618952
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -6.136187448269785,
+        "median": -4.275064136548764,
+        "p90": -1.699628606393345,
+        "worst": -0.8355592430459423
+      }
+    ],
+    "elapsedSeconds": 183.397,
+    "points": 80,
+    "failures": 0,
+    "omissions": {
+      "butteraugliMax: incomplete required-range overlap": 32,
+      "butteraugliNorm3: incomplete required-range overlap": 32,
+      "ssimulacra2: incomplete required-range overlap": 11
+    },
+    "chosen": {
+      "precision4": 80
+    },
+    "raw": ".tmp/jpegxl-lossy-lab/joint-allocation-20261028/peak-full-screen"
+  },
+  "parity": [
+    {
+      "rows": [
+        {
+          "id": "im26-1002",
+          "distance": 0.5,
+          "hash": "e4105e4756010ad1222d21524c7678af7c8368ec0fe9742edaeebd5066eaa14c",
+          "bytes": 61238,
+          "managedPeakBytes": 10370349
+        },
+        {
+          "id": "im26-1002",
+          "distance": 1,
+          "hash": "308d489a520e312151271cf72aacbf5854a0a091abe47a4824b84ac9969df36a",
+          "bytes": 34801,
+          "managedPeakBytes": 7080371
+        },
+        {
+          "id": "im26-1002",
+          "distance": 2,
+          "hash": "ed4d1d815c48266037e9fe9b23a07525e4d4f6ddc0ad5fbf653eb37072272444",
+          "bytes": 20270,
+          "managedPeakBytes": 6964315
+        },
+        {
+          "id": "im26-1002",
+          "distance": 4,
+          "hash": "2becadb4f8def7806ea8de9e2bc22063cd1b3e14bd879d5f7d09cbbc718c47e9",
+          "bytes": 11743,
+          "managedPeakBytes": 6958171
+        },
+        {
+          "id": "im26-1002",
+          "distance": 7,
+          "hash": "3070dbc6d58f12cf8653851ee187d3e2eddffffd839caeed3e7a667816973dd6",
+          "bytes": 7441,
+          "managedPeakBytes": 6954075
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1026",
+          "distance": 0.5,
+          "hash": "54cf60fe578ed3e5cc184cadcbb9319e7488290845cc79e67ab71277a5f2bdc4",
+          "bytes": 96207,
+          "managedPeakBytes": 7259987
+        },
+        {
+          "id": "im26-1026",
+          "distance": 1,
+          "hash": "a3c5f33d45dc89d088958a451591c85a3862e93b6af809078a32f154651324a4",
+          "bytes": 57697,
+          "managedPeakBytes": 7207223
+        },
+        {
+          "id": "im26-1026",
+          "distance": 2,
+          "hash": "d77b65b9c085444b95f66ea7fac01f3eb3d275ae890aaeebc77ceac4a0ff42e4",
+          "bytes": 35247,
+          "managedPeakBytes": 6982747
+        },
+        {
+          "id": "im26-1026",
+          "distance": 4,
+          "hash": "2cb0bd825d90cbf1df1d7d701230077359b6a3e29712a8777734c1554543fcc9",
+          "bytes": 21809,
+          "managedPeakBytes": 6970971
+        },
+        {
+          "id": "im26-1026",
+          "distance": 7,
+          "hash": "c9cd4abbd13a66bcfbe17dab02e0c4bc89af7b224a686ae893e168e38814711d",
+          "bytes": 14572,
+          "managedPeakBytes": 6977115
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1052",
+          "distance": 0.5,
+          "hash": "fe471dd348c3fc92285ceaba93332f8a10e100c18400f1cfaa42f8b7d716d4ca",
+          "bytes": 92483,
+          "managedPeakBytes": 7297219
+        },
+        {
+          "id": "im26-1052",
+          "distance": 1,
+          "hash": "0db91c91b8cc185a78f9ce967223f1cd5c0e75c81527cef7c5f3924e7dc7cfd1",
+          "bytes": 55306,
+          "managedPeakBytes": 7117127
+        },
+        {
+          "id": "im26-1052",
+          "distance": 2,
+          "hash": "9465651fba5df96ba22e2f409888b7dc074a22e982a477ae1b0cd2f4516e5a36",
+          "bytes": 33166,
+          "managedPeakBytes": 6990939
+        },
+        {
+          "id": "im26-1052",
+          "distance": 4,
+          "hash": "a7ea7369b197b0fa626c31077d6ab20ad596859a6e0f1b29e2224237fc10d8aa",
+          "bytes": 18816,
+          "managedPeakBytes": 6960219
+        },
+        {
+          "id": "im26-1052",
+          "distance": 7,
+          "hash": "5f9b83d71d1a176b413fde95761d6041b6bb29eb08371c88e3c6b6708faf72fa",
+          "bytes": 11955,
+          "managedPeakBytes": 6956123
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1210",
+          "distance": 0.5,
+          "hash": "ec2fe4c74fa8f373d5b90efcfcd8d314f25f6c9bd292fd8fb3dbfb56340768ba",
+          "bytes": 87083,
+          "managedPeakBytes": 10451417
+        },
+        {
+          "id": "im26-1210",
+          "distance": 1,
+          "hash": "0378d7d1128ff387694c03dbb27974cff3bfa5b684423a3e5d1a2995157a43ca",
+          "bytes": 54151,
+          "managedPeakBytes": 10317317
+        },
+        {
+          "id": "im26-1210",
+          "distance": 2,
+          "hash": "741a2fb838f52ae218baad622660f2e9eb59e4816bf4bb962c2af1d31716549a",
+          "bytes": 33287,
+          "managedPeakBytes": 10124645
+        },
+        {
+          "id": "im26-1210",
+          "distance": 4,
+          "hash": "cfb620385191a75277b4656d9a1c1eff972a9c70f1eae7a8ff66f2afedeb7ffd",
+          "bytes": 21098,
+          "managedPeakBytes": 6968411
+        },
+        {
+          "id": "im26-1210",
+          "distance": 7,
+          "hash": "60f917a4005390119f835f72205f3b168867f454486abd1e31fbb9595c39c6b0",
+          "bytes": 14130,
+          "managedPeakBytes": 6960219
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1610",
+          "distance": 0.5,
+          "hash": "1e99e32a62d9972d7686514fd34a481494f74430e06f46b1fb8295ac415f428f",
+          "bytes": 70991,
+          "managedPeakBytes": 10444691
+        },
+        {
+          "id": "im26-1610",
+          "distance": 1,
+          "hash": "5160ac9bd6443fb629088b8fb82f02901fe7a7e222df6b9270c978702bd3f7db",
+          "bytes": 38914,
+          "managedPeakBytes": 7076331
+        },
+        {
+          "id": "im26-1610",
+          "distance": 2,
+          "hash": "6dc8dbc3f66608675e2d3ce3bce8ab678c7a479d070b3631efb58caf20119f78",
+          "bytes": 24224,
+          "managedPeakBytes": 6966367
+        },
+        {
+          "id": "im26-1610",
+          "distance": 4,
+          "hash": "c9fa2f571cc1c651b2f8d4ed214fa1be6589a1d2e6ac79eeec75d525dd329a54",
+          "bytes": 15722,
+          "managedPeakBytes": 6960219
+        },
+        {
+          "id": "im26-1610",
+          "distance": 7,
+          "hash": "f257f4ef9a52d471bf1b2a751640799aa056c3b313aacc9bbc6c098312aa47bf",
+          "bytes": 10991,
+          "managedPeakBytes": 6954075
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1622",
+          "distance": 0.5,
+          "hash": "0810bae4ac45cfcfe8691676d9bc482ce069105683b065ee0014519770b7a220",
+          "bytes": 89255,
+          "managedPeakBytes": 7368511
+        },
+        {
+          "id": "im26-1622",
+          "distance": 1,
+          "hash": "68bd4e0d75501127029a3df72669b3889a57164634e40aae3d9487bf43f36994",
+          "bytes": 52569,
+          "managedPeakBytes": 7008751
+        },
+        {
+          "id": "im26-1622",
+          "distance": 2,
+          "hash": "95c8a7b8143794952dbe8e41971a7b6e37ef5cdcfdb4af59ed6a6e34a61820dc",
+          "bytes": 27497,
+          "managedPeakBytes": 6958171
+        },
+        {
+          "id": "im26-1622",
+          "distance": 4,
+          "hash": "a0d7cfdc1e4bbe43b24f497986df21d04a4b77bd8c9eee92a71e10ed63fe0670",
+          "bytes": 13166,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-1622",
+          "distance": 7,
+          "hash": "f65322cf98663612e543a600df241a5dbb53f4e6535c771cfcaced2c2f0cc140",
+          "bytes": 7320,
+          "managedPeakBytes": 6949979
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1626",
+          "distance": 0.5,
+          "hash": "241a2ed81009b2d4a5b5ca18d252895c496693de6003ba31f6516bd14544843e",
+          "bytes": 39322,
+          "managedPeakBytes": 7004591
+        },
+        {
+          "id": "im26-1626",
+          "distance": 1,
+          "hash": "6d6091a295dd3d19f7d00a2bd0f2643a67589ebc5f30b3ed0ac08fc0488a2e5b",
+          "bytes": 17873,
+          "managedPeakBytes": 6964315
+        },
+        {
+          "id": "im26-1626",
+          "distance": 2,
+          "hash": "0cc93ab7805e3964f6c658a3c34295a9cb3ba5609a7aa28d2eda9bcc575cbf91",
+          "bytes": 10067,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-1626",
+          "distance": 4,
+          "hash": "f06be393877b08cdf7153e5f2c13b7a0418936567cea0d8d701e696a47599b31",
+          "bytes": 6444,
+          "managedPeakBytes": 6947931
+        },
+        {
+          "id": "im26-1626",
+          "distance": 7,
+          "hash": "6e6bec1bfd1d938351678f2fed3968bdb8ea750e1a8e2a5ea2c42d8657b47af5",
+          "bytes": 4629,
+          "managedPeakBytes": 6947931
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-1634",
+          "distance": 0.5,
+          "hash": "47105577dcf6e9660be4b94ed0ee03d339dad4c97d05362e29e0f14a193cc01b",
+          "bytes": 48772,
+          "managedPeakBytes": 7045709
+        },
+        {
+          "id": "im26-1634",
+          "distance": 1,
+          "hash": "fb648e2f4c00728f41b52de564c6b186633e7f53f246ba960fc489740a6f0df4",
+          "bytes": 19494,
+          "managedPeakBytes": 6964341
+        },
+        {
+          "id": "im26-1634",
+          "distance": 2,
+          "hash": "953895471472eb90ec9c63ef6494bce02ade7265ac6cda8cef591e0206c485ce",
+          "bytes": 9455,
+          "managedPeakBytes": 6954075
+        },
+        {
+          "id": "im26-1634",
+          "distance": 4,
+          "hash": "9076691e43a4ff086d16f0c8e1f7bfc89626b90d4ada4d7f330fd58483d33e3e",
+          "bytes": 5454,
+          "managedPeakBytes": 6949979
+        },
+        {
+          "id": "im26-1634",
+          "distance": 7,
+          "hash": "e61f67597b602025017906af0554a8e113a8ee3995501648a2f08a42cde1b8b5",
+          "bytes": 3935,
+          "managedPeakBytes": 6972507
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-2002",
+          "distance": 0.5,
+          "hash": "428f9edacb37cdc0290050e1edf63f256d0cbbabe7c1ed54102a4069040485e4",
+          "bytes": 51863,
+          "managedPeakBytes": 7072103
+        },
+        {
+          "id": "im26-2002",
+          "distance": 1,
+          "hash": "cc3513176456b3393b862217f1dd07ef50b3f753329d2039a5517e9111a17eb6",
+          "bytes": 23244,
+          "managedPeakBytes": 6966363
+        },
+        {
+          "id": "im26-2002",
+          "distance": 2,
+          "hash": "a7705484ff4a1aa1572ed314436337ae0f811c9e71b191eb7dd9b8dd01da5dd9",
+          "bytes": 12921,
+          "managedPeakBytes": 6958171
+        },
+        {
+          "id": "im26-2002",
+          "distance": 4,
+          "hash": "34b2e54847be01d7662d54b8bef65ca3f751b850b10903eec90eb3f2857c17af",
+          "bytes": 7170,
+          "managedPeakBytes": 6952027
+        },
+        {
+          "id": "im26-2002",
+          "distance": 7,
+          "hash": "baf90db3540d1c0831dab39e172c417860303d3fc71f6c4670b48d30f664545b",
+          "bytes": 4160,
+          "managedPeakBytes": 6945883
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-2004",
+          "distance": 0.5,
+          "hash": "ef2d19edcf620880938f26c9523b5c747cf2514cff07ffc2b8d05363a218b144",
+          "bytes": 119295,
+          "managedPeakBytes": 10091229
+        },
+        {
+          "id": "im26-2004",
+          "distance": 1,
+          "hash": "0c4b5c36dada382a4ca70d8665fb98cbdb326478b30feef73b10467423317dff",
+          "bytes": 80573,
+          "managedPeakBytes": 6974555
+        },
+        {
+          "id": "im26-2004",
+          "distance": 2,
+          "hash": "161edebe75741877fdd1b81f0d6faeaca8d9f2e96cb0520b5a3de691c895fd3c",
+          "bytes": 42415,
+          "managedPeakBytes": 6962267
+        },
+        {
+          "id": "im26-2004",
+          "distance": 4,
+          "hash": "da2d2d2c04e19f76ef6ce141966e87c93bf99f53fd17e9c6447dedc8b8c71db8",
+          "bytes": 16791,
+          "managedPeakBytes": 6958171
+        },
+        {
+          "id": "im26-2004",
+          "distance": 7,
+          "hash": "b2ea181897ff9a2b0089070f22b7c94e56342bff2076117362b19459ccb3183a",
+          "bytes": 7404,
+          "managedPeakBytes": 6949979
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-2012",
+          "distance": 0.5,
+          "hash": "31b886cd9c6cc777d4c28e6fd88ec8457558d60dbdda7b38d986264b647150ab",
+          "bytes": 44181,
+          "managedPeakBytes": 10179993
+        },
+        {
+          "id": "im26-2012",
+          "distance": 1,
+          "hash": "8f26ff7356eaa52bd287404be85e585eb3d8778ce6e20794aa6897e4441206c1",
+          "bytes": 22075,
+          "managedPeakBytes": 6962267
+        },
+        {
+          "id": "im26-2012",
+          "distance": 2,
+          "hash": "ee942a2ae30ee23bb5a042aeb12c7a001224a169db128ae1902060d00d1d3999",
+          "bytes": 11349,
+          "managedPeakBytes": 6960219
+        },
+        {
+          "id": "im26-2012",
+          "distance": 4,
+          "hash": "3a565253350d03e8985fc0b4969ffb305ccd950b737dd5daae0f4f54e12d7703",
+          "bytes": 5033,
+          "managedPeakBytes": 6949979
+        },
+        {
+          "id": "im26-2012",
+          "distance": 7,
+          "hash": "6e31cfef1603036e7a3e108173d6ff3d444e2366c31a77005f2a0da6774efb3d",
+          "bytes": 2637,
+          "managedPeakBytes": 6970459
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-3000",
+          "distance": 0.5,
+          "hash": "0cd49dbb7b8ad97e1140e989b8e85aafee0fb4cfaa09a0033e5dbccd93888b62",
+          "bytes": 37222,
+          "managedPeakBytes": 10077441
+        },
+        {
+          "id": "im26-3000",
+          "distance": 1,
+          "hash": "9b59cd615bae3368f06255438ccb108ff6e593f13cb118337ebfd263b93e5449",
+          "bytes": 22552,
+          "managedPeakBytes": 6962271
+        },
+        {
+          "id": "im26-3000",
+          "distance": 2,
+          "hash": "298783fa5dd456b165b6e0a0018e287e78c3735409de7ab0986dd4f63846a0b5",
+          "bytes": 11348,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-3000",
+          "distance": 4,
+          "hash": "0738f3bc26be4b4a38949ce479957de34050ead91b25e6abd32084318cb2f1c6",
+          "bytes": 4947,
+          "managedPeakBytes": 6952027
+        },
+        {
+          "id": "im26-3000",
+          "distance": 7,
+          "hash": "afb2e6f119d36d01467b72ae3d7322afbb385a63f43b862385e939d5c2396969",
+          "bytes": 2963,
+          "managedPeakBytes": 6949979
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-3012",
+          "distance": 0.5,
+          "hash": "6236d897d94c31a67c114bdfdfd2ebe0869c378e9dd957ac526e13e6d97899c9",
+          "bytes": 99655,
+          "managedPeakBytes": 7153479
+        },
+        {
+          "id": "im26-3012",
+          "distance": 1,
+          "hash": "bdd37b6688725cc9d3be96b2a4d85b5d116cc2f704b2b8631f27eed0d4771bc1",
+          "bytes": 60455,
+          "managedPeakBytes": 6999131
+        },
+        {
+          "id": "im26-3012",
+          "distance": 2,
+          "hash": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20",
+          "bytes": 33358,
+          "managedPeakBytes": 6964315
+        },
+        {
+          "id": "im26-3012",
+          "distance": 4,
+          "hash": "007ecbe7d6916b0f8bc991864f5d0a8254ebc2d045ca37197cbd3dd7326d21d7",
+          "bytes": 15835,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-3012",
+          "distance": 7,
+          "hash": "837d857a2617a47c0e076ad300c1671b8253927a597ac89abbc0d682d437e026",
+          "bytes": 7489,
+          "managedPeakBytes": 6949979
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-3014",
+          "distance": 0.5,
+          "hash": "bc421af5b15f54cf09d3d3b8db3c91f9c2a5b7d3e1ebbf7bcb6821e3bd9a076c",
+          "bytes": 17101,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-3014",
+          "distance": 1,
+          "hash": "3ace6be3f5a99f5ead41c61157170a00decf1f68f690875bdbfee9aa298efd6b",
+          "bytes": 6700,
+          "managedPeakBytes": 6949979
+        },
+        {
+          "id": "im26-3014",
+          "distance": 2,
+          "hash": "17a37fe9b06cfe657616162168dccdb5f6fc344937ff96d8b03c94aa8f5765cc",
+          "bytes": 2663,
+          "managedPeakBytes": 6945883
+        },
+        {
+          "id": "im26-3014",
+          "distance": 4,
+          "hash": "2c0cfbaafd8dd87b2922f9d5af03c874460228ceefe25961ab3fc9f08b7658cf",
+          "bytes": 1171,
+          "managedPeakBytes": 6943835
+        },
+        {
+          "id": "im26-3014",
+          "distance": 7,
+          "hash": "a2032375f7faa771f22df9fbbb2ce9e859ebcb2f0b33714c1bf33d79e42c1c85",
+          "bytes": 861,
+          "managedPeakBytes": 6943835
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-3306",
+          "distance": 0.5,
+          "hash": "384048aa69ad89bd3523e850f9c407f282fc6cf3a7879c081e9c0c9874e29be1",
+          "bytes": 122868,
+          "managedPeakBytes": 7286597
+        },
+        {
+          "id": "im26-3306",
+          "distance": 1,
+          "hash": "03aee441d8a61396d35257e7affa58b598c5cc4804e257804bda048b32bb83b5",
+          "bytes": 78431,
+          "managedPeakBytes": 7006635
+        },
+        {
+          "id": "im26-3306",
+          "distance": 2,
+          "hash": "91515fdc7ef9749befb43c08cde632df0f10ddcfc18780caaf7e8b2b52fab781",
+          "bytes": 43074,
+          "managedPeakBytes": 6966363
+        },
+        {
+          "id": "im26-3306",
+          "distance": 4,
+          "hash": "b2c45f57143981611226962ca9f6166dc48e2090a5c0d7b22950f14e79a1e65d",
+          "bytes": 22048,
+          "managedPeakBytes": 6956123
+        },
+        {
+          "id": "im26-3306",
+          "distance": 7,
+          "hash": "c27b5cb12073ab4214456b07b873a4d3984450b74a7702b4c0ac99a5f8cd3510",
+          "bytes": 13083,
+          "managedPeakBytes": 6952027
+        }
+      ]
+    },
+    {
+      "rows": [
+        {
+          "id": "im26-3312",
+          "distance": 0.5,
+          "hash": "e6b78dd96ad4962693f35a2daca97ecb1d8df3fd29a3760fd0688fb1cd3829aa",
+          "bytes": 40589,
+          "managedPeakBytes": 10026026
+        },
+        {
+          "id": "im26-3312",
+          "distance": 1,
+          "hash": "406a811808cf2b286f531024d75e052f37e7de0a2229665037c18110fda3ff38",
+          "bytes": 16751,
+          "managedPeakBytes": 6966363
+        },
+        {
+          "id": "im26-3312",
+          "distance": 2,
+          "hash": "f7696ad63783d17346b687dd77c065a0cf0a32f32b9dd3c76fc36a1934ab3035",
+          "bytes": 8088,
+          "managedPeakBytes": 6960219
+        },
+        {
+          "id": "im26-3312",
+          "distance": 4,
+          "hash": "d1dd7f82b0b6c80199ad6da0dc58e7482584a30599663528fa40a650bd51169b",
+          "bytes": 2572,
+          "managedPeakBytes": 6945883
+        },
+        {
+          "id": "im26-3312",
+          "distance": 7,
+          "hash": "1ae151734c6cafa3e9c15ad6c6f5c5cb505bcee044a55a6e639546d14038b6f8",
+          "bytes": 1632,
+          "managedPeakBytes": 6947931
+        }
+      ]
+    }
+  ],
+  "memory": [
+    {
+      "id": "im26-3012",
+      "mode": "original",
+      "baseline": {
+        "rss": 130764800,
+        "heapTotal": 47431680,
+        "heapUsed": 12780184,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 128216
+      },
+      "cold": {
+        "rss": 266903552,
+        "heapTotal": 53026816,
+        "heapUsed": 11777320,
+        "external": 112145986,
+        "arrayBuffers": 13234898,
+        "vmHwmKiB": 261084
+      },
+      "beforeWarm": {
+        "rss": 262467584,
+        "heapTotal": 46211072,
+        "heapUsed": 10361160,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 260648
+      },
+      "warm": {
+        "rss": 276033536,
+        "heapTotal": 51191808,
+        "heapUsed": 10755752,
+        "external": 113975924,
+        "arrayBuffers": 96634339,
+        "vmHwmKiB": 277472
+      },
+      "afterWarm": {
+        "rss": 257298432,
+        "heapTotal": 46473216,
+        "heapUsed": 10536608,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 277472
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "original": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    },
+    {
+      "id": "im26-3012",
+      "mode": "original",
+      "baseline": {
+        "rss": 131936256,
+        "heapTotal": 48480256,
+        "heapUsed": 12779504,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 129540
+      },
+      "cold": {
+        "rss": 275390464,
+        "heapTotal": 53026816,
+        "heapUsed": 10883928,
+        "external": 114732003,
+        "arrayBuffers": 11514713,
+        "vmHwmKiB": 270016
+      },
+      "beforeWarm": {
+        "rss": 271024128,
+        "heapTotal": 46735360,
+        "heapUsed": 10363544,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 269576
+      },
+      "warm": {
+        "rss": 285638656,
+        "heapTotal": 51716096,
+        "heapUsed": 18258624,
+        "external": 111669087,
+        "arrayBuffers": 98308526,
+        "vmHwmKiB": 280244
+      },
+      "afterWarm": {
+        "rss": 269512704,
+        "heapTotal": 46997504,
+        "heapUsed": 10518136,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 278944
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "original": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    },
+    {
+      "id": "im26-3012",
+      "mode": "original",
+      "baseline": {
+        "rss": 130424832,
+        "heapTotal": 47693824,
+        "heapUsed": 12780320,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 128128
+      },
+      "cold": {
+        "rss": 269611008,
+        "heapTotal": 53288960,
+        "heapUsed": 11726464,
+        "external": 114455335,
+        "arrayBuffers": 98624548,
+        "vmHwmKiB": 264404
+      },
+      "beforeWarm": {
+        "rss": 265375744,
+        "heapTotal": 45948928,
+        "heapUsed": 10357888,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 263292
+      },
+      "warm": {
+        "rss": 282845184,
+        "heapTotal": 51453952,
+        "heapUsed": 10793304,
+        "external": 114130669,
+        "arrayBuffers": 96656545,
+        "vmHwmKiB": 277376
+      },
+      "afterWarm": {
+        "rss": 279916544,
+        "heapTotal": 46473216,
+        "heapUsed": 10533064,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 276344
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "original": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    },
+    {
+      "id": "im26-3012",
+      "mode": "optimized",
+      "baseline": {
+        "rss": 129740800,
+        "heapTotal": 47693824,
+        "heapUsed": 12779392,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 127556
+      },
+      "cold": {
+        "rss": 277565440,
+        "heapTotal": 53026816,
+        "heapUsed": 11895184,
+        "external": 113619018,
+        "arrayBuffers": 14317334,
+        "vmHwmKiB": 272008
+      },
+      "beforeWarm": {
+        "rss": 264245248,
+        "heapTotal": 47259648,
+        "heapUsed": 10409760,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 271060
+      },
+      "warm": {
+        "rss": 269914112,
+        "heapTotal": 51978240,
+        "heapUsed": 10915000,
+        "external": 114064556,
+        "arrayBuffers": 11621628,
+        "vmHwmKiB": 285268
+      },
+      "afterWarm": {
+        "rss": 266846208,
+        "heapTotal": 46997504,
+        "heapUsed": 10564672,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 285268
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "optimized": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    },
+    {
+      "id": "im26-3012",
+      "mode": "optimized",
+      "baseline": {
+        "rss": 130195456,
+        "heapTotal": 47693824,
+        "heapUsed": 12780256,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 127608
+      },
+      "cold": {
+        "rss": 272224256,
+        "heapTotal": 53551104,
+        "heapUsed": 12879800,
+        "external": 113392479,
+        "arrayBuffers": 13027343,
+        "vmHwmKiB": 266536
+      },
+      "beforeWarm": {
+        "rss": 267583488,
+        "heapTotal": 46997504,
+        "heapUsed": 10480320,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 265844
+      },
+      "warm": {
+        "rss": 280727552,
+        "heapTotal": 50667520,
+        "heapUsed": 10793560,
+        "external": 112897632,
+        "arrayBuffers": 95956865,
+        "vmHwmKiB": 280800
+      },
+      "afterWarm": {
+        "rss": 267710464,
+        "heapTotal": 46473216,
+        "heapUsed": 10571104,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 280800
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "optimized": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    },
+    {
+      "id": "im26-3012",
+      "mode": "optimized",
+      "baseline": {
+        "rss": 130887680,
+        "heapTotal": 48218112,
+        "heapUsed": 12780840,
+        "external": 15297465,
+        "arrayBuffers": 1974848,
+        "vmHwmKiB": 128252
+      },
+      "cold": {
+        "rss": 265302016,
+        "heapTotal": 53026816,
+        "heapUsed": 10977056,
+        "external": 112281945,
+        "arrayBuffers": 13163558,
+        "vmHwmKiB": 260504
+      },
+      "beforeWarm": {
+        "rss": 261120000,
+        "heapTotal": 46473216,
+        "heapUsed": 10403616,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 260504
+      },
+      "warm": {
+        "rss": 252694528,
+        "heapTotal": 52240384,
+        "heapUsed": 10796000,
+        "external": 115153731,
+        "arrayBuffers": 10321736,
+        "vmHwmKiB": 268952
+      },
+      "afterWarm": {
+        "rss": 249483264,
+        "heapTotal": 46735360,
+        "heapUsed": 10547040,
+        "external": 15428081,
+        "arrayBuffers": 2067520,
+        "vmHwmKiB": 268952
+      },
+      "coldResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "warmResult": {
+        "bytes": 33358,
+        "managedPeakBytes": 6964315,
+        "colorBits": 265719
+      },
+      "hashes": {
+        "optimized": "45b81cea102f471799d7fff4f313ad059e2caf9d14e96b61f3bcf33470268d20"
+      }
+    }
+  ],
+  "verification": {
+    "blur": [
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 1,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 1,
+        "height": 17,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 17,
+        "height": 1,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 19,
+        "height": 17,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 106,
+        "height": 106,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 1.2,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 1.2,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 1.56416327805,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 1.56416327805,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 2.7,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 2.7,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 3.22489901262,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 3.22489901262,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 7.15593339443,
+        "type": "float32",
+        "differences": 0,
+        "maximumError": 0
+      },
+      {
+        "width": 512,
+        "height": 512,
+        "sigma": 7.15593339443,
+        "type": "float64",
+        "differences": 0,
+        "maximumError": 0
+      }
+    ],
+    "prepared": {
+      "rows": [
+        {
+          "id": "im26-3012-source",
+          "width": 512,
+          "height": 512,
+          "scale": 1,
+          "hashes": [
+            "39e2a8afdfd2c80fe70a97050465abcc04e0e7aa46a421d9a3a6170fab5ab7f6",
+            "01b9d176d875414054c9551271b5801780c1b6ac50f5696a846c5aa973ffe413",
+            "4c12ce5494af8834917b9dd8f33fad83cf0d3a85953e0047890567d56d9ac335",
+            "b533d2ba3653817408b55048cbc499eaef2d8c865c1bb5853b88cc4f9304ac89",
+            "f5570ad0ad88b5d0d070521a014ea8b8e82f00cad27bc1a6bd170f4d162a1b49",
+            "01b92cfa076da2ffdcda734f7ec144fa53197ac1ab52d0b06397eaef3bf9764c",
+            "169c4f5b78c1a54995501c73436b1c4f55a3a95a905caad2491dc446bcd2410d",
+            "e1631e4dd9dbf23fd44165043fa4e6af6b97f40be87a55637c5f7e0a605776f7",
+            "d958547fc5c3e54b63ad28ba74ad02110cb170a260335195c67a8682b5421dd6",
+            "a2afa89aac42601a2459859be19145944a151981fb1500179bc8348c688143d6",
+            "dce5a098afe9fcaba03f5ed34fa8a305ca7688a442f6ebb178ad53ae6d2bbd9c",
+            "607678da3a9e72fb2b5859ab54403840c5e645dc5226f6880c49d4132fa96203"
+          ]
+        },
+        {
+          "id": "im26-3012-source",
+          "width": 256,
+          "height": 256,
+          "scale": 2,
+          "hashes": [
+            "2ccdc97e366ada5a1240f8c166b295f28264ae6d7676e97dfa9394124634a08f",
+            "6614a0a19c7f9ef254a5bccaff3d43e1d89ba3ee386853d7ddd99e0b5179c19b",
+            "91464a7cfe5aa03c12c9a6ff77866f804e9162a2e26e9d50a4e4be75ee0aac60",
+            "897678d11b42d3e6e45bb6ee4c6501189c562e94ba9f8cb599124b4a9ac38f51",
+            "ac50f082fa78f089ee386a6d3673222d88a855eec02c59349b37aa71dc740bbf",
+            "f2ca372dc5760dabf153e73a526caf67195b36a9c5f3df7f22734a6e60c3a9eb",
+            "b3e07e936a9a1fbb635676cce04ccb2a5815c0018a01c22cf3ee5cb564ead104",
+            "002da6f43a6e8ab162f687d3da91fad1c0b5800d68c2f0f54ea985a84fe4f911",
+            "57303c92a55a78fccdfa05854e7155552c9a9195c4388d9b739f8172fdcb3f7a",
+            "f0f518ef4e9c48a5a5424a31ff0809318fecd305bdb9dc2c8de5065ec9400ae7",
+            "e83dd0c9be69c29ec9e1b824b81b67885e1eb3503bae79b40569049cbe1bb9fe",
+            "689be7ae44101fadd9c6e1f6ce001585e5acd27684a0b1068f0eb582f2a26ea9"
+          ]
+        },
+        {
+          "id": "im26-3012-decoded",
+          "width": 512,
+          "height": 512,
+          "scale": 1,
+          "hashes": [
+            "ce89811f56106c945f139ce6dd13dac1803d702a0979598a818053976f7a2fda",
+            "8b9d21bf8466ca19a291d97eb5c4c641f00b1bd093694a345b7a4cc59006dc2c",
+            "e3d8fd1890bab14a8bba4c5ae1f9b0f64985885813900fb90c29ca3c1f7d3a36",
+            "ad1f5df264fe27da5dd517a2ea40cb96ef5af85b02f8bd2b579fcd980d862815",
+            "d1a183f5fe43d424326fb2263ed85441d1a6d0bbf5e34e7ecc2c6b7fbaba0b16",
+            "edf03fd41508821abdc05a2c8890c0ce367f48c3f2c1d7670765b1814524d26c",
+            "ab8aa8b18d7cbeb742cd0f3d51134978919c1cc5bc4df606142fdc47959fdf16",
+            "afed8bc6db97e0d60168bede9d23e95e4447c2bbadaa580c86bc4c184f0ae936",
+            "704e9410167e061d71bdaae810bd5b50c0145b4bd736ec6a1d6df570e509c157",
+            "4c018175e1fea9d37d5c4bf61e4bc36ac0359ccb63c25866aae465eaf20a7ba8",
+            "7102babb055ac0eda4453cb43ed7aaeeae12fcf5f478fa1ebfd70ea181f25c1c",
+            "2daf9ae859e4c5f89997ae06388b66159fbb931b2ec5afdd2bd360b3d4d01f09"
+          ]
+        },
+        {
+          "id": "im26-3012-decoded",
+          "width": 256,
+          "height": 256,
+          "scale": 2,
+          "hashes": [
+            "08ac8064a263a9080fa71ad8fc596eb66dd5d36ff5d9e987c8d2025d3383754d",
+            "17b541b76d46907e2aa0ecf57853561972fd62e2111847b0ffe0ee0f1c5dd3c3",
+            "a91b1c4bbae33e9233a49aa43d44feeaaaa2c93e7ef805976483d6b5700f6276",
+            "307bb7ace261bc6eb6ab0b71a454b816fc31e43dd117eaee622cef73ec52c0de",
+            "909df0cc830ec53fe29a706a76ed821ff58fb033edfe899c880aa81c2ffbafbc",
+            "7b3260c161eee16bf1e33f6ca08ec11388afa81c1a3c0d1b6fdd0601b2c4ee32",
+            "e83f8dfed5b4c5994e5568a52dfdac8d281788dce5696d390fcbe12f81e163cd",
+            "297e422d49068cfa09234c23153395811068dc42bdbcb5dc832d947d5cb366bf",
+            "8f5fe8a2d88971666ba6f38a6edca4e0e893ef9957bb6ddcca8a9328dfb8eac0",
+            "98491b6cc372a4c4994f7522b9ae92d27c952885be338f0ee0d4d0ee779573cd",
+            "7a7e8e39136f8e6e2aee50ee0d5f62ca0190c464b4c04a9830e43e6f02ebd79b",
+            "8232ad6060d2ecffd707c1a7a6a8affc34cc71a518514a35e6b61bc270a039d0"
+          ]
+        },
+        {
+          "id": "im26-3312-source",
+          "width": 512,
+          "height": 512,
+          "scale": 1,
+          "hashes": [
+            "834d24dcc5c1a2f28c3d18320a9a7012ee72d47a3283624864d01b45bdad8d83",
+            "65beee44e06569e2fe54904fcfa19bdd429313e5b303fb60f0955368996c1692",
+            "ef21bd2cf61051ad2fd8c1616dba66c6836d3147a3a663a556d9185bec6f1ef3",
+            "500d244db875aca0e9ebffa8190fd2c7c232f7ab1eecc77764f7770e4f59840e",
+            "73ce5dc01947a685b434bd55c00ebbcf2698f63192d622e97e131d784eab4f7b",
+            "824a220c4273e9fd6274f8de085e3cbcecbebae664b35dd341e1313240871dcc",
+            "0b0b1b159a8ec73ffe606e53c8630ebf536b1fb8247c77e3f65829a60ca7e358",
+            "1fd7e24922e81e0982808ccae51fe52a4b0ff20aaa56c4f97aafd449f39a9f4c",
+            "36b2bccc09f0d07281d5779dfdcbdb13133e814f6654264e3241641c8c492803",
+            "5e4d5a779ed6313aec9d11cb3fb168a4f9ae1f973bfa4bc975e9716f717f3f9b",
+            "6152930189f1aebc58fce4605584f6ec9e919803d33accfcf7a86f3f5b91d54e",
+            "0d3d3064c54b5b65f321f76f26040d5be8676af5c8e66f89e1c807ca92604127"
+          ]
+        },
+        {
+          "id": "im26-3312-source",
+          "width": 256,
+          "height": 256,
+          "scale": 2,
+          "hashes": [
+            "317b93918d93c4479215448b2b89edb4090fb3b411616745ed4df3decc9d2a53",
+            "3748c4cb57bdc5bb5beb44e4603773aeabb2852f9a41466093bf5f3c5dce6cce",
+            "55a676eccec6b4b97a1b0a2e75b635ecb280ecabe34e189bd53fb6d0350c8b48",
+            "142c1af2a5c126447131d3fd4f7aadba79f5f0f23777b94f2f08ff1106a5cee9",
+            "20b771513d19c10445150884e881aad3ccf1233c3c6c61263f77ed8646341e10",
+            "785241b807c66d8e6e8e8c4144a575b15b2b2ddf77d53187a493481452d22c6b",
+            "bbe3515134d049708c92d1dcfeebad532d6fe6bf58a4c69cded780d65c29ad26",
+            "fe326ece4c20dc37dd69dd825e806d8defcbba38911c0d2b67b1bfd3495d79e3",
+            "5bea10e2cc65d26fe6152473564606014ff906adf3d2bca81563b688912aabbd",
+            "f113d1e1cd5b1868e36712d2d96da7bc849c882de915ce11fac7d2bc84f996e7",
+            "4e165f1b04e9cfbd6150add33ec94eb72b172d6078da60e64652e1d83ab2c29e",
+            "fba2fe4e01bde6198d4c2969be1459791c1a8be0c621de936100f9cea6083d47"
+          ]
+        },
+        {
+          "id": "im26-3312-decoded",
+          "width": 512,
+          "height": 512,
+          "scale": 1,
+          "hashes": [
+            "f6a414178d9af09016e67a8d8177769a877e5f8d4a555f454deff11ec5b3165e",
+            "77b4e266a6fa4a12a00e06199856954e333d8d8eda3543f5fc04f09a742b7ff1",
+            "e57317219d2b795edce419973aa57b32fc60581bd48c73dbba37a7dc11b9cfb5",
+            "2efdf736b1fcb567af20c1140e46717aa7d02b02c4c6253c2e983104707044a7",
+            "0662d7d962c6e9a7f5993cf030e2bef0616451d2937716fd01297368ee8fbe44",
+            "fed6106b9f823cc287e9ac8d200003e3ee5be5527e00743d8d15fdfbe864bbdc",
+            "2176685102c13d8b4802def542118387bf664f03bea958e652ccf9bb47293f13",
+            "6424987142bec90d05a6eb9db5a573ec5dc227a78f6978e1ffd2fd4d316b2ee4",
+            "827f2768fea912e1c8d7ac8f0acda4b70c6760e2b5c2467ce2e5f6e944acb469",
+            "734e689ef9b533797c38ab935ff91b619d06b346d6b9dcf8589209dc199edcd6",
+            "7a4e31aeca5d11c13697d9cccc00e103b02f189adbcfdb9ebe10321c2e7c9d5b",
+            "a1f5ea69a6879f0719156f0868b0098fdd3352f575d7a03ba336904485800558"
+          ]
+        },
+        {
+          "id": "im26-3312-decoded",
+          "width": 256,
+          "height": 256,
+          "scale": 2,
+          "hashes": [
+            "f1f31b4ee6c5580b171e83cc80ccd849399e8ce5f19db35c395f48b3d8ecd924",
+            "3e17e33b540b01fc1b27678bf0971c22c607135b67432ca441d0b23cba6500e0",
+            "071cdb50c9d16ca9fdf4a83f5821139ae7072751074d066751193797a8325f7a",
+            "0915139624b5de3fbc2a2c1a46bd33f8c620edf0fbc70992b46d38cbe54564e7",
+            "9064a27aed9a9d853d904612392e8e3bdf0b7026eae310c0574db4d1b12feb5a",
+            "762b58a7cb9ed74ce69c7462efcc9dcc061306c3e4806bfb0b90f381f02645dd",
+            "a17553d520bd1fc247e9fca1202e538fbad600b322560eb2f949dbb5a5f08105",
+            "92fb0682471412c8c95610fd73049db7187b9418e586fe1bf6a75bf1ed4283f8",
+            "fdec6a63c3d49ada30d6eeb1b9f88d4b20f314f7bd3b8787635d2b253a8d6ff2",
+            "b7fe3f3e3fc17d18f2e76801f702a8ff2fff08a2e78cf13983ad68c5b5236319",
+            "7bb7b02422045740d7e0afba070655cc02830b810ca650b878a436288a09629f",
+            "a60d443a8321a1a50154d1c3a54f521b4f69682d533486238c620974aea96d5d"
+          ]
+        },
+        {
+          "id": "1x1",
+          "width": 1,
+          "height": 1,
+          "scale": 1,
+          "hashes": [
+            "54b4096aa85e8f2721a268156c215d1cecb373748027e1b315189154024f750e",
+            "9c9ba4d08bf4654854ad4c31a57229624dcfb6dd61709a82f13c93f03eb1d77a",
+            "d635bbc44f42e5dadf6d78b4e7859de17996818f53403d7c9f1d2dab69cecf20",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          ]
+        },
+        {
+          "id": "1x1",
+          "width": 1,
+          "height": 1,
+          "scale": 2,
+          "hashes": [
+            "54b4096aa85e8f2721a268156c215d1cecb373748027e1b315189154024f750e",
+            "9c9ba4d08bf4654854ad4c31a57229624dcfb6dd61709a82f13c93f03eb1d77a",
+            "d635bbc44f42e5dadf6d78b4e7859de17996818f53403d7c9f1d2dab69cecf20",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+          ]
+        },
+        {
+          "id": "2x17",
+          "width": 2,
+          "height": 17,
+          "scale": 1,
+          "hashes": [
+            "60303791e66d8077ec5f8683ae703ecaa07ad0d44bd8e1ce02e63f85679ced11",
+            "4fd267551ee65597202e23cd9003493b5b795f9e4c3c2c0fa8113e48d10ff66e",
+            "ad7ef4749ea3b6124d3fa69dd79c994054cf35f406ad3fd6b46134e9fd4dd509",
+            "18ef329889c326b8ae670341914e52985f64d3607a94c1f7dea9c6d26ce74aa9",
+            "a0cff2b73b4e1fcdaec2cd9068832e5f90457495b63898a0772731e8b63068e2",
+            "52c9c0ea94526e9e334a216b70f36836a4680469355d6722570c221c5af17ec0",
+            "e37c9af63d01044e11dc57f7ac1cdf708108572146186be799f5889c0beaf5f4",
+            "0437c63a1a813e09318a35167463abfcb67be5ee343e71d657b5f5954d4e8aed",
+            "c7eb095564aa614e4f3c5c2aa931458ecfc39c15bd634f7fedee4e4099649510",
+            "26bcbd9b1d0aa0f3b997b09c45e99e0d1506d0686b3ee95d88f72b8afe613177",
+            "88612376113181bd67af459dd3d7b8ad8234661eaba0f70ba676b1389b754193",
+            "ff29727402fe737c4814af59f1531e7018ab2da92f6bb9bba34fbffd6407a570"
+          ]
+        },
+        {
+          "id": "2x17",
+          "width": 1,
+          "height": 9,
+          "scale": 2,
+          "hashes": [
+            "35d40634a339b05f8480a5d15fd1d5bb03e6ce1c9a31cee3bd56d166bf768121",
+            "bb94ad9686b725b3b3fad990012ed9376580dd05824fb70c363606c5da17752e",
+            "fbf97adaa133cc1d0250e4e56dc10536f3bbfe6c18e0756afcdaf8c37ea73169",
+            "56a5f8ffb18409aa0232293be820d49f3e46ac235e042fdd7219522c90b5cbba",
+            "ea52bf70cc899ed2411006853889a23ebae1669462b172fb41da74a77c57acec",
+            "d407ef4c7ae1d47f2fe2d1de7f16f5e067dcb231f27c7ab1f9ec230db4cceb68",
+            "086d68275165884990a720f68e5a8e5d706b5a754a3fbcfb10f778f2d9f03c9d",
+            "c30d5586d3956905227d691621b8e36ceaa50768c46d88fdf2b51f5b8dd0f690",
+            "f4b3df68a92093ac5eb3e409eddd6e5de1ef0a26cd722239142876b32f4b0016",
+            "0b6ef08248dc3693cbc72687fd6e9c0aac696da036111ed65ec114889573607f",
+            "ecb7414595cff0881c0630f12c82ee230b135c84d0748596f833e51b0231e5fc",
+            "720ff3b8f35258316b081235f4b971c8e224f47e5db39ce86cfdf0079a0b7f1f"
+          ]
+        },
+        {
+          "id": "17x1",
+          "width": 17,
+          "height": 1,
+          "scale": 1,
+          "hashes": [
+            "2a40666e20cebbe313bbac5b0fc0eb8f2ca4a7ec9ae95d119f2659cbac8f2ff0",
+            "01f3bb5a6cd5f71476d632bfb8236768718157395f99a05953a90e54ca370475",
+            "cda1f74e00b07aabdbae73f69e66948409e8feb79116c6e1fbef761ac1793d5a",
+            "ccf41230914c65caefeecff839fb03f4a9e286df3bd18ccaecbab472179dd7a0",
+            "54f7665b93495eb7d7f265a5c8b8b6923903b357c5e48b0e67287583cc61014b",
+            "1abd5326c4e7fb255be5a5b7f694a065b0c7e364c87d7109d89c713e5926eee6",
+            "158cde66dd4503fee23e025b0b3d13dec66ea6307c6c6544ddb740b5bbdcebfd",
+            "d1c2f3ccb3ae6ca1a0c7f26f2bb8dd77db06b45aa20f8d5832de3d49298db6e4",
+            "a87c99dd614cd7ef184bb8cf76c313e56303e238cf6f62688bdb4a849ae28e9e",
+            "eea4e69f4da0727c4fe2793f13cd189b71ac0de0bdff646dc52b83e757d82f49",
+            "a52808a97c34e12211fcc05dd263af839c0efed8be4a21f3ae38ba72e189b388",
+            "fb34669e07bb908c381d72650091821d3f8a19d09f16696d61bb57776c73882a"
+          ]
+        },
+        {
+          "id": "17x1",
+          "width": 9,
+          "height": 1,
+          "scale": 2,
+          "hashes": [
+            "570932eb23a03ecf2a388155cbb4bc636c63ae67a117b38f2258f68deecb5320",
+            "47a37f1839648cb6c825837ec21c71a3180036d65829f63e2bc8e5d6419de2cd",
+            "8d64da4ab1bb625ec694399693decdeb6b457fd7b4113e9f9cb824c3f7e961ef",
+            "e655cddcc6299653a0b5e13106d5c0845342520b84c502fe88fab9c9629cc8d7",
+            "328d43dc947f0c74dce730484d77bd83f711b275588cffec1ab7fbe9656a6e05",
+            "9619ae7da9f83cebe9c359f21ccda01f7a761d475968d8a63c66ecec5060da65",
+            "b57f529bd5b67a27a8fcace4127554456b0b139dbd95116f9df2431c8134de53",
+            "08a96a3c6798acc4c4a207431dc9d311d4585e1614f2255e115fc07d41aa716c",
+            "f330c03a0829e1177f65455d02e93966e79ae6766b27406bc2862bb372ddd245",
+            "b9da2cb6ad250085230db8e7686da0cec92c14ce7f714bf7161ade5b0a96eac9",
+            "09262dc31cced6aabf73bb3b31962353c2ee50760ea971b4bc779f1640f85a71",
+            "bb238cb690a3b9714454a67907141e8f43a03c39167e7d6a4b9b7247b4e4c171"
+          ]
+        },
+        {
+          "id": "19x17",
+          "width": 19,
+          "height": 17,
+          "scale": 1,
+          "hashes": [
+            "98d97f95318a6ea6beb3c35be8c5fb5d785919dee64211a05a2377188ff846a1",
+            "a4bf2f358eaa549fa835510451a4c960585ec08254bf62ac309096fd0f5ce8bd",
+            "8a6640906462e616102fafcaaae3c1f7feba2fc2c24da52aaf52c6a21667a176",
+            "8369c382c6edbf457fa205da839fd4285543bdd5a42669709605e5c5ebb84001",
+            "2efe704d4764328c9530d9f3f072b635b30d61459618fdfe6b5d7ad5e12d736d",
+            "6357bc3cc0fa38367acce60433ba1bb448dbdaf1aa73e8116df3d80edf2a2a3f",
+            "acb18feec1208f001244e381c04809cf660954cffb2fe56b40a8f5a55045419e",
+            "30497aa33e84951926ae6ca84e9ae6bdb2b2eadf654e504924b6da793a3746e2",
+            "4a13d45f8cf568b91eb1f3aaa4c22767ececf014efd1df532a219e6ea36136ca",
+            "519351fdf116c25f5f9baadef5dd29373eea6bc49ef911992ae0d4d7935387cd",
+            "3a12008a65772c61fb4f6eed2e84d53654a74c25f67582ed5948f808fe753e11",
+            "740609834f697ecfc09874398f7870e635e0be46fb34c98940f68a930afe2c3a"
+          ]
+        },
+        {
+          "id": "19x17",
+          "width": 10,
+          "height": 9,
+          "scale": 2,
+          "hashes": [
+            "89699b983068822b3001dbee10036f971a653139e636813f70f567b83dc45e6d",
+            "7037e81fddbc8863a78b83222fa7997a8df42cb56e344f842a65cee2b69510f1",
+            "361fc512d472df6c0bf8ad96fd922469390b034cc5c0fba0dfec2a899eee3d54",
+            "38cab0286899058ed762fb6ff7524d0ed05aea04d4acc708baae8d6fb689d8bf",
+            "c13e999f5c4c4e7f5130ad24daaf8926ef63203516a71b85154b29a5bcfdcadf",
+            "f680b65a1cb77c16f1b5eef5d9b5e35c166f5d91ae5cafe4cbe2e0f12e4770a9",
+            "337ce647e19e60fda08928272aa2ba107dbb9d7abc75ec4d34dcee0696f92f02",
+            "a2f1394b5d724b8a45bf26bcb36b84920a15c91129d92749d9d07c22670631fe",
+            "ac7d76cd2d66bfabde20de570421682ac82fbfe81a3d510c569d83dbd5e8f9ff",
+            "54a83c5a703e7d9efd30817c71408f860670e129082396a1f756c661830e534e",
+            "bef3c443dafdc3444eb94d73db10e705b006bc8cff222b82f2602327f3e31a16",
+            "a887e2493323449902e7c57faabb0d346dc8a2807471ea45aa82c5db6edd26e2"
+          ]
+        }
+      ],
+      "planeCount": 192,
+      "differences": 0
+    },
+    "nativeWindowsEqual": true,
+    "check": {
+      "status": "passed",
+      "startedAt": "2026-10-29T01:13:10.238Z",
+      "endedAt": "2026-10-29T01:23:18.520Z",
+      "code": 0,
+      "signal": null
+    }
+  },
+  "verdict": "Keep Gaussian traversal and fused Opsin in development diagnostics. Archive the complete-map policy and unused-mask trial. The cost gate fails; no quality trial, full lab, holdout, promotion or main merge."
+}

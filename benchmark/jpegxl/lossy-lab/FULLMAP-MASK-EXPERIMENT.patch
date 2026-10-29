@@ -1,0 +1,254 @@
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+@@ -13,6 +13,7 @@
+  * Optional sparse output grids preserve complete input bands at sampled pixels.
+  * Gaussian traversal shares tap loads across four adjacent pixels, with exact sums.
+  * Opsin channel adaptation shares pixel loads and writes final XYB in one pass.
++ * Decoded preparation omits its unused mask while retaining all required bands.
+  */
+ import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
+
+@@ -216,7 +217,7 @@
+   return out
+ }
+
+-export interface PerceptualImage {
++export interface PerceptualBands {
+   readonly width: number
+   readonly height: number
+   readonly lf: PerceptualPlanes
+@@ -224,6 +225,9 @@
+   readonly hf: readonly [Float64Array, Float64Array]
+   readonly uhf: readonly [Float64Array, Float64Array]
+   readonly blurredActivity: Float64Array
++}
++
++export interface PerceptualImage extends PerceptualBands {
+   readonly mask: Float64Array
+ }
+
+@@ -240,6 +244,47 @@
+   width: number,
+   height: number,
+ ): PerceptualImage {
++  const prepared = preparePerceptualDecodedLinear(rgb, width, height),
++    { blurredActivity } = prepared,
++    mask = new Float64Array(width * height)
++  for (let y = 0; y < height; y++)
++    for (let x = 0; x < width; x++) {
++      let a = blurredActivity[y * width + x] ?? 0,
++        b = 2 * a,
++        c = b
++      for (let dy = -3; dy <= 3; dy += 3)
++        for (let dx = -3; dx <= 3; dx += 3) {
++          if (
++            (dx === 0 && dy === 0) ||
++            x + dx < 0 ||
++            x + dx >= width ||
++            y + dy < 0 ||
++            y + dy >= height
++          )
++            continue
++          const value = blurredActivity[(y + dy) * width + x + dx] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++      mask[y * width + x] = 0.45 * a + 0.3 * b + 0.25 * c
++    }
++  return { ...prepared, mask }
++}
++
++/** Decoded bands retain activity; the source supplies the scoring mask. */
++export function preparePerceptualDecodedLinear(
++  rgb: DisplayPlanes,
++  width: number,
++  height: number,
++): PerceptualBands {
+   if (
+     !Number.isSafeInteger(width) ||
+     !Number.isSafeInteger(height) ||
+@@ -303,8 +348,7 @@
+       }
+     }
+   }
+-  const activity = new Float64Array(width * height),
+-    mask = new Float64Array(activity.length)
++  const activity = new Float64Array(width * height)
+   for (let p = 0; p < activity.length; p++) {
+     const x = 2.5 * ((hf[0][p] ?? 0) + (uhf[0][p] ?? 0)),
+       y = 0.4 * ((hf[1][p] ?? 0) + (uhf[1][p] ?? 0))
+@@ -313,36 +357,7 @@
+       Math.sqrt(6.19424080439 * 12.61050594197)
+   }
+   const blurredActivity = perceptualBlur(activity, width, height, 2.7)
+-  for (let y = 0; y < height; y++)
+-    for (let x = 0; x < width; x++) {
+-      let a = blurredActivity[y * width + x] ?? 0,
+-        b = 2 * a,
+-        c = b
+-      for (let dy = -3; dy <= 3; dy += 3)
+-        for (let dx = -3; dx <= 3; dx += 3) {
+-          if (
+-            (dx === 0 && dy === 0) ||
+-            x + dx < 0 ||
+-            x + dx >= width ||
+-            y + dy < 0 ||
+-            y + dy >= height
+-          )
+-            continue
+-          const value = blurredActivity[(y + dy) * width + x + dx] ?? 0
+-          if (value < c) {
+-            if (value < a) {
+-              c = b
+-              b = a
+-              a = value
+-            } else if (value < b) {
+-              c = b
+-              b = value
+-            } else c = value
+-          }
+-        }
+-      mask[y * width + x] = 0.45 * a + 0.3 * b + 0.25 * c
+-    }
+-  return { width, height, lf, mf, hf, uhf, blurredActivity, mask }
++  return { width, height, lf, mf, hf, uhf, blurredActivity }
+ }
+
+ export interface PerceptualWindow {
+@@ -369,7 +384,7 @@
+
+ export function perceptualQuadraticMaps(
+   source: PerceptualImage,
+-  decoded: PerceptualImage,
++  decoded: PerceptualBands,
+   box?: PerceptualWindow,
+   sampleStep = 1,
+ ) {
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+@@ -136,7 +136,7 @@
+ /** Adds the six source-weighted directional components to the quadratic map. */
+ export function perceptualDirectionalMap(
+   source: import('./libjxl-perceptual-local-port.ts').PerceptualImage,
+-  decoded: import('./libjxl-perceptual-local-port.ts').PerceptualImage,
++  decoded: import('./libjxl-perceptual-local-port.ts').PerceptualBands,
+   quadratic: Float64Array,
+   box?: PerceptualWindow,
+   sampleStep = 1,
+--- a/benchmark/jpegxl/lossy-lab/local-perceptual-region.ts
++++ b/benchmark/jpegxl/lossy-lab/local-perceptual-region.ts
+@@ -8,6 +8,7 @@
+   type PerceptualImage,
+   perceptualQuadraticMaps,
+   preparePerceptualLinear,
++  preparePerceptualDecodedLinear,
+ } from './libjxl-perceptual-local-port.ts'
+ import { perceptualDirectionalMap } from './libjxl-perceptual-malta-port.ts'
+ import type { AuditWindow } from './local-rate-audit.ts'
+@@ -113,12 +114,12 @@
+       crop.width,
+       crop.height,
+     ),
+-    fine = preparePerceptualLinear(
++    fine = preparePerceptualDecodedLinear(
+       finePlanes(rgb, crop, fineCrop),
+       fineCrop.width,
+       fineCrop.height,
+     ),
+-    half = preparePerceptualLinear(
++    half = preparePerceptualDecodedLinear(
+       downsampleDisplay(rgb, crop.width, crop.height),
+       Math.ceil(crop.width / 2),
+       Math.ceil(crop.height / 2),
+--- a/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts
++++ b/benchmark/jpegxl/lossy-lab/joint-allocation-prototype.ts
+@@ -10,7 +10,11 @@
+ import { rewriteStrategyGeometry } from './strategy-transplant.ts'
+ import { renderSelectedGeometry } from './geometry-display.ts'
+ import { displayLinearPlanes, downsampleDisplay } from './libjxl-display-loss.ts'
+-import { preparePerceptualLinear, perceptualQuadraticMaps } from './libjxl-perceptual-local-port.ts'
++import {
++  preparePerceptualLinear,
++  preparePerceptualDecodedLinear,
++  perceptualQuadraticMaps,
++} from './libjxl-perceptual-local-port.ts'
+ import { perceptualDirectionalMap, mixPerceptualScales } from './libjxl-perceptual-malta-port.ts'
+ import { poolNativePerceptual } from './libjxl-perceptual-pool-port.ts'
+ import { libjxlRefineQuantField } from './libjxl-quant-refine-port.ts'
+@@ -278,7 +282,7 @@
+     h = Math.ceil(h / 2)
+   }
+   const af = preparePerceptualLinear(a, w, h),
+-    bf = preparePerceptualLinear(b, w, h),
++    bf = preparePerceptualDecodedLinear(b, w, h),
+     quadratic = perceptualQuadraticMaps(af, bf, undefined, sampleStep).asymmetric,
+     fine =
+       kind === 'complete'
+@@ -291,7 +295,11 @@
+         Math.ceil(w / 2),
+         Math.ceil(h / 2),
+       ),
+-      bh = preparePerceptualLinear(downsampleDisplay(b, w, h), Math.ceil(w / 2), Math.ceil(h / 2)),
++      bh = preparePerceptualDecodedLinear(
++        downsampleDisplay(b, w, h),
++        Math.ceil(w / 2),
++        Math.ceil(h / 2),
++      ),
+       halfStep = Math.max(1, sampleStep / 2),
+       qh = perceptualQuadraticMaps(ah, bh, undefined, halfStep).asymmetric,
+       half = kind === 'complete' ? perceptualDirectionalMap(ah, bh, qh, undefined, halfStep) : qh
+--- /dev/null
++++ b/tests/jpegxl-perceptual-decoded.test.ts
+@@ -0,0 +1,44 @@
++import { expect, it } from 'vitest'
++import { displayLinearPlanes } from '../benchmark/jpegxl/lossy-lab/libjxl-display-loss.ts'
++import {
++  perceptualQuadraticMaps,
++  preparePerceptualDecodedLinear,
++  preparePerceptualLinear,
++} from '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts'
++import { perceptualDirectionalMap } from '../benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts'
++
++it('omits only the unused decoded mask and preserves full and cropped cost maps', () => {
++  for (const [width, height] of [
++    [1, 1],
++    [19, 17],
++  ]) {
++    if (!width || !height) throw new Error('Missing extent')
++    const original = Uint8Array.from({ length: width * height * 4 }, (_, i) =>
++        i % 4 === 3 ? 255 : (i * 17 + Math.floor(i / 4) * 9) % 256,
++      ),
++      changed = original.map((v, i) => (i % 4 === 3 ? v : Math.min(255, v + 4))),
++      source = preparePerceptualLinear(displayLinearPlanes(original, width, height), width, height),
++      rgb = displayLinearPlanes(changed, width, height),
++      complete = preparePerceptualLinear(rgb, width, height),
++      decoded = preparePerceptualDecodedLinear(rgb, width, height),
++      { mask, ...bands } = complete
++    expect(mask.length).toBe(width * height)
++    expect('mask' in decoded).toBe(false)
++    expect(decoded).toEqual(bands)
++    for (const box of [undefined, { x: width - 1, y: height - 1, width: 1, height: 1 }]) {
++      const expected = perceptualQuadraticMaps(source, complete, box),
++        actual = perceptualQuadraticMaps(source, decoded, box)
++      expect(actual).toEqual(expected)
++      expect(perceptualDirectionalMap(source, decoded, actual.asymmetric, box)).toEqual(
++        perceptualDirectionalMap(source, complete, expected.asymmetric, box),
++      )
++    }
++  }
++  expect(() =>
++    preparePerceptualDecodedLinear(
++      [new Float32Array(2), new Float32Array(2), new Float32Array(2)],
++      2,
++      2,
++    ),
++  ).toThrow('extent')
++})
