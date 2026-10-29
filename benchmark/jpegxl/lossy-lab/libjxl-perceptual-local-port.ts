@@ -14,6 +14,7 @@
  * Opsin channel adaptation shares pixel loads and writes final XYB in one pass.
  * Convolution reuses existing bands and bounded intermediate rows with exact sums.
  * Horizontal convolution reuses samples shared by successive taps.
+ * Quadratic costs specialize fixed channels without reordering additions.
  */
 import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
 
@@ -437,9 +438,12 @@ export function perceptualQuadraticMaps(
     unmasked = new Float64Array(window.width * window.height),
     masked = new Float64Array(unmasked.length),
     asymmetric = new Float64Array(unmasked.length),
-    lowWeights = [29.2353797994, 0.844626970982, 0.703646627719],
-    middleWeights = [2150, 10.6195433239, 16.2176043152],
-    highWeights = [400, 1.50815703118],
+    [sl0, sl1, sl2] = source.lf,
+    [dl0, dl1, dl2] = decoded.lf,
+    [sm0, sm1, sm2] = source.mf,
+    [dm0, dm1, dm2] = decoded.mf,
+    [sh0, sh1] = source.hf,
+    [dh0, dh1] = decoded.hf,
     scale = 1 / (17.83 * 0.79079917404)
   for (let y = 0; y < window.height; y++)
     for (let x = 0; x < window.width; x++) {
@@ -448,21 +452,34 @@ export function perceptualQuadraticMaps(
       let dc = 0,
         ac = 0,
         extra = 0
-      for (let c = 0; c < 3; c++) {
-        dc += (lowWeights[c] ?? 0) * ((source.lf[c]?.[p] ?? 0) - (decoded.lf[c]?.[p] ?? 0)) ** 2
-        ac += (middleWeights[c] ?? 0) * ((source.mf[c]?.[p] ?? 0) - (decoded.mf[c]?.[p] ?? 0)) ** 2
-        if (c < 2) {
-          const a = source.hf[c]?.[p] ?? 0,
-            b = decoded.hf[c]?.[p] ?? 0,
-            min = 0.4 * Math.abs(a),
-            max = Math.abs(a),
-            signed = a < 0 ? -b : b,
-            penalty = signed < min ? min - signed : signed > max ? signed - max : 0,
-            weight = 0.8 * (highWeights[c] ?? 0)
-          ac += weight * (a - b) ** 2
-          extra += weight * penalty ** 2
-        }
+      dc += 29.2353797994 * ((sl0[p] ?? 0) - (dl0[p] ?? 0)) ** 2
+      ac += 2150 * ((sm0[p] ?? 0) - (dm0[p] ?? 0)) ** 2
+      {
+        const a = sh0[p] ?? 0,
+          b = dh0[p] ?? 0,
+          min = 0.4 * Math.abs(a),
+          max = Math.abs(a),
+          signed = a < 0 ? -b : b,
+          penalty = signed < min ? min - signed : signed > max ? signed - max : 0,
+          weight = 0.8 * 400
+        ac += weight * (a - b) ** 2
+        extra += weight * penalty ** 2
       }
+      dc += 0.844626970982 * ((sl1[p] ?? 0) - (dl1[p] ?? 0)) ** 2
+      ac += 10.6195433239 * ((sm1[p] ?? 0) - (dm1[p] ?? 0)) ** 2
+      {
+        const a = sh1[p] ?? 0,
+          b = dh1[p] ?? 0,
+          min = 0.4 * Math.abs(a),
+          max = Math.abs(a),
+          signed = a < 0 ? -b : b,
+          penalty = signed < min ? min - signed : signed > max ? signed - max : 0,
+          weight = 0.8 * 1.50815703118
+        ac += weight * (a - b) ** 2
+        extra += weight * penalty ** 2
+      }
+      dc += 0.703646627719 * ((sl2[p] ?? 0) - (dl2[p] ?? 0)) ** 2
+      ac += 16.2176043152 * ((sm2[p] ?? 0) - (dm2[p] ?? 0)) ** 2
       ac += 10 * ((source.blurredActivity[p] ?? 0) - (decoded.blurredActivity[p] ?? 0)) ** 2
       const value = source.mask[p] ?? 0,
         acMask = (scale * (1 + 2.5485944793 / (0.451936922203 * value + 0.829591754942))) ** 2,

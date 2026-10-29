@@ -571,3 +571,23 @@ This is a development trial of logic native libjxl uses above effort 7.
 The module is BSD-3-Clause; the full license is in `THIRD_PARTY_NOTICES`.
 The trial failed the development guard and is preserved, with its fixtures,
 in `lossy-lab/JOINT-ALLOCATION-EXPERIMENT.patch`. It is not in the active module graph.
+
+## Fixed quadratic channels and shared directional scratch, 2026-10-29
+
+`lossy-lab/libjxl-perceptual-local-port.ts` specializes the three fixed
+quadratic channels and hoists their plane references. Each DC, AC and penalty
+sum keeps its addition order. `lossy-lab/libjxl-perceptual-malta-port.ts`
+reuses one padded difference plane across the six directional bands and adds
+each band's cost directly into the existing cost plane, in the original order.
+These are first-party implementation changes to the recorded
+`lib/jxl/butteraugli/butteraugli.cc` and `.h` ports, v0.12.0, commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. No additional native code,
+constants or thresholds were taken. Module headers record the changes. The
+full libjxl BSD license remains in the package and docs notices, and there
+are no runtime dependencies.
+
+`lossy-lab/FULLMAP-SPEED-ROUND4-EXPERIMENT.patch` restores the measured
+complete-map prototype and its previously attributed prerequisites.
+`lossy-lab/FULLMAP-INTERIOR-MASK-EXPERIMENT.patch` layers the rejected
+first-party interior-mask specialization on it. The encoder policy remains
+archived because it does not pass the cost gate.

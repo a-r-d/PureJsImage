@@ -1,0 +1,138 @@
+--- a/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+@@ -17,4 +17,5 @@
+  * Horizontal convolution reuses samples shared by successive taps.
+  * Quadratic costs specialize fixed channels without reordering additions.
++ * Interior mask selection uses fixed neighbors in the original comparison order.
+  */
+ import { type DisplayPlanes, displayLinearPlanes } from './libjxl-display-loss.ts'
+@@ -375,9 +376,117 @@
+   }
+   const blurredActivity = perceptualBlur(activity, width, height, 2.7, activity)
+-  for (let y = 0; y < height; y++)
++  for (let y = 0; y < height; y++) {
++    const interiorRow = y >= 3 && y + 3 < height
+     for (let x = 0; x < width; x++) {
+-      let a = blurredActivity[y * width + x] ?? 0,
++      const p = y * width + x
++      let a = blurredActivity[p] ?? 0,
+         b = 2 * a,
+         c = b
++      if (interiorRow && x >= 3 && x + 3 < width) {
++        {
++          const value = blurredActivity[p - 3 * width - 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p - 3 * width] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p - 3 * width + 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p - 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p + 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p + 3 * width - 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p + 3 * width] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++        {
++          const value = blurredActivity[p + 3 * width + 3] ?? 0
++          if (value < c) {
++            if (value < a) {
++              c = b
++              b = a
++              a = value
++            } else if (value < b) {
++              c = b
++              b = value
++            } else c = value
++          }
++        }
++      } else {
+       for (let dy = -3; dy <= 3; dy += 3)
+         for (let dx = -3; dx <= 3; dx += 3) {
+@@ -402,6 +511,8 @@
+           }
+         }
+-      mask[y * width + x] = 0.45 * a + 0.3 * b + 0.25 * c
++      }
++      mask[p] = 0.45 * a + 0.3 * b + 0.25 * c
+     }
++  }
+   return { width, height, lf, mf, hf, uhf, blurredActivity, mask }
+ }

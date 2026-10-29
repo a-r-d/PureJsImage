@@ -8,6 +8,7 @@
  * Optional output windows bound the padded difference plane to requested support.
  * Fixed directional kernels preserve each sum and cost addition order.
  * Identical high-frequency stencils reuse their sum at the original positions.
+ * Six bands reuse padded scratch and accumulate directly in original order.
  */
 import { type PerceptualWindow, perceptualWindow } from './libjxl-perceptual-local-port.ts'
 
@@ -20,6 +21,20 @@ export function maltaDirectionalCost(
   norm: number,
   band: 'low' | 'high',
   box?: PerceptualWindow,
+): Float64Array {
+  return directionalCost(source, decoded, width, height, weight, norm, band, box)
+}
+
+function directionalCost(
+  source: Float64Array,
+  decoded: Float64Array,
+  width: number,
+  height: number,
+  weight: number,
+  norm: number,
+  band: 'low' | 'high',
+  box?: PerceptualWindow,
+  scratch?: { readonly padded: Float64Array; readonly out: Float64Array },
 ): Float64Array {
   if (
     source.length !== width * height ||
@@ -36,8 +51,8 @@ export function maltaDirectionalCost(
     throw new Error('Invalid Malta input')
   const window = perceptualWindow(width, height, box),
     stride = window.width + 8,
-    padded = new Float64Array(stride * (window.height + 8)),
-    out = new Float64Array(window.width * window.height),
+    padded = scratch?.padded ?? new Float64Array(stride * (window.height + 8)),
+    out = scratch?.out ?? new Float64Array(window.width * window.height),
     multiplier = band === 'low' ? 0.611612573796 : 0.39905817637,
     symmetric = (multiplier * Math.sqrt(0.5 * weight)) / 8.5,
     asymmetric = (multiplier * Math.sqrt(0.33 * weight)) / 8.5
@@ -75,7 +90,8 @@ export function perceptualDirectionalMap(
   )
     throw new Error('Malta dimensions differ')
   const out = new Float64Array(quadratic.length),
-    costs = new Float64Array(out.length)
+    costs = new Float64Array(out.length),
+    scratch = { padded: new Float64Array((window.width + 8) * (window.height + 8)), out: costs }
   const bands = [
     {
       a: source.uhf[1],
@@ -91,7 +107,7 @@ export function perceptualDirectionalMap(
     { a: source.mf[0], b: decoded.mf[0], weight: 8246.75321353, norm: 1009002.70582, band: 'low' },
   ] as const
   for (const item of bands) {
-    const cost = maltaDirectionalCost(
+    directionalCost(
       item.a,
       item.b,
       source.width,
@@ -100,12 +116,8 @@ export function perceptualDirectionalMap(
       item.norm,
       item.band,
       window,
+      scratch,
     )
-    for (let y = 0; y < window.height; y++)
-      for (let x = 0; x < window.width; x++) {
-        const p = y * window.width + x
-        costs[p] = (costs[p] ?? 0) + (cost[p] ?? 0)
-      }
   }
   const scale = 1 / (17.83 * 0.79079917404)
   for (let y = 0; y < window.height; y++)
@@ -289,7 +301,8 @@ function lowDirectionalSums(
       cost += s13 * s13
       cost += s14 * s14
       cost += s15 * s15
-      out[y * width + x] = cost
+      const index = y * width + x
+      out[index] = (out[index] ?? 0) + cost
     }
 }
 
@@ -444,6 +457,7 @@ function highDirectionalSums(
       cost += s6 * s6
       cost += s5 * s5
       cost += s4 * s4
-      out[y * width + x] = cost
+      const index = y * width + x
+      out[index] = (out[index] ?? 0) + cost
     }
 }
