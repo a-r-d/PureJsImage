@@ -1,0 +1,48 @@
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND4-REPORT.json
+  s_42a303a21f7525::t_6823354054a195 1-14184,14190-14193
+  s_42a303a21f7525::t_05826156c2c579 14185-14189
+benchmark/jpegxl/lossy-lab/FULLMAP-INTERIOR-MASK-EXPERIMENT.patch
+  s_42a303a21f7525::t_a6b84b171fcaea 1-2,4-8,10-128,130-138
+  s_42a303a21f7525::t_545884af830a79 3,9,129
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND4-REPORT.md
+  s_42a303a21f7525::t_05826156c2c579 86,126-132
+  s_42a303a21f7525::t_1fac6693b9e094 151-155
+  s_42a303a21f7525::t_cb532125c06d32 1-85,87-125,133-150,156-160
+benchmark/jpegxl/lossy-lab-log.md
+  s_42a303a21f7525::t_9d06a12ff0ea9a 2644-2647
+  s_42a303a21f7525::t_2089ab2cacbce8 2636-2639
+  s_42a303a21f7525::t_1fac6693b9e094 13-14,2648-2651
+  s_42a303a21f7525::t_4e14a88aa46f90 2630-2635
+  s_42a303a21f7525::t_05826156c2c579 2652
+  s_42a303a21f7525::t_f873b0d86f6a36 2640-2643
+benchmark/jpegxl/lossy-lab/FULLMAP-SPEED-ROUND4-EXPERIMENT.patch
+  s_42a303a21f7525::t_545884af830a79 3,13,56,64,88,149,156,178,216,222,252,258,270,279,292,306,315,321,329,338,348,362,368,377,383
+  s_42a303a21f7525::t_a6b84b171fcaea 1-2,4-12,14-55,57-63,65-87,89-148,150-155,157-177,179-215,217-221,223-251,253-257,259-269,271-278,280-291,293-305,307-314,316-320,322-328,330-337,339-347,349-361,363-367,369-376,378-382,384-1010
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-local-port.ts
+  s_42a303a21f7525::t_4e14a88aa46f90 17,441-446,455-479,481-482
+benchmark/jpegxl/lossy-lab/libjxl-perceptual-malta-port.ts
+  s_42a303a21f7525::t_586acbd23779a7 25
+  s_42a303a21f7525::t_2089ab2cacbce8 11,26-37,54-55,93-94,110,119,304-305,460-461
+  s_42a303a21f7525::t_94f4bd7229309a 24
+benchmark/jpegxl/PROVENANCE.md
+  s_42a303a21f7525::t_41a77d8f72f55b 574-593
+tests/jpegxl-perceptual-quadratic.test.ts
+  s_42a303a21f7525::t_b4d6d7244daac2 1-25,54,58-63,93
+  s_42a303a21f7525::t_4d370249b84d74 26-53,55-57,64-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "97c76933a1cfa7f4df4ffdb92349172d1f53c7ca",
+  "prompts": {},
+  "sessions": {
+    "s_42a303a21f7525": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13742-729c-7d52-9c6c-f8359ddfb4da",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "aaron decker <aaron@ard.ninja>"
+    }
+  }
+}
