@@ -1,0 +1,473 @@
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-wire-screen.ts b/benchmark/jpegxl/lossy-lab/audit-dc-wire-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-wire-screen.ts
+@@ -0,0 +1,100 @@
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { extractDecisions } from './decisions.ts'
++import { object } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const current = `${root}/screen/standalone-dc-wire-purejsimage`
++const frozen =
++  '.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-screen/standalone-block-ac125-purejsimage'
++const rows = []
++async function acSections(bytes: Uint8Array) {
++  const source = new MemorySource(bytes)
++  const logical = new JpegXlCodestreamSource(
++    source,
++    await inspectJpegXlSource(source, resolveJpegXlLimits()),
++  )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame || frame.sections.length < 2) throw new Error('Expected separated crop sections')
++  return Promise.all(
++    frame.sections
++      .slice(1 + frame.dcGroupCount)
++      .map((section) => logical.read(section.offset, section.length)),
++  )
++}
++const keys = [
++  'strategies',
++  'strategyFirstBlocks',
++  'rawQuantization',
++  'globalScale',
++  'quantDc',
++  'colorCorrelation',
++  'correlationX',
++  'correlationB',
++  'sharpness',
++  'gaborish',
++  'epfIterations',
++  'xQuantizationScale',
++  'bQuantizationScale',
++  'quantizationTables',
++] as const
++for (const id of await readdir(current)) {
++  for (const file of (await readdir(`${current}/${id}`)).filter((file) => file.endsWith('.jxl'))) {
++    const beforeBytes = await readFile(`${frozen}/${id}/${file}`),
++      afterBytes = await readFile(`${current}/${id}/${file}`)
++    const before = await extractDecisions(beforeBytes)
++    const after = await extractDecisions(afterBytes)
++    const beforeAc = await acSections(beforeBytes),
++      afterAc = await acSections(afterBytes)
++    assert.deepEqual(afterAc, beforeAc, `${id}/${file}/AC sections`)
++    for (const key of keys) assert.deepEqual(after[key], before[key], `${id}/${file}/${key}`)
++    assert.deepEqual(after.dcQuantization, before.dcQuantization)
++    assert.equal(before.smoothDc, false)
++    assert.equal(after.smoothDc, false)
++    rows.push({
++      id,
++      file,
++      unchangedFields: keys,
++      smoothingUnchanged: true,
++      nominalDcUnchanged: true,
++      acSectionsExact: true,
++      acBytes: beforeAc.reduce((sum, bytes) => sum + bytes.length, 0),
++      beforeBytes: beforeBytes.length,
++      afterBytes: afterBytes.length,
++    })
++  }
++}
++assert.equal(rows.length, 80)
++const frozenSource = object(JSON.parse(await readFile(`${root}/source.json`, 'utf8')))
++if (!Array.isArray(frozenSource.rows)) throw new Error('Missing frozen modules')
++for (const item of frozenSource.rows) {
++  const row = object(item)
++  if (typeof row.file !== 'string' || typeof row.sha256 !== 'string')
++    throw new Error('Invalid module receipt')
++  assert.equal(
++    createHash('sha256')
++      .update(await readFile(`${root}/prototype/${row.file}`))
++      .digest('hex'),
++    row.sha256,
++  )
++}
++await writeFile(
++  `${root}/screen-decisions.json`,
++  JSON.stringify({ passed: true, points: rows.length, sourceFrozen: true, rows }, null, 2) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    points: rows.length,
++    unchangedFields: keys.length,
++    sourceFrozen: true,
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-wire-alpha.ts b/benchmark/jpegxl/lossy-lab/verify-dc-wire-alpha.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-wire-alpha.ts
+@@ -0,0 +1,45 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { encodeTransplant } from './transplant.ts'
++import { libjxlPortOverrides } from './libjxl-ports.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const rows = []
++for (const [width, height] of [
++  [17, 19],
++  [257, 17],
++] as const) {
++  const pixels = Uint8Array.from(
++    { length: width * height * 4 },
++    (_, i) => (i * 17 + Math.floor(i / width) * 37) % 256,
++  )
++  const input = pixels.slice(),
++    options = libjxlPortOverrides('standalone-dc-wire', 2, width, height)
++  const first = await encodeTransplant(pixels, width, height, 2, options),
++    second = await encodeTransplant(pixels, width, height, 2, options)
++  assert.deepEqual(first.bytes, second.bytes)
++  assert.deepEqual(pixels, input)
++  const path = `${root}/fixtures/alpha-${width}x${height}`
++  await writeFile(`${path}.jxl`, first.bytes)
++  await promisify(execFile)(
++    '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',
++    [`${path}.jxl`, `${path}.png`],
++    { timeout: 120000 },
++  )
++  const decoded = PNG.sync.read(await readFile(`${path}.png`))
++  assert.equal(decoded.width, width)
++  assert.equal(decoded.height, height)
++  for (let i = 3; i < pixels.length; i += 4) assert.equal(decoded.data[i], pixels[i])
++  rows.push({
++    width,
++    height,
++    bytes: first.bytes.length,
++    alphaExact: true,
++    nativeValid: true,
++    repeatable: true,
++  })
++}
++await writeFile(`${root}/alpha-checks.json`, JSON.stringify({ passed: true, rows }, null, 2) + '\n')
++console.log(JSON.stringify({ passed: true, cases: rows.length }))
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-wire-quantized.ts b/benchmark/jpegxl/lossy-lab/verify-dc-wire-quantized.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-wire-quantized.ts
+@@ -0,0 +1,120 @@
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const input = object(
++  JSON.parse(
++    await readFile(
++      '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/reconstruction.json',
++      'utf8',
++    ),
++  ),
++)
++if (!Array.isArray(input.rows)) throw new Error('Missing fixed development observations')
++async function decode(path: string) {
++  const source = new MemorySource(await readFile(path)),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  return prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++}
++const rows = []
++for (const item of input.rows) {
++  const row = object(item)
++  if (typeof row.id !== 'string' || !Array.isArray(row.channels) || !Array.isArray(row.roundtrips))
++    throw new Error('Invalid observation')
++  const id = row.id,
++    distance = number(row.distance),
++    source = object(object(row.channels[1]).source)
++  if (typeof source.path !== 'string') throw new Error('Missing source luma DC')
++  const target = new Float32Array(Uint8Array.from(await readFile(source.path)).buffer)
++  const captureError = Math.max(
++    ...row.roundtrips.map((r) => number(object(object(r).floatGrid).maxAbsolute)),
++  )
++  const before = await decode(
++    `.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125-lab/standalone-block-ac125-purejsimage/${id}-lab/${distance}.jxl`,
++  )
++  const after = await decode(`${root}/lab/standalone-dc-wire-purejsimage/${id}-lab/${distance}.jxl`)
++  try {
++    assert.deepEqual(after.dcGroup.strategies, before.dcGroup.strategies)
++    assert.deepEqual(after.dcGroup.quantization, before.dcGroup.quantization)
++    assert.deepEqual(after.lfGlobal.dcQuantization, before.lfGlobal.dcQuantization)
++    const q = after.dcGroup.dcCoefficients[0],
++      a = after.dcPlanes[1],
++      b = before.dcPlanes[1]
++    assert.ok(q && a && b)
++    const step =
++      (65536 / after.lfGlobal.globalScale / after.lfGlobal.quantDc) *
++      (after.lfGlobal.dcQuantization[1] ?? 0)
++    const roundingBound = 0.5 + captureError / step + 1e-10
++    let beforeSquared = 0,
++      afterSquared = 0,
++      maxQuantizerError = 0
++    for (let i = 0; i < target.length; i++) {
++      const value = target[i] ?? 0
++      const error = Math.abs((q[i] ?? 0) - value / step)
++      assert.ok(
++        error <= roundingBound,
++        `${id}/${distance}: DC integer not nearest to the signaled grid`,
++      )
++      maxQuantizerError = Math.max(maxQuantizerError, error)
++      beforeSquared += ((b[i] ?? 0) - value) ** 2
++      afterSquared += ((a[i] ?? 0) - value) ** 2
++    }
++    assert.ok(afterSquared <= beforeSquared)
++    rows.push({
++      id,
++      distance,
++      samples: target.length,
++      step,
++      captureError,
++      roundingBound,
++      maxQuantizerError,
++      beforeSquared,
++      afterSquared,
++      ratio: afterSquared / beforeSquared,
++    })
++  } finally {
++    before.release()
++    after.release()
++  }
++}
++await writeFile(
++  `${root}/quantized-dc-checks.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      points: rows.length,
++      rows,
++      policy:
++        'Read-only regression verification of saved development streams against the previously captured source DC. No new encode, quality policy or holdout access.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    points: rows.length,
++    ratios: rows.map((row) => ({ id: row.id, distance: row.distance, ratio: row.ratio })),
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/time-dc-wire.ts b/benchmark/jpegxl/lossy-lab/time-dc-wire.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/time-dc-wire.ts
+@@ -0,0 +1,65 @@
++import { encodeTransplant as encodeCandidate } from './transplant.ts'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { encodeTransplant } from './transplant.ts'
++import { libjxlPortOverrides as control } from './libjxl-ports.ts'
++import { libjxlPortOverrides as writer } from './libjxl-ports.ts'
++import { hash } from '../comparison/io.ts'
++import { object, number } from '../comparison/model.ts'
++const [id, countText = '15'] = process.argv.slice(2)
++const count = Number(countText)
++if (
++  !id ||
++  !['im26-3012', 'im26-3312'].includes(id) ||
++  !Number.isInteger(count) ||
++  count < 7 ||
++  count > 31
++)
++  throw new Error('Need fixed profiling image and trial count')
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const input = PNG.sync.read(await readFile(`.tmp/jpegxl-lossy-lab/corpus-512-v2/${id}.png`))
++const pixels = Uint8Array.from(input.data),
++  rows = []
++const result = object(
++  JSON.parse(
++    await readFile(`${root}/screen/standalone-dc-wire-purejsimage/${id}-lab/result.json`, 'utf8'),
++  ),
++)
++if (!Array.isArray(result.points)) throw new Error('Missing screen points')
++const point = result.points.map(object).find((p) => number(p.setting) === 2)
++if (!point) throw new Error('Missing distance 2')
++const expectedHash = hash(
++  await readFile(`${root}/screen/standalone-dc-wire-purejsimage/${id}-lab/2.jxl`),
++)
++for (let trial = -2; trial < count; trial++) {
++  for (let n = 0; n < 2; n++) {
++    const candidate = (trial + n) % 2 === 0
++    const decisions = candidate
++      ? writer('standalone-dc-wire', 2, input.width, input.height)
++      : control('standalone-regularized-half', 2, input.width, input.height)
++    const start = performance.now()
++    const encoded = await (candidate ? encodeCandidate : encodeTransplant)(
++      pixels,
++      input.width,
++      input.height,
++      2,
++      decisions,
++    )
++    const row = {
++      trial,
++      mode: candidate ? 'aligned-dc' : 'control',
++      milliseconds: performance.now() - start,
++      hash: hash(encoded.bytes),
++      bytes: encoded.bytes.length,
++      managedPeakBytes: encoded.managedPeakBytes,
++    }
++    if (candidate && (row.bytes !== number(point.bytes) || row.hash !== expectedHash))
++      throw new Error('Measured output changed')
++    rows.push(row)
++    console.log(JSON.stringify(row))
++  }
++}
++await writeFile(
++  `${root}/dc-${id}-time.json`,
++  JSON.stringify({ id, distance: 2, count, rows }, null, 2) + '\n',
++)
+diff --git a/benchmark/jpegxl/lossy-lab/summarize-dc-wire-time.ts b/benchmark/jpegxl/lossy-lab/summarize-dc-wire-time.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/summarize-dc-wire-time.ts
+@@ -0,0 +1,48 @@
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const median = (values: number[]): number => {
++  const sorted = values.toSorted((a, b) => a - b),
++    half = Math.floor(sorted.length / 2)
++  return sorted.length % 2
++    ? (sorted[half] ?? 0)
++    : ((sorted[half - 1] ?? 0) + (sorted[half] ?? 0)) / 2
++}
++const summaries = []
++for (const id of ['im26-3012', 'im26-3312']) {
++  const raw = object(JSON.parse(await readFile(`${root}/dc-${id}-time.json`, 'utf8')))
++  if (!Array.isArray(raw.rows)) throw new Error('Missing timing rows')
++  const rows = raw.rows.map(object).filter((row) => number(row.trial) >= 0),
++    ratios = []
++  for (let trial = 0; trial < number(raw.count); trial++) {
++    const pair = rows.filter((row) => number(row.trial) === trial)
++    const own = pair.find((row) => row.mode === 'aligned-dc'),
++      control = pair.find((row) => row.mode === 'control')
++    if (pair.length !== 2 || !own || !control) throw new Error('Missing paired sample')
++    ratios.push(number(own.milliseconds) / number(control.milliseconds))
++  }
++  const ratio = median(ratios)
++  summaries.push({
++    id,
++    pairs: ratios.length,
++    ratio,
++    mad: median(ratios.map((value) => Math.abs(value - ratio))),
++    wins: ratios.filter((value) => value < 1).length,
++    modes: ['control', 'aligned-dc'].map((mode) => {
++      const values = rows.filter((row) => row.mode === mode)
++      if (
++        new Set(values.map((row) => row.hash)).size !== 1 ||
++        new Set(values.map((row) => row.managedPeakBytes)).size !== 1
++      )
++        throw new Error('Unstable measured output')
++      return {
++        mode,
++        medianMs: median(values.map((row) => number(row.milliseconds))),
++        bytes: values[0]?.bytes,
++        managedPeakBytes: values[0]?.managedPeakBytes,
++      }
++    }),
++  })
++}
++await writeFile(`${root}/dc-time-summary.json`, JSON.stringify({ summaries }, null, 2) + '\n')
++console.log(JSON.stringify({ summaries }, null, 2))
+diff --git a/benchmark/jpegxl/lossy-lab/inspect-dc-wire-pairs.ts b/benchmark/jpegxl/lossy-lab/inspect-dc-wire-pairs.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/inspect-dc-wire-pairs.ts
+@@ -0,0 +1,65 @@
++import { readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import { parsePoint } from './model.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-wire-20261103'
++const comparison = object(JSON.parse(await readFile(`${root}/lab/against-production.json`, 'utf8')))
++if (!Array.isArray(comparison.comparisons) || typeof comparison.reference !== 'string')
++  throw new Error('Missing main comparisons')
++const worst = comparison.comparisons
++  .map(object)
++  .filter((row) => row.metric === 'butteraugliMax')
++  .sort((a, b) => number(b.percent) - number(a.percent))
++  .slice(0, 3)
++const rows = []
++for (const row of worst) {
++  if (typeof row.id !== 'string') throw new Error('Missing image')
++  const path = `${root}/lab/standalone-dc-wire-purejsimage/${row.id}`
++  const before = object(
++      JSON.parse(await readFile(`${comparison.reference}/${row.id}/result.json`, 'utf8')),
++    ),
++    after = object(JSON.parse(await readFile(`${path}/result.json`, 'utf8')))
++  if (!Array.isArray(before.points) || !Array.isArray(after.points))
++    throw new Error('Missing points')
++  const base = before.points.map(parsePoint)
++  const pairs = after.points
++    .map(parsePoint)
++    .map((candidate) => {
++      const reference = base.toSorted(
++        (a, b) =>
++          Math.abs(Math.log(a.bytes / candidate.bytes)) -
++          Math.abs(Math.log(b.bytes / candidate.bytes)),
++      )[0]
++      if (!reference) throw new Error('Missing reference')
++      return {
++        candidate,
++        reference,
++        byteRatio: candidate.bytes / reference.bytes,
++        maxRatio: candidate.butteraugliMax / reference.butteraugliMax,
++      }
++    })
++    .filter((pair) => Math.abs(Math.log(pair.byteRatio)) <= 0.15)
++    .sort((a, b) => b.maxRatio - a.maxRatio)
++  const selected = pairs[0]
++  if (!selected) throw new Error('No nearby-rate pair')
++  rows.push({
++    id: row.id,
++    bdMax: row.percent,
++    ...selected,
++    candidatePath: `${path}/${selected.candidate.setting}.png`,
++    referencePath: `${comparison.reference}/${row.id}/${selected.reference.setting}.png`,
++  })
++}
++await writeFile(`${root}/visual-pairs.json`, JSON.stringify(rows, null, 2) + '\n')
++console.log(
++  JSON.stringify(
++    rows.map((r) => ({
++      id: r.id,
++      bdMax: r.bdMax,
++      candidateDistance: r.candidate.setting,
++      mainDistance: r.reference.setting,
++      byteRatio: r.byteRatio,
++      candidatePath: r.candidatePath,
++      referencePath: r.referencePath,
++    })),
++  ),
++)

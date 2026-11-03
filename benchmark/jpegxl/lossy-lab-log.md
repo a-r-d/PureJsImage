@@ -1,19 +1,19 @@
 # JPEG XL lossy lab
 
-Step C research stays on jxl-libjxl-ports. Numerical audit base ec3ecc99; active source and public encoder behavior stay unchanged.
-The coupled DC configuration is rejected. Aaron approved one fixed DC serialization-alignment trial on frozen AC 1.25.
-Full development SSIM/3-norm/max: vips +5.077/+1.686/-0.599%, mean +2.054857%; jSquash +4.019/+6.409/+8.169%.
-Against AC 1.25: +14.461/+8.849/+7.869%; against nonlinear DC: +11.468/+7.812/+6.170%.
-Main +6.487/-4.948/-4.972%. Five of eight admitted SSIM guards fail, worst +13.634556%; zero full-band 3-norm comparisons.
-Isolated candidate/control ratios 0.986429/0.932667, faster in 10/15 and 14/15 pairs. Quality loss disqualifies the speed gain.
-Full-lab managed peak 9,565,721 bytes. No absolute crop/original or holdout qualification for the rejected mode.
-Last frozen AC 1.25 holdout still fails two SSIM guards, worst +10.569%; this round does not retest or resolve them.
-All 656 prior development outputs validate natively. Nine numerical-audit repetitions reproduce saved streams exactly.
-DC transform conversion error stays below 1.2e-15. Quantizer steps differ from the half-precision matrix written to the stream.
-On development im26-3312 at 0.45, serialization adds a -0.725454-step mean luma shift; actual/intended DC MSE is 7.40349x.
+Step C research stays on jxl-libjxl-ports. Fixed DC alignment trial base ec3ecc99; active source and public encoder behavior stay unchanged.
+One approved configuration aligns DC quantization with the existing serialized F16 matrix on frozen AC 1.25. Smoothing stays off.
+Full development SSIM/3-norm/max: vips -7.395/-6.474/-7.402%, mean -7.090277%; jSquash -7.982/-1.927/+0.876%.
+Against AC 1.25: -0.024/-0.067/+0.165%; regularized +0.852/-1.908/-1.983%. The full-lab effect is small and mixed.
+Main -6.557/-11.832/-11.031%. Eight admitted SSIM guards pass, worst +4.597758%; zero full-band 3-norm comparisons.
+Isolated candidate/control ratios 1.044569/1.031273 pass the 1.101283 allowance. Crops pass at 2.318200x jSquash.
+13 MP 36.583s, 1.472700x jSquash, managed 59,210,879 bytes. 21 MP 58.464s, managed 91,262,401 bytes; jSquash aborts.
+Managed ceiling stays 137,514,476 bytes. Holdout vips -5.779/-4.492/-4.189%, mean -4.820067%; jSquash -6.278/+0.044/+1.487%.
+Two of ten admitted holdout SSIM guards still fail, worst +10.579530%; all coverage retained. Promotion rejected, no policy change follows.
+All 1,223 screen/full/holdout outputs validate natively. Twenty repeatable fixtures include exact alpha; three old-control hashes match.
+All 80 HF-global/AC sections and fourteen decision fields stay exact. Total screen bytes fall 0.006565%; only DC coding changes.
 Bundles remain 614,969/687,801 bytes; runtime dependencies zero. Peer forcing cleanup remains required before any merge.
-Current evidence: [DC reconstruction audit](lossy-lab/DC-RECONSTRUCTION-AUDIT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
-Next: the approved alignment trial, fixed-DC histogram clustering, DC source/preconditioning audit. No other quality configuration is authorized.
+Current evidence: [DC alignment report](lossy-lab/DC-WIRE-REPORT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
+Next: development DC chroma error, predictor rounding with fixed allocation, fixed-tree clustering costs. No other quality configuration is authorized.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2896,3 +2896,17 @@ LL-1110 plan: apply DC-WIRE-ALIGNMENT-PROPOSAL.patch's two-file behavior to an i
 Audit checkpoint validation: fresh VITEST_MAX_WORKERS=4 npm run check passes 340 files and 4,229 tests, with one file and three tests skipped, ending 2026-11-03T23:10:22.092Z. Source, tests, package metadata and active lab TypeScript remain unchanged. The alignment preflight passes eighteen repeatable native-valid thin/odd/DC-group fixtures, two exact-alpha fixtures and three pinned AC 1.25 control hashes. Its copied promotion admission was removed before encoding; three explicit denial checks pass. The initial sandboxed waiting launcher ended before any encode; its empty log is preserved and a durable launcher starts the screen only after the repository check passes. No quality result yet at this audit checkpoint.
 
 | LL-1110, 2026-11-03 | Align DC rounding with the serialized matrix on frozen AC 1.25. | 80 native-valid screen outputs. Against AC 1.25: -0.042/-0.087/-0.119%; regularized +1.166/-1.794/+1.299%; vips -9.788/-6.810/-5.144%; jSquash -10.934/-2.410/+2.239%. | Parallel timing excluded; managed peak 9,235,969 bytes. | Small gains on all three metrics against AC 1.25; run the same fixed configuration on the full development lab. No holdout admission yet. Raw: dc-wire-20261103/screen. | full-lab finalist |
+
+Screen isolation: all eighty HF-global/AC sections and fourteen checked decision fields match frozen AC 1.25 exactly. Serialized DC matrices and smoothing-off policy are unchanged. Total bytes 2,848,367 to 2,848,180 (-0.006565%). Only DC coding changes; the ten prototype source hashes remain frozen.
+
+| LL-1111, 2026-11-03 | Resolve the fixed alignment configuration on all development photos. | 576 native-valid outputs. AC 1.25 -0.024/-0.067/+0.165%; regularized +0.852/-1.908/-1.983%; vips -7.395/-6.474/-7.402%; jSquash -7.982/-1.927/+0.876%. Main -6.557/-11.832/-11.031%. Eight admitted main SSIM guards pass, worst +4.597758%, versus +4.608959% before; zero full-band 3-norm admissions. | Parallel timing excluded; managed peak 9,422,327 bytes. | Small mixed quality effect; development entry passes. Measure isolated cost against the unchanged regularized control. Its 1.012828% cumulative mean gain allows at most 1.101283x time under the existing rule. No holdout admission yet. | speed qualification |
+
+| LL-1112, 2026-11-03 | Measure the aligned mode against regularized with isolated alternating pairs. | All candidate outputs equal the native-valid screen hashes. | Fifteen pairs per image: photo 1.044569x, MAD 0.047912, 3/15 faster; texture 1.031273x, MAD 0.035042, 4/15 faster. Candidate medians 854.335/864.053ms; managed 5,682,267/5,680,219 bytes. | Both ratios pass the unchanged 1.101283 cumulative added-time allowance. No speedup claim. Qualify absolute crops and both originals before any holdout access. Raw: dc-wire-20261103/dc-time-summary.json. | paired entry passes |
+
+| LL-1113, 2026-11-03 | Qualify absolute crop speed and both original-image memory classes. | All 192 crop engine jobs complete with fresh timing and no failures. Both own originals finish, decode natively and score. | Crops 2.318200x jSquash. 13 MP 36.583s, 1.472700x, managed 59,210,879 bytes. 21 MP 58.464s, managed 91,262,401 bytes; jSquash aborts and its ratio is unavailable. Ceiling unchanged at 137,514,476 bytes. | Entry passes. Freeze ten module hashes and admit only the unchanged aligned configuration to one aggregate-only holdout attempt. Raw: dc-wire-20261103/promotion-entry.json. | holdout qualification |
+
+| LL-1114, 2026-11-03 | Evaluate the frozen aligned configuration on aggregate-only holdout. | 567 native-valid outputs, 189/189 jobs, no failures. Vips -5.779/-4.492/-4.189%, mean -4.820067%; jSquash -6.278/+0.044/+1.487%. Main -5.252/-9.593/-9.467%. Two of ten admitted SSIM guards fail, worst +10.579530%; zero admitted 3-norm guards. All ten prior admissions remain, both previous failures still fail, none drop from coverage. | Managed peak 26,183,855 bytes. Isolated speed and original managed memory passed in LL-1112/1113. | Reject promotion. The previous worst +10.568972% is essentially unchanged. No holdout identities or per-image values inspected; no new policy follows. One configuration complete, zero retained/promoted. | guard failed |
+
+Read-only emitted-DC regression check: nine saved development streams use luma DC integers nearest to the signaled step within the measured Float32 source-capture bound. All nine reconstructed luma DC squared errors decrease; im26-3312 distance 0.45 after/before is 0.135188. This confirms the numerical fix but does not establish a perceptual gain. Eight experiment files and six diagnostic/timing scripts reconstruct exactly. Strict TypeScript passes; the fresh repository check remains applicable because active source, tests, package metadata and lab TypeScript are unchanged. No watch/scale, second-decoder or public-integration phase after the failed holdout. The one-trial renewal is exhausted.
+
+Development visual review: the three worst main max regressions are im26-3000 +18.811842%, im26-3004 +8.286729% and im26-2014 +4.832759%. Native-decoded nearby-byte pairs at 1.3/1.85, 0.65/0.9 and 0.65/0.9 have byte ratios 0.968339/0.956360/0.950647. Subtle grain and tonal differences are visible in dark texture, a vessel and blurred shoe/water. The views do not locate metric maxima or dismiss the regressions. No holdout images are viewed and no parameter changes follow.

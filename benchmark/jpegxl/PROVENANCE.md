@@ -694,3 +694,15 @@ strategy writer. It aligns quantization with the serialized DC matrix. The
 patch is prepared against the frozen AC 1.25 experiment and has helper coverage
 only; no candidate encode or quality result exists. Both archives stay outside
 the active implementation and add no runtime dependency.
+
+The subsequently approved fixed trial is preserved in
+`lossy-lab/DC-WIRE-EXPERIMENT.patch`. It applies the same first-party matrix
+alignment to the development-selected AC 1.25 mode and reuses its attributed
+libjxl selector, quantizer and chroma ports without taking new source material.
+The archive includes the correction and focused native-decoder fixtures;
+qualification remains separate from active source integration.
+
+`lossy-lab/DC-WIRE-AUDIT.patch` preserves first-party saved-stream checks,
+native alpha fixtures and isolated timing scripts. It takes no new native code
+or constants. The fixed alignment trial is rejected for promotion because two
+holdout SSIM guards still fail; the implementation stays archived.
