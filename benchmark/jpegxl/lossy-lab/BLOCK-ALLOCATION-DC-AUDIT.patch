@@ -1,0 +1,156 @@
+diff --git a/benchmark/jpegxl/lossy-lab/audit-native-dc-precision.ts b/benchmark/jpegxl/lossy-lab/audit-native-dc-precision.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-native-dc-precision.ts
+@@ -0,0 +1,151 @@
++/**
++ * Read-only audit of libjxl v0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df:
++ * lib/jxl/enc_modular.cc, enc_cache.cc, common.h and encode.cc.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause.
++ * No encoder implementation is ported here. Uses existing development streams
++ * and the first-party decoder; records source findings and raw DC precision.
++ */
++import assert from 'node:assert/strict'
++import { readFile, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { object } from '../comparison/model.ts'
++import { extractDecisions } from './decisions.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import {
++  readJpegXlSourceFrameStructures,
++  decodeJpegXlStandaloneModular,
++} from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { JpegXlBitReader } from '../../../src/codecs/jpegxl-bitstream.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/block-allocation-20261103'
++const sourceRoot = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/lib/jxl'
++const revision = 'a7a9c787341cf703dede03c2009fa460cae5e5df'
++const archive = '.tmp/jpegxl-oracles/libjxl-v0.12.0/source-a7a9c787.tar.gz'
++const source = []
++for (const file of ['enc_modular.cc', 'enc_cache.cc', 'common.h', 'encode.cc']) {
++  const local = await readFile(`${sourceRoot}/${file}`)
++  const archived = await promisify(execFile)(
++    'tar',
++    ['-xOf', archive, `libjxl-${revision}/lib/jxl/${file}`],
++    { maxBuffer: 1024 * 1024 },
++  )
++  assert.equal(local.toString(), archived.stdout)
++  source.push({
++    file,
++    sha256: createHash('sha256').update(local).digest('hex'),
++    archiveExact: true,
++  })
++}
++async function rawPrecision(bytes: Uint8Array) {
++  const input = new MemorySource(bytes)
++  const logical = new JpegXlCodestreamSource(
++    input,
++    await inspectJpegXlSource(input, resolveJpegXlLimits()),
++  )
++  const frames = await readJpegXlSourceFrameStructures(logical, defaultImageLimits)
++  const frame = frames.at(-1)
++  if (
++    !frame ||
++    frame.encoding !== 'vardct' ||
++    frame.dcGroupCount !== 1 ||
++    frame.sections.length < 2
++  )
++    throw new Error('Audit expects separated single DC group')
++  assert.equal(
++    frames.some((f) => f.frameType === 'dc'),
++    false,
++  )
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  const state = prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++  try {
++    const section = sections[1]
++    if (!section) throw new Error('Missing raw DC group')
++    const reader = new JpegXlBitReader(section)
++    const precision = reader.readBits(2)
++    const shape = { width: state.dcGroup.blockWidth, height: state.dcGroup.blockHeight }
++    const decoded = decodeJpegXlStandaloneModular(
++      section,
++      reader.bitPosition,
++      [shape, shape, shape],
++      1,
++      state.lfGlobal.globalModularCode,
++    )
++    const coefficients = decoded.planes.map((plane) =>
++      Float64Array.from(plane, (value) => value / 2 ** precision),
++    )
++    assert.deepEqual(coefficients, state.dcGroup.dcCoefficients)
++    return { raw: precision, assembled: state.dcGroup.extraPrecision, coefficientsMatch: true }
++  } finally {
++    state.release()
++  }
++}
++const rows = []
++for (const id of ['im26-2004', 'im26-3012', 'im26-3312']) {
++  const directory = `${root}/ac125-lab/standalone-block-ac125-purejsimage/${id}-lab`
++  const result = object(JSON.parse(await readFile(`${directory}/result.json`, 'utf8')))
++  if (typeof result.fixtureSha256 !== 'string') throw new Error('Missing fixture hash')
++  const peer = `.tmp/jpegxl-lossy-lab/peer-cache/vips-0.0.19-curve/${result.fixtureSha256}`
++  const reference = object(JSON.parse(await readFile(`${peer}/result.json`, 'utf8')))
++  assert.equal(reference.fixtureSha256, result.fixtureSha256)
++  assert.equal(reference.effort, 7)
++  for (const distance of [0.45, 1.85, 7.5]) {
++    const ownBytes = await readFile(`${directory}/${distance}.jxl`)
++    const nativeBytes = await readFile(`${peer}/${distance}.jxl`)
++    const own = await extractDecisions(ownBytes)
++    const native = await extractDecisions(nativeBytes)
++    const ownPrecision = await rawPrecision(ownBytes)
++    const nativePrecision = await rawPrecision(nativeBytes)
++    assert.equal(ownPrecision.raw, 0)
++    assert.equal(nativePrecision.raw, 1)
++    assert.equal(own.dcExtraPrecision, 0)
++    rows.push({
++      id,
++      distance,
++      ownPrecision,
++      nativePrecision,
++      nativeDependencies: native.dependencies,
++      ownFineDcSteps: own.dcQuantization.map(
++        (v) => ((65536 / own.globalScale / own.quantDc) * v) / 2 ** ownPrecision.raw,
++      ),
++      nativeFineDcSteps: native.dcQuantization.map(
++        (v) => ((65536 / native.globalScale / native.quantDc) * v) / 2 ** nativePrecision.raw,
++      ),
++    })
++  }
++}
++const report = {
++  completed: true,
++  rows,
++  source,
++  revision: 'libjxl v0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df',
++  evidence: {
++    effort: 'encode.cc maps effort 7 to SpeedTier 3 (kSquirrel), below kFalcon 7.',
++    caller: 'enc_cache.cc passes nl_dc=true below kFalcon.',
++    quantizer:
++      'enc_modular.cc AddVarDCTDC sets extra_dc_precision=1, uses default Weighted prediction and QuantizeWP at the default decoding speed. QuantizeWP applies dead zone 0.62, rounds small residuals at the finer step and forces larger residuals to even integers, then updates predictor state.',
++    chroma:
++      'Native chroma DC subtracts reconstructed quantized luma through DCFactors before quantization. Our transform writer quantizes its separate DC representation before the AC luma roundtrip.',
++    own: 'strategy-transplant.ts independently Math.rounds each transformed DC cell; jpegxl-jpeg-encode.ts writeDcGroup signals zero extra precision.',
++    measurementCorrection:
++      'extractDecisions reads the assembled DC group, whose extraPrecision is normalized to zero after each raw group has already divided its coefficients by 2**precision. Read raw groups to recover the signaled flag. All 18 raw and assembled coefficient arrays match. Rendering is unaffected. No active extractor change in this round.',
++    limit:
++      'The raw bitstream flag proves the native precision mode. Detailed nonlinear rounding is source-derived, not recovered from peer DC coefficients. Fine steps describe the grid; larger native predictor residuals are restricted to even integers. No numerical benefit or causal guard-fix claim.',
++  },
++  policy:
++    'Read-only source and existing development bitstream audit. No new encode, native probe, port, quality configuration, holdout identity or tuning.',
++}
++await writeFile(`${root}/native-dc-audit.json`, JSON.stringify(report, null, 2) + '\n')
++console.log(JSON.stringify({ points: rows.length, rows }))

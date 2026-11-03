@@ -1,0 +1,3718 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "9b0f8656e6280237dace22d25e81747d1f3aa5a3",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/block-allocation-20261103",
+  "authorization": "Exactly three allocation trials with the corrected selected-block pass frozen. All gates unchanged; no peer maps or holdout tuning.",
+  "configurations": 3,
+  "developmentOutputs": 1392,
+  "experiments": [
+    {
+      "directory": "ac080-screen",
+      "outputs": 80,
+      "verdict": "full-lab diagnostic",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-ac080",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -1.0151169058045482,
+          "median": -0.9967098480980299,
+          "p90": 0.6046326841388914,
+          "worst": 1.8314199764771253,
+          "fullBandCount": 10
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.8221259494035185,
+          "median": 0.6387695147107219,
+          "p90": 1.842516432184703,
+          "worst": 3.0116192627937197,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 6.893512872121985,
+          "median": 5.410361752135783,
+          "p90": 16.85461409835552,
+          "worst": 33.73821869583519,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -12.571178117288555,
+          "median": -9.245305233652306,
+          "p90": -3.2236435344657397,
+          "worst": 6.3382563800932195
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 6.56929782715416,
+          "median": 5.523367312133857,
+          "p90": 15.970066564558904,
+          "worst": 30.904409612258515
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 0.36894657682990806,
+          "median": 1.5289053090139229,
+          "p90": 5.604207246600039,
+          "worst": 9.491185623143538
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -11.703135281301785,
+          "median": -7.338225657229213,
+          "p90": -2.7527040935276,
+          "worst": -0.9596765567002008
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.0760755411974943,
+          "median": -0.011420120362091543,
+          "p90": 6.554788651291693,
+          "worst": 8.979383911544375
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -5.535940299746549,
+          "median": -3.5764553210344667,
+          "p90": -1.2233164289818363,
+          "worst": 0.16648631981168294
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -0.3041947429020261,
+          "median": -0.21678723658767435,
+          "p90": 1.1871997447511007,
+          "worst": 2.8238238337721926,
+          "fullBandCount": 8
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": 1.8545106866241565,
+          "median": 1.973111813520434,
+          "p90": 3.341310614691431,
+          "worst": 3.4327479412363413,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 7.3317326371544045,
+          "median": 4.583614300825303,
+          "p90": 22.259797646570405,
+          "worst": 30.099546372307252,
+          "fullBandCount": 0
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.8314199764771253,
+              "meanLogRateDifference": 0.018148514677233947,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 89.02614217
+              },
+              "measuredOverlap": {
+                "minimum": 14.21329757,
+                "maximum": 89.02614217
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.6059657204814499,
+              "meanLogRateDifference": 0.006041371315725049,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 55.62188101,
+                "maximum": 91.85558074
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-1052-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.6032996477963329,
+              "meanLogRateDifference": 0.00601487081953375,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 49.89709413,
+                "maximum": 91.95812856
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1626-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 3.0116192627937197,
+              "meanLogRateDifference": 0.029671604255796024,
+              "overlap": {
+                "minimum": 0.36183,
+                "maximum": 1.328365
+              },
+              "measuredOverlap": {
+                "minimum": 0.36183,
+                "maximum": 1.328365
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.0383289908070035,
+              "meanLogRateDifference": 0.020178331130331247,
+              "overlap": {
+                "minimum": 0.41578,
+                "maximum": 2.790101
+              },
+              "measuredOverlap": {
+                "minimum": 0.41578,
+                "maximum": 2.790101
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1052-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.6467038735624027,
+              "meanLogRateDifference": 0.01633292732896735,
+              "overlap": {
+                "minimum": 0.379003,
+                "maximum": 2.136197
+              },
+              "measuredOverlap": {
+                "minimum": 0.379003,
+                "maximum": 2.136197
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 33.73821869583519,
+              "meanLogRateDifference": 0.29071411139123554,
+              "overlap": {
+                "minimum": 0.5245478153,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.5245478153,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 17.380198491435593,
+              "meanLogRateDifference": 0.16024804015647573,
+              "overlap": {
+                "minimum": 1.1489486694,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 1.1489486694,
+                "maximum": 3.8167123795
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1626-lab",
+              "metric": "butteraugliMax",
+              "percent": 16.329029705275445,
+              "meanLogRateDifference": 0.15125245292447317,
+              "overlap": {
+                "minimum": 0.906150341,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.906150341,
+                "maximum": 3.4520626068
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9205445,
+      "elapsedSeconds": 31.612
+    },
+    {
+      "directory": "ac125-screen",
+      "outputs": 80,
+      "verdict": "full-lab diagnostic",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-ac125",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 1.2093550241773725,
+          "median": 0.4432259821821025,
+          "p90": 4.6213668327434245,
+          "worst": 7.541716176598215,
+          "fullBandCount": 7
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.7047680537179832,
+          "median": -2.0973371395458553,
+          "p90": -0.14820387535260893,
+          "worst": 3.467617246004366,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.4449009812258882,
+          "median": 0.5543361619047087,
+          "p90": 7.935160012763776,
+          "worst": 8.389470432540538,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -10.900675807909831,
+          "median": -8.020160468633641,
+          "p90": -2.458930784033512,
+          "worst": 5.069619504843332
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 2.3619320444487815,
+          "median": 1.7638060236087392,
+          "p90": 7.681220822756517,
+          "worst": 10.768483845347365
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -2.319035058289191,
+          "median": -1.4591171619691212,
+          "p90": 2.2252110702649617,
+          "worst": 3.522512846305275
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -9.752105824966351,
+          "median": -6.665420917148937,
+          "p90": -2.749714315518362,
+          "worst": -0.2712552525628307
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -5.034494409193193,
+          "median": -4.225859456186384,
+          "p90": 1.5079644231789784,
+          "worst": 3.8785899962084
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -6.728979816970512,
+          "median": -5.520695571546505,
+          "p90": -2.6299093742739528,
+          "worst": -1.710629738758513
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 1.9450734476670064,
+          "median": 1.3264075041178525,
+          "p90": 5.724789828866527,
+          "worst": 8.154965248685565,
+          "fullBandCount": 7
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.5279978199527287,
+          "median": -0.6805008972820874,
+          "p90": 0.8872274394207529,
+          "worst": 6.548607213516049,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": 1.8139432424738402,
+          "median": 0.5645840621672145,
+          "p90": 11.316099705992531,
+          "worst": 18.86752563048761,
+          "fullBandCount": 0
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-3014-lab",
+              "metric": "ssimulacra2",
+              "percent": 7.541716176598215,
+              "meanLogRateDifference": 0.07270864376153219,
+              "overlap": {
+                "minimum": 80.47846366,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 80.47846366,
+                "maximum": 94.59407665
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 4.676384150616549,
+              "meanLogRateDifference": 0.04570334914582451,
+              "overlap": {
+                "minimum": 71.81647877,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 71.81647877,
+                "maximum": 91.81518712
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "ssimulacra2",
+              "percent": 4.566349514870299,
+              "meanLogRateDifference": 0.044651607525346956,
+              "overlap": {
+                "minimum": 70.2004332,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 70.2004332,
+                "maximum": 90.05643338
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 3.467617246004366,
+              "meanLogRateDifference": 0.03408850091095957,
+              "overlap": {
+                "minimum": 0.398574,
+                "maximum": 1.507859
+              },
+              "measuredOverlap": {
+                "minimum": 0.398574,
+                "maximum": 1.507859
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.15625863233384993,
+              "meanLogRateDifference": 0.0015613667556174896,
+              "overlap": {
+                "minimum": 0.207823,
+                "maximum": 0.538194
+              },
+              "measuredOverlap": {
+                "minimum": 0.207823,
+                "maximum": 0.538194
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3000-lab",
+              "metric": "butteraugliNorm3",
+              "percent": -0.4526663830390678,
+              "meanLogRateDifference": -0.004536940196604173,
+              "overlap": {
+                "minimum": 0.295471,
+                "maximum": 1.461771
+              },
+              "measuredOverlap": {
+                "minimum": 0.295471,
+                "maximum": 1.461771
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 8.389470432540538,
+              "meanLogRateDifference": 0.08056076206824939,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.2082490921
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 8.252673079482884,
+              "meanLogRateDifference": 0.07929787416452617,
+              "overlap": {
+                "minimum": 0.7910169363,
+                "maximum": 2.9983832836
+              },
+              "measuredOverlap": {
+                "minimum": 0.7910169363,
+                "maximum": 2.9983832836
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3306-lab",
+              "metric": "butteraugliMax",
+              "percent": 7.617646946044668,
+              "meanLogRateDifference": 0.07341445336699524,
+              "overlap": {
+                "minimum": 0.7965077162,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7965077162,
+                "maximum": 3.661400795
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9235969,
+      "elapsedSeconds": 36.99
+    },
+    {
+      "directory": "native-dc-screen",
+      "outputs": 80,
+      "verdict": "rejected SSIM regression; no full lab",
+      "complete": true,
+      "mode": "screen",
+      "variant": "standalone-block-native-dc",
+      "images": 16,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 6.386602922556997,
+          "median": 5.316207935157896,
+          "p90": 11.246083257954997,
+          "worst": 23.48111021495387,
+          "fullBandCount": 11
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.2912070473163089,
+          "median": -2.0147726236514996,
+          "p90": 2.647239003217094,
+          "worst": 12.220482567183613,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.3521226159168356,
+          "median": -2.2445448245207698,
+          "p90": 7.5942308318005995,
+          "worst": 9.71483451109853,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -5.171690204870529,
+          "median": -4.177319144646942,
+          "p90": -0.727386312723943,
+          "worst": 4.520139433722
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -0.6075651499807506,
+          "median": -0.21710123557356809,
+          "p90": 7.98528295122692,
+          "worst": 10.665702678058492
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -1.3242773401840826,
+          "median": -1.0046077144342473,
+          "p90": 2.0705490097287496,
+          "worst": 13.552342788983552
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": -5.573062502970457,
+          "median": -2.8966858174321164,
+          "p90": 0.17011746535096925,
+          "worst": 1.5295558548083519
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -7.845046020000954,
+          "median": -10.012096578574678,
+          "p90": 1.653252795250578,
+          "worst": 5.524807250278711
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -7.196623059389173,
+          "median": -6.495617195879463,
+          "p90": -3.2784058841543917,
+          "worst": 1.935845535894919
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 16,
+          "mean": 7.160338281963794,
+          "median": 4.793615398373655,
+          "p90": 12.425236909135112,
+          "worst": 24.184640499778634,
+          "fullBandCount": 9
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 16,
+          "mean": -0.20335803729937607,
+          "median": -1.6561231840230466,
+          "p90": 4.0744895975479265,
+          "worst": 15.418011278211766,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 16,
+          "mean": -1.1556102863530149,
+          "median": -1.9342802990707288,
+          "p90": 0.7319562818299059,
+          "worst": 12.736376460825136,
+          "fullBandCount": 0
+        }
+      ],
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-3014-lab",
+              "metric": "ssimulacra2",
+              "percent": 23.48111021495387,
+              "meanLogRateDifference": 0.2109180046562567,
+              "overlap": {
+                "minimum": 80.47020425,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 80.47020425,
+                "maximum": 94.16292949
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 11.41234177611479,
+              "meanLogRateDifference": 0.10806792330496055,
+              "overlap": {
+                "minimum": 70.30394537,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 70.30394537,
+                "maximum": 91.42434589
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2012-lab",
+              "metric": "ssimulacra2",
+              "percent": 11.079824739795201,
+              "meanLogRateDifference": 0.10507889866564013,
+              "overlap": {
+                "minimum": 64.29255117,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 64.29255117,
+                "maximum": 93.33499298
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 12.220482567183613,
+              "meanLogRateDifference": 0.11529534451425738,
+              "overlap": {
+                "minimum": 0.411356,
+                "maximum": 1.534292
+              },
+              "measuredOverlap": {
+                "minimum": 0.411356,
+                "maximum": 1.534292
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 5.268178936525127,
+              "meanLogRateDifference": 0.051340993146935326,
+              "overlap": {
+                "minimum": 0.216278,
+                "maximum": 0.538194
+              },
+              "measuredOverlap": {
+                "minimum": 0.216278,
+                "maximum": 0.538194
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 0.026299069909061137,
+              "meanLogRateDifference": 0.000262956123098684,
+              "overlap": {
+                "minimum": 0.44397,
+                "maximum": 1.405593
+              },
+              "measuredOverlap": {
+                "minimum": 0.44397,
+                "maximum": 1.405593
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-1052-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.71483451109853,
+              "meanLogRateDifference": 0.09271440014604074,
+              "overlap": {
+                "minimum": 0.6871474981,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.6871474981,
+                "maximum": 4.295445919
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 8.980944052813191,
+              "meanLogRateDifference": 0.08600285575379638,
+              "overlap": {
+                "minimum": 0.7901622653,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7901622653,
+                "maximum": 4.8267450333
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3014-lab",
+              "metric": "butteraugliMax",
+              "percent": 6.207517610788007,
+              "meanLogRateDifference": 0.06022470761000033,
+              "overlap": {
+                "minimum": 0.5058989525,
+                "maximum": 1.1449348927
+              },
+              "measuredOverlap": {
+                "minimum": 0.5058989525,
+                "maximum": 1.1449348927
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9201559,
+      "elapsedSeconds": 36.258
+    },
+    {
+      "directory": "ac080-lab",
+      "outputs": 576,
+      "verdict": "tradeoff; not selected for isolated promotion entry",
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-block-ac080",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -1.2642532067203698,
+          "median": -0.8023488639146732,
+          "p90": 0.1335921819788217,
+          "worst": 1.229617003626744,
+          "fullBandCount": 45
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.3642847236788245,
+          "median": 0.8297264730584885,
+          "p90": 2.2519006721218116,
+          "worst": 3.854999381908955,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 1.1462621789422336,
+          "median": 0.840431702758529,
+          "p90": 6.458231509185567,
+          "worst": 9.287444691274803,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -9.741304626364434,
+          "median": -8.059106872249647,
+          "p90": -2.680464501691097,
+          "worst": 6.852644606693281
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 3.219736328684974,
+          "median": 4.1078576821249495,
+          "p90": 10.271628292569002,
+          "worst": 25.28758022026333
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 0.4475142675172886,
+          "median": 1.53653826072326,
+          "p90": 4.888815135788383,
+          "worst": 9.772608680912622
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -9.299309824654573,
+          "median": -6.0626253512414845,
+          "p90": -2.1236958359623093,
+          "worst": 0.10081747814582684
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -4.6932514543934145,
+          "median": -2.8713025258737073,
+          "p90": 3.614225036702173,
+          "worst": 6.182659878988016
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -5.0839516517384045,
+          "median": -3.2915101715145507,
+          "p90": -0.7302299277129118,
+          "worst": 1.66368341930696
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -0.6772036270440464,
+          "median": -0.15176552572243848,
+          "p90": 0.780045220386909,
+          "worst": 2.4222943783427207,
+          "fullBandCount": 43
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": 1.364797899839843,
+          "median": 1.5829208276125857,
+          "p90": 2.6042076913023484,
+          "worst": 3.9136666475492783,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 2.254007883265684,
+          "median": 2.017625755101158,
+          "p90": 7.264497490613715,
+          "worst": 16.526883455193918,
+          "fullBandCount": 0
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -8.492489319360663,
+            "median": -6.290524391785684,
+            "p90": -0.3257532007282351,
+            "worst": 6.383078180777556,
+            "fullBandCount": 7
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -10.112952461121647,
+            "median": -6.450233111940285,
+            "p90": -0.9203656496819876,
+            "worst": 13.787431270273604,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -8.648548918921566,
+            "median": -7.420555779818706,
+            "p90": 4.736428333317514,
+            "worst": 22.19630066685695,
+            "fullBandCount": 0
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 7,
+            "failures": [],
+            "worst": 6.383078180777556
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1472-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.229617003626744,
+              "meanLogRateDifference": 0.012221186187838384,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 58.11278369,
+                "maximum": 91.75482621
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "ssimulacra2",
+              "percent": 1.1754592119659517,
+              "meanLogRateDifference": 0.01168604355242769,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 89.88005747
+              },
+              "measuredOverlap": {
+                "minimum": 11.12434098,
+                "maximum": 89.88005747
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3320-lab",
+              "metric": "ssimulacra2",
+              "percent": 0.8337751530404993,
+              "meanLogRateDifference": 0.008303184488141824,
+              "overlap": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 35.43403365,
+                "maximum": 92.76693822
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": true
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1472-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 3.854999381908955,
+              "meanLogRateDifference": 0.03782550358849948,
+              "overlap": {
+                "minimum": 0.427962,
+                "maximum": 1.941612
+              },
+              "measuredOverlap": {
+                "minimum": 0.427962,
+                "maximum": 1.941612
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2002-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.7814102325764294,
+              "meanLogRateDifference": 0.02743431636701862,
+              "overlap": {
+                "minimum": 0.389107,
+                "maximum": 1.948896
+              },
+              "measuredOverlap": {
+                "minimum": 0.389107,
+                "maximum": 1.948896
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2000-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.7367628167995215,
+              "meanLogRateDifference": 0.026999830055498584,
+              "overlap": {
+                "minimum": 0.338565,
+                "maximum": 1.697321
+              },
+              "measuredOverlap": {
+                "minimum": 0.338565,
+                "maximum": 1.697321
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2008-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.287444691274803,
+              "meanLogRateDifference": 0.08881133243414902,
+              "overlap": {
+                "minimum": 0.8558257222,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8558257222,
+                "maximum": 4.9331560135
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1612-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.275901180029638,
+              "meanLogRateDifference": 0.08870570162757546,
+              "overlap": {
+                "minimum": 0.8780627847,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.8780627847,
+                "maximum": 4.3904657364
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 9.241329749980311,
+              "meanLogRateDifference": 0.08838928328206894,
+              "overlap": {
+                "minimum": 0.772411108,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.772411108,
+                "maximum": 5.0696520805
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9324067,
+      "elapsedSeconds": 237.37
+    },
+    {
+      "directory": "ac125-lab",
+      "outputs": 576,
+      "verdict": "selected before holdout; full entry passes",
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-block-ac125",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.8777337881364976,
+          "median": 0.45603869637238315,
+          "p90": 3.1416341346806966,
+          "worst": 7.7982839993168245,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.8561132319168472,
+          "median": -2.1756550844873725,
+          "p90": 0.5372635208760617,
+          "worst": 2.9401557324838894,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -2.17039628460332,
+          "median": -2.630452578624218,
+          "p90": 2.371114675158405,
+          "worst": 11.59702285789929,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.976330017803935,
+          "median": -6.788761930683841,
+          "p90": -1.0407997229712278,
+          "worst": 16.900581255485516
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.7022871574177558,
+          "median": 1.1498115498568335,
+          "p90": 9.673432135483038,
+          "worst": 20.29799763588388
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.863659240607956,
+          "median": -1.4164268699369722,
+          "p90": 1.8269041364521623,
+          "worst": 11.830805482193494
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.3885352268245565,
+          "median": -5.165220355359633,
+          "p90": -1.7336798702855878,
+          "worst": 9.726343452938291
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -7.59172197851535,
+          "median": -6.312999159765056,
+          "p90": 1.402923206928071,
+          "worst": 6.488593038243527
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -6.428009611309327,
+          "median": -5.340581561028102,
+          "p90": -1.7629848506178654,
+          "worst": -0.07599887974001701
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 1.4616708776007816,
+          "median": 1.1149837641731422,
+          "p90": 3.1865616892999338,
+          "worst": 8.883242452412004,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.7823734969912965,
+          "median": -1.0820168267085726,
+          "p90": 0.9936724184670404,
+          "worst": 3.640722629339061,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -1.1201623405414682,
+          "median": -0.8217879693803737,
+          "p90": 2.6112474027610384,
+          "worst": 6.0839953616135745,
+          "fullBandCount": 0
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -6.558775385060417,
+            "median": -4.929756567375195,
+            "p90": 1.386917526053316,
+            "worst": 15.167546035698631,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -11.783835157110097,
+            "median": -8.558585757820413,
+            "p90": -3.9084959050606036,
+            "worst": 11.776405376640147,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -11.211119758110149,
+            "median": -9.929692895190877,
+            "p90": 2.0875703047583625,
+            "worst": 18.514883238297088,
+            "fullBandCount": 1
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 8,
+            "failures": [],
+            "worst": 4.608959413977724
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "ssimulacra2",
+              "percent": 7.7982839993168245,
+              "meanLogRateDifference": 0.07509155398642238,
+              "overlap": {
+                "minimum": 69.91855005,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 69.91855005,
+                "maximum": 91.83355318
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2016-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.924207992156557,
+              "meanLogRateDifference": 0.0669500609630693,
+              "overlap": {
+                "minimum": 72.52904121,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 72.52904121,
+                "maximum": 93.22899669
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.405626836656106,
+              "meanLogRateDifference": 0.062088273324312514,
+              "overlap": {
+                "minimum": 68.24480856,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 68.24480856,
+                "maximum": 92.31220846
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.9401557324838894,
+              "meanLogRateDifference": 0.028977621082505924,
+              "overlap": {
+                "minimum": 0.410501,
+                "maximum": 1.412272
+              },
+              "measuredOverlap": {
+                "minimum": 0.410501,
+                "maximum": 1.412272
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1050-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.9334455100578665,
+              "meanLogRateDifference": 0.02891243329361119,
+              "overlap": {
+                "minimum": 0.365773,
+                "maximum": 1.570313
+              },
+              "measuredOverlap": {
+                "minimum": 0.365773,
+                "maximum": 1.570313
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.7084831616553768,
+              "meanLogRateDifference": 0.016940527173301807,
+              "overlap": {
+                "minimum": 0.36452,
+                "maximum": 1.560858
+              },
+              "measuredOverlap": {
+                "minimum": 0.36452,
+                "maximum": 1.560858
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2400-lab",
+              "metric": "butteraugliMax",
+              "percent": 11.59702285789929,
+              "meanLogRateDifference": 0.10972418670274037,
+              "overlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.8797693253
+              },
+              "measuredOverlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.8797693253
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 6.211228227783485,
+              "meanLogRateDifference": 0.06025964442295633,
+              "overlap": {
+                "minimum": 0.7950945497,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7950945497,
+                "maximum": 4.1126198769
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 5.0641931239356675,
+              "meanLogRateDifference": 0.04940134044825645,
+              "overlap": {
+                "minimum": 0.7086913586,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7086913586,
+                "maximum": 4.2461819649
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9422327,
+      "elapsedSeconds": 251.127
+    }
+  ],
+  "preparation": {
+    "base": "9b0f8656e6280237dace22d25e81747d1f3aa5a3",
+    "frozen": "/media/ard/samsung-2tb/projects/PureJsImage/.tmp/jpegxl-lossy-lab/block-quantization-20261103/normalized-writer-v2",
+    "authorization": "Exactly three allocation trials; no peer maps or holdout tuning. All gates unchanged.",
+    "trials": [
+      {
+        "name": "ac080",
+        "mode": "standalone-block-ac080",
+        "scale": 0.8,
+        "nativeDc": false
+      },
+      {
+        "name": "ac125",
+        "mode": "standalone-block-ac125",
+        "scale": 1.25,
+        "nativeDc": false
+      },
+      {
+        "name": "native-dc",
+        "mode": "standalone-block-native-dc",
+        "scale": 1,
+        "nativeDc": true
+      }
+    ],
+    "modules": [
+      {
+        "trial": "ac080",
+        "file": "run",
+        "sha256": "bb818eff4b5406bff39d77ab30236dfe80b8f506851c04844a844ba2761d67fc"
+      },
+      {
+        "trial": "ac080",
+        "file": "worker",
+        "sha256": "5e490f67980df3f383f92af5341b6169271c8d1a57830d0b01eb8f5839a97c95"
+      },
+      {
+        "trial": "ac080",
+        "file": "libjxl-ports",
+        "sha256": "2682dbbfa100769327085c22ce5b15fc6c03efec1dc55d02da4664dbfebec7c5"
+      },
+      {
+        "trial": "ac080",
+        "file": "libjxl-standalone-port",
+        "sha256": "8dd43efabe1486fca567fd08117397f3c445cb92fe3f97ecdd0473b0394d052d"
+      },
+      {
+        "trial": "ac080",
+        "file": "libjxl-strategy-port",
+        "sha256": "0a871bd7a50573abc265716547a75843e1fc21bb6f8e11f9f3d6c27e0886bcbd"
+      },
+      {
+        "trial": "ac080",
+        "file": "strategy-transplant",
+        "sha256": "1523a362391c2f55430a1a2243b1d7ece3ad6ef5f6e7f6ec01e50972ab4077c0"
+      },
+      {
+        "trial": "ac080",
+        "file": "libjxl-chroma-roundtrip-port",
+        "sha256": "42e3827db76f0ab80aaec2ba79864243a4dd0b4a60aea7df5875e299db33690f"
+      },
+      {
+        "trial": "ac080",
+        "file": "libjxl-block-quantization-port",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      },
+      {
+        "trial": "ac125",
+        "file": "run",
+        "sha256": "0ba2d207d55b7c59ca3b3c428fec95a55218f67424e7538fee82d1bbb5e0d338"
+      },
+      {
+        "trial": "ac125",
+        "file": "worker",
+        "sha256": "ecf13d3b937df256f154b13f30f1edfbc19a493ea3873e6c52b44f7ac0f4f001"
+      },
+      {
+        "trial": "ac125",
+        "file": "libjxl-ports",
+        "sha256": "eaac2f5b99fba8e8878f031d3b2f67b685b7814b84ec9250fd53f466fc6dba42"
+      },
+      {
+        "trial": "ac125",
+        "file": "libjxl-standalone-port",
+        "sha256": "3f993cc427c44e885c485d1ea96928f3314fe2901a06081769377976b1154fff"
+      },
+      {
+        "trial": "ac125",
+        "file": "libjxl-strategy-port",
+        "sha256": "47f75325603b82011e7894192b99a7b7b1a86ebb93cf3b5638c52b82b67c0012"
+      },
+      {
+        "trial": "ac125",
+        "file": "strategy-transplant",
+        "sha256": "32dad1c478a8f315a0a32c85ec4bab6f9a96bcb5fff877104f88fd5415fd499a"
+      },
+      {
+        "trial": "ac125",
+        "file": "libjxl-chroma-roundtrip-port",
+        "sha256": "2544fa25a02dadb5600b44ae5c041f83d2f2ccaaffbd491ba2c685b16e38fb24"
+      },
+      {
+        "trial": "ac125",
+        "file": "libjxl-block-quantization-port",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      },
+      {
+        "trial": "native-dc",
+        "file": "run",
+        "sha256": "d6f03a4e3e8ec8a5452babf76c7a2758a84fbf6216f4b347589adad195234315"
+      },
+      {
+        "trial": "native-dc",
+        "file": "worker",
+        "sha256": "9abfdc9466effd49c610c40842392258255c6da3028a5948c7e5244502ec4c86"
+      },
+      {
+        "trial": "native-dc",
+        "file": "libjxl-ports",
+        "sha256": "4fc163c1e950b53e4a2fb65e67a18b1b3ce0425ac98215cb937a1062daee28c8"
+      },
+      {
+        "trial": "native-dc",
+        "file": "libjxl-standalone-port",
+        "sha256": "b3b992fc6b429d5b230f4fe784a1d3be97536fad108371cd9de140346d3ca7b4"
+      },
+      {
+        "trial": "native-dc",
+        "file": "libjxl-strategy-port",
+        "sha256": "025d639b53f92d36f8d09e30ab1b824db832dba5b5093be37b301bb5856441c8"
+      },
+      {
+        "trial": "native-dc",
+        "file": "strategy-transplant",
+        "sha256": "4e0e93a37d07c327163f718e7cb527d5d5d05630c885d75a699dd30530f4dfe3"
+      },
+      {
+        "trial": "native-dc",
+        "file": "libjxl-chroma-roundtrip-port",
+        "sha256": "0a000bad05f37231dbfc713ba914c37a6439dd9e2cdd736d944d3c7a41dc15c7"
+      },
+      {
+        "trial": "native-dc",
+        "file": "libjxl-block-quantization-port",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      }
+    ]
+  },
+  "decisionAudit": {
+    "passed": true,
+    "points": 27,
+    "rows": [
+      {
+        "name": "ac080",
+        "id": "im26-2004",
+        "distance": 0.5,
+        "changedTransforms": 256,
+        "meanCellRawQuantRatio": 0.8233068865271242,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-2004",
+        "distance": 2,
+        "changedTransforms": 1393,
+        "meanCellRawQuantRatio": 0.8205046154204161,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-2004",
+        "distance": 7,
+        "changedTransforms": 531,
+        "meanCellRawQuantRatio": 0.7880045572916843,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3012",
+        "distance": 0.5,
+        "changedTransforms": 310,
+        "meanCellRawQuantRatio": 0.8136369110490245,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3012",
+        "distance": 2,
+        "changedTransforms": 1446,
+        "meanCellRawQuantRatio": 0.8032148088727769,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3012",
+        "distance": 7,
+        "changedTransforms": 949,
+        "meanCellRawQuantRatio": 0.7989782908606001,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3312",
+        "distance": 0.5,
+        "changedTransforms": 2298,
+        "meanCellRawQuantRatio": 0.8290538075205617,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3312",
+        "distance": 2,
+        "changedTransforms": 134,
+        "meanCellRawQuantRatio": 0.7772746384746286,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac080",
+        "id": "im26-3312",
+        "distance": 7,
+        "changedTransforms": 19,
+        "meanCellRawQuantRatio": 0.8572169712610925,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-2004",
+        "distance": 0.5,
+        "changedTransforms": 276,
+        "meanCellRawQuantRatio": 1.222201489645342,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-2004",
+        "distance": 2,
+        "changedTransforms": 1903,
+        "meanCellRawQuantRatio": 1.2517915271576985,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-2004",
+        "distance": 7,
+        "changedTransforms": 636,
+        "meanCellRawQuantRatio": 1.2327008928571082,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3012",
+        "distance": 0.5,
+        "changedTransforms": 301,
+        "meanCellRawQuantRatio": 1.2361109563044326,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3012",
+        "distance": 2,
+        "changedTransforms": 1457,
+        "meanCellRawQuantRatio": 1.2375522365817817,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3012",
+        "distance": 7,
+        "changedTransforms": 789,
+        "meanCellRawQuantRatio": 1.2492075117807797,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3312",
+        "distance": 0.5,
+        "changedTransforms": 1130,
+        "meanCellRawQuantRatio": 1.3016229538690685,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3312",
+        "distance": 2,
+        "changedTransforms": 109,
+        "meanCellRawQuantRatio": 1.222436523437536,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "ac125",
+        "id": "im26-3312",
+        "distance": 7,
+        "changedTransforms": 12,
+        "meanCellRawQuantRatio": 1.2856358119420173,
+        "dcRatios": [1, 1, 1]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-2004",
+        "distance": 0.5,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.332917705735661, 2, 1.332917705735661]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-2004",
+        "distance": 2,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.3330702446724547, 2, 1.3330702446724547]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-2004",
+        "distance": 7,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.333659013190034, 2, 1.333659013190034]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3012",
+        "distance": 0.5,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.332917705735661, 2, 1.332917705735661]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3012",
+        "distance": 2,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.3330702446724547, 2, 1.3330702446724547]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3012",
+        "distance": 7,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.333659013190034, 2, 1.333659013190034]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3312",
+        "distance": 0.5,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.332917705735661, 2, 1.332917705735661]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3312",
+        "distance": 2,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.3330702446724547, 2, 1.3330702446724547]
+      },
+      {
+        "name": "native-dc",
+        "id": "im26-3312",
+        "distance": 7,
+        "changedTransforms": 0,
+        "meanCellRawQuantRatio": 1,
+        "dcRatios": [1.333659013190034, 2, 1.333659013190034]
+      }
+    ],
+    "policy": "Own development streams only. AC trials preserve emitted DC; native DC preserves emitted AC decisions. No holdout or peer decision consumption."
+  },
+  "nativeDcAudit": {
+    "completed": true,
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "nativeFineDcSteps": [0.00004695248994923262, 0.00037561991959386096, 0.0007512398391877219]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "nativeFineDcSteps": [0.00015238966036154448, 0.0012191172828923558, 0.0024382345657847117]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "nativeFineDcSteps": [0.0004894762604013705, 0.003915810083210964, 0.007831620166421928]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "nativeFineDcSteps": [0.00004695248994923262, 0.00037561991959386096, 0.0007512398391877219]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "nativeFineDcSteps": [0.00015238966036154448, 0.0012191172828923558, 0.0024382345657847117]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [
+          {
+            "frameType": "reference",
+            "encoding": "modular",
+            "width": 512,
+            "height": 512,
+            "saveAsReference": 3,
+            "saveBeforeColorTransform": true,
+            "sectionBytes": 106
+          }
+        ],
+        "ownFineDcSteps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "nativeFineDcSteps": [0.0004894762604013705, 0.003915810083210964, 0.007831620166421928]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "nativeFineDcSteps": [0.00004695248994923262, 0.00037561991959386096, 0.0007512398391877219]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [],
+        "ownFineDcSteps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "nativeFineDcSteps": [0.00015238966036154448, 0.0012191172828923558, 0.0024382345657847117]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "ownPrecision": {
+          "raw": 0,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativePrecision": {
+          "raw": 1,
+          "assembled": 0,
+          "coefficientsMatch": true
+        },
+        "nativeDependencies": [
+          {
+            "frameType": "reference",
+            "encoding": "modular",
+            "width": 512,
+            "height": 512,
+            "saveAsReference": 3,
+            "saveBeforeColorTransform": true,
+            "sectionBytes": 19
+          }
+        ],
+        "ownFineDcSteps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "nativeFineDcSteps": [0.0004894762604013705, 0.003915810083210964, 0.007831620166421928]
+      }
+    ],
+    "source": [
+      {
+        "file": "enc_modular.cc",
+        "sha256": "4bc466a0c7b2e65c03501eff1a81758d63a45568521a22ceb611cdbc67f0fb7a",
+        "archiveExact": true
+      },
+      {
+        "file": "enc_cache.cc",
+        "sha256": "5d690810759f5ddb6a31746f30c6313b824ceb331143a2a6c8f70ae5300951fb",
+        "archiveExact": true
+      },
+      {
+        "file": "common.h",
+        "sha256": "4b7e386c7cff5ee25b20357770b5457046ca1471c376458955c484784c66856e",
+        "archiveExact": true
+      },
+      {
+        "file": "encode.cc",
+        "sha256": "eb1d2e2c6eb8b1a1287305cf125dcf741008463e8b51326d6c3e0276ac9d3d23",
+        "archiveExact": true
+      }
+    ],
+    "revision": "libjxl v0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "evidence": {
+      "effort": "encode.cc maps effort 7 to SpeedTier 3 (kSquirrel), below kFalcon 7.",
+      "caller": "enc_cache.cc passes nl_dc=true below kFalcon.",
+      "quantizer": "enc_modular.cc AddVarDCTDC sets extra_dc_precision=1, uses default Weighted prediction and QuantizeWP at the default decoding speed. QuantizeWP applies dead zone 0.62, rounds small residuals at the finer step and forces larger residuals to even integers, then updates predictor state.",
+      "chroma": "Native chroma DC subtracts reconstructed quantized luma through DCFactors before quantization. Our transform writer quantizes its separate DC representation before the AC luma roundtrip.",
+      "own": "strategy-transplant.ts independently Math.rounds each transformed DC cell; jpegxl-jpeg-encode.ts writeDcGroup signals zero extra precision.",
+      "measurementCorrection": "extractDecisions reads the assembled DC group, whose extraPrecision is normalized to zero after each raw group has already divided its coefficients by 2**precision. Read raw groups to recover the signaled flag. All 18 raw and assembled coefficient arrays match. Rendering is unaffected. No active extractor change in this round.",
+      "limit": "The raw bitstream flag proves the native precision mode. Detailed nonlinear rounding is source-derived, not recovered from peer DC coefficients. Fine steps describe the grid; larger native predictor residuals are restricted to even integers. No numerical benefit or causal guard-fix claim."
+    },
+    "policy": "Read-only source and existing development bitstream audit. No new encode, native probe, port, quality configuration, holdout identity or tuning."
+  },
+  "selection": "AC 1.25 selected from both completed full development labs before holdout. Its three-metric mean and worst admitted development SSIM guard are stronger than AC 0.8.",
+  "pairedTiming": {
+    "summaries": [
+      {
+        "id": "im26-3012",
+        "pairs": 15,
+        "ratio": 1.0601156801637055,
+        "mad": 0.038559362281644693,
+        "wins": 3,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 842.4284750000006,
+            "bytes": 32832,
+            "managedPeakBytes": 5682267
+          },
+          {
+            "mode": "allocation",
+            "medianMs": 881.3599410000024,
+            "bytes": 41888,
+            "managedPeakBytes": 5682267
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "pairs": 15,
+        "ratio": 1.0113512281559152,
+        "mad": 0.023287559187918694,
+        "wins": 6,
+        "modes": [
+          {
+            "mode": "control",
+            "medianMs": 841.5150209999993,
+            "bytes": 7913,
+            "managedPeakBytes": 5678171
+          },
+          {
+            "mode": "allocation",
+            "medianMs": 851.0672500000001,
+            "bytes": 9226,
+            "managedPeakBytes": 5680219
+          }
+        ]
+      }
+    ]
+  },
+  "pairedEntry": {
+    "passed": true,
+    "improvement": 1.0495919094612232,
+    "allowance": 1.1049591909461223,
+    "timing": {
+      "summaries": [
+        {
+          "id": "im26-3012",
+          "pairs": 15,
+          "ratio": 1.0601156801637055,
+          "mad": 0.038559362281644693,
+          "wins": 3,
+          "modes": [
+            {
+              "mode": "control",
+              "medianMs": 842.4284750000006,
+              "bytes": 32832,
+              "managedPeakBytes": 5682267
+            },
+            {
+              "mode": "allocation",
+              "medianMs": 881.3599410000024,
+              "bytes": 41888,
+              "managedPeakBytes": 5682267
+            }
+          ]
+        },
+        {
+          "id": "im26-3312",
+          "pairs": 15,
+          "ratio": 1.0113512281559152,
+          "mad": 0.023287559187918694,
+          "wins": 6,
+          "modes": [
+            {
+              "mode": "control",
+              "medianMs": 841.5150209999993,
+              "bytes": 7913,
+              "managedPeakBytes": 5678171
+            },
+            {
+              "mode": "allocation",
+              "medianMs": 851.0672500000001,
+              "bytes": 9226,
+              "managedPeakBytes": 5680219
+            }
+          ]
+        }
+      ]
+    },
+    "policy": "Candidate selected from completed development evidence before holdout. Absolute crop/original speed and managed memory still required."
+  },
+  "speedEntry": {
+    "completedAt": "2026-11-03T19:31:57.867Z",
+    "cropRatio": 2.3211003375736303,
+    "originals": [
+      {
+        "id": "im26-2004",
+        "exitCode": 0,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-block-ac125",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "3fc8dc5cf4dbbf363a813c608f7910633f36a5406e43cb771e581eb5d54eb6af",
+              "setting": 2,
+              "bytes": 2421188,
+              "encodeMs": 36080.392474,
+              "managedPeakBytes": 59210879,
+              "processPeakRssBytes": 448188416
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": {
+              "status": "encoded",
+              "engine": "jsquash",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+              "setting": 80,
+              "bytes": 1928555,
+              "encodeMs": 24747.397113,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1928896512
+            }
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+              "width": 2945,
+              "height": 4417,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+              "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+              "setting": 2,
+              "bytes": 1493247,
+              "encodeMs": 9386.321317,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1033433088
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": 1.4579469634423368
+      },
+      {
+        "id": "im26-2400",
+        "exitCode": 1,
+        "engines": [
+          {
+            "engine": "purejsimage",
+            "receipt": {
+              "status": "encoded",
+              "engine": "purejsimage",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": "standalone-block-ac125",
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "18d8474edf026926657eda1ab823d6e84da2e0b02f5d82030b862f9d85b3b77e",
+              "setting": 2,
+              "bytes": 694047,
+              "encodeMs": 58876.925769,
+              "managedPeakBytes": 91262401,
+              "processPeakRssBytes": 508436480
+            }
+          },
+          {
+            "engine": "jsquash",
+            "receipt": null
+          },
+          {
+            "engine": "vips",
+            "receipt": {
+              "status": "encoded",
+              "engine": "vips",
+              "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+              "width": 4000,
+              "height": 5350,
+              "channels": 4,
+              "effort": 7,
+              "strategyPort": null,
+              "allocation": null,
+              "transplantSourceSha256": null,
+              "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+              "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+              "setting": 2,
+              "bytes": 594138,
+              "encodeMs": 13255.612042,
+              "managedPeakBytes": null,
+              "processPeakRssBytes": 1202688000
+            }
+          }
+        ],
+        "managedPass": true,
+        "ratio": null
+      }
+    ],
+    "policy": "All own encodes must finish, managed <=137514476, measured original ratios <=5. Preserve an unavailable peer ratio explicitly; no holdout is launched by this script."
+  },
+  "promotionEntry": {
+    "passed": true,
+    "createdAt": "2026-11-03T19:34:20.104Z",
+    "quality": {
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-block-ac125",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.8777337881364976,
+          "median": 0.45603869637238315,
+          "p90": 3.1416341346806966,
+          "worst": 7.7982839993168245,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.8561132319168472,
+          "median": -2.1756550844873725,
+          "p90": 0.5372635208760617,
+          "worst": 2.9401557324838894,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -2.17039628460332,
+          "median": -2.630452578624218,
+          "p90": 2.371114675158405,
+          "worst": 11.59702285789929,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.976330017803935,
+          "median": -6.788761930683841,
+          "p90": -1.0407997229712278,
+          "worst": 16.900581255485516
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.7022871574177558,
+          "median": 1.1498115498568335,
+          "p90": 9.673432135483038,
+          "worst": 20.29799763588388
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.863659240607956,
+          "median": -1.4164268699369722,
+          "p90": 1.8269041364521623,
+          "worst": 11.830805482193494
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.3885352268245565,
+          "median": -5.165220355359633,
+          "p90": -1.7336798702855878,
+          "worst": 9.726343452938291
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -7.59172197851535,
+          "median": -6.312999159765056,
+          "p90": 1.402923206928071,
+          "worst": 6.488593038243527
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -6.428009611309327,
+          "median": -5.340581561028102,
+          "p90": -1.7629848506178654,
+          "worst": -0.07599887974001701
+        }
+      ],
+      "writer": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 1.4616708776007816,
+          "median": 1.1149837641731422,
+          "p90": 3.1865616892999338,
+          "worst": 8.883242452412004,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.7823734969912965,
+          "median": -1.0820168267085726,
+          "p90": 0.9936724184670404,
+          "worst": 3.640722629339061,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -1.1201623405414682,
+          "median": -0.8217879693803737,
+          "p90": 2.6112474027610384,
+          "worst": 6.0839953616135745,
+          "fullBandCount": 0
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -6.558775385060417,
+            "median": -4.929756567375195,
+            "p90": 1.386917526053316,
+            "worst": 15.167546035698631,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -11.783835157110097,
+            "median": -8.558585757820413,
+            "p90": -3.9084959050606036,
+            "worst": 11.776405376640147,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -11.211119758110149,
+            "median": -9.929692895190877,
+            "p90": 2.0875703047583625,
+            "worst": 18.514883238297088,
+            "fullBandCount": 1
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 8,
+            "failures": [],
+            "worst": 4.608959413977724
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "ssimulacra2",
+              "percent": 7.7982839993168245,
+              "meanLogRateDifference": 0.07509155398642238,
+              "overlap": {
+                "minimum": 69.91855005,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 69.91855005,
+                "maximum": 91.83355318
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2016-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.924207992156557,
+              "meanLogRateDifference": 0.0669500609630693,
+              "overlap": {
+                "minimum": 72.52904121,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 72.52904121,
+                "maximum": 93.22899669
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.405626836656106,
+              "meanLogRateDifference": 0.062088273324312514,
+              "overlap": {
+                "minimum": 68.24480856,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 68.24480856,
+                "maximum": 92.31220846
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.9401557324838894,
+              "meanLogRateDifference": 0.028977621082505924,
+              "overlap": {
+                "minimum": 0.410501,
+                "maximum": 1.412272
+              },
+              "measuredOverlap": {
+                "minimum": 0.410501,
+                "maximum": 1.412272
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1050-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.9334455100578665,
+              "meanLogRateDifference": 0.02891243329361119,
+              "overlap": {
+                "minimum": 0.365773,
+                "maximum": 1.570313
+              },
+              "measuredOverlap": {
+                "minimum": 0.365773,
+                "maximum": 1.570313
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.7084831616553768,
+              "meanLogRateDifference": 0.016940527173301807,
+              "overlap": {
+                "minimum": 0.36452,
+                "maximum": 1.560858
+              },
+              "measuredOverlap": {
+                "minimum": 0.36452,
+                "maximum": 1.560858
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2400-lab",
+              "metric": "butteraugliMax",
+              "percent": 11.59702285789929,
+              "meanLogRateDifference": 0.10972418670274037,
+              "overlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.8797693253
+              },
+              "measuredOverlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.8797693253
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 6.211228227783485,
+              "meanLogRateDifference": 0.06025964442295633,
+              "overlap": {
+                "minimum": 0.7950945497,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7950945497,
+                "maximum": 4.1126198769
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 5.0641931239356675,
+              "meanLogRateDifference": 0.04940134044825645,
+              "overlap": {
+                "minimum": 0.7086913586,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7086913586,
+                "maximum": 4.2461819649
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9422327,
+      "elapsedSeconds": 251.127
+    },
+    "paired": {
+      "summaries": [
+        {
+          "id": "im26-3012",
+          "pairs": 15,
+          "ratio": 1.0601156801637055,
+          "mad": 0.038559362281644693,
+          "wins": 3,
+          "modes": [
+            {
+              "mode": "control",
+              "medianMs": 842.4284750000006,
+              "bytes": 32832,
+              "managedPeakBytes": 5682267
+            },
+            {
+              "mode": "allocation",
+              "medianMs": 881.3599410000024,
+              "bytes": 41888,
+              "managedPeakBytes": 5682267
+            }
+          ]
+        },
+        {
+          "id": "im26-3312",
+          "pairs": 15,
+          "ratio": 1.0113512281559152,
+          "mad": 0.023287559187918694,
+          "wins": 6,
+          "modes": [
+            {
+              "mode": "control",
+              "medianMs": 841.5150209999993,
+              "bytes": 7913,
+              "managedPeakBytes": 5678171
+            },
+            {
+              "mode": "allocation",
+              "medianMs": 851.0672500000001,
+              "bytes": 9226,
+              "managedPeakBytes": 5680219
+            }
+          ]
+        }
+      ]
+    },
+    "speed": {
+      "completedAt": "2026-11-03T19:31:57.867Z",
+      "cropRatio": 2.3211003375736303,
+      "originals": [
+        {
+          "id": "im26-2004",
+          "exitCode": 0,
+          "engines": [
+            {
+              "engine": "purejsimage",
+              "receipt": {
+                "status": "encoded",
+                "engine": "purejsimage",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": "standalone-block-ac125",
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "3fc8dc5cf4dbbf363a813c608f7910633f36a5406e43cb771e581eb5d54eb6af",
+                "setting": 2,
+                "bytes": 2421188,
+                "encodeMs": 36080.392474,
+                "managedPeakBytes": 59210879,
+                "processPeakRssBytes": 448188416
+              }
+            },
+            {
+              "engine": "jsquash",
+              "receipt": {
+                "status": "encoded",
+                "engine": "jsquash",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+                "setting": 80,
+                "bytes": 1928555,
+                "encodeMs": 24747.397113,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1928896512
+              }
+            },
+            {
+              "engine": "vips",
+              "receipt": {
+                "status": "encoded",
+                "engine": "vips",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+                "setting": 2,
+                "bytes": 1493247,
+                "encodeMs": 9386.321317,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1033433088
+              }
+            }
+          ],
+          "managedPass": true,
+          "ratio": 1.4579469634423368
+        },
+        {
+          "id": "im26-2400",
+          "exitCode": 1,
+          "engines": [
+            {
+              "engine": "purejsimage",
+              "receipt": {
+                "status": "encoded",
+                "engine": "purejsimage",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+                "width": 4000,
+                "height": 5350,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": "standalone-block-ac125",
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+                "encodedSha256": "18d8474edf026926657eda1ab823d6e84da2e0b02f5d82030b862f9d85b3b77e",
+                "setting": 2,
+                "bytes": 694047,
+                "encodeMs": 58876.925769,
+                "managedPeakBytes": 91262401,
+                "processPeakRssBytes": 508436480
+              }
+            },
+            {
+              "engine": "jsquash",
+              "receipt": null
+            },
+            {
+              "engine": "vips",
+              "receipt": {
+                "status": "encoded",
+                "engine": "vips",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+                "width": 4000,
+                "height": 5350,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+                "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+                "setting": 2,
+                "bytes": 594138,
+                "encodeMs": 13255.612042,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1202688000
+              }
+            }
+          ],
+          "managedPass": true,
+          "ratio": null
+        }
+      ],
+      "policy": "All own encodes must finish, managed <=137514476, measured original ratios <=5. Preserve an unavailable peer ratio explicitly; no holdout is launched by this script."
+    },
+    "allowance": 1.1049591909461223,
+    "modules": [
+      {
+        "file": "fixture-selection.ts",
+        "sha256": "8c28e5e9b9bcc8851cb0f7799e6ebd2b483f3623f8d5f7ad6be039808074d6db"
+      },
+      {
+        "file": "libjxl-block-quantization-port.ts",
+        "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+      },
+      {
+        "file": "libjxl-chroma-roundtrip-port.ts",
+        "sha256": "2544fa25a02dadb5600b44ae5c041f83d2f2ccaaffbd491ba2c685b16e38fb24"
+      },
+      {
+        "file": "libjxl-ports.ts",
+        "sha256": "eaac2f5b99fba8e8878f031d3b2f67b685b7814b84ec9250fd53f466fc6dba42"
+      },
+      {
+        "file": "libjxl-standalone-port.ts",
+        "sha256": "3f993cc427c44e885c485d1ea96928f3314fe2901a06081769377976b1154fff"
+      },
+      {
+        "file": "libjxl-strategy-port.ts",
+        "sha256": "47f75325603b82011e7894192b99a7b7b1a86ebb93cf3b5638c52b82b67c0012"
+      },
+      {
+        "file": "run.ts",
+        "sha256": "b25b08cad1e212b04aac34a537e6d823bd208c16a2af1d7be67d7ce6e0b30a06"
+      },
+      {
+        "file": "strategy-transplant.ts",
+        "sha256": "32dad1c478a8f315a0a32c85ec4bab6f9a96bcb5fff877104f88fd5415fd499a"
+      },
+      {
+        "file": "worker.ts",
+        "sha256": "ecf13d3b937df256f154b13f30f1edfbc19a493ea3873e6c52b44f7ac0f4f001"
+      }
+    ],
+    "policy": "Only this frozen configuration is admitted. No peer maps; unchanged aggregate-only holdout and all promotion gates."
+  },
+  "holdout": {
+    "coverageChanges": [
+      {
+        "metric": "ssimulacra2",
+        "previousAdmitted": 9,
+        "currentAdmitted": 10,
+        "retained": 9,
+        "lost": 0,
+        "added": 1,
+        "previousFailures": 2,
+        "previousFailuresDropped": 0,
+        "previousFailuresStillFailing": 2,
+        "previousFailuresNowPassing": 0
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "previousAdmitted": 0,
+        "currentAdmitted": 0,
+        "retained": 0,
+        "lost": 0,
+        "added": 0,
+        "previousFailures": 0,
+        "previousFailuresDropped": 0,
+        "previousFailuresStillFailing": 0,
+        "previousFailuresNowPassing": 0
+      }
+    ],
+    "executionComplete": true,
+    "selected": 63,
+    "completedJobs": 189,
+    "outputs": 567,
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -6.269875436199082,
+        "median": -6.423633785707726,
+        "p90": 2.302389306404452,
+        "worst": 12.397937577026681
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": 1.4324686538513929,
+        "median": 0.5331099556517775,
+        "p90": 8.498981284203552,
+        "worst": 17.307498123440492
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": 0.10732501063995689,
+        "median": -0.5424586065180789,
+        "p90": 3.7934634033533374,
+        "worst": 34.4493125137004
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -5.76933113435939,
+        "median": -5.210023255714526,
+        "p90": -0.5124474743589676,
+        "worst": 1.6377518095449801
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -4.253712478028025,
+        "median": -3.639655420987519,
+        "p90": 3.0797518655863416,
+        "worst": 7.862268451651505
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -4.432183122306969,
+        "median": -4.110856460235568,
+        "p90": -0.9219762538532396,
+        "worst": 14.206989033710585
+      }
+    ],
+    "vipsMean": -4.818408911564795,
+    "mainMeans": [
+      {
+        "metric": "ssimulacra2",
+        "count": 63,
+        "mean": -5.192219650665151,
+        "median": -3.6666381548918068,
+        "p90": 2.1237715795938863,
+        "worst": 10.568971938275642,
+        "fullBandCount": 10
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 63,
+        "mean": -9.520503083109432,
+        "median": -7.496840830086514,
+        "p90": -2.79062459797784,
+        "worst": 7.799084069747575,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 63,
+        "mean": -9.491818778511934,
+        "median": -9.795419919962931,
+        "p90": 2.306378313239734,
+        "worst": 16.61041365083042,
+        "fullBandCount": 2
+      }
+    ],
+    "guards": [
+      {
+        "metric": "ssimulacra2",
+        "comparisons": 63,
+        "admitted": 10,
+        "failures": 2,
+        "worstAdmitted": 10.568971938275642
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "comparisons": 63,
+        "admitted": 0,
+        "failures": 0,
+        "worstAdmitted": null
+      }
+    ],
+    "objectivePass": true,
+    "mainMeansPass": true,
+    "guardsPass": false,
+    "passed": false,
+    "maxManaged": 26183855,
+    "policy": "Aggregate-only holdout review. No identities, per-image values or tuning decisions are emitted."
+  },
+  "visualReview": {
+    "scope": "Native decoded pairs at nearby file sizes, inspected at 512px. Does not localize or dismiss metric peaks.",
+    "rows": [
+      {
+        "id": "im26-3000",
+        "maxBdRateVsMain": 18.514883238297088,
+        "candidateDistance": 1.85,
+        "mainDistance": 3,
+        "candidateBytes": 16021,
+        "mainBytes": 15609,
+        "scene": "dark door"
+      },
+      {
+        "id": "im26-3004",
+        "maxBdRateVsMain": 7.7807433721184465,
+        "candidateDistance": 1.85,
+        "mainDistance": 3,
+        "candidateBytes": 25826,
+        "mainBytes": 26850,
+        "scene": "pottery"
+      },
+      {
+        "id": "im26-2014",
+        "maxBdRateVsMain": 5.225132145424221,
+        "candidateDistance": 0.65,
+        "mainDistance": 0.9,
+        "candidateBytes": 89143,
+        "mainBytes": 93773,
+        "scene": "grainy feet and water"
+      }
+    ],
+    "finding": "Subtle texture and tonal differences; no gross structural break visible at this display scale. Candidate remained frozen."
+  },
+  "validation": {
+    "fixtures": [
+      {
+        "trial": "ac080",
+        "passed": true,
+        "rows": [
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 0.65,
+            "bytes": 372,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 2,
+            "bytes": 323,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 7,
+            "bytes": 279,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 0.65,
+            "bytes": 377,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 2,
+            "bytes": 322,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 7,
+            "bytes": 260,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 0.65,
+            "bytes": 922,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 2,
+            "bytes": 578,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 7,
+            "bytes": 376,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 0.65,
+            "bytes": 5805,
+            "managedPeakBytes": 1167099
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 2,
+            "bytes": 3709,
+            "managedPeakBytes": 1167096
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 7,
+            "bytes": 1340,
+            "managedPeakBytes": 1167063
+          }
+        ]
+      },
+      {
+        "trial": "ac125",
+        "passed": true,
+        "rows": [
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 0.65,
+            "bytes": 407,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 2,
+            "bytes": 339,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 7,
+            "bytes": 284,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 0.65,
+            "bytes": 402,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 2,
+            "bytes": 332,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 7,
+            "bytes": 265,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 0.65,
+            "bytes": 1013,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 2,
+            "bytes": 679,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 7,
+            "bytes": 420,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 0.65,
+            "bytes": 7679,
+            "managedPeakBytes": 1167101
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 2,
+            "bytes": 3596,
+            "managedPeakBytes": 1167096
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 7,
+            "bytes": 1639,
+            "managedPeakBytes": 1167063
+          }
+        ]
+      },
+      {
+        "trial": "native-dc",
+        "passed": true,
+        "rows": [
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 0.65,
+            "bytes": 392,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 2,
+            "bytes": 334,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 1,
+            "height": 17,
+            "distance": 7,
+            "bytes": 221,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 0.65,
+            "bytes": 388,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 2,
+            "bytes": 324,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 1,
+            "distance": 7,
+            "bytes": 211,
+            "managedPeakBytes": 1138757
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 0.65,
+            "bytes": 955,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 2,
+            "bytes": 611,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 17,
+            "height": 19,
+            "distance": 7,
+            "bytes": 337,
+            "managedPeakBytes": 1140167
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 0.65,
+            "bytes": 6259,
+            "managedPeakBytes": 1167096
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 2,
+            "bytes": 3703,
+            "managedPeakBytes": 1167093
+          },
+          {
+            "width": 65,
+            "height": 73,
+            "distance": 7,
+            "bytes": 1395,
+            "managedPeakBytes": 1166697
+          }
+        ]
+      }
+    ],
+    "fixtureCases": 36,
+    "policyDistancesPerMode": 9,
+    "initialPromotionDenials": 9,
+    "ownStreamAuditPoints": 27,
+    "strictTypeScript": "passed",
+    "archives": [
+      {
+        "base": "9b0f8656e6280237dace22d25e81747d1f3aa5a3",
+        "trial": "ac080",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-ALLOCATION-AC080-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+            "sha256": "e1c9c44148c81a3f4a0b6bf3bf12c3bfa6acd16d07d1080cbb745749f0b3ac2c"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+            "sha256": "17439e7e683c35283fe924fed77f8298b497a220dfb4a150229b49feb5f4cfea"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "path": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ],
+        "policy": "Independent research snapshot. Import paths normalized; executable statements unchanged. Promotion admission excluded and must be requalified."
+      },
+      {
+        "base": "9b0f8656e6280237dace22d25e81747d1f3aa5a3",
+        "trial": "ac125",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-ALLOCATION-AC125-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+            "sha256": "8ff5ea7912df95584d025a63539979a3fc5e2ab78fdaaf727bfae7205c68ae4a"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+            "sha256": "7d2bead620f3917633fb5bacf66a354cbdb910c6e745af452a69baf8f74f8549"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "path": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ],
+        "policy": "Independent research snapshot. Import paths normalized; executable statements unchanged. Promotion admission excluded and must be requalified."
+      },
+      {
+        "base": "9b0f8656e6280237dace22d25e81747d1f3aa5a3",
+        "trial": "native-dc",
+        "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-ALLOCATION-NATIVE-DC-EXPERIMENT.patch",
+        "applies": true,
+        "exactModules": [
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+            "sha256": "c74fadf87f786457e9e5d8cee668849106175c01aeb7394ecd9d156ef4d9f159"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+            "sha256": "6f61d2cff8015de3e72305abc4d53d1cc3c7e8c59a0016ead2036bd69f136a1c"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+            "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+            "sha256": "72cbf222d465fa555ecec25bf50561fabd945c23939990650886f59ff01fe730"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+            "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6"
+          },
+          {
+            "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+            "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+          },
+          {
+            "path": "tests/jpegxl-block-quantization-port.test.ts",
+            "sha256": "3b976a07d15b4eb4deafbfdb87c71ca74397e49a2c9b9c1a692670732e91afbb"
+          }
+        ],
+        "policy": "Independent research snapshot. Import paths normalized; executable statements unchanged. Promotion admission excluded and must be requalified."
+      }
+    ],
+    "dcAuditArchive": {
+      "patchPath": "benchmark/jpegxl/lossy-lab/BLOCK-ALLOCATION-DC-AUDIT.patch",
+      "applies": true,
+      "exactFile": "benchmark/jpegxl/lossy-lab/audit-native-dc-precision.ts",
+      "sha256": "d2549351bc31ff032d988c93c36430060e2389bdee7b8ebf1ba8e5b35886d931"
+    },
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T19:41:25.688Z",
+      "endedAt": "2026-11-03T19:50:37.288Z",
+      "code": 0,
+      "signal": null
+    },
+    "repositoryTests": {
+      "passed": 4229,
+      "skipped": 3,
+      "total": 4232
+    },
+    "preflightCorrection": "The first coverage reporter preflight required a narrowed local array before a callback. Corrected and strict TypeScript passed before any holdout job launched; encoder source unchanged.",
+    "activeImplementationChanged": false
+  },
+  "newHoldoutAttempts": 1,
+  "retainedQualityChanges": 0,
+  "bundles": {
+    "codecBytes": 614969,
+    "specializedBytes": 687801,
+    "runtimeDependencies": 0
+  },
+  "status": "Not merge-ready. Frozen candidate fails holdout promotion; all three approved configurations evaluated.",
+  "remaining": "Full cold/warm RSS and reclamation, complete watch/scale, independent-decoder promotion and public integration require a qualifying candidate. No fourth quality configuration is authorized.",
+  "nextHypotheses": [
+    {
+      "rank": 1,
+      "hypothesis": "Coherent predictor-aware nonlinear DC quantization with native InitialQuantDC and reconstructed-Y chroma DC subtraction.",
+      "evidence": "Four source files match pinned archive; all nine raw native development groups signal precision 1, while own groups signal 0. Numerical upside unmeasured."
+    },
+    {
+      "rank": 2,
+      "hypothesis": "DC/AC reconstruction consistency for low frequencies of selected large transforms.",
+      "evidence": "Possible rounding mismatch; no measured error budget yet."
+    },
+    {
+      "rank": 3,
+      "hypothesis": "Native float32 and rounding-tie semantics at quantization boundaries.",
+      "evidence": "Lower expected upside; require material coefficient-trace evidence first."
+    }
+  ]
+}
