@@ -338,7 +338,7 @@ describe('package contract', () => {
   })
 
   it('keeps real-browser validation tools development-only and version-pinned', () => {
-    expect(packageJson.devDependencies['@playwright/test']).toBe('1.62.1')
+    expect(packageJson.devDependencies['@playwright/test']).toBe('1.64.1')
     expect(packageJson.devDependencies['@jsquash/jpeg']).toBe('1.6.0')
     expect(packageJson.devDependencies['@jsquash/png']).toBe('3.1.1')
     expect(packageJson.devDependencies['@jsquash/resize']).toBe('2.1.1')
