@@ -50,9 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     # Include setup, compatibility cases and both ten-minute photo attempts.
     timeout-minutes: 50
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
-      options: --user 1001 --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -77,6 +74,8 @@ jobs:
         run: npm ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      - name: Install current browsers
+        run: npx --no-install playwright install --with-deps chrome firefox webkit
 
       - name: Build package for executable public examples
         run: npm run build
