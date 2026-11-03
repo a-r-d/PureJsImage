@@ -8,8 +8,8 @@ The trial is rejected for promotion. The branch is not ready to merge.
 
 Research base: `ec3ecc99793e618cfadcadbb1a5723e358120851`, branch
 `jxl-libjxl-ports`. Audit checkpoint: `4171928f`. Aaron approved one configuration
-after reviewing the two-file proposal. No sweep or peer maps. Active source,
-public defaults and main stay unchanged.
+after reviewing the two-file proposal. No sweep or peer maps. This work changes
+no active source or public defaults and performs no merge to main.
 
 ## Fixed change
 
@@ -132,6 +132,11 @@ base, then use the standard lab harness with `--variant standalone-dc-wire`
 and `--strategy-port standalone-dc-wire`, the frozen corpus-512-v2 manifest,
 and the unchanged screen/lab ladders. Promotion admission must be requalified.
 Public peer-forcing hooks still require removal before any merge.
+
+Final remote verification found main at `4a40c68f`, two commits beyond the
+previously observed `e534dec5`: site documentation/SEO and a Playwright package
+contract expectation. Neither changes JPEG XL source or package dependencies.
+This work did not merge or rebase; comparisons retain the frozen baseline.
 
 Remaining development investigations, in order: separate chroma DC error from
 luma error using the frozen streams; examine predictor-aware DC rounding while
