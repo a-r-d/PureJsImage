@@ -1,0 +1,132 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index a61bd920..73bc1995 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,7 +74,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
+-    value === 'standalone-regularized-half' ||
++    value === 'standalone-regularized-dc-half' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -161,7 +161,7 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
+-    mode === 'standalone-regularized-half' ||
++    mode === 'standalone-regularized-dc-half' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 42b325c2..22b8f6d2 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -67,7 +67,7 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+-  | 'standalone-regularized-half'
++  | 'standalone-regularized-dc-half'
+ 
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -76,7 +76,7 @@ export function libjxlStandaloneOverrides(
+   requestedMode: StandalonePort,
+   directRoundingState = true,
+ ): JpegXlDevelopmentDecisions {
+-  const regularizedDetail = requestedMode === 'standalone-regularized-half'
++  const regularizedDetail = requestedMode === 'standalone-regularized-dc-half'
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 8ccbd6ac..44dfdc0d 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -1,3 +1,4 @@
++import {diffuseDc} from './dc-error-diffusion.ts'
+ import {
+   packCoefficients,
+   unpackCoefficients,
+@@ -82,6 +83,9 @@ export function rewriteStrategyGeometry(
+     memory.allocate(Float32Array, 4096),
+   ]
+   const dc = memory.allocate(Float64Array, 64)
++  const dcRaw=memory.allocate(Float64Array,base.blocksWide*base.blocksHigh)
++  const dcRowA=memory.allocate(Float64Array,base.blocksWide+2)
++  const dcRowB=memory.allocate(Float64Array,base.blocksWide+2)
+   const orders: JpegXlDevelopmentOrderFamily[] = [0, 1, 4, 5, 10, 6, 8, 18, 19].map((strategy) => {
+     const natural = naturalJpegXlDevelopmentCoefficientOrder(strategy)
+     // Our existing writer uses transposed internal coordinates for the small family.
+@@ -196,10 +200,12 @@ export function rewriteStrategyGeometry(
+               const step = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
+               if (!target || !(step > 0)) throw new Error('Missing transform DC precision')
+               for (let dy = 0; dy < bh; dy++)
+-                for (let dx = 0; dx < bw; dx++)
+-                  target[(oy + y + dy) * base.blocksWide + ox + x + dx] = Math.round(
+-                    (dc[dy * bw + dx] ?? 0) / step,
+-                  )
++                for (let dx = 0; dx < bw; dx++) {
++                  const at=(oy+y+dy)*base.blocksWide+ox+x+dx
++                  const value=(dc[dy*bw+dx]??0)/step
++                  target[at]=Math.round(value)
++                  if(c===1) dcRaw[at]=value
++                }
+             }
+           }
+           // Set our existing rate-aware quantizer's activity state at the leader.
+@@ -294,7 +300,10 @@ export function rewriteStrategyGeometry(
+       )
+     }
+   }
+-  for (const buffer of [...source, scratch, ...transformed, dc]) memory.release(buffer)
++  const dcTarget=base.dcComponents[0]?.coefficients
++  if(!dcTarget) throw new Error('Missing luma DC target')
++  diffuseDc(dcRaw,dcTarget,base.blocksWide,base.blocksHigh,0.5,dcRowA,dcRowB)
++  for (const buffer of [...source, scratch, ...transformed, dc, dcRaw, dcRowA, dcRowB]) memory.release(buffer)
+   if (pairs) memory.release(pairs)
+   const restored = compactStorage
+     ? [
+diff --git a/benchmark/jpegxl/lossy-lab/dc-error-diffusion.ts b/benchmark/jpegxl/lossy-lab/dc-error-diffusion.ts
+new file mode 100644
+index 00000000..e46ee894
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-error-diffusion.ts
+@@ -0,0 +1,34 @@
++/** First-party serpentine diffusion on the DC coefficient grid; development only. */
++export function diffuseDc(
++  source:Float64Array,
++  target:Int16Array|Int32Array,
++  width:number,
++  height:number,
++  strength:number,
++  rowA:Float64Array,
++  rowB:Float64Array,
++):void {
++  if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||
++    source.length!==width*height||target.length<source.length||rowA.length<width+2||rowB.length<width+2||
++    !Number.isFinite(strength)||strength<0||strength>1) throw new Error('Invalid DC diffusion shape')
++  rowA.fill(0);rowB.fill(0)
++  let current=rowA,next=rowB
++  for(let y=0;y<height;y++) {
++    const direction=y%2===0?1:-1
++    for(let x=direction===1?0:width-1;x>=0&&x<width;x+=direction) {
++      const at=y*width+x
++      const value=(source[at]??0)+(current[x+1]??0)
++      const rounded=Math.round(value)
++      target[at]=rounded
++      const error=(value-rounded)*strength/16
++      current[x+1+direction]=(current[x+1+direction]??0)+7*error
++      next[x+1-direction]=(next[x+1-direction]??0)+3*error
++      next[x+1]=(next[x+1]??0)+5*error
++      next[x+1+direction]=(next[x+1+direction]??0)+error
++    }
++    const old=current
++    current=next
++    next=old
++    next.fill(0)
++  }
++}

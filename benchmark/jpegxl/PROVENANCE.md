@@ -627,3 +627,25 @@ dot-product order. `lossy-lab/libjxl-gaborish-port.ts` unrolls its existing 25
 taps in the original order. These are first-party speed adaptations with no
 new constants or source material. The existing port header and full BSD
 notices apply. Qualification remains on the research branch.
+
+## Structural follow-up archives, 2026-11-03
+
+`lossy-lab/STRUCTURE-LOCAL-EXPERIMENT.patch` and
+`lossy-lab/STRUCTURE-OVERLAP-EXPERIMENT.patch` adapt the same previously ported
+structure denominator and stabilizer from `tools/ssimulacra2.cc`, v0.12.0
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. Their cell pooling and overlapping
+windows are first-party experiments. The writer-coupling archive reuses existing
+ports; the DC error-diffusion helper is first-party. All four are rejected and
+remain outside the active implementation.
+
+`lossy-lab/STRUCTURE-METRIC-DIAGNOSTIC.patch` preserves development-only
+`build-ssim-probe.ts` and `audit-ssim-features.ts`. The former enables the existing
+raw-score macro when separately compiling the same unmodified native metric
+source. The latter parses the source's 108 weights and native feature output,
+then compares saved development outputs at matched bytes. It does not implement
+the metric or affect encoder decisions. The audit header names the source and
+revision; the existing full BSD notices apply. No runtime dependency is added.
+
+`lib/jxl/enc_group.cc` at that revision was read to identify
+`AdjustQuantBlockAC` and its caller. No code, constants or tables from that pass
+have been ported in this follow-up.

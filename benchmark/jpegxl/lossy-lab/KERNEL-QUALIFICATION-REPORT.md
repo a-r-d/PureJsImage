@@ -81,7 +81,7 @@ static, package and browser-build gates. JPEG XL codec/specialized bundles remai
 The exact kernels remain in the research implementation. The regularized mode
 is an explicit development option; it is not promoted. Full watch/scale,
 independent-decoder promotion checks, public integration and removal or exclusion
-of peer-forcing hooks remain pending. The subsequent cell-local structural
-weighting screen (LL-1079) regresses all three averages and is rejected.
-LL-1080 tests overlapping windows in a separate development prototype. The
-holdout remains closed to tuning.
+of peer-forcing hooks remain pending. The subsequent
+[structural follow-up](STRUCTURE-FOLLOWUP-REPORT.md) rejects four new hypotheses
+after 896 native-valid development outputs and identifies a native block
+quantization pass for a possible next round. The holdout remains closed to tuning.

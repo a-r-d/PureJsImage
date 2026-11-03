@@ -1,0 +1,80 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index a61bd920..239933f2 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,7 +74,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
+-    value === 'standalone-regularized-half' ||
++    value === 'standalone-regularized-overlap' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -161,7 +161,7 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
+-    mode === 'standalone-regularized-half' ||
++    mode === 'standalone-regularized-overlap' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 42b325c2..5091d6ee 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -67,7 +67,7 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+-  | 'standalone-regularized-half'
++  | 'standalone-regularized-overlap'
+ 
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -76,7 +76,7 @@ export function libjxlStandaloneOverrides(
+   requestedMode: StandalonePort,
+   directRoundingState = true,
+ ): JpegXlDevelopmentDecisions {
+-  const regularizedDetail = requestedMode === 'standalone-regularized-half'
++  const regularizedDetail = requestedMode === 'standalone-regularized-overlap'
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+index 5bc12086..38d7eb1b 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+@@ -3,7 +3,7 @@
+  * a7a9c787341cf703dede03c2009fa460cae5e5df.
+  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
+  * Changes: reuses the structure denominator and 0.0009
+- * stabilizer. First-party 8x8 box moments on preconditioned luma replace Gaussian
++ * stabilizer. First-party overlapping 8x8 box moments on preconditioned luma replace Gaussian
+  * display moments; DC, other channels, scales and edge terms are excluded.
+  * No peer decisions. This is not a metric implementation or public encoder.
+  */
+@@ -14,9 +14,12 @@ export function selectorRegularizedDetailLoss(
+   height: number,
+   scale: number,
+ ): number {
+-  let total = 0
+-  for (let by = 0; by < height; by += 8)
+-    for (let bx = 0; bx < width; bx += 8) {
++  let total = 0, windows = 0
++  const phases = width > 8 || height > 8 ? 2 : 1
++  for (let phase = 0; phase < phases; phase++)
++    for (let by = phase === 1 && height > 8 ? 4 : 0; by + 8 <= height; by += 8)
++      for (let bx = phase === 1 && width > 8 ? 4 : 0; bx + 8 <= width; bx += 8) {
++      windows++
+       let sum = 0,
+         sumError = 0,
+         square = 0,
+@@ -40,5 +43,5 @@ export function selectorRegularizedDetailLoss(
+       const epsilon = 64 * 0.0009
+       total += Math.min(1, errorVariance / (variance + reconstructed + epsilon))
+     }
+-  return total / ((width * height) / 64)
++  return total / windows
+ }

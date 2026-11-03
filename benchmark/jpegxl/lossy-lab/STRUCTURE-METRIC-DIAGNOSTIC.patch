@@ -1,0 +1,122 @@
+diff --git a/benchmark/jpegxl/lossy-lab/build-ssim-probe.ts b/benchmark/jpegxl/lossy-lab/build-ssim-probe.ts
+new file mode 100644
+index 00000000..0d4c9cdd
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/build-ssim-probe.ts
+@@ -0,0 +1,29 @@
++import {readFile,writeFile,mkdir} from 'node:fs/promises'
++import {spawnSync} from 'node:child_process'
++import {resolve} from 'node:path'
++const source=resolve('.tmp/jpegxl-oracles/libjxl-v0.12.0/source')
++const build=`${source}/build-m7-metrics`
++const target=resolve('.tmp/jpegxl-lossy-lab/selector-kernels-20261103/metric-probe')
++await mkdir(target,{recursive:true})
++const ninja=await readFile(`${build}/build.ninja`,'utf8')
++const block=ninja.slice(ninja.indexOf('build tools/ssimulacra2:'))
++const libraries=block.match(/^  LINK_LIBRARIES = (.+)$/mu)?.[1]?.trim().split(/\s+/u)
++if(!libraries||libraries.length<10) throw new Error('Missing pinned link libraries')
++const compile=[
++  '-DFJXL_ENABLE_AVX512=0','-DHWY_STATIC_DEFINE','-DJXL_CMS_STATIC_DEFINE','-DJXL_STATIC_DEFINE','-DJXL_THREADS_STATIC_DEFINE',
++  '-DTOOLCHAIN_MISS_ASM_HWCAP_H','-D__DATE__="redacted"','-D__TIMESTAMP__="redacted"','-D__TIME__="redacted"',
++  '-DSSIMULACRA2_OUTPUT_RAW_SCORES_FOR_WEIGHT_TUNING',
++  '-fno-rtti','-O3','-DNDEBUG','-std=c++17','-fPIE',
++  '-DHWY_DISABLED_TARGETS=(HWY_AVX3|HWY_AVX3_SPR|HWY_AVX3_ZEN4|HWY_RVV|HWY_SSSE3|HWY_SVE|HWY_SVE_256|HWY_SVE2|HWY_SVE2_128)',
++  `-fmacro-prefix-map=${source}=.`,'-funwind-tables','-fno-omit-frame-pointer','-Wno-builtin-macro-redefined','-Wall',
++  ...[source,`${source}/third_party/highway`,`${build}/lib/include`,`${source}/third_party/brotli/c/include`,`${source}/lib/include`].map(path=>`-I${path}`),
++  '-c',`${source}/tools/ssimulacra2.cc`,'-o',`${target}/ssimulacra2.cc.o`,
++]
++const link=['-fno-rtti','-O3','-DNDEBUG','-static','-static-libgcc','-static-libstdc++','-fPIE','-pie',
++  'tools/CMakeFiles/ssimulacra2.dir/ssimulacra2_main.cc.o',`${target}/ssimulacra2.cc.o`,'-o',`${target}/ssimulacra2-features`,...libraries]
++for(const args of [compile,link]) {
++  const result=spawnSync('/usr/bin/c++',args,{cwd:build,encoding:'utf8',timeout:120000,maxBuffer:1024*1024})
++  if(result.status!==0) throw new Error(result.stderr||result.error?.message||'Native probe build failed')
++}
++await writeFile(`${target}/build.json`,JSON.stringify({source:'libjxl v0.12.0 a7a9c787341cf703dede03c2009fa460cae5e5df',compile,link,policy:'Separate diagnostic executable. No source, stock scorer, native libraries or encoder changed.'},null,2))
++console.log(JSON.stringify({executable:`${target}/ssimulacra2-features`}))
+diff --git a/benchmark/jpegxl/lossy-lab/audit-ssim-features.ts b/benchmark/jpegxl/lossy-lab/audit-ssim-features.ts
+new file mode 100644
+index 00000000..c6033e7e
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-ssim-features.ts
+@@ -0,0 +1,81 @@
++/**
++ * Diagnostic use of libjxl tools/ssimulacra2.cc, v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: first-party parsing of native feature output and its source weights;
++ * compare saved development streams at matched bytes. No metric implementation,
++ * encoder decisions, native source edits or holdout access.
++ */
++import {readFile,writeFile} from 'node:fs/promises'
++import {spawnSync} from 'node:child_process'
++import {object} from '../comparison/model.ts'
++import {parsePoint} from './model.ts'
++const root='.tmp/jpegxl-lossy-lab/selector-kernels-20261103'
++const executable=`${root}/metric-probe/ssimulacra2-features`
++const source=await readFile('.tmp/jpegxl-oracles/libjxl-v0.12.0/source/tools/ssimulacra2.cc','utf8')
++const weightText=source.match(/constexpr double weight\[108\] = \{([^}]+)\}/u)?.[1]
++if(!weightText) throw new Error('Missing pinned metric weights')
++const weights=weightText.split(',').map(text=>Number(text.trim()))
++if(weights.length!==108||weights.some(value=>!Number.isFinite(value))) throw new Error('Invalid metric weights')
++const labels=[]
++for(const channel of ['X','Y','B-Y'])
++  for(const scale of [1,2,4,8,16,32])
++    for(const norm of [1,4])
++      for(const feature of ['structure','ringing','blur']) labels.push({channel,scale,norm,feature})
++const read=async(path:string):Promise<Record<string,unknown>>=>object(JSON.parse(await readFile(path,'utf8')))
++const probe=(reference:string,decoded:string,expected:number)=>{
++  const process=spawnSync(executable,[reference,decoded],{encoding:'utf8',timeout:30000,maxBuffer:1024*1024,env:{...globalThis.process.env,OMP_NUM_THREADS:'1'}})
++  if(process.status!==0) throw new Error(process.stderr||'Metric probe failed')
++  const values=process.stdout.trim().split(',').map(Number)
++  if((values.length!==109&&values.length!==217)||values.some(value=>!Number.isFinite(value))) throw new Error('Invalid native features')
++  const score=values[values.length-1]
++  if(score===undefined||Math.abs(score-expected)>0.00000006) throw new Error('Probe score differs from saved native score')
++  const features=values.slice(0,108)
++  if(values.length===217&&features.some((value,i)=>value!==values[i+108])) throw new Error('Opaque alpha background mismatch')
++  return {score,features,weighted:features.map((value,i)=>Math.abs(value)*(weights[i]??0))}
++}
++const modes={
++  regularized:'.tmp/jpegxl-lossy-lab/detail-guard-20261029/regularized-half-lab/standalone-regularized-half-purejsimage',
++  main:'.tmp/jpegxl-lossy-lab/transplant-20261013-v2/control/lab/transplant-control-purejsimage',
++}
++const rows=[]
++for(const id of ['im26-2004','im26-3302']) {
++  const reference=`.tmp/jpegxl-lossy-lab/corpus-512-v2/${id}.png`
++  const identity=probe(reference,reference,100)
++  if(identity.features.some(value=>value!==0)) throw new Error('Nonzero identity features')
++  for(const mode of ['regularized','main'] as const) {
++    const directory=`${modes[mode]}/${id}-lab`
++    const ledger=await read(`${directory}/result.json`)
++    if(!Array.isArray(ledger.points)) throw new Error('Missing curve')
++    for(const point of ledger.points.map(parsePoint)) {
++      const result=probe(reference,`${directory}/${point.setting}.png`,point.ssimulacra2)
++      rows.push({id,mode,distance:point.setting,bytes:point.bytes,...result})
++    }
++  }
++}
++const summaries=[]
++for(const id of ['im26-2004','im26-3302']) {
++  const candidate=rows.filter(row=>row.id===id&&row.mode==='regularized')
++  const baseline=rows.filter(row=>row.id===id&&row.mode==='main').sort((a,b)=>a.bytes-b.bytes)
++  const matched: {distance:number;bytes:number;candidateScore:number;referenceScore:number;bracket:number[];fraction:number;deltas:number[];totalDelta:number}[]=[]
++  for(const point of candidate) {
++    if(point.score<60||point.score>90) continue
++    const right=baseline.findIndex(row=>row.bytes>=point.bytes)
++    if(right<=0) continue
++    const a=baseline[right-1],b=baseline[right]
++    if(!a||!b||a.bytes===b.bytes) throw new Error('Invalid reference bracket')
++    const fraction=Math.log(point.bytes/a.bytes)/Math.log(b.bytes/a.bytes)
++    const reference=a.weighted.map((value,i)=>value+fraction*((b.weighted[i]??0)-value))
++    const deltas=point.weighted.map((value,i)=>value-(reference[i]??0))
++    matched.push({distance:point.distance,bytes:point.bytes,candidateScore:point.score,referenceScore:a.score+fraction*(b.score-a.score),bracket:[a.distance,b.distance],fraction,deltas,totalDelta:deltas.reduce((sum,value)=>sum+value,0)})
++  }
++  const features=labels.map((label,i)=>({...label,meanDelta:matched.reduce((sum,row)=>sum+(row.deltas[i]??0),0)/matched.length}))
++  const groups=[]
++  for(const channel of ['X','Y','B-Y'])
++    for(const feature of ['structure','ringing','blur']) groups.push({channel,feature,meanDelta:features.filter(row=>row.channel===channel&&row.feature===feature).reduce((sum,row)=>sum+row.meanDelta,0)})
++  summaries.push({id,matched:matched.length,totalMeanDelta:matched.reduce((sum,row)=>sum+row.totalDelta,0)/matched.length,groups:groups.sort((a,b)=>b.meanDelta-a.meanDelta),largestFeatures:features.sort((a,b)=>b.meanDelta-a.meanDelta).slice(0,8),points:matched})
++}
++const report={nativeScoresValidated:rows.length,identityChecks:2,rows,summaries,
++  policy:'Development only, candidate SSIM scores 60 to 90. Positive native weighted-feature delta is worse at matched bytes. Reference features interpolate in log bytes between actual native measurements; this is a diagnostic, not the campaign BD-rate estimator. The initial unbounded-range report remains archived separately.'}
++await writeFile(`${root}/ssim-feature-audit-required-band.json`,JSON.stringify(report,null,2))
++console.log(JSON.stringify({nativeScoresValidated:rows.length,summaries:summaries.map(({points,...summary})=>summary)},null,2))

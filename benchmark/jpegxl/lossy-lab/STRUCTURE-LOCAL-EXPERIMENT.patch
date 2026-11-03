@@ -1,0 +1,150 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index a61bd920..1e90988d 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,7 +74,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
+-    value === 'standalone-regularized-half' ||
++    value === 'standalone-regularized-cell' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -161,7 +161,7 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
+-    mode === 'standalone-regularized-half' ||
++    mode === 'standalone-regularized-cell' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 42b325c2..08dff2a2 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -67,7 +67,7 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+-  | 'standalone-regularized-half'
++  | 'standalone-regularized-cell'
+ 
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -76,7 +76,7 @@ export function libjxlStandaloneOverrides(
+   requestedMode: StandalonePort,
+   directRoundingState = true,
+ ): JpegXlDevelopmentDecisions {
+-  const regularizedDetail = requestedMode === 'standalone-regularized-half'
++  const regularizedDetail = requestedMode === 'standalone-regularized-cell'
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index fa924ac2..2fd5435d 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -24,7 +24,7 @@
+  */
+ import { selectorTileMask } from './selector-tile-mask.ts'
+ import { selectorMaskLoss } from './selector-mask-loss.ts'
+-import { selectorRegularizedDetailLoss } from './libjxl-selector-detail-loss.ts'
++import { selectorRegularizedMaskedLoss } from './libjxl-selector-detail-loss.ts'
+ import { inverseSelectorTransform } from './selector-inverse.ts'
+ import { inverseWeightedSelectorTransform } from './selector-inverse-weights.ts'
+ import type {
+@@ -384,7 +384,14 @@ function selectGeometry(
+         const channelWeight = c === 0 ? 8.2 : c === 2 ? 1.03 : 1
+         const maskOffset = c === 0 ? 12 : c === 2 ? 4 : 0
+         let channelLoss = 0
+-        if (rowMask && tileMask)
++        if (c === 1 && regularizedDetail) {
++          const source = planes[c]
++          if (!source || !tileMask) throw new Error('Missing local detail inputs')
++          channelLoss = selectorRegularizedMaskedLoss(
++            source, spatial, width, height, scale, tileMask.data,
++            (y * 8 - maskOriginY) * 64 + x * 8 - maskOriginX,
++          )
++        } else if (rowMask && tileMask)
+           channelLoss = selectorMaskLoss(
+             spatial,
+             tileMask.data,
+@@ -412,12 +419,6 @@ function selectGeometry(
+             error *= error
+             channelLoss += error
+           }
+-        if (c === 1 && regularizedDetail) {
+-          const source = planes[c]
+-          if (!source) throw new Error('Missing luma detail source')
+-          const detail = selectorRegularizedDetailLoss(source, spatial, width, height, scale)
+-          channelLoss *= (1 + 0.5 * detail) ** 8
+-        }
+         loss += channelLoss
+         if (c === 0 && bw * bh >= 2) {
+           const penalty = 1 + Math.min(3, (bw * bh) / 8)
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+index 5bc12086..f09300e2 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-selector-detail-loss.ts
+@@ -2,26 +2,24 @@
+  * Source: libjxl tools/ssimulacra2.cc, SSIMMap, v0.12.0,
+  * a7a9c787341cf703dede03c2009fa460cae5e5df.
+  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
+- * Changes: reuses the structure denominator and 0.0009
+- * stabilizer. First-party 8x8 box moments on preconditioned luma replace Gaussian
+- * display moments; DC, other channels, scales and edge terms are excluded.
+- * No peer decisions. This is not a metric implementation or public encoder.
++ * Changes: reuse the structure denominator and 0.0009 stabilizer with
++ * first-party 8x8 box moments on preconditioned luma. Apply each cell's fixed
++ * half-strength structure weight to its masked eighth-power error before
++ * pooling. Exclude DC, other channels, scales and edge terms. No peer maps.
+  */
+-export function selectorRegularizedDetailLoss(
++export function selectorRegularizedMaskedLoss(
+   source: Float32Array,
+   error: Float32Array,
+   width: number,
+   height: number,
+   scale: number,
++  mask: Float32Array,
++  maskOrigin: number,
+ ): number {
+   let total = 0
+   for (let by = 0; by < height; by += 8)
+     for (let bx = 0; bx < width; bx += 8) {
+-      let sum = 0,
+-        sumError = 0,
+-        square = 0,
+-        squareError = 0,
+-        cross = 0
++      let sum = 0, sumError = 0, square = 0, squareError = 0, cross = 0, loss = 0
+       for (let y = 0; y < 8; y++)
+         for (let x = 0; x < 8; x++) {
+           const at = (by + y) * width + bx + x
+@@ -32,13 +30,18 @@ export function selectorRegularizedDetailLoss(
+           square += value * value
+           squareError += residual * residual
+           cross += value * residual
++          let weighted = (error[at] ?? 0) * (mask[maskOrigin + (by + y) * 64 + bx + x] ?? 1)
++          weighted *= weighted
++          weighted *= weighted
++          weighted *= weighted
++          loss += weighted
+         }
+-      const variance = Math.max(0, square - (sum * sum) / 64)
+-      const errorVariance = Math.max(0, squareError - (sumError * sumError) / 64)
+-      const covariance = cross - (sum * sumError) / 64
++      const variance = Math.max(0, square - sum * sum / 64)
++      const errorVariance = Math.max(0, squareError - sumError * sumError / 64)
++      const covariance = cross - sum * sumError / 64
+       const reconstructed = Math.max(0, variance + errorVariance - 2 * covariance)
+-      const epsilon = 64 * 0.0009
+-      total += Math.min(1, errorVariance / (variance + reconstructed + epsilon))
++      const detail = Math.min(1, errorVariance / (variance + reconstructed + 64 * 0.0009))
++      total += loss * (1 + 0.5 * detail) ** 8
+     }
+-  return total / ((width * height) / 64)
++  return total
+ }
