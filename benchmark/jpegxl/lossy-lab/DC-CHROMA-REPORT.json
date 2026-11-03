@@ -1,0 +1,5774 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "904e753e5e90bc8e90981476b832267b66e62f39",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-chroma-20261103",
+  "authorization": "One fixed reconstructed-luma chroma DC trial approved by Aaron. Aligned AC 1.25 allocation, nearest rounding, smoothing off, all AC decisions and all quality/speed/memory/promotion gates unchanged. No sweep or peer maps.",
+  "change": "Source-informed AddVarDCTDC residual subtraction. Process Y before chroma, restore B from B-Y, subtract reconstructed Y, and reuse 512 bytes of Float64 scratch.",
+  "screen": {
+    "complete": true,
+    "mode": "screen",
+    "variant": "standalone-dc-chroma",
+    "images": 16,
+    "regularized": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 2.0272601275384505,
+        "median": 1.081128420501616,
+        "p90": 6.937330063707558,
+        "worst": 7.377576477581354,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -1.7567929637421584,
+        "median": -1.850583858049324,
+        "p90": -0.021855847760400417,
+        "worst": 0.7679411563907012,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 1.5434262937264764,
+        "median": 1.4592679392327113,
+        "p90": 7.476592318953821,
+        "worst": 8.968335750757586,
+        "fullBandCount": 0
+      }
+    ],
+    "peers": [
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -9.839913544857405,
+        "median": -7.406408152178665,
+        "p90": -1.7383777101895652,
+        "worst": 5.436194761261805
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 2.4943396675806895,
+        "median": 2.0961999717135913,
+        "p90": 7.74681935665409,
+        "worst": 10.393633858078765
+      },
+      {
+        "peer": "jsquash",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -2.5585044024620838,
+        "median": -1.4303250965804781,
+        "p90": 2.4944501033495445,
+        "worst": 4.059583831672469
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": -8.967031596595744,
+        "median": -6.093793920320694,
+        "p90": -2.26243938665956,
+        "worst": 0.2966882733481844
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": -4.926125268582929,
+        "median": -4.1155131508308465,
+        "p90": 2.4327733525939834,
+        "worst": 2.8189837955760666
+      },
+      {
+        "peer": "vips",
+        "referenceEffort": 7,
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -6.813259551429684,
+        "median": -5.34345697753051,
+        "p90": -2.5411938504529665,
+        "worst": -1.6375819576766828
+      }
+    ],
+    "aligned": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 0.8215278870487042,
+        "median": 0.6396030129295234,
+        "p90": 1.6841540656222784,
+        "worst": 1.9747698620267526,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": 0.043358482059041775,
+        "median": 0.10975258190586915,
+        "p90": 0.46618850832081526,
+        "worst": 0.548252982785199,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 0.2170839861528785,
+        "median": 0.18504427109038563,
+        "p90": 0.8892182632669379,
+        "worst": 2.18766260298082,
+        "fullBandCount": 1
+      }
+    ],
+    "ac125": [
+      {
+        "metric": "ssimulacra2",
+        "count": 16,
+        "mean": 0.7776247917243728,
+        "median": 0.6551172809269915,
+        "p90": 1.7062160562342101,
+        "worst": 2.138688921823586,
+        "fullBandCount": 7
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "count": 16,
+        "mean": -0.04338389495706438,
+        "median": 0.06803148452873764,
+        "p90": 0.39030376305247005,
+        "worst": 0.4984890240435068,
+        "fullBandCount": 0
+      },
+      {
+        "metric": "butteraugliMax",
+        "count": 16,
+        "mean": 0.09627823279690935,
+        "median": 0.034457930707164366,
+        "p90": 1.1875607622459512,
+        "worst": 1.7854691744496447,
+        "fullBandCount": 1
+      }
+    ],
+    "worst": [
+      {
+        "metric": "ssimulacra2",
+        "rows": [
+          {
+            "id": "im26-3014-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.377576477581354,
+            "meanLogRateDifference": 0.0711811891630837,
+            "overlap": {
+              "minimum": 80.47020425,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 80.47020425,
+              "maximum": 94.59407665
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3312-lab",
+            "metric": "ssimulacra2",
+            "percent": 7.16882492670023,
+            "meanLogRateDifference": 0.06923520810359696,
+            "overlap": {
+              "minimum": 69.98695861,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 69.98695861,
+              "maximum": 90.05643338
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-1634-lab",
+            "metric": "ssimulacra2",
+            "percent": 6.705835200714885,
+            "meanLogRateDifference": 0.06490565874101478,
+            "overlap": {
+              "minimum": 72.06158092,
+              "maximum": 90
+            },
+            "measuredOverlap": {
+              "minimum": 72.06158092,
+              "maximum": 91.81518712
+            },
+            "requiredRange": {
+              "minimum": 60,
+              "maximum": 90
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliNorm3",
+        "rows": [
+          {
+            "id": "im26-3312-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 0.7679411563907012,
+            "meanLogRateDifference": 0.007650074979005627,
+            "overlap": {
+              "minimum": 0.398574,
+              "maximum": 1.440608
+            },
+            "measuredOverlap": {
+              "minimum": 0.398574,
+              "maximum": 1.440608
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3000-lab",
+            "metric": "butteraugliNorm3",
+            "percent": 0.049340206895786574,
+            "meanLogRateDifference": 0.0004932803861810838,
+            "overlap": {
+              "minimum": 0.295471,
+              "maximum": 1.457465
+            },
+            "measuredOverlap": {
+              "minimum": 0.295471,
+              "maximum": 1.457465
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3014-lab",
+            "metric": "butteraugliNorm3",
+            "percent": -0.09305190241658741,
+            "meanLogRateDifference": -0.0009309522257487664,
+            "overlap": {
+              "minimum": 0.207823,
+              "maximum": 0.538194
+            },
+            "measuredOverlap": {
+              "minimum": 0.207823,
+              "maximum": 0.538194
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      },
+      {
+        "metric": "butteraugliMax",
+        "rows": [
+          {
+            "id": "im26-3312-lab",
+            "metric": "butteraugliMax",
+            "percent": 8.968335750757586,
+            "meanLogRateDifference": 0.08588715633895057,
+            "overlap": {
+              "minimum": 0.7910169363,
+              "maximum": 2.9562427998
+            },
+            "measuredOverlap": {
+              "minimum": 0.7910169363,
+              "maximum": 2.9562427998
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-2004-lab",
+            "metric": "butteraugliMax",
+            "percent": 8.399134084679448,
+            "meanLogRateDifference": 0.08064991483683545,
+            "overlap": {
+              "minimum": 0.7901622653,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7901622653,
+              "maximum": 4.2086353302
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          },
+          {
+            "id": "im26-3306-lab",
+            "metric": "butteraugliMax",
+            "percent": 6.554050553228194,
+            "meanLogRateDifference": 0.06348218734994829,
+            "overlap": {
+              "minimum": 0.7965077162,
+              "maximum": 3
+            },
+            "measuredOverlap": {
+              "minimum": 0.7965077162,
+              "maximum": 3.6575398445
+            },
+            "requiredRange": {
+              "minimum": 0.5,
+              "maximum": 3
+            },
+            "coversRequiredRange": false
+          }
+        ]
+      }
+    ],
+    "managedPeakBytes": 9235969,
+    "elapsedSeconds": 46.966
+  },
+  "screenIsolation": {
+    "passed": true,
+    "points": 80,
+    "sourceFrozen": true,
+    "rows": [
+      {
+        "id": "im26-1002-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 63630,
+        "beforeBytes": 71027,
+        "afterBytes": 71057
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 35931,
+        "beforeBytes": 41907,
+        "afterBytes": 41932
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 19632,
+        "beforeBytes": 24529,
+        "afterBytes": 24580
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 9983,
+        "beforeBytes": 13708,
+        "afterBytes": 13783
+      },
+      {
+        "id": "im26-1002-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 5414,
+        "beforeBytes": 8396,
+        "afterBytes": 8501
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 99470,
+        "beforeBytes": 108989,
+        "afterBytes": 108988
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 61084,
+        "beforeBytes": 69104,
+        "afterBytes": 69105
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 35486,
+        "beforeBytes": 42010,
+        "afterBytes": 42000
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 20490,
+        "beforeBytes": 25396,
+        "afterBytes": 25416
+      },
+      {
+        "id": "im26-1026-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 13123,
+        "beforeBytes": 17197,
+        "afterBytes": 17226
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 94945,
+        "beforeBytes": 104169,
+        "afterBytes": 104170
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 59471,
+        "beforeBytes": 67604,
+        "afterBytes": 67650
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 33173,
+        "beforeBytes": 39842,
+        "afterBytes": 39859
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 17726,
+        "beforeBytes": 22980,
+        "afterBytes": 23014
+      },
+      {
+        "id": "im26-1052-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 9804,
+        "beforeBytes": 14166,
+        "afterBytes": 14201
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 89484,
+        "beforeBytes": 97794,
+        "afterBytes": 97807
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 56850,
+        "beforeBytes": 63967,
+        "afterBytes": 63998
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 33175,
+        "beforeBytes": 39071,
+        "afterBytes": 39105
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 19676,
+        "beforeBytes": 24401,
+        "afterBytes": 24474
+      },
+      {
+        "id": "im26-1210-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 12189,
+        "beforeBytes": 16190,
+        "afterBytes": 16248
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 71780,
+        "beforeBytes": 81291,
+        "afterBytes": 81298
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 38707,
+        "beforeBytes": 46779,
+        "afterBytes": 46787
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 22109,
+        "beforeBytes": 28714,
+        "afterBytes": 28730
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 13394,
+        "beforeBytes": 18547,
+        "afterBytes": 18579
+      },
+      {
+        "id": "im26-1610-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 8351,
+        "beforeBytes": 12633,
+        "afterBytes": 12692
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 91312,
+        "beforeBytes": 100670,
+        "afterBytes": 100671
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 56795,
+        "beforeBytes": 64790,
+        "afterBytes": 64795
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 27376,
+        "beforeBytes": 33677,
+        "afterBytes": 33704
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 12383,
+        "beforeBytes": 17512,
+        "afterBytes": 17528
+      },
+      {
+        "id": "im26-1622-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 5036,
+        "beforeBytes": 9323,
+        "afterBytes": 9366
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 38807,
+        "beforeBytes": 46803,
+        "afterBytes": 46803
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 16200,
+        "beforeBytes": 22143,
+        "afterBytes": 22145
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 7429,
+        "beforeBytes": 12183,
+        "afterBytes": 12218
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 3745,
+        "beforeBytes": 7552,
+        "afterBytes": 7604
+      },
+      {
+        "id": "im26-1626-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 2008,
+        "beforeBytes": 5104,
+        "afterBytes": 5149
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 52065,
+        "beforeBytes": 58403,
+        "afterBytes": 58518
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 20438,
+        "beforeBytes": 25203,
+        "afterBytes": 25262
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 7927,
+        "beforeBytes": 11676,
+        "afterBytes": 11773
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 3523,
+        "beforeBytes": 6444,
+        "afterBytes": 6552
+      },
+      {
+        "id": "im26-1634-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1823,
+        "beforeBytes": 4208,
+        "afterBytes": 4326
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 51408,
+        "beforeBytes": 59033,
+        "afterBytes": 59024
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 23343,
+        "beforeBytes": 29472,
+        "afterBytes": 29470
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 11302,
+        "beforeBytes": 16069,
+        "afterBytes": 16093
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 4750,
+        "beforeBytes": 8466,
+        "afterBytes": 8506
+      },
+      {
+        "id": "im26-2002-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1855,
+        "beforeBytes": 4878,
+        "afterBytes": 4921
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 123900,
+        "beforeBytes": 132884,
+        "afterBytes": 132889
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 88335,
+        "beforeBytes": 95608,
+        "afterBytes": 95612
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 49304,
+        "beforeBytes": 55361,
+        "afterBytes": 55374
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 20057,
+        "beforeBytes": 24552,
+        "afterBytes": 24575
+      },
+      {
+        "id": "im26-2004-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 7641,
+        "beforeBytes": 11345,
+        "afterBytes": 11368
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 43094,
+        "beforeBytes": 47529,
+        "afterBytes": 47529
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 22409,
+        "beforeBytes": 25330,
+        "afterBytes": 25330
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 10596,
+        "beforeBytes": 12770,
+        "afterBytes": 12770
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 4045,
+        "beforeBytes": 5795,
+        "afterBytes": 5795
+      },
+      {
+        "id": "im26-2012-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1216,
+        "beforeBytes": 2636,
+        "afterBytes": 2636
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 36876,
+        "beforeBytes": 42124,
+        "afterBytes": 42369
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 23053,
+        "beforeBytes": 27272,
+        "afterBytes": 27323
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 11831,
+        "beforeBytes": 14883,
+        "afterBytes": 15036
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 4590,
+        "beforeBytes": 7008,
+        "afterBytes": 7014
+      },
+      {
+        "id": "im26-3000-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1705,
+        "beforeBytes": 3550,
+        "afterBytes": 3679
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 103414,
+        "beforeBytes": 112168,
+        "afterBytes": 112171
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 65074,
+        "beforeBytes": 72387,
+        "afterBytes": 72388
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 35957,
+        "beforeBytes": 41888,
+        "afterBytes": 41888
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 16766,
+        "beforeBytes": 21105,
+        "afterBytes": 21148
+      },
+      {
+        "id": "im26-3012-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 7077,
+        "beforeBytes": 10695,
+        "afterBytes": 10747
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 16590,
+        "beforeBytes": 19132,
+        "afterBytes": 19151
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 6071,
+        "beforeBytes": 7864,
+        "afterBytes": 7862
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1754,
+        "beforeBytes": 3096,
+        "afterBytes": 3096
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 388,
+        "beforeBytes": 1400,
+        "afterBytes": 1400
+      },
+      {
+        "id": "im26-3014-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 95,
+        "beforeBytes": 853,
+        "afterBytes": 853
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 124041,
+        "beforeBytes": 134966,
+        "afterBytes": 134977
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 84014,
+        "beforeBytes": 93257,
+        "afterBytes": 93249
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 46823,
+        "beforeBytes": 54835,
+        "afterBytes": 54837
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 21033,
+        "beforeBytes": 27081,
+        "afterBytes": 27096
+      },
+      {
+        "id": "im26-3306-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 11513,
+        "beforeBytes": 16687,
+        "afterBytes": 16707
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "0.5.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 40686,
+        "beforeBytes": 44472,
+        "afterBytes": 44483
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "1.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 16545,
+        "beforeBytes": 19287,
+        "afterBytes": 19296
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "2.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 7170,
+        "beforeBytes": 9227,
+        "afterBytes": 9260
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "4.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 1744,
+        "beforeBytes": 3429,
+        "afterBytes": 3513
+      },
+      {
+        "id": "im26-3312-lab",
+        "file": "7.jxl",
+        "unchangedFields": [
+          "strategies",
+          "strategyFirstBlocks",
+          "rawQuantization",
+          "globalScale",
+          "quantDc",
+          "colorCorrelation",
+          "correlationX",
+          "correlationB",
+          "sharpness",
+          "gaborish",
+          "epfIterations",
+          "xQuantizationScale",
+          "bQuantizationScale",
+          "quantizationTables"
+        ],
+        "smoothingUnchanged": true,
+        "nominalDcUnchanged": true,
+        "acSectionsExact": true,
+        "acBytes": 555,
+        "beforeBytes": 1684,
+        "afterBytes": 1766
+      }
+    ]
+  },
+  "effect": {
+    "passed": true,
+    "summary": {
+      "points": 80,
+      "lumaAndXExact": true,
+      "blueChanged": 25068,
+      "maxBlueDelta": 1,
+      "beforeBytes": 2848180,
+      "afterBytes": 2850815,
+      "bytePercent": 0.09251522024591452,
+      "beforeLfBytes": 402309,
+      "afterLfBytes": 404944,
+      "lfByteDelta": 2635,
+      "otherByteDelta": 0,
+      "larger": 64,
+      "metrics": [
+        {
+          "metric": "ssimulacra2",
+          "improved": 14,
+          "worsened": 58,
+          "unchanged": 8,
+          "meanChange": -0.09804765625000048,
+          "meanPercent": null
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "improved": 51,
+          "worsened": 21,
+          "unchanged": 8,
+          "meanChange": -0.001593362500000002,
+          "meanPercent": -0.1163455531583335
+        },
+        {
+          "metric": "butteraugliMax",
+          "improved": 38,
+          "worsened": 32,
+          "unchanged": 10,
+          "meanChange": -0.0011096160862500023,
+          "meanPercent": -0.010567039942469958
+        }
+      ]
+    },
+    "rows": [
+      {
+        "id": "im26-1002-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 366,
+        "maxBlueDelta": 1,
+        "beforeBytes": 71027,
+        "afterBytes": 71057,
+        "beforeLfBytes": 7329,
+        "afterLfBytes": 7359,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.10336315,
+            "after": 93.09768883
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.34327,
+            "after": 0.343285
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.822075665,
+            "after": 0.8220713735
+          }
+        ]
+      },
+      {
+        "id": "im26-1002-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 294,
+        "maxBlueDelta": 1,
+        "beforeBytes": 41907,
+        "afterBytes": 41932,
+        "beforeLfBytes": 5910,
+        "afterLfBytes": 5935,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.80284553,
+            "after": 89.9077556
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.524147,
+            "after": 0.524125
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1040320396,
+            "after": 1.1068860292
+          }
+        ]
+      },
+      {
+        "id": "im26-1002-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 337,
+        "maxBlueDelta": 1,
+        "beforeBytes": 24529,
+        "afterBytes": 24580,
+        "beforeLfBytes": 4831,
+        "afterLfBytes": 4882,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 84.56840212,
+            "after": 84.4594065
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.780133,
+            "after": 0.779452
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.6670219898,
+            "after": 1.6619774103
+          }
+        ]
+      },
+      {
+        "id": "im26-1002-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 366,
+        "maxBlueDelta": 1,
+        "beforeBytes": 13708,
+        "afterBytes": 13783,
+        "beforeLfBytes": 3660,
+        "afterLfBytes": 3735,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 75.13566013,
+            "after": 75.22016337
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.196679,
+            "after": 1.195203
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.5961041451,
+            "after": 2.594912529
+          }
+        ]
+      },
+      {
+        "id": "im26-1002-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 295,
+        "maxBlueDelta": 1,
+        "beforeBytes": 8396,
+        "afterBytes": 8501,
+        "beforeLfBytes": 2917,
+        "afterLfBytes": 3022,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 64.05085423,
+            "after": 63.89489409
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.709249,
+            "after": 1.705962
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 4.3609623909,
+            "after": 4.3315916061
+          }
+        ]
+      },
+      {
+        "id": "im26-1026-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 346,
+        "maxBlueDelta": 1,
+        "beforeBytes": 108989,
+        "afterBytes": 108988,
+        "beforeLfBytes": 9449,
+        "afterLfBytes": 9448,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 94.45548107,
+            "after": 94.41946648
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.221095,
+            "after": 0.221087
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.4773384631,
+            "after": 0.4781471193
+          }
+        ]
+      },
+      {
+        "id": "im26-1026-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 331,
+        "maxBlueDelta": 1,
+        "beforeBytes": 69104,
+        "afterBytes": 69105,
+        "beforeLfBytes": 7954,
+        "afterLfBytes": 7955,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 91.52739805,
+            "after": 91.50223152
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.371903,
+            "after": 0.371879
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.7242463827,
+            "after": 0.7245365381
+          }
+        ]
+      },
+      {
+        "id": "im26-1026-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 339,
+        "maxBlueDelta": 1,
+        "beforeBytes": 42010,
+        "afterBytes": 42000,
+        "beforeLfBytes": 6457,
+        "afterLfBytes": 6447,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 87.00474036,
+            "after": 86.84528902
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.617003,
+            "after": 0.617077
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.3566236496,
+            "after": 1.361071229
+          }
+        ]
+      },
+      {
+        "id": "im26-1026-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 351,
+        "maxBlueDelta": 1,
+        "beforeBytes": 25396,
+        "afterBytes": 25416,
+        "beforeLfBytes": 4840,
+        "afterLfBytes": 4860,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 79.62743139,
+            "after": 79.30504258
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.987894,
+            "after": 0.988103
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.0322415829,
+            "after": 2.0326685905
+          }
+        ]
+      },
+      {
+        "id": "im26-1026-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 337,
+        "maxBlueDelta": 1,
+        "beforeBytes": 17197,
+        "afterBytes": 17226,
+        "beforeLfBytes": 4008,
+        "afterLfBytes": 4037,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 66.64929156,
+            "after": 66.36232177
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.541205,
+            "after": 1.541003
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.3416333199,
+            "after": 3.3312366009
+          }
+        ]
+      },
+      {
+        "id": "im26-1052-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 327,
+        "maxBlueDelta": 1,
+        "beforeBytes": 104169,
+        "afterBytes": 104170,
+        "beforeLfBytes": 9154,
+        "afterLfBytes": 9155,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.40447917,
+            "after": 93.4341719
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.277111,
+            "after": 0.277266
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.603851974,
+            "after": 0.60564816
+          }
+        ]
+      },
+      {
+        "id": "im26-1052-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 341,
+        "maxBlueDelta": 1,
+        "beforeBytes": 67604,
+        "afterBytes": 67650,
+        "beforeLfBytes": 8066,
+        "afterLfBytes": 8112,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.63540052,
+            "after": 89.61569665
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.474901,
+            "after": 0.475027
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.9988881946,
+            "after": 0.9993229508
+          }
+        ]
+      },
+      {
+        "id": "im26-1052-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 366,
+        "maxBlueDelta": 1,
+        "beforeBytes": 39842,
+        "afterBytes": 39859,
+        "beforeLfBytes": 6602,
+        "afterLfBytes": 6619,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 83.47202487,
+            "after": 83.40771078
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.788773,
+            "after": 0.788836
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.549913168,
+            "after": 1.5684218407
+          }
+        ]
+      },
+      {
+        "id": "im26-1052-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 357,
+        "maxBlueDelta": 1,
+        "beforeBytes": 22980,
+        "afterBytes": 23014,
+        "beforeLfBytes": 5188,
+        "afterLfBytes": 5222,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 74.16506776,
+            "after": 73.99821596
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.198809,
+            "after": 1.198121
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.3812286854,
+            "after": 2.3803610802
+          }
+        ]
+      },
+      {
+        "id": "im26-1052-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 367,
+        "maxBlueDelta": 1,
+        "beforeBytes": 14166,
+        "afterBytes": 14201,
+        "beforeLfBytes": 4296,
+        "afterLfBytes": 4331,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 57.74467877,
+            "after": 57.75341922
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.831644,
+            "after": 1.830765
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.8948848248,
+            "after": 3.8882696629
+          }
+        ]
+      },
+      {
+        "id": "im26-1210-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 286,
+        "maxBlueDelta": 1,
+        "beforeBytes": 97794,
+        "afterBytes": 97807,
+        "beforeLfBytes": 8239,
+        "afterLfBytes": 8252,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 92.88998622,
+            "after": 93.02273891
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.285112,
+            "after": 0.285086
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.5944266319,
+            "after": 0.5944591761
+          }
+        ]
+      },
+      {
+        "id": "im26-1210-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 334,
+        "maxBlueDelta": 1,
+        "beforeBytes": 63967,
+        "afterBytes": 63998,
+        "beforeLfBytes": 7049,
+        "afterLfBytes": 7080,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.33497747,
+            "after": 89.23873383
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.492645,
+            "after": 0.492368
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.0990464687,
+            "after": 1.097807765
+          }
+        ]
+      },
+      {
+        "id": "im26-1210-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 259,
+        "maxBlueDelta": 1,
+        "beforeBytes": 39071,
+        "afterBytes": 39105,
+        "beforeLfBytes": 5830,
+        "afterLfBytes": 5864,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 84.36905144,
+            "after": 84.31202136
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.766604,
+            "after": 0.766371
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.71859622,
+            "after": 1.7186062336
+          }
+        ]
+      },
+      {
+        "id": "im26-1210-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 277,
+        "maxBlueDelta": 1,
+        "beforeBytes": 24401,
+        "afterBytes": 24474,
+        "beforeLfBytes": 4659,
+        "afterLfBytes": 4732,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 76.27602368,
+            "after": 76.24279251
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.126237,
+            "after": 1.124523
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.4840764999,
+            "after": 2.4856147766
+          }
+        ]
+      },
+      {
+        "id": "im26-1210-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 265,
+        "maxBlueDelta": 1,
+        "beforeBytes": 16190,
+        "afterBytes": 16248,
+        "beforeLfBytes": 3935,
+        "afterLfBytes": 3993,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 65.35382887,
+            "after": 65.24663812
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.645852,
+            "after": 1.644946
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 4.4113650322,
+            "after": 4.4113650322
+          }
+        ]
+      },
+      {
+        "id": "im26-1610-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 332,
+        "maxBlueDelta": 1,
+        "beforeBytes": 81291,
+        "afterBytes": 81298,
+        "beforeLfBytes": 9442,
+        "afterLfBytes": 9449,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.30185823,
+            "after": 93.28478996
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.286011,
+            "after": 0.285735
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.6658838987,
+            "after": 0.6654712558
+          }
+        ]
+      },
+      {
+        "id": "im26-1610-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 323,
+        "maxBlueDelta": 1,
+        "beforeBytes": 46779,
+        "afterBytes": 46787,
+        "beforeLfBytes": 8006,
+        "afterLfBytes": 8014,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.96711097,
+            "after": 89.85202023
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.466162,
+            "after": 0.466017
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.014021039,
+            "after": 1.0139877796
+          }
+        ]
+      },
+      {
+        "id": "im26-1610-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 357,
+        "maxBlueDelta": 1,
+        "beforeBytes": 28714,
+        "afterBytes": 28730,
+        "beforeLfBytes": 6539,
+        "afterLfBytes": 6555,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 85.12292877,
+            "after": 85.09813897
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.694076,
+            "after": 0.694011
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.557115078,
+            "after": 1.5572257042
+          }
+        ]
+      },
+      {
+        "id": "im26-1610-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 361,
+        "maxBlueDelta": 1,
+        "beforeBytes": 18547,
+        "afterBytes": 18579,
+        "beforeLfBytes": 5087,
+        "afterLfBytes": 5119,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 77.76257674,
+            "after": 77.60808353
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.055611,
+            "after": 1.055738
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.5915350914,
+            "after": 2.6086993217
+          }
+        ]
+      },
+      {
+        "id": "im26-1610-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 396,
+        "maxBlueDelta": 1,
+        "beforeBytes": 12633,
+        "afterBytes": 12692,
+        "beforeLfBytes": 4216,
+        "afterLfBytes": 4275,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 65.97679198,
+            "after": 65.70444027
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.611702,
+            "after": 1.611136
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.9645619392,
+            "after": 3.9360070229
+          }
+        ]
+      },
+      {
+        "id": "im26-1622-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 349,
+        "maxBlueDelta": 1,
+        "beforeBytes": 100670,
+        "afterBytes": 100671,
+        "beforeLfBytes": 9288,
+        "afterLfBytes": 9289,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.62175218,
+            "after": 93.50938822
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.289635,
+            "after": 0.289789
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.59530586,
+            "after": 0.6082628369
+          }
+        ]
+      },
+      {
+        "id": "im26-1622-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 357,
+        "maxBlueDelta": 1,
+        "beforeBytes": 64790,
+        "afterBytes": 64795,
+        "beforeLfBytes": 7929,
+        "afterLfBytes": 7934,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.87891503,
+            "after": 89.73794828
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.515678,
+            "after": 0.515734
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1579135656,
+            "after": 1.1575516462
+          }
+        ]
+      },
+      {
+        "id": "im26-1622-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 347,
+        "maxBlueDelta": 1,
+        "beforeBytes": 33677,
+        "afterBytes": 33704,
+        "beforeLfBytes": 6234,
+        "afterLfBytes": 6261,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 83.24816428,
+            "after": 83.15983426
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.883014,
+            "after": 0.883118
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.8085625172,
+            "after": 1.8637769222
+          }
+        ]
+      },
+      {
+        "id": "im26-1622-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 362,
+        "maxBlueDelta": 1,
+        "beforeBytes": 17512,
+        "afterBytes": 17528,
+        "beforeLfBytes": 5063,
+        "afterLfBytes": 5079,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 72.4482999,
+            "after": 72.30042302
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.373655,
+            "after": 1.373462
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.6950414181,
+            "after": 2.7183060646
+          }
+        ]
+      },
+      {
+        "id": "im26-1622-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 308,
+        "maxBlueDelta": 1,
+        "beforeBytes": 9323,
+        "afterBytes": 9366,
+        "beforeLfBytes": 4221,
+        "afterLfBytes": 4264,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 57.32907036,
+            "after": 57.36708249
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.971402,
+            "after": 1.971297
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.9220302105,
+            "after": 3.927665472
+          }
+        ]
+      },
+      {
+        "id": "im26-1626-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 328,
+        "maxBlueDelta": 1,
+        "beforeBytes": 46803,
+        "afterBytes": 46803,
+        "beforeLfBytes": 7930,
+        "afterLfBytes": 7930,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.29638954,
+            "after": 93.29408236
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.276336,
+            "after": 0.276366
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.5454559326,
+            "after": 0.5420094728
+          }
+        ]
+      },
+      {
+        "id": "im26-1626-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 376,
+        "maxBlueDelta": 1,
+        "beforeBytes": 22143,
+        "afterBytes": 22145,
+        "beforeLfBytes": 5877,
+        "afterLfBytes": 5879,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.12277764,
+            "after": 89.0305286
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.445787,
+            "after": 0.445537
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1100293398,
+            "after": 1.1045203209
+          }
+        ]
+      },
+      {
+        "id": "im26-1626-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 336,
+        "maxBlueDelta": 1,
+        "beforeBytes": 12183,
+        "afterBytes": 12218,
+        "beforeLfBytes": 4688,
+        "afterLfBytes": 4723,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 83.37400506,
+            "after": 83.33197332
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.629652,
+            "after": 0.629668
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.4894000292,
+            "after": 1.4875805378
+          }
+        ]
+      },
+      {
+        "id": "im26-1626-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 452,
+        "maxBlueDelta": 1,
+        "beforeBytes": 7552,
+        "afterBytes": 7604,
+        "beforeLfBytes": 3743,
+        "afterLfBytes": 3795,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 73.44481277,
+            "after": 73.52521744
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.868981,
+            "after": 0.86875
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.976442337,
+            "after": 1.9783433676
+          }
+        ]
+      },
+      {
+        "id": "im26-1626-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 292,
+        "maxBlueDelta": 1,
+        "beforeBytes": 5104,
+        "afterBytes": 5149,
+        "beforeLfBytes": 3032,
+        "afterLfBytes": 3077,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 61.39790194,
+            "after": 61.5282418
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.141224,
+            "after": 1.142734
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.0113043785,
+            "after": 3.0671772957
+          }
+        ]
+      },
+      {
+        "id": "im26-1634-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 446,
+        "maxBlueDelta": 1,
+        "beforeBytes": 58403,
+        "afterBytes": 58518,
+        "beforeLfBytes": 6272,
+        "afterLfBytes": 6387,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 92.56844855,
+            "after": 92.42018825
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.364331,
+            "after": 0.364213
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.8231733441,
+            "after": 0.8239775896
+          }
+        ]
+      },
+      {
+        "id": "im26-1634-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 307,
+        "maxBlueDelta": 1,
+        "beforeBytes": 25203,
+        "afterBytes": 25262,
+        "beforeLfBytes": 4699,
+        "afterLfBytes": 4758,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.16172436,
+            "after": 89.15758519
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.591184,
+            "after": 0.590947
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.3034501076,
+            "after": 1.3033760786
+          }
+        ]
+      },
+      {
+        "id": "im26-1634-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 374,
+        "maxBlueDelta": 1,
+        "beforeBytes": 11676,
+        "afterBytes": 11773,
+        "beforeLfBytes": 3683,
+        "afterLfBytes": 3780,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 84.80519927,
+            "after": 84.73419577
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.802175,
+            "after": 0.802031
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.5634306669,
+            "after": 1.5824892521
+          }
+        ]
+      },
+      {
+        "id": "im26-1634-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 282,
+        "maxBlueDelta": 1,
+        "beforeBytes": 6444,
+        "afterBytes": 6552,
+        "beforeLfBytes": 2857,
+        "afterLfBytes": 2965,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 79.10281462,
+            "after": 78.97764058
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.041305,
+            "after": 1.034655
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.2121899128,
+            "after": 2.1644463539
+          }
+        ]
+      },
+      {
+        "id": "im26-1634-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 302,
+        "maxBlueDelta": 1,
+        "beforeBytes": 4208,
+        "afterBytes": 4326,
+        "beforeLfBytes": 2321,
+        "afterLfBytes": 2439,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 71.83022589,
+            "after": 72.06158092
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.30764,
+            "after": 1.302254
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.0315384865,
+            "after": 3.0149736404
+          }
+        ]
+      },
+      {
+        "id": "im26-2002-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 328,
+        "maxBlueDelta": 1,
+        "beforeBytes": 59033,
+        "afterBytes": 59024,
+        "beforeLfBytes": 7558,
+        "afterLfBytes": 7549,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 91.16550109,
+            "after": 91.00766666
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.317945,
+            "after": 0.317736
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.664916575,
+            "after": 0.6647405624
+          }
+        ]
+      },
+      {
+        "id": "im26-2002-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 351,
+        "maxBlueDelta": 1,
+        "beforeBytes": 29472,
+        "afterBytes": 29470,
+        "beforeLfBytes": 6063,
+        "afterLfBytes": 6061,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 88.26032038,
+            "after": 88.12350804
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.531307,
+            "after": 0.531066
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1949923038,
+            "after": 1.1949363947
+          }
+        ]
+      },
+      {
+        "id": "im26-2002-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 367,
+        "maxBlueDelta": 1,
+        "beforeBytes": 16069,
+        "afterBytes": 16093,
+        "beforeLfBytes": 4701,
+        "afterLfBytes": 4725,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 83.46635936,
+            "after": 83.2701963
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.788059,
+            "after": 0.787971
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.6920762062,
+            "after": 1.6918358803
+          }
+        ]
+      },
+      {
+        "id": "im26-2002-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 314,
+        "maxBlueDelta": 1,
+        "beforeBytes": 8466,
+        "afterBytes": 8506,
+        "beforeLfBytes": 3650,
+        "afterLfBytes": 3690,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 74.10914822,
+            "after": 74.01771766
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.147078,
+            "after": 1.145913
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.5625529289,
+            "after": 2.5721879005
+          }
+        ]
+      },
+      {
+        "id": "im26-2002-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 381,
+        "maxBlueDelta": 1,
+        "beforeBytes": 4878,
+        "afterBytes": 4921,
+        "beforeLfBytes": 2959,
+        "afterLfBytes": 3002,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 58.94413644,
+            "after": 58.96224161
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.668947,
+            "after": 1.664856
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 4.2074790001,
+            "after": 4.1957263947
+          }
+        ]
+      },
+      {
+        "id": "im26-2004-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 334,
+        "maxBlueDelta": 1,
+        "beforeBytes": 132884,
+        "afterBytes": 132889,
+        "beforeLfBytes": 8913,
+        "afterLfBytes": 8918,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 91.6575464,
+            "after": 91.59244924
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.289429,
+            "after": 0.289491
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.6245432496,
+            "after": 0.6240366697
+          }
+        ]
+      },
+      {
+        "id": "im26-2004-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 340,
+        "maxBlueDelta": 1,
+        "beforeBytes": 95608,
+        "afterBytes": 95612,
+        "beforeLfBytes": 7203,
+        "afterLfBytes": 7207,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 84.78405025,
+            "after": 84.70817682
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.522671,
+            "after": 0.522753
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.2513468266,
+            "after": 1.2547240257
+          }
+        ]
+      },
+      {
+        "id": "im26-2004-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 357,
+        "maxBlueDelta": 1,
+        "beforeBytes": 55361,
+        "afterBytes": 55374,
+        "beforeLfBytes": 5991,
+        "afterLfBytes": 6004,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 70.19822715,
+            "after": 70.09172337
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.051982,
+            "after": 1.052111
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.1840643883,
+            "after": 2.1815533638
+          }
+        ]
+      },
+      {
+        "id": "im26-2004-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 343,
+        "maxBlueDelta": 1,
+        "beforeBytes": 24552,
+        "afterBytes": 24575,
+        "beforeLfBytes": 4429,
+        "afterLfBytes": 4452,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 47.64929672,
+            "after": 47.5900967
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.799961,
+            "after": 1.799826
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.2780225277,
+            "after": 3.2782216072
+          }
+        ]
+      },
+      {
+        "id": "im26-2004-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 429,
+        "maxBlueDelta": 1,
+        "beforeBytes": 11345,
+        "afterBytes": 11368,
+        "beforeLfBytes": 3638,
+        "afterLfBytes": 3661,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 25.50702625,
+            "after": 25.49925649
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 2.437533,
+            "after": 2.437272
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 4.2082023621,
+            "after": 4.2086353302
+          }
+        ]
+      },
+      {
+        "id": "im26-2012-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 47529,
+        "afterBytes": 47529,
+        "beforeLfBytes": 4368,
+        "afterLfBytes": 4368,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 94.17483214,
+            "after": 94.17483214
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.263525,
+            "after": 0.263525
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.5895239115,
+            "after": 0.5895239115
+          }
+        ]
+      },
+      {
+        "id": "im26-2012-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 25330,
+        "afterBytes": 25330,
+        "beforeLfBytes": 2855,
+        "afterLfBytes": 2855,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 90.78113807,
+            "after": 90.78113807
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.419968,
+            "after": 0.419968
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.986356616,
+            "after": 0.986356616
+          }
+        ]
+      },
+      {
+        "id": "im26-2012-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 12770,
+        "afterBytes": 12770,
+        "beforeLfBytes": 2108,
+        "afterLfBytes": 2108,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 85.04441466,
+            "after": 85.04441466
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.653436,
+            "after": 0.653436
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.5523297787,
+            "after": 1.5523297787
+          }
+        ]
+      },
+      {
+        "id": "im26-2012-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 5795,
+        "afterBytes": 5795,
+        "beforeLfBytes": 1685,
+        "afterLfBytes": 1685,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 74.57143244,
+            "after": 74.57143244
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.02076,
+            "after": 1.02076
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.3297941685,
+            "after": 2.3297941685
+          }
+        ]
+      },
+      {
+        "id": "im26-2012-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 2636,
+        "afterBytes": 2636,
+        "beforeLfBytes": 1356,
+        "afterLfBytes": 1356,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 65.55557441,
+            "after": 65.55557441
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.40399,
+            "after": 1.40399
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.419049263,
+            "after": 3.419049263
+          }
+        ]
+      },
+      {
+        "id": "im26-3000-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 1092,
+        "maxBlueDelta": 1,
+        "beforeBytes": 42124,
+        "afterBytes": 42369,
+        "beforeLfBytes": 5181,
+        "afterLfBytes": 5426,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 94.11563999,
+            "after": 93.92971721
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.259124,
+            "after": 0.260206
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.605525732,
+            "after": 0.6047705412
+          }
+        ]
+      },
+      {
+        "id": "im26-3000-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 288,
+        "maxBlueDelta": 1,
+        "beforeBytes": 27272,
+        "afterBytes": 27323,
+        "beforeLfBytes": 4153,
+        "afterLfBytes": 4204,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.55822897,
+            "after": 89.55139361
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.439801,
+            "after": 0.439534
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.993321836,
+            "after": 0.9929596782
+          }
+        ]
+      },
+      {
+        "id": "im26-3000-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 913,
+        "maxBlueDelta": 1,
+        "beforeBytes": 14883,
+        "afterBytes": 15036,
+        "beforeLfBytes": 2986,
+        "afterLfBytes": 3139,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 81.35773699,
+            "after": 81.40753239
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.713376,
+            "after": 0.711099
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.7430939674,
+            "after": 1.7105035782
+          }
+        ]
+      },
+      {
+        "id": "im26-3000-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 375,
+        "maxBlueDelta": 1,
+        "beforeBytes": 7008,
+        "afterBytes": 7014,
+        "beforeLfBytes": 2353,
+        "afterLfBytes": 2359,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 69.20084681,
+            "after": 68.97796289
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.097792,
+            "after": 1.097379
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.6000289917,
+            "after": 2.602451086
+          }
+        ]
+      },
+      {
+        "id": "im26-3000-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 324,
+        "maxBlueDelta": 1,
+        "beforeBytes": 3550,
+        "afterBytes": 3679,
+        "beforeLfBytes": 1781,
+        "afterLfBytes": 1910,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 58.02649732,
+            "after": 57.38912345
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.461785,
+            "after": 1.457465
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.3777763844,
+            "after": 3.3768429756
+          }
+        ]
+      },
+      {
+        "id": "im26-3012-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 317,
+        "maxBlueDelta": 1,
+        "beforeBytes": 112168,
+        "afterBytes": 112171,
+        "beforeLfBytes": 8684,
+        "afterLfBytes": 8687,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.47698027,
+            "after": 93.44666796
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.276626,
+            "after": 0.276645
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.57403332,
+            "after": 0.5710052252
+          }
+        ]
+      },
+      {
+        "id": "im26-3012-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 337,
+        "maxBlueDelta": 1,
+        "beforeBytes": 72387,
+        "afterBytes": 72388,
+        "beforeLfBytes": 7246,
+        "afterLfBytes": 7247,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 88.87807602,
+            "after": 88.82624367
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.474174,
+            "after": 0.474213
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.0439687967,
+            "after": 1.0437361002
+          }
+        ]
+      },
+      {
+        "id": "im26-3012-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 343,
+        "maxBlueDelta": 1,
+        "beforeBytes": 41888,
+        "afterBytes": 41888,
+        "beforeLfBytes": 5865,
+        "afterLfBytes": 5865,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 79.73146701,
+            "after": 79.726056
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.855408,
+            "after": 0.855324
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.8265453577,
+            "after": 1.8051600456
+          }
+        ]
+      },
+      {
+        "id": "im26-3012-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 360,
+        "maxBlueDelta": 1,
+        "beforeBytes": 21105,
+        "afterBytes": 21148,
+        "beforeLfBytes": 4273,
+        "afterLfBytes": 4316,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 63.59103092,
+            "after": 63.62906906
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.41091,
+            "after": 1.410624
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.1644799709,
+            "after": 3.1210002899
+          }
+        ]
+      },
+      {
+        "id": "im26-3012-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 328,
+        "maxBlueDelta": 1,
+        "beforeBytes": 10695,
+        "afterBytes": 10747,
+        "beforeLfBytes": 3552,
+        "afterLfBytes": 3604,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 39.8424469,
+            "after": 39.82996247
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 2.056643,
+            "after": 2.056246
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 4.0850896835,
+            "after": 4.1085944176
+          }
+        ]
+      },
+      {
+        "id": "im26-3014-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 57,
+        "maxBlueDelta": 1,
+        "beforeBytes": 19132,
+        "afterBytes": 19151,
+        "beforeLfBytes": 2476,
+        "afterLfBytes": 2495,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 94.81335847,
+            "after": 94.76650335
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.195362,
+            "after": 0.195352
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.4570456445,
+            "after": 0.45708251
+          }
+        ]
+      },
+      {
+        "id": "im26-3014-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 6,
+        "maxBlueDelta": 1,
+        "beforeBytes": 7864,
+        "afterBytes": 7862,
+        "beforeLfBytes": 1727,
+        "afterLfBytes": 1725,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 92.05369651,
+            "after": 92.03946056
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.28449,
+            "after": 0.284486
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.610316515,
+            "after": 0.610316515
+          }
+        ]
+      },
+      {
+        "id": "im26-3014-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 3096,
+        "afterBytes": 3096,
+        "beforeLfBytes": 1278,
+        "afterLfBytes": 1278,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 87.87409668,
+            "after": 87.87409668
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.401422,
+            "after": 0.401422
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.9326950312,
+            "after": 0.9326950312
+          }
+        ]
+      },
+      {
+        "id": "im26-3014-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 1400,
+        "afterBytes": 1400,
+        "beforeLfBytes": 948,
+        "afterLfBytes": 948,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 83.49930702,
+            "after": 83.49930702
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.485921,
+            "after": 0.485921
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.0300340652,
+            "after": 1.0300340652
+          }
+        ]
+      },
+      {
+        "id": "im26-3014-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 0,
+        "maxBlueDelta": 0,
+        "beforeBytes": 853,
+        "afterBytes": 853,
+        "beforeLfBytes": 694,
+        "afterLfBytes": 694,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 80.4687947,
+            "after": 80.4687947
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.53862,
+            "after": 0.53862
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1449348927,
+            "after": 1.1449348927
+          }
+        ]
+      },
+      {
+        "id": "im26-3306-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 332,
+        "maxBlueDelta": 1,
+        "beforeBytes": 134966,
+        "afterBytes": 134977,
+        "beforeLfBytes": 10854,
+        "afterLfBytes": 10865,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 93.1329152,
+            "after": 93.13755079
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.31353,
+            "after": 0.3136
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.6800165772,
+            "after": 0.679941237
+          }
+        ]
+      },
+      {
+        "id": "im26-3306-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 356,
+        "maxBlueDelta": 1,
+        "beforeBytes": 93257,
+        "afterBytes": 93249,
+        "beforeLfBytes": 9173,
+        "afterLfBytes": 9165,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 89.17191514,
+            "after": 89.08173478
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.49834,
+            "after": 0.498385
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.9543174505,
+            "after": 0.9570871592
+          }
+        ]
+      },
+      {
+        "id": "im26-3306-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 318,
+        "maxBlueDelta": 1,
+        "beforeBytes": 54835,
+        "afterBytes": 54837,
+        "beforeLfBytes": 7946,
+        "afterLfBytes": 7948,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 80.21601737,
+            "after": 80.13952281
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.938017,
+            "after": 0.937655
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.3684163094,
+            "after": 2.3366837502
+          }
+        ]
+      },
+      {
+        "id": "im26-3306-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 373,
+        "maxBlueDelta": 1,
+        "beforeBytes": 27081,
+        "afterBytes": 27096,
+        "beforeLfBytes": 5982,
+        "afterLfBytes": 5997,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 67.69734332,
+            "after": 67.57008216
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.46854,
+            "after": 1.468507
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.7435097694,
+            "after": 2.7382984161
+          }
+        ]
+      },
+      {
+        "id": "im26-3306-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 331,
+        "maxBlueDelta": 1,
+        "beforeBytes": 16687,
+        "afterBytes": 16707,
+        "beforeLfBytes": 5108,
+        "afterLfBytes": 5128,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 52.94232842,
+            "after": 52.80432745
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.989536,
+            "after": 1.989202
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.6613752842,
+            "after": 3.6575398445
+          }
+        ]
+      },
+      {
+        "id": "im26-3312-lab",
+        "distance": 0.5,
+        "lumaAndXExact": true,
+        "blueChanged": 149,
+        "maxBlueDelta": 1,
+        "beforeBytes": 44472,
+        "afterBytes": 44483,
+        "beforeLfBytes": 3720,
+        "afterLfBytes": 3731,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 90.14381253,
+            "after": 90.11614417
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.348728,
+            "after": 0.348683
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 0.7430545092,
+            "after": 0.7447298169
+          }
+        ]
+      },
+      {
+        "id": "im26-3312-lab",
+        "distance": 1,
+        "lumaAndXExact": true,
+        "blueChanged": 204,
+        "maxBlueDelta": 1,
+        "beforeBytes": 19287,
+        "afterBytes": 19296,
+        "beforeLfBytes": 2675,
+        "afterLfBytes": 2684,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 87.43253113,
+            "after": 87.41881302
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.579674,
+            "after": 0.579062
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.1679942608,
+            "after": 1.168081522
+          }
+        ]
+      },
+      {
+        "id": "im26-3312-lab",
+        "distance": 2,
+        "lumaAndXExact": true,
+        "blueChanged": 192,
+        "maxBlueDelta": 1,
+        "beforeBytes": 9227,
+        "afterBytes": 9260,
+        "beforeLfBytes": 1991,
+        "afterLfBytes": 2024,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 82.71060333,
+            "after": 82.65211878
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 0.825749,
+            "after": 0.825425
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 1.6864368916,
+            "after": 1.6678243876
+          }
+        ]
+      },
+      {
+        "id": "im26-3312-lab",
+        "distance": 4,
+        "lumaAndXExact": true,
+        "blueChanged": 689,
+        "maxBlueDelta": 1,
+        "beforeBytes": 3429,
+        "afterBytes": 3513,
+        "beforeLfBytes": 1621,
+        "afterLfBytes": 1705,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 73.28272409,
+            "after": 73.35617889
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.211056,
+            "after": 1.185039
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 2.424544096,
+            "after": 2.4492313862
+          }
+        ]
+      },
+      {
+        "id": "im26-3312-lab",
+        "distance": 7,
+        "lumaAndXExact": true,
+        "blueChanged": 312,
+        "maxBlueDelta": 1,
+        "beforeBytes": 1684,
+        "afterBytes": 1766,
+        "beforeLfBytes": 1065,
+        "afterLfBytes": 1147,
+        "metrics": [
+          {
+            "metric": "ssimulacra2",
+            "before": 70.19315507,
+            "after": 67.17092516
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "before": 1.50548,
+            "after": 1.440608
+          },
+          {
+            "metric": "butteraugliMax",
+            "before": 3.0002441406,
+            "after": 2.9562427998
+          }
+        ]
+      }
+    ],
+    "scope": "Saved fixed development screen only. Same-distance scores and exact section bytes are not BD-rate or proof of source-grid squared error reduction. No new encode or holdout access."
+  },
+  "lab": null,
+  "isolatedTiming": null,
+  "originalMemory": null,
+  "holdout": null,
+  "validation": {
+    "source": {
+      "base": "904e753e5e90bc8e90981476b832267b66e62f39",
+      "variant": "standalone-dc-chroma",
+      "authorization": "One fixed reconstructed-luma chroma DC trial approved by Aaron. Aligned AC 1.25 allocation, nearest rounding, smoothing off, AC and all gates fixed. No sweep or peer maps.",
+      "rows": [
+        {
+          "file": "dc-wire-matrix.ts",
+          "sha256": "4d7cbce05edb1770b0a5865221febb1d27a8aeb80788b770e9d6bfd7209d757a"
+        },
+        {
+          "file": "fixture-selection.ts",
+          "sha256": "5bc0dcef16d9e4dbf4b7de6f37c43ae2a3ebfde9ba5dc0ea42480823687533bc"
+        },
+        {
+          "file": "libjxl-block-quantization-port.ts",
+          "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36"
+        },
+        {
+          "file": "libjxl-chroma-roundtrip-port.ts",
+          "sha256": "f9cfe1c2e731bd0b8dfee425690d49a837df5504d56b58daa0fd4b5b6c5ac251"
+        },
+        {
+          "file": "libjxl-ports.ts",
+          "sha256": "95e2cda2d3dbc9f60a1bfc2343bef790194fced4e9977120cf97f41cdd9a6cb7"
+        },
+        {
+          "file": "libjxl-standalone-port.ts",
+          "sha256": "1174722f39b47ff9d2ffe15851041746f919a8a449623d2baa73018cebd6dcc2"
+        },
+        {
+          "file": "libjxl-strategy-port.ts",
+          "sha256": "733116fee692bb40636c0e7ef4c38ede1332774f0b284835db847dfae3bd439c"
+        },
+        {
+          "file": "run.ts",
+          "sha256": "489a915de3c6d2d05702d32dca79d4bb7110df2fcfb5725d02b80e90a3712f46"
+        },
+        {
+          "file": "strategy-transplant.ts",
+          "sha256": "80918fdfc90c514828ce9ecb106245690c28e11989a475d66b14fc61bdc4e634"
+        },
+        {
+          "file": "worker.ts",
+          "sha256": "87dcd29e7e0ec7dd143ea0a558eac5b5e553103674d22a503bbdc1e3f7284ad6"
+        },
+        {
+          "file": "libjxl-dc-correlation-port.ts",
+          "sha256": "aa41dccf584f7d85971813798d23fcd3b25f9c7736530cf7127940584d1408c8"
+        }
+      ]
+    },
+    "fixtures": {
+      "passed": true,
+      "cases": 18,
+      "controlExactStreams": 3,
+      "promotionDenials": 3,
+      "rows": [
+        {
+          "width": 1,
+          "height": 17,
+          "distance": 0.65,
+          "bytes": 407,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "794699135f1c3a41a97603290c698442231ce805307accd0b45fb1d125fb3280"
+        },
+        {
+          "width": 1,
+          "height": 17,
+          "distance": 2,
+          "bytes": 339,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "9e116b5c210092c65b115f9f756ed9c3af76c66115ccb16ff37cc7fa214bc0a1"
+        },
+        {
+          "width": 1,
+          "height": 17,
+          "distance": 7,
+          "bytes": 284,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "397488c02e939ba61c1a091e435f4bcdb4a2f07ce9db8d8622b9f518de0399d8"
+        },
+        {
+          "width": 17,
+          "height": 1,
+          "distance": 0.65,
+          "bytes": 402,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "3a5c8bbb2b5311e252af70b3a321edfdf82f1d6cdd6890e94de56a32622362a3"
+        },
+        {
+          "width": 17,
+          "height": 1,
+          "distance": 2,
+          "bytes": 332,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "4221ffad4f760bc03edc6e88189e2b5fa2835d9f0eaa956862ff80db92b17265"
+        },
+        {
+          "width": 17,
+          "height": 1,
+          "distance": 7,
+          "bytes": 265,
+          "managedPeakBytes": 1138757,
+          "nativeValid": true,
+          "sha256": "2978ccf63d31b8a13a365328d68c03f180df27c040fb6141c89e73330e85ccd2"
+        },
+        {
+          "width": 17,
+          "height": 19,
+          "distance": 0.65,
+          "bytes": 1013,
+          "managedPeakBytes": 1140167,
+          "nativeValid": true,
+          "sha256": "9d59900349b6c8292a969bba45b7b5f4b16551bcd187b869623dd25f90b70e2b"
+        },
+        {
+          "width": 17,
+          "height": 19,
+          "distance": 2,
+          "bytes": 679,
+          "managedPeakBytes": 1140167,
+          "nativeValid": true,
+          "sha256": "c22e8b32e1d9adebac982ff5f4b37682e65c75a3c898aea13f6bbc1ced3b467c"
+        },
+        {
+          "width": 17,
+          "height": 19,
+          "distance": 7,
+          "bytes": 420,
+          "managedPeakBytes": 1140167,
+          "nativeValid": true,
+          "sha256": "8658b07ae65b272448b61e755f849c57d8d88bfd2b4e3cd30ccdfd0b116449e3"
+        },
+        {
+          "width": 65,
+          "height": 73,
+          "distance": 0.65,
+          "bytes": 7679,
+          "managedPeakBytes": 1167101,
+          "nativeValid": true,
+          "sha256": "16d9cbf9acca9e10b5a9bbb6cc95ce3aa90f406b33a2f2699dde1e7e53482363"
+        },
+        {
+          "width": 65,
+          "height": 73,
+          "distance": 2,
+          "bytes": 3596,
+          "managedPeakBytes": 1167096,
+          "nativeValid": true,
+          "sha256": "c4be5fd42d0064ab4959696141e107ab09e6b9b48cb9d77530301e3cc76be783"
+        },
+        {
+          "width": 65,
+          "height": 73,
+          "distance": 7,
+          "bytes": 1638,
+          "managedPeakBytes": 1167063,
+          "nativeValid": true,
+          "sha256": "263c5b8196e4ee8ddc16817dd88bc5e748676d5429df0465041d972d293a6449"
+        },
+        {
+          "width": 2057,
+          "height": 9,
+          "distance": 0.65,
+          "bytes": 29273,
+          "managedPeakBytes": 1270510,
+          "nativeValid": true,
+          "sha256": "f6d665863232d9f734ff16bb22d2030b69c99fe3b3c73f6cdea3f6fe10eeac42"
+        },
+        {
+          "width": 2057,
+          "height": 9,
+          "distance": 2,
+          "bytes": 18839,
+          "managedPeakBytes": 1260787,
+          "nativeValid": true,
+          "sha256": "b9931efa5aa8092327a8c059de13f4145da97da9a2f6bbcdc13bf6d3a16494e9"
+        },
+        {
+          "width": 2057,
+          "height": 9,
+          "distance": 7,
+          "bytes": 8702,
+          "managedPeakBytes": 1259568,
+          "nativeValid": true,
+          "sha256": "595500e402d239d1c245e72f84f0cd083c961f3a1b638073ea768767a22e98c8"
+        },
+        {
+          "width": 9,
+          "height": 2057,
+          "distance": 0.65,
+          "bytes": 29382,
+          "managedPeakBytes": 1270790,
+          "nativeValid": true,
+          "sha256": "63450adef28899ac7aee4ff8bce8e1026f5f760ec8a64b8fc31275bd36847937"
+        },
+        {
+          "width": 9,
+          "height": 2057,
+          "distance": 2,
+          "bytes": 17479,
+          "managedPeakBytes": 1259568,
+          "nativeValid": true,
+          "sha256": "3d6c72b2ccaa98c41204b5ec609699bb90dc06af6957d7b9d6323f921dd0336d"
+        },
+        {
+          "width": 9,
+          "height": 2057,
+          "distance": 7,
+          "bytes": 7274,
+          "managedPeakBytes": 1259568,
+          "nativeValid": true,
+          "sha256": "d8493452213c3b249f2a6d12486b92acd83ea1db2dcea05b7913bc8b8fe7b6bb"
+        }
+      ]
+    },
+    "alpha": {
+      "passed": true,
+      "rows": [
+        {
+          "width": 17,
+          "height": 19,
+          "bytes": 783,
+          "alphaExact": true,
+          "nativeValid": true,
+          "repeatable": true
+        },
+        {
+          "width": 257,
+          "height": 17,
+          "bytes": 4878,
+          "alphaExact": true,
+          "nativeValid": true,
+          "repeatable": true
+        }
+      ]
+    },
+    "experiment": {
+      "base": "904e753e5e90bc8e90981476b832267b66e62f39",
+      "patchPath": "benchmark/jpegxl/lossy-lab/DC-CHROMA-EXPERIMENT.patch",
+      "applies": true,
+      "rows": [
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-ports.ts",
+          "sha256": "7564467570620fda178dcd5ab29c4dcacd0181f17150b9e160dca39208b25bb0",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts",
+          "sha256": "bb49d711548e6ad19f0f1b83bacbec11a135408189c1ecd6cc91905ee6a04c6f",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts",
+          "sha256": "c2fd3571a57ca6fd88af84ac29911825cd67d25387d421f9f6602a3a037c083d",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/strategy-transplant.ts",
+          "sha256": "703856902367dbd0aee673743ab5a7aa18abd455b5c22c8add5f5d93570a65a3",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts",
+          "sha256": "504775ddfa9710d396e14dbe59f8c2bd79ad42fca7b0d9f4cc3d5b1d3db75dd6",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts",
+          "sha256": "205ab128070f3a053e3cc2037872ba4c0a0e77388a4a75ab595f0eb617559f36",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts",
+          "sha256": "a6bd322fd744ca7ca15073624910814a8e3e9ca43dc2dcfe87a52e0b54afd4ea",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts",
+          "sha256": "aa41dccf584f7d85971813798d23fcd3b25f9c7736530cf7127940584d1408c8",
+          "changed": true
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/verify-dc-chroma.ts",
+          "sha256": "15699bfd17b83c7585e94ba3d5843c090e9a26e3829af60b3a555690a376d973",
+          "changed": true
+        }
+      ],
+      "policy": "Independent prototype snapshot, normalized import paths. No promotion admission. Reconstructed-luma chroma DC on aligned AC 1.25; not active in public source."
+    },
+    "diagnostics": {
+      "patchPath": "benchmark/jpegxl/lossy-lab/DC-CHROMA-TRIAL-AUDIT.patch",
+      "applies": true,
+      "rows": [
+        {
+          "path": "benchmark/jpegxl/lossy-lab/audit-dc-chroma-screen.ts",
+          "sha256": "d9ed9e37a2ebae474bcfbe15051a2b965a117a0647ead4b81df1bc09fc6d0743"
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/audit-dc-chroma-effect.ts",
+          "sha256": "03349ef8bcd6845c0308d4d866da764b65c0abb4ffb82c619f6aac7b208ad928"
+        },
+        {
+          "path": "benchmark/jpegxl/lossy-lab/verify-dc-chroma-alpha.ts",
+          "sha256": "c09859bdb890d77a4093af4cea0126cb17c49d901975d41ebe20bfb475545017"
+        }
+      ],
+      "policy": "First-party saved-development-stream decision and effect checks, plus alpha fixtures. No new native source port or quality configuration."
+    },
+    "strictTypeScript": "passed",
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T23:46:46.806Z",
+      "endedAt": "2026-11-03T23:55:56.167Z",
+      "code": 0,
+      "signal": null
+    },
+    "activeSourceChanged": false
+  },
+  "configurations": 1,
+  "retained": 0,
+  "promoted": 0,
+  "newHoldoutAttempts": 0,
+  "mergeReady": false,
+  "decision": "Rejected after the screen. All three incremental mean BD-rates regress against aligned control. No full lab, isolated speed, original qualification or holdout attempt. The one-configuration allowance is complete.",
+  "previousQualification": {
+    "report": "DC-WIRE-REPORT.json",
+    "lab": {
+      "complete": true,
+      "mode": "lab",
+      "variant": "standalone-dc-wire",
+      "images": 64,
+      "regularized": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": 0.8521822304026764,
+          "median": 0.40752990323240407,
+          "p90": 2.8200078843694607,
+          "worst": 8.347614887700319,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.90757012355595,
+          "median": -2.220814737328123,
+          "p90": 0.5409239330161795,
+          "worst": 3.0115496037711695,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -1.9830966054319692,
+          "median": -2.5208164665988813,
+          "p90": 2.0048134422186545,
+          "worst": 11.370661492420792,
+          "fullBandCount": 0
+        }
+      ],
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.982167556445221,
+          "median": -6.776459284563378,
+          "p90": -1.023736942698548,
+          "worst": 17.200703508985253
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.8760091651848225,
+          "median": 1.3666950020349353,
+          "p90": 8.853379000948031,
+          "worst": 20.809092545358528
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -1.927103866419033,
+          "median": -1.439035090892872,
+          "p90": 1.7976672835548422,
+          "worst": 11.662825198114813
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -7.395104935262061,
+          "median": -5.179558207410592,
+          "p90": -1.7364014194370876,
+          "worst": 10.0803221656991
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": -7.4017858315785565,
+          "median": -5.937389495602934,
+          "p90": 1.1228440819404313,
+          "worst": 6.439419029877108
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -6.473940541365891,
+          "median": -5.370256634918928,
+          "p90": -1.8047769342782596,
+          "worst": -0.15115606625378358
+        }
+      ],
+      "ac125": [
+        {
+          "metric": "ssimulacra2",
+          "count": 64,
+          "mean": -0.02425752073782496,
+          "median": -0.014905936141104909,
+          "p90": 0.1337499333286277,
+          "worst": 0.7255358435453503,
+          "fullBandCount": 32
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 64,
+          "mean": -0.06749145301387086,
+          "median": -0.0490245458412787,
+          "p90": 0.0019570708768709435,
+          "worst": 0.3188770294752285,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 64,
+          "mean": 0.16518957781699553,
+          "median": 0.08770541501263081,
+          "p90": 0.8376737711722088,
+          "worst": 2.8603033025304407,
+          "fullBandCount": 3
+        }
+      ],
+      "production": {
+        "means": [
+          {
+            "metric": "ssimulacra2",
+            "count": 64,
+            "mean": -6.557223327946101,
+            "median": -5.094975283617118,
+            "p90": 1.3472715050949728,
+            "worst": 15.874919253429514,
+            "fullBandCount": 8
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "count": 64,
+            "mean": -11.831944206708258,
+            "median": -8.595165820601608,
+            "p90": -3.9277498132125146,
+            "worst": 11.672578451480964,
+            "fullBandCount": 0
+          },
+          {
+            "metric": "butteraugliMax",
+            "count": 64,
+            "mean": -11.030976641076473,
+            "median": -9.93959840499733,
+            "p90": 2.098226042307968,
+            "worst": 18.811842135441353,
+            "fullBandCount": 2
+          }
+        ],
+        "guards": [
+          {
+            "metric": "ssimulacra2",
+            "admitted": 8,
+            "failures": [],
+            "worst": 4.597757626905966
+          },
+          {
+            "metric": "butteraugliNorm3",
+            "admitted": 0,
+            "failures": [],
+            "worst": null
+          }
+        ]
+      },
+      "worst": [
+        {
+          "metric": "ssimulacra2",
+          "rows": [
+            {
+              "id": "im26-1030-lab",
+              "metric": "ssimulacra2",
+              "percent": 8.347614887700319,
+              "meanLogRateDifference": 0.08017452871737916,
+              "overlap": {
+                "minimum": 69.86945491,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 69.86945491,
+                "maximum": 91.83355318
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2016-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.475184422749653,
+              "meanLogRateDifference": 0.06274176189528712,
+              "overlap": {
+                "minimum": 72.54690634,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 72.54690634,
+                "maximum": 93.22899669
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1634-lab",
+              "metric": "ssimulacra2",
+              "percent": 6.246595941306874,
+              "meanLogRateDifference": 0.06059258310373606,
+              "overlap": {
+                "minimum": 68.24682844,
+                "maximum": 90
+              },
+              "measuredOverlap": {
+                "minimum": 68.24682844,
+                "maximum": 92.31220846
+              },
+              "requiredRange": {
+                "minimum": 60,
+                "maximum": 90
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "rows": [
+            {
+              "id": "im26-1050-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 3.0115496037711695,
+              "meanLogRateDifference": 0.02967092803066141,
+              "overlap": {
+                "minimum": 0.365773,
+                "maximum": 1.569511
+              },
+              "measuredOverlap": {
+                "minimum": 0.365773,
+                "maximum": 1.569511
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-1030-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 2.911226529012292,
+              "meanLogRateDifference": 0.02869655225173851,
+              "overlap": {
+                "minimum": 0.410501,
+                "maximum": 1.414267
+              },
+              "measuredOverlap": {
+                "minimum": 0.410501,
+                "maximum": 1.414267
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliNorm3",
+              "percent": 1.3682770540656575,
+              "meanLogRateDifference": 0.013590006655929588,
+              "overlap": {
+                "minimum": 0.36452,
+                "maximum": 1.562523
+              },
+              "measuredOverlap": {
+                "minimum": 0.36452,
+                "maximum": 1.562523
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        },
+        {
+          "metric": "butteraugliMax",
+          "rows": [
+            {
+              "id": "im26-2400-lab",
+              "metric": "butteraugliMax",
+              "percent": 11.370661492420792,
+              "meanLogRateDifference": 0.10769374499181464,
+              "overlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.7050087452
+              },
+              "measuredOverlap": {
+                "minimum": 0.7975955009,
+                "maximum": 2.7050087452
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-3312-lab",
+              "metric": "butteraugliMax",
+              "percent": 8.714155412902127,
+              "meanLogRateDifference": 0.08355182425030254,
+              "overlap": {
+                "minimum": 0.7950945497,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7950945497,
+                "maximum": 4.1126198769
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            },
+            {
+              "id": "im26-2004-lab",
+              "metric": "butteraugliMax",
+              "percent": 5.11569698090424,
+              "meanLogRateDifference": 0.04989143355824694,
+              "overlap": {
+                "minimum": 0.7086913586,
+                "maximum": 3
+              },
+              "measuredOverlap": {
+                "minimum": 0.7086913586,
+                "maximum": 4.2461829185
+              },
+              "requiredRange": {
+                "minimum": 0.5,
+                "maximum": 3
+              },
+              "coversRequiredRange": false
+            }
+          ]
+        }
+      ],
+      "managedPeakBytes": 9422327,
+      "elapsedSeconds": 239.478
+    },
+    "holdout": {
+      "coverageChanges": [
+        {
+          "metric": "ssimulacra2",
+          "previousAdmitted": 10,
+          "currentAdmitted": 10,
+          "retained": 10,
+          "lost": 0,
+          "added": 0,
+          "previousFailures": 2,
+          "previousFailuresDropped": 0,
+          "previousFailuresStillFailing": 2,
+          "previousFailuresNowPassing": 0
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "previousAdmitted": 0,
+          "currentAdmitted": 0,
+          "retained": 0,
+          "lost": 0,
+          "added": 0,
+          "previousFailures": 0,
+          "previousFailuresDropped": 0,
+          "previousFailuresStillFailing": 0,
+          "previousFailuresNowPassing": 0
+        }
+      ],
+      "executionComplete": true,
+      "selected": 63,
+      "completedJobs": 189,
+      "outputs": 567,
+      "peers": [
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 63,
+          "mean": -6.277549884713437,
+          "median": -6.604145832760657,
+          "p90": 1.3499725221915755,
+          "worst": 12.45889625947343
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 63,
+          "mean": 1.486564248620235,
+          "median": 0.31882653463998856,
+          "p90": 8.342011577867838,
+          "worst": 17.183908364308653
+        },
+        {
+          "peer": "jsquash",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 63,
+          "mean": 0.04406030298498961,
+          "median": -0.5159660156577015,
+          "p90": 3.7058067119764,
+          "worst": 33.43048525431463
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "ssimulacra2",
+          "count": 63,
+          "mean": -5.7794386334904155,
+          "median": -5.203586366108013,
+          "p90": -0.507037679257436,
+          "worst": 1.5879466295392664
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliMax",
+          "count": 63,
+          "mean": -4.188952478863737,
+          "median": -3.283690384691282,
+          "p90": 3.24884707186323,
+          "worst": 7.946128795738429
+        },
+        {
+          "peer": "vips",
+          "referenceEffort": 7,
+          "metric": "butteraugliNorm3",
+          "count": 63,
+          "mean": -4.4918104417640965,
+          "median": -4.178371258455823,
+          "p90": -0.9910286327643566,
+          "worst": 12.171203563730819
+        }
+      ],
+      "vipsMean": -4.820067184706082,
+      "mainMeans": [
+        {
+          "metric": "ssimulacra2",
+          "count": 63,
+          "mean": -5.251639561700058,
+          "median": -3.7055213394007276,
+          "p90": 2.0910661922874634,
+          "worst": 10.579529741982494,
+          "fullBandCount": 10
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "count": 63,
+          "mean": -9.59311947505741,
+          "median": -7.505772093837054,
+          "p90": -2.889936182113651,
+          "worst": 7.788530033715016,
+          "fullBandCount": 0
+        },
+        {
+          "metric": "butteraugliMax",
+          "count": 63,
+          "mean": -9.46730265329591,
+          "median": -9.659959331740922,
+          "p90": 2.0702694168183964,
+          "worst": 16.482476832551672,
+          "fullBandCount": 2
+        }
+      ],
+      "guards": [
+        {
+          "metric": "ssimulacra2",
+          "comparisons": 63,
+          "admitted": 10,
+          "failures": 2,
+          "worstAdmitted": 10.579529741982494
+        },
+        {
+          "metric": "butteraugliNorm3",
+          "comparisons": 63,
+          "admitted": 0,
+          "failures": 0,
+          "worstAdmitted": null
+        }
+      ],
+      "objectivePass": true,
+      "mainMeansPass": true,
+      "guardsPass": false,
+      "passed": false,
+      "maxManaged": 26183855,
+      "policy": "Aggregate-only holdout review. No identities, per-image values or tuning decisions are emitted."
+    },
+    "holdoutReview": "Aggregate only. No holdout identities or curves inspected and no policy change selected from holdout results.",
+    "pairedEntry": {
+      "passed": true,
+      "improvement": 1.0128281661950809,
+      "allowance": 1.101282816619508,
+      "timing": {
+        "summaries": [
+          {
+            "id": "im26-3012",
+            "pairs": 15,
+            "ratio": 1.0445691803861858,
+            "mad": 0.047912445916443724,
+            "wins": 3,
+            "modes": [
+              {
+                "mode": "control",
+                "medianMs": 801.3057659999995,
+                "bytes": 32832,
+                "managedPeakBytes": 5682267
+              },
+              {
+                "mode": "aligned-dc",
+                "medianMs": 854.3354700000018,
+                "bytes": 41888,
+                "managedPeakBytes": 5682267
+              }
+            ]
+          },
+          {
+            "id": "im26-3312",
+            "pairs": 15,
+            "ratio": 1.0312734722431198,
+            "mad": 0.035042049768186256,
+            "wins": 4,
+            "modes": [
+              {
+                "mode": "control",
+                "medianMs": 832.9266080000016,
+                "bytes": 7913,
+                "managedPeakBytes": 5678171
+              },
+              {
+                "mode": "aligned-dc",
+                "medianMs": 864.052839,
+                "bytes": 9227,
+                "managedPeakBytes": 5680219
+              }
+            ]
+          }
+        ]
+      },
+      "policy": "Candidate selected from completed development evidence before holdout. Absolute crop/original speed and managed memory still required."
+    },
+    "absoluteEntry": {
+      "completedAt": "2026-11-03T23:26:40.253Z",
+      "cropRatio": 2.3181999193797793,
+      "originals": [
+        {
+          "id": "im26-2004",
+          "exitCode": 0,
+          "engines": [
+            {
+              "engine": "purejsimage",
+              "receipt": {
+                "status": "encoded",
+                "engine": "purejsimage",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": "standalone-dc-wire",
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "d6e9ed7ce7229b0db40cd6c5c040f9b4a765251fcc7c5d0cdea270adc5fa608b",
+                "setting": 2,
+                "bytes": 2421019,
+                "encodeMs": 36583.071192999996,
+                "managedPeakBytes": 59210879,
+                "processPeakRssBytes": 430055424
+              }
+            },
+            {
+              "engine": "jsquash",
+              "receipt": {
+                "status": "encoded",
+                "engine": "jsquash",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "967e08312ebc30005867cdab1762c6d29bdc585672778812a3167192256094c3",
+                "setting": 80,
+                "bytes": 1928555,
+                "encodeMs": 24840.8215,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1918865408
+              }
+            },
+            {
+              "engine": "vips",
+              "receipt": {
+                "status": "encoded",
+                "engine": "vips",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2004.png",
+                "width": 2945,
+                "height": 4417,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "4de80a43d6c0f33cdc6f395368df8df02ca41e0129f5a64a7deb17b3ce818303",
+                "encodedSha256": "527f32c8369703529f51dd911b153e184506dc512620694893c8692f630f2919",
+                "setting": 2,
+                "bytes": 1493247,
+                "encodeMs": 9009.973277,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1037574144
+              }
+            }
+          ],
+          "managedPass": true,
+          "ratio": 1.4726997330986014
+        },
+        {
+          "id": "im26-2400",
+          "exitCode": 1,
+          "engines": [
+            {
+              "engine": "purejsimage",
+              "receipt": {
+                "status": "encoded",
+                "engine": "purejsimage",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+                "width": 4000,
+                "height": 5350,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": "standalone-dc-wire",
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+                "encodedSha256": "09f6a632cfbb26adec09e377c942ad7ac7de2a0731036b041b2edee764226e91",
+                "setting": 2,
+                "bytes": 694439,
+                "encodeMs": 58463.909507,
+                "managedPeakBytes": 91262401,
+                "processPeakRssBytes": 508813312
+              }
+            },
+            {
+              "engine": "jsquash",
+              "receipt": null
+            },
+            {
+              "engine": "vips",
+              "receipt": {
+                "status": "encoded",
+                "engine": "vips",
+                "reference": ".tmp/jpegxl-lossy-lab/watch-v2/im26-2400.png",
+                "width": 4000,
+                "height": 5350,
+                "channels": 4,
+                "effort": 7,
+                "strategyPort": null,
+                "allocation": null,
+                "transplantSourceSha256": null,
+                "inputPixelSha256": "74f11ca9a78af24574dd7801a80a91e319742d7401cb7cfb10300960a334ffe7",
+                "encodedSha256": "73bf90d71043a671628d7c31fe3ad616cf80a0a913a387eee7463d1233a90221",
+                "setting": 2,
+                "bytes": 594138,
+                "encodeMs": 13566.511128999999,
+                "managedPeakBytes": null,
+                "processPeakRssBytes": 1200091136
+              }
+            }
+          ],
+          "managedPass": true,
+          "ratio": null
+        }
+      ],
+      "policy": "All own encodes must finish, managed <=137514476, measured original ratios <=5. Preserve an unavailable peer ratio explicitly; no holdout is launched by this script."
+    },
+    "scope": "Historical aligned mode only. These are not results or qualifications of the chroma trial."
+  },
+  "bundles": {
+    "rootBytes": 614969,
+    "specializedBytes": 687801,
+    "runtimeDependencies": 0
+  },
+  "limits": "Scalar source-grid error predicted a gain but did not establish perceptual or rate-distortion gain. Same-distance scores are distinct from BD-rate. No admitted full-band 3-norm comparisons against aligned control. Earlier two holdout SSIM guard failures remain unresolved; public integration and remaining promotion checks are pending.",
+  "nextHypotheses": [
+    "Predictor-aware DC rounding with the selected physical allocation held fixed.",
+    "Estimate fixed-tree histogram clustering savings from saved development symbols.",
+    "Trace blue DC error through display filtering with perceptual weighting before changing allocation."
+  ],
+  "nextHypothesisStatus": "Unmeasured ideas only; further quality configuration requires owner renewal under LOSSY_STEERING section 9."
+}

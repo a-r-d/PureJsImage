@@ -1,0 +1,101 @@
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 073ead3c..449c34c1 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -7,7 +7,9 @@
+  * retain separate DC handling and bridge our B-Y coefficient representation.
+  * Existing transform rewriting, memory tracking and packing are first-party.
+  * Correction: quantize DC using its serialized half-precision matrix.
++ * Proposal: DC chroma subtraction uses reconstructed luma through its own port.
+  */
++import {libjxlDcCorrelationResidual} from './libjxl-dc-correlation-port.ts'
+ import {dcWireMatrix} from './dc-wire-matrix.ts'
+ import {libjxlAdjustSelectedBlockQuantization,libjxlThresholdQuantize} from './libjxl-block-quantization-port.ts'
+ import {
+@@ -95,6 +97,7 @@ export function rewriteStrategyGeometry(
+     memory.allocate(Float32Array, 4096),
+   ]
+   const dc = memory.allocate(Float64Array, 64)
++  const originalYDc = memory.allocate(Float64Array, 64)
+   const thresholds=memory.allocate(Float64Array,12)
+   const quantStatistics=memory.allocate(Float64Array,8)
+   const orders: JpegXlDevelopmentOrderFamily[] = [0, 1, 4, 5, 10, 6, 8, 18, 19].map((strategy) => {
+@@ -140,6 +143,13 @@ export function rewriteStrategyGeometry(
+     height: number
+   }[] = []
+   const invGlobal = 65536 / (base.globalScale ?? 0)
++  const dcYStep = (invGlobal * (dcMatrix[1] ?? 0)) / (base.quantDc ?? 0)
++  const dcY = base.dcComponents[0]?.coefficients
++  if (!dcY || !(dcYStep > 0)) throw new Error('Missing reconstructed DC luma')
++  const dcCorrelation = base.developmentCorrelation
++  const dcColorFactor = dcCorrelation?.colorFactor ?? 84
++  const dcXFactor = (dcCorrelation?.baseCorrelationX ?? 0) + (dcCorrelation?.yToXDc ?? 0) / dcColorFactor
++  const dcBFactor = (dcCorrelation?.baseCorrelationB ?? base.baseB ?? 0) + (dcCorrelation?.yToBDc ?? 0) / dcColorFactor
+   for (let group = 0; group < groupCount; group++) {
+     const ox = (group % base.groupsAcross) * 32,
+       oy = Math.floor(group / base.groupsAcross) * 32
+@@ -200,21 +210,28 @@ export function rewriteStrategyGeometry(
+                     target[(dy * 8 + py) * stride + dx * 8 + px] = plane[py * 8 + px] ?? 0
+               }
+             }
+-          for (let c = 0; c < 3; c++) {
++          for (let order = 0; order < 3; order++) {
++            const c = order < 2 ? order ^ 1 : order
+             const plane = source[c]
+             const result = transformed[c]
+             if (!plane || !result) throw new Error('Missing transform plane')
+             transform(strategy, plane, scratch, result)
+             {
+               developmentDcGrid(result, bw, bh, dc)
++              if (c === 1) for (let i = 0; i < bw * bh; i++) originalYDc[i] = dc[i] ?? 0
+               const target = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
+               const step = (invGlobal * (dcMatrix[c] ?? 0)) / (base.quantDc ?? 0)
+               if (!target || !(step > 0)) throw new Error('Missing transform DC precision')
+               for (let dy = 0; dy < bh; dy++)
+-                for (let dx = 0; dx < bw; dx++)
+-                  target[(oy + y + dy) * base.blocksWide + ox + x + dx] = Math.round(
+-                    (dc[dy * bw + dx] ?? 0) / step,
++                for (let dx = 0; dx < bw; dx++) {
++                  const local = dy * bw + dx
++                  const at = (oy + y + dy) * base.blocksWide + ox + x + dx
++                  const value = c === 1 ? (dc[local] ?? 0) : libjxlDcCorrelationResidual(
++                    dc[local] ?? 0, originalYDc[local] ?? 0,
++                    (dcY[at] ?? 0) * dcYStep, c === 0 ? dcXFactor : dcBFactor, c === 2,
+                   )
++                  target[at] = Math.round(value / step)
++                }
+             }
+           }
+           quant=libjxlAdjustSelectedBlockQuantization(strategy,bw,bh,quant,invGlobal,
+@@ -315,7 +332,7 @@ export function rewriteStrategyGeometry(
+       )
+     }
+   }
+-  for (const buffer of [...source, scratch, ...transformed, dc, thresholds, quantStatistics]) memory.release(buffer)
++  for (const buffer of [...source, scratch, ...transformed, dc, originalYDc, thresholds, quantStatistics]) memory.release(buffer)
+   if (pairs) memory.release(pairs)
+   const restored = compactStorage
+     ? [
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts
+@@ -0,0 +1,18 @@
++/**
++ * Source: libjxl lib/jxl/enc_modular.cc, AddVarDCTDC; v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript preserves our Float64 transform/DC arithmetic,
++ * physical allocation and nearest rounding. Restore B from B-Y before removing
++ * reconstructed luma. No nonlinear quantizer, extra precision or smoothing.
++ * Proposal only: no candidate encoder has executed this module.
++ */
++export function libjxlDcCorrelationResidual(
++  value: number,
++  originalY: number,
++  reconstructedY: number,
++  factor: number,
++  blue: boolean,
++): number {
++  return (blue ? value + originalY : value) - reconstructedY * factor
++}

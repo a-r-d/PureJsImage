@@ -1,0 +1,309 @@
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-chroma-screen.ts b/benchmark/jpegxl/lossy-lab/audit-dc-chroma-screen.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-chroma-screen.ts
+@@ -0,0 +1,99 @@
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { extractDecisions } from './decisions.ts'
++import { object } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-chroma-20261103'
++const current = `${root}/screen/standalone-dc-chroma-purejsimage`
++const frozen = '.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage'
++const rows = []
++async function acSections(bytes: Uint8Array) {
++  const source = new MemorySource(bytes)
++  const logical = new JpegXlCodestreamSource(
++    source,
++    await inspectJpegXlSource(source, resolveJpegXlLimits()),
++  )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame || frame.sections.length < 2) throw new Error('Expected separated crop sections')
++  return Promise.all(
++    frame.sections
++      .slice(1 + frame.dcGroupCount)
++      .map((section) => logical.read(section.offset, section.length)),
++  )
++}
++const keys = [
++  'strategies',
++  'strategyFirstBlocks',
++  'rawQuantization',
++  'globalScale',
++  'quantDc',
++  'colorCorrelation',
++  'correlationX',
++  'correlationB',
++  'sharpness',
++  'gaborish',
++  'epfIterations',
++  'xQuantizationScale',
++  'bQuantizationScale',
++  'quantizationTables',
++] as const
++for (const id of await readdir(current)) {
++  for (const file of (await readdir(`${current}/${id}`)).filter((file) => file.endsWith('.jxl'))) {
++    const beforeBytes = await readFile(`${frozen}/${id}/${file}`),
++      afterBytes = await readFile(`${current}/${id}/${file}`)
++    const before = await extractDecisions(beforeBytes)
++    const after = await extractDecisions(afterBytes)
++    const beforeAc = await acSections(beforeBytes),
++      afterAc = await acSections(afterBytes)
++    assert.deepEqual(afterAc, beforeAc, `${id}/${file}/AC sections`)
++    for (const key of keys) assert.deepEqual(after[key], before[key], `${id}/${file}/${key}`)
++    assert.deepEqual(after.dcQuantization, before.dcQuantization)
++    assert.equal(before.smoothDc, false)
++    assert.equal(after.smoothDc, false)
++    rows.push({
++      id,
++      file,
++      unchangedFields: keys,
++      smoothingUnchanged: true,
++      nominalDcUnchanged: true,
++      acSectionsExact: true,
++      acBytes: beforeAc.reduce((sum, bytes) => sum + bytes.length, 0),
++      beforeBytes: beforeBytes.length,
++      afterBytes: afterBytes.length,
++    })
++  }
++}
++assert.equal(rows.length, 80)
++const frozenSource = object(JSON.parse(await readFile(`${root}/source.json`, 'utf8')))
++if (!Array.isArray(frozenSource.rows)) throw new Error('Missing frozen modules')
++for (const item of frozenSource.rows) {
++  const row = object(item)
++  if (typeof row.file !== 'string' || typeof row.sha256 !== 'string')
++    throw new Error('Invalid module receipt')
++  assert.equal(
++    createHash('sha256')
++      .update(await readFile(`${root}/prototype/${row.file}`))
++      .digest('hex'),
++    row.sha256,
++  )
++}
++await writeFile(
++  `${root}/screen-decisions.json`,
++  JSON.stringify({ passed: true, points: rows.length, sourceFrozen: true, rows }, null, 2) + '\n',
++)
++console.log(
++  JSON.stringify({
++    passed: true,
++    points: rows.length,
++    unchangedFields: keys.length,
++    sourceFrozen: true,
++  }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-chroma-effect.ts b/benchmark/jpegxl/lossy-lab/audit-dc-chroma-effect.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-chroma-effect.ts
+@@ -0,0 +1,150 @@
++// First-party read-only attribution after the fixed development screen regressed.
++import assert from 'node:assert/strict'
++import { readFile, readdir, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-chroma-20261103'
++const current = `${root}/screen/standalone-dc-chroma-purejsimage`
++const frozen = '.tmp/jpegxl-lossy-lab/dc-wire-20261103/screen/standalone-dc-wire-purejsimage'
++async function decode(path: string) {
++  const source = new MemorySource(await readFile(path)),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  const state = prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++  return {
++    state,
++    lfBytes: sections.slice(0, 1 + frame.dcGroupCount).reduce((sum, b) => sum + b.length, 0),
++  }
++}
++interface EffectRow {
++  id: string
++  distance: number
++  lumaAndXExact: boolean
++  blueChanged: number
++  maxBlueDelta: number
++  beforeBytes: number
++  afterBytes: number
++  beforeLfBytes: number
++  afterLfBytes: number
++  metrics: { metric: string; before: number; after: number }[]
++}
++const rows: EffectRow[] = []
++for (const id of await readdir(current)) {
++  const old = object(JSON.parse(await readFile(`${frozen}/${id}/result.json`, 'utf8')))
++  const next = object(JSON.parse(await readFile(`${current}/${id}/result.json`, 'utf8')))
++  if (!Array.isArray(old.points) || !Array.isArray(next.points)) throw new Error('Missing points')
++  const beforePoints = old.points.map(object)
++  for (const item of next.points) {
++    const afterPoint = object(item),
++      distance = number(afterPoint.setting)
++    const beforePoint = beforePoints.find((p) => number(p.setting) === distance)
++    if (!beforePoint) throw new Error('Missing paired point')
++    const before = await decode(`${frozen}/${id}/${distance}.jxl`),
++      after = await decode(`${current}/${id}/${distance}.jxl`)
++    try {
++      const b = before.state.dcGroup.dcCoefficients,
++        a = after.state.dcGroup.dcCoefficients
++      assert.deepEqual(a[0], b[0], `${id}/${distance}: luma integers changed`)
++      assert.deepEqual(a[1], b[1], `${id}/${distance}: X integers changed`)
++      const ba = b[2],
++        aa = a[2]
++      assert.ok(ba && aa)
++      let changed = 0,
++        maxDelta = 0
++      for (let i = 0; i < ba.length; i++) {
++        const delta = Math.abs((aa[i] ?? 0) - (ba[i] ?? 0))
++        changed += Number(delta !== 0)
++        maxDelta = Math.max(maxDelta, delta)
++      }
++      assert.ok(maxDelta <= 1)
++      const metrics = ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax'].map((metric) => ({
++        metric,
++        before: number(beforePoint[metric]),
++        after: number(afterPoint[metric]),
++      }))
++      rows.push({
++        id,
++        distance,
++        lumaAndXExact: true,
++        blueChanged: changed,
++        maxBlueDelta: maxDelta,
++        beforeBytes: number(beforePoint.bytes),
++        afterBytes: number(afterPoint.bytes),
++        beforeLfBytes: before.lfBytes,
++        afterLfBytes: after.lfBytes,
++        metrics,
++      })
++    } finally {
++      before.state.release()
++      after.state.release()
++    }
++  }
++}
++assert.equal(rows.length, 80)
++const beforeBytes = rows.reduce((sum, row) => sum + row.beforeBytes, 0),
++  afterBytes = rows.reduce((sum, row) => sum + row.afterBytes, 0)
++const beforeLfBytes = rows.reduce((sum, row) => sum + row.beforeLfBytes, 0),
++  afterLfBytes = rows.reduce((sum, row) => sum + row.afterLfBytes, 0)
++const metrics = ['ssimulacra2', 'butteraugliNorm3', 'butteraugliMax'].map((metric) => {
++  const points = rows.flatMap((row) => row.metrics.filter((m) => m.metric === metric))
++  const direction = metric === 'ssimulacra2' ? 1 : -1
++  return {
++    metric,
++    improved: points.filter((p) => direction * (p.after - p.before) > 0).length,
++    worsened: points.filter((p) => direction * (p.after - p.before) < 0).length,
++    unchanged: points.filter((p) => p.after === p.before).length,
++    meanChange: points.reduce((sum, p) => sum + (p.after - p.before), 0) / points.length,
++    meanPercent:
++      metric === 'ssimulacra2'
++        ? null
++        : points.reduce((sum, p) => sum + (p.after / p.before - 1) * 100, 0) / points.length,
++  }
++})
++const summary = {
++  points: rows.length,
++  lumaAndXExact: true,
++  blueChanged: rows.reduce((sum, row) => sum + row.blueChanged, 0),
++  maxBlueDelta: Math.max(...rows.map((row) => row.maxBlueDelta)),
++  beforeBytes,
++  afterBytes,
++  bytePercent: (afterBytes / beforeBytes - 1) * 100,
++  beforeLfBytes,
++  afterLfBytes,
++  lfByteDelta: afterLfBytes - beforeLfBytes,
++  otherByteDelta: afterBytes - beforeBytes - (afterLfBytes - beforeLfBytes),
++  larger: rows.filter((r) => r.afterBytes > r.beforeBytes).length,
++  metrics,
++}
++await writeFile(
++  `${root}/effect-audit.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      summary,
++      rows,
++      scope:
++        'Saved fixed development screen only. Same-distance scores and exact section bytes are not BD-rate or proof of source-grid squared error reduction. No new encode or holdout access.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(JSON.stringify(summary))
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-chroma-alpha.ts b/benchmark/jpegxl/lossy-lab/verify-dc-chroma-alpha.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-chroma-alpha.ts
+@@ -0,0 +1,45 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { readFile, writeFile } from 'node:fs/promises'
++import { PNG } from 'pngjs'
++import { encodeTransplant } from './transplant.ts'
++import { libjxlPortOverrides } from './libjxl-ports.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-chroma-20261103'
++const rows = []
++for (const [width, height] of [
++  [17, 19],
++  [257, 17],
++] as const) {
++  const pixels = Uint8Array.from(
++    { length: width * height * 4 },
++    (_, i) => (i * 17 + Math.floor(i / width) * 37) % 256,
++  )
++  const input = pixels.slice(),
++    options = libjxlPortOverrides('standalone-dc-chroma', 2, width, height)
++  const first = await encodeTransplant(pixels, width, height, 2, options),
++    second = await encodeTransplant(pixels, width, height, 2, options)
++  assert.deepEqual(first.bytes, second.bytes)
++  assert.deepEqual(pixels, input)
++  const path = `${root}/fixtures/alpha-${width}x${height}`
++  await writeFile(`${path}.jxl`, first.bytes)
++  await promisify(execFile)(
++    '.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',
++    [`${path}.jxl`, `${path}.png`],
++    { timeout: 120000 },
++  )
++  const decoded = PNG.sync.read(await readFile(`${path}.png`))
++  assert.equal(decoded.width, width)
++  assert.equal(decoded.height, height)
++  for (let i = 3; i < pixels.length; i += 4) assert.equal(decoded.data[i], pixels[i])
++  rows.push({
++    width,
++    height,
++    bytes: first.bytes.length,
++    alphaExact: true,
++    nativeValid: true,
++    repeatable: true,
++  })
++}
++await writeFile(`${root}/alpha-checks.json`, JSON.stringify({ passed: true, rows }, null, 2) + '\n')
++console.log(JSON.stringify({ passed: true, cases: rows.length }))

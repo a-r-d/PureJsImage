@@ -1,0 +1,525 @@
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+index a61bd920..1285ad10 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-ports.ts
+@@ -74,7 +74,7 @@ export function parseLibjxlPort(value: string): LibjxlPort {
+     value === 'standalone-forward-small' ||
+     value === 'standalone-forward-paired' ||
+     value === 'standalone-forward-all' ||
+-    value === 'standalone-regularized-half' ||
++    value === 'standalone-dc-chroma' ||
+     value === 'standalone-guard-coarse' ||
+     value === 'standalone-selector-pairs' ||
+     value === 'standalone-writer-all' ||
+@@ -161,7 +161,7 @@ export function libjxlPortOverrides(
+     mode === 'standalone-forward-small' ||
+     mode === 'standalone-forward-paired' ||
+     mode === 'standalone-forward-all' ||
+-    mode === 'standalone-regularized-half' ||
++    mode === 'standalone-dc-chroma' ||
+     mode === 'standalone-guard-coarse' ||
+     mode === 'standalone-selector-pairs' ||
+     mode === 'standalone-writer-all' ||
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+index 42b325c2..165e0c8c 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-standalone-port.ts
+@@ -9,6 +9,8 @@
+  * experiments cap EPF iterations and independently vary physical DC precision,
+  * smoothing, high-frequency masking, AC precision or coefficient rounding.
+  * All decisions derive from pixels and distance. No decoder or peer maps.
++ * First-party selected-block allocation trial: AC precision 1.25;
++ * preserve frozen physical DC steps. All other decisions stay fixed.
+  * First-party activity-state reuse skips filtered reads used only for rounding.
+  */
+ import type { JpegXlDevelopmentDecisions } from '../../../src/codecs/jpegxl-development-decisions.ts'
+@@ -67,7 +69,7 @@ export type StandalonePort =
+   | 'standalone-selector-pairs'
+   | 'standalone-loss75'
+   | 'standalone-loss125'
+-  | 'standalone-regularized-half'
++  | 'standalone-dc-chroma'
+
+ export function libjxlStandaloneOverrides(
+   distance: number,
+@@ -76,7 +78,7 @@ export function libjxlStandaloneOverrides(
+   requestedMode: StandalonePort,
+   directRoundingState = true,
+ ): JpegXlDevelopmentDecisions {
+-  const regularizedDetail = requestedMode === 'standalone-regularized-half'
++  const regularizedDetail = requestedMode === 'standalone-dc-chroma'
+   const writerEstimate =
+     requestedMode === 'standalone-writer-field'
+       ? 'field'
+@@ -214,7 +216,7 @@ export function libjxlStandaloneOverrides(
+       // First-party guard-balancing allocation, frozen from the development
+       // coarse-envelope trial. Fine-distance DC/AC balance stays unchanged.
+       if (coarseAllocation) {
+-        const precision = 1 + 0.1 * Math.max(0, Math.min(1, (distance - 1.5) / 1.5))
++        const precision = 1.25 * (1 + 0.1 * Math.max(0, Math.min(1, (distance - 1.5) / 1.5)))
+         if (precision !== 1)
+           for (let i = 0; i < field.length; i++) field[i] = (field[i] ?? 0) * precision
+       }
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+index fa924ac2..ab98caf4 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-strategy-port.ts
+@@ -659,7 +659,7 @@ function selectGeometry(
+         strategyFirstBlocks: Array.from(first),
+       },
+       false,
+-      false,
++      true,
+       compactStorage,
+       writerTransform,
+     )
+diff --git a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+index 8ccbd6ac..c03aa14c 100644
+--- a/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
++++ b/benchmark/jpegxl/lossy-lab/strategy-transplant.ts
+@@ -1,3 +1,17 @@
++/**
++ * Selected-block integration source: libjxl lib/jxl/enc_group.cc,
++ * QuantizeRoundtripYBlockAC and ComputeCoefficients; v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: call the scalar quantizer/threshold port from our TypeScript writer,
++ * retain separate DC handling and bridge our B-Y coefficient representation.
++ * Existing transform rewriting, memory tracking and packing are first-party.
++ * Correction: quantize DC using its serialized half-precision matrix.
++ * DC chroma subtraction uses reconstructed luma through its own port.
++ */
++import {libjxlDcCorrelationResidual} from './libjxl-dc-correlation-port.ts'
++import {dcWireMatrix} from './dc-wire-matrix.ts'
++import {libjxlAdjustSelectedBlockQuantization,libjxlThresholdQuantize} from './libjxl-block-quantization-port.ts'
+ import {
+   packCoefficients,
+   unpackCoefficients,
+@@ -39,6 +53,7 @@ export function rewriteStrategyGeometry(
+     base.blocksHigh !== decisions.blocksHigh
+   )
+     throw new Error('Strategy transplant dimensions differ')
++  const dcMatrix = dcWireMatrix(base.dcQuantization ?? [], memory)
+   const strategies = memory.allocate(Int32Array, decisions.strategies.length)
+   strategies.set(decisions.strategies)
+   const q = memory.allocate(Int32Array, strategies.length)
+@@ -82,6 +97,9 @@ export function rewriteStrategyGeometry(
+     memory.allocate(Float32Array, 4096),
+   ]
+   const dc = memory.allocate(Float64Array, 64)
++  const originalYDc = memory.allocate(Float64Array, 64)
++  const thresholds=memory.allocate(Float64Array,12)
++  const quantStatistics=memory.allocate(Float64Array,8)
+   const orders: JpegXlDevelopmentOrderFamily[] = [0, 1, 4, 5, 10, 6, 8, 18, 19].map((strategy) => {
+     const natural = naturalJpegXlDevelopmentCoefficientOrder(strategy)
+     // Our existing writer uses transposed internal coordinates for the small family.
+@@ -125,6 +143,13 @@ export function rewriteStrategyGeometry(
+     height: number
+   }[] = []
+   const invGlobal = 65536 / (base.globalScale ?? 0)
++  const dcYStep = (invGlobal * (dcMatrix[1] ?? 0)) / (base.quantDc ?? 0)
++  const dcY = base.dcComponents[0]?.coefficients
++  if (!dcY || !(dcYStep > 0)) throw new Error('Missing reconstructed DC luma')
++  const dcCorrelation = base.developmentCorrelation
++  const dcColorFactor = dcCorrelation?.colorFactor ?? 84
++  const dcXFactor = (dcCorrelation?.baseCorrelationX ?? 0) + (dcCorrelation?.yToXDc ?? 0) / dcColorFactor
++  const dcBFactor = (dcCorrelation?.baseCorrelationB ?? base.baseB ?? 0) + (dcCorrelation?.yToBDc ?? 0) / dcColorFactor
+   for (let group = 0; group < groupCount; group++) {
+     const ox = (group % base.groupsAcross) * 32,
+       oy = Math.floor(group / base.groupsAcross) * 32
+@@ -185,24 +210,36 @@ export function rewriteStrategyGeometry(
+                     target[(dy * 8 + py) * stride + dx * 8 + px] = plane[py * 8 + px] ?? 0
+               }
+             }
+-          for (let c = 0; c < 3; c++) {
++          for (let order = 0; order < 3; order++) {
++            const c = order < 2 ? order ^ 1 : order
+             const plane = source[c]
+             const result = transformed[c]
+             if (!plane || !result) throw new Error('Missing transform plane')
+             transform(strategy, plane, scratch, result)
+             {
+               developmentDcGrid(result, bw, bh, dc)
++              if (c === 1) for (let i = 0; i < bw * bh; i++) originalYDc[i] = dc[i] ?? 0
+               const target = base.dcComponents[c < 2 ? c ^ 1 : c]?.coefficients
+-              const step = (invGlobal * (base.dcQuantization?.[c] ?? 0)) / (base.quantDc ?? 0)
++              const step = (invGlobal * (dcMatrix[c] ?? 0)) / (base.quantDc ?? 0)
+               if (!target || !(step > 0)) throw new Error('Missing transform DC precision')
+               for (let dy = 0; dy < bh; dy++)
+-                for (let dx = 0; dx < bw; dx++)
+-                  target[(oy + y + dy) * base.blocksWide + ox + x + dx] = Math.round(
+-                    (dc[dy * bw + dx] ?? 0) / step,
++                for (let dx = 0; dx < bw; dx++) {
++                  const local = dy * bw + dx
++                  const at = (oy + y + dy) * base.blocksWide + ox + x + dx
++                  const value = c === 1 ? (dc[local] ?? 0) : libjxlDcCorrelationResidual(
++                    dc[local] ?? 0, originalYDc[local] ?? 0,
++                    (dcY[at] ?? 0) * dcYStep, c === 0 ? dcXFactor : dcBFactor, c === 2,
+                   )
++                  target[at] = Math.round(value / step)
++                }
+             }
+           }
+-          // Set our existing rate-aware quantizer's activity state at the leader.
++          quant=libjxlAdjustSelectedBlockQuantization(strategy,bw,bh,quant,invGlobal,
++            0.8**((base.xScale??2)-2),0.8**((base.bScale??2)-2),
++            transformed,jpegXlDevelopmentDequantization(strategy),thresholds,quantStatistics)
++          for(let dy=0;dy<bh;dy++) for(let dx=0;dx<bw;dx++)
++            q[(oy+y+dy)*base.blocksWide+ox+x+dx]=quant
++          // Keep the original activity-state preparation outside coefficient loops.
+           context.readBlock(ox + x, oy + y, true)
+           const tile =
+             Math.floor((oy + y) / 8) * Math.ceil(base.blocksWide / 8) + Math.floor((ox + x) / 8)
+@@ -224,6 +261,7 @@ export function rewriteStrategyGeometry(
+               invGlobal / quant,
+               matrix,
+               context,
++              thresholds,
+             )
+           }
+           for (let c = 0; c < 3; c++) {
+@@ -254,7 +292,7 @@ export function rewriteStrategyGeometry(
+                 Math.floor(p / naturalWidth) < Math.min(bw, bh)
+               )
+                 continue
+-              const value = context.quantize(
++              const value = libjxlThresholdQuantize(
+                 (roundtripChroma
+                   ? libjxlChromaResidual(
+                       result[p] ?? 0,
+@@ -265,7 +303,7 @@ export function rewriteStrategyGeometry(
+                     )
+                   : (result[p] ?? 0) - ratio * (yCoefficients[p] ?? 0)) /
+                   (step * (table[p] ?? 0)),
+-                c,
++                thresholds[c*4+(Math.floor(p/naturalWidth)>=Math.min(bw,bh)*4?2:0)+(p%naturalWidth>=naturalWidth/2?1:0)]??0,
+               )
+               if (Math.abs(value) > 4095)
+                 throw new Error('Forced transform coefficient exceeds writer range')
+@@ -294,7 +332,7 @@ export function rewriteStrategyGeometry(
+       )
+     }
+   }
+-  for (const buffer of [...source, scratch, ...transformed, dc]) memory.release(buffer)
++  for (const buffer of [...source, scratch, ...transformed, dc, originalYDc, thresholds, quantStatistics]) memory.release(buffer)
+   if (pairs) memory.release(pairs)
+   const restored = compactStorage
+     ? [
+@@ -331,6 +369,7 @@ export function rewriteStrategyGeometry(
+       }
+   return {
+     ...base,
++    dcQuantization: dcMatrix,
+     strategyMap: strategies,
+     developmentFirstBlocks: firstBlocks,
+     quantizationMap: q,
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts
+index 7766dc77..e3452b79 100644
+--- a/benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts
++++ b/benchmark/jpegxl/lossy-lab/libjxl-chroma-roundtrip-port.ts
+@@ -4,11 +4,14 @@
+  * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
+  * Changes: scalar TypeScript quantizes Y with our existing rounding policy,
+  * reconstructs normative biased values, and writes our coefficient layout.
+- * No native threshold adjustment, SIMD or infrastructure is copied.
++ * Selected-block trial accepts the ported quadrant dead-zone thresholds.
++ * No SIMD or native infrastructure is copied.
+  */
+ import type { JpegXlDevelopmentTransformContext } from '../../../src/codecs/jpegxl-development-decisions.ts'
+ import { defaultJpegXlQuantizationBiases } from '../../../src/codecs/jpegxl-vardct-quantization.ts'
+
++import {libjxlThresholdQuantize} from './libjxl-block-quantization-port.ts'
++
+ export function libjxlRoundtripLuma(
+   source: Float64Array,
+   reconstructed: Float64Array,
+@@ -20,6 +23,7 @@ export function libjxlRoundtripLuma(
+   scale: number,
+   matrix: Float64Array,
+   context: JpegXlDevelopmentTransformContext,
++  thresholds: Float64Array,
+ ): void {
+   const naturalWidth = Math.max(blocksWide, blocksHigh) * 8
+   for (let p = 0; p < size; p++) {
+@@ -32,7 +36,8 @@ export function libjxlRoundtripLuma(
+       continue
+     }
+     const step = scale * (matrix[p] ?? 0)
+-    const value = context.quantize(original / step, 1)
++    const quadrant=(Math.floor(p/naturalWidth)>=Math.min(blocksWide,blocksHigh)*4?2:0)+(p%naturalWidth>=naturalWidth/2?1:0)
++    const value = libjxlThresholdQuantize(original / step, thresholds[4+quadrant]??0)
+     if (!Number.isFinite(value) || Math.abs(value) > 4095)
+       throw new Error('Roundtrip luma coefficient exceeds writer range')
+     target[offset + (size === 64 ? (p & 7) * 8 + (p >>> 3) : p)] = value
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts
+new file mode 100644
+index 00000000..79287dd0
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-block-quantization-port.ts
+@@ -0,0 +1,164 @@
++/**
++ * Source: libjxl lib/jxl/enc_group.cc, AdjustQuantBlockAC, QuantizeBlockAC,
++ * QuantizeRoundtripYBlockAC and ComputeCoefficients; v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript uses our physical dequantization steps and
++ * double-precision arithmetic. Reconstruct the native B input from our B-Y
++ * plane. Caller owns bounded scratch and keeps our separate DC representation.
++ * Clamp the final precision to the decoder's 1..256 raw-quantizer range.
++ * No SIMD, threading or native memory infrastructure is copied.
++ */
++
++const errorWeights = new Float64Array([
++  0.22080615753848404, 0.45797479824262011, 0.29859235095977965, 0.70109486510286834,
++  0.16185281305512639, 0.14387691730035473, 0.114985964456218638, 0.44656840441027695,
++  0.10587658215149048, 0.46849665264409396, 0.41239077937781954, 0.088667407767185444,
++])
++const magnitudeWeights = new Float64Array([
++  0.27450281941822197, 1.1255766549984996, 0.98950459134128388, 0.4652168675598285,
++  0.40945807983455818, 0.36581899811751367, 0.28034972424715715, 0.9182653201929738,
++  1.5581531543057416, 0.26873118114033728, 0.68863712390392484, 1.2082185408666786,
++])
++
++export function libjxlThresholdQuantize(value: number, threshold: number): number {
++  if (Math.abs(value) < threshold) return 0
++  const lower = Math.floor(value)
++  return value - lower === 0.5 ? (lower % 2 === 0 ? lower : lower + 1) : Math.round(value)
++}
++
++/** Return the selected raw quantizer and write X/Y/B quadrant thresholds. */
++export function libjxlAdjustSelectedBlockQuantization(
++  strategy: number,
++  blocksWide: number,
++  blocksHigh: number,
++  originalQuant: number,
++  invGlobal: number,
++  xMultiplier: number,
++  bMultiplier: number,
++  planes: readonly Float64Array[],
++  matrices: readonly Float64Array[],
++  thresholds: Float64Array,
++  statistics: Float64Array,
++): number {
++  const xblocks = Math.max(blocksWide, blocksHigh)
++  const yblocks = Math.min(blocksWide, blocksHigh)
++  const width = xblocks * 8
++  const height = yblocks * 8
++  const area = xblocks * yblocks
++  const partial =
++    strategy === 1 || strategy === 2 || strategy === 3 || (strategy >= 12 && strategy <= 17)
++  let maximumQuant = 0
++  const luma = planes[1]
++  if (
++    !luma ||
++    thresholds.length < 12 ||
++    statistics.length < 8 ||
++    !Number.isInteger(originalQuant) ||
++    originalQuant < 1 ||
++    originalQuant > 256 ||
++    !(invGlobal > 0) ||
++    !(xMultiplier > 0) ||
++    !(bMultiplier > 0)
++  )
++    throw new Error('Invalid selected-block quantization input')
++  for (let ci = 0; ci < 3; ci++) {
++    const c = ci < 2 ? ci ^ 1 : ci
++    const plane = planes[c]
++    const matrix = matrices[c]
++    if (!plane || !matrix || plane.length < area * 64 || matrix.length < area * 64)
++      throw new Error('Missing selected-block coefficients')
++    const offset = c * 4
++    thresholds[offset] = 0.58
++    for (let i = 1; i < 4; i++) thresholds[offset + i] = 0.64
++    let quant = originalQuant
++    if (!partial) {
++      if (area > 1) {
++        const reduction = Math.min(0.08, 0.003 * area)
++        for (let i = 0; i < 4; i++)
++          thresholds[offset + i] = Math.max(0.54, (thresholds[offset + i] ?? 0) - reduction)
++      }
++      statistics.fill(0, 0, 8)
++      let highFrequencySum = 0
++      let errorSum = 0
++      let magnitudeSum = 0
++      const step = (invGlobal / originalQuant) * (c === 0 ? xMultiplier : c === 2 ? bMultiplier : 1)
++      for (let y = 0; y < height; y++) {
++        const quadrantY = y >= height / 2 ? 2 : 0
++        for (let x = 0; x < width; x++) {
++          if (x < xblocks && y < yblocks) continue
++          const p = y * width + x
++          const quadrant = quadrantY + (x >= width / 2 ? 1 : 0)
++          const input = (plane[p] ?? 0) + (c === 2 ? (luma[p] ?? 0) : 0)
++          const value = input / (step * (matrix[p] ?? 0))
++          const rounded = libjxlThresholdQuantize(value, thresholds[offset + quadrant] ?? 0)
++          const error = Math.abs(value - rounded)
++          const magnitude = Math.abs(rounded)
++          errorSum += error
++          magnitudeSum += magnitude
++          if (c === 1 && rounded === 0)
++            statistics[4 + quadrant] = Math.max(statistics[4 + quadrant] ?? 0, error)
++          if (rounded !== 0) {
++            statistics[quadrant] = (statistics[quadrant] ?? 0) + magnitude
++            if (
++              (y >= 7 * yblocks && x >= 7 * xblocks) ||
++              ((y === height - 1 || x === width - 1) && x >= 4 * xblocks && y >= 4 * yblocks)
++            )
++              highFrequencySum += Math.abs(value)
++          }
++        }
++      }
++      const n0 = statistics[0] ?? 0,
++        n1 = statistics[1] ?? 0
++      const n2 = statistics[2] ?? 0,
++        n3 = statistics[3] ?? 0
++      const e0 = statistics[4] ?? 0,
++        e1 = statistics[5] ?? 0
++      const e2 = statistics[6] ?? 0,
++        e3 = statistics[7] ?? 0
++      if (c === 1 && magnitudeSum * 8 < area) {
++        if ((n1 === 0 && e1 > 0.46) || (n2 === 0 && e2 > 0.46) || (n3 === 0 && e3 > 0.46)) quant++
++        if (n3 === 0 && e3 > 0.46) thresholds[offset + 3] = (0.9999 * e3 * quant) / originalQuant
++        else if ((n1 === 0 && e1 > 0.46) || (n2 === 0 && e2 > 0.46)) {
++          thresholds[offset + 1] = (0.9999 * Math.max(e1, e2) * quant) / originalQuant
++          thresholds[offset + 2] = thresholds[offset + 1] ?? 0
++        } else if (n0 === 0 && e0 > 0.46) thresholds[offset] = (0.9999 * e0 * quant) / originalQuant
++      }
++      const all = n0 + n1 + n2 + n3 + 1
++      const highFrequencyWeight = c === 0 ? 70 : c === 1 ? 30 : 60
++      if (highFrequencyWeight * highFrequencySum >= all)
++        quant = Math.min(255, Math.trunc(quant + (highFrequencyWeight * highFrequencySum) / all))
++      if (strategy === 0 && n0 + n1 + n2 + n3 < 11) quant = Math.min(255, quant + 1)
++      errorSum *= 2.2942708343284721
++      magnitudeSum *= 2.2942708343284721
++      if (strategy >= 4) {
++        const row =
++          strategy === 4 ? 0 : strategy === 10 || strategy === 11 ? 1 : strategy === 5 ? 2 : 3
++        const denominator =
++          (errorWeights[row * 3 + c] ?? 0) * area * 64 +
++          (magnitudeWeights[row * 3 + c] ?? 0) * magnitudeSum
++        if (errorSum > denominator)
++          quant = Math.min(
++            255,
++            quant + Math.max(0, Math.min(2, Math.trunc(errorSum / denominator))),
++          )
++      }
++      const minimum = Math.min(n0, n1, n2, n3)
++      const activity =
++        minimum < 15 * area ? Math.trunc((Math.trunc(minimum) + Math.trunc(area / 2)) / area) : 15
++      if (c === 1)
++        for (let i = 1; i < 4; i++)
++          thresholds[offset + i] = (thresholds[offset + i] ?? 0) + 0.01 * activity
++      quant = Math.max(4, Math.trunc(quant / 2), quant - activity)
++    }
++    maximumQuant = Math.max(maximumQuant, quant)
++  }
++  // Native discards the X/B adjustment thresholds, then quantizes their CfL
++  // residuals with these separate thresholds after reconstructing Y.
++  const chromaReduction = area >= 4 ? 0.00744 * area : 0
++  for (let c = 0; c < 3; c += 2) {
++    thresholds[c * 4] = Math.max(0.5, 0.58 - chromaReduction)
++    for (let i = 1; i < 4; i++) thresholds[c * 4 + i] = Math.max(0.5, 0.62 - chromaReduction)
++  }
++  return Math.min(256, maximumQuant)
++}
+diff --git a/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+new file mode 100644
+index 00000000..76f8ec32
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/dc-wire-matrix.ts
+@@ -0,0 +1,20 @@
++// First-party correction: use the exact serialized DC matrix when quantizing DC.
++// One fixed development trial; no peer maps or public entry point.
++import {JpegXlBitReader} from '../../../src/codecs/jpegxl-bitstream.ts'
++import {JpegXlBitWriter} from '../../../src/codecs/jpegxl-modular-encode.ts'
++import {writeJpegXlDevelopmentF16} from '../../../src/codecs/jpegxl-jpeg-encode.ts'
++import {type JpegXlEncoderMemory,withJpegXlMemory} from '../../../src/codecs/jpegxl-encoder-memory.ts'
++
++export function dcWireMatrix(values:readonly number[],memory?:JpegXlEncoderMemory):readonly [number,number,number]{
++ if(values.length!==3||values.some(value=>!(value>0)||!Number.isFinite(value))) throw new Error('Invalid DC matrix')
++ return withJpegXlMemory(memory,()=>{
++  const writer=new JpegXlBitWriter(memory,6)
++  for(const value of values) writeJpegXlDevelopmentF16(writer,value*128)
++  const reader=new JpegXlBitReader(writer.finish())
++  const read=():number=>{
++   const bits=reader.readBits(16)
++   return (1+(bits&1023)/1024)*2**(((bits>>>10)&31)-15)/128
++  }
++  return [read(),read(),read()]
++ })
++}
+diff --git a/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts b/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts
+new file mode 100644
+index 00000000..a0bde15c
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts
+@@ -0,0 +1,18 @@
++/**
++ * Source: libjxl lib/jxl/enc_modular.cc, AddVarDCTDC; v0.12.0,
++ * a7a9c787341cf703dede03c2009fa460cae5e5df.
++ * Copyright (c) the JPEG XL Project Authors. BSD-3-Clause
++ * Changes: scalar TypeScript preserves our Float64 transform/DC arithmetic,
++ * physical allocation and nearest rounding. Restore B from B-Y before removing
++ * reconstructed luma. No nonlinear quantizer, extra precision or smoothing.
++ * One fixed development configuration; no public entry point or peer maps.
++ */
++export function libjxlDcCorrelationResidual(
++  value: number,
++  originalY: number,
++  reconstructedY: number,
++  factor: number,
++  blue: boolean,
++): number {
++  return (blue ? value + originalY : value) - reconstructedY * factor
++}
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-chroma.ts b/benchmark/jpegxl/lossy-lab/verify-dc-chroma.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-chroma.ts
+@@ -0,0 +1,47 @@
++import assert from 'node:assert/strict'
++import {createHash} from 'node:crypto'
++import {execFile} from 'node:child_process'
++import {promisify} from 'node:util'
++import {mkdir,readFile,writeFile} from 'node:fs/promises'
++import {PNG} from 'pngjs'
++import {encodeTransplant} from './transplant.ts'
++import {extractDecisions} from './decisions.ts'
++import {libjxlPortOverrides} from './libjxl-ports.ts'
++import {libjxlPortOverrides as frozenOverrides} from '../../../.tmp/jpegxl-lossy-lab/block-allocation-20261103/ac125/libjxl-ports.ts'
++import {allowsStrategyPortMode} from './fixture-selection.ts'
++const root='.tmp/jpegxl-lossy-lab/dc-chroma-20261103'
++const controlHashes:Readonly<Record<string,string>>={
++ '0.65':'a87226a678ba7b1ef35339dc9d669be1a48707b94df4a208dfa816a129f0f8a8',
++ '2':'c22e8b32e1d9adebac982ff5f4b37682e65c75a3c898aea13f6bbc1ced3b467c',
++ '7':'8658b07ae65b272448b61e755f849c57d8d88bfd2b4e3cd30ccdfd0b116449e3',
++}
++await mkdir(`${root}/fixtures`,{recursive:true})
++for(const mode of ['holdout','watch','scale'] as const) assert.equal(allowsStrategyPortMode(mode,'standalone-dc-chroma',true),false)
++const rows=[]
++for(const [width,height] of [[1,17],[17,1],[17,19],[65,73],[2057,9],[9,2057]] as const) for(const distance of [0.65,2,7]){
++ const pixels=Uint8Array.from({length:width*height*4},(_,i)=>i%4===3?255:(i*17+Math.floor(i/width)*37)%256)
++ const before=pixels.slice()
++ const overrides=libjxlPortOverrides('standalone-dc-chroma',distance,width,height)
++ const baseline=frozenOverrides('standalone-block-ac125',distance,width,height)
++ assert.deepEqual(overrides.dc,baseline.dc)
++ assert.equal(overrides.globalScale,baseline.globalScale)
++ const first=await encodeTransplant(pixels,width,height,distance,overrides)
++ const second=await encodeTransplant(pixels,width,height,distance,overrides)
++ assert.deepEqual(first.bytes,second.bytes)
++ assert.deepEqual(pixels,before)
++ if(width===17&&height===19){
++  const control=await encodeTransplant(pixels,width,height,distance,baseline)
++  assert.equal(createHash('sha256').update(control.bytes).digest('hex'),controlHashes[String(distance)])
++  const a=await extractDecisions(first.bytes),b=await extractDecisions(control.bytes)
++  assert.equal(a.smoothDc,false)
++  for(const field of ['strategies','strategyFirstBlocks','rawQuantization','dcQuantization','globalScale','quantDc','smoothDc','gaborish','epfIterations','sharpness','correlationX','correlationB'] as const) assert.deepEqual(a[field],b[field])
++ }
++ const path=`${root}/fixtures/${width}x${height}-${distance}`
++ await writeFile(`${path}.jxl`,first.bytes)
++ await promisify(execFile)('.tmp/jpegxl-oracles/libjxl-v0.12.0/source/build-pinned/tools/djxl',[`${path}.jxl`,`${path}.png`],{timeout:120000})
++ const decoded=PNG.sync.read(await readFile(`${path}.png`))
++ assert.equal(decoded.width,width);assert.equal(decoded.height,height)
++ rows.push({width,height,distance,bytes:first.bytes.length,managedPeakBytes:first.managedPeakBytes,nativeValid:true,sha256:createHash('sha256').update(first.bytes).digest('hex')})
++}
++await writeFile(`${root}/fixture-checks.json`,JSON.stringify({passed:true,cases:rows.length,controlExactStreams:3,promotionDenials:3,rows},null,2)+'\n')
++console.log(JSON.stringify({passed:true,cases:rows.length,controlExactStreams:3}))

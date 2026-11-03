@@ -706,3 +706,26 @@ qualification remains separate from active source integration.
 native alpha fixtures and isolated timing scripts. It takes no new native code
 or constants. The fixed alignment trial is rejected for promotion because two
 holdout SSIM guards still fail; the implementation stays archived.
+
+## Reconstructed-luma chroma DC trial (2026-11-03)
+
+`lossy-lab/DC-CHROMA-PROPOSAL.patch` adds
+`lossy-lab/libjxl-dc-correlation-port.ts` from libjxl
+`lib/jxl/enc_modular.cc`, `AddVarDCTDC`, v0.12.0 commit
+`a7a9c787341cf703dede03c2009fa460cae5e5df`. It takes subtraction of
+reconstructed luma before chroma DC quantization. The TypeScript adaptation
+restores B from our B-Y representation and preserves Float64 arithmetic,
+existing physical allocation and nearest rounding. The caller processes Y
+first and reuses 512 bytes of scratch. It takes no native infrastructure,
+nonlinear quantizer, precision setting or smoothing policy. The helper has the
+source/BSD header and scalar coverage before any proposed candidate encode.
+The pinned source and full license match the archive; the existing package and
+docs notices apply. The companion audit uses first-party arithmetic on saved
+development streams and source planes, with no peer decisions or holdout data.
+
+Aaron approved one fixed configuration. `DC-CHROMA-EXPERIMENT.patch` preserves
+the complete trial and fixtures; `DC-CHROMA-TRIAL-AUDIT.patch` preserves three
+first-party stream and alpha checks. All eighty development screen outputs
+validate natively, but all three incremental mean BD-rates regress against the
+aligned control. The trial is rejected and remains archived outside active
+source. No new holdout attempt follows it.

@@ -1,0 +1,405 @@
+diff --git a/benchmark/jpegxl/lossy-lab/audit-dc-chroma.ts b/benchmark/jpegxl/lossy-lab/audit-dc-chroma.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/audit-dc-chroma.ts
+@@ -0,0 +1,171 @@
++// First-party read-only DC error decomposition on a previously fixed development cohort.
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { mkdir, readFile, writeFile } from 'node:fs/promises'
++import { object, number } from '../comparison/model.ts'
++import {
++  inspectJpegXlSource,
++  JpegXlCodestreamSource,
++} from '../../../src/codecs/jpegxl-container.ts'
++import { readJpegXlSourceFrameStructures } from '../../../src/codecs/jpegxl-decode.ts'
++import { prepareJpegXlVarDctLowFrequency } from '../../../src/codecs/jpegxl-vardct-render.ts'
++import { JpegXlVarDctMemoryLedger } from '../../../src/codecs/jpegxl-vardct-memory.ts'
++import { resolveJpegXlLimits } from '../../../src/codecs/jpegxl-limits.ts'
++import { defaultImageLimits } from '../../../src/limits.ts'
++import { MemorySource } from '../../../src/source.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-chroma-audit-20261103'
++await mkdir(root, { recursive: true })
++const input = object(
++  JSON.parse(
++    await readFile(
++      '.tmp/jpegxl-lossy-lab/dc-reconstruction-audit-20261103/reconstruction.json',
++      'utf8',
++    ),
++  ),
++)
++if (!Array.isArray(input.rows)) throw new Error('Missing fixed development observations')
++async function decode(path: string) {
++  const source = new MemorySource(await readFile(path)),
++    logical = new JpegXlCodestreamSource(
++      source,
++      await inspectJpegXlSource(source, resolveJpegXlLimits()),
++    )
++  const frame = (await readJpegXlSourceFrameStructures(logical, defaultImageLimits)).at(-1)
++  if (!frame) throw new Error('Missing frame')
++  const sections = await Promise.all(frame.sections.map((s) => logical.read(s.offset, s.length)))
++  return prepareJpegXlVarDctLowFrequency(
++    sections,
++    frame,
++    new JpegXlVarDctMemoryLedger(defaultImageLimits.maxDecodedBytes),
++  )
++}
++const rows = []
++for (const item of input.rows) {
++  const row = object(item)
++  if (typeof row.id !== 'string' || !Array.isArray(row.channels)) throw new Error('Invalid point')
++  const id = row.id,
++    distance = number(row.distance)
++  const targets: Float32Array[] = []
++  for (const item of row.channels) {
++    const source = object(object(item).source)
++    if (typeof source.path !== 'string' || typeof source.sha256 !== 'string')
++      throw new Error('Missing source plane')
++    const bytes = Uint8Array.from(await readFile(source.path))
++    assert.equal(createHash('sha256').update(bytes).digest('hex'), source.sha256)
++    targets.push(new Float32Array(bytes.buffer))
++  }
++  const state = await decode(
++    `.tmp/jpegxl-lossy-lab/dc-wire-20261103/lab/standalone-dc-wire-purejsimage/${id}-lab/${distance}.jxl`,
++  )
++  try {
++    const y = targets[1],
++      qy = state.dcGroup.dcCoefficients[0]
++    assert.ok(y && qy)
++    const steps = state.lfGlobal.dcQuantization.map(
++      (q) => (65536 / state.lfGlobal.globalScale / state.lfGlobal.quantDc) * q,
++    )
++    const yStep = steps[1] ?? 0,
++      corr = state.lfGlobal.colorCorrelation
++    const factors = [
++      corr.baseCorrelationX + corr.yToXDc / corr.colorFactor,
++      0,
++      corr.baseCorrelationB + corr.yToBDc / corr.colorFactor,
++    ]
++    const channels = []
++    for (const c of [0, 2]) {
++      const target: Float32Array | undefined = targets[c]
++      const q = state.dcGroup.dcCoefficients[c < 2 ? c ^ 1 : c],
++        actual = state.dcPlanes[c],
++        step = steps[c] ?? 0,
++        factor = factors[c] ?? 0
++      assert.ok(target && q && actual && step > 0)
++      let residualSquared = 0,
++        propagatedSquared = 0,
++        crossTerm = 0,
++        actualSquared = 0,
++        modelSquared = 0,
++        changed = 0,
++        maxBefore = 0,
++        maxAfter = 0,
++        maxReconstructionDifference = 0
++      const deltas = new Int32Array(3)
++      for (let i = 0; i < target.length; i++) {
++        const source = target[i] ?? 0,
++          sourceY = y[i] ?? 0
++        const reconstructedY: number = (qy[i] ?? 0) * yStep
++        const reconstruction = (q[i] ?? 0) * step + reconstructedY * factor
++        const residual = ((q[i] ?? 0) * step - (source - sourceY * factor)) / step
++        const propagated = ((reconstructedY - sourceY) * factor) / step
++        const error: number = ((actual[i] ?? 0) - source) / step
++        const next = Math.round((source - reconstructedY * factor) / step)
++        const modeled: number = (next * step + reconstructedY * factor - source) / step
++        const delta: number = next - (q[i] ?? 0)
++        assert.ok(delta >= -1 && delta <= 1)
++        deltas[delta + 1] = (deltas[delta + 1] ?? 0) + 1
++        residualSquared += residual * residual
++        propagatedSquared += propagated * propagated
++        crossTerm += 2 * residual * propagated
++        actualSquared += error * error
++        modelSquared += modeled * modeled
++        changed += Number(delta !== 0)
++        maxBefore = Math.max(maxBefore, Math.abs(error))
++        maxAfter = Math.max(maxAfter, Math.abs(modeled))
++        maxReconstructionDifference = Math.max(
++          maxReconstructionDifference,
++          Math.abs(reconstruction - (actual[i] ?? 0)),
++        )
++        assert.ok(modeled * modeled <= error * error + 1e-7)
++      }
++      assert.ok(Math.abs(actualSquared - residualSquared - propagatedSquared - crossTerm) < 1e-6)
++      assert.ok(maxAfter <= 0.500000001)
++      channels.push({
++        channel: c,
++        factor,
++        samples: target.length,
++        residualSquared,
++        propagatedSquared,
++        crossTerm,
++        actualSquared,
++        modelSquared,
++        modeledRatio: modelSquared / actualSquared,
++        changed,
++        deltas: Array.from(deltas),
++        maxBefore,
++        maxAfter,
++        maxReconstructionDifference,
++      })
++    }
++    rows.push({ id, distance, steps, channels })
++  } finally {
++    state.release()
++  }
++}
++await writeFile(
++  `${root}/audit.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      points: rows.length,
++      rows,
++      scope:
++        'Saved own development streams and previously captured source DC only. Scalar reconstructed-luma chroma rounding model; no encoded candidate, new quality score, peer decisions or holdout access. Float32 source capture limits the model near rounding boundaries.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify(
++    rows.map((row) => ({
++      id: row.id,
++      distance: row.distance,
++      channels: row.channels.map((c) => ({
++        c: c.channel,
++        ratio: c.modeledRatio,
++        changed: c.changed,
++        maxBefore: c.maxBefore,
++        factor: c.factor,
++      })),
++    })),
++  ),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/verify-dc-chroma-proposal.ts b/benchmark/jpegxl/lossy-lab/verify-dc-chroma-proposal.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/verify-dc-chroma-proposal.ts
+@@ -0,0 +1,63 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { readFile, writeFile } from 'node:fs/promises'
++import { createHash } from 'node:crypto'
++import { libjxlDcCorrelationResidual } from './libjxl-dc-correlation-port.ts'
++const root = '.tmp/jpegxl-lossy-lab/dc-chroma-audit-20261103'
++let cases = 0
++for (const blue of [false, true])
++  for (const value of [-0.8, 0, 0.8])
++    for (const factor of [0, 0.5, 1]) {
++      const originalY = 1.125,
++        reconstructedY = 1
++      const residual = libjxlDcCorrelationResidual(value, originalY, reconstructedY, factor, blue)
++      assert.ok(
++        Math.abs(residual + reconstructedY * factor - (blue ? value + originalY : value)) < 1e-15,
++      )
++      cases++
++    }
++assert.equal(Math.round(libjxlDcCorrelationResidual(0.48, 1.125, 1, 1, true)), 1)
++assert.equal(Math.round(0.48), 0)
++assert.equal(Math.round(libjxlDcCorrelationResidual(-0.48, 0.875, 1, 1, true)), -1)
++cases += 3
++const revision = 'a7a9c787341cf703dede03c2009fa460cae5e5df',
++  source = []
++for (const file of ['lib/jxl/enc_modular.cc', 'LICENSE']) {
++  const bytes = await readFile(`.tmp/jpegxl-oracles/libjxl-v0.12.0/source/${file}`)
++  const archived = await promisify(execFile)(
++    'tar',
++    [
++      '-xOf',
++      '.tmp/jpegxl-oracles/libjxl-v0.12.0/source-a7a9c787.tar.gz',
++      `libjxl-${revision}/${file}`,
++    ],
++    { maxBuffer: 1024 * 1024 },
++  )
++  assert.equal(bytes.toString(), archived.stdout)
++  if (file === 'LICENSE')
++    assert.ok((await readFile('THIRD_PARTY_NOTICES', 'utf8')).includes(bytes.toString().trim()))
++  source.push({
++    file,
++    sha256: createHash('sha256').update(bytes).digest('hex'),
++    archiveExact: true,
++  })
++}
++await writeFile(
++  `${root}/checks.json`,
++  JSON.stringify(
++    {
++      passed: true,
++      cases,
++      revision,
++      source,
++      scope:
++        'Scalar residual helper and pinned source/license verification only. No encoder configuration or quality trial executed.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++console.log(
++  JSON.stringify({ passed: true, cases, sourceFiles: source.length, encoderExecuted: false }),
++)
+diff --git a/benchmark/jpegxl/lossy-lab/prepare-dc-chroma-proposal.ts b/benchmark/jpegxl/lossy-lab/prepare-dc-chroma-proposal.ts
+new file mode 100644
+--- /dev/null
++++ b/benchmark/jpegxl/lossy-lab/prepare-dc-chroma-proposal.ts
+@@ -0,0 +1,156 @@
++import assert from 'node:assert/strict'
++import { execFile } from 'node:child_process'
++import { promisify } from 'node:util'
++import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises'
++import { resolve, relative, dirname, basename } from 'node:path'
++import { createHash } from 'node:crypto'
++const root = resolve('.tmp/jpegxl-lossy-lab/dc-chroma-audit-20261103')
++const frozen = resolve('.tmp/jpegxl-lossy-lab/dc-wire-20261103/prototype')
++const lab = resolve('benchmark/jpegxl/lossy-lab'),
++  name = 'strategy-transplant.ts'
++const normalize = (code: string, from: string) =>
++  code.replace(/from (['"])([^'"]+)\1/gu, (all: string, quote: string, path: string) => {
++    if (!path.startsWith('.') && !path.startsWith('/')) return all
++    const full = resolve(from, path),
++      target =
++        dirname(full) === frozen ||
++        dirname(full) === root ||
++        dirname(full) === `${root}/proposal-source`
++          ? `${lab}/${basename(full)}`
++          : full
++    const local = relative(lab, target)
++    return `from ${quote}${local.startsWith('.') ? local : `./${local}`}${quote}`
++  })
++const original = await readFile(`${frozen}/${name}`, 'utf8')
++let candidate = original.replace(
++  /from (['"])(\.[^'"]+)\1/gu,
++  (_all: string, quote: string, path: string) => `from ${quote}${resolve(frozen, path)}${quote}`,
++)
++const replace = (before: string, after: string) => {
++  assert.ok(candidate.includes(before))
++  candidate = candidate.replace(before, after)
++}
++replace(
++  ' */\n',
++  " * Proposal: DC chroma subtraction uses reconstructed luma through its own port.\n */\nimport {libjxlDcCorrelationResidual} from './libjxl-dc-correlation-port.ts'\n",
++)
++replace(
++  '  const dc = memory.allocate(Float64Array, 64)',
++  '  const dc = memory.allocate(Float64Array, 64)\n  const originalYDc = memory.allocate(Float64Array, 64)',
++)
++replace(
++  '  const invGlobal = 65536 / (base.globalScale ?? 0)',
++  `  const invGlobal = 65536 / (base.globalScale ?? 0)
++  const dcYStep = (invGlobal * (dcMatrix[1] ?? 0)) / (base.quantDc ?? 0)
++  const dcY = base.dcComponents[0]?.coefficients
++  if (!dcY || !(dcYStep > 0)) throw new Error('Missing reconstructed DC luma')
++  const dcCorrelation = base.developmentCorrelation
++  const dcColorFactor = dcCorrelation?.colorFactor ?? 84
++  const dcXFactor = (dcCorrelation?.baseCorrelationX ?? 0) + (dcCorrelation?.yToXDc ?? 0) / dcColorFactor
++  const dcBFactor = (dcCorrelation?.baseCorrelationB ?? base.baseB ?? 0) + (dcCorrelation?.yToBDc ?? 0) / dcColorFactor`,
++)
++replace(
++  '          for (let c = 0; c < 3; c++) {\n            const plane = source[c]',
++  `          for (let order = 0; order < 3; order++) {
++            const c = order < 2 ? order ^ 1 : order
++            const plane = source[c]`,
++)
++replace(
++  '              developmentDcGrid(result, bw, bh, dc)',
++  '              developmentDcGrid(result, bw, bh, dc)\n              if (c === 1) for (let i = 0; i < bw * bh; i++) originalYDc[i] = dc[i] ?? 0',
++)
++replace(
++  `              for (let dy = 0; dy < bh; dy++)
++                for (let dx = 0; dx < bw; dx++)
++                  target[(oy + y + dy) * base.blocksWide + ox + x + dx] = Math.round(
++                    (dc[dy * bw + dx] ?? 0) / step,
++                  )`,
++  `              for (let dy = 0; dy < bh; dy++)
++                for (let dx = 0; dx < bw; dx++) {
++                  const local = dy * bw + dx
++                  const at = (oy + y + dy) * base.blocksWide + ox + x + dx
++                  const value = c === 1 ? (dc[local] ?? 0) : libjxlDcCorrelationResidual(
++                    dc[local] ?? 0, originalYDc[local] ?? 0,
++                    (dcY[at] ?? 0) * dcYStep, c === 0 ? dcXFactor : dcBFactor, c === 2,
++                  )
++                  target[at] = Math.round(value / step)
++                }`,
++)
++replace('...transformed, dc, thresholds', '...transformed, dc, originalYDc, thresholds')
++await mkdir(`${root}/proposal-source`, { recursive: true })
++await writeFile(`${root}/proposal-source/${name}`, candidate)
++const helper = await readFile(`${root}/libjxl-dc-correlation-port.ts`, 'utf8')
++await writeFile(`${root}/proposal-source/libjxl-dc-correlation-port.ts`, helper)
++const before = normalize(original, frozen),
++  after = normalize(candidate, `${root}/proposal-source`)
++await writeFile(`${root}/before.ts`, before)
++await writeFile(`${root}/after.ts`, after)
++let patch = ''
++try {
++  await promisify(execFile)('git', ['diff', '--no-index', `${root}/before.ts`, `${root}/after.ts`])
++} catch (error: unknown) {
++  if (
++    !(
++      error instanceof Error &&
++      'code' in error &&
++      error.code === 1 &&
++      'stdout' in error &&
++      typeof error.stdout === 'string'
++    )
++  )
++    throw error
++  const path = `benchmark/jpegxl/lossy-lab/${name}`
++  patch = error.stdout
++    .replace(/^diff --git .*$/mu, `diff --git a/${path} b/${path}`)
++    .replace(/^--- .*$/mu, `--- a/${path}`)
++    .replace(/^\+\+\+ .*$/mu, `+++ b/${path}`)
++}
++const helperPath = 'benchmark/jpegxl/lossy-lab/libjxl-dc-correlation-port.ts',
++  lines = helper.trimEnd().split('\n')
++patch += `diff --git a/${helperPath} b/${helperPath}\nnew file mode 100644\n--- /dev/null\n+++ b/${helperPath}\n@@ -0,0 +1,${lines.length} @@\n${lines.map((line) => `+${line}`).join('\n')}\n`
++patch = patch.replace(/^ $/gmu, '')
++const path = 'benchmark/jpegxl/lossy-lab/DC-CHROMA-PROPOSAL.patch'
++await writeFile(path, patch)
++const verify = `${root}/proposal-verify`
++await mkdir(`${verify}/benchmark/jpegxl/lossy-lab`, { recursive: true })
++await writeFile(`${verify}/benchmark/jpegxl/lossy-lab/${name}`, before)
++await unlink(`${verify}/${helperPath}`).catch((error: unknown) => {
++  if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw error
++})
++await promisify(execFile)('git', ['apply', '--directory', relative(process.cwd(), verify), path])
++assert.equal(await readFile(`${verify}/benchmark/jpegxl/lossy-lab/${name}`, 'utf8'), after)
++assert.equal(await readFile(`${verify}/${helperPath}`, 'utf8'), helper)
++await writeFile(
++  `${root}/proposal.json`,
++  JSON.stringify(
++    {
++      patch: path,
++      base: 'Frozen DC-WIRE-EXPERIMENT.patch, aligned AC 1.25 snapshot',
++      applies: true,
++      files: 2,
++      encoderExecuted: false,
++      scratchBytes: 512,
++      beforeSha256: createHash('sha256').update(before).digest('hex'),
++      afterSha256: createHash('sha256').update(after).digest('hex'),
++      scope:
++        'Quantize Y first and subtract reconstructed Y from chroma DC, restoring B from B-Y. Preserve allocation, nearest rounding, smoothing off, matrices, selector, AC and entropy policy. No candidate quality or timing result.',
++    },
++    null,
++    2,
++  ) + '\n',
++)
++await writeFile(
++  `${root}/tsconfig.json`,
++  JSON.stringify({
++    extends: '../../../tsconfig.json',
++    include: [
++      'audit.ts',
++      'prepare-proposal.ts',
++      'check.ts',
++      'libjxl-dc-correlation-port.ts',
++      'proposal-source/*.ts',
++    ],
++    exclude: [],
++  }) + '\n',
++)
++console.log(JSON.stringify({ files: 2, applies: true, encoderExecuted: false, scratchBytes: 512 }))

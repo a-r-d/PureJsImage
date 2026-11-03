@@ -1,0 +1,432 @@
+{
+  "date": "2026-11-03",
+  "branch": "jxl-libjxl-ports",
+  "base": "904e753e5e90bc8e90981476b832267b66e62f39",
+  "rawRoot": ".tmp/jpegxl-lossy-lab/dc-chroma-audit-20261103",
+  "scope": "Read-only chroma DC audit on saved own development streams and previously captured source planes. No new encoder configuration, perceptual score, bitrate measurement or holdout access.",
+  "audit": {
+    "passed": true,
+    "points": 9,
+    "rows": [
+      {
+        "id": "im26-2004",
+        "distance": 0.45,
+        "steps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 349.2687026633751,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 349.2687026633751,
+            "modelSquared": 349.2687026633751,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.49998452060439963,
+            "maxAfter": 0.49998452060439963,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 334.05660766762753,
+            "propagatedSquared": 37.785738361941604,
+            "crossTerm": -1.8540556460716213,
+            "actualSquared": 369.98829038349874,
+            "modelSquared": 333.08144769564194,
+            "modeledRatio": 0.9002486196263069,
+            "changed": 328,
+            "deltas": [177, 3768, 151],
+            "maxBefore": 0.6638134257310292,
+            "maxAfter": 0.4999927782384663,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 1.85,
+        "steps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 330.43860345392096,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 330.43860345392096,
+            "modelSquared": 330.43860345392096,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.4996003814946822,
+            "maxAfter": 0.4996003814946822,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 337.7428531585962,
+            "propagatedSquared": 38.37021309457165,
+            "crossTerm": 0.8833336124595642,
+            "actualSquared": 376.99639986562784,
+            "modelSquared": 338.6304439543061,
+            "modeledRatio": 0.8982325668759795,
+            "changed": 348,
+            "deltas": [168, 3748, 180],
+            "maxBefore": 0.6643217534662426,
+            "maxAfter": 0.4998980972254411,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-2004",
+        "distance": 7.5,
+        "steps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 326.3048497470457,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 326.3048497470457,
+            "modelSquared": 326.3048497470457,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.4995643293114727,
+            "maxAfter": 0.4995643293114727,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 395.2623979786137,
+            "propagatedSquared": 37.77664106761346,
+            "crossTerm": -2.123623056656872,
+            "actualSquared": 430.91541598957,
+            "modelSquared": 386.62951881669363,
+            "modeledRatio": 0.8972283294363544,
+            "changed": 402,
+            "deltas": [205, 3694, 197],
+            "maxBefore": 0.6484636519948014,
+            "maxAfter": 0.4999916272866127,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 0.45,
+        "steps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 346.19433410254766,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 346.19433410254766,
+            "modelSquared": 346.19433410254766,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.4998032018879922,
+            "maxAfter": 0.4998032018879922,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 344.3041432585496,
+            "propagatedSquared": 37.55557328563943,
+            "crossTerm": 1.9203105414803057,
+            "actualSquared": 383.78002708567055,
+            "modelSquared": 344.7845064594793,
+            "modeledRatio": 0.8983909586897644,
+            "changed": 361,
+            "deltas": [174, 3735, 187],
+            "maxBefore": 0.6605494698351073,
+            "maxAfter": 0.499949481541275,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 1.85,
+        "steps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 338.75523518930106,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 338.75523518930106,
+            "modelSquared": 338.75523518930106,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.49998199939727767,
+            "maxAfter": 0.49998199939727767,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 340.7483771424693,
+            "propagatedSquared": 37.468805922390885,
+            "crossTerm": -0.4755311498775592,
+            "actualSquared": 377.7416519149836,
+            "modelSquared": 340.5176587992754,
+            "modeledRatio": 0.9014564771266315,
+            "changed": 344,
+            "deltas": [158, 3752, 186],
+            "maxBefore": 0.658611835349023,
+            "maxAfter": 0.4999671858790575,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3012",
+        "distance": 7.5,
+        "steps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 340.877333287073,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 340.877333287073,
+            "modelSquared": 340.877333287073,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.4998808098122345,
+            "maxAfter": 0.4998808098122345,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 307.60458784105515,
+            "propagatedSquared": 36.90915728837004,
+            "crossTerm": 1.545159280890006,
+            "actualSquared": 346.05890441031505,
+            "modelSquared": 311.1377798831414,
+            "modeledRatio": 0.8990890739058447,
+            "changed": 316,
+            "deltas": [159, 3780, 157],
+            "maxBefore": 0.661348271204855,
+            "maxAfter": 0.4998624143213705,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 0.45,
+        "steps": [0.00007019660896645832, 0.0003741526542829475, 0.001123145743463333],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 120.7490938482535,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 120.7490938482535,
+            "modelSquared": 120.7490938482535,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.49990850070175363,
+            "maxAfter": 0.49990850070175363,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 403.9036806399045,
+            "propagatedSquared": 37.74470589861379,
+            "crossTerm": 1.8452151957211518,
+            "actualSquared": 443.49360173428084,
+            "modelSquared": 375.6322446335057,
+            "modeledRatio": 0.8469845859435098,
+            "changed": 530,
+            "deltas": [54, 3566, 476],
+            "maxBefore": 0.6442677065118787,
+            "maxAfter": 0.4999895907588458,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 1.85,
+        "steps": [0.00022691028773072746, 0.0012101882012305464, 0.0036305646036916394],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 181.9159194881823,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 181.9159194881823,
+            "modelSquared": 181.9159194881823,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.49818591481057256,
+            "maxAfter": 0.49818591481057256,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 420.05260690020964,
+            "propagatedSquared": 38.581833239797334,
+            "crossTerm": -2.8097578854797765,
+            "actualSquared": 455.8246822545199,
+            "modelSquared": 384.67551265349744,
+            "modeledRatio": 0.8439111079963529,
+            "changed": 548,
+            "deltas": [93, 3548, 455],
+            "maxBefore": 0.6594619453881398,
+            "maxAfter": 0.49993132950733676,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      },
+      {
+        "id": "im26-3312",
+        "distance": 7.5,
+        "steps": [0.0007248933094713656, 0.0038660976505139498, 0.01159829295154185],
+        "channels": [
+          {
+            "channel": 0,
+            "factor": 0,
+            "samples": 4096,
+            "residualSquared": 164.87251903171085,
+            "propagatedSquared": 0,
+            "crossTerm": 0,
+            "actualSquared": 164.87251903171085,
+            "modelSquared": 164.87251903171085,
+            "modeledRatio": 1,
+            "changed": 0,
+            "deltas": [0, 4096, 0],
+            "maxBefore": 0.49995500539106147,
+            "maxAfter": 0.49995500539106147,
+            "maxReconstructionDifference": 0
+          },
+          {
+            "channel": 2,
+            "factor": 1,
+            "samples": 4096,
+            "residualSquared": 612.828071694833,
+            "propagatedSquared": 37.87031855045246,
+            "crossTerm": -0.36146007523628304,
+            "actualSquared": 650.3369301700377,
+            "modelSquared": 568.5850978928387,
+            "modeledRatio": 0.8742931110250435,
+            "changed": 730,
+            "deltas": [438, 3366, 292],
+            "maxBefore": 0.6582110109716037,
+            "maxAfter": 0.49999249134761525,
+            "maxReconstructionDifference": 0
+          }
+        ]
+      }
+    ],
+    "scope": "Saved own development streams and previously captured source DC only. Scalar reconstructed-luma chroma rounding model; no encoded candidate, new quality score, peer decisions or holdout access. Float32 source capture limits the model near rounding boundaries."
+  },
+  "checks": {
+    "passed": true,
+    "cases": 21,
+    "revision": "a7a9c787341cf703dede03c2009fa460cae5e5df",
+    "source": [
+      {
+        "file": "lib/jxl/enc_modular.cc",
+        "sha256": "4bc466a0c7b2e65c03501eff1a81758d63a45568521a22ceb611cdbc67f0fb7a",
+        "archiveExact": true
+      },
+      {
+        "file": "LICENSE",
+        "sha256": "8405932022a556380c2d8c272eff154a923feb197233f348ce5f7334fb0a5ede",
+        "archiveExact": true
+      }
+    ],
+    "scope": "Scalar residual helper and pinned source/license verification only. No encoder configuration or quality trial executed."
+  },
+  "proposal": {
+    "patch": "benchmark/jpegxl/lossy-lab/DC-CHROMA-PROPOSAL.patch",
+    "base": "Frozen DC-WIRE-EXPERIMENT.patch, aligned AC 1.25 snapshot",
+    "applies": true,
+    "files": 2,
+    "encoderExecuted": false,
+    "scratchBytes": 512,
+    "beforeSha256": "9485b5ea2d0ed8416d74a804067bfc1e19ff8896b013f967b8c3b5a8d0252d62",
+    "afterSha256": "b4d24f349eb088d6bc1523482c4ffbc6e1a016b682f0ca45078bf00b603582ac",
+    "scope": "Quantize Y first and subtract reconstructed Y from chroma DC, restoring B from B-Y. Preserve allocation, nearest rounding, smoothing off, matrices, selector, AC and entropy policy. No candidate quality or timing result."
+  },
+  "archive": {
+    "patchPath": "benchmark/jpegxl/lossy-lab/DC-CHROMA-AUDIT.patch",
+    "applies": true,
+    "rows": [
+      {
+        "path": "benchmark/jpegxl/lossy-lab/audit-dc-chroma.ts",
+        "sha256": "b425aa0e86580f1c81c1782e5b63139799b0163195aa365dd5442f0a03ce342d"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/verify-dc-chroma-proposal.ts",
+        "sha256": "f1f7d9665e4804bfc414273c1e09f4105c077da0a7f5d33d017089fa7c1a6a3e"
+      },
+      {
+        "path": "benchmark/jpegxl/lossy-lab/prepare-dc-chroma-proposal.ts",
+        "sha256": "5a26dd03bc03e34b7faca22070d6f75f8acfe69e4494ec1e4f25b9701c1ec5fe"
+      }
+    ]
+  },
+  "validation": {
+    "strictTypeScript": "passed",
+    "repositoryCheck": {
+      "status": "passed",
+      "startedAt": "2026-11-03T23:46:46.806Z",
+      "endedAt": "2026-11-03T23:55:56.167Z",
+      "code": 0,
+      "signal": null
+    },
+    "activeSourceChanged": false
+  },
+  "qualityGain": null,
+  "speed": null,
+  "originalMemory": null,
+  "newConfigurations": 0,
+  "newHoldoutAttempts": 0,
+  "retained": 0,
+  "promoted": 0,
+  "decision": "Aaron approved one fixed reconstructed-luma chroma DC trial on aligned AC 1.25 after reviewing the proposal. Trial results belong to dc-chroma-20261103. This audit contains no candidate quality result.",
+  "limits": "The model reduces squared error on the DC grid and does not establish perceptual or bitrate improvement. It uses Float32 source captures. Prior nonlinear and smoothing trials changed additional policies and regressed. Every gate stays unchanged."
+}

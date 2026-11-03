@@ -1,19 +1,19 @@
 # JPEG XL lossy lab
 
-Step C research stays on jxl-libjxl-ports. Fixed DC alignment trial base ec3ecc99; active source and public encoder behavior stay unchanged.
-One approved configuration aligns DC quantization with the existing serialized F16 matrix on frozen AC 1.25. Smoothing stays off.
-Full development SSIM/3-norm/max: vips -7.395/-6.474/-7.402%, mean -7.090277%; jSquash -7.982/-1.927/+0.876%.
-Against AC 1.25: -0.024/-0.067/+0.165%; regularized +0.852/-1.908/-1.983%. The full-lab effect is small and mixed.
-Main -6.557/-11.832/-11.031%. Eight admitted SSIM guards pass, worst +4.597758%; zero full-band 3-norm comparisons.
-Isolated candidate/control ratios 1.044569/1.031273 pass the 1.101283 allowance. Crops pass at 2.318200x jSquash.
-13 MP 36.583s, 1.472700x jSquash, managed 59,210,879 bytes. 21 MP 58.464s, managed 91,262,401 bytes; jSquash aborts.
-Managed ceiling stays 137,514,476 bytes. Holdout vips -5.779/-4.492/-4.189%, mean -4.820067%; jSquash -6.278/+0.044/+1.487%.
-Two of ten admitted holdout SSIM guards still fail, worst +10.579530%; all coverage retained. Promotion rejected, no policy change follows.
-All 1,223 screen/full/holdout outputs validate natively. Twenty repeatable fixtures include exact alpha; three old-control hashes match.
-All 80 HF-global/AC sections and fourteen decision fields stay exact. Total screen bytes fall 0.006565%; only DC coding changes.
+Step C research stays on jxl-libjxl-ports. Chroma DC trial base 904e753e; active source and public encoder behavior stay unchanged.
+One approved reconstructed-luma chroma DC configuration is complete and rejected after its screen. Aligned AC 1.25 and nearest rounding stayed fixed.
+Screen SSIM/3-norm/max against aligned: +0.822/+0.043/+0.217%; vips -8.967/-6.813/-4.926%; jSquash -9.840/-2.559/+2.494%.
+All 80 outputs decode natively. Luma/X DC and AC sections stay exact; B changes in 25,068 cells. Bytes rise 0.092515%; SSIM worsens at 58/80 settings.
+No new full lab or holdout. Prior aligned full development: vips -7.395/-6.474/-7.402%; jSquash -7.982/-1.927/+0.876%.
+Prior aligned main: -6.557/-11.832/-11.031%. Eight admitted SSIM guards pass, worst +4.597758%; zero full-band 3-norm comparisons.
+Prior isolated candidate/control 1.044569/1.031273; crops 2.318200x jSquash. These are not speed results for the chroma trial.
+Prior 13 MP 36.583s, 1.472700x jSquash, managed 59,210,879 bytes. 21 MP 58.464s, managed 91,262,401 bytes; jSquash aborts.
+Managed ceiling stays 137,514,476 bytes. Prior holdout vips -5.779/-4.492/-4.189%, mean -4.820067%; jSquash -6.278/+0.044/+1.487%.
+Two of ten admitted holdout SSIM guards still fail, worst +10.579530%; all coverage retained. Branch is not ready to merge.
+Chroma screen managed peak 9,235,969 bytes; isolated speed and original memory unmeasured. No additional qualification follows rejection.
 Bundles remain 614,969/687,801 bytes; runtime dependencies zero. Peer forcing cleanup remains required before any merge.
-Current evidence: [DC alignment report](lossy-lab/DC-WIRE-REPORT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
-Next: development DC chroma error, predictor rounding with fixed allocation, fixed-tree clustering costs. No other quality configuration is authorized.
+Current evidence: [chroma trial report](lossy-lab/DC-CHROMA-REPORT.md). Fresh check passes 4,229 tests, three skips and browser build checks.
+Next hypotheses: predictor rounding at fixed allocation; fixed-tree clustering costs; display-filtered blue DC error. No further quality configuration is authorized.
 
 Reopened by Aaron on 2026-10-13. [Step 1 report](lossy-lab/TRANSPLANT-REPORT.md) is complete: all nine rows have 80 screen and 576 full-lab points, with no failures. No source heuristic is promoted; holdout stays closed.
 
@@ -2912,3 +2912,16 @@ Read-only emitted-DC regression check: nine saved development streams use luma D
 Development visual review: the three worst main max regressions are im26-3000 +18.811842%, im26-3004 +8.286729% and im26-2014 +4.832759%. Native-decoded nearby-byte pairs at 1.3/1.85, 0.65/0.9 and 0.65/0.9 have byte ratios 0.968339/0.956360/0.950647. Subtle grain and tonal differences are visible in dark texture, a vessel and blurred shoe/water. The views do not locate metric maxima or dismiss the regressions. No holdout images are viewed and no parameter changes follow.
 
 Pushed audit checkpoint 4171928f and trial checkpoint b12966c7 on the research branch. Final remote readback found main independently advanced from e534dec5 to 4a40c68f through two docs/test commits. There are no JPEG XL source or dependency changes in that delta. No merge or rebase is performed; all quality comparisons retain the frozen baseline. Research source and public behavior remain unchanged in this round.
+
+| LL-1115, 2026-11-03 | Decompose remaining chroma DC error using saved development streams. | Nine fixed development points: X factor 0 remains unchanged; B factor 1 propagates luma rounding. Subtracting reconstructed luma in a scalar model lowers B DC squared error by 9.85-15.61%, with 316-730 of 4,096 integers changing by at most one per point. Maximum B error falls from up to 0.664322 nominal steps to at most 0.5 in the model. | No encode, quality metric, entropy-cost or speed result. Proposed scratch is 512 bytes. | Prepare one fixed source-based proposal with current allocation and rounding. Twenty-one scalar checks, strict TypeScript, two source/license comparisons and exact two-file patch reconstruction pass. No holdout access or new quality configuration. Raw: dc-chroma-audit-20261103. | diagnostic; owner decision pending |
+
+Owner renewal, 2026-11-03: Aaron approved one fixed reconstructed-luma chroma DC trial. Keep aligned AC 1.25 allocation, nearest rounding, smoothing off and all AC decisions fixed, with 512 bytes of scratch. No sweep or peer maps, development selection only, unchanged quality/speed/memory/promotion gates, research branch only. The prior nonlinear DC allocation, extra precision and predictor changes are not restored.
+
+LL-1116 plan: apply the prepared residual helper and Y-first DC order as standalone-dc-chroma in a separate copy of the aligned mode. Run the fixed fixtures and development screen. Source headers and full license are verified. The repository audit check can overlap quality runs; all overlapping encode times are excluded, and isolated timing must wait for both to finish. No active source changes.
+
+
+| LL-1116, 2026-11-03 | Subtract reconstructed luma before nearest chroma DC rounding on aligned AC 1.25. | 80 native-valid screen outputs. Aligned +0.822/+0.043/+0.217%; regularized +2.027/-1.757/+1.543%; AC 1.25 +0.778/-0.043/+0.096%. Vips -8.967/-6.813/-4.926%; jSquash -9.840/-2.559/+2.494%. | Parallel timing excluded; managed peak 9,235,969 bytes. | Reject after screen: all three incremental means regress against aligned. No full lab, isolated speed, originals or holdout attempt. One configuration complete, zero retained/promoted. | rejected |
+
+Read-only attribution on all eighty paired screen streams: luma and X DC integers are exact; 25,068 blue integers change by at most one. All HF-global/AC sections, fourteen decision fields, serialized DC matrices and smoothing-off policy stay exact. Total bytes 2,848,180 to 2,850,815 (+0.092515%); the whole 2,635-byte increase is in LF-global/DC sections and 64/80 files grow. Same-distance SSIM worsens in 58/80, improves in 14 and is unchanged in eight, mean -0.098048 points. 3-norm improves in 51/80 with mean relative change -0.116346%; max improves in 38/80 with mean -0.010567%. These are not BD-rates. Lower scalar blue DC error did not predict the perceptual and coding tradeoff. No holdout data or new encode is used by this audit.
+
+Checkpoint validation: twenty repeatable native-valid fixtures include two exact-alpha cases; three pinned AC 1.25 control hashes and three promotion-denial checks pass. All eleven prototype hashes remain frozen. Nine experiment files, three trial audit/fixture scripts, three earlier proposal-audit scripts and the incremental two-file proposal reconstruct exactly. Strict TypeScript passes after explicit row typing in the read-only effect script. Fresh VITEST_MAX_WORKERS=4 npm run check passes 340 files and 4,229 tests, with one file and three tests skipped, ending 2026-11-03T23:55:56.167Z. Active source, tests, package metadata and lab TypeScript remain unchanged. One-trial renewal is exhausted; another quality configuration needs owner renewal under LOSSY_STEERING section 9.
